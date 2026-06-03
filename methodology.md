@@ -4,15 +4,16 @@ This document defines what good competitive intelligence looks like. The agent u
 
 ## Core principle: intelligence, not information
 
-Information is a collection of facts about a competitor. Intelligence is the subset of those facts that changes a decision. The job is to separate signal from noise. 
+Information is a collection of facts about a competitor. Intelligence is the subset of those facts that changes a decision. The job is to separate signal from noise.
 
-- A fact is NOISE if knowing it would not change how a reader sells, builds, prices, or positions or talks in comparison to the research subject.
-- A fact is SIGNAL if it would change one of those decisions. 
-- A fact is a SIGNAL if it would influence a target customer change their mind about the research subject.
+- A fact is NOISE if knowing it would not change how a reader sells, builds, prices, or positions in comparison to the research subject.
+- A fact is SIGNAL if it would change one of those decisions.
+- A fact is SIGNAL if it would influence a target customer to change their mind about the research subject.
 
 Example:
-- Noise: "Competitor offers unlimited email templates."
-- Signal: "Competitor offers unlimited templates, which they use to win price-sensitive SMB buyers. Against enterprise buyers who value governance, this is a weakness we can exploit."
+
+- Noise: “Competitor offers unlimited email templates.”
+- Signal: “Competitor offers unlimited templates, which they use to win price-sensitive SMB buyers. Against enterprise buyers who value governance, this is a weakness we can exploit.”
 
 Every finding must answer: so what? If there is no so-what, cut it or move it to context.
 
@@ -26,35 +27,69 @@ The full report is the evidence. The executive summary is the verdict. Lead with
 
 - Use real product names, real numbers, real quotes, real people, real dates.
 - Cite the source of every meaningful claim.
-- If specific evidence cannot be found, say "No specific evidence found" rather than writing generic filler.
+- If specific evidence cannot be found, say “No specific evidence found” rather than writing generic filler.
 - Never fabricate a data point that does not exist (e.g. earnings for a private company). State that it does not exist.
 - Flag when a number may be stale or when sources conflict.
 - When sources conflict, use the most reputable source.
 
+## Freshness is a dimension of trust
+
+Competitive intelligence decays. A figure that was true two quarters ago can actively mislead.
+
+- Treat the date of a source as part of its credibility, not an afterthought.
+- For any current-state claim (latest revenue, market share, who holds a role, current pricing, newest product), prefer the most recent verified figure. A recent reputable news source can override an older filing on current state.
+- When you cite a number, prefer ones you can tie to a specific period (e.g. “Q1 2026”), and reconcile to a single value when multiple periods appear.
+- If the most recent data you can verify is old enough that it may be stale, say so.
+
+## Keep fact, claim, estimate, and sentiment separate
+
+These are four different things and blurring them is the fastest way to lose a reader’s trust.
+
+- VERIFIED FACT: traceable to an audited filing, court document, contract, or reputable reporting. State plainly.
+- THE COMPANY’S OWN CLAIM: anything from their blog, PR, or marketing. Reliable for “what they say about themselves” and positioning, NOT for evaluative or market claims. Attribute it (“the company says…”).
+- ANALYST / MODELED ESTIMATE: market share, TAM, ARR estimates, analyst placements. Attribute to the firm and label as an estimate, never as a filed number.
+- SENTIMENT: what users say in reviews and forums. Always framed as sentiment, never as fact.
+
+Also distinguish audited revenue (public companies) from company-stated ARR or metrics (private, unaudited) — say which it is.
+
 ## Reading signals (what to interpret, not just report)
 
-- Hiring: what roles are they posting, and what does that reveal about where they are investing? Heavy engineering hiring signals product expansion. Enterprise/sales hiring signals a go-upmarket motion. Open JDs and get the insight about the strategy behind opening those roles.
+- Hiring: what roles are they posting, and what does that reveal about where they are investing? Heavy engineering hiring signals product expansion. Enterprise/sales hiring signals a go-upmarket motion. Read the open JDs for the strategy behind them.
 - Leadership changes: a new exec from a specific background signals a strategic direction.
 - Funding: the amount and the investors signal ambition and what the next 12 months fund.
+- Pricing and packaging changes: a move up-market, a new usage-based tier, or a price increase is a strategic signal, not just a number.
 - Conference presence and public talks: what they choose to say publicly signals their priorities and messaging bets.
-- Sentiment (Reddit, forums, review sites, communities): what users actually say, which is often the truth the company will not state. Mine for repeated complaints and repeated praise.
+- Product and engineering velocity (especially for technical and AI-first competitors): release cadence, changelogs, model cards, API/docs updates, status pages, and open-source activity. For these companies, shipping pace and what they ship are often a sharper signal than GTM moves — do not skip them.
+- Sentiment (structured review sites first — G2, Capterra, TrustRadius, Gartner Peer Insights — then forums and communities): what users actually say, which is often the truth the company will not state. Mine for repeated complaints and repeated praise.
 
 ## The battlecard standard
 
 Structure the battlecard in three zones:
+
 - WHERE THEY WIN: situations and buyer types where this competitor reliably beats alternatives. Be honest. A battlecard that pretends the competitor has no strengths is not trusted or used.
 - WHERE IT IS A FIGHT: contested situations that could go either way, and what tips them.
 - WHERE THEY ARE VULNERABLE: situations and buyer types where they are weak, with the specific reason.
 
-For each zone, include a usable soundbite, something a person could actually say in a conversation, not an abstract bullet.
+For each zone, include a usable soundbite — something a person could actually say in a conversation, not an abstract bullet.
 
 ## Objection handling
 
 Ground objections in the real weaknesses and complaints surfaced from sentiment and analysis, not invented ones. For each likely objection a prospect might raise citing this competitor, provide a specific, evidence-based response that pivots to a genuine strength.
 
+## What this methodology cannot see (be honest about it)
+
+This tool works from public sources. Some of the most valuable competitive intelligence is not public, and the brief should not pretend otherwise:
+
+- Win/loss data and real deal outcomes (the single highest-value CI input) are internal and unavailable here.
+- Actual discounting and negotiated pricing, as opposed to list pricing.
+- Private roadmap and unannounced product direction.
+
+When a question depends on one of these, say the evidence is not publicly available rather than inferring it. Naming the limit is more credible than guessing past it.
+
 ## What to avoid
 
 - Feature lists with no so-what.
-- Generic characterizations ("strong product", "good for enterprises") with no specifics.
-- Propaganda that hides the competitor's real strengths.
+- Generic characterizations (“strong product”, “good for enterprises”) with no specifics.
+- Propaganda that hides the competitor’s real strengths.
+- Stating a company’s marketing claim or an analyst estimate as if it were audited fact.
 - Burying the conclusion under comprehensive detail. Distill.
