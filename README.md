@@ -84,7 +84,7 @@ The trade-off is deliberate — more tokens per run for accuracy and actionabili
 
 ## Known limitations (read this before trusting it)
 
-- **It’s a pipeline, not an agent ... YET** The control flow is fixed and written by me: generate → verify → render, the same two calls in the same order every time. A real agent decides for itself which tools to call, in what order, and when it’s done. That’s [v2](#roadmap). 
+- **It’s a pipeline in v1, and a study for an agent precursor** The control flow is fixed and written by me: generate → verify → render, the same two calls in the same order every time. A real agent decides for itself which tools to call, in what order, and when it’s done. That’s [v2](#roadmap). 
 - **Public sources only.** The highest-value CI — win/loss data, negotiated pricing, private roadmap — isn’t public. Scout names that gap instead of guessing past it.
 - **Verification reduces error; it doesn’t eliminate it.** A confidently-wrong reputable source can still slip through. The Cut Log shows the work so you can judge.
 - **Generated briefs are strong but not infallible.** The two-pass verification cuts most errors and reconciles contradictions, but a model’s judgment caps below 100% — so published samples get a human editorial pass before they ship. Knowing where to trust the model and where to keep a human in the loop is the design philosophy, not a footnote.
@@ -108,8 +108,8 @@ Python 3.12 · [Streamlit](https://streamlit.io) · [Anthropic Claude API](https
 ## Run it locally
 
 ```bash
-git clone https://github.com/uroshp/ci-agent.git
-cd ci-agent
+git clone https://github.com/uroshp/scout-ci.git
+cd scout-ci
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env          # then add your Anthropic API key
@@ -126,7 +126,7 @@ streamlit run app.py
 ## Repo structure
 
 ```
-ci-agent/
+scout-ci/
 ├── app.py                 # Streamlit UI: tabs, password gate, cut-log expander, deterministic cleanup
 ├── research.py            # Engine: generate_brief → verify_brief → save_report
 ├── methodology.md         # The CI discipline the model is held to (editable, not buried in code)
@@ -140,7 +140,7 @@ ci-agent/
 
 I’m a product marketing leader with a computer-science background, and I think GTM people should be able to *build* the tools they imagine, not just spec them and wait. Scout is competitive intelligence the way I always wanted it — verdicts over volume, and honest about what it doesn’t know. It’s also a deliberate study in the question every team is now asking: where do you let a model decide, and where do you constrain it in code? v1 is my answer for a tool. v2 is my answer for an agent.
 
-— [LinkedIn](https://www.linkedin.com/in/your-handle)
+— [LinkedIn](https://www.linkedin.com/in/urospajic)
 
 ## License
 
