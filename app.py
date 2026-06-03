@@ -6,7 +6,7 @@ import streamlit as st
 
 from research import generate_brief, verify_brief, save_report
 
-APP_NAME = "AgentSmart"
+APP_NAME = "Agent Scout"
 REPORTS_DIR = "reports"
 DAILY_RUN_LIMIT = 15
 
