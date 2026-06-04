@@ -22,7 +22,14 @@ FAST_MODEL = os.environ.get("FAST_MODEL", "claude-sonnet-4-6")
 # Hard caps so an agent that can loop can't burn money. The SDK enforces both
 # natively (ClaudeAgentOptions.max_turns / max_budget_usd).
 MAX_TURNS = int(os.environ.get("SCOUT_MAX_TURNS", "40"))
+# Per-query ceiling. Fine for a monitoring check (~$1-1.9). NOT enough for a full
+# generation: the orchestrator runs the researcher + verifier subagents INLINE in
+# one query, so this cap must cover the whole two-pass brief (measured ~$5.77) —
+# hence GEN_MAX_BUDGET_USD below. This default governs monitoring.
 MAX_BUDGET_USD = float(os.environ.get("SCOUT_MAX_BUDGET_USD", "3.0"))
+# Generation's own ceiling (orchestrator + both subagents, one query). Expected
+# spend ~$6; this is only a runaway backstop, not a target.
+GEN_MAX_BUDGET_USD = float(os.environ.get("SCOUT_GEN_MAX_BUDGET_USD", "10.0"))
 
 # --- Grounding (claim-object.md §4) -------------------------------------------
 # Provisional fuzzy threshold (0..1) — to be TUNED from real fetched pages at the
