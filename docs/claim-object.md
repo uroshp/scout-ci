@@ -73,6 +73,7 @@ One battlecard's state of record is `claims.json`: a JSON array of claim objects
 | `confidence` | enum | yes | `high` \| `medium` \| `low`. The verifier's confidence in support, independent of grounding. |
 | `grounding` | object | yes | Result of the deterministic grounding check (§4). |
 | `corroboration` | array | optional | Secondary sources that confirm the same value. **Never grounded** — each entry carries no excerpt and `grounded` is always `false`. Preserves reconciliation nuance; the single `evidence_excerpt`/`source_url` stays the only proven anchor. See §2.1. |
+| `anchor_substitution` | object | optional | Present only when the grounded anchor was substituted for a *blocked* higher-tier source. Records the preferred (unreadable) source and an `agreement_verified` flag that **must be true**. See §2.2. |
 
 ### `grounding` sub-object
 
@@ -92,6 +93,16 @@ v1 frequently reconciled a value across several sources ("audited 8-K $128.7B; $
 - **Corroboration entries are never grounded.** Each has **no `evidence_excerpt`** (schema-forbidden) and **`grounded: false`** (a `const`, so a fabricated "verified" flag can't be smuggled in). They name a source and a `note` describing what it independently confirms — nothing more.
 - **Render rule.** Corroboration is **not** rendered as a body source link, because an identical-looking link would imply it passed grounding. If surfaced at all (audit view, expandable detail), it must sit under an explicit label such as *"Corroborating sources (not independently grounded)"*, visually distinct from the anchor link. The body's single inline source is always the grounded anchor.
 - **What it is for:** trust/audit ("cross-checked against B and C") and monitoring (when an anchored value changes, the prior corroborators are useful context). It is never a substitute for grounding, and a claim with only corroboration and no valid anchor is **cut**, exactly as if it had no source at all.
+
+### 2.2 `anchor_substitution` — fetch-weakness only, never a support shortcut
+
+Reachability probing (build step 5) showed ~25–32% of cited sources are bot-blocked or paywalled to an independent fetcher — including reputable, groundable sources (Wikipedia, SEC, OpenAI). When the *best* source for a claim can't be fetched, the verifier may ground a **fetchable reputable source** as the anchor and record the blocked higher-tier source in `corroboration`. But substitution covers **fetch weakness, not support judgment** — and the guard is strict:
+
+- **The verifier must still make the support call on the preferred source.** It reads BOTH (its own `WebFetch` is fine here — the verifier's job *is* judgment), and may substitute **only if it judged them to AGREE**.
+- **Conflict → never substitute.** If the fetchable source and the blocked primary disagree, the verifier must resolve it (revise per the hierarchy/recency rules, or cut) and log it in the Cut Log. A fetch failure on the primary must **never** silently let a conflicting secondary through as if grounded.
+- **Recorded for audit.** A substitution sets `anchor_substitution = {preferred_url, preferred_tier, agreement_verified: true, note}`, and the preferred source also appears in `corroboration`. `agreement_verified` is a `const true`: the object's mere existence asserts a verified agreement. Grounding flags every substituted claim (`substituted: true`) in its instrumentation so substitutions can be eyeballed at #7 — we have both URLs, so the verifier's agreement call is checkable, not just asserted.
+
+This is honest about tiers: the *proven* source becomes the fetchable one (often Tier 2), while the un-fetchable Tier 1A source is preserved as named-but-ungrounded corroboration — never presented as if it passed the check.
 
 ### Formal JSON Schema (Draft 2020-12)
 
@@ -142,6 +153,17 @@ v1 frequently reconciled a value across several sources ("audited 8-K $128.7B; $
           "note": { "type": "string", "minLength": 1 },
           "grounded": { "const": false }
         }
+      }
+    },
+    "anchor_substitution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["preferred_url","preferred_tier","agreement_verified","note"],
+      "properties": {
+        "preferred_url": { "type": "string", "format": "uri" },
+        "preferred_tier": { "enum": ["primary","reputable_secondary","sentiment_only"] },
+        "agreement_verified": { "const": true },
+        "note": { "type": "string", "minLength": 1 }
       }
     }
   },
