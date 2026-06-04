@@ -24,6 +24,16 @@ FAST_MODEL = os.environ.get("FAST_MODEL", "claude-sonnet-4-6")
 MAX_TURNS = int(os.environ.get("SCOUT_MAX_TURNS", "40"))
 MAX_BUDGET_USD = float(os.environ.get("SCOUT_MAX_BUDGET_USD", "3.0"))
 
+# --- Grounding (claim-object.md §4) -------------------------------------------
+# Provisional fuzzy threshold (0..1) — to be TUNED from real fetched pages at the
+# #7 measurement step, watching the 0.80-0.92 band for true claims being cut.
+GROUNDING_FUZZY_THRESHOLD = float(os.environ.get("SCOUT_GROUNDING_FUZZY", "0.92"))
+GROUNDING_TIMEOUT_S = float(os.environ.get("SCOUT_GROUNDING_TIMEOUT_S", "20"))
+# Contact string for the grounding fetcher's descriptive User-Agent. SEC's
+# fair-access policy 403s requests without a declared contact, so a real one is
+# needed to ground filings. Defaults to the repo author's email; override in .env.
+GROUNDING_CONTACT = os.environ.get("SCOUT_GROUNDING_CONTACT", "urospajic@gmail.com")
+
 
 def require_api_key() -> str:
     """Return the Anthropic API key or raise with a clear message.

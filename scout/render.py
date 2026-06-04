@@ -156,7 +156,8 @@ def claims_to_markdown(claims, title, my_company=None, competitor=None):
 
 
 def render_cut_log(entries):
-    """entries: list of {action: 'CUT'|'REVISED', claim: str, reason: str}."""
+    """entries: list of {action, claim, reason} dicts — but models sometimes emit
+    plain strings or omit keys, so render defensively rather than crash."""
     lines = ["## Cut Log", "",
              "This is what verification removed or corrected during fact-checking, and why."]
     if not entries:
@@ -164,6 +165,12 @@ def render_cut_log(entries):
                      "verified cleanly against a reliable source.")
     else:
         for e in entries:
-            action = str(e.get("action", "")).upper()
-            lines.append(f"- **{action} — {e['claim'].strip()}:** {e['reason'].strip()}")
+            if isinstance(e, dict):
+                action = str(e.get("action", "")).upper().strip()
+                claim = str(e.get("claim", "")).strip()
+                reason = str(e.get("reason", "")).strip()
+                prefix = f"**{action} — {claim}:** " if (action or claim) else ""
+                lines.append(f"- {prefix}{reason}".rstrip())
+            else:
+                lines.append(f"- {str(e).strip()}")
     return "\n".join(lines)

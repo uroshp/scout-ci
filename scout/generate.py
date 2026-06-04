@@ -1,0 +1,536 @@
+"""Generation (v2 build step 6): brief -> tracked battlecard, via the Agent SDK.
+
+Architecture (v2-agent-spec.md §5, and the approved decomposition):
+  orchestrator (Opus) plans, delegates, synthesizes, runs the consistency sweep,
+  and emits structured claim objects + a cut log. Two subagents (Sonnet) do legwork:
+    - researcher: WebSearch + WebFetch, gathers candidate findings per section.
+    - verifier:   WebSearch + WebFetch, re-checks each claim by reading the source,
+                  applies the source hierarchy, and emits claim objects + cut entries.
+
+The SDK runs that loop; THEN deterministic code takes over (the control line):
+  derive ids -> validate -> GROUND each claim (independent fetch) -> render -> store.
+Grounding, ids, rendering, and the store are code, never agent tools.
+
+This module is the headless-worker path (SDK). v1's in-app generation stays on the
+Messages-API path in research.py — the two are intentionally separate.
+
+CLI:  python -m scout.generate "<competitor>" ["<your company>"] ["<focus>"]
+"""
+import asyncio
+import json
+import os
+import re
+import sys
+
+from claude_agent_sdk import AgentDefinition, ClaudeAgentOptions, query
+
+from scout import config
+from scout.prompts import SOURCE_HIERARCHY, load_methodology
+from scout.schema import (
+    SECTIONS, ZONES, claim_id, pregrounding_errors, validation_errors,
+)
+from scout.grounding import ground_claims, _fetch_response, _extract_text
+from scout.fetch_tool import (
+    FETCH_SERVER, FETCH_TOOL_NAME, FETCH_LOG, reset_log, BLUNT_CAP,
+)
+from scout.render import claims_to_markdown, render_cut_log, clean_output, format_report
+from scout.store import make_slug, new_meta, write_baseline
+
+# How much of a failed page's REAL (httpx) text to hand the retry agent to re-extract
+# a verbatim span from. Bounds tokens; a supporting span beyond this -> the claim drops.
+RETRY_PAGE_CHARS = 18000
+
+# --- Subagents ----------------------------------------------------------------
+RESEARCHER = AgentDefinition(
+    description="Researches a company by searching and READING sources.",
+    prompt=(
+        "You are a competitive-intelligence researcher. Use WebSearch to find recent, "
+        "reputable sources and the fetch_page tool to READ them (pass query = the specific "
+        "thing you're looking for). fetch_page returns the REAL page text, so copy a short "
+        "VERBATIM span from it that supports each finding, and report the exact URL you read. "
+        "Do NOT use any other web-fetch tool. Prefer sources a plain HTTP client can fetch "
+        "(news, company sites, IR pages) over hard-paywalled or bot-walled ones. Return "
+        "concise, sourced findings — not prose."
+    ),
+    tools=["WebSearch", FETCH_TOOL_NAME],
+    model=config.SUBAGENT_MODEL,
+)
+
+VERIFIER = AgentDefinition(
+    description="Independently re-verifies each claim by reading its source.",
+    prompt=(
+        "You are the verification layer. For each candidate claim, independently re-search "
+        "and use fetch_page to READ the source (pass query = the claim's key fact). fetch_page "
+        "returns the REAL page text. Judge whether it genuinely SUPPORTS the claim against the "
+        "source hierarchy, and keep only what is verifiable, specific, and decision-relevant. "
+        "Copy the exact VERBATIM span (from fetch_page's output) backing each kept claim. Record "
+        "every cut or revision. Do NOT use any other web-fetch tool. Your support judgment is "
+        "separate from the later mechanical grounding check — do your job even though grounding "
+        "will re-check the excerpt."
+    ),
+    tools=["WebSearch", FETCH_TOOL_NAME],
+    model=config.SUBAGENT_MODEL,
+)
+
+# --- The claim contract the orchestrator must emit ----------------------------
+SUBJECT_KEY_GUIDE = f"""SUBJECT_KEY (stable identity — read carefully, monitoring depends on it):
+Every claim has a `subject_key`: a canonical, value-INDEPENDENT description of WHAT THE
+CLAIM IS ABOUT, in the form `entity | attribute | qualifier`. It must be reproducible:
+the same fact must get the same subject_key on every run, so a later run can update it.
+
+- Use this controlled attribute vocabulary where it fits (extend only when needed, in the
+  same lowercase-hyphen style): fy-revenue, q-revenue, revenue-run-rate, net-income,
+  operating-income, valuation, funding-total, latest-funding-round, market-share, headcount,
+  ceo, cto, key-hire, key-departure, flagship-model, flagship-product, list-price,
+  pricing-model, launch, partnership, acquisition, security-incident, legal-action,
+  positioning, differentiator, integration, certification.
+- Qualifier decides update-vs-new: use `current`/`latest` for the present holder of a role,
+  price, or flagship (so a change UPDATES in place — e.g. `aws | ceo | current`). Use a fixed
+  period only when a new period is genuinely a new fact (e.g. `aws | fy-revenue | 2025`).
+- NEVER put the value in the subject_key: `aws | fy-revenue | 2025`, never `...| 128.7b`.
+- subject_key must be UNIQUE within this brief — it is the dedup key. Two different claims
+  must never share one. If a subject belongs in two sections, it is ONE claim, rendered once.
+"""
+
+CLAIM_CONTRACT = f"""Emit each claim as a JSON object with EXACTLY these fields (no others):
+- "subject_key": see the SUBJECT_KEY guide.
+- "claim": the claim as it should read in the brief, including its current value/number.
+- "claim_type": one of "fact" | "interpretation" | "sentiment". A "fact" may NOT rest on a
+  sentiment-only source.
+- "section": one of {SECTIONS}.
+- "zone": for section "battlecard" ONLY, one of {ZONES}; for every other section, null.
+- "order": integer >= 0, the sort order within its section (and zone), most important first.
+- "source_url": the SINGLE load-bearing source for this claim (one source per claim).
+- "source_tier": "primary" (filings/transcripts/contracts) | "reputable_secondary"
+  (reputable news / analyst-estimate, labeled) | "sentiment_only" (reviews/forums).
+- "evidence_excerpt": a VERBATIM span (>= 40 characters) copied CHARACTER-FOR-CHARACTER from
+  the page at source_url — the span that backs the claim. This is non-negotiable: a
+  deterministic check will RE-FETCH source_url and require this excerpt to literally appear on
+  the page. If you paraphrase, tighten, or stitch it, the claim WILL BE CUT. Copy, do not write.
+- "as_of": the date the fact is true as-of / the source's date, "YYYY-MM-DD" (required for facts).
+- "confidence": "high" | "medium" | "low".
+- "corroboration" (optional): a list of secondary sources confirming the SAME value, each
+  {{"source_url","source_tier","note","grounded":false}}. Never grounded; never the anchor.
+- "anchor_substitution" (optional): include ONLY if the best (higher-tier) source is unfetchable
+  by a plain HTTP client (hard paywall, Cloudflare, SEC.gov direct) AND you read both it and a
+  fetchable agreeing source. Then make the FETCHABLE source the anchor (source_url/excerpt),
+  put the unfetchable one in corroboration, and set
+  {{"preferred_url","preferred_tier","agreement_verified":true,"note"}}.
+  GUARD: substitution is for FETCH WEAKNESS ONLY. If the two sources CONFLICT, do NOT
+  substitute — revise per the hierarchy/recency rules or cut, and log it in the cut log.
+
+Do NOT include "id", "verified", or "grounding" — those are filled deterministically downstream.
+
+GROUNDABILITY: prefer source_url values a plain HTTP client can read. Avoid anchoring on
+SEC.gov directly (it blocks datacenter IPs), hard paywalls, or Cloudflare-walled pages; use a
+fetchable reputable source as the anchor and keep the stronger one as corroboration.
+
+EXECUTIVE SUMMARY claims: the "claim" text must read as a bolded verdict, then the supporting
+detail, then a "**So what:**" line giving the concrete implication. Every exec-summary claim
+needs its "So what:". A finding with no decision attached is noise.
+"""
+
+
+def _framing(target, perspective, focus):
+    foc = f" Focus specifically on: {focus}." if focus else ""
+    if perspective:
+        title = f"# Competitive Intelligence Brief: {perspective} vs {target}"
+        return (
+            f"You are a competitive-intelligence analyst working for {perspective}, "
+            f"researching {target} so {perspective} can compete against it.{foc} The brief is "
+            f"RELATIVE: the battlecard zones and objection handling are framed from "
+            f"{perspective}'s perspective. Research BOTH companies on real evidence; be honest "
+            f"in both directions — do not assume {perspective} is superior.",
+            title,
+        )
+    title = f"# Competitive Intelligence Brief: {target}"
+    return (
+        f"You are a competitive-intelligence analyst researching {target} to produce a "
+        f"specific, evidence-grounded competitive intelligence brief.{foc}",
+        title,
+    )
+
+
+def _orch_system():
+    """STATIC orchestrator instructions -> the system prompt, so they're prompt-CACHED
+    across the run's turns and across runs (free lever N), not re-billed every turn.
+    Only the dynamic framing/title lives in the per-run user prompt."""
+    return f"""You are a competitive-intelligence analyst. You research a competitor and emit an
+evidence-grounded brief as structured claim objects plus a cut log.
+
+Follow this methodology exactly:
+
+<methodology>
+{load_methodology()}
+</methodology>
+
+{SOURCE_HIERARCHY}
+
+{SUBJECT_KEY_GUIDE}
+
+{CLAIM_CONTRACT}
+
+PROCESS: Plan the brief. Delegate research to your 'researcher' subagent and verification to your
+'verifier' subagent. DISPATCH THE SECTION RESEARCHERS AS A SINGLE PARALLEL BATCH — issue multiple
+Agent calls in ONE step (one per section: {SECTIONS}) rather than one at a time — then verify and
+synthesize. Run a final consistency sweep: the same entity/product/version named identically
+everywhere; one value per metric; every surviving claim carries a real source link; nothing in
+the cut log is also asserted as fact.
+
+OUTPUT: Your FINAL message must be a single fenced ```json code block and NOTHING else:
+{{
+  "title": "<use EXACTLY the title given in the user message>",
+  "claims": [ {{ ...claim objects per the contract... }} ],
+  "cut_log": [ {{ "action": "CUT" | "REVISED", "claim": "<short statement>", "reason": "<why>" }} ]
+}}
+Fewer, solid, sharp, ranked claims beat many weak ones. Every claim must be groundable."""
+
+
+def _build_user_prompt(target, perspective, focus):
+    framing, title = _framing(target, perspective, focus)
+    return f"""{framing}
+
+Produce the competitive intelligence brief now, per your system instructions.
+Use EXACTLY this title in the output JSON:
+{title}"""
+
+
+RETRY_CONTRACT = """You are REPAIRING claims that failed an independent grounding check (a
+deterministic re-fetch of source_url that requires evidence_excerpt to appear verbatim on the
+page). For each item below, do ONE of: repair it, or drop it. Two failure modes:
+
+- status "absent": your previous excerpt was NOT found verbatim on the page. A `page_text`
+  field gives the ACTUAL text of that page as an INDEPENDENT fetcher sees it. Copy a NEW
+  evidence_excerpt VERBATIM from `page_text`, character-for-character, that genuinely supports
+  the claim. Do NOT copy from memory — only from `page_text`. If `page_text` contains no span
+  that supports the claim, DROP the claim.
+
+- status "unreachable": an independent HTTP client could not fetch source_url (it is bot-walled
+  or IP-blocked to the grounding fetcher). Use WebSearch + fetch_page to find a DIFFERENT
+  reputable source that (a) a plain HTTP client can fetch and (b) you VERIFY agrees with the
+  claim. Make it the new source_url with a verbatim excerpt; put the original source in
+  `corroboration`; set `anchor_substitution` with `agreement_verified: true`.
+  If you cannot find a fetchable AGREEING source, or the sources conflict, DROP the claim — do
+  not substitute a conflicting source.
+
+Keep each repaired claim's subject_key, section, zone, order, claim_type unchanged. Emit full
+claim objects per the original contract (NO "id", "verified", or "grounding" fields).
+
+OUTPUT: your final message must be a single fenced ```json block and nothing else:
+{
+  "revised": [ { ...full claim object... } ],
+  "dropped": [ { "action": "CUT", "claim": "<short statement>", "reason": "<why it could not be repaired>" } ]
+}"""
+
+
+def _build_retry_payload(failed):
+    """For each failed claim, attach the REAL page text (for 'absent') so the agent
+    re-extracts from the exact bytes grounding will re-check. Deterministic; no model."""
+    items = []
+    for f in failed:
+        c = f["claim"]
+        entry = {
+            "subject_key": c.get("subject_key"), "claim": c.get("claim"),
+            "claim_type": c.get("claim_type"), "section": c.get("section"),
+            "zone": c.get("zone"), "order": c.get("order"),
+            "source_url": c.get("source_url"), "status": f["status"],
+        }
+        if f["status"] == "absent":
+            try:
+                resp = _fetch_response(c["source_url"])
+                text, _ = _extract_text(resp)
+                # collapse whitespace but PRESERVE case, so the agent copies a
+                # natural-cased span (grounding normalizes both sides at check time).
+                entry["page_text"] = re.sub(r"\s+", " ", text).strip()[:RETRY_PAGE_CHARS]
+            except Exception:
+                entry["page_text"] = None  # unfetchable now -> agent should drop
+        items.append(entry)
+    return items
+
+
+async def _run_retry(payload):
+    options = ClaudeAgentOptions(
+        model=config.SUBAGENT_MODEL,            # mechanical repair — Sonnet
+        # Free lever N: the static repair contract goes in the (cached) system prompt.
+        system_prompt={"type": "preset", "preset": "claude_code", "append": RETRY_CONTRACT},
+        mcp_servers={"scoutfetch": FETCH_SERVER},
+        allowed_tools=["WebSearch", FETCH_TOOL_NAME],  # re-source 'unreachable' claims via real fetch
+        disallowed_tools=["WebFetch"],
+        permission_mode="bypassPermissions",
+        max_turns=config.MAX_TURNS,
+        max_budget_usd=config.MAX_BUDGET_USD,
+    )
+    user = "ITEMS TO REPAIR:\n" + json.dumps(payload, ensure_ascii=False)
+    return await _drive(user, options, "retry-agent")
+
+
+def _extract_json(text: str) -> dict:
+    """Pull the final JSON object out of the orchestrator's last message. Robust to
+    fenced (```json) output, nested braces, and prose around it."""
+    # Capture each fenced block's CONTENTS (non-greedy on the FENCE, not the braces),
+    # last-first, and return the first that parses as a JSON object.
+    for block in reversed(re.findall(r"```(?:json)?\s*(.*?)```", text, re.DOTALL)):
+        block = block.strip()
+        if block.startswith("{"):
+            try:
+                return json.loads(block)
+            except json.JSONDecodeError:
+                pass
+    # Fallback: the widest brace span in the text.
+    start, end = text.find("{"), text.rfind("}")
+    if start != -1 and end > start:
+        return json.loads(text[start:end + 1])
+    raise ValueError("no JSON object found in orchestrator output")
+
+
+def _u(usage, key):
+    if usage is None:
+        return 0
+    if isinstance(usage, dict):
+        return usage.get(key, 0) or 0
+    return getattr(usage, key, 0) or 0
+
+
+async def _drive(prompt: str, options, top_role: str) -> dict:
+    """Run a query loop and capture per-agent token usage (orchestrator vs each
+    subagent), cache hits, cost, and wall/api time — the Phase-1 instrumentation."""
+    by_role, agent_names = {}, {}
+    final_text, last_text, result = None, "", None
+
+    def bump(role, usage):
+        d = by_role.setdefault(role, {"input": 0, "output": 0, "cache_read": 0,
+                                      "cache_creation": 0, "messages": 0})
+        d["input"] += _u(usage, "input_tokens")
+        d["output"] += _u(usage, "output_tokens")
+        d["cache_read"] += _u(usage, "cache_read_input_tokens")
+        d["cache_creation"] += _u(usage, "cache_creation_input_tokens")
+        d["messages"] += 1
+
+    async for message in query(prompt=prompt, options=options):
+        kind = type(message).__name__
+        if kind == "AssistantMessage":
+            parent = getattr(message, "parent_tool_use_id", None)
+            role = top_role if parent is None else agent_names.get(parent, "subagent")
+            bump(role, getattr(message, "usage", None))
+            for b in getattr(message, "content", []) or []:
+                bk = type(b).__name__
+                if bk == "ToolUseBlock" and getattr(b, "name", "") == "Agent":
+                    inp = getattr(b, "input", {}) or {}
+                    agent_names[getattr(b, "id", "")] = inp.get("subagent_type") or "subagent"
+                elif bk == "TextBlock":
+                    last_text = getattr(b, "text", "") or last_text
+        elif kind == "ResultMessage":
+            result = message
+            final_text = getattr(message, "result", None)
+
+    return {
+        "text": final_text or last_text,
+        "cost_usd": getattr(result, "total_cost_usd", None),
+        "duration_ms": getattr(result, "duration_ms", None),
+        "duration_api_ms": getattr(result, "duration_api_ms", None),
+        "num_turns": getattr(result, "num_turns", None),
+        "by_role": by_role,
+        "model_usage": getattr(result, "model_usage", None),
+    }
+
+
+async def _run_orchestrator(target, perspective, focus) -> dict:
+    options = ClaudeAgentOptions(
+        model=config.ORCHESTRATOR_MODEL,                  # Opus orchestrator
+        # Free lever N: static instructions in the (cached) system prompt, appended
+        # to the default preset; only the dynamic framing goes in the user prompt.
+        system_prompt={"type": "preset", "preset": "claude_code", "append": _orch_system()},
+        agents={"researcher": RESEARCHER, "verifier": VERIFIER},
+        mcp_servers={"scoutfetch": FETCH_SERVER},        # our httpx fetch tool, replaces WebFetch
+        allowed_tools=["Agent", "WebSearch", FETCH_TOOL_NAME],
+        disallowed_tools=["WebFetch"],                    # no model-mediated fetch anywhere
+        permission_mode="bypassPermissions",
+        max_turns=config.MAX_TURNS,
+        max_budget_usd=config.MAX_BUDGET_USD,
+    )
+    return await _drive(_build_user_prompt(target, perspective, focus), options, "orchestrator")
+
+
+def _coverage_report(results, fetch_log):
+    """The coverage read: did keyword-windowing surface facts a blunt first-N-chars
+    cap would have missed, and how often did windowing fall back to the page head?"""
+    grounded_sub = [r for r in results
+                    if r.get("status") == "grounded" and r.get("excerpt_offset") is not None]
+    beyond = [r for r in grounded_sub if (r["excerpt_offset"] or 0) > BLUNT_CAP]
+    fetches = [f for f in fetch_log if "error" not in f]
+    return {
+        "blunt_cap_chars": BLUNT_CAP,
+        "grounded_substring_claims": len(grounded_sub),
+        # supporting fact sat DEEPER than a blunt cap -> windowing captured it, blunt would miss
+        "facts_beyond_blunt_cap": len(beyond),
+        "deepest_grounded_offset": max((r["excerpt_offset"] or 0 for r in grounded_sub), default=0),
+        "fetch_calls": len(fetch_log),
+        "fetch_errors": sum(1 for f in fetch_log if "error" in f),
+        "windowed_fetches": sum(1 for f in fetches if f.get("windowed")),
+        "fallback_fetches": sum(1 for f in fetches if not f.get("windowed")),  # query terms not found
+        "fetches_reaching_beyond_blunt": sum(1 for f in fetches if (f.get("max_end") or 0) > BLUNT_CAP),
+        "avg_returned_len": round(sum(f.get("returned_len", 0) for f in fetches) / max(1, len(fetches))),
+    }
+
+
+def generate(target, perspective=None, focus=None, write=True, retry=True):
+    """Run the full generation -> ground -> [retry] -> render -> store pipeline.
+    Returns a result dict with claims, cut log, grounding instrumentation, and markdown."""
+    slug = make_slug(target, perspective, focus)
+    reset_log()  # clear the fetch-tool coverage log for this run
+    run = asyncio.run(_run_orchestrator(target, perspective, focus))
+    data = _extract_json(run["text"])
+
+    # Derive deterministic id + set verified; validate the pre-grounding shape so we
+    # don't spend a fetch on a malformed claim. Malformed ones are reported, not stored.
+    candidates, schema_problems = [], []
+    claims_in = data.get("claims")
+    if not isinstance(claims_in, list):
+        claims_in = []
+    for c in claims_in:
+        if not isinstance(c, dict) or "subject_key" not in c:
+            schema_problems.append((None, ["claim is not a valid object / missing subject_key"]))
+            continue
+        c["id"] = claim_id(slug, str(c["subject_key"]))
+        c["verified"] = True
+        errs = pregrounding_errors(c)
+        if errs:
+            schema_problems.append((c.get("subject_key"), errs))
+        else:
+            candidates.append(c)
+
+    # GROUND (independent fetch; model-free) — drops absent/unreachable claims.
+    grounded = ground_claims(candidates)
+    kept = [c for c in grounded["kept"] if not validation_errors(c)]
+    failed = grounded.get("failed", [])
+
+    # FEEDBACK RETRY (one bounded round): send each failed claim back to repair —
+    #   'absent'      -> re-extract a verbatim span from the REAL page text we fetched;
+    #   'unreachable' -> substitute a fetchable AGREEING source (guarded) or drop.
+    # Then re-ground the repairs. Recovers true claims the first pass cut on excerpt
+    # drift, and closes the substitution gap (verifier never saw our block first time).
+    retry_info = {"attempted": False, "revised_grounded": 0, "dropped": [], "still_failed": 0, "run": None}
+    if retry and failed:
+        retry_info["attempted"] = True
+        rr = asyncio.run(_run_retry(_build_retry_payload(failed)))
+        retry_info["run"] = rr
+        try:
+            rdata = _extract_json(rr["text"])
+        except Exception:
+            rdata = {"revised": [], "dropped": []}
+        revised = []
+        for c in rdata.get("revised", []):
+            if "subject_key" not in c:
+                continue
+            c["id"] = claim_id(slug, c["subject_key"])
+            c["verified"] = True
+            if not pregrounding_errors(c):
+                revised.append(c)
+        reground = ground_claims(revised) if revised else {"kept": [], "failed": []}
+        newly = [c for c in reground["kept"] if not validation_errors(c)]
+        kept += newly
+        # Every ORIGINAL failure must end up either recovered (re-grounded into kept)
+        # or in the Cut Log — never silently dropped. Match recoveries by stable id.
+        recovered_ids = {c["id"] for c in newly}
+        final_cut = [
+            {"action": "CUT", "claim": f["claim"].get("claim", "?"), "reason": f["reason"]}
+            for f in failed if f["claim"].get("id") not in recovered_ids
+        ]
+        retry_info.update(
+            revised_grounded=len(newly),
+            dropped=rdata.get("dropped", []),
+            still_failed=len(failed) - len(newly),
+        )
+    else:
+        final_cut = list(grounded["cut"])
+
+    model_cut = data.get("cut_log")
+    if not isinstance(model_cut, list):
+        model_cut = []
+    cut_log = model_cut + final_cut
+    title = data.get("title")
+    if not isinstance(title, str) or "Competitive Intelligence Brief" not in title:
+        title = _framing(target, perspective, focus)[1]
+    body = claims_to_markdown(kept, title, my_company=perspective, competitor=target)
+    markdown = format_report(clean_output(body + "\n\n" + render_cut_log(cut_log)))
+
+    paths = None
+    if write:
+        meta = new_meta(target, perspective, focus, slug)
+        paths = write_baseline(slug, kept, meta, markdown)
+
+    coverage = _coverage_report(grounded.get("results", []), FETCH_LOG)
+
+    result = {
+        "slug": slug,
+        "kept": kept,
+        "cut_log": cut_log,
+        "grounding": grounded,            # FIRST-pass counts, per-claim results, substituted
+        "retry": retry_info,              # repair lift: revised_grounded, dropped, still_failed
+        "coverage": coverage,             # windowing vs blunt-cap coverage read
+        "fetch_log": FETCH_LOG,           # per-fetch instrumentation
+        "schema_problems": schema_problems,
+        "markdown": markdown,
+        "paths": paths,
+        "run": run,                       # cost, num_turns
+    }
+    # Persist a debug artifact (incl. every excerpt + grounding ratio) so a
+    # measurement run is inspectable offline WITHOUT re-running — even a dry run.
+    # Set SCOUT_DEBUG_DIR to enable. (Lesson from the first #7 run: don't lose the data.)
+    debug_dir = os.environ.get("SCOUT_DEBUG_DIR")
+    if debug_dir:
+        os.makedirs(debug_dir, exist_ok=True)
+        with open(os.path.join(debug_dir, f"{slug}.json"), "w") as f:
+            json.dump(result, f, indent=2, default=str, ensure_ascii=False)
+    return result
+
+
+def _fmt_roles(by_role):
+    lines = []
+    for role, d in sorted(by_role.items(), key=lambda kv: -kv[1]["input"]):
+        lines.append(
+            f"      {role:14} msgs={d['messages']:3} in={d['input']:>8} out={d['output']:>7} "
+            f"cache_read={d['cache_read']:>8} cache_write={d['cache_creation']:>7}"
+        )
+    return "\n".join(lines)
+
+
+def _print_report(res):
+    g, rt, run = res["grounding"], res["retry"], res["run"]
+    print(f"\n=== {res['slug']} ===")
+    dur = run.get("duration_ms")
+    print(f"GENERATION  cost=${run.get('cost_usd')}  wall={dur/1000 if dur else '?'}s  "
+          f"api={ (run.get('duration_api_ms') or 0)/1000 }s  turns={run.get('num_turns')}")
+    print(f"  per-agent (orchestrator vs subagents):\n{_fmt_roles(run.get('by_role', {}))}")
+    print(f"  model_usage: {run.get('model_usage')}")
+    print(f"first-pass grounding: {g['counts']}  substituted={g['substituted']}")
+    if rt["attempted"]:
+        rr = rt["run"] or {}
+        print(f"RETRY  cost=${rr.get('cost_usd')}  recovered={rt['revised_grounded']}  "
+              f"dropped={len(rt['dropped'])}  still_failed={rt['still_failed']}")
+        print(f"  per-agent:\n{_fmt_roles(rr.get('by_role', {}))}")
+    gen_cost = run.get("cost_usd") or 0
+    retry_cost = ((rt.get("run") or {}).get("cost_usd")) or 0
+    print(f"TOTAL cost=${gen_cost + retry_cost:.4f}  (gen ${gen_cost} + retry ${retry_cost})")
+    print(f"kept (valid+grounded): {len(res['kept'])}   schema_problems: {len(res['schema_problems'])}")
+    cov = res["coverage"]
+    print("COVERAGE (windowed fetch vs blunt cap):")
+    print(f"  fetch_calls={cov['fetch_calls']} windowed={cov['windowed_fetches']} "
+          f"fallback={cov['fallback_fetches']} errors={cov['fetch_errors']} "
+          f"avg_returned={cov['avg_returned_len']}ch")
+    print(f"  facts BEYOND blunt {cov['blunt_cap_chars']}ch cap: {cov['facts_beyond_blunt_cap']}"
+          f"/{cov['grounded_substring_claims']} grounded  (deepest fact @ {cov['deepest_grounded_offset']}ch)")
+    print(f"  fetches reaching beyond blunt cap: {cov['fetches_reaching_beyond_blunt']}")
+    if res["paths"]:
+        print(f"written: {res['paths']['dir']}")
+
+
+if __name__ == "__main__":
+    args = sys.argv[1:]
+    if not args:
+        print('usage: python -m scout.generate "<competitor>" ["<your company>"] ["<focus>"]')
+        sys.exit(1)
+    target = args[0]
+    perspective = args[1] if len(args) > 1 else None
+    focus = args[2] if len(args) > 2 else None
+    _print_report(generate(target, perspective, focus))

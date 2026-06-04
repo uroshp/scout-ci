@@ -3,6 +3,7 @@
 The JSON Schema embedded here is the runtime source of truth; the doc is the human
 spec. Keep them in sync. `claim_id` / `normalize_subject_key` implement §3 verbatim.
 """
+import copy
 import hashlib
 import re
 
@@ -84,6 +85,21 @@ CLAIM_SCHEMA = {
                 },
             },
         },
+        # Present ONLY when the grounded anchor was substituted for a blocked
+        # higher-tier source (claim-object.md §2.2). Its existence asserts the
+        # verifier read both and judged them to AGREE, hence agreement_verified
+        # is a const true — a substitution on conflicting sources is never valid.
+        "anchor_substitution": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["preferred_url", "preferred_tier", "agreement_verified", "note"],
+            "properties": {
+                "preferred_url": {"type": "string", "format": "uri"},
+                "preferred_tier": {"enum": SOURCE_TIERS},
+                "agreement_verified": {"const": True},
+                "note": {"type": "string", "minLength": 1},
+            },
+        },
     },
     "allOf": [
         {
@@ -102,13 +118,29 @@ CLAIM_SCHEMA = {
 
 _validator = Draft202012Validator(CLAIM_SCHEMA)
 
+# Pre-grounding shape: the verifier emits everything EXCEPT `grounding`, which the
+# deterministic grounding step fills in (and `id`, which code derives from
+# subject_key). Validate this before spending a fetch on a malformed claim.
+PREGROUNDING_SCHEMA = copy.deepcopy(CLAIM_SCHEMA)
+PREGROUNDING_SCHEMA["required"] = [r for r in CLAIM_SCHEMA["required"] if r != "grounding"]
+_pre_validator = Draft202012Validator(PREGROUNDING_SCHEMA)
 
-def validation_errors(claim: dict) -> list[str]:
-    """Return human-readable schema errors for one claim ([] if valid)."""
+
+def _errors(validator, claim):
     return [
         f"{'/'.join(str(p) for p in e.path) or '<root>'}: {e.message}"
-        for e in sorted(_validator.iter_errors(claim), key=lambda e: list(e.path))
+        for e in sorted(validator.iter_errors(claim), key=lambda e: list(e.path))
     ]
+
+
+def validation_errors(claim: dict) -> list[str]:
+    """Return human-readable schema errors for one (final, grounded) claim ([] if valid)."""
+    return _errors(_validator, claim)
+
+
+def pregrounding_errors(claim: dict) -> list[str]:
+    """Schema errors for a claim before grounding has been attached ([] if valid)."""
+    return _errors(_pre_validator, claim)
 
 
 def is_valid(claim: dict) -> bool:
