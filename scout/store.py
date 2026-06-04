@@ -6,7 +6,9 @@ meta.json here; current.md is rendered from them. Only the headless runtime writ
 import json
 import os
 import re
-from datetime import date
+from datetime import date, datetime
+
+from scout import config
 
 STORE_ROOT = "battlecards"
 
@@ -47,7 +49,8 @@ def _paths(slug: str) -> dict:
     }
 
 
-def new_meta(competitor: str, my_company: str | None, focus: str | None, slug: str) -> dict:
+def new_meta(competitor: str, my_company: str | None, focus: str | None, slug: str,
+             cadence_hours: int | None = None) -> dict:
     today = date.today().isoformat()
     return {
         "slug": slug,
@@ -55,7 +58,10 @@ def new_meta(competitor: str, my_company: str | None, focus: str | None, slug: s
         "competitor": competitor,
         "focus": focus,
         "baseline_date": today,
-        "last_checked": today,
+        # Full timestamp (not just a date) so the next-check countdown is precise
+        # at hour-scale cadences. The monitor advances this on every check.
+        "last_checked": datetime.now().isoformat(timespec="seconds"),
+        "cadence_hours": cadence_hours if cadence_hours is not None else config.DEFAULT_CADENCE_HOURS,
         "alerted_fingerprints": [],
     }
 

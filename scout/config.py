@@ -35,6 +35,14 @@ GROUNDING_TIMEOUT_S = float(os.environ.get("SCOUT_GROUNDING_TIMEOUT_S", "20"))
 GROUNDING_CONTACT = os.environ.get("SCOUT_GROUNDING_CONTACT", "urospajic@gmail.com")
 
 
+# --- Monitoring cadence (per-competitor; A1) ---------------------------------
+# Default hours between checks for a battlecard with no explicit cadence_hours in
+# its meta.json. The launch-window showcase cards override this to 6 (4x/day);
+# dialed back after week one. run_all() honors per-card cadence via a due-gate;
+# the Actions cron must fire at least this often for the gate to matter.
+DEFAULT_CADENCE_HOURS = int(os.environ.get("SCOUT_DEFAULT_CADENCE_HOURS", "24"))
+
+
 # --- Email alerts (transactional API; §5) ------------------------------------
 # Deterministic side-effect in code, NOT an agent tool (control line). Sending is a
 # no-op unless ALL of these are set, so testing/dev can never email anyone.
