@@ -1,0 +1,124 @@
+"""Claim-object identity + validation — the executable side of docs/claim-object.md.
+
+The JSON Schema embedded here is the runtime source of truth; the doc is the human
+spec. Keep them in sync. `claim_id` / `normalize_subject_key` implement §3 verbatim.
+"""
+import hashlib
+import re
+
+from jsonschema import Draft202012Validator
+
+# --- ID scheme (claim-object.md §3) ------------------------------------------
+# Identity is the claim's SUBJECT, not its text or its current value, so a changed
+# figure or a replaced CEO hashes to the same id and the monitor updates in place.
+
+
+def normalize_subject_key(s: str) -> str:
+    s = s.lower().strip()
+    s = re.sub(r"[^a-z0-9|]+", " ", s)   # keep the pipe field-separator; else -> space
+    s = re.sub(r"\s*\|\s*", "|", s)       # tighten around pipes
+    s = re.sub(r"\s+", " ", s)            # collapse whitespace
+    return s
+
+
+def claim_id(slug: str, subject_key: str) -> str:
+    key = f"{slug}||{normalize_subject_key(subject_key)}"
+    return "c_" + hashlib.sha256(key.encode("utf-8")).hexdigest()[:12]
+
+
+# --- Schema (claim-object.md §2) ---------------------------------------------
+SECTIONS = [
+    "executive_summary", "snapshot", "recent_moves", "positioning",
+    "pricing", "battlecard", "sentiment", "objection_handling",
+]
+ZONES = ["where_we_win", "contested", "where_they_win"]
+SOURCE_TIERS = ["primary", "reputable_secondary", "sentiment_only"]
+
+CLAIM_SCHEMA = {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Scout v2 claim object",
+    "type": "object",
+    "additionalProperties": False,
+    "required": [
+        "id", "subject_key", "claim", "claim_type", "section", "zone", "order",
+        "source_url", "source_tier", "evidence_excerpt", "verified", "confidence",
+        "grounding",
+    ],
+    "properties": {
+        "id": {"type": "string", "pattern": "^c_[0-9a-f]{12}$"},
+        "subject_key": {"type": "string", "minLength": 1},
+        "claim": {"type": "string", "minLength": 1},
+        "claim_type": {"enum": ["fact", "interpretation", "sentiment"]},
+        "section": {"enum": SECTIONS},
+        "zone": {"enum": ZONES + [None]},
+        "order": {"type": "integer", "minimum": 0},
+        "source_url": {"type": "string", "format": "uri"},
+        "source_tier": {"enum": SOURCE_TIERS},
+        "evidence_excerpt": {"type": "string", "minLength": 40},
+        "as_of": {"type": ["string", "null"], "format": "date"},
+        "verified": {"const": True},
+        "confidence": {"enum": ["high", "medium", "low"]},
+        "grounding": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["checked", "match", "method", "fetched_at"],
+            "properties": {
+                "checked": {"type": "boolean"},
+                "match": {"const": True},
+                "method": {"enum": ["substring", "fuzzy"]},
+                "fetched_at": {"type": "string", "format": "date"},
+                "detail": {"type": ["string", "null"]},
+            },
+        },
+        "corroboration": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["source_url", "source_tier", "note", "grounded"],
+                "properties": {
+                    "source_url": {"type": "string", "format": "uri"},
+                    "source_tier": {"enum": SOURCE_TIERS},
+                    "note": {"type": "string", "minLength": 1},
+                    "grounded": {"const": False},
+                },
+            },
+        },
+    },
+    "allOf": [
+        {
+            "comment": "zone is non-null only inside the battlecard",
+            "if": {"properties": {"section": {"const": "battlecard"}}},
+            "then": {"properties": {"zone": {"enum": ZONES}}},
+            "else": {"properties": {"zone": {"const": None}}},
+        },
+        {
+            "comment": "a fact may not rest on a sentiment-only source",
+            "if": {"properties": {"claim_type": {"const": "fact"}}},
+            "then": {"properties": {"source_tier": {"enum": ["primary", "reputable_secondary"]}}},
+        },
+    ],
+}
+
+_validator = Draft202012Validator(CLAIM_SCHEMA)
+
+
+def validation_errors(claim: dict) -> list[str]:
+    """Return human-readable schema errors for one claim ([] if valid)."""
+    return [
+        f"{'/'.join(str(p) for p in e.path) or '<root>'}: {e.message}"
+        for e in sorted(_validator.iter_errors(claim), key=lambda e: list(e.path))
+    ]
+
+
+def is_valid(claim: dict) -> bool:
+    return not validation_errors(claim)
+
+
+def check_id(claim: dict, slug: str) -> str | None:
+    """Confirm the claim's id matches the deterministic hash of its subject_key.
+    Returns an error string if mismatched, else None."""
+    expected = claim_id(slug, claim["subject_key"])
+    if claim.get("id") != expected:
+        return f"id {claim.get('id')!r} != expected {expected!r} for subject_key {claim['subject_key']!r}"
+    return None
