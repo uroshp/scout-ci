@@ -139,6 +139,17 @@ def render(status: dict, brief_md: str, now: datetime) -> str:
   .sub {{ color: #888; font-size: .8rem; margin-top: .2rem; }}
   .cols {{ display: grid; grid-template-columns: 3fr 1fr; gap: 2rem; }}
   .brief {{ min-width: 0; }}
+  /* Prose-block hierarchy (exec summary, battlecard zones, objection handling).
+     A JS pass groups each title + its body paragraphs into .block. */
+  #brief h2 {{ margin: 2.4rem 0 1rem; padding-bottom: .3rem; border-bottom: 1px solid #8883; }}
+  #brief h3 {{ margin: 2rem 0 1rem; color: #888; text-transform: uppercase;
+              letter-spacing: .04em; font-size: .9rem; }}
+  #brief .block {{ margin: 0 0 1.9rem; padding-left: .9rem; border-left: 3px solid #2a85; }}
+  #brief .block .btitle {{ font-size: 1.3rem; font-weight: 700; line-height: 1.3;
+                          margin: 0 0 .6rem; }}
+  #brief .block .bbody {{ margin: .55rem 0 .55rem 1.1rem; }}
+  /* the soundbite / so-what line: the closer of each block */
+  #brief .block .bbody:last-child {{ margin-top: .7rem; opacity: .92; }}
   .side h3 {{ margin: 1.25rem 0 .5rem; }}
   ul {{ padding-left: 1.1rem; }}
   li {{ margin-bottom: .35rem; }}
@@ -179,8 +190,34 @@ def render(status: dict, brief_md: str, now: datetime) -> str:
   </details>
 
   <script>
-    document.getElementById("brief").innerHTML =
-      window.marked ? marked.parse({brief_json}) : "<pre></pre>";
+    const brief = document.getElementById("brief");
+    brief.innerHTML = window.marked ? marked.parse({brief_json}) : "<pre></pre>";
+
+    // Group each prose block (a bold-only title <p> + its following body/closer
+    // paragraphs) into a .block with hierarchy. Only exec-summary / battlecard /
+    // objection sections produce title-only-bold paragraphs, so bullet sections
+    // (rendered as <ul>) are untouched.
+    const isTitle = el => el.tagName === "P" && el.childNodes.length === 1
+      && el.firstElementChild && el.firstElementChild.tagName === "STRONG";
+    const isBreak = el => isTitle(el) || /^H[1-6]$/.test(el.tagName)
+      || el.tagName === "UL" || el.tagName === "OL";
+    const kids = [...brief.children];
+    let i = 0;
+    while (i < kids.length) {{
+      if (!isTitle(kids[i])) {{ i++; continue; }}
+      const block = document.createElement("div");
+      block.className = "block";
+      brief.insertBefore(block, kids[i]);
+      kids[i].classList.add("btitle");
+      block.appendChild(kids[i]);
+      let j = i + 1;
+      while (j < kids.length && !isBreak(kids[j])) {{
+        kids[j].classList.add("bbody");
+        block.appendChild(kids[j]);
+        j++;
+      }}
+      i = j;
+    }}
 
     // Tick the countdown from elapsed REAL seconds since page load, starting at the
     // server-computed remaining — independent of the browser's wall clock.
