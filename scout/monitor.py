@@ -59,23 +59,44 @@ def _fingerprint(subject_key: str, new_value: str) -> str:
 
 # --- Stage 1: cheap triage gate ----------------------------------------------
 _TRIAGE_SYSTEM = f"""You are a monitoring TRIAGE GATE for a living competitive-intelligence
-battlecard. Your ONLY job is to cheaply decide whether anything has happened SINCE a given date
-that COULD be material to the tracked battlecard — you do NOT make the final call.
+battlecard. Your job is to cheaply surface ONLY developments that are (a) genuinely NEW since a
+cutoff date AND (b) NOT already reflected in the tracked claims — so the expensive downstream judge
+is never re-run on stale or already-known information. You do NOT make the final materiality call.
 
 Do a FEW date-scoped WebSearches for the competitor's recent news. Material categories:
-{MATERIAL_CATEGORIES}. Be PERMISSIVE here (cheap recall) — the expensive judgment runs downstream.
+{MATERIAL_CATEGORIES}.
+
+Apply TWO STRICT FILTERS before surfacing anything (this is the whole point of the gate):
+1. DATE: surface a development ONLY if it is dated ON OR AFTER the cutoff date given. Discard older
+   items even if they appear in results — anything before the cutoff is already covered by the baseline.
+2. ALREADY-CAPTURED (note: "already-captured", NOT merely "already-mentioned"): you are given the
+   tracked claims with their CURRENT values — this is the OLD state. Surface a candidate if the
+   development reports a DIFFERENT value or status than the tracked claim currently states (a changed
+   metric, a new CEO, a price change, a strategy reversal, a product superseded) OR concerns a subject
+   not in the list at all. Catching when reality has MOVED PAST the tracked value is your MAIN job, so
+   do NOT drop a candidate merely because its subject/topic appears in the tracked list. Drop a
+   candidate ONLY when a tracked claim ALREADY states this exact development (the update would be a
+   no-op). When unsure whether something is genuinely new, SURFACE IT — the downstream judge decides
+   importance; MISSING A REAL CHANGE IS WORSE than paying for one extra check.
+
+Your filter is novelty (dated on/after the cutoff) + non-redundancy (the tracked claim does not already
+state this exact development) — NOT importance, and NOT "is the subject tracked". Bias toward recall.
 
 Return ONLY a single fenced ```json block:
 {{"has_candidates": <bool>, "candidates": [
-  {{"signal": "<one line>", "subject_key": "<the matching tracked subject_key, or NEW>",
-    "why_possibly_material": "<short>", "source_hint": "<url or outlet>"}} ]}}
-If nothing plausibly material happened since that date, return has_candidates=false and []."""
+  {{"signal": "<one line, INCLUDING the development's date>", "subject_key": "<matching tracked subject_key, or NEW>",
+    "why_new": "<why this is new since the cutoff AND not already in the tracked claims>",
+    "source_hint": "<url or outlet>"}} ]}}
+If nothing passes BOTH filters, return has_candidates=false and an empty list — that is the common,
+correct, cheap outcome on a quiet window."""
 
 
 async def _run_triage(meta, since, claims):
     comp, me = meta.get("competitor"), meta.get("my_company")
     user = (f"Competitor: {comp}" + (f" (we are {me})" if me else "") +
-            f"\nDetect anything material SINCE {since}.\n\nTRACKED SUBJECTS (subject_key — current claim):\n"
+            f"\nCUTOFF DATE: {since}. Surface ONLY developments dated on/after {since} that are NOT "
+            f"already reflected in the tracked subjects below (apply both strict filters).\n\n"
+            f"TRACKED SUBJECTS (subject_key — current value already known):\n"
             + _tracked_digest(claims))
     options = ClaudeAgentOptions(
         model=config.FAST_MODEL,
