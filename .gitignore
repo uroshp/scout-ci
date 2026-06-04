@@ -222,3 +222,6 @@ debug/
 
 # Scout static-render build output (scripts/render_static.py)
 out/
+
+# Generation debug artifacts (SCOUT_DEBUG_DIR)
+debug_runs/

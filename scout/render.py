@@ -124,6 +124,16 @@ def _render_block(c):
     return f"{c['claim'].strip()} {_source_link(c)}"
 
 
+def _ordered(section, items):
+    """Sort a section's claims for rendering. Recent Strategic Moves reads
+    reverse-chronologically (newest first) off each claim's as_of date — a quiet
+    item without a date sinks to the bottom. Every other section keeps the
+    orchestrator's importance order (`order`, most important first)."""
+    if section == "recent_moves":
+        return sorted(items, key=lambda c: (c.get("as_of") or "", c["order"]), reverse=True)
+    return sorted(items, key=lambda c: c["order"])
+
+
 def claims_to_markdown(claims, title, my_company=None, competitor=None):
     """Render the brief body from claim objects, deterministically, by section
     and (in the battlecard) zone, ordered by each claim's `order`.
@@ -159,10 +169,10 @@ def claims_to_markdown(claims, title, my_company=None, competitor=None):
                 for c in sorted(z, key=lambda c: c["order"]):
                     lines += [_render_block(c), ""]
         elif section in BLOCK_SECTIONS:
-            for c in sorted(items, key=lambda c: c["order"]):
+            for c in _ordered(section, items):
                 lines += [_render_block(c), ""]
         else:
-            for c in sorted(items, key=lambda c: c["order"]):
+            for c in _ordered(section, items):
                 lines.append(f"- {c['claim'].strip()} {_source_link(c)}")
             lines.append("")
 
