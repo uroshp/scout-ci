@@ -18,6 +18,8 @@ SOURCE_HIERARCHY = """SOURCE TRUST HIERARCHY (match the claim type to the right 
 EXCLUDED SOURCES (never permitted — not as anchor, not as corroboration):
 - WIKIPEDIA AND ALL WIKIS / TERTIARY ENCYCLOPEDIAS: Wikipedia, Wikimedia, Fandom/Wikia, Britannica, and the like. They lag and are gameable; for breaking competitive moves they are worthless. A claim that rests on one is CUT — find the original reputable news report or primary document instead. (A deterministic check also cuts any claim anchored on these domains.)
 - PROMO LISTICLES / SEO ROUNDUPS / AGGREGATORS / AI-GENERATED CONTENT FARMS: "best X of 2026" roundups, exchange/affiliate blogs (e.g. crypto-exchange "product lineup" pages), and link-aggregator posts. They are stale and unreliable for current status. Do not anchor a fact or a product-status claim on one — trace to the originating news outlet or company source.
+- CRYPTO-EXCHANGE / OFF-TOPIC DOMAINS and HOW-TO / TUTORIAL BLOGS (e.g. gate.com, kucoin.com, codersera.com): weak and off-topic for competitive intelligence. Never an anchor — not even for sentiment. (A deterministic check also cuts the enumerable offenders.)
+- POSITIONING / LEADERSHIP claims ("X is the quality leader", "developers prefer X") must anchor on reputable NEWS or a primary/benchmark source — NEVER a tutorial blog, forum, or sentiment site. If only sentiment supports it, frame it explicitly as sentiment in the Sentiment section, not as a positioning fact.
 
 NEWS-FIRST FOR CURRENCY: recent events and current status are anchored on reputable NEWS (Tier 2) or primary documents, not reference sites. The freshest reputable news wins for "what is true now".
 

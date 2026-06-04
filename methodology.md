@@ -70,6 +70,17 @@ Also distinguish audited revenue (public companies) from company-stated ARR or m
 - Product and engineering velocity (especially for technical and AI-first competitors): release cadence, changelogs, model cards, API/docs updates, status pages, and open-source activity. For these companies, shipping pace and what they ship are often a sharper signal than GTM moves — do not skip them.
 - Sentiment (structured review sites first — G2, Capterra, TrustRadius, Gartner Peer Insights — then forums and communities): what users actually say, which is often the truth the company will not state. Mine for repeated complaints and repeated praise.
 
+## The battlecard is a weapon for your side, not neutral coverage
+
+When the brief is written for a side (you vs a competitor), it is a sales weapon for YOUR side — not an even-handed write-up of two companies. The test for whether an event belongs is not "is this recent news about either company?" but **"does this change how MY side wins, loses, or handles an objection?"** Scan everything happening to both companies, but the output is always asymmetric — every item is framed as "so what for us."
+
+This drives where things go:
+
+- **The competitor's moves** are threats or openings → Recent Strategic Moves and the battlecard zones, filtered to those with a real competitive implication for us.
+- **Your own side's adverse news that a buyer would raise** (a major customer dropping your product, your usage limits, a public setback) → Objection Handling, with an honest, evidence-based answer. Never omit or bury it — the rep will be asked.
+- **Your own side's positive/neutral events** (your funding, your IPO filing) are NOT standalone Recent-Moves items — you already know your own moves. Include one only where it carries a competitive implication, framed as a so-what (e.g. your IPO filing becomes objection-handling ammunition for "is this vendor stable enough to bet on?"). No competitive so-what → leave it out.
+- Nothing appears as neutral trivia. Everything routes through "what does this mean for our position?"
+
 ## The battlecard standard
 
 Structure the battlecard in three zones:
@@ -82,7 +93,7 @@ For each zone, include a usable soundbite — something a person could actually 
 
 ## Objection handling
 
-Ground objections in the real weaknesses and complaints surfaced from sentiment and analysis, not invented ones. For each likely objection a prospect might raise citing this competitor, provide a specific, evidence-based response that pivots to a genuine strength.
+Ground objections in the real weaknesses and complaints surfaced from sentiment and analysis, not invented ones. For each likely objection a prospect might raise — whether **citing the competitor's strength** OR **citing an adverse development on your own side** (a customer dropping your product, your usage limits, a public setback) — provide a specific, evidence-based response that pivots to a genuine strength. The adverse-own-side objections are the ones reps most need and most often lack; surface them honestly with a real answer, never omit them.
 
 ## Voice and tone
 

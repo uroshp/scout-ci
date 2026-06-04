@@ -18,11 +18,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scout import store
 from scout.grounding import is_excluded_source
 
-# Domains that are not wikis but read as promo/SEO roundups or aggregators — not a
-# hard exclusion (that's the model's judgment), just flagged for a human to check.
+# Fuzzy long-tail that reads like a promo/SEO roundup or personal blog — NOT in the
+# deterministic exclusion set (those already hard-fail via is_excluded_source), just
+# flagged for a human to eyeball.
 SUSPECT_AGGREGATORS = {
-    "gate.com", "medium.com", "blogspot.com", "wordpress.com", "substack.com",
-    "glbgpt.com", "laozhang.ai", "digen.ai",
+    "medium.com", "blogspot.com", "wordpress.com", "substack.com",
 }
 
 STATUS_QUALIFIERS = ("current", "latest", "flagship")
@@ -65,9 +65,11 @@ def audit(slug: str) -> int:
             tier = c.get("source_tier", "?")
             status = _is_status_claim(c)
             flag = "   "
+            # The sentiment section is legitimately sentiment_only — don't demand
+            # Tier-1 news there. Every OTHER section's status/recency claim must be.
             if is_excluded_source(url):
                 flag = "❌ "; fails.append((c, f"EXCLUDED domain ({dom})"))
-            elif status and tier == "sentiment_only":
+            elif status and tier == "sentiment_only" and section != "sentiment":
                 flag = "❌ "; fails.append((c, f"status/recent claim on sentiment_only tier ({dom})"))
             elif dom in SUSPECT_AGGREGATORS:
                 flag = "⚠️ "; warns.append((c, f"suspect aggregator/listicle ({dom})"))

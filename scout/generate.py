@@ -55,11 +55,14 @@ RESEARCHER = AgentDefinition(
         "partnership changes, pricing/limit changes, exec moves. Use date-scoped queries (e.g. "
         "'<company> news <current month year>'). If the freshest thing you find is weeks old, "
         "search harder — you are missing the story.\n"
-        "HUNT ADVERSE SIGNALS, not just wins: deliberately search for the bad news that moves the "
-        "competitive picture — contract cancellations, customers churning/defecting, budget caps "
-        "or usage limits being hit, outages, layoffs, lawsuits, lost deals, downgrades. Bad news "
-        "about the subject (and risks to our own side) is often the highest-value finding. A "
-        "researcher who returns only positive announcements has failed.\n"
+        "HUNT ADVERSE SIGNALS on BOTH companies, not just wins: deliberately search for the bad "
+        "news that moves the competitive picture — contract cancellations, customers "
+        "churning/defecting, budget caps or usage limits being hit, outages, layoffs, lawsuits, "
+        "lost deals, downgrades. Scan adverse developments for the COMPETITOR *and* for OUR OWN "
+        "side (the company we're selling for) — e.g. a major customer dropping OUR product is a "
+        "buyer objection the rep must be ready for, so surface it explicitly with its source. A "
+        "researcher who returns only positive announcements, or only the competitor's bad news, "
+        "has failed.\n"
         "SOURCES: anchor on reputable news outlets (Reuters, Bloomberg, The Information, CNBC, "
         "TechCrunch, major outlets) or primary documents. NEVER use Wikipedia, wikis, "
         "encyclopedias (Britannica, Fandom), or promo/SEO listicles and aggregators — they are "
@@ -177,13 +180,38 @@ The parts by section:
 - BATTLECARD (section "battlecard"): title = the edge in one line; paragraph = why it holds and for
   which buyer; closing = "**Soundbite:**" + an italicized line a rep could say out loud, e.g.
   *"..."*. Evidence-backed, never combative trash-talk.
-- OBJECTION HANDLING (section "objection_handling"): title = the objection a prospect raises citing
-  the competitor; paragraph = an evidence-based response that pivots to a genuine strength; closing =
-  "**So what:**" + the implication. Ground every objection in a REAL surfaced weakness, never invented.
+- OBJECTION HANDLING (section "objection_handling"): title = the objection a prospect raises — citing
+  EITHER the competitor's strength OR an adverse development on OUR OWN side (a customer dropping our
+  product, our usage limits, a public setback); paragraph = an honest, evidence-based response that
+  pivots to a genuine strength; closing = "**So what:**" + the implication. Ground every objection in
+  a REAL surfaced fact, never invented — and never omit a real adverse fact a buyer would raise.
 
 TONE (all three): direct, confident, and human. NO combative or zero-sum phrasing — never "you will
 lose", "crush", "dominate", "they're finished". Confidence is a clear verdict with evidence behind
 it, not trash talk. A reader should find it sharp AND pleasant to read.
+"""
+
+
+# Battlecard routing — generic (no names, so the system prompt stays cache-stable; the
+# dynamic "us vs them" identity arrives in the per-run user framing).
+ROUTING_RULES = """BATTLECARD ROUTING — this brief is a SALES WEAPON for OUR side, not neutral coverage
+of two companies. The inclusion test for EVERY event is: "does this change how OUR side WINS, LOSES,
+or HANDLES AN OBJECTION?" Scan what is happening to BOTH companies (two-sided input), but route every
+item asymmetrically as a "so what for us" — nothing appears as neutral trivia.
+
+- THE COMPETITOR's moves -> "recent_moves" (newest-first) and the battlecard zones, filtered to those
+  with a real competitive implication for us. A competitor event with no consequence for our position
+  does not belong.
+- OUR OWN side's POSITIVE / NEUTRAL events (our funding, our IPO filing, our launch) are NOT standalone
+  "recent_moves" items — we already know our own moves; listing them is noise. Include one ONLY where
+  it carries a competitive implication, framed as a so-what (e.g. our IPO filing -> objection-handling
+  ammunition for "is this vendor financially stable enough to bet on?"). If an own-side event has no
+  competitive so-what, OMIT it.
+- OUR OWN side's ADVERSE events a buyer would raise (a major customer dropping our product, our product
+  hitting usage limits, a public setback) -> "objection_handling": state the objection honestly and
+  give the rep an evidence-based answer and a real so-what. NEVER omit or bury these — the rep WILL be
+  asked (e.g. "I heard Microsoft pulled Claude Code from its dev teams" needs a ready answer).
+- "recent_moves" is for THE COMPETITOR, not for us — do not file our own news there.
 """
 
 
@@ -192,11 +220,18 @@ def _framing(target, perspective, focus):
     if perspective:
         title = f"# Competitive Intelligence Brief: {perspective} vs {target}"
         return (
-            f"You are a competitive-intelligence analyst working for {perspective}, "
-            f"researching {target} so {perspective} can compete against it.{foc} The brief is "
-            f"RELATIVE: the battlecard zones and objection handling are framed from "
-            f"{perspective}'s perspective. Research BOTH companies on real evidence; be honest "
-            f"in both directions — do not assume {perspective} is superior.",
+            f"You are arming {perspective}'s sales team against {target}.{foc} This brief is a "
+            f"SALES WEAPON FOR {perspective} — NOT neutral coverage of two companies. The inclusion "
+            f"test for ANY event is not 'is this recent news about either company?' but: 'does this "
+            f"change how {perspective} WINS, LOSES, or HANDLES AN OBJECTION against {target}?' Scan "
+            f"everything happening to BOTH companies (two-sided input), but frame every item as a "
+            f"'so what for {perspective}' (asymmetric output), and route it per the BATTLECARD "
+            f"ROUTING rules: {target}'s moves drive Recent Strategic Moves and the battlecard zones; "
+            f"{perspective}'s OWN adverse news a buyer would raise (e.g. a key customer dropping "
+            f"{perspective}'s product) goes in Objection Handling with an honest answer; "
+            f"{perspective}'s own positive news appears ONLY if it carries a competitive so-what. Be "
+            f"honest in both directions — do not assume {perspective} is superior; a weakness the rep "
+            f"must defend is as valuable as a strength.",
             title,
         )
     title = f"# Competitive Intelligence Brief: {target}"
@@ -226,6 +261,8 @@ Follow this methodology exactly:
 
 {CLAIM_CONTRACT}
 
+{ROUTING_RULES}
+
 PROCESS: Plan the brief. Delegate research to your 'researcher' subagent and verification to your
 'verifier' subagent. DISPATCH THE SECTION RESEARCHERS AS A SINGLE PARALLEL BATCH — issue multiple
 Agent calls in ONE step (one per section: {SECTIONS}) rather than one at a time — then verify and
@@ -252,9 +289,11 @@ TODAY'S DATE IS {today}. This brief must reflect the world as of today.
   (IPO/funding/filings, launches, partnership changes, pricing/limit changes, exec moves).
   "Recent Strategic Moves" must LEAD with the newest items and cover that window — if your
   newest item is weeks old, you have missed the story.
-- Surface ADVERSE / competitive-threat signals, not just wins: cancellations, customer churn,
-  budget caps / usage limits hit, outages, layoffs, lawsuits, lost deals. Bad news is often the
-  most valuable intelligence; a brief that only reports positive moves has failed.
+- Surface ADVERSE / competitive-threat signals on BOTH companies, not just wins: cancellations,
+  customer churn, budget caps / usage limits hit, outages, layoffs, lawsuits, lost deals. Per the
+  ROUTING rules: the COMPETITOR's moves go in Recent Strategic Moves; OUR OWN side's adverse news a
+  buyer would raise (a customer dropping our product, our usage limits) goes in Objection Handling
+  with an honest answer — never omit it. Our own positive news appears only with a competitive so-what.
 - SOURCING DISCIPLINE: every Recent-Strategic-Moves item and every status/current-state claim
   must cite a reputable NEWS outlet (Tier 2) or a primary filing (Tier 1). NEVER Wikipedia, a
   wiki, an encyclopedia, or a promo/SEO listicle/aggregator — those are excluded and will be cut.

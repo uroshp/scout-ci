@@ -142,28 +142,54 @@ class GroundingResult:
 
 CUT_ABSENT = "evidence excerpt not found in source"
 CUT_UNREACHABLE = "source unreachable for grounding"
-CUT_EXCLUDED = "source on excluded list (wiki/encyclopedia not permitted) — re-source from reputable news"
+CUT_EXCLUDED = "source on excluded list — re-source from reputable news or cut"
 
-# Hard exclusion (control line): crowd-edited wikis and tertiary encyclopedias are
-# never an acceptable anchor for a competitive-intelligence claim — they lag and are
-# gameable. A claim anchored here is cut BEFORE any fetch and routed to repair, so a
-# true-but-badly-sourced fact gets re-anchored on reputable news rather than lost.
-# (Promo listicles / aggregators / content-farms are excluded too, but those are a
-# model judgment in the prompts — this set is the deterministic, enumerable core.)
+# Hard exclusion (control line): a claim anchored on any of these is cut BEFORE any
+# fetch and routed to repair, so a true-but-badly-sourced fact gets re-anchored on
+# reputable news rather than lost. (The fuzzy long tail — generic SEO roundups, random
+# how-to blogs — stays a model judgment in the prompts; these sets are the enumerable
+# core that we enforce deterministically.)
+#
+# Wikis / tertiary encyclopedias: lag and are gameable.
 BLOCKED_SOURCE_DOMAINS = {
     "wikipedia.org", "wikimedia.org", "wikidata.org", "wiktionary.org",
     "wikinews.org", "wikivoyage.org", "wikibooks.org", "wikiquote.org",
     "wikisource.org", "fandom.com", "wikia.com", "britannica.com",
     "everipedia.org", "infogalactic.com",
 }
+# Weak / off-topic: crypto-exchange content marketing (gate.com's "2026 product
+# lineup" listicle, kucoin sentiment), AI SEO content-mills, and how-to/tutorial blogs
+# — never an acceptable anchor for a fact, status, or positioning claim.
+WEAK_SOURCE_DOMAINS = {
+    "gate.com", "gate.io", "kucoin.com", "binance.com", "bybit.com", "okx.com",
+    "mexc.com", "coinmarketcap.com",
+    "glbgpt.com", "laozhang.ai", "digen.ai", "codersera.com",
+}
+_ALL_EXCLUDED = BLOCKED_SOURCE_DOMAINS | WEAK_SOURCE_DOMAINS
+
+
+def _host(url: str) -> str:
+    host = urlparse(url or "").netloc.lower().split(":")[0]
+    return host[4:] if host.startswith("www.") else host
+
+
+def _matches(host: str, domains: set) -> bool:
+    return any(host == d or host.endswith("." + d) for d in domains)
 
 
 def is_excluded_source(url: str) -> bool:
-    """True if url's host is a blocked wiki/encyclopedia domain (any subdomain)."""
-    host = urlparse(url or "").netloc.lower().split(":")[0]
-    if host.startswith("www."):
-        host = host[4:]
-    return any(host == d or host.endswith("." + d) for d in BLOCKED_SOURCE_DOMAINS)
+    """True if url's host is a banned wiki/encyclopedia OR weak/off-topic domain."""
+    return _matches(_host(url), _ALL_EXCLUDED)
+
+
+def exclusion_reason(url: str) -> str | None:
+    """Why a source is excluded (for the cut log), or None if it's allowed."""
+    host = _host(url)
+    if _matches(host, BLOCKED_SOURCE_DOMAINS):
+        return "wiki/encyclopedia not permitted"
+    if _matches(host, WEAK_SOURCE_DOMAINS):
+        return "weak source (crypto-exchange / content-mill / tutorial-blog) not permitted"
+    return None
 
 
 def _fetch_text(url: str):
@@ -241,12 +267,13 @@ def ground_claims(claims: list[dict]) -> dict:
     for claim in claims:
         if is_excluded_source(claim["source_url"]):
             counts["excluded"] += 1
+            reason = f"{CUT_EXCLUDED} ({exclusion_reason(claim['source_url'])})"
             cut_entries.append({
                 "action": "CUT",
                 "claim": claim.get("claim", claim.get("subject_key", "?")),
-                "reason": CUT_EXCLUDED,
+                "reason": reason,
             })
-            failed.append({"claim": claim, "status": "excluded", "reason": CUT_EXCLUDED})
+            failed.append({"claim": claim, "status": "excluded", "reason": reason})
         else:
             allowed.append(claim)
 
