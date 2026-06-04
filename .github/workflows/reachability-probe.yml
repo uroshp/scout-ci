@@ -1,0 +1,21 @@
+# Throwaway reachability gate (NOT the monitoring cron) — measures how well the
+# grounding fetcher reaches cited sources from a GitHub Actions runner IP, to compare
+# against the ~67% Codespaces baseline before finalizing the monitoring design.
+# No secrets needed: the probe is pure HTTP (no Anthropic API).
+name: reachability-probe
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install fetch deps only (no SDK needed for the probe)
+        run: pip install -q httpx beautifulsoup4 rapidfuzz pypdf python-dotenv
+      - name: Probe cited-source reachability from the runner IP
+        run: python -m scout._probe_reach
