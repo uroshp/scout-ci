@@ -273,6 +273,33 @@ def _append_alerts(slug, alerts):
                     f"{a['old_value']} → {a['new_value']}. **So what:** {a['so_what']}\n")
 
 
+def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True) -> list[dict]:
+    """Cron entrypoint: check EVERY tracked battlecard, write per policy, email digests.
+
+    Side-effects gated for safety: write=False computes without mutating the store; email
+    is dry unless email_dry_run=False AND creds are configured. The Actions cron runs live
+    (SCOUT_MONITOR_LIVE=1); git commit/push is done by the workflow, not here.
+    """
+    from scout.display import list_battlecards
+    from scout import notify
+
+    summary = []
+    for slug in list_battlecards():
+        res = check(slug, write=write)
+        emailed = None
+        if send and res["alerts"]:
+            meta = store.load_meta(slug) or {}
+            emailed = notify.send_digest(meta.get("competitor"), res["alerts"], dry_run=email_dry_run)
+        cost = res["cost"]
+        summary.append({
+            "slug": slug, "no_change": res["no_change"], "material": len(res["material"]),
+            "alerts": len(res["alerts"]),
+            "cost_usd": round((cost.get("triage") or 0) + (cost.get("materiality") or 0), 4),
+            "emailed": emailed,
+        })
+    return summary
+
+
 def _print_check(res):
     cost = res["cost"]
     total = (cost.get("triage") or 0) + (cost.get("materiality") or 0)
@@ -282,3 +309,12 @@ def _print_check(res):
     for m in res["material"]:
         a = m["alert"]
         print(f"  MATERIAL {m['subject_key']}: {a.get('old_value')} -> {a.get('new_value')}  | {a.get('so_what','')[:80]}")
+
+
+if __name__ == "__main__":
+    import json as _json
+    # LIVE only when the cron sets SCOUT_MONITOR_LIVE=1: then write the store and send real
+    # email. Default (any other context) is fully dry: compute, no writes, no email sent.
+    live = os.environ.get("SCOUT_MONITOR_LIVE") == "1"
+    out = run_all(write=live, send=True, email_dry_run=not live)
+    print(_json.dumps(out, indent=2, default=str))

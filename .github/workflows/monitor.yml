@@ -1,0 +1,61 @@
+# Scout v2 monitoring cron — the headless writer (spec §2).
+#
+# SAFETY: GitHub fires `schedule` ONLY from the DEFAULT branch. While this lives on
+# v2-agent (not merged to main), it is INERT — it will not run or spend a cent. It goes
+# live only when you choose to merge to the default branch.
+#
+# CADENCE: 24h default ("24h is more than enough" for slower competitors). High-velocity
+# competitors (OpenAI/Anthropic) could run more often — per-competitor cadence is a planned
+# refinement (a `cadence_hours` field in each meta.json + a "due?" check in run_all), to be
+# decided at the final stage. For now this is one global schedule.
+#
+# REQUIRED SECRETS (set in repo settings before enabling): ANTHROPIC_API_KEY,
+# RESEND_API_KEY, SCOUT_ALERT_TO  (SCOUT_ALERT_FROM optional).
+name: monitor
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 7 * * *"          # daily ~07:00 UTC (24h). 12h would be "0 7,19 * * *".
+
+concurrency:
+  group: scout-monitor
+  cancel-in-progress: false
+
+permissions:
+  contents: write                # to commit + push updated battlecards
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -q -r requirements.txt
+      - name: Run monitoring checks (live)
+        env:
+          SCOUT_MONITOR_LIVE: "1"
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SCOUT_ALERT_TO: ${{ secrets.SCOUT_ALERT_TO }}
+          SCOUT_ALERT_FROM: ${{ secrets.SCOUT_ALERT_FROM }}
+        run: python -m scout.monitor
+      - name: Commit per §9 policy (last_checked bump every run; content on material change)
+        run: |
+          git config user.name "scout-monitor[bot]"
+          git config user.email "scout-monitor@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No store changes."
+          else
+            # Content (claims/current/alerts) changes only on a material change; a quiet run
+            # stages just meta.json (the last_checked timestamp bump).
+            if git diff --cached --name-only | grep -qE 'claims.json|current.md|alerts'; then
+              git commit -m "monitor: material change(s) detected"
+            else
+              git commit -m "monitor: heartbeat — advance last_checked"
+            fi
+            git push
+          fi

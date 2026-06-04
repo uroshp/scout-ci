@@ -35,6 +35,14 @@ GROUNDING_TIMEOUT_S = float(os.environ.get("SCOUT_GROUNDING_TIMEOUT_S", "20"))
 GROUNDING_CONTACT = os.environ.get("SCOUT_GROUNDING_CONTACT", "urospajic@gmail.com")
 
 
+# --- Email alerts (transactional API; §5) ------------------------------------
+# Deterministic side-effect in code, NOT an agent tool (control line). Sending is a
+# no-op unless ALL of these are set, so testing/dev can never email anyone.
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
+ALERT_EMAIL_TO = os.environ.get("SCOUT_ALERT_TO")
+ALERT_EMAIL_FROM = os.environ.get("SCOUT_ALERT_FROM", "Scout <onboarding@resend.dev>")
+
+
 def require_api_key() -> str:
     """Return the Anthropic API key or raise with a clear message.
 
