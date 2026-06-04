@@ -235,7 +235,7 @@ In-app tracking configuration (tracking = committed files); more than one alert 
 1. Monitoring loop against a stale baseline: retrieve -> **triage gate (cheap)** -> **materiality (Opus)** -> update claims + alerts + dedup.
 1. Side-effects in code: git commit (per the §9 policy) + email digest.
 1. Guards: hooks for tool-call cap + cost ceiling.
-1. GitHub Actions cron workflow; secrets (API key, email creds).
+1. GitHub Actions cron workflow; secrets (API key, email creds). **FIRST action of this step (TRACKED RISK, do before trusting any monitoring run): re-run the reachability probe (`scout/_probe_reach.py`) from *inside* an actual GitHub Action to measure REAL production grounding reachability.** Build-step-5 probing showed ~67% reachability from Codespaces, but several sources block by **datacenter IP** (confirmed: SEC.gov 403s regardless of User-Agent, while the same content on a company IR host fetched fine). GitHub Actions is also a cloud IP, so production reachability may be materially worse — and monitoring is worthless if the worker can't ground. Measure it first; if it's bad, the fix is broader substitution / a fetch path with residential or proxied egress, decided from that data.
 1. Extend Streamlit to show living battlecards + alert log (read-only).
 1. Demo dry-run: stale baseline -> scheduled run -> real deltas + email.
 
