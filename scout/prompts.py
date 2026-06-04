@@ -1,0 +1,42 @@
+"""v2's prompt building blocks. **Independent copy** — not shared with v1.
+
+These were lifted from research.py as a starting point, but v1 is frozen and keeps
+its own inline copies. v2 owns and evolves these freely; nothing in research.py or
+app.py imports from scout/, so a change here can never break the shipped v1 app.
+The duplication is deliberate: there is nothing to drift from because v1 won't change.
+"""
+
+SOURCE_HIERARCHY = """SOURCE TRUST HIERARCHY (match the claim type to the right source type - not all "official" sources are equal):
+- TIER 1A - AUTHORITATIVE FOR FACT: audited financials and regulatory filings (10-K, 10-Q, 8-K, S-1, proxy statements), earnings-call transcripts, court documents, signed/announced contracts. Trust these for hard facts and numbers.
+- TIER 1B - AUTHORITATIVE ONLY FOR SELF-POSITIONING: company blogs, press releases, marketing pages, exec keynotes, official docs, changelogs, and pricing pages. These reliably tell you what the company CHOSE to say and how it positions itself. Use them for positioning, product existence, stated pricing, and announced moves. Do NOT treat them as fact for evaluative or market claims ("fastest", "market leader", "best-in-class") - that is positioning; attribute it as the company's own claim.
+- TIER 2 - REPUTABLE NEWS: Reuters, Bloomberg, CNBC, The Information, TechCrunch, Axios, FT, WSJ. Fine to stand alone for the events and facts they report. Prefer the most recent.
+- TIER 2E - ANALYST & MARKET ESTIMATES (label as ESTIMATE, never as audited fact): industry analysts (Gartner, Forrester, IDC), market-share/data providers (Synergy Research, Canalys, Statista), private-market research (Sacra, Contrary), and funding databases (Crunchbase, PitchBook). Market share, TAM, ARR estimates and Magic-Quadrant-style placements are MODELED OPINIONS - attribute them to the firm and frame as an estimate, not as a filed number.
+- TIER 3 - ORIGINATING SECONDARY: lesser-known blogs/aggregators, acceptable only when clearly the origin of a fact and reasonably reputable.
+- TIER 3S - STRUCTURED REVIEW PLATFORMS (sentiment, but weightier than forums): G2, Capterra, TrustRadius, Gartner Peer Insights. Use for sentiment with more confidence than raw social, given review volume and verified reviewers. Still sentiment, not fact.
+- TIER 4 - RAW SOCIAL/FORUMS: Reddit, X, Glassdoor, Indeed, HN comments. Valid ONLY for sentiment, NEVER as the source of a hard factual claim. Easily astroturfed - treat with caution.
+
+RULES:
+- A factual claim resting only on Tier 3S/4 is NOT verified. A direct quote must trace to a Tier 1/2/3 source.
+- Distinguish AUDITED revenue (public companies) from COMPANY-STATED ARR/metrics (private, unaudited) - always say which it is.
+- For any "current state" claim (who leads, latest figures, who holds a role), a recent Tier 2 source can override an older Tier 1 filing. Prefer the most recent verified figure and note the as-of date when it matters.
+- NO PROXY ATTRIBUTION: if a Tier 3 source merely REPORTS a figure it attributes to a more authoritative origin (a named survey, filing, or analyst firm), find and cite that origin directly, or cut the claim. Never cite an aggregator or directory blog as a stand-in for the origin it is quoting (e.g. do not cite a blog "reporting a JetBrains survey" - cite JetBrains, or cut it).
+- Keep four things explicitly separate and never blur them: VERIFIED FACT, the COMPANY'S OWN CLAIM/positioning, ANALYST/MODELED ESTIMATE, and SENTIMENT."""
+
+FORMATTING_RULES = """MARKDOWN FORMATTING RULES (follow exactly so the report renders cleanly):
+- Use ## for the main section headers ONLY (Executive Summary, Snapshot, Recent Strategic Moves, Positioning and Differentiation, Pricing and Packaging, Competitive Battlecard, Sentiment, Objection Handling, Cut Log). Use ### for sub-headers within a section (e.g. battlecard zones). Never use headers for normal content.
+- Every list item is a SINGLE line starting with "- " (dash space), with all of that item's text on that one line. NEVER break a bullet's text onto a separate line. NEVER put a blank line between a bullet's dash and its text. NEVER put blank lines between consecutive bullets. A bullet and its text are one unbroken line.
+- Put a blank line between separate paragraphs, between a header and the text under it, and before and after a list as a whole. But do NOT put blank lines between consecutive bullets in the same list, and do NOT put a blank line inside a single bullet.
+- In the Executive Summary, write each numbered conclusion as: a bolded one-sentence verdict using **bold**, then a blank line, then the supporting detail as a normal paragraph.
+- In the Executive Summary, EVERY numbered point MUST end with a "So what:" takeaway. Format it as: the verdict and detail, then a blank line, then "**So what:**" starting its own new line, followed by the actionable implication. The "So what:" is mandatory for every executive summary point and must always be on its own bolded line, never blended into the preceding text.
+- Other labels (**Implication:**, **What tips it:**, **Why they win:**, **Usable soundbite:**) must also each start their own new bolded line, preceded by a blank line, never inline in a paragraph.
+- Bold the single most important phrase in each major point with **bold**, but do not over-bold.
+- Soundbites: put on their own line, in italics, e.g. *"..."*
+- Do not indent any line with spaces or tabs (indented lines render as gray code blocks).
+- Do NOT add a "Prepared for", "Classification", "Date", or any internal-memo header block. Do NOT add a horizontal rule (---) immediately under the title. Start directly with the report title (# Competitive Intelligence Brief: ...) followed by the Executive Summary. No cover-page or addressee lines."""
+
+
+def load_methodology():
+    """The CI discipline the model is held to. Kept as an editable plain-English
+    spec out of code on purpose (README 'Design decisions')."""
+    with open("methodology.md", "r") as f:
+        return f.read()
