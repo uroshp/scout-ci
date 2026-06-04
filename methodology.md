@@ -41,6 +41,14 @@ Competitive intelligence decays. A figure that was true two quarters ago can act
 - When you cite a number, prefer ones you can tie to a specific period (e.g. “Q1 2026”), and reconcile to a single value when multiple periods appear.
 - If the most recent data you can verify is old enough that it may be stale, say so.
 
+## Hunt the latest news — including the bad news
+
+Catching the moves that change the competitive picture, the moment they break, is the entire point of this tool. Every run actively searches the latest news, anchored to today's date.
+
+- **News-first, from real outlets.** Anchor recent events and current status on reputable news (Reuters, Bloomberg, The Information, CNBC, TechCrunch, major outlets) or primary documents — wherever the news actually lives. NEVER on Wikipedia, wikis, encyclopedias, or promo/SEO listicles; those are stale and gameable and are not acceptable sources here.
+- **Recency sweep.** Explicitly search for what happened in the last ~2-3 weeks (IPO/funding/filings, launches, partnership changes, pricing/limit changes, exec moves). A brief whose newest item is weeks old has missed the story.
+- **Surface ADVERSE signals, not just wins.** Deliberately hunt the things that move the picture AGAINST the subject: contract cancellations, customers churning or defecting, budget caps and usage limits being hit, outages, layoffs, lawsuits, lost deals, downgrades. A brief that catches good news and misses bad news is dangerous — it lulls the reader. Bad news about a competitor (and risks to your own side) is often the highest-value intelligence in the report.
+
 ## Keep fact, claim, estimate, and sentiment separate
 
 These are four different things and blurring them is the fastest way to lose a reader’s trust.

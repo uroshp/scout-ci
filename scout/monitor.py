@@ -31,8 +31,10 @@ from scout.render import claims_to_markdown, clean_output, format_report
 from scout.schema import claim_id, pregrounding_errors, validation_errors
 
 MATERIAL_CATEGORIES = (
-    "funding, M&A, exec hire/departure, pricing/packaging change, major product launch, "
-    "security incident/breach, legal action, partnership shift, public strategy change"
+    "funding, IPO/S-1 filing, M&A, exec hire/departure, pricing/packaging change, "
+    "usage-limit/budget-cap change, major product launch, product discontinuation/sunset, "
+    "security incident/breach, outage, legal action, layoffs, partnership shift, "
+    "CONTRACT CANCELLATION / CUSTOMER LOSS / CHURN / DEFECTION, public strategy change"
 )
 
 
@@ -72,6 +74,11 @@ is never re-run on stale or already-known information. You do NOT make the final
 
 Do a FEW date-scoped WebSearches for the competitor's recent news. Material categories:
 {MATERIAL_CATEGORIES}.
+
+Deliberately hunt ADVERSE / competitive-threat signals, not just announcements and wins —
+cancellations, customer losses, churn, budget caps, outages, layoffs, lawsuits are exactly the
+high-value developments to surface. Anchor on reputable NEWS outlets; never treat Wikipedia, a
+wiki, an encyclopedia, or a promo/SEO listicle as a source.
 
 Apply TWO STRICT FILTERS before surfacing anything (this is the whole point of the gate):
 1. DATE: surface a development ONLY if it is dated ON OR AFTER the cutoff date given. Discard older
@@ -134,6 +141,12 @@ it updates in place; if genuinely new, use a fresh subject_key in the same style
 
 Do NOT include id/verified/grounding (filled downstream). Every alert MUST carry a "so_what" — the
 decision it changes — or the item is NOT material.
+
+SOURCING: anchor source_url on a reputable NEWS outlet (Reuters, Bloomberg, The Information, CNBC,
+TechCrunch, major outlet) or a primary filing/announcement. NEVER Wikipedia, a wiki, an
+encyclopedia, or a promo/SEO listicle — a deterministic check cuts wiki/encyclopedia anchors, so
+you would lose the change. An ADVERSE development (cancellation, churn, loss) should trace to
+independent reporting, not only the affected company.
 
 Return ONLY a single fenced ```json block:
 {"material": [ {"claim": { ...claim object... },

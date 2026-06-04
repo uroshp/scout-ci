@@ -15,8 +15,15 @@ SOURCE_HIERARCHY = """SOURCE TRUST HIERARCHY (match the claim type to the right 
 - TIER 3S - STRUCTURED REVIEW PLATFORMS (sentiment, but weightier than forums): G2, Capterra, TrustRadius, Gartner Peer Insights. Use for sentiment with more confidence than raw social, given review volume and verified reviewers. Still sentiment, not fact.
 - TIER 4 - RAW SOCIAL/FORUMS: Reddit, X, Glassdoor, Indeed, HN comments. Valid ONLY for sentiment, NEVER as the source of a hard factual claim. Easily astroturfed - treat with caution.
 
+EXCLUDED SOURCES (never permitted — not as anchor, not as corroboration):
+- WIKIPEDIA AND ALL WIKIS / TERTIARY ENCYCLOPEDIAS: Wikipedia, Wikimedia, Fandom/Wikia, Britannica, and the like. They lag and are gameable; for breaking competitive moves they are worthless. A claim that rests on one is CUT — find the original reputable news report or primary document instead. (A deterministic check also cuts any claim anchored on these domains.)
+- PROMO LISTICLES / SEO ROUNDUPS / AGGREGATORS / AI-GENERATED CONTENT FARMS: "best X of 2026" roundups, exchange/affiliate blogs (e.g. crypto-exchange "product lineup" pages), and link-aggregator posts. They are stale and unreliable for current status. Do not anchor a fact or a product-status claim on one — trace to the originating news outlet or company source.
+
+NEWS-FIRST FOR CURRENCY: recent events and current status are anchored on reputable NEWS (Tier 2) or primary documents, not reference sites. The freshest reputable news wins for "what is true now".
+
 RULES:
 - A factual claim resting only on Tier 3S/4 is NOT verified. A direct quote must trace to a Tier 1/2/3 source.
+- TIER-1 NEWS REQUIRED for recency/status: every "Recent Strategic Moves" item and every current-state/status claim (who leads, latest figure, current/flagship product, a launch, a cancellation, a price/limit change) MUST anchor on a reputable news outlet (Tier 2) or a primary filing/announcement (Tier 1) — never a wiki, listicle, or aggregator. Company PR alone is fine for what the company announced, but an ADVERSE fact about a competitor (a cancellation, a loss, churn) should trace to independent reporting, not only the affected party.
 - Distinguish AUDITED revenue (public companies) from COMPANY-STATED ARR/metrics (private, unaudited) - always say which it is.
 - For any "current state" claim (who leads, latest figures, who holds a role), a recent Tier 2 source can override an older Tier 1 filing. Prefer the most recent verified figure and note the as-of date when it matters.
 - NO PROXY ATTRIBUTION: if a Tier 3 source merely REPORTS a figure it attributes to a more authoritative origin (a named survey, filing, or analyst firm), find and cite that origin directly, or cut the claim. Never cite an aggregator or directory blog as a stand-in for the origin it is quoting (e.g. do not cite a blog "reporting a JetBrains survey" - cite JetBrains, or cut it).

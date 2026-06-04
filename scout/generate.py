@@ -21,6 +21,7 @@ import json
 import os
 import re
 import sys
+from datetime import date
 
 from claude_agent_sdk import AgentDefinition, ClaudeAgentOptions, query
 
@@ -45,11 +46,24 @@ RESEARCHER = AgentDefinition(
     description="Researches a company by searching and READING sources.",
     prompt=(
         "You are a competitive-intelligence researcher. Use WebSearch to find recent, "
-        "reputable sources and the fetch_page tool to READ them (pass query = the specific "
-        "thing you're looking for). fetch_page returns the REAL page text, so copy a short "
-        "VERBATIM span from it that supports each finding, and report the exact URL you read. "
-        "Do NOT use any other web-fetch tool. Prefer sources a plain HTTP client can fetch "
-        "(news, company sites, IR pages) over hard-paywalled or bot-walled ones. Return "
+        "reputable NEWS and the fetch_page tool to READ it (pass query = the specific thing "
+        "you're looking for). fetch_page returns the REAL page text, so copy a short VERBATIM "
+        "span from it that supports each finding, and report the exact URL you read. Do NOT use "
+        "any other web-fetch tool.\n"
+        "RECENCY SWEEP (do this FIRST and explicitly): the user prompt gives today's date. Search "
+        "for what has happened in roughly the LAST 2-3 WEEKS — IPO/funding/filings, launches, "
+        "partnership changes, pricing/limit changes, exec moves. Use date-scoped queries (e.g. "
+        "'<company> news <current month year>'). If the freshest thing you find is weeks old, "
+        "search harder — you are missing the story.\n"
+        "HUNT ADVERSE SIGNALS, not just wins: deliberately search for the bad news that moves the "
+        "competitive picture — contract cancellations, customers churning/defecting, budget caps "
+        "or usage limits being hit, outages, layoffs, lawsuits, lost deals, downgrades. Bad news "
+        "about the subject (and risks to our own side) is often the highest-value finding. A "
+        "researcher who returns only positive announcements has failed.\n"
+        "SOURCES: anchor on reputable news outlets (Reuters, Bloomberg, The Information, CNBC, "
+        "TechCrunch, major outlets) or primary documents. NEVER use Wikipedia, wikis, "
+        "encyclopedias (Britannica, Fandom), or promo/SEO listicles and aggregators — they are "
+        "excluded. Prefer sources a plain HTTP client can fetch over hard-paywalled ones. Return "
         "concise, sourced findings — not prose."
     ),
     tools=["WebSearch", FETCH_TOOL_NAME],
@@ -57,16 +71,26 @@ RESEARCHER = AgentDefinition(
 )
 
 VERIFIER = AgentDefinition(
-    description="Independently re-verifies each claim by reading its source.",
+    description="Independently fact-checks each claim like a news editor.",
     prompt=(
-        "You are the verification layer. For each candidate claim, independently re-search "
-        "and use fetch_page to READ the source (pass query = the claim's key fact). fetch_page "
-        "returns the REAL page text. Judge whether it genuinely SUPPORTS the claim against the "
-        "source hierarchy, and keep only what is verifiable, specific, and decision-relevant. "
-        "Copy the exact VERBATIM span (from fetch_page's output) backing each kept claim. Record "
-        "every cut or revision. Do NOT use any other web-fetch tool. Your support judgment is "
-        "separate from the later mechanical grounding check — do your job even though grounding "
-        "will re-check the excerpt."
+        "You are the verification layer — fact-check each candidate claim the way a news editor "
+        "would, not by confirming a string sits on some page. For each claim, independently "
+        "re-search and use fetch_page to READ the source (pass query = the claim's key fact). "
+        "fetch_page returns the REAL page text. Do NOT use any other web-fetch tool.\n"
+        "CHECK CURRENCY, not just support: actively search for the LATEST status and for "
+        "DISCONFIRMING reports — e.g. for any 'current / flagship / exists / ongoing' claim, "
+        "search '<thing> discontinued OR cancelled OR sunset OR shut down'. If recent reporting "
+        "supersedes or contradicts the claim, REVISE it to the current truth or CUT it. A claim "
+        "that was true months ago but is now stale must not survive.\n"
+        "SOURCE DISCIPLINE: every Recent-Strategic-Moves item and every status/current-state claim "
+        "must anchor on a reputable NEWS outlet (Reuters, Bloomberg, The Information, CNBC, "
+        "TechCrunch, major outlet) or a primary filing. REJECT and re-source anything anchored on "
+        "Wikipedia, a wiki, an encyclopedia (Britannica/Fandom), or a promo/SEO listicle or "
+        "aggregator — those are excluded; find the originating reputable source or cut.\n"
+        "Keep only what is verifiable, current, specific, and decision-relevant. Copy the exact "
+        "VERBATIM span (from fetch_page's output) backing each kept claim. Record every cut or "
+        "revision. Your support judgment is separate from the later mechanical grounding check — "
+        "do your job even though grounding will re-check the excerpt."
     ),
     tools=["WebSearch", FETCH_TOOL_NAME],
     model=config.SUBAGENT_MODEL,
@@ -124,6 +148,14 @@ Do NOT include "id", "verified", or "grounding" — those are filled determinist
 GROUNDABILITY: prefer source_url values a plain HTTP client can read. Avoid anchoring on
 SEC.gov directly (it blocks datacenter IPs), hard paywalls, or Cloudflare-walled pages; use a
 fetchable reputable source as the anchor and keep the stronger one as corroboration.
+
+SOURCING DISCIPLINE (enforced): every "recent_moves" claim and every status/current-state claim
+(current/flagship/latest, a launch, a cancellation, a price/limit change) MUST anchor source_url
+on a reputable NEWS outlet (Tier 2) or a primary filing/announcement (Tier 1). NEVER anchor any
+claim on Wikipedia, a wiki, an encyclopedia (Britannica/Fandom), or a promo/SEO listicle or
+aggregator — a deterministic check CUTS any claim anchored on a wiki/encyclopedia domain, so it
+will not survive. An ADVERSE fact about the competitor (a cancellation, a loss, churn) should
+trace to independent reporting, not only the affected company's own PR.
 
 Three sections — EXECUTIVE SUMMARY, COMPETITIVE BATTLECARD (every zone), and OBJECTION HANDLING —
 are authored as short PROSE BLOCKS inside the single "claim" string, NOT as bullets. Natural,
@@ -212,7 +244,20 @@ Fewer, solid, sharp, ranked claims beat many weak ones. Every claim must be grou
 
 def _build_user_prompt(target, perspective, focus):
     framing, title = _framing(target, perspective, focus)
+    today = date.today().isoformat()
     return f"""{framing}
+
+TODAY'S DATE IS {today}. This brief must reflect the world as of today.
+- Run a RECENCY SWEEP: dispatch researchers to find what happened in the last ~2-3 weeks
+  (IPO/funding/filings, launches, partnership changes, pricing/limit changes, exec moves).
+  "Recent Strategic Moves" must LEAD with the newest items and cover that window — if your
+  newest item is weeks old, you have missed the story.
+- Surface ADVERSE / competitive-threat signals, not just wins: cancellations, customer churn,
+  budget caps / usage limits hit, outages, layoffs, lawsuits, lost deals. Bad news is often the
+  most valuable intelligence; a brief that only reports positive moves has failed.
+- SOURCING DISCIPLINE: every Recent-Strategic-Moves item and every status/current-state claim
+  must cite a reputable NEWS outlet (Tier 2) or a primary filing (Tier 1). NEVER Wikipedia, a
+  wiki, an encyclopedia, or a promo/SEO listicle/aggregator — those are excluded and will be cut.
 
 Produce the competitive intelligence brief now, per your system instructions.
 Use EXACTLY this title in the output JSON:
@@ -236,6 +281,13 @@ page). For each item below, do ONE of: repair it, or drop it. Two failure modes:
   `corroboration`; set `anchor_substitution` with `agreement_verified: true`.
   If you cannot find a fetchable AGREEING source, or the sources conflict, DROP the claim — do
   not substitute a conflicting source.
+
+- status "excluded": source_url is a banned wiki/encyclopedia (Wikipedia, Fandom, Britannica,
+  etc.) — NEVER permitted as a source here. Use WebSearch + fetch_page to find a REPUTABLE NEWS
+  source (Reuters, Bloomberg, The Information, CNBC, TechCrunch, a major outlet) or a primary
+  filing that you VERIFY supports the claim, and make THAT the new source_url with a verbatim
+  excerpt. Do NOT keep the wiki source anywhere, not even in corroboration. If no reputable news
+  source supports it, DROP the claim — a fact that only a wiki asserts is not good enough here.
 
 Keep each repaired claim's subject_key, section, zone, order, claim_type unchanged. Emit full
 claim objects per the original contract (NO "id", "verified", or "grounding" fields).

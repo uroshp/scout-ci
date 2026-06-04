@@ -142,6 +142,28 @@ class GroundingResult:
 
 CUT_ABSENT = "evidence excerpt not found in source"
 CUT_UNREACHABLE = "source unreachable for grounding"
+CUT_EXCLUDED = "source on excluded list (wiki/encyclopedia not permitted) — re-source from reputable news"
+
+# Hard exclusion (control line): crowd-edited wikis and tertiary encyclopedias are
+# never an acceptable anchor for a competitive-intelligence claim — they lag and are
+# gameable. A claim anchored here is cut BEFORE any fetch and routed to repair, so a
+# true-but-badly-sourced fact gets re-anchored on reputable news rather than lost.
+# (Promo listicles / aggregators / content-farms are excluded too, but those are a
+# model judgment in the prompts — this set is the deterministic, enumerable core.)
+BLOCKED_SOURCE_DOMAINS = {
+    "wikipedia.org", "wikimedia.org", "wikidata.org", "wiktionary.org",
+    "wikinews.org", "wikivoyage.org", "wikibooks.org", "wikiquote.org",
+    "wikisource.org", "fandom.com", "wikia.com", "britannica.com",
+    "everipedia.org", "infogalactic.com",
+}
+
+
+def is_excluded_source(url: str) -> bool:
+    """True if url's host is a blocked wiki/encyclopedia domain (any subdomain)."""
+    host = urlparse(url or "").netloc.lower().split(":")[0]
+    if host.startswith("www."):
+        host = host[4:]
+    return any(host == d or host.endswith("." + d) for d in BLOCKED_SOURCE_DOMAINS)
 
 
 def _fetch_text(url: str):
@@ -211,12 +233,27 @@ def ground_claims(claims: list[dict]) -> dict:
     proven source (claim-object.md §2.1).
     """
     kept, cut_entries, failed, results = [], [], [], []
-    counts = {"grounded": 0, "absent": 0, "unreachable": 0}
+    counts = {"grounded": 0, "absent": 0, "unreachable": 0, "excluded": 0}
+
+    # Deterministic exclusion FIRST: never spend a fetch on a blocked wiki/encyclopedia
+    # source — cut it and route to repair so the claim can be re-sourced to news.
+    allowed = []
+    for claim in claims:
+        if is_excluded_source(claim["source_url"]):
+            counts["excluded"] += 1
+            cut_entries.append({
+                "action": "CUT",
+                "claim": claim.get("claim", claim.get("subject_key", "?")),
+                "reason": CUT_EXCLUDED,
+            })
+            failed.append({"claim": claim, "status": "excluded", "reason": CUT_EXCLUDED})
+        else:
+            allowed.append(claim)
 
     # Free levers A+B: prefetch unique URLs once, concurrently; reuse per claim.
-    cache = _prefetch([c["source_url"] for c in claims])
+    cache = _prefetch([c["source_url"] for c in allowed])
 
-    for claim in claims:
+    for claim in allowed:
         res = ground_claim(claim, fetched=cache.get(claim["source_url"]))
         results.append(res)
         counts[res.status] += 1
