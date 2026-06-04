@@ -216,3 +216,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Scout v2 local debug artifacts (not committed)
+debug/
