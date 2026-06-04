@@ -282,7 +282,7 @@ async def _run_retry(payload):
         disallowed_tools=["WebFetch"],
         permission_mode="bypassPermissions",
         max_turns=config.MAX_TURNS,
-        max_budget_usd=config.MAX_BUDGET_USD,
+        max_budget_usd=config.GEN_MAX_BUDGET_USD,
     )
     user = "ITEMS TO REPAIR:\n" + json.dumps(payload, ensure_ascii=False)
     return await _drive(user, options, "retry-agent")
@@ -370,7 +370,7 @@ async def _run_orchestrator(target, perspective, focus) -> dict:
         disallowed_tools=["WebFetch"],                    # no model-mediated fetch anywhere
         permission_mode="bypassPermissions",
         max_turns=config.MAX_TURNS,
-        max_budget_usd=config.MAX_BUDGET_USD,
+        max_budget_usd=config.GEN_MAX_BUDGET_USD,
     )
     return await _drive(_build_user_prompt(target, perspective, focus), options, "orchestrator")
 
