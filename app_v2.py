@@ -6,7 +6,9 @@ agentic work" display elements around the verified brief. Does NOT trigger gener
 
 Run:  streamlit run app_v2.py
 """
+import html
 import os
+import re
 from datetime import datetime
 
 import streamlit as st
@@ -14,17 +16,105 @@ import streamlit.components.v1 as components
 
 from scout import display, store
 
-# A2: ticks DOWN from the server-computed remaining seconds (__R__) using elapsed
-# real seconds since load — independent of the browser's wall clock.
-_COUNTDOWN_HTML = """<div id="cd" style="font:600 14px -apple-system,system-ui,sans-serif;
-color:#2a8;font-variant-numeric:tabular-nums"></div><script>
-let r=__R__;const t0=performance.now(),el=document.getElementById("cd");
-function tick(){let l=r-(performance.now()-t0)/1000;
-if(l<=0){el.textContent="check due now";el.style.color="#e85";return;}
-let h=Math.floor(l/3600),m=Math.floor(l%3600/60),s=Math.floor(l%60);
-el.textContent="next check in "+h+"h "+String(m).padStart(2,"0")+"m "+String(s).padStart(2,"0")+"s";}
-tick();setInterval(tick,1000);</script>"""
+# --- Brief render: block-card hierarchy ported from scripts/render_static.py ---
+# Streamlit's st.markdown can't run the static renderer's client-side JS grouping
+# pass (it strips <script>), so we reproduce md->HTML + the .block grouping here in
+# Python and emit one raw-HTML string. CSS is scoped to #scout-brief and mirrors the
+# static renderer 1:1 (left rail, larger title, indented body/so-what, block gaps).
+_BRIEF_CSS = """<style>
+#scout-brief { line-height: 1.55; }
+#scout-brief h1 { font-size: 1.7rem; font-weight: 700; margin: .2rem 0 1.3rem; }
+#scout-brief h2 { margin: 2.4rem 0 1rem; padding-bottom: .3rem; font-size: 1.4rem;
+                  border-bottom: 1px solid rgba(136,136,136,.35); }
+#scout-brief h3 { margin: 2rem 0 1rem; color: #888; text-transform: uppercase;
+                  letter-spacing: .04em; font-size: .9rem; }
+#scout-brief .block { margin: 0 0 1.9rem; padding-left: .9rem;
+                      border-left: 3px solid rgba(34,168,136,.5); }
+#scout-brief .block .btitle { font-size: 1.3rem; font-weight: 700; line-height: 1.3;
+                              margin: 0 0 .6rem; }
+#scout-brief .block .bbody { margin: .55rem 0 .55rem 1.1rem; }
+#scout-brief .block .bbody:last-child { margin-top: .7rem; opacity: .92; }
+#scout-brief p { margin: .6rem 0; }
+#scout-brief ul { padding-left: 1.2rem; margin: .6rem 0; }
+#scout-brief li { margin-bottom: .4rem; }
+#scout-brief a { color: #2a8; text-decoration: none; }
+#scout-brief a:hover { text-decoration: underline; }
+#scout-brief code { background: rgba(136,136,136,.2); padding: .1rem .3rem; border-radius: 4px; }
+</style>"""
 
+
+def _inline_md(text: str) -> str:
+    """Convert the inline markdown these briefs use (links, bold, italic, code) to
+    HTML. Dollar signs become &#36; so Streamlit never reads `$…$` as LaTeX."""
+    s = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    s = re.sub(r"`([^`]+)`", r"<code>\1</code>", s)
+    s = re.sub(r"\[([^\]]+)\]\(([^)]+)\)",
+               r'<a href="\2" target="_blank" rel="noopener">\1</a>', s)
+    s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)          # bold first
+    s = re.sub(r"\*([^*]+)\*", r"<em>\1</em>", s)                    # then italic
+    s = s.replace("\\$", "$").replace("$", "&#36;")
+    return s
+
+
+def _is_title(para: str) -> bool:
+    """A paragraph that is a single full-line bold span — the block headline. Mirrors
+    the static renderer's isTitle (a <p> whose only child is <strong>). `**So what:**
+    rest` / `**Soundbite:** *"…"*` have trailing text, so they stay body."""
+    p = para.strip()
+    return p.startswith("**") and p.endswith("**") and p.count("**") == 2 and len(p) > 4
+
+
+def _render_brief_html(md: str) -> str:
+    """md -> raw HTML with the prose-block hierarchy. Each full-line-bold title plus
+    its following body paragraphs is grouped into a .block; headings and bullet lists
+    are breaks (never absorbed), matching scripts/render_static.py."""
+    # 1) tokenize into block-level elements (h1/h2/h3, ul, title, body paragraph)
+    tokens, para, bullets = [], [], []
+    def flush_para():
+        if para:
+            txt = " ".join(para).strip()
+            tokens.append(("title" if _is_title(txt) else "body", txt))
+            para.clear()
+    def flush_bullets():
+        if bullets:
+            tokens.append(("ul", list(bullets)))
+            bullets.clear()
+    for line in md.splitlines():
+        s = line.rstrip()
+        if not s.strip():
+            flush_para(); flush_bullets(); continue
+        m = re.match(r"^(#{1,6})\s+(.*)$", s)
+        if m:
+            flush_para(); flush_bullets()
+            tokens.append((f"h{len(m.group(1))}", m.group(2).strip())); continue
+        if s.lstrip().startswith("- "):
+            flush_para()
+            bullets.append(s.lstrip()[2:].strip()); continue
+        flush_bullets()
+        para.append(s.strip())
+    flush_para(); flush_bullets()
+
+    # 2) emit, grouping each title + its trailing body paragraphs into a .block
+    out, i = [], 0
+    while i < len(tokens):
+        kind, val = tokens[i]
+        if kind == "title":
+            parts = [f'<p class="btitle">{_inline_md(val[2:-2].strip())}</p>']
+            i += 1
+            while i < len(tokens) and tokens[i][0] == "body":
+                parts.append(f'<p class="bbody">{_inline_md(tokens[i][1])}</p>')
+                i += 1
+            out.append(f'<div class="block">{"".join(parts)}</div>')
+        elif kind == "ul":
+            out.append("<ul>" + "".join(f"<li>{_inline_md(b)}</li>" for b in val) + "</ul>")
+            i += 1
+        elif kind.startswith("h"):
+            out.append(f'<{kind} id="{_slug(val)}">{_inline_md(val)}</{kind}>')
+            i += 1
+        else:  # a stray body paragraph not preceded by a title
+            out.append(f"<p>{_inline_md(val)}</p>")
+            i += 1
+    return '<div id="scout-brief">' + "".join(out) + "</div>"
 
 def _pretty(slug: str) -> str:
     return slug.replace("__vs__", " vs ").replace("__", " · ").replace("-", " ")
@@ -45,6 +135,210 @@ def _asset(*names):
         if os.path.exists(p):
             return p
     return None
+
+
+# --- The 5-minute brief: a DERIVED top layer ---------------------------------
+# Pure selection/reorganization of already-verified claims. It generates NO new
+# prose: today's angle is the freshest recent-move claim shown verbatim with its
+# source; the Top 3 plays are the battlecard "where we win" claims shown in full —
+# bold title, the why (their body), and their existing soundbite — all verbatim.
+_FIVE_MIN_CSS = """<style>
+#scout-rt { margin:.2rem 0 1.1rem; }
+#scout-rt h1 { font-size:1.85rem; font-weight:800; line-height:1.2; margin:0; }
+#scout-rt .rt-focus { font-weight:600; color:#2a8; }
+#scout-5min { margin:.2rem 0 1.6rem; }
+#scout-5min .fm-lbl { color:#2a8; font-size:.78rem; font-weight:700; text-transform:uppercase;
+                      letter-spacing:.06em; margin:0 0 .55rem; }
+#scout-5min .fm-angle { border-left:3px solid rgba(34,168,136,.6); padding:.1rem 0 .1rem .9rem;
+                        margin-bottom:1.6rem; }
+#scout-5min .fm-atext { font-size:1.12rem; line-height:1.5; margin:.1rem 0 .5rem; }
+#scout-5min .fm-src { font-size:.8rem; color:#888; }
+#scout-5min .fm-src a, #scout-5min a { color:#2a8; text-decoration:none; }
+#scout-5min .fm-src a:hover, #scout-5min a:hover { text-decoration:underline; }
+#scout-5min .fm-plays { display:grid; gap:1rem; }
+#scout-5min .fm-play { border:1px solid rgba(136,136,136,.25);
+                       border-left:3px solid rgba(34,168,136,.5); border-radius:10px; padding:.85rem 1.05rem; }
+#scout-5min .fm-pt { font-size:1.1rem; font-weight:700; line-height:1.3; margin-bottom:.35rem; }
+#scout-5min .fm-pwhy { margin:.25rem 0 .55rem; line-height:1.45; }
+#scout-5min .fm-sb { margin:.5rem 0 0; padding-top:.5rem; border-top:1px dashed rgba(136,136,136,.35);
+                     font-size:.93rem; color:#9a9a9a; }
+#scout-5min .fm-sb em { color:inherit; }
+#scout-5min .fm-sb-lbl { font-weight:700; color:#2a8; font-style:normal; }
+</style>"""
+
+
+def _parse_claim(c: dict) -> dict:
+    """Split a verified claim's markdown into its parts WITHOUT rewriting them: the
+    bold headline, body paragraph(s), the **So what:** play line, and the
+    **Soundbite:** line. The 5-minute view reuses these strings verbatim."""
+    out = {"title": "", "body": [], "so_what": "", "soundbite": ""}
+    for p in (s.strip() for s in c.get("claim", "").split("\n\n")):
+        if not p:
+            continue
+        if p.startswith("**So what:**"):
+            out["so_what"] = p[len("**So what:**"):].strip()
+        elif p.startswith("**Soundbite:**"):
+            out["soundbite"] = p[len("**Soundbite:**"):].strip()
+        elif _is_title(p):
+            out["title"] = p[2:-2].strip()
+        else:
+            out["body"].append(p)
+    return out
+
+
+def _domain(url: str) -> str:
+    m = re.search(r"https?://([^/]+)", url or "")
+    return m.group(1).replace("www.", "") if m else "source"
+
+
+def _five_min_html(claims: list[dict]) -> str:
+    by_order = lambda lst: sorted(lst, key=lambda c: c.get("order", 0))
+
+    # Today's angle — the freshest recent move, pointed at its claim + source.
+    moves = [c for c in claims if c.get("section") == "recent_moves"]
+    angle_html = ""
+    if moves:
+        a = max(moves, key=lambda c: (c.get("as_of") or "", -c.get("order", 0)))
+        pa = _parse_claim(a)
+        body_text = " ".join(pa["body"])
+        inner = (f'<strong>{_inline_md(pa["title"])}</strong> {_inline_md(body_text)}'
+                 if pa["title"] else _inline_md(body_text))
+        src, asof = a.get("source_url", ""), a.get("as_of", "")
+        src_line = (f'<div class="fm-src"><b>{html.escape(asof)}</b> · '
+                    f'<a href="{html.escape(src)}" target="_blank" rel="noopener">'
+                    f'{html.escape(_domain(src))}</a></div>') if src else ""
+        angle_html = ('<div class="fm-angle"><div class="fm-lbl">Today\'s angle</div>'
+                      f'<p class="fm-atext">{inner}</p>{src_line}</div>')
+
+    # Top 3 plays — the battlecard "where we win" claims, shown in full: each carries
+    # a bold title, the why (its body), and its existing soundbite. All verbatim.
+    wins = by_order([c for c in claims
+                     if c.get("section") == "battlecard" and c.get("zone") == "where_we_win"])[:3]
+    plays = []
+    for c in wins:
+        p = _parse_claim(c)
+        why = f'<p class="fm-pwhy">{_inline_md(" ".join(p["body"]))}</p>' if p["body"] else ""
+        sb = (f'<p class="fm-sb"><span class="fm-sb-lbl">Soundbite:</span> '
+              f'{_inline_md(p["soundbite"])}</p>') if p["soundbite"] else ""
+        plays.append(f'<div class="fm-play"><div class="fm-pt">{_inline_md(p["title"])}</div>'
+                     f'{why}{sb}</div>')
+    plays_html = ('<div class="fm-lbl">Top 3 plays</div>'
+                  f'<div class="fm-plays">{"".join(plays)}</div>') if plays else ""
+
+    return '<div id="scout-5min">' + angle_html + plays_html + '</div>'
+
+
+def _slug(text: str) -> str:
+    """Stable heading id: lowercase, punctuation dropped, spaces -> hyphens. Used
+    identically by the brief headings and the TOC links so anchors line up."""
+    s = re.sub(r"[^\w\s-]", "", text.lower()).strip()
+    return re.sub(r"[\s_]+", "-", s)
+
+
+def _strip_h1(md: str) -> str:
+    """Remove the leading '# …' report title — it's rendered separately, above the
+    5-minute brief, so it must not repeat at the top of the full brief."""
+    return re.sub(r"^#\s+.*$\n?", "", md, count=1, flags=re.M)
+
+
+def _report_title_html(md: str, meta: dict | None) -> str:
+    """The master report title, shown above Today's angle. Appends the focus area
+    (from meta) when the report has one, so visitors see what it covers."""
+    m = re.search(r"^#\s+(.*)$", md, flags=re.M)
+    title = m.group(1).strip() if m else "Competitive Intelligence Brief"
+    focus = (meta or {}).get("focus")
+    focus_html = f'<span class="rt-focus"> · {html.escape(focus)}</span>' if focus else ""
+    return f'<div id="scout-rt"><h1>{html.escape(title)}{focus_html}</h1></div>'
+
+
+_TOC_CSS = """<style>
+#scout-toc { margin-bottom:.4rem; }
+#scout-toc .toc-lbl { color:#2a8; font-size:.78rem; font-weight:700; text-transform:uppercase;
+                      letter-spacing:.06em; margin-bottom:.45rem; }
+#scout-toc ul { list-style:none; margin:0; padding:0; border-left:2px solid rgba(136,136,136,.2); }
+#scout-toc li a { display:block; padding:.2rem 0 .2rem .75rem; margin-left:-2px; color:inherit;
+                  text-decoration:none; font-size:.9rem; line-height:1.35;
+                  border-left:2px solid transparent; }
+#scout-toc li a:hover { color:#2a8; border-left-color:#2a8; }
+#scout-toc .toc-h3 a { padding-left:1.5rem; font-size:.82rem; color:#888; }
+</style>"""
+
+
+def _toc_html(md: str) -> str:
+    """Table of contents from the brief's ## / ### headings, each linking to the
+    matching heading id. Pure navigation over the existing sections."""
+    items = []
+    for line in md.splitlines():
+        m = re.match(r"^(##|###)\s+(.*)$", line)
+        if not m:
+            continue
+        text = m.group(2).strip()
+        cls = "toc-h2" if m.group(1) == "##" else "toc-h3"
+        items.append(f'<li class="{cls}"><a href="#{_slug(text)}">{html.escape(text)}</a></li>')
+    if not items:
+        return ""
+    return ('<div id="scout-toc"><div class="toc-lbl">Contents</div><ul>'
+            + "".join(items) + "</ul></div>")
+
+
+def _fmt_date_human(s: str | None) -> str:
+    if not s:
+        return "—"
+    try:
+        return datetime.strptime(s[:10], "%Y-%m-%d").strftime("%b %-d, %Y")
+    except ValueError:
+        return s
+
+
+# Metrics strip: compact cards whose timestamps are localized to the VIEWER's
+# timezone client-side (server runs UTC and can't know it). Naive ISO values are
+# treated as UTC. The Next-check card also carries the live countdown (A2).
+_METRICS_STRIP = """<div id="ms">
+<style>
+ #ms{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;color-scheme:light dark;color:#1a1a1a;}
+ @media (prefers-color-scheme: dark){ #ms{color:#fafafa;} }
+ #ms .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem;}
+ #ms .m{border:1px solid rgba(136,136,136,.35);border-radius:10px;padding:.6rem .85rem;}
+ #ms .ml{color:#888;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+ #ms .mv{font-size:1.5rem;font-weight:800;line-height:1.15;margin-top:.18rem;}
+ #ms .mv .t{display:block;font-size:.82rem;font-weight:500;color:#9a9a9a;margin-top:.12rem;}
+ #ms .cd{color:#2a8;font-weight:700;font-size:.78rem;font-variant-numeric:tabular-nums;margin-top:.3rem;}
+ #ms .cd.due{color:#e85;}
+ #ms .sub{color:#888;font-size:.72rem;margin-top:.3rem;}
+ #ms .mlink{color:inherit;text-decoration:none;border-bottom:2px solid rgba(34,168,136,.55);}
+ #ms .mlink:hover{border-bottom-color:#2a8;}
+ #ms .sub a{color:#2a8;text-decoration:none;}
+ #ms .sub a:hover{text-decoration:underline;}
+</style>
+<div class="grid">
+ <div class="m"><div class="ml">Last checked</div><div class="mv" data-utc="__LAST__">—</div></div>
+ <div class="m"><div class="ml">Next check</div><div class="mv" data-utc="__NEXT__">—</div><div class="cd" id="cd"></div></div>
+ <div class="m"><div class="ml">Baseline</div><div class="mv">__BASE__</div></div>
+ <div class="m"><div class="ml">Verified claims</div><div class="mv"><a class="mlink" href="#verified-claims" target="_parent">__N__</a></div><div class="sub"><a href="#verified-claims" target="_parent">see all ↓</a> · cadence __CAD__h</div></div>
+</div>
+<script>
+ function fmt(el){var iso=el.getAttribute('data-utc');
+  if(!iso||iso==='None'||iso===''){el.textContent='—';return;}
+  var d=new Date(/[zZ]|[+-]\\d\\d:?\\d\\d$/.test(iso)?iso:iso+'Z');
+  if(isNaN(d)){el.textContent=iso;return;}
+  var dt=d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+  var tm=d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit',timeZoneName:'short'});
+  el.innerHTML=dt+'<span class="t">'+tm+'</span>';}
+ document.querySelectorAll('#ms .mv[data-utc]').forEach(fmt);
+ var r=__R__,t0=performance.now(),cd=document.getElementById('cd');
+ function tick(){var l=r-(performance.now()-t0)/1000;
+  if(l<=0){cd.textContent='check due now';cd.classList.add('due');return;}
+  var h=Math.floor(l/3600),m=Math.floor(l%3600/60),s=Math.floor(l%60);
+  cd.textContent='next check in '+h+'h '+String(m).padStart(2,'0')+'m '+String(s).padStart(2,'0')+'s';}
+ tick();setInterval(tick,1000);
+ // The strip is sandboxed (no top-navigation), but allow-same-origin lets us reach
+ // the parent DOM — so jump to the claims list by scrolling the parent element.
+ document.querySelectorAll('#ms a[href="#verified-claims"]').forEach(function(a){
+  a.addEventListener('click',function(ev){ev.preventDefault();
+   try{var t=window.parent.document.getElementById('verified-claims');
+       if(t)t.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}});});
+</script>
+</div>"""
 
 
 def main():
@@ -71,29 +365,43 @@ def main():
     rows = status["claim_timestamps"]
     new_count = sum(1 for r in rows if r.get("is_new"))
 
-    # --- Elements 1 + 3: the agentic-work banner ---
+    # --- Elements 1 + 3: the monitoring / freshness strip (kept) ---
     st.markdown(f"**{act['line']}**")
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Last checked", cp["last_checked_ts"] or cp["last_checked"] or "—")
-    c2.metric("Next check", cp["next_check"] or "—", help=f"cadence {cp['cadence_hours']}h")
-    c3.metric("Baseline", cp["baseline_date"] or "—")
-    c4.metric("Verified claims", act["claims_tracked"])
-
-    # A2: live countdown (clock-independent — ticks from elapsed seconds since load).
-    if cp["next_check"]:
-        try:
-            remaining = int((datetime.fromisoformat(cp["next_check"]) - datetime.now()).total_seconds())
-        except ValueError:
-            remaining = 0
-        components.html(_COUNTDOWN_HTML.replace("__R__", str(max(remaining, 0))), height=34)
+    try:
+        remaining = int((datetime.fromisoformat(cp["next_check"]) - datetime.now()).total_seconds())
+    except (ValueError, TypeError):
+        remaining = 0
+    strip = (_METRICS_STRIP
+             .replace("__LAST__", str(cp["last_checked_ts"] or cp["last_checked"] or ""))
+             .replace("__NEXT__", str(cp["next_check"] or ""))
+             .replace("__BASE__", _fmt_date_human(cp["baseline_date"]))
+             .replace("__N__", str(act["claims_tracked"]))
+             .replace("__CAD__", str(cp["cadence_hours"]))
+             .replace("__R__", str(max(remaining, 0))))
+    components.html(strip, height=112)
     st.divider()
 
+    md = _read_current(slug)
+    meta = store.load_meta(slug)
     brief_col, side_col = st.columns([3, 1], gap="large")
 
     with brief_col:
-        st.markdown(_read_current(slug))
+        st.markdown(_FIVE_MIN_CSS, unsafe_allow_html=True)
+        # Master report title (with focus) sits above Today's angle so visitors
+        # immediately see what this is.
+        st.markdown(_report_title_html(md, meta), unsafe_allow_html=True)
+        # 5-minute brief — derived from the verified claims (no new prose).
+        st.markdown(_five_min_html(store.load_claims(slug)), unsafe_allow_html=True)
+        # Full verified brief — always visible, full Executive Summary included,
+        # title stripped (rendered above).
+        st.markdown(_BRIEF_CSS, unsafe_allow_html=True)
+        st.markdown(_render_brief_html(_strip_h1(md)), unsafe_allow_html=True)
 
     with side_col:
+        # --- Jump navigation over the brief's sections ---
+        st.markdown(_TOC_CSS, unsafe_allow_html=True)
+        st.markdown(_toc_html(md), unsafe_allow_html=True)
+        st.divider()
         # --- A4: claims a monitor run touched in the last 24h (empty on a fresh baseline) ---
         st.subheader(f"Just updated ({new_count})")
         if recent:
@@ -123,7 +431,11 @@ def main():
             st.caption("No material changes alerted yet.")
 
     # --- Element 4: timestamps on every claim (+ NEW flag) ---
-    with st.expander(f"Claim freshness — {len(rows)} claims ({new_count} updated <24h)"):
+    # Anchor target for the top "Verified claims" stat (which links here).
+    st.markdown('<div id="verified-claims" style="scroll-margin-top:1rem"></div>',
+                unsafe_allow_html=True)
+    with st.expander(f"Claim freshness — {len(rows)} claims ({new_count} updated <24h)",
+                     expanded=True):
         st.caption("`as_of` = the date the fact is true as-of · `verified_on` = when grounding "
                    "last confirmed the exact wording · `is_new` = a monitor run touched it <24h ago.")
         st.dataframe(rows, use_container_width=True, hide_index=True)
