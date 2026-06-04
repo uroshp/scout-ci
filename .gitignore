@@ -219,3 +219,6 @@ __marimo__/
 
 # Scout v2 local debug artifacts (not committed)
 debug/
+
+# Scout static-render build output (scripts/render_static.py)
+out/

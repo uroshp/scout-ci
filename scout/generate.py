@@ -125,9 +125,33 @@ GROUNDABILITY: prefer source_url values a plain HTTP client can read. Avoid anch
 SEC.gov directly (it blocks datacenter IPs), hard paywalls, or Cloudflare-walled pages; use a
 fetchable reputable source as the anchor and keep the stronger one as corroboration.
 
-EXECUTIVE SUMMARY claims: the "claim" text must read as a bolded verdict, then the supporting
-detail, then a "**So what:**" line giving the concrete implication. Every exec-summary claim
-needs its "So what:". A finding with no decision attached is noise.
+Three sections — EXECUTIVE SUMMARY, COMPETITIVE BATTLECARD (every zone), and OBJECTION HANDLING —
+are authored as short PROSE BLOCKS inside the single "claim" string, NOT as bullets. Natural,
+human writing a person would actually say, not a terse spec-sheet line. Keep the analysis sharp and
+the "so what" intact; just warm the language (see the Voice and tone methodology section).
+
+EXACT BLOCK SHAPE — every such "claim" string is THREE visually separate parts, each separated by a
+genuine BLANK LINE (\\n\\n), never blended into one paragraph. Do NOT start the block with "- ":
+
+  **<bolded one-line title>**
+
+  <a 1-2 sentence paragraph in plain, human language>
+
+  **<label>:** <closing line>
+
+The parts by section:
+- EXECUTIVE SUMMARY: title = the verdict; paragraph = the supporting detail; closing = "**So what:**"
+  + the concrete decision it changes. Every exec point needs its So what.
+- BATTLECARD (section "battlecard"): title = the edge in one line; paragraph = why it holds and for
+  which buyer; closing = "**Soundbite:**" + an italicized line a rep could say out loud, e.g.
+  *"..."*. Evidence-backed, never combative trash-talk.
+- OBJECTION HANDLING (section "objection_handling"): title = the objection a prospect raises citing
+  the competitor; paragraph = an evidence-based response that pivots to a genuine strength; closing =
+  "**So what:**" + the implication. Ground every objection in a REAL surfaced weakness, never invented.
+
+TONE (all three): direct, confident, and human. NO combative or zero-sum phrasing — never "you will
+lose", "crush", "dominate", "they're finished". Confidence is a clear verdict with evidence behind
+it, not trash talk. A reader should find it sharp AND pleasant to read.
 """
 
 

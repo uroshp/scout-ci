@@ -76,6 +76,15 @@ For each zone, include a usable soundbite — something a person could actually 
 
 Ground objections in the real weaknesses and complaints surfaced from sentiment and analysis, not invented ones. For each likely objection a prospect might raise citing this competitor, provide a specific, evidence-based response that pivots to a genuine strength.
 
+## Voice and tone
+
+Write like a sharp human analyst briefing a colleague, not like a database emitting rows. The substance stays rigorous and decisive; the language should be natural and readable.
+
+- Lead with the judgment, then back it. Be direct and confident, but not combative — avoid macho or zero-sum phrasing ("you will lose", "crush them", "they're dead in the water"). Confidence reads as a clear verdict with evidence behind it, not as trash talk.
+- Prefer plain, warm sentences over clipped fragments and noun-stacks. A short paragraph a person would actually say out loud beats a terse bullet that reads like a spec sheet.
+- Keep the "so what" discipline and the specificity — real names, numbers, dates. Warming the tone never means getting vaguer.
+- It is fine to be opinionated about what matters. It is not fine to be glib, snide, or to manufacture drama the evidence doesn't support.
+
 ## What this methodology cannot see (be honest about it)
 
 This tool works from public sources. Some of the most valuable competitive intelligence is not public, and the brief should not pretend otherwise:

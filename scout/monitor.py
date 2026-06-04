@@ -19,7 +19,7 @@ import hashlib
 import json
 import os
 import re
-from datetime import date
+from datetime import datetime, timedelta
 
 from claude_agent_sdk import ClaudeAgentOptions
 
@@ -55,6 +55,13 @@ def _fingerprint(subject_key: str, new_value: str) -> str:
     # Strip ALL whitespace so "$852B" and "$852 B" dedup to the same transition.
     norm = re.sub(r"\s+", "", f"{subject_key}|{new_value}".lower())
     return "f_" + hashlib.sha256(norm.encode()).hexdigest()[:12]
+
+
+def _since_date(s: str | None) -> str | None:
+    """Normalize a stored last_checked/baseline (a plain date OR a full datetime
+    ISO string, now that last_checked carries a time) to a YYYY-MM-DD cutoff for
+    the date-scoped triage search."""
+    return s[:10] if s else s
 
 
 # --- Stage 1: cheap triage gate ----------------------------------------------
@@ -160,6 +167,7 @@ def _apply_updates(claims, material_grounded, alerted_fingerprints):
     by_id = {c["id"]: c for c in claims}
     new_alerts = []
     seen = set(alerted_fingerprints)
+    now = datetime.now()
     for claim, alert in material_grounded:
         fp = _fingerprint(claim["subject_key"], str(alert.get("new_value", claim.get("claim", ""))))
         if fp in seen:
@@ -167,7 +175,8 @@ def _apply_updates(claims, material_grounded, alerted_fingerprints):
         seen.add(fp)
         by_id[claim["id"]] = claim  # in-place revise (same id) or add net-new
         new_alerts.append({
-            "date": date.today().isoformat(),
+            "date": now.date().isoformat(),
+            "detected_at": now.isoformat(timespec="seconds"),  # full time -> "recent" badge + feed (A3/A4)
             "subject_key": claim["subject_key"],
             "old_value": alert.get("old_value"),
             "new_value": alert.get("new_value"),
@@ -184,8 +193,8 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     since_override forces the detection window (e.g. an old date to simulate a stale baseline)."""
     meta = store.load_meta(slug) or {}
     claims = store.load_claims(slug)
-    since = since_override or meta.get("last_checked") or meta.get("baseline_date")
-    today = date.today().isoformat()
+    since = _since_date(since_override or meta.get("last_checked") or meta.get("baseline_date"))
+    checked_at = datetime.now().isoformat(timespec="seconds")  # full timestamp, not just a date
     reset_log()
 
     # Stage 1: triage (cheap)
@@ -200,13 +209,13 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
         "slug": slug, "since": since, "no_change": not candidates,
         "candidates": len(candidates), "material": [], "alerts": [],
         "cost": {"triage": triage.get("cost_usd"), "materiality": 0.0},
-        "last_checked": today,
+        "last_checked": checked_at,
     }
 
     if not candidates:
         # No-change run: advance last_checked only (cheap timestamp bump).
         if write:
-            meta["last_checked"] = today
+            meta["last_checked"] = checked_at
             store.write_baseline(slug, claims, meta, _current_md(slug))
         return result
 
@@ -244,7 +253,7 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     result["alerts"] = new_alerts
 
     if write and new_alerts:
-        meta["last_checked"] = today
+        meta["last_checked"] = checked_at
         meta.setdefault("alerted_fingerprints", []).extend(a["fingerprint"] for a in new_alerts)
         current_md = format_report(clean_output(
             claims_to_markdown(new_claims, _title(meta),
@@ -252,7 +261,7 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
         store.write_baseline(slug, new_claims, meta, current_md)
         _append_alerts(slug, new_alerts)
     elif write:  # candidates existed but nothing survived as material -> bump timestamp only
-        meta["last_checked"] = today
+        meta["last_checked"] = checked_at
         store.write_baseline(slug, claims, meta, _current_md(slug))
     return result
 
@@ -273,8 +282,29 @@ def _append_alerts(slug, alerts):
                     f"{a['old_value']} → {a['new_value']}. **So what:** {a['so_what']}\n")
 
 
-def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True) -> list[dict]:
-    """Cron entrypoint: check EVERY tracked battlecard, write per policy, email digests.
+def _is_due(meta: dict, now: datetime | None = None) -> bool:
+    """Per-competitor cadence gate (A1): a card is due when at least its
+    cadence_hours have elapsed since last_checked. Cards with no last_checked,
+    or whose timestamp is unparseable, are always due (fail toward checking)."""
+    now = now or datetime.now()
+    cadence_hours = meta.get("cadence_hours") or config.DEFAULT_CADENCE_HOURS
+    raw = meta.get("last_checked") or meta.get("baseline_date")
+    if not raw:
+        return True
+    try:
+        last = datetime.fromisoformat(raw)
+    except ValueError:
+        return True
+    return now >= last + timedelta(hours=cadence_hours)
+
+
+def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
+            force: bool = False) -> list[dict]:
+    """Cron entrypoint: check every DUE battlecard, write per policy, email digests.
+
+    Per-card cadence (A1): a card is only checked when its cadence_hours have elapsed
+    since last_checked, so the daily/6-hourly cron can hold fast competitors at 6h and
+    slow ones at 24h from one schedule. `force=True` ignores the gate (manual runs).
 
     Side-effects gated for safety: write=False computes without mutating the store; email
     is dry unless email_dry_run=False AND creds are configured. The Actions cron runs live
@@ -285,6 +315,12 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True) -
 
     summary = []
     for slug in list_battlecards():
+        meta = store.load_meta(slug) or {}
+        if not force and not _is_due(meta):
+            summary.append({"slug": slug, "skipped": "not due",
+                            "cadence_hours": meta.get("cadence_hours") or config.DEFAULT_CADENCE_HOURS,
+                            "last_checked": meta.get("last_checked")})
+            continue
         res = check(slug, write=write)
         emailed = None
         if send and res["alerts"]:

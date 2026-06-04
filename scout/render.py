@@ -111,9 +111,25 @@ def _zone_title(zone: str, my_company: str | None, competitor: str | None) -> st
     }[zone]
 
 
+# Sections whose `claim` field is an authored multi-line prose block
+# (title -> paragraph -> soundbite/so-what), rendered verbatim rather than as a
+# one-line bullet. The battlecard is here too but renders per-zone (see below).
+BLOCK_SECTIONS = {"executive_summary", "objection_handling"}
+
+
+def _render_block(c):
+    """A claim authored as a prose block: emit it verbatim with its grounded
+    source link appended. Mirrors how the executive summary has always rendered;
+    the orchestrator writes the title/paragraph/soundbite structure into `claim`."""
+    return f"{c['claim'].strip()} {_source_link(c)}"
+
+
 def claims_to_markdown(claims, title, my_company=None, competitor=None):
     """Render the brief body from claim objects, deterministically, by section
     and (in the battlecard) zone, ordered by each claim's `order`.
+
+    Exec summary, battlecard zones, and objection handling render as PROSE BLOCKS
+    (the v1-readable format); the remaining sections stay as single-line bullets.
 
     NOTE: corroboration is intentionally NOT rendered in the body — only the
     grounded anchor source appears, per the claim-object.md §2.1 render rule.
@@ -138,15 +154,13 @@ def claims_to_markdown(claims, title, my_company=None, competitor=None):
                 if not z:
                     continue
                 lines += [f"### {_zone_title(zone, my_company, competitor)}", ""]
+                # Each zone entry is a prose block (title/paragraph/soundbite),
+                # not a bullet — the v1-readable battlecard format.
                 for c in sorted(z, key=lambda c: c["order"]):
-                    lines.append(f"- {c['claim'].strip()} {_source_link(c)}")
-                lines.append("")
-        elif section == "executive_summary":
-            # Exec points are multi-line blocks (verdict + So what), written by the
-            # orchestrator. Source link appended at the end of the block for now;
-            # placement is a known refine-after-#7 item.
+                    lines += [_render_block(c), ""]
+        elif section in BLOCK_SECTIONS:
             for c in sorted(items, key=lambda c: c["order"]):
-                lines += [f"{c['claim'].strip()} {_source_link(c)}", ""]
+                lines += [_render_block(c), ""]
         else:
             for c in sorted(items, key=lambda c: c["order"]):
                 lines.append(f"- {c['claim'].strip()} {_source_link(c)}")
