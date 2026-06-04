@@ -11,7 +11,9 @@ the last 24h (A4 — keyed off an emitted alert, so a fresh baseline badges noth
     python scripts/render_static.py            # -> out/index.html
     python -m http.server 8502 -d out          # serve it
 """
+import base64
 import html
+import io
 import json
 import os
 import sys
@@ -20,6 +22,44 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from scout import display, store
+
+_REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_ASSETS = os.path.join(_REPO, "assets")
+
+
+def _asset(name: str, fallback: str) -> str | None:
+    """Prefer the transparent (_t) variant of a mascot asset, else the original."""
+    for n in (name, fallback):
+        p = os.path.join(_ASSETS, n)
+        if os.path.exists(p):
+            return p
+    return None
+
+
+def _img_data_uri(path, height=None, square=False) -> str | None:
+    """Crop a transparent PNG to its content, optionally square-pad it, scale to
+    `height`, and return a base64 data URI so the page stays self-contained."""
+    if not path:
+        return None
+    try:
+        from PIL import Image
+        im = Image.open(path).convert("RGBA")
+        bbox = im.getbbox()
+        if bbox:
+            im = im.crop(bbox)
+        if square:
+            s = max(im.size)
+            bg = Image.new("RGBA", (s, s), (0, 0, 0, 0))
+            bg.paste(im, ((s - im.width) // 2, (s - im.height) // 2))
+            im = bg
+        if height:
+            w = max(1, round(im.width * height / im.height))
+            im = im.resize((w, height), Image.LANCZOS)
+        buf = io.BytesIO()
+        im.save(buf, "PNG")
+        return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
+    except Exception:
+        return None
 
 
 def _pretty(slug: str) -> str:
@@ -118,16 +158,24 @@ def render(status: dict, brief_md: str, now: datetime) -> str:
 
     brief_json = json.dumps(brief_md)
 
+    logo_uri = _img_data_uri(_asset("scout_logo_t.png", "scout_logo.png"), height=64)
+    favicon_uri = _img_data_uri(_asset("scout_icon_t.png", "scout_icon.png"), height=64, square=True)
+    favicon_tag = f'<link rel="icon" type="image/png" href="{favicon_uri}">' if favicon_uri else ""
+    logo_tag = f'<img class="logo" alt="Scout" src="{logo_uri}">' if logo_uri else ""
+
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Scout — {html.escape(_pretty(slug))}</title>
+{favicon_tag}
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
   :root {{ color-scheme: light dark; }}
   body {{ font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
          margin: 0; padding: 2rem; max-width: 1200px; margin-inline: auto; line-height: 1.5; }}
   h1 {{ margin: 0 0 .25rem; }}
+  .brand {{ display: flex; align-items: center; gap: .65rem; }}
+  .brand .logo {{ height: 58px; width: auto; }}
   .cap {{ color: #888; margin-bottom: 1.25rem; }}
   .activity {{ font-weight: 600; font-size: 1.05rem; margin: 1rem 0; }}
   .metrics {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 1rem 0 1.5rem; }}
@@ -163,7 +211,7 @@ def render(status: dict, brief_md: str, now: datetime) -> str:
   th {{ background: #8881; }}
   hr {{ border: none; border-top: 1px solid #8884; margin: 1.5rem 0; }}
 </style></head><body>
-  <h1>Scout</h1>
+  <div class="brand">{logo_tag}<h1>Scout</h1></div>
   <div class="cap">Living competitive battlecards — every claim verified against its source, and
     kept current by an agent. &nbsp;·&nbsp; <b>{html.escape(_pretty(slug))}</b></div>
 

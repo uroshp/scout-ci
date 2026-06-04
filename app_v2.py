@@ -38,8 +38,23 @@ def _read_current(slug: str) -> str:
     return "_No rendered battlecard found for this slug._"
 
 
+def _asset(*names):
+    here = os.path.dirname(os.path.abspath(__file__))
+    for n in names:
+        p = os.path.join(here, "assets", n)
+        if os.path.exists(p):
+            return p
+    return None
+
+
 def main():
-    st.set_page_config(page_title="Scout — Living Battlecards", layout="wide")
+    icon = _asset("scout_icon_t.png", "scout_icon.png")
+    logo = _asset("scout_logo_t.png", "scout_logo.png")
+    st.set_page_config(page_title="Scout — Living Battlecards", layout="wide",
+                       page_icon=icon or "🐕")
+    if logo:
+        st.logo(logo, icon_image=icon)
+        st.image(logo, width=200)
     st.title("Scout")
     st.caption("Living competitive battlecards — every claim verified against its source, "
                "and kept current by an agent.")
