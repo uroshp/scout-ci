@@ -4,8 +4,13 @@
 # No secrets needed: the probe is pure HTTP (no Anthropic API).
 name: reachability-probe
 
+# push-triggered on v2-agent (workflow_dispatch needs the file on the default branch,
+# and we are not touching main). Runs when this workflow file changes on v2-agent.
 on:
   workflow_dispatch:
+  push:
+    branches: [v2-agent]
+    paths: [".github/workflows/reachability-probe.yml"]
 
 jobs:
   probe:
