@@ -4,15 +4,23 @@
 # v2-agent (not merged to main), it is INERT — it will not run or spend a cent. It goes
 # live only when you choose to merge to the default branch.
 #
-# CADENCE: the schedule fires once daily at 07:00 UTC. The per-card due-gate in run_all()
-# (last_checked + cadence_hours) still applies; showcase cards run cadence_hours: 23 so the
-# 07:00 fire is reliably past-due each day (a 24h cadence could skip by a few minutes if the
-# prior run finished just after 07:00). The schedule must fire AT LEAST as often as the
-# smallest cadence_hours, or the gate can never release that card on time.
+# CADENCE: the launch promise is PREDICTABLE freshness — a morning refresh and a midday
+# refresh, the same way every day (7am + 1pm US Eastern). The due-gate is WINDOW-ANCHORED
+# (scout.monitor._is_due against config.MONITOR_ANCHORS_UTC = "11:00,17:00"): a card is due
+# when it hasn't been checked since the most recent passed anchor, so updates never drift
+# (a relative last_checked+cadence_hours gate slides later on every check — the bug that
+# scattered updates across random times).
 #
-# LAUNCH PLAN: one check/day at 07:00 US Eastern for the 10-day launch window. GitHub cron is
-# UTC, so that is "0 11" = 11:00 UTC during EDT (UTC-4, in effect June). NOTE: when the US falls
-# back to EST (UTC-5) on 2026-11-01, 07:00 Eastern becomes 12:00 UTC — change to "0 12" then.
+# Why BURST and not a single "0 11"/"0 17": GitHub `schedule` is best-effort and routinely
+# runs minutes-to-hours late (observed 2026-06-05: an 11:00 UTC fire landed 13:46) and can be
+# dropped. So we fire every 30 min across each window; the FIRST fire that actually lands
+# after an anchor does the check, and the anchor gate makes every later fire in that window a
+# cheap no-op (a not-due card makes no API call). Net: one paid check per card per window,
+# reliably in the morning and at midday, even when an individual fire is late or dropped.
+#
+# DST: June is EDT (UTC-4) → windows 11-13 / 17-19 UTC = 07:00-09:30 / 13:00-15:30 ET. When the
+# US falls back to EST (UTC-5) on 2026-11-01, shift both crons +1h (12-14 / 18-20) AND set
+# config.MONITOR_ANCHORS_UTC to "12:00,18:00". To pare down after week one, drop a window.
 # A card can opt OUT entirely via "monitored": false in its meta.json (the Batman stress-test
 # card does).
 #
@@ -23,7 +31,8 @@ name: monitor
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 11 * * *"         # once daily at 11:00 UTC = 07:00 US Eastern (EDT); due-gate honors cadence_hours.
+    - cron: "*/30 11-13 * * *"   # morning window 11:00-13:30 UTC = 07:00-09:30 ET (EDT); anchor 11:00 = 7am ET
+    - cron: "*/30 17-19 * * *"   # midday  window 17:00-19:30 UTC = 13:00-15:30 ET (EDT); anchor 17:00 = 1pm ET
 
 concurrency:
   group: scout-monitor

@@ -75,15 +75,40 @@ researcher cap only if regenerating frequently.
 Haiku tags a genuinely material item "minor," it's caught on the next day's check, not same-day.
 Fine for a daily-cadence battlecard; not for breaking-news same-day alerting.
 
-## 4. Cadence & schedule — once daily, 7am US Eastern
+## 4. Cadence & schedule — twice daily, window-anchored at 7am + 1pm US Eastern
 
-**Decision:** One check/day at **07:00 US Eastern = 11:00 UTC** (`cron: "0 11 * * *"`, EDT/UTC-4
-in June). Went straight to 1×/day (the originally-planned day-10 step-down) because 2×/day was
-too expensive. Per-card `cadence_hours: 23` so the daily fire is reliably past-due without
-skipping.
+**Decision (2026-06-05, supersedes the earlier once-daily plan):** For the launch window, check
+**twice a day at fixed real-world times — 07:00 and 13:00 US Eastern (11:00 / 17:00 UTC, EDT)**,
+emulating how a rep actually works: a morning brief when they wake up, a midday news re-check.
+Pare back to once-daily after week one.
 
-**DST note:** when the US returns to EST (UTC-5) on **2026-11-01**, 07:00 Eastern becomes 12:00
-UTC — change the cron to `"0 12 * * *"`.
+**Why this shape — the product promise is PREDICTABLE freshness, not just "twice a day."** A
+battlecard that updates last-night-for-one, noon-for-another, whenever-for-a-third *looks broken*
+even when the analysis is good. Two failures were producing exactly that drift, and both are now
+fixed:
+
+1. **The gate was relative, so it drifted.** `_is_due` checked `last_checked + cadence_hours`,
+   which slides the next due-time later on *every* check — updates wander across the clock.
+   Replaced with a **window-anchored gate** (`config.MONITOR_ANCHORS_UTC = "11:00,17:00"`): a card
+   is due when it hasn't been checked since the most recent passed anchor. Freshness is pinned to
+   the wall clock and cannot drift. (`cadence_hours` is now dormant — used only by the legacy
+   relative fallback when anchors are disabled.)
+2. **GitHub `schedule` fires late/unreliably** (observed: an 11:00 UTC fire landed 13:46, ~2h46
+   late; can also be dropped). A single `0 11` / `0 17` would miss the slot. So the cron **bursts**
+   every 30 min across each window (`*/30 11-13` and `*/30 17-19`). The first fire that lands after
+   an anchor does the check; the anchor gate makes every later fire in the window a cheap no-op
+   (a not-due card makes no API call). Net: one paid check per card per window, reliably on time.
+
+**Cost:** back to ~2 paid checks/card/day for the window (~$12–23/day across the 6 cards at
+~$1–1.9/check) — accepted as the launch-credibility spend; step down after week one by dropping an
+anchor. Note this is higher than the §3/§6 "$0.16 quiet check" figure, which assumed once-daily.
+
+**Not chasing 7:00:00 sharp:** GitHub cron can only promise "in the morning window," not the
+minute. If literal on-the-minute timing ever matters, that's Cloud Scheduler — see the GCP
+discussion (kept out of scope for launch).
+
+**DST note:** when the US returns to EST (UTC-5) on **2026-11-01**, shift both crons +1h
+(`*/30 12-14` / `*/30 18-20`) **and** set `MONITOR_ANCHORS_UTC` to `"12:00,18:00"`.
 
 ## 5. Monitored set & exclusions
 

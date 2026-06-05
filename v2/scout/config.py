@@ -61,10 +61,29 @@ GROUNDING_CONTACT = os.environ.get("SCOUT_GROUNDING_CONTACT", "urospajic@gmail.c
 
 # --- Monitoring cadence (per-competitor; A1) ---------------------------------
 # Default hours between checks for a battlecard with no explicit cadence_hours in
-# its meta.json. The launch-window showcase cards override this to 6 (4x/day);
-# dialed back after week one. run_all() honors per-card cadence via a due-gate;
-# the Actions cron must fire at least this often for the gate to matter.
+# its meta.json. Used ONLY by the legacy relative due-gate (when anchors are
+# disabled — see MONITOR_ANCHORS_UTC). run_all() honors per-card cadence via the
+# gate; the Actions cron must fire at least this often for the gate to matter.
 DEFAULT_CADENCE_HOURS = int(os.environ.get("SCOUT_DEFAULT_CADENCE_HOURS", "24"))
+
+# --- Monitoring anchors (window-anchored due-gate; the launch promise) -------
+# Daily wall-clock times (UTC) at which every monitored card becomes due. The
+# product promise for the launch window is PREDICTABLE freshness — a morning
+# refresh and a midday refresh, the same way every day — so the gate is anchored
+# to the clock, NOT to elapsed hours. A card is due when it hasn't been checked
+# since the most recent anchor that has already passed; that makes checks land in
+# the morning + midday windows and NEVER drift (a relative last_checked+cadence
+# gate slides later on every check — the bug that scattered updates across random
+# times). The Actions cron BURSTS across each window so a late or dropped GitHub
+# fire can't blow the slot; the anchor gate still permits only one check/window.
+#
+# Launch window = 7am + 1pm US Eastern. June is EDT (UTC-4) → "11:00,17:00".
+# DST: on 2026-11-01 the US falls back to EST (UTC-5) → change to "12:00,18:00".
+# To pare down later, drop an anchor (e.g. just "11:00" for once-daily).
+# Set empty ("") to fall back to the legacy per-card cadence_hours relative gate.
+MONITOR_ANCHORS_UTC = [
+    a.strip() for a in os.environ.get("SCOUT_MONITOR_ANCHORS_UTC", "11:00,17:00").split(",") if a.strip()
+]
 
 
 # --- Email alerts (transactional API; §5) ------------------------------------
