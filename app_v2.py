@@ -209,7 +209,7 @@ def _asset(*names):
 # source; the Top 3 plays are the battlecard "where we win" claims shown in full —
 # bold title, the why (their body), and their existing soundbite — all verbatim.
 _FIVE_MIN_CSS = """<style>
-#scout-rt { margin:.2rem 0 1.1rem; }
+#scout-rt { margin:-.2rem 0 1.1rem; }
 #scout-rt h1 { font-size:1.85rem; font-weight:800; line-height:1.2; margin:0; }
 #scout-rt .rt-focus { font-weight:600; color:#2a8; }
 #scout-5min { margin:.2rem 0 1.6rem; }
@@ -598,7 +598,10 @@ def main():
     # in-iframe fitFrame() then GROWS the frame for the taller mobile 2x2 layout (a ~50ms flash
     # of clipping there at most). Avoids the big empty band a 170px reserve left on desktop.
     components.html(strip, height=96)
-    st.divider()
+    # Tight rule: negative margins pull in Streamlit's ~1rem inter-block gaps above and below
+    # so the boxes, the line, and the report title sit close together (st.divider is too airy).
+    st.markdown('<hr style="border:none;border-top:1px solid rgba(136,136,136,.35);'
+                'margin:-.55rem 0 -.35rem;">', unsafe_allow_html=True)
 
     md = _read_current(slug)
     meta = store.load_meta(slug)
