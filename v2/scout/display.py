@@ -59,16 +59,42 @@ def list_battlecards() -> list[str]:
 
 
 # --- 1. last-checked / next-check --------------------------------------------
+def _next_anchor_after(dt: datetime) -> datetime | None:
+    """Earliest daily monitoring anchor (config.MONITOR_ANCHORS_UTC = 7am + 1pm ET, wall-clock
+    UTC) strictly after `dt`, or None if anchors are disabled. Mirrors the engine's
+    window-anchored due-gate (monitor._is_due) so the viewer's 'next check' shows when the card
+    will ACTUALLY be re-checked — not a relative cadence guess that drifts off the real schedule."""
+    anchors = []
+    for a in config.MONITOR_ANCHORS_UTC:
+        h, m = a.split(":")
+        anchors.append((int(h), int(m)))
+    if not anchors:
+        return None
+    anchors.sort()
+    for day_offset in (0, 1):                      # today's anchors, then tomorrow's
+        base = dt + timedelta(days=day_offset)
+        for h, m in anchors:
+            cand = base.replace(hour=h, minute=m, second=0, microsecond=0)
+            if cand > dt:
+                return cand
+    return None
+
+
 def checkpoints(meta: dict) -> dict:
-    """Last-checked / next-check, cadence-aware. `cadence_hours` lives in meta
-    (per-competitor, A1); next_check is last_checked + cadence, emitted as a full
-    ISO datetime so the viewer can render a live ticking countdown (A2)."""
+    """Last-checked / next-check. next_check is the next monitoring window anchor after
+    last_checked (7am + 1pm ET), matching the engine's window-anchored due-gate, emitted as a
+    full ISO datetime so the viewer renders a live ticking countdown (A2). Unmonitored cards get
+    no next_check (they are never re-checked). Legacy fallback when anchors are disabled:
+    last_checked + cadence_hours."""
     cadence_hours = meta.get("cadence_hours") or config.DEFAULT_CADENCE_HOURS
     last_raw = meta.get("last_checked") or meta.get("baseline_date")
     last_dt = _parse_ts(last_raw)
     next_iso = None
-    if last_dt is not None:
-        next_iso = (last_dt + timedelta(hours=cadence_hours)).isoformat(timespec="seconds")
+    if last_dt is not None and meta.get("monitored") is not False:
+        nxt = _next_anchor_after(last_dt)          # anchored schedule (current model)
+        if nxt is None:                            # anchors disabled → legacy relative cadence
+            nxt = last_dt + timedelta(hours=cadence_hours)
+        next_iso = nxt.isoformat(timespec="seconds")
     return {
         "baseline_date": meta.get("baseline_date"),
         "last_checked": last_raw,                 # raw (date or datetime) as stored
