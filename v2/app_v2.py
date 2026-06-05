@@ -620,10 +620,26 @@ def _render_selfserve(job_param: str | None) -> None:
         if not competitor.strip():
             st.warning("Please enter a competitor to research.")
             return
+        # Soft per-session throttle (a 60s cooldown + a 3-per-session cap). This only blunts
+        # double-clicks and casual spamming of the public form from one browser session — it is
+        # NOT a security boundary (a determined actor can open new sessions). The HARD backstop
+        # against runaway cost is the server-side gate: the free-window count + the $100 spend
+        # ceiling, enforced authoritatively in the Action (selfserve.gate / state.json).
+        hist = st.session_state.setdefault("_submit_times", [])
+        now_dt = datetime.now()
+        if hist and (now_dt - hist[-1]).total_seconds() < 60:
+            wait = 60 - int((now_dt - hist[-1]).total_seconds())
+            st.warning(f"Easy there — one report at a time. Try again in {wait}s.")
+            return
+        if len(hist) >= 3:
+            st.warning("You've reached this session's limit of 3 reports.")
+            st.markdown(f"Want more? {_contact_md()}.")
+            return
         if not selfserve.gate()["open"]:                # re-check; the view can be stale
             st.warning("The free window just closed. For access, see the DM link below.")
             return
         req = selfserve.submit(competitor, my_company, focus)
+        hist.append(now_dt)
         st.session_state["selfserve_job"] = req["job_id"]
         st.query_params["job"] = req["job_id"]
         st.rerun()
