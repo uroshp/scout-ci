@@ -8,3 +8,15 @@ enableWebsocketCompression = false
 
 [browser]
 gatherUsageStats = false
+
+# Pin the theme. The custom CSS uses light-gray + near-white text (e.g. #a8a8a8, #c8c8c8,
+# #fafafa) on a DARK background. Without this block Streamlit follows each visitor's OS
+# light/dark preference, so a light-mode visitor got a WHITE background where that gray text
+# was invisible. Pinning base="dark" forces the dark canvas the UI was designed for, for
+# everyone, regardless of their OS setting. primaryColor matches the #2a8 teal accent.
+[theme]
+base = "dark"
+backgroundColor = "#0e1117"
+secondaryBackgroundColor = "#1b1f27"
+textColor = "#fafafa"
+primaryColor = "#22aa88"

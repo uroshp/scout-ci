@@ -447,8 +447,10 @@ def _fmt_date_human(s: str | None) -> str:
 _METRICS_STRIP = """<div id="ms">
 <style>
  html,body{margin:0;padding:0;}
- #ms{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;color-scheme:light dark;color:#1a1a1a;}
- @media (prefers-color-scheme: dark){ #ms{color:#fafafa;} }
+ /* The canvas is pinned dark (.streamlit/config.toml [theme] base=dark). This iframe is sandboxed
+    so it does NOT inherit the Streamlit theme — it followed the OS prefers-color-scheme, which made
+    its value text near-black (invisible) on the dark canvas for light-mode visitors. Pin it dark. */
+ #ms{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;color:#fafafa;}
  #ms .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;}
  /* On a narrow (mobile) viewport, 4 cramped columns clip their values — go 2x2 instead. */
  @media (max-width:520px){ #ms .grid{grid-template-columns:repeat(2,1fr);} }
