@@ -213,11 +213,11 @@ def _asset(*names):
 # source; the Top 3 plays are the battlecard "where we win" claims shown in full —
 # bold title, the why (their body), and their existing soundbite — all verbatim.
 _FIVE_MIN_CSS = """<style>
-#scout-rt { margin:-.2rem 0 1.1rem; }
-#scout-rt h1 { font-size:2.3rem; font-weight:800; line-height:1.12; margin:0 0 .4rem; }
-#scout-rt .rt-sub { font-size:1.1rem; line-height:1.4; margin:.1rem 0; }
-#scout-rt .rt-sub b { font-weight:700; }
-#scout-rt .rt-focus { font-size:1.02rem; font-weight:600; color:#2a8; margin-top:.15rem; }
+#scout-rt { margin:-.9rem 0 1.1rem; }
+#scout-rt h1 { font-size:2.3rem; font-weight:800; line-height:1.12; margin:0 0 .45rem; }
+#scout-rt .rt-sub { font-size:1.5rem; font-weight:600; line-height:1.3; margin:.1rem 0; }
+#scout-rt .rt-sub b { font-weight:800; }
+#scout-rt .rt-focus { font-size:1.4rem; font-weight:600; color:#2a8; margin-top:.2rem; }
 #scout-5min { margin:.2rem 0 .3rem; }
 #scout-5min .fm-lbl { color:#2a8; font-size:.78rem; font-weight:700; text-transform:uppercase;
                       letter-spacing:.06em; margin:0 0 .55rem; }
