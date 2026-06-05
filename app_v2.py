@@ -534,7 +534,7 @@ def main():
         with open(head_logo, "rb") as f:
             b64 = base64.b64encode(f.read()).decode()
         st.markdown(
-            '<div style="display:flex;align-items:center;gap:.6rem;margin:.2rem 0 .4rem;">'
+            '<div style="display:flex;align-items:center;gap:.45rem;margin:.2rem 0 .4rem;">'
             f'<img src="data:image/png;base64,{b64}" style="height:88px;width:auto;" alt="Agent Scout">'
             '<span style="font-size:2.6rem;font-weight:800;line-height:1;">Agent Scout</span>'
             '</div>',
