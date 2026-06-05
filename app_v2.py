@@ -521,12 +521,17 @@ def _render_selfserve(job_param: str | None) -> None:
 def main():
     icon = _asset("scout_icon_t.png", "scout_icon.png")
     logo = _asset("scout_logo_t.png", "scout_logo.png")
-    st.set_page_config(page_title="Scout — Living Battlecards", layout="wide",
+    st.set_page_config(page_title="Agent Scout — Living Battlecards", layout="wide",
                        page_icon=icon or "🐕")
     if logo:
         st.logo(logo, icon_image=icon)
-        st.image(logo, width=200)
-    st.title("Scout")
+    # Header: the dog icon sits to the LEFT of the name, vertically centered with it.
+    head_l, head_r = st.columns([1, 9], gap="small", vertical_alignment="center")
+    with head_l:
+        if icon:
+            st.image(icon, width=72)
+    with head_r:
+        st.title("Agent Scout")
     st.caption("Living competitive battlecards — every claim verified against its source, "
                "and kept current by an agent.")
 
@@ -547,7 +552,19 @@ def main():
         st.info("No battlecards have been generated yet.")
         return
 
-    slug = st.sidebar.selectbox("Battlecard", cards, format_func=_pretty)
+    slug = st.sidebar.selectbox("Choose a battlecard", cards, format_func=_pretty)
+    # Switching battlecards should land you at the TOP of the new card, not at whatever
+    # scroll depth you'd reached in the previous one. Streamlit preserves scroll across
+    # reruns, so we reset it ourselves the first render after the selection changes.
+    if st.session_state.get("_last_slug") != slug:
+        st.session_state["_last_slug"] = slug
+        components.html(
+            "<script>var d=window.parent.document;"
+            "['section.main','.stMain','[data-testid=\"stMain\"]',"
+            "'[data-testid=\"stAppViewContainer\"]'].forEach(function(s){"
+            "var e=d.querySelector(s);if(e)e.scrollTo({top:0});});"
+            "window.parent.scrollTo({top:0});</script>",
+            height=0)
     status = display.card_status(slug)
     cp, act = status["checkpoints"], status["agent_activity"]
     recent = status["recent_updates"]

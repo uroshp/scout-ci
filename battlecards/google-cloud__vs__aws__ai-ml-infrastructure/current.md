@@ -162,8 +162,4 @@ This is what verification removed or corrected during fact-checking, and why.
 - **REVISED — AWS 13-hour December 2025 outage caused by its own Kiro AI tool.:** Added Amazon's on-record denial (an 'extremely limited event' affecting only Cost Explorer in one region) for balance, since the adverse framing comes from FT reporting that Amazon disputes.
 - **REVISED — Cloud market share figures.:** Standardized to a single reputable source (Synergy Research: AWS 28% / Azure 21% / Google 14%) and dropped conflicting 30-31%/12-13% figures from secondary aggregators to keep one value per metric.
 - **REVISED — 'Google kills products' objection sourcing.:** Re-anchored from killedbygoogle.com and a dev.to post onto the official Google Cloud blog announcing the Gemini Enterprise Agent Platform as 'the evolution of Vertex AI,' which is both more reputable and directly on-point for the objection's honest rebuttal.
-- **CUT — **"I heard Google suspended a paying customer's account out of nowhere — how do I know that won't be us?"**
-
-Don't dodge it: in May 2026 The Register reported Google suspended Railway's account, and Railway's engineer said "We are livid." It echoes the 2024 UniSuper wipe. The honest answer is that these incidents hit customers without enterprise-grade support tiers and contractual protections — which is exactly what a negotiated enterprise agreement (named support, escalation SLAs, audit rights) is designed to prevent.
-
-**So what:** Acknowledge the incidents, then use them to justify a stronger contractual support structure rather than letting the prospect treat it as disqualifying.:** source unreachable for grounding
+- **CUT — Objection-handling block on Google suspending a paying customer's account (Railway, May 2026; the 2024 UniSuper wipe):** source unreachable for grounding.
