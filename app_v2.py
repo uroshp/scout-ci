@@ -6,6 +6,7 @@ agentic work" display elements around the verified brief. Does NOT trigger gener
 
 Run:  streamlit run app_v2.py
 """
+import base64
 import html
 import os
 import random
@@ -521,16 +522,24 @@ def _render_selfserve(job_param: str | None) -> None:
 def main():
     icon = _asset("scout_icon_t.png", "scout_icon.png")
     logo = _asset("scout_logo_t.png", "scout_logo.png")
+    # Cropped, margin-free version for the header so the dog sits tight against the name.
+    head_logo = _asset("scout_logo_crop_t.png") or logo
     st.set_page_config(page_title="Agent Scout — Living Battlecards", layout="wide",
                        page_icon=icon or "🐕")
     if logo:
         st.logo(logo, icon_image=icon)
-    # Header: the full-body dog logo sits to the LEFT of the name, vertically centered with it.
-    head_l, head_r = st.columns([1, 5], gap="small", vertical_alignment="center")
-    with head_l:
-        if logo:
-            st.image(logo, width=120)
-    with head_r:
+    # Header rendered as one inline flex row (logo then name, small gap) so it reads like a
+    # normal site masthead instead of two stretched columns with a big void between them.
+    if head_logo:
+        with open(head_logo, "rb") as f:
+            b64 = base64.b64encode(f.read()).decode()
+        st.markdown(
+            '<div style="display:flex;align-items:center;gap:.6rem;margin:.2rem 0 .4rem;">'
+            f'<img src="data:image/png;base64,{b64}" style="height:88px;width:auto;" alt="Agent Scout">'
+            '<span style="font-size:2.6rem;font-weight:800;line-height:1;">Agent Scout</span>'
+            '</div>',
+            unsafe_allow_html=True)
+    else:
         st.title("Agent Scout")
     st.caption("Living competitive battlecards — every claim verified against its source, "
                "and kept current by an agent.")
