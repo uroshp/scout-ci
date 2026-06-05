@@ -552,9 +552,17 @@ def _render_job_status(job_id: str) -> None:
                            file_name=f"{job_id}.md", mime="text/markdown")
     elif status == "rejected":
         st.warning(res.get("message", "The free window is closed."))
-        st.markdown(f"**DM for access:** **{config.SELFSERVE_CONTACT}**")
+        st.markdown(f"**For access, {_contact_md()}.**")
     else:
         st.error(res.get("message", "Something went wrong generating this report."))
+
+
+def _contact_md() -> str:
+    """Markdown for the 'get in touch' link: 'DM me on LinkedIn' when AUTHOR_LINKEDIN is
+    configured, else a fallback to the contact email. Reused by every access/contact prompt."""
+    if config.AUTHOR_LINKEDIN:
+        return f"[DM me on LinkedIn]({config.AUTHOR_LINKEDIN})"
+    return f"email **{config.SELFSERVE_CONTACT}**"
 
 
 def _render_selfserve(job_param: str | None) -> None:
@@ -578,10 +586,18 @@ def _render_selfserve(job_param: str | None) -> None:
             st.rerun()
         return
 
-    gate = selfserve.gate()
+    try:
+        gate = selfserve.gate()
+    except Exception:
+        # The app-side gate is advisory only (the GitHub Action enforces the real spend cap),
+        # so a backend read error — e.g. an expired SELFSERVE_GH_TOKEN — must degrade gracefully
+        # rather than crash the page with a raw traceback on a public showcase.
+        st.warning("Create-your-own is temporarily unavailable — please check back shortly.")
+        st.markdown(f"In the meantime, {_contact_md()}.")
+        return
     if not gate["open"]:
         st.warning("The free launch window is full.")
-        st.markdown(f"**DM me for access:** **{gate.get('contact', config.SELFSERVE_CONTACT)}**")
+        st.markdown(f"**For access, {_contact_md()}.**")
         return
 
     st.caption(f"**{gate['free_left']} free reports left.** Two companies, optional focus. "
@@ -594,7 +610,7 @@ def _render_selfserve(job_param: str | None) -> None:
             st.warning("Please enter a competitor to research.")
             return
         if not selfserve.gate()["open"]:                # re-check; the view can be stale
-            st.warning("The free window just closed. DM for access.")
+            st.warning("The free window just closed. For access, see the DM link below.")
             return
         req = selfserve.submit(competitor, my_company, focus)
         st.session_state["selfserve_job"] = req["job_id"]
@@ -642,6 +658,10 @@ def main():
     mode = st.sidebar.radio(
         "Mode", ["📋 Living battlecards", "✨ Create your own"],
         index=1 if job_param else 0, label_visibility="collapsed")
+    _credit = (f"[{config.AUTHOR_NAME}]({config.AUTHOR_LINKEDIN})"
+               if config.AUTHOR_LINKEDIN else config.AUTHOR_NAME)
+    st.sidebar.markdown("---")
+    st.sidebar.caption(f"Built by {_credit}")
     if job_param or mode == "✨ Create your own":
         _render_selfserve(job_param)
         return

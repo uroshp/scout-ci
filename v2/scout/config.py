@@ -104,10 +104,17 @@ SELFSERVE_FREE_LIMIT = int(os.environ.get("SCOUT_SELFSERVE_FREE_LIMIT", "10"))
 SELFSERVE_SPEND_CEILING_USD = float(os.environ.get("SCOUT_SELFSERVE_SPEND_CEILING_USD", "100"))
 # Where "DM me for access" should point once the window closes (shown by the app).
 SELFSERVE_CONTACT = os.environ.get("SCOUT_SELFSERVE_CONTACT", "urospajic@gmail.com")
+
+# --- Author / credit ---------------------------------------------------------
+# Shown in the app footer and used as the self-serve "get in touch" link. When
+# AUTHOR_LINKEDIN is set, the app renders "DM me on LinkedIn" → this URL; otherwise
+# it falls back to the SELFSERVE_CONTACT email. Set via Streamlit secrets or .env.
+AUTHOR_NAME = os.environ.get("SCOUT_AUTHOR_NAME", "Urosh Pajic")
+AUTHOR_LINKEDIN = os.environ.get("SCOUT_AUTHOR_LINKEDIN", "https://www.linkedin.com/in/urospajic")
 # Storage backend: when a token + repo are set (deployed app), the app reads/writes via the
 # GitHub API on this branch; otherwise it falls back to the local filesystem (dev/test).
 SELFSERVE_GH_TOKEN = os.environ.get("SELFSERVE_GH_TOKEN")
-SELFSERVE_REPO = os.environ.get("SELFSERVE_REPO")            # e.g. "uroshp/ci-agent"
+SELFSERVE_REPO = os.environ.get("SELFSERVE_REPO")            # the public repo, e.g. "uroshp/scout-ci"
 SELFSERVE_BRANCH = os.environ.get("SELFSERVE_BRANCH", "main")
 
 
