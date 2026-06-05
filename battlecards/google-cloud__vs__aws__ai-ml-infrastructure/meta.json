@@ -1,0 +1,11 @@
+{
+  "slug": "google-cloud__vs__aws__ai-ml-infrastructure",
+  "my_company": "Google Cloud",
+  "competitor": "AWS",
+  "focus": "AI/ML infrastructure",
+  "baseline_date": "2026-06-05",
+  "last_checked": "2026-06-05T01:52:05",
+  "cadence_hours": 23,
+  "alerted_fingerprints": [],
+  "monitored": true
+}

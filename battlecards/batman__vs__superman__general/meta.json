@@ -1,0 +1,11 @@
+{
+  "slug": "batman__vs__superman__general",
+  "my_company": "Batman",
+  "competitor": "Superman",
+  "focus": null,
+  "baseline_date": "2026-06-05",
+  "last_checked": "2026-06-05T01:46:25",
+  "cadence_hours": 24,
+  "alerted_fingerprints": [],
+  "monitored": false
+}

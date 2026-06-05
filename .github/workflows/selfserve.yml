@@ -1,0 +1,54 @@
+# Scout self-serve generation — the async out-of-band worker (Parts 2/3).
+#
+# TRIGGER: the DEPLOYED app commits selfserve/requests/<id>.json via the GitHub API; that push
+# fires this workflow. It runs the SAME SDK generation pipeline headless and commits the card to
+# user_reports/<id>/ (PRIVATE — not battlecards/, so never public and never monitored) plus the
+# updated selfserve/state.json (the gate counter + spend ledger).
+#
+# SAFETY: like monitor.yml, `schedule`/push only matter on the DEFAULT branch — inert until merged.
+# The `concurrency` group SERIALIZES runs so the state.json read-modify-write (counter + ledger)
+# can never race. The path filter is requests/** only, so the Action's OWN commits (user_reports/**,
+# state.json) do not re-trigger it — no loop.
+#
+# REQUIRED SECRET: ANTHROPIC_API_KEY (the generation spend lands here). The app side additionally
+# needs SELFSERVE_GH_TOKEN/SELFSERVE_REPO in its OWN host (Streamlit secrets) to post requests.
+name: selfserve
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "selfserve/requests/**"
+
+concurrency:
+  group: scout-selfserve
+  cancel-in-progress: false
+
+permissions:
+  contents: write                # to commit + push user_reports/ and state.json
+
+jobs:
+  selfserve:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -q -r requirements.txt
+      - name: Generate queued self-serve report(s)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/run_selfserve.py
+      - name: Commit private user reports + updated gate state
+        run: |
+          git config user.name "scout-selfserve[bot]"
+          git config user.email "scout-selfserve@users.noreply.github.com"
+          git add user_reports selfserve/state.json
+          if git diff --cached --quiet; then
+            echo "No self-serve output to commit."
+          else
+            git commit -m "selfserve: generated user report(s) + advance gate"
+            git push
+          fi

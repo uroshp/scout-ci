@@ -15,8 +15,9 @@ load_dotenv()
 ORCHESTRATOR_MODEL = os.environ.get("ORCHESTRATOR_MODEL", "claude-opus-4-8")
 # Subagents: legwork — research + verification, parallelized.
 SUBAGENT_MODEL = os.environ.get("SUBAGENT_MODEL", "claude-sonnet-4-6")
-# Triage gate: cheap "is there anything here at all?" check (§6).
-FAST_MODEL = os.environ.get("FAST_MODEL", "claude-sonnet-4-6")
+# Triage gate: cheap "is there anything here at all?" check (§6). Runs on EVERY check, so
+# it uses Haiku — the cheapest model — to keep the no-news floor low (lever A).
+FAST_MODEL = os.environ.get("FAST_MODEL", "claude-haiku-4-5-20251001")
 
 # --- Guards (§10) -------------------------------------------------------------
 # Hard caps so an agent that can loop can't burn money. The SDK enforces both
@@ -30,6 +31,14 @@ MAX_BUDGET_USD = float(os.environ.get("SCOUT_MAX_BUDGET_USD", "3.0"))
 # Generation's own ceiling (orchestrator + both subagents, one query). Expected
 # spend ~$6; this is only a runaway backstop, not a target.
 GEN_MAX_BUDGET_USD = float(os.environ.get("SCOUT_GEN_MAX_BUDGET_USD", "10.0"))
+
+# Triage runs on EVERY monitoring check and most windows are quiet, so it gets its OWN
+# tight caps (lever B) — far below the monitoring MAX_BUDGET_USD that governs the rare
+# Opus materiality escalation. Few searches (structurally capped by max_turns) + a
+# sub-dollar budget + Haiku keep the routine no-news check at pennies.
+TRIAGE_MAX_TURNS = int(os.environ.get("SCOUT_TRIAGE_MAX_TURNS", "8"))
+TRIAGE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_TRIAGE_MAX_BUDGET_USD", "0.50"))
+TRIAGE_MAX_SEARCHES = int(os.environ.get("SCOUT_TRIAGE_MAX_SEARCHES", "5"))
 
 # --- Grounding (claim-object.md §4) -------------------------------------------
 # Provisional fuzzy threshold (0..1) — to be TUNED from real fetched pages at the
@@ -56,6 +65,23 @@ DEFAULT_CADENCE_HOURS = int(os.environ.get("SCOUT_DEFAULT_CADENCE_HOURS", "24"))
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
 ALERT_EMAIL_TO = os.environ.get("SCOUT_ALERT_TO")
 ALERT_EMAIL_FROM = os.environ.get("SCOUT_ALERT_FROM", "Scout <onboarding@resend.dev>")
+
+
+# --- Self-serve generation (launch window; Parts 2/3) ------------------------
+# Async, gated, git-as-store. The DEPLOYED app captures a request and the SDK pipeline
+# runs out-of-band in a GitHub Action (scout/selfserve.py explains the topology).
+#
+# Two INDEPENDENT gates: a launch window (first N free) and a hard dollar ceiling, so a
+# cost spike can't blow past the budget even if the counter still shows room.
+SELFSERVE_FREE_LIMIT = int(os.environ.get("SCOUT_SELFSERVE_FREE_LIMIT", "10"))
+SELFSERVE_SPEND_CEILING_USD = float(os.environ.get("SCOUT_SELFSERVE_SPEND_CEILING_USD", "100"))
+# Where "DM me for access" should point once the window closes (shown by the app).
+SELFSERVE_CONTACT = os.environ.get("SCOUT_SELFSERVE_CONTACT", "urospajic@gmail.com")
+# Storage backend: when a token + repo are set (deployed app), the app reads/writes via the
+# GitHub API on this branch; otherwise it falls back to the local filesystem (dev/test).
+SELFSERVE_GH_TOKEN = os.environ.get("SELFSERVE_GH_TOKEN")
+SELFSERVE_REPO = os.environ.get("SELFSERVE_REPO")            # e.g. "uroshp/ci-agent"
+SELFSERVE_BRANCH = os.environ.get("SELFSERVE_BRANCH", "main")
 
 
 def require_api_key() -> str:

@@ -1,7 +1,12 @@
 """Monitoring engine (v2 build step 4): subject-key-centric, date-scoped change detection.
 
-Loop (spec §6): load baseline -> date-scoped retrieve -> cheap TRIAGE gate (Sonnet) ->
-Opus MATERIALITY judgment -> in-place update claims + alerts + dedup -> advance last_checked.
+Loop (spec §6): load baseline -> date-scoped retrieve -> cheap TRIAGE gate (Haiku, few
+searches) -> escalate to Opus MATERIALITY judgment ONLY when triage flags a SUBSTANTIAL
+development -> in-place update claims + alerts + dedup -> advance last_checked.
+
+Cost shape: triage runs every check and is deliberately cheap (Haiku + capped searches +
+sub-dollar budget). The expensive Opus stage runs ONLY on windows with genuinely material
+news — a quiet or minor-only window exits triage-only at pennies. Most checks are quiet.
 
 Detection is shape (B): the agent searches for NEW signals since last_checked, maps each to a
 tracked subject_key (or a genuinely new material subject), and updates ONLY the affected claims.
@@ -68,11 +73,13 @@ def _since_date(s: str | None) -> str | None:
 
 # --- Stage 1: cheap triage gate ----------------------------------------------
 _TRIAGE_SYSTEM = f"""You are a monitoring TRIAGE GATE for a living competitive-intelligence
-battlecard. Your job is to cheaply surface ONLY developments that are (a) genuinely NEW since a
-cutoff date AND (b) NOT already reflected in the tracked claims — so the expensive downstream judge
-is never re-run on stale or already-known information. You do NOT make the final materiality call.
+battlecard. You run on EVERY check and most windows are quiet, so you must be CHEAP and decisive.
+Your job: surface developments that are (a) genuinely NEW since a cutoff date AND (b) NOT already
+reflected in the tracked claims, and decide whether ANY of them is SUBSTANTIAL enough to justify
+the expensive downstream judge. Do a SMALL number of searches and STOP.
 
-Do a FEW date-scoped WebSearches for the competitor's recent news. Material categories:
+Do AT MOST {config.TRIAGE_MAX_SEARCHES} date-scoped WebSearches for the competitor's recent news,
+then DECIDE — do not keep searching. Material categories:
 {MATERIAL_CATEGORIES}.
 
 Deliberately hunt ADVERSE / competitive-threat signals, not just announcements and wins —
@@ -80,28 +87,38 @@ cancellations, customer losses, churn, budget caps, outages, layoffs, lawsuits a
 high-value developments to surface. Anchor on reputable NEWS outlets; never treat Wikipedia, a
 wiki, an encyclopedia, or a promo/SEO listicle as a source.
 
-Apply TWO STRICT FILTERS before surfacing anything (this is the whole point of the gate):
+Apply TWO STRICT FILTERS before surfacing anything:
 1. DATE: surface a development ONLY if it is dated ON OR AFTER the cutoff date given. Discard older
-   items even if they appear in results — anything before the cutoff is already covered by the baseline.
-2. ALREADY-CAPTURED (note: "already-captured", NOT merely "already-mentioned"): you are given the
-   tracked claims with their CURRENT values — this is the OLD state. Surface a candidate if the
-   development reports a DIFFERENT value or status than the tracked claim currently states (a changed
-   metric, a new CEO, a price change, a strategy reversal, a product superseded) OR concerns a subject
-   not in the list at all. Catching when reality has MOVED PAST the tracked value is your MAIN job, so
-   do NOT drop a candidate merely because its subject/topic appears in the tracked list. Drop a
-   candidate ONLY when a tracked claim ALREADY states this exact development (the update would be a
-   no-op). When unsure whether something is genuinely new, SURFACE IT — the downstream judge decides
-   importance; MISSING A REAL CHANGE IS WORSE than paying for one extra check.
+   items — anything before the cutoff is already covered by the baseline.
+2. ALREADY-CAPTURED (not merely "already-mentioned"): the tracked claims below are the OLD state.
+   Surface a candidate if the development reports a DIFFERENT value or status than the tracked claim
+   (a changed metric, a new CEO, a price change, a strategy reversal, a product superseded) OR
+   concerns a subject not tracked at all. Drop a candidate ONLY when a tracked claim ALREADY states
+   this exact development (the update would be a no-op). When genuinely unsure whether something is
+   new, surface it (with your best "substantial" judgment below).
 
-Your filter is novelty (dated on/after the cutoff) + non-redundancy (the tracked claim does not already
-state this exact development) — NOT importance, and NOT "is the subject tracked". Bias toward recall.
+Then, for EACH surfaced candidate, set "substantial":
+  - true  — a CONCRETE, consequential event in the material categories that would move the
+            battlecard: a funding round / IPO / S-1, M&A, exec hire or departure, a pricing /
+            packaging / usage-limit change, a major product launch or discontinuation, a security
+            incident, legal action, layoffs, a partnership shift, or a customer loss / churn /
+            defection — a real change worth a human's attention, with a date and a credible source.
+  - false — incremental or routine: a minor feature, a blog/opinion post, a restated known fact, a
+            rumor without a source, sentiment churn, or anything whose importance is marginal.
+
+ESCALATION RULE (this governs cost): the expensive judge runs ONLY if at least one candidate is
+"substantial": true. A quiet window — nothing new, or only minor/routine items — is the COMMON,
+correct, CHEAP outcome: report what you found and the pipeline stops here. Reserve
+"substantial": true for genuinely notable news; do NOT mark marginal items substantial "to be
+safe" — a missed minor item is simply re-checked next day. Keep the routine check cheap.
 
 Return ONLY a single fenced ```json block:
 {{"has_candidates": <bool>, "candidates": [
   {{"signal": "<one line, INCLUDING the development's date>", "subject_key": "<matching tracked subject_key, or NEW>",
+    "substantial": <bool>,
     "why_new": "<why this is new since the cutoff AND not already in the tracked claims>",
     "source_hint": "<url or outlet>"}} ]}}
-If nothing passes BOTH filters, return has_candidates=false and an empty list — that is the common,
+If nothing passes the filters, return has_candidates=false and an empty list — that is the common,
 correct, cheap outcome on a quiet window."""
 
 
@@ -119,8 +136,10 @@ async def _run_triage(meta, since, claims):
         allowed_tools=["WebSearch", FETCH_TOOL_NAME],
         disallowed_tools=["WebFetch"],
         permission_mode="bypassPermissions",
-        max_turns=config.MAX_TURNS,
-        max_budget_usd=config.MAX_BUDGET_USD,
+        # Triage-specific tight caps (lever B): few turns structurally bound the number of
+        # searches, and a sub-dollar budget hard-stops the routine check at pennies.
+        max_turns=config.TRIAGE_MAX_TURNS,
+        max_budget_usd=config.TRIAGE_MAX_BUDGET_USD,
     )
     return await _drive(user, options, "triage")
 
@@ -217,23 +236,30 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     except Exception:
         tdata = {"has_candidates": False, "candidates": []}
     candidates = tdata.get("candidates", []) if tdata.get("has_candidates") else []
+    # Strict gate: escalate to the expensive Opus judge ONLY when triage flagged a genuinely
+    # SUBSTANTIAL development. Minor/routine candidates are surfaced for the record but do NOT
+    # trigger the full pipeline — that's what keeps most checks cheap, triage-only.
+    substantial = [c for c in candidates if c.get("substantial") is True]
 
     result = {
-        "slug": slug, "since": since, "no_change": not candidates,
-        "candidates": len(candidates), "material": [], "alerts": [],
+        "slug": slug, "since": since, "no_change": not substantial,
+        "candidates": len(candidates), "substantial": len(substantial),
+        "minor_skipped": len(candidates) - len(substantial),
+        "material": [], "alerts": [],
         "cost": {"triage": triage.get("cost_usd"), "materiality": 0.0},
         "last_checked": checked_at,
     }
 
-    if not candidates:
-        # No-change run: advance last_checked only (cheap timestamp bump).
+    if not substantial:
+        # Quiet OR minor-only window: triage-only, cheap. Advance last_checked and stop —
+        # the Opus materiality stage never runs.
         if write:
             meta["last_checked"] = checked_at
             store.write_baseline(slug, claims, meta, _current_md(slug))
         return result
 
-    # Stage 2: materiality (Opus) on candidates only
-    mat = asyncio.run(_run_materiality(meta, since, candidates, claims))
+    # Stage 2: materiality (Opus) on the SUBSTANTIAL candidates only
+    mat = asyncio.run(_run_materiality(meta, since, substantial, claims))
     result["cost"]["materiality"] = mat.get("cost_usd")
     try:
         mdata = _extract_json(mat["text"])
@@ -329,6 +355,11 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
     summary = []
     for slug in list_battlecards():
         meta = store.load_meta(slug) or {}
+        # Showcase cards can opt out of monitoring (e.g. the Batman vs Superman
+        # stress-test card): it still renders in the viewer but never burns a check.
+        if meta.get("monitored") is False:
+            summary.append({"slug": slug, "skipped": "not monitored"})
+            continue
         if not force and not _is_due(meta):
             summary.append({"slug": slug, "skipped": "not due",
                             "cadence_hours": meta.get("cadence_hours") or config.DEFAULT_CADENCE_HOURS,
@@ -353,7 +384,9 @@ def _print_check(res):
     cost = res["cost"]
     total = (cost.get("triage") or 0) + (cost.get("materiality") or 0)
     print(f"\n=== monitor.check({res['slug']}) since {res['since']} ===")
-    print(f"no_change={res['no_change']}  candidates={res['candidates']}  material={len(res['material'])}")
+    print(f"no_change={res['no_change']}  candidates={res['candidates']}  "
+          f"substantial={res.get('substantial', 0)}  escalated={res.get('substantial', 0) > 0}  "
+          f"material={len(res['material'])}")
     print(f"cost: triage=${cost.get('triage')}  materiality=${cost.get('materiality')}  TOTAL=${total:.4f}")
     for m in res["material"]:
         a = m["alert"]

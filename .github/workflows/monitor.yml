@@ -4,12 +4,17 @@
 # v2-agent (not merged to main), it is INERT — it will not run or spend a cent. It goes
 # live only when you choose to merge to the default branch.
 #
-# CADENCE: the schedule fires every 6h, but the ACTUAL per-card interval is governed by
-# `cadence_hours` in each meta.json + the due-gate in run_all(): a card is only checked when
-# its own cadence has elapsed. So launch-window showcase cards (cadence_hours: 6) check 4x/day
-# while slow ones (cadence_hours: 24) still check once daily — one schedule, per-competitor rate.
-# Dial cadence_hours back up after week one. The schedule must fire AT LEAST as often as the
+# CADENCE: the schedule fires once daily at 07:00 UTC. The per-card due-gate in run_all()
+# (last_checked + cadence_hours) still applies; showcase cards run cadence_hours: 23 so the
+# 07:00 fire is reliably past-due each day (a 24h cadence could skip by a few minutes if the
+# prior run finished just after 07:00). The schedule must fire AT LEAST as often as the
 # smallest cadence_hours, or the gate can never release that card on time.
+#
+# LAUNCH PLAN: one check/day at 07:00 US Eastern for the 10-day launch window. GitHub cron is
+# UTC, so that is "0 11" = 11:00 UTC during EDT (UTC-4, in effect June). NOTE: when the US falls
+# back to EST (UTC-5) on 2026-11-01, 07:00 Eastern becomes 12:00 UTC — change to "0 12" then.
+# A card can opt OUT entirely via "monitored": false in its meta.json (the Batman stress-test
+# card does).
 #
 # REQUIRED SECRETS (set in repo settings before enabling): ANTHROPIC_API_KEY,
 # RESEND_API_KEY, SCOUT_ALERT_TO  (SCOUT_ALERT_FROM optional).
@@ -18,7 +23,7 @@ name: monitor
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 */6 * * *"        # every 6h (00,06,12,18 UTC); per-card due-gate honors cadence_hours.
+    - cron: "0 11 * * *"         # once daily at 11:00 UTC = 07:00 US Eastern (EDT); due-gate honors cadence_hours.
 
 concurrency:
   group: scout-monitor
