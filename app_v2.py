@@ -110,6 +110,14 @@ _BRIEF_CSS = """<style>
 #scout-brief a { color: #2a8; text-decoration: none; }
 #scout-brief a:hover { text-decoration: underline; }
 #scout-brief code { background: rgba(136,136,136,.2); padding: .1rem .3rem; border-radius: 4px; }
+/* So what / Soundbite callout — same treatment as the Top 3 plays soundbite: a dashed
+   separating line above, a green (non-italic) label, italic light-grey text. */
+#scout-brief .scout-callout { display: block; margin: .7rem 0 0; padding-top: .55rem;
+    border-top: 1px dashed rgba(136,136,136,.35); font-style: italic;
+    color: #b3b3b3; opacity: 1; }
+#scout-brief li .scout-callout.co-inline { margin: .55rem 0 0; }
+#scout-brief .co-lbl { color: #2a8; font-weight: 700; font-style: normal; }
+#scout-brief .scout-callout em { color: inherit; font-style: italic; }
 </style>"""
 
 
@@ -132,6 +140,52 @@ def _is_title(para: str) -> bool:
     rest` / `**Soundbite:** *"…"*` have trailing text, so they stay body."""
     p = para.strip()
     return p.startswith("**") and p.endswith("**") and p.count("**") == 2 and len(p) > 4
+
+
+# So what / Soundbite are ALWAYS a callout, rendered identically everywhere: the label word
+# in the accent green, the text after it in the default color. One set of helpers feeds every
+# surface (full-brief paragraphs, full-brief bullets, the 5-minute Today's angle) so the three
+# never drift. Briefs write the label two ways — bold `**So what:**` paragraphs, and a plain
+# inline `So what for us:` trailer inside Recent-Moves/Pricing bullets — so we match both.
+_CALLOUT_LABELS = r"So what for us|So what|Soundbite"           # longest alt first (greedy match)
+_CALLOUT_PARA_RE = re.compile(r"^\*\*(" + _CALLOUT_LABELS + r"):\*\*\s*(.*)$", re.S)
+_CALLOUT_INLINE_RE = re.compile(r"\s*\b(" + _CALLOUT_LABELS + r"):\s+")
+
+
+def _callout_span(label: str, rest: str) -> str:
+    """The shared inner markup: green label word + default-color text after it."""
+    return f'<span class="co-lbl">{html.escape(label)}:</span> {_inline_md(rest)}'
+
+
+def _maybe_callout_para(text: str, cls: str = "") -> str:
+    """A body paragraph that IS a `**So what:**` / `**Soundbite:**` line -> a green-label
+    callout; anything else -> a normal paragraph in the given class."""
+    m = _CALLOUT_PARA_RE.match(text.strip())
+    classes = (cls + " scout-callout").strip() if m else cls
+    attr = f' class="{classes}"' if classes else ""
+    if m:
+        return f"<p{attr}>{_callout_span(m.group(1), m.group(2))}</p>"
+    return f"<p{attr}>{_inline_md(text)}</p>"
+
+
+def _bullet_html(text: str) -> str:
+    """A bullet whose prose carries an inline 'So what[ for us]:' trailer -> split the
+    trailer onto its own green-label callout line inside the <li>."""
+    m = _CALLOUT_INLINE_RE.search(text)
+    if m:
+        main, rest = text[:m.start()].strip(), text[m.end():].strip()
+        return (f"<li>{_inline_md(main)}"
+                f'<span class="scout-callout co-inline">{_callout_span(m.group(1), rest)}</span></li>')
+    return f"<li>{_inline_md(text)}</li>"
+
+
+def _split_callout(text: str):
+    """(main, label, rest) splitting an inline So what/Soundbite trailer out of prose, or
+    (text, None, None) when there's none. Used by the 5-minute Today's angle."""
+    m = _CALLOUT_INLINE_RE.search(text)
+    if m:
+        return text[:m.start()].strip(), m.group(1), text[m.end():].strip()
+    return text, None, None
 
 
 def _render_brief_html(md: str) -> str:
@@ -172,17 +226,17 @@ def _render_brief_html(md: str) -> str:
             parts = [f'<p class="btitle">{_inline_md(val[2:-2].strip())}</p>']
             i += 1
             while i < len(tokens) and tokens[i][0] == "body":
-                parts.append(f'<p class="bbody">{_inline_md(tokens[i][1])}</p>')
+                parts.append(_maybe_callout_para(tokens[i][1], cls="bbody"))
                 i += 1
             out.append(f'<div class="block">{"".join(parts)}</div>')
         elif kind == "ul":
-            out.append("<ul>" + "".join(f"<li>{_inline_md(b)}</li>" for b in val) + "</ul>")
+            out.append("<ul>" + "".join(_bullet_html(b) for b in val) + "</ul>")
             i += 1
         elif kind.startswith("h"):
             out.append(f'<{kind} id="{_slug(val)}">{_inline_md(val)}</{kind}>')
             i += 1
         else:  # a stray body paragraph not preceded by a title
-            out.append(f"<p>{_inline_md(val)}</p>")
+            out.append(_maybe_callout_para(val))
             i += 1
     return '<div id="scout-brief">' + "".join(out) + "</div>"
 
@@ -224,6 +278,9 @@ _FIVE_MIN_CSS = """<style>
 #scout-5min .fm-angle { border-left:3px solid rgba(34,168,136,.6); padding:.1rem 0 .1rem .9rem;
                         margin-bottom:1.6rem; }
 #scout-5min .fm-atext { font-size:1.12rem; line-height:1.5; margin:.1rem 0 .5rem; }
+#scout-5min .fm-sowhat { font-size:1rem; line-height:1.5; margin:.5rem 0 .6rem; padding-top:.5rem;
+                         border-top:1px dashed rgba(136,136,136,.35); font-style:italic; color:#b3b3b3; }
+#scout-5min .co-lbl { color:#2a8; font-weight:700; font-style:normal; }
 #scout-5min .fm-src { font-size:.8rem; color:#888; }
 #scout-5min .fm-src a, #scout-5min a { color:#2a8; text-decoration:none; }
 #scout-5min .fm-src a:hover, #scout-5min a:hover { text-decoration:underline; }
@@ -233,7 +290,7 @@ _FIVE_MIN_CSS = """<style>
 #scout-5min .fm-pt { font-size:1.1rem; font-weight:700; line-height:1.3; margin-bottom:.35rem; }
 #scout-5min .fm-pwhy { margin:.25rem 0 .55rem; line-height:1.45; }
 #scout-5min .fm-sb { margin:.5rem 0 0; padding-top:.5rem; border-top:1px dashed rgba(136,136,136,.35);
-                     font-size:.93rem; color:#9a9a9a; }
+                     font-size:.93rem; font-style:italic; color:#b3b3b3; }
 #scout-5min .fm-sb em { color:inherit; }
 #scout-5min .fm-sb-lbl { font-weight:700; color:#2a8; font-style:normal; }
 </style>"""
@@ -272,15 +329,19 @@ def _five_min_html(claims: list[dict]) -> str:
     if moves:
         a = max(moves, key=lambda c: (c.get("as_of") or "", -c.get("order", 0)))
         pa = _parse_claim(a)
-        body_text = " ".join(pa["body"])
-        inner = (f'<strong>{_inline_md(pa["title"])}</strong> {_inline_md(body_text)}'
-                 if pa["title"] else _inline_md(body_text))
+        # Recent-move claims carry their takeaway as an inline 'So what for us:' trailer; pull
+        # it onto its own callout line so the angle reads like the brief's So-what blocks.
+        main, sw_label, sw_rest = _split_callout(" ".join(pa["body"]))
+        inner = (f'<strong>{_inline_md(pa["title"])}</strong> {_inline_md(main)}'
+                 if pa["title"] else _inline_md(main))
+        sw_html = (f'<p class="fm-sowhat">{_callout_span(sw_label, sw_rest)}</p>'
+                   if sw_label else "")
         src, asof = a.get("source_url", ""), a.get("as_of", "")
         src_line = (f'<div class="fm-src"><b>{html.escape(asof)}</b> · '
                     f'<a href="{html.escape(src)}" target="_blank" rel="noopener">'
                     f'{html.escape(_domain(src))}</a></div>') if src else ""
         angle_html = ('<div class="fm-angle"><div class="fm-lbl">Today\'s angle</div>'
-                      f'<p class="fm-atext">{inner}</p>{src_line}</div>')
+                      f'<p class="fm-atext">{inner}</p>{sw_html}{src_line}</div>')
 
     # Top 3 plays — the battlecard "where we win" claims, shown in full: each carries
     # a bold title, the why (its body), and its existing soundbite. All verbatim.

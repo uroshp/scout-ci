@@ -78,17 +78,48 @@ def checkpoints(meta: dict) -> dict:
     }
 
 
-# --- 2. per-card change feed (git history is the heartbeat) -------------------
+# --- 2. per-card change feed (genuine battlecard updates only) ----------------
+# The automation authors its commits under these identities, so we can tell an agent-driven
+# battlecard update from an incidental product/code commit that merely grazed the files.
+_AGENT_AUTHORS = {
+    "scout-monitor@users.noreply.github.com",
+    "scout-selfserve@users.noreply.github.com",
+}
+
+
 def change_feed(slug: str, limit: int = 25) -> list[dict]:
-    # Local datetime (not just date) so frequent updates read as genuinely recent (A3).
+    """The card's UPDATE history — not every commit that touched the folder. We scope to the
+    CONTENT files (current.md / claims.json), which already excludes monitor 'heartbeat'
+    commits (those touch only meta.json); then we drop product/code commits (human-authored
+    and not the baseline) and relabel the rest to clean, user-facing text. The oldest content
+    commit is the card's creation. Local datetime so frequent updates read as recent (A3)."""
     path = store.battlecard_dir(slug)
     out = _git(["log", f"-{limit}", "--date=format-local:%Y-%m-%d %H:%M",
-                "--format=%h%x09%ad%x09%s", "--", path])
-    events = []
+                "--format=%h%x09%ad%x09%ae%x09%s", "--",
+                os.path.join(path, "current.md"), os.path.join(path, "claims.json")])
+    rows = []
     for line in out.splitlines():
         parts = line.split("\t")
-        if len(parts) == 3:
-            events.append({"hash": parts[0], "date": parts[1], "subject": parts[2]})
+        if len(parts) == 4:
+            rows.append({"hash": parts[0], "date": parts[1],
+                         "email": parts[2], "subject": parts[3]})
+    if not rows:
+        return []
+    baseline_hash = rows[-1]["hash"]                 # oldest content commit = card creation
+    events = []
+    for r in rows:
+        subj = r["subject"]
+        if r["hash"] == baseline_hash:
+            label = "Battlecard created"
+        elif subj.startswith("monitor:"):
+            label = subj.split(":", 1)[1].strip().capitalize() or "Battlecard updated"
+        elif subj.startswith("selfserve:"):
+            label = "Battlecard regenerated"
+        elif r["email"] in _AGENT_AUTHORS:
+            label = subj
+        else:
+            continue                                 # product/code commit — not a card update
+        events.append({"hash": r["hash"], "date": r["date"], "subject": label})
     return events
 
 
