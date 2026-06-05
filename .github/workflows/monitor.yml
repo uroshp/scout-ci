@@ -1,38 +1,31 @@
-# Scout v2 monitoring cron — the headless writer (spec §2).
+# Scout v2 monitoring — the headless writer (spec §2).
 #
-# SAFETY: GitHub fires `schedule` ONLY from the DEFAULT branch. While this lives on
-# v2-agent (not merged to main), it is INERT — it will not run or spend a cent. It goes
-# live only when you choose to merge to the default branch.
+# TRIGGER: Google Cloud Scheduler (uptime SLA, timezone-aware) fires workflow_dispatch at
+# exactly 7:00 AM + 1:00 PM America/New_York — provisioned by v2/scripts/setup_cloud_scheduler.sh.
+# We moved OFF GitHub's `schedule:` cron as the primary because it is best-effort and unreliable
+# (observed 2026-06-05: the 07:00 ET fire ran 09:46, and the 13:00 ET fire was dropped entirely).
+# workflow_dispatch is on-demand and starts within seconds. The lone `schedule:` below is a
+# BACKSTOP ONLY, in case Cloud Scheduler ever fails — the anchored gate makes it a no-op otherwise.
 #
-# CADENCE: the launch promise is PREDICTABLE freshness — a morning refresh and a midday
-# refresh, the same way every day (7am + 1pm US Eastern). The due-gate is WINDOW-ANCHORED
-# (scout.monitor._is_due against config.MONITOR_ANCHORS_UTC = "11:00,17:00"): a card is due
-# when it hasn't been checked since the most recent passed anchor, so updates never drift
-# (a relative last_checked+cadence_hours gate slides later on every check — the bug that
-# scattered updates across random times).
+# FRESHNESS (the promise): a morning + midday refresh, the same way every day. The due-gate is
+# WINDOW-ANCHORED (scout.monitor._is_due vs config.MONITOR_ANCHORS_UTC = "11:00,17:00"): a card is
+# due only if it hasn't been checked since the most recent passed anchor — so updates never drift,
+# and any extra trigger in the same window is a cheap no-op (no API call). This also caps spend at
+# one paid check per card per window no matter how many times the workflow is triggered.
 #
-# Why BURST and not a single "0 11"/"0 17": GitHub `schedule` is best-effort and routinely
-# runs minutes-to-hours late (observed 2026-06-05: an 11:00 UTC fire landed 13:46) and can be
-# dropped. So we fire every 30 min across each window; the FIRST fire that actually lands
-# after an anchor does the check, and the anchor gate makes every later fire in that window a
-# cheap no-op (a not-due card makes no API call). Net: one paid check per card per window,
-# reliably in the morning and at midday, even when an individual fire is late or dropped.
+# DST is automatic: Cloud Scheduler tracks America/New_York for the trigger, and the UTC gate
+# anchors stay valid because EST fires land LATER in UTC (12:00/18:00) — still past the 11:00/17:00
+# anchors. No twice-yearly edit. (To pare down after week one, drop an anchor in config + its
+# Cloud Scheduler job.) A card opts out via "monitored": false (the Batman stress-test card does).
 #
-# DST: June is EDT (UTC-4) → windows 11-13 / 17-19 UTC = 07:00-09:30 / 13:00-15:30 ET. When the
-# US falls back to EST (UTC-5) on 2026-11-01, shift both crons +1h (12-14 / 18-20) AND set
-# config.MONITOR_ANCHORS_UTC to "12:00,18:00". To pare down after week one, drop a window.
-# A card can opt OUT entirely via "monitored": false in its meta.json (the Batman stress-test
-# card does).
-#
-# REQUIRED SECRETS (set in repo settings before enabling): ANTHROPIC_API_KEY,
-# RESEND_API_KEY, SCOUT_ALERT_TO  (SCOUT_ALERT_FROM optional).
+# REQUIRED SECRETS (repo settings): ANTHROPIC_API_KEY, RESEND_API_KEY, SCOUT_ALERT_TO
+# (SCOUT_ALERT_FROM optional). The Cloud Scheduler dispatch PAT lives in GCP, not here.
 name: monitor
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:               # PRIMARY — triggered by Cloud Scheduler at 7am/1pm ET
   schedule:
-    - cron: "*/30 11-13 * * *"   # morning window 11:00-13:30 UTC = 07:00-09:30 ET (EDT); anchor 11:00 = 7am ET
-    - cron: "*/30 17-19 * * *"   # midday  window 17:00-19:30 UTC = 13:00-15:30 ET (EDT); anchor 17:00 = 1pm ET
+    - cron: "0 23 * * *"           # BACKSTOP ONLY (best-effort): catches a window Cloud Scheduler missed; gate no-ops it otherwise
 
 concurrency:
   group: scout-monitor

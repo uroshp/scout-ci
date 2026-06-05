@@ -565,6 +565,17 @@ def _contact_md() -> str:
     return f"email **{config.SELFSERVE_CONTACT}**"
 
 
+def _utc_attr(s) -> str:
+    """Tag a naive-UTC ISO timestamp with 'Z' so the browser renders it in the viewer's LOCAL
+    time. Our timestamps are written with datetime.now() on UTC runners (Actions/Streamlit) —
+    correct but unlabeled; without the 'Z' new Date() misreads them as local and shifts the
+    displayed time. Date-only / already-zoned values are passed through untouched."""
+    s = str(s or "")
+    if "T" in s and not s.endswith("Z") and "+" not in s:
+        return s + "Z"
+    return s
+
+
 def _render_selfserve(job_param: str | None) -> None:
     """The 'Create your own' entry point: gate -> form -> async job view. User-generated cards
     are saved to user_reports/ (private), never the public showcase or the monitor."""
@@ -697,8 +708,8 @@ def main():
     except (ValueError, TypeError):
         remaining = 0
     strip = (_METRICS_STRIP
-             .replace("__LAST__", str(cp["last_checked_ts"] or cp["last_checked"] or ""))
-             .replace("__NEXT__", str(cp["next_check"] or ""))
+             .replace("__LAST__", _utc_attr(cp["last_checked_ts"] or cp["last_checked"]))
+             .replace("__NEXT__", _utc_attr(cp["next_check"]))
              .replace("__BASE__", _fmt_date_human(cp["baseline_date"]))
              .replace("__N__", str(act["claims_tracked"]))
              .replace("__CAD__", str(cp["cadence_hours"]))
