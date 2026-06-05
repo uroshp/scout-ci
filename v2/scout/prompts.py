@@ -5,6 +5,9 @@ its own inline copies. v2 owns and evolves these freely; nothing in research.py 
 app.py imports from scout/, so a change here can never break the shipped v1 app.
 The duplication is deliberate: there is nothing to drift from because v1 won't change.
 """
+import os
+
+from scout import config
 
 SOURCE_HIERARCHY = """SOURCE TRUST HIERARCHY (match the claim type to the right source type - not all "official" sources are equal):
 - TIER 1A - AUTHORITATIVE FOR FACT: audited financials and regulatory filings (10-K, 10-Q, 8-K, S-1, proxy statements), earnings-call transcripts, court documents, signed/announced contracts. Trust these for hard facts and numbers.
@@ -48,5 +51,5 @@ FORMATTING_RULES = """MARKDOWN FORMATTING RULES (follow exactly so the report re
 def load_methodology():
     """The CI discipline the model is held to. Kept as an editable plain-English
     spec out of code on purpose (README 'Design decisions')."""
-    with open("methodology.md", "r") as f:
+    with open(os.path.join(config.APP_ROOT, "methodology.md"), "r") as f:
         return f.read()

@@ -10,6 +10,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# --- Paths -------------------------------------------------------------------
+# The v2 app root (the directory holding this `scout` package) resolved from this file, so
+# data paths work no matter the working directory — Streamlit Cloud runs from the git repo
+# root, not from v2/. REPO_SUBDIR is v2's location WITHIN the git repo, used only for the
+# GitHub-API commit paths in selfserve.py (which are repo-root-relative, not local-FS paths).
+APP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO_SUBDIR = "v2"
+
 # --- Models (defaults verified against Anthropic docs, June 2026) -------------
 # Orchestrator: judgment — planning, materiality, synthesis, consistency.
 ORCHESTRATOR_MODEL = os.environ.get("ORCHESTRATOR_MODEL", "claude-opus-4-8")

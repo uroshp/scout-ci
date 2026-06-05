@@ -6,6 +6,9 @@ from anthropic import Anthropic
 load_dotenv()
 client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
+# Anchor data paths to this file's folder so v1 runs from any working directory.
+_DIR = os.path.dirname(os.path.abspath(__file__))
+
 MODEL = "claude-sonnet-4-6"
 
 SOURCE_HIERARCHY = """SOURCE TRUST HIERARCHY (match the claim type to the right source type - not all "official" sources are equal):
@@ -38,7 +41,7 @@ FORMATTING_RULES = """MARKDOWN FORMATTING RULES (follow exactly so the report re
 
 
 def load_methodology():
-    with open("methodology.md", "r") as f:
+    with open(os.path.join(_DIR, "methodology.md"), "r") as f:
         return f.read()
 
 
@@ -217,11 +220,12 @@ DRAFT TO VERIFY:
 
 
 def save_report(text, target, perspective=None):
-    os.makedirs("reports", exist_ok=True)
+    reports_dir = os.path.join(_DIR, "reports")
+    os.makedirs(reports_dir, exist_ok=True)
     stamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
     label = f"{perspective}_vs_{target}" if perspective else target
     label = label.replace(" ", "-").replace("/", "-")
-    path = f"reports/{label}_{stamp}.md"
+    path = os.path.join(reports_dir, f"{label}_{stamp}.md")
     with open(path, "w") as f:
         f.write(text)
     return path
