@@ -27,6 +27,8 @@ substitution happened (`substituted`) so #7 can audit it.
 """
 import io
 import re
+import ipaddress
+import socket
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, asdict
@@ -55,6 +57,57 @@ _BASE_HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/pdf,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "en-US,en;q=0.9",
 }
+
+
+# --- SSRF guard --------------------------------------------------------------
+# The URL fetched here is chosen by the model (web_search citations / the agent's fetch tool),
+# and a prompt-injected input could try to steer it inward. We fetch from a GitHub Action, so
+# treat every fetch as untrusted: allow only http(s) to PUBLIC hosts, and re-validate on EVERY
+# redirect hop (a single 302 to http://169.254.169.254 or http://localhost is the classic bypass,
+# which follow_redirects=True would walk into blindly).
+class BlockedURLError(Exception):
+    """Raised when a URL is not safe to fetch (bad scheme or non-public host)."""
+
+
+def _host_is_public(host: str) -> bool:
+    """True only if EVERY resolved address for `host` is a normal public IP — reject loopback,
+    private, link-local (incl. cloud metadata 169.254.169.254), reserved, multicast."""
+    try:
+        infos = socket.getaddrinfo(host, None)
+    except (socket.gaierror, UnicodeError):
+        return False
+    for info in infos:
+        try:
+            addr = ipaddress.ip_address(info[4][0])
+        except ValueError:
+            return False
+        if (addr.is_private or addr.is_loopback or addr.is_link_local
+                or addr.is_reserved or addr.is_multicast or addr.is_unspecified):
+            return False
+    return True
+
+
+def _assert_fetchable(url: str) -> None:
+    """Raise BlockedURLError unless `url` is http(s) to a resolvable public host."""
+    p = urlparse(url)
+    if p.scheme not in ("http", "https"):
+        raise BlockedURLError(f"blocked scheme: {p.scheme or '(none)'}")
+    if not p.hostname or not _host_is_public(p.hostname):
+        raise BlockedURLError(f"blocked non-public host: {p.hostname}")
+
+
+def _safe_get(url: str, headers: dict, timeout: float, max_redirects: int = 6) -> httpx.Response:
+    """httpx.get with SSRF protection: validate the initial URL and each redirect hop ourselves
+    (follow_redirects=False) so a redirect can't smuggle us to an internal address."""
+    resp = None
+    for _ in range(max_redirects):
+        _assert_fetchable(url)
+        resp = httpx.get(url, headers=headers, timeout=timeout, follow_redirects=False)
+        if resp.is_redirect and resp.headers.get("location"):
+            url = str(httpx.URL(url).join(resp.headers["location"]))
+            continue
+        return resp
+    return resp  # too many redirects — hand back the last response
 
 _TRANSLATE = str.maketrans({
     "‘": "'", "’": "'", "“": '"', "”": '"',
@@ -98,8 +151,7 @@ def _fetch_response(url: str) -> httpx.Response:
     for ua in _UAS:
         headers = {**_BASE_HEADERS, "User-Agent": ua}
         for attempt in range(2):  # allow one 429 backoff-retry per UA
-            resp = httpx.get(url, headers=headers, timeout=config.GROUNDING_TIMEOUT_S,
-                             follow_redirects=True)
+            resp = _safe_get(url, headers, config.GROUNDING_TIMEOUT_S)
             last = resp
             if resp.status_code == 429 and attempt == 0:
                 wait = min(float(resp.headers.get("retry-after", "2") or 2), 5.0)

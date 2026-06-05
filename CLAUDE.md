@@ -1,4 +1,4 @@
-# CLAUDE.md
+1# CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -34,9 +34,10 @@ python v1/test.py               # smoke-test the Anthropic API connection
 # v2 (Agent Scout) — read-only viewer; engine runs headless via the Actions
 streamlit run v2/app_v2.py      # the living-battlecard viewer
 python -m scout.monitor         # daily re-check (run from v2/; SCOUT_MONITOR_LIVE=1 to write)
+python -m unittest discover -s tests   # v2 unit tests (run from v2/; security + scheduling invariants)
 ```
 
-No build step, no linter, no test suite. `v1/test.py` and `v1/sdk_test.py` are ad-hoc scratch scripts, not a test framework. Environment: copy the root `.env.example` to a `.env` and set `ANTHROPIC_API_KEY` (and `APP_PASSWORD`). Dependencies are per-folder: `pip install -r v1/requirements.txt` or `pip install -r v2/requirements.txt`.
+No build step, no linter. v2 has a focused stdlib-`unittest` suite in `v2/tests/` (security + scheduling invariants — no extra deps); run it from `v2/` with `python -m unittest discover -s tests`. `v1/test.py` and `v1/sdk_test.py` are ad-hoc scratch scripts, not part of it. Environment: copy the root `.env.example` to a `.env` and set `ANTHROPIC_API_KEY` (and `APP_PASSWORD`). Dependencies are per-folder: `pip install -r v1/requirements.txt` or `pip install -r v2/requirements.txt`.
 
 ## Architecture (v1)
 
