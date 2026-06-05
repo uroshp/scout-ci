@@ -59,6 +59,28 @@ PROGRESS_MESSAGES = {
 # "~6–8 minutes" — the estimate the bar fills against. Decoupled from the actual job.
 _SELFSERVE_ESTIMATE_S = 420
 
+# Sidebar nav styling: make the mode radio read as intentional nav items, not a raw radio list —
+# full-width padded rows, hover highlight, an accent-bar selected state, and the default radio dot
+# hidden. ':has(input)' hides ONLY the control wrapper (never the label text); on a browser without
+# :has the dot just stays visible, so it degrades gracefully.
+_NAV_CSS = """<style>
+section[data-testid="stSidebar"] div[role="radiogroup"]{ gap:.3rem; margin:.15rem 0 .4rem; }
+section[data-testid="stSidebar"] div[role="radiogroup"] > label{
+  display:flex; align-items:center; width:100%; box-sizing:border-box;
+  padding:.6rem .85rem; border-radius:9px; cursor:pointer;
+  font-size:1rem; font-weight:600; line-height:1.2; color:inherit;
+  border-left:3px solid transparent;
+  transition:background .15s ease, color .15s ease, border-color .15s ease; }
+section[data-testid="stSidebar"] div[role="radiogroup"] > label:hover{
+  background:rgba(34,168,136,.10); color:#2a8; }
+/* The radio dot is the label's first child div (the text is a later child); hide it for a
+   clean nav look. The <input> is a direct child of the label, so it stays for accessibility. */
+section[data-testid="stSidebar"] div[role="radiogroup"] > label > div:first-child{
+  display:none; }
+section[data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked){
+  background:rgba(34,168,136,.14); color:#2a8; border-left-color:#2a8; }
+</style>"""
+
 # --- Brief render: block-card hierarchy ported from scripts/render_static.py ---
 # Streamlit's st.markdown can't run the static renderer's client-side JS grouping
 # pass (it strips <script>), so we reproduce md->HTML + the .block grouping here in
@@ -340,8 +362,11 @@ _METRICS_STRIP = """<div id="ms">
 <style>
  #ms{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;color-scheme:light dark;color:#1a1a1a;}
  @media (prefers-color-scheme: dark){ #ms{color:#fafafa;} }
- #ms .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem;}
- #ms .m{border:1px solid rgba(136,136,136,.35);border-radius:10px;padding:.6rem .85rem;}
+ #ms .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;}
+ /* On a narrow (mobile) viewport, 4 cramped columns clip their values — go 2x2 instead. */
+ @media (max-width:520px){ #ms .grid{grid-template-columns:repeat(2,1fr);} }
+ #ms .m{border:1px solid rgba(136,136,136,.35);border-radius:10px;padding:.7rem .85rem .85rem;
+        min-height:62px;display:flex;flex-direction:column;justify-content:center;}
  #ms .ml{color:#888;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
  #ms .mv{font-size:1.5rem;font-weight:800;line-height:1.15;margin-top:.18rem;}
  #ms .mv .t{display:block;font-size:.82rem;font-weight:500;color:#9a9a9a;margin-top:.12rem;}
@@ -380,6 +405,21 @@ _METRICS_STRIP = """<div id="ms">
   a.addEventListener('click',function(ev){ev.preventDefault();
    try{var t=window.parent.document.getElementById('verified-claims');
        if(t)t.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}});});
+ // Auto-size the iframe to its content so the cards are never clipped: on mobile the grid
+ // wraps to 2x2 (taller), on desktop it's one row (shorter). Same-origin lets us set our own
+ // frame height; ResizeObserver re-fits when the timezone text fills in or the layout reflows.
+ function fitFrame(){try{var el=document.getElementById('ms');if(!el||!window.frameElement)return;
+   var h=(el.scrollHeight+12)+'px';
+   // Size the iframe AND its immediate per-element wrapper (stElementContainer) to the content,
+   // so the reserved block matches: a tall mobile 2x2 no longer overflows the divider, a short
+   // desktop row leaves no gap. Stop at the wrapper — the block container above holds OTHER
+   // elements and must keep auto height (setting it collapses the rest of the page).
+   window.frameElement.style.height=h;
+   var w=window.frameElement.parentElement;          // stElementContainer
+   if(w)w.style.height=h;}catch(e){}}
+ window.addEventListener('resize',fitFrame);
+ if(window.ResizeObserver){new ResizeObserver(fitFrame).observe(document.getElementById('ms'));}
+ setTimeout(fitFrame,50);fitFrame();
 </script>
 </div>"""
 
@@ -490,6 +530,8 @@ def main():
     # Mode: the public living-battlecard viewer, or the gated 'create your own' entry point.
     # A ?job= URL (a returning self-serve visitor) forces the create view.
     job_param = st.query_params.get("job")
+    st.sidebar.markdown(_NAV_CSS, unsafe_allow_html=True)
+    st.sidebar.markdown("###### Navigate")
     mode = st.sidebar.radio(
         "Mode", ["📋 Living battlecards", "✨ Create your own"],
         index=1 if job_param else 0, label_visibility="collapsed")
@@ -522,7 +564,9 @@ def main():
              .replace("__N__", str(act["claims_tracked"]))
              .replace("__CAD__", str(cp["cadence_hours"]))
              .replace("__R__", str(max(remaining, 0))))
-    components.html(strip, height=112)
+    # Initial height covers the mobile 2x2 layout so nothing is clipped before fitFrame() runs;
+    # the in-iframe script then shrinks it to the real content height (one row on desktop).
+    components.html(strip, height=170)
     st.divider()
 
     md = _read_current(slug)
