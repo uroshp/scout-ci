@@ -1,32 +1,33 @@
 # Scout self-serve generation — the async out-of-band worker (Parts 2/3).
 #
-# TRIGGER: the DEPLOYED app commits selfserve/requests/<id>.json via the GitHub API; that push
-# fires this workflow. It runs the SAME SDK generation pipeline headless and commits the card to
-# user_reports/<id>/ (PRIVATE — not battlecards/, so never public and never monitored) plus the
-# updated selfserve/state.json (the gate counter + spend ledger).
+# TRIGGER: the DEPLOYED app writes the request to the PRIVATE data repo (selfserve/requests/<id>.json)
+# and then POSTs a workflow_dispatch here. (A push to the data repo can't trigger a workflow in this
+# code repo, so the app dispatches explicitly — same pattern as the Cloud Scheduler monitor trigger.)
 #
-# SAFETY: like monitor.yml, `schedule`/push only matter on the DEFAULT branch — inert until merged.
-# The `concurrency` group SERIALIZES runs so the state.json read-modify-write (counter + ledger)
-# can never race. The path filter is requests/** only, so the Action's OWN commits (user_reports/**,
-# state.json) do not re-trigger it — no loop.
+# PRIVACY: user requests + generated cards + the spend ledger are USER DATA and live in a SEPARATE
+# PRIVATE repo (SELFSERVE_REPO), never this public code repo. This runner reads/writes that repo via
+# the GitHub API (scout.selfserve's backend, selected by SELFSERVE_GH_TOKEN+SELFSERVE_REPO) — it does
+# NOT commit anything to the code repo, so there is nothing to push and no chance of leaking user data
+# into the public showcase. write=False in generate() also guarantees it never touches battlecards/.
 #
-# REQUIRED SECRET: ANTHROPIC_API_KEY (the generation spend lands here). The app side additionally
-# needs SELFSERVE_GH_TOKEN/SELFSERVE_REPO in its OWN host (Streamlit secrets) to post requests.
+# SAFETY: the `concurrency` group SERIALIZES runs so the state.json read-modify-write (the gate
+# counter + spend ledger) can never race, even if the app dispatches several at once.
+#
+# REQUIRED SECRETS (this code repo's Actions secrets):
+#   ANTHROPIC_API_KEY   — generation spend lands here.
+#   SELFSERVE_GH_TOKEN  — token with Contents:R/W on the DATA repo (read requests, write results+state).
+#   SELFSERVE_REPO      — the private data repo, e.g. "uroshp/scout-user-data".
 name: selfserve
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "v2/selfserve/requests/**"
 
 concurrency:
   group: scout-selfserve
   cancel-in-progress: false
 
 permissions:
-  contents: write                # to commit + push user_reports/ and state.json
+  contents: read                 # only to check out the code repo; user data is written via API
 
 jobs:
   selfserve:
@@ -40,18 +41,9 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -q -r requirements.txt
-      - name: Generate queued self-serve report(s)
+      - name: Generate queued self-serve report(s) into the private data repo
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SELFSERVE_GH_TOKEN: ${{ secrets.SELFSERVE_GH_TOKEN }}
+          SELFSERVE_REPO: ${{ secrets.SELFSERVE_REPO }}
         run: python scripts/run_selfserve.py
-      - name: Commit private user reports + updated gate state
-        run: |
-          git config user.name "scout-selfserve[bot]"
-          git config user.email "scout-selfserve@users.noreply.github.com"
-          git add user_reports selfserve/state.json
-          if git diff --cached --quiet; then
-            echo "No self-serve output to commit."
-          else
-            git commit -m "selfserve: generated user report(s) + advance gate"
-            git push
-          fi
