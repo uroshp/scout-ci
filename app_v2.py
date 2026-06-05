@@ -525,11 +525,11 @@ def main():
                        page_icon=icon or "🐕")
     if logo:
         st.logo(logo, icon_image=icon)
-    # Header: the dog icon sits to the LEFT of the name, vertically centered with it.
-    head_l, head_r = st.columns([1, 9], gap="small", vertical_alignment="center")
+    # Header: the full-body dog logo sits to the LEFT of the name, vertically centered with it.
+    head_l, head_r = st.columns([1, 5], gap="small", vertical_alignment="center")
     with head_l:
-        if icon:
-            st.image(icon, width=72)
+        if logo:
+            st.image(logo, width=120)
     with head_r:
         st.title("Agent Scout")
     st.caption("Living competitive battlecards — every claim verified against its source, "
