@@ -326,6 +326,9 @@ _TOC_CSS = """<style>
                   border-left:2px solid transparent; }
 #scout-toc li a:hover { color:#2a8; border-left-color:#2a8; }
 #scout-toc .toc-h3 a { padding-left:1.5rem; font-size:.82rem; color:#888; }
+/* On mobile Streamlit stacks the columns, so this right-rail jump-nav lands stranded at the
+   very bottom of the page where it's useless — hide it there; you just scroll the brief. */
+@media (max-width:520px){ #scout-toc { display:none; } }
 </style>"""
 
 
