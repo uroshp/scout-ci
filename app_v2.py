@@ -16,6 +16,17 @@ from datetime import datetime
 import streamlit as st
 import streamlit.components.v1 as components
 
+# Streamlit Community Cloud exposes configured secrets via st.secrets, NOT as env vars. Bridge
+# them into the environment BEFORE importing scout.config (which reads env at import time), so the
+# deployed app picks up SELFSERVE_GH_TOKEN / SELFSERVE_REPO / SELFSERVE_BRANCH. setdefault never
+# clobbers a real env var (local dev still wins); the guard makes it a no-op when no secrets exist.
+try:
+    for _k, _v in st.secrets.items():
+        if isinstance(_v, str):
+            os.environ.setdefault(_k, _v)
+except Exception:
+    pass
+
 from scout import config, display, selfserve, store
 
 # Rotating status copy — ported verbatim from v1 app.py (the "v1 progress messages") so the
