@@ -225,3 +225,4 @@ out/
 
 # Generation debug artifacts (SCOUT_DEBUG_DIR)
 debug_runs/
+.debug_runs/

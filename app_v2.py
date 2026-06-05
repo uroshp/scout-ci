@@ -8,13 +8,45 @@ Run:  streamlit run app_v2.py
 """
 import html
 import os
+import random
 import re
+import time
 from datetime import datetime
 
 import streamlit as st
 import streamlit.components.v1 as components
 
-from scout import display, store
+from scout import config, display, selfserve, store
+
+# Rotating status copy — ported verbatim from v1 app.py (the "v1 progress messages") so the
+# self-serve wait feels like the rest of Scout. The bar is a timed estimate (the real job runs
+# out-of-band in a GitHub Action), so these are decorative, honest-about-the-wait flavor.
+PROGRESS_MESSAGES = {
+    "research": [
+        "Reading everything the internet says about them so you don't have to...",
+        "Digging through funding announcements and earnings calls...",
+        "Stalking their careers page for hiring tells...",
+        "Lurking in the forums where people say what they really think...",
+    ],
+    "draft": [
+        "Connecting dots a human would need three coffees to connect...",
+        "Figuring out what actually matters and what is just noise...",
+        "Writing the verdict, not the encyclopedia...",
+    ],
+    "verify": [
+        "Catching the AI before it makes things up...",
+        "Fact-checking every claim like a paranoid editor...",
+        "Cutting anything we cannot prove. Sorry, juicy rumors...",
+        "Cross-examining the numbers until they confess...",
+        "Making sure every link actually goes somewhere...",
+    ],
+    "final": [
+        "Polishing. Almost ready to make you look smart in that meeting...",
+    ],
+}
+
+# "~6–8 minutes" — the estimate the bar fills against. Decoupled from the actual job.
+_SELFSERVE_ESTIMATE_S = 420
 
 # --- Brief render: block-card hierarchy ported from scripts/render_static.py ---
 # Streamlit's st.markdown can't run the static renderer's client-side JS grouping
@@ -341,6 +373,97 @@ _METRICS_STRIP = """<div id="ms">
 </div>"""
 
 
+def _phase_message(frac: float) -> str:
+    """Pick a rotating status line for where the timed estimate currently sits. Stable per
+    ~20s tick so it doesn't flicker on every 6s poll rerun."""
+    if frac < 0.40:
+        pool = PROGRESS_MESSAGES["research"]
+    elif frac < 0.70:
+        pool = PROGRESS_MESSAGES["draft"]
+    elif frac < 0.92:
+        pool = PROGRESS_MESSAGES["verify"]
+    else:
+        pool = PROGRESS_MESSAGES["final"]
+    return pool[int(time.time() // 20) % len(pool)]
+
+
+def _render_job_status(job_id: str) -> None:
+    """Show a self-serve job: a timed-estimate progress bar while pending, the rendered card
+    when done, or the gate message if it was rejected. Polls by sleeping then rerunning."""
+    res = selfserve.get_result(job_id)
+    if res is None:
+        started = st.session_state.setdefault(f"job_start_{job_id}", time.time())
+        elapsed = time.time() - started
+        frac = min(elapsed / _SELFSERVE_ESTIMATE_S, 0.99)
+        st.info("**This usually takes ~6–8 minutes.** Keep this tab open, or bookmark this URL "
+                "and come back — your report will be here when it's done.")
+        st.progress(frac)
+        st.markdown("*" + _phase_message(frac) + "*")
+        st.caption(f"Job `{job_id}` · elapsed {int(elapsed // 60)}m {int(elapsed % 60)}s")
+        time.sleep(6)
+        st.rerun()
+        return
+    status = res.get("status")
+    if status == "done":
+        st.success("Your report is ready.")
+        md = res.get("markdown", "")
+        st.markdown("---")
+        st.markdown(_BRIEF_CSS, unsafe_allow_html=True)
+        st.markdown(_render_brief_html(md), unsafe_allow_html=True)
+        st.download_button("Download report (.md)", data=md,
+                           file_name=f"{job_id}.md", mime="text/markdown")
+    elif status == "rejected":
+        st.warning(res.get("message", "The free window is closed."))
+        st.markdown(f"**DM for access:** **{config.SELFSERVE_CONTACT}**")
+    else:
+        st.error(res.get("message", "Something went wrong generating this report."))
+
+
+def _render_selfserve(job_param: str | None) -> None:
+    """The 'Create your own' entry point: gate -> form -> async job view. User-generated cards
+    are saved to user_reports/ (private), never the public showcase or the monitor."""
+    st.subheader("Create your own battlecard")
+
+    # A job id (from the URL ?job= or this session) takes you straight to its status/result.
+    job_id = job_param or st.session_state.get("selfserve_job")
+    if job_id:
+        if not selfserve.valid_job_id(job_id):
+            st.error("That job link looks malformed.")
+            return
+        st.session_state["selfserve_job"] = job_id
+        _render_job_status(job_id)
+        if st.button("← Start another report"):
+            for k in [k for k in st.session_state if k.startswith("job_start_")]:
+                st.session_state.pop(k, None)
+            st.session_state.pop("selfserve_job", None)
+            st.query_params.clear()
+            st.rerun()
+        return
+
+    gate = selfserve.gate()
+    if not gate["open"]:
+        st.warning("The free launch window is full.")
+        st.markdown(f"**DM me for access:** **{gate.get('contact', config.SELFSERVE_CONTACT)}**")
+        return
+
+    st.caption(f"**{gate['free_left']} free reports left.** Two companies, optional focus. "
+               "We research, verify every claim against its source, then show you the card.")
+    competitor = st.text_input("Competitor to research (required)", placeholder="e.g. OpenAI")
+    my_company = st.text_input("Your company (optional)", placeholder="e.g. Anthropic")
+    focus = st.text_input("Focus area (optional)", placeholder="e.g. enterprise coding")
+    if st.button("Generate my report", type="primary"):
+        if not competitor.strip():
+            st.warning("Please enter a competitor to research.")
+            return
+        if not selfserve.gate()["open"]:                # re-check; the view can be stale
+            st.warning("The free window just closed. DM for access.")
+            return
+        req = selfserve.submit(competitor, my_company, focus)
+        st.session_state["selfserve_job"] = req["job_id"]
+        st.query_params["job"] = req["job_id"]
+        st.rerun()
+
+
 def main():
     icon = _asset("scout_icon_t.png", "scout_icon.png")
     logo = _asset("scout_logo_t.png", "scout_logo.png")
@@ -352,6 +475,16 @@ def main():
     st.title("Scout")
     st.caption("Living competitive battlecards — every claim verified against its source, "
                "and kept current by an agent.")
+
+    # Mode: the public living-battlecard viewer, or the gated 'create your own' entry point.
+    # A ?job= URL (a returning self-serve visitor) forces the create view.
+    job_param = st.query_params.get("job")
+    mode = st.sidebar.radio(
+        "Mode", ["📋 Living battlecards", "✨ Create your own"],
+        index=1 if job_param else 0, label_visibility="collapsed")
+    if job_param or mode == "✨ Create your own":
+        _render_selfserve(job_param)
+        return
 
     cards = display.list_battlecards()
     if not cards:
