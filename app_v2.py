@@ -92,6 +92,10 @@ _BRIEF_CSS = """<style>
 #scout-brief h1 { font-size: 1.7rem; font-weight: 700; margin: .2rem 0 1.3rem; }
 #scout-brief h2 { margin: 2.4rem 0 1rem; padding-bottom: .3rem; font-size: 1.4rem;
                   border-bottom: 1px solid rgba(136,136,136,.35); }
+/* The brief follows the 5-minute block, so its first heading must not add a big top
+   margin on top of the inter-block gap — keep it tight under the Top 3 plays. */
+#scout-brief > h1:first-child, #scout-brief > h2:first-child,
+#scout-brief > h3:first-child { margin-top: .2rem; }
 #scout-brief h3 { margin: 2rem 0 1rem; color: #888; text-transform: uppercase;
                   letter-spacing: .04em; font-size: .9rem; }
 #scout-brief .block { margin: 0 0 1.9rem; padding-left: .9rem;
@@ -212,7 +216,7 @@ _FIVE_MIN_CSS = """<style>
 #scout-rt { margin:-.2rem 0 1.1rem; }
 #scout-rt h1 { font-size:1.85rem; font-weight:800; line-height:1.2; margin:0; }
 #scout-rt .rt-focus { font-weight:600; color:#2a8; }
-#scout-5min { margin:.2rem 0 1.6rem; }
+#scout-5min { margin:.2rem 0 .3rem; }
 #scout-5min .fm-lbl { color:#2a8; font-size:.78rem; font-weight:700; text-transform:uppercase;
                       letter-spacing:.06em; margin:0 0 .55rem; }
 #scout-5min .fm-angle { border-left:3px solid rgba(34,168,136,.6); padding:.1rem 0 .1rem .9rem;
@@ -527,6 +531,10 @@ def main():
     head_logo = _asset("scout_logo_crop_t.png") or logo
     st.set_page_config(page_title="Agent Scout — Living Battlecards", layout="wide",
                        page_icon=icon or "🐕")
+    # Lift everything up: Streamlit reserves a big top pad on the main container by default.
+    st.markdown('<style>[data-testid="stMainBlockContainer"],[data-testid="block-container"],'
+                '.block-container{padding-top:2.2rem!important;}</style>',
+                unsafe_allow_html=True)
     if logo:
         st.logo(logo, icon_image=icon)
     # Header rendered as one inline flex row (logo then name, small gap) so it reads like a
