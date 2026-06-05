@@ -321,12 +321,37 @@ def _append_alerts(slug, alerts):
                     f"{a['old_value']} → {a['new_value']}. **So what:** {a['so_what']}\n")
 
 
+def _latest_passed_anchor(now: datetime) -> datetime | None:
+    """The most recent daily anchor instant at or before `now`, or None if anchors
+    are disabled. Anchors are wall-clock UTC times (config.MONITOR_ANCHORS_UTC);
+    last_checked is written naive-UTC (datetime.now() on the UTC Actions runner), so
+    comparing against naive anchors built from `now` is apples-to-apples. If `now`
+    is before today's first anchor, the latest passed one is yesterday's last."""
+    anchors = []
+    for a in config.MONITOR_ANCHORS_UTC:
+        h, m = a.split(":")
+        anchors.append((int(h), int(m)))
+    if not anchors:
+        return None
+    anchors.sort()
+    todays = [now.replace(hour=h, minute=m, second=0, microsecond=0) for h, m in anchors]
+    passed = [t for t in todays if t <= now]
+    if passed:
+        return max(passed)
+    h, m = anchors[-1]
+    return (now - timedelta(days=1)).replace(hour=h, minute=m, second=0, microsecond=0)
+
+
 def _is_due(meta: dict, now: datetime | None = None) -> bool:
-    """Per-competitor cadence gate (A1): a card is due when at least its
-    cadence_hours have elapsed since last_checked. Cards with no last_checked,
-    or whose timestamp is unparseable, are always due (fail toward checking)."""
+    """Window-anchored due-gate (the launch promise): a card is due when it hasn't
+    been checked since the most recent passed anchor (config.MONITOR_ANCHORS_UTC =
+    7am + 1pm ET). This anchors freshness to the clock so updates land in the morning
+    + midday windows and never drift. Cards with no last_checked, or an unparseable
+    timestamp, are always due (fail toward checking).
+
+    Legacy fallback: with anchors disabled (MONITOR_ANCHORS_UTC empty), reverts to the
+    per-competitor relative cadence gate (due when cadence_hours have elapsed)."""
     now = now or datetime.now()
-    cadence_hours = meta.get("cadence_hours") or config.DEFAULT_CADENCE_HOURS
     raw = meta.get("last_checked") or meta.get("baseline_date")
     if not raw:
         return True
@@ -334,6 +359,10 @@ def _is_due(meta: dict, now: datetime | None = None) -> bool:
         last = datetime.fromisoformat(raw)
     except ValueError:
         return True
+    anchor = _latest_passed_anchor(now)
+    if anchor is not None:
+        return last < anchor
+    cadence_hours = meta.get("cadence_hours") or config.DEFAULT_CADENCE_HOURS
     return now >= last + timedelta(hours=cadence_hours)
 
 
@@ -341,9 +370,10 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
             force: bool = False) -> list[dict]:
     """Cron entrypoint: check every DUE battlecard, write per policy, email digests.
 
-    Per-card cadence (A1): a card is only checked when its cadence_hours have elapsed
-    since last_checked, so the daily/6-hourly cron can hold fast competitors at 6h and
-    slow ones at 24h from one schedule. `force=True` ignores the gate (manual runs).
+    Due-gate (_is_due): by default a card is only checked when it hasn't been checked
+    since the most recent passed anchor (7am + 1pm ET), so the burst cron lands one
+    check in the morning window and one at midday without drift. `force=True` ignores
+    the gate (manual runs).
 
     Side-effects gated for safety: write=False computes without mutating the store; email
     is dry unless email_dry_run=False AND creds are configured. The Actions cron runs live
