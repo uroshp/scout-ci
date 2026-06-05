@@ -69,7 +69,7 @@ section[data-testid="stSidebar"] div[role="radiogroup"]{ gap:.3rem; margin:.15re
 section[data-testid="stSidebar"] div[role="radiogroup"] > label{
   display:flex; align-items:center; width:100%; box-sizing:border-box;
   padding:.6rem .85rem; border-radius:9px; cursor:pointer;
-  font-size:1rem; font-weight:600; line-height:1.2; color:inherit;
+  font-size:1.12rem; font-weight:600; line-height:1.2; color:#2a8;
   border-left:3px solid transparent;
   transition:background .15s ease, color .15s ease, border-color .15s ease; }
 section[data-testid="stSidebar"] div[role="radiogroup"] > label:hover{
@@ -364,6 +364,7 @@ def _fmt_date_human(s: str | None) -> str:
 # treated as UTC. The Next-check card also carries the live countdown (A2).
 _METRICS_STRIP = """<div id="ms">
 <style>
+ html,body{margin:0;padding:0;}
  #ms{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;color-scheme:light dark;color:#1a1a1a;}
  @media (prefers-color-scheme: dark){ #ms{color:#fafafa;} }
  #ms .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;}
@@ -593,9 +594,10 @@ def main():
              .replace("__N__", str(act["claims_tracked"]))
              .replace("__CAD__", str(cp["cadence_hours"]))
              .replace("__R__", str(max(remaining, 0))))
-    # Initial height covers the mobile 2x2 layout so nothing is clipped before fitFrame() runs;
-    # the in-iframe script then shrinks it to the real content height (one row on desktop).
-    components.html(strip, height=170)
+    # Reserve only the desktop one-row height so there's no dead space below the cards; the
+    # in-iframe fitFrame() then GROWS the frame for the taller mobile 2x2 layout (a ~50ms flash
+    # of clipping there at most). Avoids the big empty band a 170px reserve left on desktop.
+    components.html(strip, height=96)
     st.divider()
 
     md = _read_current(slug)
