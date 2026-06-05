@@ -214,8 +214,10 @@ def _asset(*names):
 # bold title, the why (their body), and their existing soundbite — all verbatim.
 _FIVE_MIN_CSS = """<style>
 #scout-rt { margin:-.2rem 0 1.1rem; }
-#scout-rt h1 { font-size:1.85rem; font-weight:800; line-height:1.2; margin:0; }
-#scout-rt .rt-focus { font-weight:600; color:#2a8; }
+#scout-rt h1 { font-size:2.3rem; font-weight:800; line-height:1.12; margin:0 0 .4rem; }
+#scout-rt .rt-sub { font-size:1.1rem; line-height:1.4; margin:.1rem 0; }
+#scout-rt .rt-sub b { font-weight:700; }
+#scout-rt .rt-focus { font-size:1.02rem; font-weight:600; color:#2a8; margin-top:.15rem; }
 #scout-5min { margin:.2rem 0 .3rem; }
 #scout-5min .fm-lbl { color:#2a8; font-size:.78rem; font-weight:700; text-transform:uppercase;
                       letter-spacing:.06em; margin:0 0 .55rem; }
@@ -312,13 +314,25 @@ def _strip_h1(md: str) -> str:
 
 
 def _report_title_html(md: str, meta: dict | None) -> str:
-    """The master report title, shown above Today's angle. Appends the focus area
-    (from meta) when the report has one, so visitors see what it covers."""
-    m = re.search(r"^#\s+(.*)$", md, flags=re.M)
-    title = m.group(1).strip() if m else "Competitive Intelligence Brief"
-    focus = (meta or {}).get("focus")
-    focus_html = f'<span class="rt-focus"> · {html.escape(focus)}</span>' if focus else ""
-    return f'<div id="scout-rt"><h1>{html.escape(title)}{focus_html}</h1></div>'
+    """The master report title, shown above Today's angle. Spelled out so it's crystal
+    clear who/what the card covers: a big 'Competitive Intelligence Brief' headline, a
+    'Researched: <competitor> · For <my company> reps' line, and a focus line when set.
+    Falls back to the brief's own H1 if meta lacks the fields."""
+    meta = meta or {}
+    competitor = (meta.get("competitor") or "").strip()
+    my_company = (meta.get("my_company") or "").strip()
+    focus = (meta.get("focus") or "").strip()
+    if not competitor:                       # no structured meta — use the brief's H1 verbatim
+        m = re.search(r"^#\s+(.*)$", md, flags=re.M)
+        title = m.group(1).strip() if m else "Competitive Intelligence Brief"
+        return f'<div id="scout-rt"><h1>{html.escape(title)}</h1></div>'
+    sub = f'Researched: <b>{html.escape(competitor)}</b>'
+    if my_company:
+        sub += f' · For <b>{html.escape(my_company)}</b> reps'
+    focus_html = (f'<div class="rt-focus">Focus area: {html.escape(focus)}</div>'
+                  if focus else "")
+    return ('<div id="scout-rt"><h1>Competitive Intelligence Brief</h1>'
+            f'<div class="rt-sub">{sub}</div>{focus_html}</div>')
 
 
 _TOC_CSS = """<style>
@@ -550,8 +564,11 @@ def main():
             unsafe_allow_html=True)
     else:
         st.title("Agent Scout")
-    st.caption("Living competitive battlecards — every claim verified against its source, "
-               "and kept current by an agent.")
+    st.markdown(
+        '<div style="color:#2a8;font-size:1.08rem;font-weight:600;line-height:1.4;'
+        'margin:-.1rem 0 .5rem;">Living competitive battlecards: Every claim verified '
+        'for accuracy and kept current by an orchestra of AI agents.</div>',
+        unsafe_allow_html=True)
 
     # Mode: the public living-battlecard viewer, or the gated 'create your own' entry point.
     # A ?job= URL (a returning self-serve visitor) forces the create view.
