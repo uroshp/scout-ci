@@ -53,10 +53,10 @@ def _headers() -> dict:
 
 
 def _repo_path(path: str) -> str:
-    """Repo-root-relative path for the GitHub API. The local store paths are anchored to
-    _REPO_ROOT (the v2/ dir), but the GitHub API addresses files from the GIT REPO root,
-    where v2/ is a subdirectory — so prepend it for API calls only."""
-    return f"{config.REPO_SUBDIR}/{path}" if config.REPO_SUBDIR else path
+    """Path within the DATA repo for the GitHub API. Local store paths are anchored to _REPO_ROOT
+    (the v2/ dir); in the private data repo the data sits at the root by default
+    (SELFSERVE_DATA_PREFIX=''), so usually a no-op."""
+    return f"{config.SELFSERVE_DATA_PREFIX}/{path}" if config.SELFSERVE_DATA_PREFIX else path
 
 
 def _gh_get(path: str) -> tuple[str | None, str | None]:
@@ -68,6 +68,17 @@ def _gh_get(path: str) -> tuple[str | None, str | None]:
     r.raise_for_status()
     data = r.json()
     return base64.b64decode(data["content"]).decode("utf-8"), data["sha"]
+
+
+def _gh_list(path: str) -> list[str]:
+    """List the filenames in a repo directory via the GitHub API; [] if the dir 404s."""
+    url = f"{_GH_API}/repos/{config.SELFSERVE_REPO}/contents/{_repo_path(path)}"
+    r = httpx.get(url, headers=_headers(), params={"ref": config.SELFSERVE_BRANCH}, timeout=20)
+    if r.status_code == 404:
+        return []
+    r.raise_for_status()
+    data = r.json()
+    return [e["name"] for e in data if e.get("type") == "file"]
 
 
 def _gh_put(path: str, text: str, message: str, sha: str | None = None) -> None:
@@ -106,6 +117,14 @@ def _write(path: str, text: str, message: str) -> None:
     os.makedirs(os.path.dirname(p), exist_ok=True)
     with open(p, "w") as f:
         f.write(text)
+
+
+def _listdir(path: str) -> list[str]:
+    """Filenames in a store directory, backend-aware (GitHub API or local FS)."""
+    if use_github():
+        return _gh_list(path)
+    p = _local(path)
+    return sorted(os.listdir(p)) if os.path.isdir(p) else []
 
 
 # --- state / gates -----------------------------------------------------------
@@ -178,7 +197,65 @@ def submit(competitor: str, my_company: str | None, focus: str | None) -> dict:
     }
     _write(f"{REQUESTS_DIR}/{job_id}.json", json.dumps(req, indent=2, ensure_ascii=False),
            f"selfserve: queue request {job_id}")
+    # A push to the private DATA repo can't trigger the workflow in the CODE repo, so dispatch it
+    # explicitly. Best-effort: if dispatch fails the request still sits queued (the next run picks
+    # it up), so we record the outcome rather than blow up the submit.
+    req["dispatched"] = dispatch_generation()
     return req
+
+
+def dispatch_generation() -> bool:
+    """Trigger the self-serve workflow in the CODE repo (workflow_dispatch). Returns True on the
+    GitHub 204, False otherwise. Needs Actions:write on SELFSERVE_DISPATCH_REPO. No-op (False) in
+    local/dev mode where there's no token."""
+    if not (config.SELFSERVE_GH_TOKEN and config.SELFSERVE_DISPATCH_REPO):
+        return False
+    url = (f"{_GH_API}/repos/{config.SELFSERVE_DISPATCH_REPO}"
+           f"/actions/workflows/{config.SELFSERVE_DISPATCH_WORKFLOW}/dispatches")
+    try:
+        r = httpx.post(url, headers=_headers(),
+                       json={"ref": config.SELFSERVE_BRANCH}, timeout=20)
+        return r.status_code == 204
+    except httpx.HTTPError:
+        return False
+
+
+def list_pending_jobs() -> list[dict]:
+    """Queued request records with no result yet, oldest first (the filename carries the
+    timestamp). Backend-aware — used by the Action runner against the private data repo."""
+    out = []
+    for fname in sorted(_listdir(REQUESTS_DIR)):
+        if not fname.endswith(".json"):
+            continue
+        job_id = fname[:-5]
+        if _read(f"{RESULTS_DIR}/{job_id}/result.json"):
+            continue  # already processed
+        raw = _read(f"{REQUESTS_DIR}/{fname}")
+        if not raw:
+            continue
+        try:
+            out.append(json.loads(raw))
+        except json.JSONDecodeError:
+            continue
+    return out
+
+
+def save_result(job_id: str, record: dict, markdown: str | None = None,
+                claims: list | None = None) -> None:
+    """Persist a finished job under RESULTS_DIR/<job_id>/ (result.json + optional card.md/claims)."""
+    if markdown is not None:
+        _write(f"{RESULTS_DIR}/{job_id}/card.md", markdown, f"selfserve: card {job_id}")
+    if claims is not None:
+        _write(f"{RESULTS_DIR}/{job_id}/claims.json",
+               json.dumps(claims, indent=2, ensure_ascii=False), f"selfserve: claims {job_id}")
+    _write(f"{RESULTS_DIR}/{job_id}/result.json",
+           json.dumps(record, indent=2, ensure_ascii=False), f"selfserve: result {job_id}")
+
+
+def save_state(state: dict) -> None:
+    """Persist the gate ledger (counter + spend). Serialized by the workflow's concurrency group."""
+    _write(STATE_PATH, json.dumps(state, indent=2, ensure_ascii=False),
+           "selfserve: advance gate state")
 
 
 def get_result(job_id: str) -> dict | None:

@@ -147,11 +147,17 @@ place that guarantees no combined surprise.
 - **Authoritative gate:** the GitHub Action (serialized via its `concurrency` group) re-checks the
   gate at the point of spend and is the sole writer of `state.json` — the app's gate is advisory
   display only, so a stale read can never overspend.
-- **Privacy (Part 3):** user-generated cards are written to **`user_reports/<job_id>/`** — *not*
-  `battlecards/`. Because both the public showcase (`display.list_battlecards`) and the monitor
-  (`run_all`) scan only `battlecards/`, user cards are **private to the repo owner and never
-  public, never monitored — separation by physical directory, not a flag that can leak**. They are
-  committed so the owner can review what people generated (and optionally promote a good one).
+- **Privacy (Part 3) — REVISED 2026-06-05:** the original design kept user cards in
+  `user_reports/<job_id>/` (not `battlecards/`) and called that "private by directory." The
+  pre-launch security review caught the flaw: **this repo is PUBLIC**, so directory separation
+  doesn't make anything private — every submission (the user's inputs *and* the generated card)
+  would be world-readable on GitHub. **Fix: user data moved to a SEPARATE PRIVATE repo**
+  (`SELFSERVE_REPO`, e.g. `uroshp/scout-user-data`); the code repo stays public for the portfolio.
+  The app writes requests to / reads results from that private repo via the GitHub-API backend and
+  triggers generation with a `workflow_dispatch` (a push to the data repo can't trigger a workflow
+  in the code repo). The Action writes user data to the private repo via API and commits nothing to
+  the public repo. Requests + cards stay reviewable by the owner, just not by the world. Token needs
+  Contents:R/W on the data repo + Actions:R/W on the code repo.
 
 ## 8. Self-serve UX
 

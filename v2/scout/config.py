@@ -113,9 +113,21 @@ AUTHOR_NAME = os.environ.get("SCOUT_AUTHOR_NAME", "Urosh Pajic")
 AUTHOR_LINKEDIN = os.environ.get("SCOUT_AUTHOR_LINKEDIN", "https://www.linkedin.com/in/urospajic")
 # Storage backend: when a token + repo are set (deployed app), the app reads/writes via the
 # GitHub API on this branch; otherwise it falls back to the local filesystem (dev/test).
+#
+# PRIVACY: user requests + generated cards + the spend ledger are USER DATA, so they live in a
+# SEPARATE PRIVATE repo — NOT the public code repo (which would make every submission world-
+# readable). SELFSERVE_REPO is that private data repo; SELFSERVE_DATA_PREFIX is where the data
+# sits inside it (root by default — the data repo has no v2/ nesting). The generation Action
+# lives in the public CODE repo and is triggered by an explicit workflow_dispatch the app POSTs
+# (a push to the private data repo can't trigger a workflow in the code repo), so the token needs
+# Contents:R/W on the DATA repo AND Actions:R/W on the DISPATCH (code) repo.
 SELFSERVE_GH_TOKEN = os.environ.get("SELFSERVE_GH_TOKEN")
-SELFSERVE_REPO = os.environ.get("SELFSERVE_REPO")            # the public repo, e.g. "uroshp/scout-ci"
+SELFSERVE_REPO = os.environ.get("SELFSERVE_REPO")              # PRIVATE data repo, e.g. "uroshp/scout-user-data"
 SELFSERVE_BRANCH = os.environ.get("SELFSERVE_BRANCH", "main")
+SELFSERVE_DATA_PREFIX = os.environ.get("SCOUT_SELFSERVE_DATA_PREFIX", "")  # path prefix in the data repo (root)
+# The public code repo whose selfserve workflow the app dispatches when a request is submitted.
+SELFSERVE_DISPATCH_REPO = os.environ.get("SCOUT_SELFSERVE_DISPATCH_REPO", "uroshp/scout-ci")
+SELFSERVE_DISPATCH_WORKFLOW = os.environ.get("SCOUT_SELFSERVE_DISPATCH_WORKFLOW", "selfserve.yml")
 
 
 def require_api_key() -> str:

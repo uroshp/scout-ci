@@ -17,8 +17,10 @@ The repo holds two generations, each in its own folder with its own `requirement
   [`v2/docs/v2-agent-spec.md`](v2/docs/v2-agent-spec.md). Key v2 conventions: data paths are
   anchored to `scout.config.APP_ROOT` (works from any CWD; Streamlit Cloud runs from the repo
   root with entrypoint `v2/app_v2.py`); the two GitHub Actions live in `.github/` (at the repo
-  root, required) but run with `working-directory: v2`; `scout/selfserve.py` prefixes its
-  GitHub-API commit paths with `v2/` via `config.REPO_SUBDIR`. The viewer is read-only — it never
+  root, required) but run with `working-directory: v2`; self-serve USER DATA (requests, generated
+  cards, the spend ledger) lives in a SEPARATE PRIVATE repo (`config.SELFSERVE_REPO`, NOT this
+  public repo) which `scout/selfserve.py` reads/writes via the GitHub API; the app triggers the
+  generation Action by POSTing a `workflow_dispatch`. The viewer is read-only — it never
   generates or monitors.
 
 `.github/`, `.streamlit/`, `.env.example`, `LICENSE`, and this `CLAUDE.md` stay at the repo root.

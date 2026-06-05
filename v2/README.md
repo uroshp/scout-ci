@@ -63,10 +63,12 @@ v2/
 
 - **`monitor.yml`** — daily cron; runs `python -m scout.monitor`, commits `last_checked` bumps every
   run and content changes only on a material change. Inert until merged to the default branch.
-- **`selfserve.yml`** — triggered by a pushed `v2/selfserve/requests/**` file; runs
-  `scripts/run_selfserve.py` and commits a private card to `user_reports/`.
+- **`selfserve.yml`** — triggered by a `workflow_dispatch` the app POSTs on submit; runs
+  `scripts/run_selfserve.py`, which reads the request from / writes the private card to the
+  SEPARATE PRIVATE data repo (`SELFSERVE_REPO`) via the GitHub API — never this public repo.
 
-Both set `working-directory: v2`, and `scout/selfserve.py` prefixes its GitHub-API commit paths
-with `v2/` (via `config.REPO_SUBDIR`) so the app's commits and the Actions' path filters line up.
+Both set `working-directory: v2`. Self-serve user data (requests, cards, the gate ledger) is kept
+out of this public repo entirely: it lives in `SELFSERVE_REPO` (a private repo) and is reached
+through `scout/selfserve.py`'s GitHub-API backend, so submissions are never world-readable.
 
 See [`docs/v2-agent-spec.md`](docs/v2-agent-spec.md) for the full design.
