@@ -96,8 +96,11 @@ _BRIEF_CSS = """<style>
    margin on top of the inter-block gap — keep it tight under the Top 3 plays. */
 #scout-brief > h1:first-child, #scout-brief > h2:first-child,
 #scout-brief > h3:first-child { margin-top: .2rem; }
-#scout-brief h3 { margin: 2rem 0 1rem; color: #888; text-transform: uppercase;
-                  letter-spacing: .04em; font-size: .9rem; }
+#scout-brief h3 { margin: 1.5rem 0 .9rem; color: #c8c8c8; text-transform: uppercase;
+                  letter-spacing: .04em; font-size: 1.08rem; font-weight: 700; }
+/* When a subsection heading sits directly under a section heading (e.g. "Competitive
+   Battlecard" -> "Where … wins"), drop the big stacked top margin so they read together. */
+#scout-brief h2 + h3 { margin-top: .7rem; }
 #scout-brief .block { margin: 0 0 1.9rem; padding-left: .9rem;
                       border-left: 3px solid rgba(34,168,136,.5); }
 #scout-brief .block .btitle { font-size: 1.3rem; font-weight: 700; line-height: 1.3;
@@ -114,7 +117,7 @@ _BRIEF_CSS = """<style>
    separating line above, a green (non-italic) label, italic light-grey text. */
 #scout-brief .scout-callout { display: block; margin: .7rem 0 0; padding-top: .55rem;
     border-top: 1px dashed rgba(136,136,136,.35); font-style: italic;
-    color: #b3b3b3; opacity: 1; }
+    color: #c8c8c8; opacity: 1; }
 #scout-brief li .scout-callout.co-inline { margin: .55rem 0 0; }
 #scout-brief .co-lbl { color: #2a8; font-weight: 700; font-style: normal; }
 #scout-brief .scout-callout em { color: inherit; font-style: italic; }
@@ -279,9 +282,9 @@ _FIVE_MIN_CSS = """<style>
                         margin-bottom:1.6rem; }
 #scout-5min .fm-atext { font-size:1.12rem; line-height:1.5; margin:.1rem 0 .5rem; }
 #scout-5min .fm-sowhat { font-size:1rem; line-height:1.5; margin:.5rem 0 .6rem; padding-top:.5rem;
-                         border-top:1px dashed rgba(136,136,136,.35); font-style:italic; color:#b3b3b3; }
+                         border-top:1px dashed rgba(136,136,136,.35); font-style:italic; color:#c8c8c8; }
 #scout-5min .co-lbl { color:#2a8; font-weight:700; font-style:normal; }
-#scout-5min .fm-src { font-size:.8rem; color:#888; }
+#scout-5min .fm-src { font-size:.8rem; color:#a8a8a8; }
 #scout-5min .fm-src a, #scout-5min a { color:#2a8; text-decoration:none; }
 #scout-5min .fm-src a:hover, #scout-5min a:hover { text-decoration:underline; }
 #scout-5min .fm-plays { display:grid; gap:1rem; }
@@ -290,7 +293,7 @@ _FIVE_MIN_CSS = """<style>
 #scout-5min .fm-pt { font-size:1.1rem; font-weight:700; line-height:1.3; margin-bottom:.35rem; }
 #scout-5min .fm-pwhy { margin:.25rem 0 .55rem; line-height:1.45; }
 #scout-5min .fm-sb { margin:.5rem 0 0; padding-top:.5rem; border-top:1px dashed rgba(136,136,136,.35);
-                     font-size:.93rem; font-style:italic; color:#b3b3b3; }
+                     font-size:.93rem; font-style:italic; color:#c8c8c8; }
 #scout-5min .fm-sb em { color:inherit; }
 #scout-5min .fm-sb-lbl { font-weight:700; color:#2a8; font-style:normal; }
 </style>"""
@@ -405,7 +408,7 @@ _TOC_CSS = """<style>
                   text-decoration:none; font-size:.9rem; line-height:1.35;
                   border-left:2px solid transparent; }
 #scout-toc li a:hover { color:#2a8; border-left-color:#2a8; }
-#scout-toc .toc-h3 a { padding-left:1.5rem; font-size:.82rem; color:#888; }
+#scout-toc .toc-h3 a { padding-left:1.5rem; font-size:.82rem; color:#a8a8a8; }
 /* On mobile Streamlit stacks the columns, so this right-rail jump-nav lands stranded at the
    very bottom of the page where it's useless — hide it there; you just scroll the brief. */
 @media (max-width:520px){ #scout-toc { display:none; } }
@@ -451,12 +454,12 @@ _METRICS_STRIP = """<div id="ms">
  @media (max-width:520px){ #ms .grid{grid-template-columns:repeat(2,1fr);} }
  #ms .m{border:1px solid rgba(136,136,136,.35);border-radius:10px;padding:.7rem .85rem .85rem;
         min-height:62px;display:flex;flex-direction:column;justify-content:center;}
- #ms .ml{color:#888;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+ #ms .ml{color:#a8a8a8;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
  #ms .mv{font-size:1.5rem;font-weight:800;line-height:1.15;margin-top:.18rem;}
- #ms .mv .t{display:block;font-size:.82rem;font-weight:500;color:#9a9a9a;margin-top:.12rem;}
+ #ms .mv .t{display:block;font-size:.82rem;font-weight:500;color:#b8b8b8;margin-top:.12rem;}
  #ms .cd{color:#2a8;font-weight:700;font-size:.78rem;font-variant-numeric:tabular-nums;margin-top:.3rem;}
  #ms .cd.due{color:#e85;}
- #ms .sub{color:#888;font-size:.72rem;margin-top:.3rem;}
+ #ms .sub{color:#a8a8a8;font-size:.72rem;margin-top:.3rem;}
  #ms .mlink{color:inherit;text-decoration:none;border-bottom:2px solid rgba(34,168,136,.55);}
  #ms .mlink:hover{border-bottom-color:#2a8;}
  #ms .sub a{color:#2a8;text-decoration:none;}
@@ -608,7 +611,7 @@ def main():
                        page_icon=icon or "🐕")
     # Lift everything up: Streamlit reserves a big top pad on the main container by default.
     st.markdown('<style>[data-testid="stMainBlockContainer"],[data-testid="block-container"],'
-                '.block-container{padding-top:2.2rem!important;}</style>',
+                '.block-container{padding-top:2.9rem!important;}</style>',
                 unsafe_allow_html=True)
     if logo:
         st.logo(logo, icon_image=icon)
