@@ -10,7 +10,7 @@ from datetime import date, datetime
 
 from scout import config
 
-STORE_ROOT = "battlecards"
+STORE_ROOT = os.path.join(config.APP_ROOT, "battlecards")
 
 
 def _slug_part(s: str) -> str:

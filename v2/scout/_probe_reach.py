@@ -4,13 +4,18 @@ sources the v1 samples cite? Pure HTTP, no API. Categorizes every cited URL.
 Run:  python -m scout._probe_reach
 """
 import glob
+import os
 import re
 from collections import Counter
 from urllib.parse import urlparse
 
 import httpx
 
+from scout import config
 from scout.grounding import _fetch_response, _is_pdf, _pdf_to_text, _html_to_text, _normalize
+
+# v1's committed samples now live in ../v1/reports (sibling of the v2/ app root).
+_V1_REPORTS = os.path.join(os.path.dirname(config.APP_ROOT), "v1", "reports")
 
 PAYWALL_KW = [
     "subscribe to read", "subscribe now", "create a free account",
@@ -21,7 +26,7 @@ PAYWALL_KW = [
 
 def collect_urls():
     urls = {}
-    for path in sorted(glob.glob("reports/*.md")):
+    for path in sorted(glob.glob(os.path.join(_V1_REPORTS, "*.md"))):
         text = open(path).read()
         for m in re.finditer(r"\]\((https?://[^)\s]+)\)", text):
             urls.setdefault(m.group(1), set()).add(path.split("/")[-1])

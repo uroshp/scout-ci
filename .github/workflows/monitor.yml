@@ -35,6 +35,9 @@ permissions:
 jobs:
   monitor:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: v2          # the v2 app lives in v2/; run all steps from there
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

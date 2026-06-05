@@ -52,9 +52,16 @@ def _headers() -> dict:
     }
 
 
+def _repo_path(path: str) -> str:
+    """Repo-root-relative path for the GitHub API. The local store paths are anchored to
+    _REPO_ROOT (the v2/ dir), but the GitHub API addresses files from the GIT REPO root,
+    where v2/ is a subdirectory — so prepend it for API calls only."""
+    return f"{config.REPO_SUBDIR}/{path}" if config.REPO_SUBDIR else path
+
+
 def _gh_get(path: str) -> tuple[str | None, str | None]:
     """Return (text_content, sha) for a repo file, or (None, None) if it 404s."""
-    url = f"{_GH_API}/repos/{config.SELFSERVE_REPO}/contents/{path}"
+    url = f"{_GH_API}/repos/{config.SELFSERVE_REPO}/contents/{_repo_path(path)}"
     r = httpx.get(url, headers=_headers(), params={"ref": config.SELFSERVE_BRANCH}, timeout=20)
     if r.status_code == 404:
         return None, None
@@ -66,7 +73,7 @@ def _gh_get(path: str) -> tuple[str | None, str | None]:
 def _gh_put(path: str, text: str, message: str, sha: str | None = None) -> None:
     """Create or update a repo file. Passing the current sha updates in place; omitting
     it creates. A 409/422 here means someone else moved the file first (optimistic lock)."""
-    url = f"{_GH_API}/repos/{config.SELFSERVE_REPO}/contents/{path}"
+    url = f"{_GH_API}/repos/{config.SELFSERVE_REPO}/contents/{_repo_path(path)}"
     body = {
         "message": message,
         "content": base64.b64encode(text.encode("utf-8")).decode("ascii"),

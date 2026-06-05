@@ -92,11 +92,14 @@ def change_feed(slug: str, limit: int = 25) -> list[dict]:
     CONTENT files (current.md / claims.json), which already excludes monitor 'heartbeat'
     commits (those touch only meta.json); then we drop product/code commits (human-authored
     and not the baseline) and relabel the rest to clean, user-facing text. The oldest content
-    commit is the card's creation. Local datetime so frequent updates read as recent (A3)."""
+    commit is the card's creation. Local datetime so frequent updates read as recent (A3).
+    --follow tracks the file across renames (e.g. the v1/v2 repo restructure) so the lineage
+    and the true 'created' date survive a move; it needs a SINGLE path, so we follow
+    current.md, which every material update and the baseline both touch."""
     path = store.battlecard_dir(slug)
-    out = _git(["log", f"-{limit}", "--date=format-local:%Y-%m-%d %H:%M",
+    out = _git(["log", f"-{limit}", "--follow", "--date=format-local:%Y-%m-%d %H:%M",
                 "--format=%h%x09%ad%x09%ae%x09%s", "--",
-                os.path.join(path, "current.md"), os.path.join(path, "claims.json")])
+                os.path.join(path, "current.md")])
     rows = []
     for line in out.splitlines():
         parts = line.split("\t")

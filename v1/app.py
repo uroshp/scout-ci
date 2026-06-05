@@ -7,7 +7,9 @@ import streamlit as st
 from research import generate_brief, verify_brief, save_report
 
 APP_NAME = "Scout"
-REPORTS_DIR = "reports"
+# Anchor to this file's folder so the app finds reports/ from any working directory
+# (Streamlit Cloud runs from the repo root, not v1/).
+REPORTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "reports")
 DAILY_RUN_LIMIT = 15
 
 APP_PASSWORD = os.environ.get("APP_PASSWORD", "worksmarter")
