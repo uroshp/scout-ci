@@ -71,4 +71,5 @@ Both set `working-directory: v2`. Self-serve user data (requests, cards, the gat
 out of this public repo entirely: it lives in `SELFSERVE_REPO` (a private repo) and is reached
 through `scout/selfserve.py`'s GitHub-API backend, so submissions are never world-readable.
 
-See [`docs/v2-agent-spec.md`](docs/v2-agent-spec.md) for the full design.
+See [`docs/architecture.md`](docs/architecture.md) for diagrams (generation flow, monitoring loop,
+control-vs-autonomy) and [`docs/v2-agent-spec.md`](docs/v2-agent-spec.md) for the full design.
