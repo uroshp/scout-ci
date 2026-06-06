@@ -758,6 +758,16 @@ def _st_masthead(head_logo):
         unsafe_allow_html=True)
 
 
+# Font <link>s, inlined here (not page.FONT_HEAD): app_v2 is the always-reloaded main script,
+# so referencing a fresh page.py constant can hit Streamlit Cloud's stale module cache and crash.
+_FONT_LINKS = (
+    '<link rel="preconnect" href="https://fonts.googleapis.com">'
+    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+    '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,'
+    'wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,1,400;9..144,1,500'
+    '&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">')
+
+
 # In-page mode switch styled as a sober segmented control (replaces the sidebar radio).
 _MODE_CSS = (
     'div[role="radiogroup"]{gap:.5rem;margin:.1rem 0 .9rem;}'
@@ -793,7 +803,7 @@ def main():
     # Fonts (separate <link>), CSS, and masthead each go in their OWN st.markdown call —
     # Streamlit's sanitizer drops a <style> bundled with body HTML (or one containing @import),
     # which is what garbled the earlier cuts.
-    st.markdown(page.FONT_HEAD, unsafe_allow_html=True)
+    st.markdown(_FONT_LINKS, unsafe_allow_html=True)
     st.markdown(page.style_block(), unsafe_allow_html=True)
     st.markdown(page.masthead_html(), unsafe_allow_html=True)
 
