@@ -2,15 +2,23 @@
 
 Give Scout a competitor — and optionally your own company and a focus area — and it returns a
 strategic brief (executive summary, battlecard, objection handling, and more) where **every
-factual claim is verified against public sources, and anything that can't be verified is cut and
+factual claim is verified against public sources, and anything that can’t be verified is cut and
 logged**. The verification step is the product, not a polish pass.
+
+Verification is **deterministic and model-free**: separate code independently re-fetches each
+cited source and confirms the quoted evidence is really there. No model can fake a citation,
+because the code that checks provenance shares nothing with the code that writes the claim. And
+the v2 battlecards are **living** — a daily agent monitors each competitor and updates a claim
+only when it judges the change *material* to the GTM story, not on every bit of news.
+
+Built by directing Claude Code — I made the architecture, system-design, and product decisions.
 
 This repo holds two generations of Scout, each **self-contained in its own folder**:
 
-| | What it is | Folder |
-|---|---|---|
-| **v1** | The shipped **pipeline** — a fixed `generate → verify → render` flow (two Claude API calls, web search on both). Frozen and runnable on its own. | [`v1/`](v1/) |
-| **v2** | **Agent Scout** — the model-driven evolution: a tool-use loop that decides its own steps, a fetch-and-read-the-source grounding tool, and **living, monitored battlecards** kept current by a daily agent. The deployed app. | [`v2/`](v2/) |
+|      |What it is                                                                                                                                                                                                                  |Folder      |
+|------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+|**v1**|The shipped **pipeline** — a fixed `generate → verify → render` flow (two Claude API calls, web search on both). Frozen and runnable on its own.                                                                            |[`v1/`](v1/)|
+|**v2**|**Agent Scout** — the model-driven evolution: a tool-use loop that decides its own steps, a fetch-and-read-the-source grounding tool, and **living, monitored battlecards** kept current by a daily agent. The deployed app.|[`v2/`](v2/)|
 
 🔗 **[Live demo](https://agent-scout.streamlit.app)** (v2)
 
@@ -31,8 +39,20 @@ streamlit run v1/app.py
 ```
 
 Each app anchors its data paths to its own folder, so both run correctly from any working
-directory. See each folder's README for the full story: **[v1/README.md](v1/README.md)** ·
-**[v2/README.md](v2/README.md)**.
+directory. See each folder’s README for the full story: **<v1/README.md>** ·
+**<v2/README.md>**.
+
+## How v2 works
+
+- **Agentic orchestration** — an Opus orchestrator decides what to research, delegates to Sonnet
+  research/verifier subagents, judges materiality, and decides when to update or stay silent.
+- **Deterministic grounding** — a model-free check (httpx + fuzzy match) re-fetches each source
+  and confirms the verbatim evidence; unverifiable claims are cut and recorded in a visible Cut Log.
+- **Living battlecards** — a daily GitHub Action monitors each competitor; a cheap triage gate
+  escalates to materiality judgment only when there’s substantial news, keeping quiet-day cost
+  near zero.
+- **Control vs. autonomy** — the model owns judgment; code owns the trust-critical side effects
+  (grounding, commits, email, rendering).
 
 ## Repo layout
 
@@ -47,7 +67,7 @@ scout-ci/
 └── README.md               # you are here
 ```
 
-> **Deployment note:** the live app is v2 with its Streamlit Cloud "Main file path" set to
+> **Deployment note:** the live app is v2 with its Streamlit Cloud “Main file path” set to
 > `v2/app_v2.py`. The two GitHub Actions run inside `v2/`.
 
 ## Why two versions
@@ -56,4 +76,4 @@ The v1→v2 jump is the real story: same interface, same methodology, but the or
 moves from *a pipeline I control* to *a loop the model drives*. Keeping both side by side — each
 clean and independently launchable — is deliberate; the git history is meant to show the evolution.
 
-— [LinkedIn](https://www.linkedin.com/in/urospajic) · MIT — see [LICENSE](LICENSE).
+— [LinkedIn](https://www.linkedin.com/in/urospajic) · MIT — see <LICENSE>.
