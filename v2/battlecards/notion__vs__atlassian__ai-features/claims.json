@@ -547,7 +547,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "exec_top_down"
   },
   {
     "subject_key": "battlecard | data-governance | where-we-win",
@@ -569,7 +570,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "security_regulated"
   },
   {
     "subject_key": "battlecard | model-choice | where-we-win",
@@ -591,7 +593,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "economic_buyer"
   },
   {
     "subject_key": "battlecard | agent-orchestration | contested",
@@ -613,7 +616,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "eng_led"
   },
   {
     "subject_key": "battlecard | ai-pricing-credits | contested",
@@ -635,7 +639,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "economic_buyer"
   },
   {
     "subject_key": "battlecard | engineering-sdlc | where-they-win",
@@ -657,7 +662,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "eng_led"
   },
   {
     "subject_key": "battlecard | vendor-scale | where-they-win",
@@ -679,7 +685,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "exec_top_down"
   },
   {
     "subject_key": "objection | atlassian-ubiquity | current",
@@ -701,7 +708,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "exec_top_down"
   },
   {
     "subject_key": "objection | notion-security-vuln | current",
@@ -723,7 +731,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "security_regulated"
   },
   {
     "subject_key": "objection | notion-agent-credits | current",
@@ -745,7 +754,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "economic_buyer"
   },
   {
     "subject_key": "objection | notion-not-for-devs | current",
@@ -767,7 +777,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-05",
       "detail": "partial_ratio 0.988"
-    }
+    },
+    "persona": "eng_led"
   },
   {
     "subject_key": "objection | notion-vendor-stability | current",
@@ -789,7 +800,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "exec_top_down"
   },
   {
     "subject_key": "objection | notion-db-scale | current",
@@ -811,7 +823,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "technical_evaluator"
   },
   {
     "subject_key": "atlassian | rovo-write-reliability-sentiment | current",
