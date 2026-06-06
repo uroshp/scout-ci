@@ -372,17 +372,20 @@ def _style() -> str:
             css = m.group(1) if m else ""
     except OSError:
         pass
-    # Neutralize the global resets so they apply ONLY inside our page, not to all of Streamlit.
+    # Scope the global resets to ONLY inside our page, WITHOUT raising specificity — :where()
+    # contributes zero specificity, so the mockup's class paddings (.metric/.angle/.callout/…)
+    # still win exactly as they do standalone. (A plain `#scout-page *` would be ID-specificity
+    # and clobber every box's internal padding to 0 — which is what flattened the boxes.)
     css = css.replace("*{box-sizing:border-box;margin:0;padding:0}",
-                      "#scout-page *{box-sizing:border-box;margin:0;padding:0}")
+                      ":where(#scout-page) *{box-sizing:border-box;margin:0;padding:0}")
     css = css.replace(
         "body{font-family:var(--body);color:var(--ink);background:var(--bg);"
         "-webkit-font-smoothing:antialiased;line-height:1.5}",
-        "#scout-page{font-family:var(--body);color:var(--ink);"
+        ":where(#scout-page){font-family:var(--body);color:var(--ink);"
         "-webkit-font-smoothing:antialiased;line-height:1.5}")
     css = css.replace("a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}",
-                      "#scout-page a{color:var(--accent);text-decoration:none}"
-                      "#scout-page a:hover{text-decoration:underline}")
+                      ":where(#scout-page) a{color:var(--accent);text-decoration:none}"
+                      ":where(#scout-page) a:hover{text-decoration:underline}")
     return f"<style>{css}{_OVERRIDES}</style>"
 
 
