@@ -437,7 +437,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "exec_top_down"
   },
   {
     "subject_key": "microsoft-teams | differentiator | all-in-one-video",
@@ -459,7 +460,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "economic_buyer"
   },
   {
     "subject_key": "microsoft-teams vs slack | ai-agents | contested",
@@ -481,7 +483,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "technical_evaluator"
   },
   {
     "subject_key": "slack | differentiator | slack-connect",
@@ -503,7 +506,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "exec_top_down"
   },
   {
     "subject_key": "slack | differentiator | app-ecosystem",
@@ -525,7 +529,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "eng_led"
   },
   {
     "subject_key": "slack | sentiment | user-satisfaction",
@@ -657,7 +662,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "security_regulated"
   },
   {
     "subject_key": "microsoft-teams | objection | performance",
@@ -679,7 +685,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "technical_evaluator"
   },
   {
     "subject_key": "microsoft-365 | objection | price-increase",
@@ -701,7 +708,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "economic_buyer"
   },
   {
     "subject_key": "microsoft | objection | security-breach",
@@ -723,7 +731,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "security_regulated"
   },
   {
     "subject_key": "slack | objection | user-preference",
@@ -745,7 +754,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "eng_led"
   },
   {
     "subject_key": "microsoft-teams | objection | reliability-outage",
@@ -767,6 +777,7 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "security_regulated"
   }
 ]

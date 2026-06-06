@@ -415,7 +415,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "economic_buyer"
   },
   {
     "subject_key": "superman | dcu-momentum-reset | current",
@@ -437,7 +438,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "economic_buyer"
   },
   {
     "subject_key": "superman | domestic-milestone-300m | current",
@@ -459,7 +461,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "economic_buyer"
   },
   {
     "subject_key": "superman | international-box-office-weakness | current",
@@ -481,7 +484,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "economic_buyer"
   },
   {
     "subject_key": "superman | inherited-franchise-damage | current",
@@ -503,7 +507,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "exec_top_down"
   },
   {
     "subject_key": "superman | key-person-concentration | current",
@@ -525,7 +530,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "exec_top_down"
   },
   {
     "subject_key": "superman 2025 | critic-sentiment | current",
@@ -657,7 +663,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "exec_top_down"
   },
   {
     "subject_key": "the batman | dcu-exclusion-objection | current",
@@ -679,7 +686,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "exec_top_down"
   },
   {
     "subject_key": "the batman | sequel-momentum-gap-objection | current",
@@ -701,7 +709,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "exec_top_down"
   },
   {
     "subject_key": "batman | talent-commitment-objection | current",
@@ -723,6 +732,7 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "persona": "technical_evaluator"
   }
 ]
