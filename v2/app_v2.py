@@ -454,12 +454,16 @@ def _footer():
 
 
 def main():
-    # Patch the GA4 tag into Streamlit's static index.html so it loads top-level
-    # (correct URL + referrer + geo). No-op if already patched or disabled.
-    analytics.inject_ga()
     icon = _asset("scout_icon_t.png", "scout_icon.png")
     st.set_page_config(page_title="Agent Scout — Living Battlecards", layout="wide",
                        page_icon=icon or "🐕", initial_sidebar_state="collapsed")
+    # GA4: inject the tag into the parent (top-level) document via a same-origin
+    # component, so referrer/geo are real. Idempotent per page-load; no-op if
+    # disabled. Height 0 so it adds no visible space. Must come AFTER
+    # set_page_config (Streamlit requires that to be the first call).
+    _ga = analytics.ga_component_html()
+    if _ga:
+        components.html(_ga, height=0)
     # Center the content to the same 1240px as the page's own .wrap (so masthead, the mode
     # switch, the card picker and the brief all line up), pull it up, and remove the sidebar
     # entirely — navigation lives IN the page now.
