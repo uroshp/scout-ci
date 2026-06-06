@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Agent Scout — Living Battlecards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,1,400;9..144,1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --display:"Fraunces",serif; --body:"Inter",sans-serif; --mono:"IBM Plex Mono",monospace;
+  --bg:#f4f2ec; --paper:#fbfaf6; --paper2:#ffffff;
+  --line:#dfdbcf; --line2:#ebe8df; --ink:#1c1d16; --muted:#5f5e54; --faint:#908e82;
+  --accent:#34566b; --accent-deep:#2a4658; --accent-soft:rgba(52,86,107,.06); --accent-line:rgba(52,86,107,.24);
+  --win:#2f6149; --win-soft:rgba(47,97,73,.06); --win-line:rgba(47,97,73,.26);
+  --amber:#8a6322; --amber-soft:rgba(138,99,34,.06); --amber-line:rgba(138,99,34,.26);
+  --cut:#9a4321;
+  --shadow:0 1px 2px rgba(28,29,22,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--body);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px 56px}
+.ey{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+
+/* ===== masthead ===== */
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding:18px 0 0;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px}
+.brand .d{width:14px;height:14px;border-radius:4px;background:var(--accent-deep)}
+.brand .nm{font-family:var(--display);font-weight:600;font-size:38px;line-height:1;letter-spacing:-.02em}
+.tagline{font-family:var(--body);font-size:14px;font-weight:500;color:var(--accent-deep);margin:10px 0 14px;max-width:72ch;line-height:1.45;text-wrap:balance}
+
+/* top-right live box — battlecard identity + the live monitoring line */
+.livebox{border:1px solid var(--line);background:var(--paper);border-radius:7px;padding:8px 12px;max-width:440px;text-align:right}
+.livebox .lb-card{font-family:var(--mono);font-size:11px;color:var(--faint);line-height:1.4}
+.livebox .lb-card b{color:var(--muted);font-weight:600}
+.livebox .lb-live{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.livebox .lb-agents{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:5px;line-height:1.45}
+.live{display:inline-flex;align-items:center;gap:6px;color:var(--win);font-weight:600;letter-spacing:.04em}
+.live .pulse{width:7px;height:7px;border-radius:50%;background:var(--win);position:relative;flex:none}
+.live .pulse::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:1px solid var(--win);animation:ping 1.9s ease-out infinite}
+@keyframes ping{0%{transform:scale(.6);opacity:.85}100%{transform:scale(2.4);opacity:0}}
+
+/* metric strip — small, sits at the top of the right column */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:16px}
+.metric{border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:8px 11px}
+.metric .ml{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--faint)}
+.metric .mv{font-family:var(--display);font-weight:600;font-size:15px;line-height:1.15;margin-top:2px}
+.metric .mv .t{display:block;font-family:var(--body);font-size:10px;font-weight:500;color:var(--muted);margin-top:2px;letter-spacing:0}
+.metric .cd{font-family:var(--mono);color:var(--accent);font-weight:600;font-size:11px;margin-top:4px;font-variant-numeric:tabular-nums}
+.metric .sub{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:4px}
+.metric a{color:inherit;border-bottom:1px solid var(--accent-line)}.metric a:hover{border-bottom-color:var(--accent);text-decoration:none}
+.metric.claims .mv a{font-family:var(--display);color:var(--ink);border-bottom:2px solid var(--accent-line)}
+
+.rule{border:none;border-top:2px solid var(--ink);margin:18px 0 18px}
+
+.cols{display:grid;grid-template-columns:218px 1fr;gap:32px;align-items:start}
+.rail{position:sticky;top:14px}
+
+/* TOC */
+.toc a{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 10px;border-radius:5px;font-size:12px;color:var(--muted);border-left:2px solid transparent}
+.toc a:hover{color:var(--ink);background:var(--paper);text-decoration:none}
+.toc a.on{color:var(--ink);background:var(--paper);border-left-color:var(--accent);font-weight:600}
+.toc a .c{font-family:var(--mono);font-size:9.5px;color:var(--faint)}
+.toc .grp{margin:14px 0 6px;padding-left:10px;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}.toc .grp.first{margin-top:2px}.toc .grp.brief{color:var(--accent-deep);font-size:10.5px}
+.toc .sub-a{padding-left:22px;font-size:11px;color:var(--faint)}
+
+/* rail panels */
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:7px;margin:14px 0 0}
+.phead{padding:8px 12px;border-bottom:1px solid var(--line2);display:flex;justify-content:space-between;align-items:center}
+.phead .ph-n{font-family:var(--mono);font-size:9.5px;color:var(--faint)}
+.cov{display:flex;gap:14px;padding:11px 12px}
+.cov .big{font-family:var(--display);font-weight:600;font-size:20px;line-height:1}
+.cov .big i{font-family:var(--mono);font-style:normal;font-size:10px;color:var(--accent);font-weight:500}
+.cov small{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-top:3px}
+.cov a{color:inherit}
+.feed{padding:9px 12px;font-size:11.5px;color:var(--muted);line-height:1.5}
+.feed .row{display:flex;gap:8px;padding:3px 0}
+.feed .row .dt{font-family:var(--mono);font-size:10px;color:var(--faint);white-space:nowrap}
+.feed .new{color:var(--win);font-weight:600;font-family:var(--mono);font-size:9px;letter-spacing:.05em}
+.feed .empty{color:var(--faint);font-style:italic}
+
+/* ===== main / briefing ===== */
+.rt h1{font-family:var(--display);font-weight:600;font-size:28px;line-height:1.1;letter-spacing:-.015em}
+.rt .rt-sub{font-size:17px;color:var(--muted);margin-top:6px}.rt .rt-sub b{color:var(--ink);font-weight:600}
+.rt .rt-focus{font-family:var(--mono);font-size:12px;color:var(--accent-deep);margin-top:7px;display:inline-block;background:var(--accent-soft);border:1px solid var(--accent-line);padding:4px 10px;border-radius:5px}
+
+.briefing{border:1px solid var(--line);border-top:3px solid var(--accent-deep);border-radius:7px;overflow:hidden;margin:16px 0 22px;box-shadow:var(--shadow)}
+.bhead{background:var(--paper);border-bottom:1px solid var(--line2);color:var(--accent-deep);padding:9px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.bhead .l{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.bhead .l .dot{width:7px;height:7px;border-radius:50%;background:var(--win)}
+.bhead .r{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.bbody{padding:14px 18px 8px}
+.bsub{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:2px 0 9px}
+.bsub::after{content:"";flex:1;height:1px;background:var(--line2)}
+.bsub.two{margin-top:16px}
+.angle{background:var(--paper2);border:1px solid var(--line);border-left:3px solid var(--accent-deep);border-radius:0 6px 6px 0;padding:13px 16px;margin-bottom:4px}
+.angle p{font-size:14px;color:#2c2d22;max-width:88ch;line-height:1.5}
+.play{padding:11px 0;border-top:1px solid var(--line2)}.play:first-of-type{border-top:none;padding-top:2px}
+.play .num{font-family:var(--mono);font-size:10px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+.play .ptop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.persona{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-deep);background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:4px;padding:3px 8px;white-space:nowrap}
+.persona .pk{color:var(--faint);font-weight:600;margin-right:4px}
+.play h4{font-family:var(--display);font-weight:600;font-size:17px;line-height:1.22;margin:4px 0 6px;letter-spacing:-.01em}
+.play p{font-size:13px;color:#2c2d22;max-width:88ch}
+
+/* callouts + sources */
+.callout{margin-top:9px;padding:9px 13px;border-radius:5px;max-width:88ch}
+.callout.sw{border-left:3px solid var(--accent);background:var(--accent-soft);font-size:13px}
+.callout.sb{border-left:3px solid var(--amber);background:var(--amber-soft);font-family:var(--display);font-style:italic;font-size:14px;color:#33312a}
+.callout b{font-family:var(--mono);font-style:normal;font-size:9px;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:3px}
+.callout.sw b{color:var(--accent)}.callout.sb b{color:var(--amber)}
+.srcline{margin-top:8px;font-family:var(--mono);font-size:10.5px;color:var(--faint);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.verified{display:inline-flex;align-items:center;gap:5px;color:var(--win);font-weight:600}
+.verified .tick{width:12px;height:12px;border-radius:50%;background:var(--win);color:#fff;display:grid;place-items:center;font-size:7px}
+.sep{color:var(--line)}
+
+/* sections */
+.divider{display:flex;align-items:center;gap:12px;margin:4px 0 14px}.divider .ln{flex:1;height:1px;background:var(--line)}.divider .t{font-family:var(--mono);font-size:12.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+details.sec{background:var(--paper);border:1px solid var(--line);border-radius:7px;margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden;scroll-margin-top:14px}
+details.sec>summary{list-style:none;cursor:pointer;padding:11px 18px;display:flex;align-items:center;gap:11px;user-select:none}
+details.sec[open]>summary{border-bottom:1px solid var(--line2)}
+details.sec>summary::-webkit-details-marker{display:none}
+.sec .stitle{font-family:var(--display);font-weight:600;font-size:18px;letter-spacing:-.01em}
+.sec .scount{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line2);border-radius:4px;padding:2px 8px}
+.sec .chev{margin-left:auto;color:var(--faint);transition:transform .15s;font-size:12px}
+details.sec[open] .chev{transform:rotate(90deg)}
+.sec .sbody{padding:2px 18px 14px}
+.item{padding:11px 0;border-top:1px solid var(--line2)}.item:first-child{border-top:none;padding-top:8px}
+.item h4{font-family:var(--display);font-weight:600;font-size:16px;line-height:1.26;margin:0 0 6px;letter-spacing:-.005em}
+.item p{font-size:13px;color:#2c2d22;max-width:88ch;margin-bottom:2px}
+.ihead{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.ihead h4{flex:1;margin-bottom:6px}
+.ihead .persona{margin-top:3px}
+.sub{margin-top:14px;padding-left:13px;border-left:2px solid var(--line)}.sub:first-child{margin-top:4px}
+.sublabel{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:4px}
+.sublabel.win{color:var(--win);background:var(--win-soft);border:1px solid var(--win-line)}
+.sublabel.contested{color:var(--amber);background:var(--amber-soft);border:1px solid var(--amber-line)}
+.sublabel.lose{color:var(--muted);background:var(--line2);border:1px solid var(--line)}
+.sub .subcount{font-family:var(--mono);font-size:9px;color:var(--faint);margin-left:5px}
+.snap{display:grid;grid-template-columns:1fr 1fr;gap:11px;padding-top:6px}
+.box{background:var(--paper2);border:1px solid var(--line2);border-radius:6px;padding:11px 12px;font-size:12.5px;line-height:1.45}
+.box .srcline{margin-top:7px}
+
+/* cut log */
+.cutnote{font-family:var(--mono);font-size:10.5px;color:var(--muted);padding:6px 0 8px;line-height:1.5;max-width:88ch}
+.cut{display:flex;gap:11px;padding:10px 0;border-top:1px solid var(--line2);font-size:12.5px}.cut:first-of-type{border-top:none}
+.cuttag{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.06em;padding:2px 7px;border-radius:4px;height:fit-content;white-space:nowrap}
+.cuttag.cut{color:var(--cut);background:rgba(154,67,33,.07);border:1px solid rgba(154,67,33,.25)}
+.cuttag.rev{color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent-line)}
+.cut .body{color:var(--muted);line-height:1.5}.cut .body b{color:var(--ink);font-weight:600}
+
+/* claim freshness table */
+.freshness{background:var(--paper);border:1px solid var(--line);border-radius:7px;margin-top:14px;box-shadow:var(--shadow);overflow:hidden;scroll-margin-top:14px}
+.freshness .fhead{padding:11px 16px;border-bottom:1px solid var(--line2)}
+.freshness .ftitle{font-family:var(--display);font-weight:600;font-size:17px}
+.freshness .fcap{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:5px;line-height:1.5}
+.freshness .fcap code{background:var(--line2);padding:1px 4px;border-radius:3px;color:var(--ink)}
+.ftab-scroll{max-height:420px;overflow:auto}
+table.ftab{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px}
+table.ftab th,table.ftab td{text-align:left;padding:6px 16px;border-bottom:1px solid var(--line2);white-space:nowrap}
+table.ftab th{position:sticky;top:0;background:var(--paper);color:var(--faint);font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:9.5px;z-index:1}
+table.ftab td.key{white-space:normal;color:var(--ink);font-family:var(--body);font-size:12px}
+table.ftab td.sec{color:var(--muted)}
+table.ftab td.no{color:var(--faint)}
+table.ftab tr:hover td{background:var(--paper2)}
+
+.foot{margin-top:28px;padding-top:16px;border-top:1px solid var(--line);text-align:center;font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+@media(max-width:980px){.cols{grid-template-columns:1fr}.rail{position:static}.snap{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== MASTHEAD ===== -->
+  <div class="top">
+    <div class="brand"><span class="d"></span><span class="nm">Agent Scout</span></div>
+    <div class="livebox">
+      <div class="lb-live"><span class="live"><span class="pulse"></span>LIVE</span></div>
+      <div class="lb-agents">Monitored by a team of specialized agents (Sonnet &amp; Haiku) + 1 orchestrator (Opus).</div>
+    </div>
+  </div>
+  <div class="tagline">Living competitive battlecards: Every claim verified for accuracy and kept current by an orchestra of AI agents.</div>
+
+  <div class="rt">
+    <h1>Competitive Intelligence Brief</h1>
+    <div class="rt-sub">Researched: <b>OpenAI</b> · For <b>Anthropic</b> reps</div>
+    <div class="rt-focus">Focus area: enterprise coding/developers</div>
+  </div>
+
+  <hr class="rule">
+
+  <div class="cols">
+
+    <!-- ===== LEFT RAIL ===== -->
+    <aside class="rail">
+      <nav class="toc" id="toc">
+        <div class="grp brief first">Your daily briefing</div>
+        <a href="#brief" class="on">Today's angle</a>
+        <a href="#brief2">Top 3 plays <span class="c">3</span></a>
+        <div class="grp">The full brief</div>
+        <a href="#exec">Executive Summary <span class="c">5</span></a>
+        <a href="#snap">Snapshot <span class="c">7</span></a>
+        <a href="#moves">Recent Strategic Moves <span class="c">8</span></a>
+        <a href="#pos">Positioning &amp; Differentiation <span class="c">4</span></a>
+        <a href="#price">Pricing &amp; Packaging <span class="c">4</span></a>
+        <a href="#bc">Competitive Battlecard <span class="c">7</span></a>
+        <a href="#bc" class="sub-a">Where Anthropic wins</a>
+        <a href="#bc" class="sub-a">Where it's a fight</a>
+        <a href="#bc" class="sub-a">Where OpenAI wins</a>
+        <a href="#sent">Sentiment <span class="c">1</span></a>
+        <a href="#obj">Objection Handling <span class="c">6</span></a>
+        <a href="#cut">Cut Log <span class="c">8</span></a>
+        <a href="#claims">Claim freshness <span class="c">42</span></a>
+      </nav>
+
+      <div class="panel">
+        <div class="phead"><span class="ey">Just updated</span><span class="ph-n">0</span></div>
+        <div class="feed"><div class="empty">Nothing updated in the last 24h.</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="phead"><span class="ey">Change feed</span></div>
+        <div class="feed">
+          <div class="row"><span class="dt">2026-06-05 02:08</span><span>Battlecard created</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="phead"><span class="ey">Alerts</span></div>
+        <div class="feed"><div class="empty">No material changes alerted yet.</div></div>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN ===== -->
+    <main>
+
+      <div class="metrics">
+        <div class="metric"><div class="ml">Last updated</div><div class="mv">Jun 5, 2026<span class="t">6:33 PM ET</span></div></div>
+        <div class="metric"><div class="ml">Next update</div><div class="mv">Jun 6, 2026<span class="t">11:00 AM ET</span></div><div class="cd" id="cd"></div></div>
+        <div class="metric"><div class="ml">Baseline</div><div class="mv">Jun 4, 2026</div></div>
+        <div class="metric claims"><div class="ml">Claims tracked &amp; verified</div><div class="mv"><a href="#claims">42</a></div><div class="sub"><a href="#claims" style="color:var(--accent)">see all ↓</a></div></div>
+      </div>
+
+      <!-- ===== YOUR DAILY BRIEFING ===== -->
+      <div class="briefing" id="brief">
+        <div class="bhead">
+          <span class="l"><span class="dot"></span>Your Daily Briefing</span>
+          <span class="r">the 2-min version before your call · refreshed today</span>
+        </div>
+        <div class="bbody">
+          <div class="bsub">Today's angle</div>
+          <div class="angle">
+            <p>Copilot switched to token-based billing on June 1, 2026; developers report flat-rate bills ballooning (one cited $29/mo heading to ~$750/mo) and are publicly threatening to move work to Anthropic. This is OpenAI's distribution channel generating churn at exactly the moment of price shock.</p>
+            <div class="callout sw"><b>So what</b>Run a targeted TCO play against the Copilot base this quarter — predictable Claude pricing versus a meter that just surprised their developers.</div>
+            <div class="srcline"><b style="font-family:var(--mono);color:var(--ink)">2026-05-30</b><span class="sep">·</span><a href="https://techcrunch.com/2026/05/30/what-a-joke-github-copilots-new-token-based-billing-spurs-consternation-among-devs/" target="_blank" rel="noopener">techcrunch.com</a></div>
+          </div>
+
+          <div class="bsub two" id="brief2">Top 3 plays</div>
+          <div class="play">
+            <div class="ptop"><span class="num">PLAY 01</span><span class="persona"><span class="pk">Best for</span> Eng-led champion</span></div>
+            <h4>Developers prefer Claude Code, and they're the ones who'll live in the tool.</h4>
+            <p>JetBrains' January 2026 survey of 10,000+ professional developers gives Claude Code the market's highest loyalty — CSAT 91, NPS 54 — alongside ~6x adoption growth in nine months to 18% (24% in the US/Canada). Strongest with hands-on engineering teams who get a real vote in the tool choice.</p>
+            <div class="callout sb"><b>Soundbite</b>"Your developers don't just tolerate Claude Code — JetBrains' own survey of 10,000 engineers shows it has the highest satisfaction and recommend scores of any AI coding tool. Adoption follows preference."</div>
+            <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://blog.jetbrains.com/research/2026/04/which-ai-coding-tools-do-developers-actually-use-at-work/" target="_blank" rel="noopener">blog.jetbrains.com</a></div>
+          </div>
+          <div class="play">
+            <div class="ptop"><span class="num">PLAY 02</span><span class="persona"><span class="pk">Best for</span> Economic buyer</span></div>
+            <h4>Anthropic is now the most-adopted AI vendor among businesses — by independent data.</h4>
+            <p>Ramp's expense index across 50,000+ companies shows 34.4% paying for Anthropic vs 32.3% for OpenAI as of spring 2026, the first time Anthropic has led. Because it's drawn from actual corporate card spend, not a vendor survey, it's hard for an OpenAI rep to dismiss. Best deployed against the "OpenAI is the safe default" reflex.</p>
+            <div class="callout sb"><b>Soundbite</b>"Measured by who businesses actually pay — Ramp's card data across 50,000 companies — Anthropic just passed OpenAI as the #1 AI vendor. The default is shifting."</div>
+            <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-customers-than-openai-according-to-ramp-data/" target="_blank" rel="noopener">techcrunch.com</a></div>
+          </div>
+          <div class="play">
+            <div class="ptop"><span class="num">PLAY 03</span><span class="persona"><span class="pk">Best for</span> Technical evaluator</span></div>
+            <h4>On the hardest, least-gameable coding benchmark, Claude leads.</h4>
+            <p>SWE-bench Verified is increasingly saturated and contamination-prone; SWE-bench Pro uses harder, non-public tasks. There, Claude Opus 4.7 leads at 64.3% vs GPT-5.4's 59.1%. For engineering leaders who care about messy real-world tickets rather than leaderboard optics, that's the number that matters.</p>
+            <div class="callout sb"><b>Soundbite</b>"GPT wins the saturated benchmark by a point; Claude wins the hard one — SWE-bench Pro, real tasks — by five. Ask which one looks like your codebase."</div>
+            <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.marc0.dev/en/leaderboard" target="_blank" rel="noopener">marc0.dev</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"><span class="t">The full brief</span><span class="ln"></span></div>
+
+      <!-- EXECUTIVE SUMMARY -->
+      <details class="sec" id="exec" open>
+        <summary><span class="stitle">Executive Summary</span><span class="scount">5 takeaways</span><span class="chev">›</span></summary>
+        <div class="sbody">
+          <div class="item"><h4>Anthropic now leads the enterprise-AI race it used to trail — and coding is the engine.</h4>
+            <p>As of April 2026, Ramp's expense data (50,000+ companies) shows 34.4% of businesses paying for Anthropic versus 32.3% for OpenAI — the first time Anthropic has held the top spot, after climbing from ~9% a year earlier. Its $47B revenue run-rate and $965B valuation now both exceed OpenAI's, and Claude Code is the stated driver.</p>
+            <div class="callout sw"><b>So what</b>Lead enterprise-coding deals with third-party proof, not vendor spin — "Anthropic is the #1 AI vendor by verified business-customer count, per Ramp" is sourced and hard to wave away.</div>
+            <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-customers-than-openai-according-to-ramp-data/" target="_blank" rel="noopener">techcrunch.com</a></div></div>
+          <div class="item"><h4>The single most actionable opening right now is the GitHub Copilot billing revolt.</h4>
+            <p>Copilot switched to token-based billing on June 1, 2026; developers report flat-rate bills ballooning (one cited $29/mo heading to ~$750/mo) and are publicly threatening to move work to Anthropic. This is OpenAI's distribution channel generating churn at exactly the moment of price shock.</p>
+            <div class="callout sw"><b>So what</b>Run a targeted TCO play against the Copilot base this quarter — predictable Claude pricing versus a meter that just surprised their developers.</div>
+            <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://techcrunch.com/2026/05/30/what-a-joke-github-copilots-new-token-based-billing-spurs-consternation-among-devs/" target="_blank" rel="noopener">techcrunch.com</a></div></div>
+          <div class="item"><h4>Claude's durable moat is that developers actually prefer it — loyalty, not just capability.</h4>
+            <p>JetBrains' January 2026 survey of 10,000+ professional developers put Claude Code at 18% workplace adoption (24% in the US/Canada), up roughly 6x in nine months, with the highest loyalty metrics on the market: CSAT 91 and NPS 54. That preference is the asset OpenAI's scale can't directly buy.</p>
+            <div class="callout sw"><b>So what</b>When a deal stalls on "OpenAI is bigger," pivot to the people who'll use it daily — the developers your champion manages already rate Claude Code highest.</div>
+            <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://blog.jetbrains.com/research/2026/04/which-ai-coding-tools-do-developers-actually-use-at-work/" target="_blank" rel="noopener">blog.jetbrains.com</a></div></div>
+          <div class="item"><h4>Don't walk in unarmed: Anthropic is carrying real scars a buyer will raise.</h4>
+            <p>In the last quarter alone, Microsoft canceled Claude Code licenses across a major division, Uber capped engineer token spend and questioned ROI, Claude suffered a capacity-driven global outage the day after its IPO filing, and the company is mid-way through its third billing change of the year. These are documented, not rumors.</p>
+            <div class="callout sw"><b>So what</b>Pre-empt them. A rep who raises Microsoft and Uber first, with an honest answer, keeps control of the deal; a rep who gets surprised by them loses it.</div>
+            <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.windowscentral.com/microsoft/microsoft-cancels-claude-code-licenses-shifting-developers-to-github-copilot-cli-a-move-likely-driven-by-financial-motives" target="_blank" rel="noopener">windowscentral.com</a></div></div>
+          <div class="item"><h4>On benchmarks it's a split decision — so fight on the harder one.</h4>
+            <p>OpenAI's GPT-5.5 narrowly leads the now-saturated SWE-bench Verified (88.7% vs Claude Opus 4.7's 87.6%, both vendor-self-reported), but Claude Opus 4.7 leads the harder, contamination-resistant SWE-bench Pro at 64.3% versus GPT-5.4's 59.1%. The headline number favors OpenAI; the realistic-task number favors Claude.</p>
+            <div class="callout sw"><b>So what</b>When a prospect cites GPT-5.5's leaderboard win, move the conversation to SWE-bench Pro and real-world agentic tasks, where Claude's edge actually shows.</div>
+            <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.marc0.dev/en/leaderboard" target="_blank" rel="noopener">marc0.dev</a></div></div>
+        </div>
+      </details>
+
+      <!-- SNAPSHOT -->
+      <details class="sec" id="snap" open>
+        <summary><span class="stitle">Snapshot</span><span class="scount">7 facts</span><span class="chev">›</span></summary>
+        <div class="sbody"><div class="snap">
+          <div class="box">Anthropic raised a $65B Series H at a $965B post-money valuation (announced May 28, 2026), surpassing OpenAI's $852B. Both are private, company-stated valuations, not audited figures.<div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.cnbc.com/2026/05/28/anthropic-open-ai-startup-value.html" target="_blank" rel="noopener">cnbc.com</a><span class="sep">·</span>as of May 28</div></div>
+          <div class="box">Anthropic's run-rate revenue crossed $47B in May 2026 (company-stated, unaudited), up from a $30B run-rate earlier in the year and ~$10B annualized in 2025 — growth Anthropic attributes primarily to Claude Code and enterprise coding.<div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.anthropic.com/news/series-h" target="_blank" rel="noopener">anthropic.com</a><span class="sep">·</span>as of May 28</div></div>
+          <div class="box">OpenAI reported $2B/month in revenue as of March 31, 2026 (~$24B annualized, company-stated) on $13.1B of 2025 revenue, and remains unprofitable. Its disclosed run-rate trails Anthropic's $47B figure, though the two disclosures are ~2 months apart.<div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.cnbc.com/2026/03/31/openai-funding-round-ipo.html" target="_blank" rel="noopener">cnbc.com</a><span class="sep">·</span>as of Mar 31</div></div>
+          <div class="box">Anthropic's current flagship is Claude Opus 4.8 (released May 28, 2026), positioned for agentic coding and ~4x less likely than Opus 4.7 to let flawed code pass without flagging it. Claude Code is its GA developer product.<div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://siliconangle.com/2026/05/28/anthropic-launches-claude-opus-4-8-raises-65b-new-funding/" target="_blank" rel="noopener">siliconangle.com</a><span class="sep">·</span>as of May 28</div></div>
+          <div class="box">OpenAI's current flagship is GPT-5.5 (released April 23, 2026), with a dedicated coding model gpt-5.3-codex (the LTS base model for all GitHub Copilot Business/Enterprise orgs as of May 17, 2026). Codex is OpenAI's developer product.<div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://github.blog/changelog/2026-05-17-gpt-5-3-codex-is-now-the-base-model-for-copilot-business-and-enterprise/" target="_blank" rel="noopener">github.blog</a><span class="sep">·</span>as of May 17</div></div>
+          <div class="box">OpenAI reported Codex passed 5 million weekly active users on June 2, 2026 (up ~6x since its February desktop launch), with non-developers now ~20% of users — a scale and breadth argument OpenAI pushes hard in enterprise deals.<div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.constellationr.com/insights/news/openai-touts-broadening-codex-usage-5-million-weekly-active-users" target="_blank" rel="noopener">constellationr.com</a><span class="sep">·</span>as of Jun 2</div></div>
+          <div class="box">Anthropic confidentially filed a draft S-1 for an IPO on June 1, 2026, beating OpenAI to the filing. OpenAI confidentially filed its own draft prospectus around May 22, 2026, targeting a fall-2026 debut. Both are racing to public markets.<div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://techcrunch.com/2026/06/01/anthropic-files-to-go-public/" target="_blank" rel="noopener">techcrunch.com</a><span class="sep">·</span>as of Jun 1</div></div>
+        </div></div>
+      </details>
+
+      <!-- RECENT STRATEGIC MOVES -->
+      <details class="sec" id="moves" open>
+        <summary><span class="stitle">Recent Strategic Moves</span><span class="scount">8 moves</span><span class="chev">›</span></summary>
+        <div class="sbody">
+          <div class="item"><p>On June 4, 2026, security researchers reported that OpenAI's Codex agent autonomously chained two decade-old techniques into a novel "HTTP/2 Bomb" DoS attack able to crash nginx, Apache, IIS, Envoy and Cloudflare Pingora from a single machine — a capability demonstration that doubles as an agentic-autonomy security concern for risk-averse enterprise buyers.</p><div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.theregister.com/security/2026/06/04/openais-codex-chains-decade-old-dos-techniques-into-http/2-bomb/5251377" target="_blank" rel="noopener">theregister.com</a><span class="sep">·</span>as of Jun 4</div></div>
+          <div class="item"><p>At Build on June 2, 2026, Microsoft — OpenAI's largest partner — unveiled its own MAI coding models to reduce reliance on OpenAI, claiming it outperformed GPT-5.5 on McKinsey's workloads with "10 times better cost efficiency." OpenAI's biggest distribution partner is now also a competitor, weakening the "best model via Copilot" story.</p><div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.cnbc.com/2026/06/02/microsoft-unveils-new-ai-models-lessen-reliance-on-openai-lower-costs.html" target="_blank" rel="noopener">cnbc.com</a><span class="sep">·</span>as of Jun 2</div></div>
+          <div class="item"><p>On June 2, 2026 — the day Anthropic announced its June 15 billing change — Sam Altman offered new enterprise customers two months of free Codex if they switched from Anthropic within 30 days, posting "Codex is the best AI coding product." OpenAI is timing aggressive switch incentives to Anthropic's worst news days.</p><div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="http://www.techtimes.com/articles/317625/20260602/anthropic-ends-subscription-subsidy-agents-june-15-credit-pool-replaces-flat-rate-access.htm" target="_blank" rel="noopener">techtimes.com</a><span class="sep">·</span>as of Jun 2</div></div>
+          <div class="item"><p>On June 2, 2026 OpenAI expanded Codex into an enterprise work platform — adding hosted Sites, annotations, and role-specific plugins connecting 62 business apps — explicitly to push Codex beyond developers into the same enterprise knowledge-worker segment Anthropic targets.</p><div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://thenextweb.com/news/openai-codex-enterprise-plugins-sites-non-developers" target="_blank" rel="noopener">thenextweb.com</a><span class="sep">·</span>as of Jun 2</div></div>
+          <div class="item"><p>GitHub Copilot (OpenAI's primary distribution channel) moved all plans to usage-based token billing on June 1, 2026. The backlash was immediate — The Register documented users "vowing to abandon the product and move their work directly to Anthropic, OpenAI" — making the Copilot install base a live churn target.</p><div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.theregister.com/ai-and-ml/2026/06/02/github-copilot-users-threaten-exit-as-metered-billing-kicks-in/5249826" target="_blank" rel="noopener">theregister.com</a><span class="sep">·</span>as of Jun 1</div></div>
+          <div class="item"><p>On April 27, 2026, Microsoft and OpenAI ended exclusivity: OpenAI can now serve products across any cloud (AWS, Google), and Microsoft's IP license is non-exclusive through 2032. The "Azure-only" lock-in story is officially dead — Anthropic on AWS/Google/Azure is now on equal cloud footing.</p><div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.cnbc.com/2026/04/27/openai-microsoft-partnership-revenue-cap.html" target="_blank" rel="noopener">cnbc.com</a><span class="sep">·</span>as of Apr 27</div></div>
+          <div class="item"><p>OpenAI launched GPT-5.5 on April 23, 2026, but doubled API pricing to $5/$30 per 1M tokens (from GPT-5.4's $2.50/$15). OpenAI argues the net coding cost rise is smaller due to fewer output tokens, but the sticker doubling at the frontier hands Anthropic a cost-comparison wedge.</p><div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://techcrunch.com/2026/04/23/openai-chatgpt-gpt-5-5-ai-model-superapp/" target="_blank" rel="noopener">techcrunch.com</a><span class="sep">·</span>as of Apr 23</div></div>
+          <div class="item"><p>OpenAI built a named systems-integrator distribution network for Codex — Accenture, Capgemini, CGI, Cognizant, Infosys, PwC and TCS — to scale enterprise adoption. This is a structured GTM channel into large regulated accounts that Anthropic must match deal by deal.</p><div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://techcrunch.com/2026/04/22/openai-teams-up-with-infosys-to-bring-ai-tools-to-more-businesses/" target="_blank" rel="noopener">techcrunch.com</a><span class="sep">·</span>as of Apr 22</div></div>
+        </div>
+      </details>
+
+      <!-- POSITIONING -->
+      <details class="sec" id="pos" open>
+        <summary><span class="stitle">Positioning and Differentiation</span><span class="scount">4 items</span><span class="chev">›</span></summary>
+        <div class="sbody">
+          <div class="item"><p>Anthropic positions Claude Code as the agentic-engineering standard — beyond completion toward autonomous, self-orchestrating software work. Claude Code head Boris Cherny framed the shift as "the default is now 'I'm going to have Claude prompt itself,'" and Daniela Amodei calls developers "the most important users of Claude."</p><div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.technologyreview.com/2026/05/21/1137735/anthropics-code-with-claude-showed-off-codings-future-whether-you-like-it-or-not/" target="_blank" rel="noopener">technologyreview.com</a><span class="sep">·</span>as of May 21</div></div>
+          <div class="item"><p>Anthropic's Opus 4.8 launch added Dynamic Workflows and managed agents that orchestrate large parallel subagent runs for codebase-scale migrations — Bun's CEO cited porting ~750,000 lines of Zig to Rust in 11 days with the existing test suite as the bar. The pitch is whole-codebase autonomy, not snippet completion.</p><div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://techcrunch.com/2026/05/28/anthropic-releases-opus-4-8-with-new-dynamic-workflow-tool/" target="_blank" rel="noopener">techcrunch.com</a><span class="sep">·</span>as of May 28</div></div>
+          <div class="item"><p>OpenAI positions Codex as a general-purpose enterprise "work computer" and leans on Microsoft Foundry/Azure for enterprise-grade deployment — letting customers keep tokens inside their Azure tenancy with existing identity, RBAC, and compliance controls. This data-residency story is a strong pull for regulated buyers.</p><div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/announcing-gpt%E2%80%915-2%E2%80%91codex-in-microsoft-foundry-enterprise%E2%80%91grade-ai-for-secure-sof/4485379" target="_blank" rel="noopener">techcommunity.microsoft.com</a><span class="sep">·</span>as of Jan 14</div></div>
+          <div class="item"><p>Claude Opus 4.8 went GA inside GitHub Copilot (Pro+, Business, Enterprise) on May 28, 2026 — so even Microsoft engineers steered off standalone Claude Code can still reach Claude's model quality through Copilot. The product boundary between the two camps is blurring, and Claude's model rides OpenAI's own channel.</p><div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://github.blog/changelog/2026-05-28-claude-opus-4-8-is-generally-available-for-github-copilot/" target="_blank" rel="noopener">github.blog</a><span class="sep">·</span>as of May 28</div></div>
+        </div>
+      </details>
+
+      <!-- PRICING -->
+      <details class="sec" id="price" open>
+        <summary><span class="stitle">Pricing and Packaging</span><span class="scount">4 items</span><span class="chev">›</span></summary>
+        <div class="sbody">
+          <div class="item"><p>Claude API list pricing (per 1M tokens, as of June 2026): Opus 4.8 at $5 input / $25 output; Sonnet 4.6 at $3 / $15; Haiku 4.5 at $1 / $5. Sonnet is a credible mid-tier for sustained agentic coding at one-fifth of Opus output cost.</p><div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://platform.claude.com/docs/en/about-claude/pricing" target="_blank" rel="noopener">platform.claude.com</a><span class="sep">·</span>as of Jun 4</div></div>
+          <div class="item"><p>OpenAI API list pricing (per 1M tokens, as of June 2026): GPT-5.5 at $5 input / $30 output; the dedicated gpt-5.3-codex at $1.75 / $14. On raw token price the Codex model undercuts Claude Opus — a real cost argument OpenAI will make on high-volume coding workloads.</p><div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://developers.openai.com/api/docs/pricing" target="_blank" rel="noopener">developers.openai.com</a><span class="sep">·</span>as of Jun 4</div></div>
+          <div class="item"><p>Developer subscription tiers are at parity: Claude Pro ($20/mo, includes Claude Code) vs Codex Plus ($20/mo); Claude Max 5x/20x at $100/$200 vs Codex Pro 5x/20x at $100/$200. Price is not a differentiator at the seat level — the fight is on quality, predictability, and usage limits.</p><div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://claude.com/pricing" target="_blank" rel="noopener">claude.com</a><span class="sep">·</span>as of Jun 4</div></div>
+          <div class="item"><p>Effective June 15, 2026, Anthropic moves programmatic usage (Agent SDK, <code>claude -p</code>, GitHub Actions) off subscription pools onto a separate per-user monthly credit pool ($20 Pro / $100 Max 5x / $200 Max 20x) billed at API rates, no rollover; Standard Enterprise seats get no credit. It's the third billing change of the year and a live disruption for CI/CD-heavy teams.</p><div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="http://www.techtimes.com/articles/317625/20260602/anthropic-ends-subscription-subsidy-agents-june-15-credit-pool-replaces-flat-rate-access.htm" target="_blank" rel="noopener">techtimes.com</a><span class="sep">·</span>as of Jun 2</div></div>
+        </div>
+      </details>
+
+      <!-- COMPETITIVE BATTLECARD -->
+      <details class="sec" id="bc" open>
+        <summary><span class="stitle">Competitive Battlecard</span><span class="scount">7 across 3 zones</span><span class="chev">›</span></summary>
+        <div class="sbody">
+          <div class="sub">
+            <span class="sublabel win">Where Anthropic wins</span><span class="subcount">4 items</span>
+            <div class="item"><div class="ihead"><h4>Developers prefer Claude Code, and they're the ones who'll live in the tool.</h4><span class="persona"><span class="pk">Best for</span> Eng-led champion</span></div>
+              <p>JetBrains' January 2026 survey of 10,000+ professional developers gives Claude Code the market's highest loyalty — CSAT 91, NPS 54 — alongside ~6x adoption growth in nine months to 18% (24% in the US/Canada). Strongest with hands-on engineering teams who get a real vote in the tool choice.</p>
+              <div class="callout sb"><b>Soundbite</b>"Your developers don't just tolerate Claude Code — JetBrains' own survey of 10,000 engineers shows it has the highest satisfaction and recommend scores of any AI coding tool. Adoption follows preference."</div>
+              <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://blog.jetbrains.com/research/2026/04/which-ai-coding-tools-do-developers-actually-use-at-work/" target="_blank" rel="noopener">blog.jetbrains.com</a></div></div>
+            <div class="item"><div class="ihead"><h4>Anthropic is now the most-adopted AI vendor among businesses — by independent data.</h4><span class="persona"><span class="pk">Best for</span> Economic buyer</span></div>
+              <p>Ramp's expense index across 50,000+ companies shows 34.4% paying for Anthropic vs 32.3% for OpenAI as of spring 2026, the first time Anthropic has led. Because it's drawn from actual corporate card spend, not a vendor survey, it's hard for an OpenAI rep to dismiss. Best deployed against the "OpenAI is the safe default" reflex.</p>
+              <div class="callout sb"><b>Soundbite</b>"Measured by who businesses actually pay — Ramp's card data across 50,000 companies — Anthropic just passed OpenAI as the #1 AI vendor. The default is shifting."</div>
+              <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-customers-than-openai-according-to-ramp-data/" target="_blank" rel="noopener">techcrunch.com</a></div></div>
+            <div class="item"><div class="ihead"><h4>On the hardest, least-gameable coding benchmark, Claude leads.</h4><span class="persona"><span class="pk">Best for</span> Technical evaluator</span></div>
+              <p>SWE-bench Verified is increasingly saturated and contamination-prone; SWE-bench Pro uses harder, non-public tasks. There, Claude Opus 4.7 leads at 64.3% vs GPT-5.4's 59.1%. For engineering leaders who care about messy real-world tickets rather than leaderboard optics, that's the number that matters.</p>
+              <div class="callout sb"><b>Soundbite</b>"GPT wins the saturated benchmark by a point; Claude wins the hard one — SWE-bench Pro, real tasks — by five. Ask which one looks like your codebase."</div>
+              <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.marc0.dev/en/leaderboard" target="_blank" rel="noopener">marc0.dev</a></div></div>
+            <div class="item"><div class="ihead"><h4>Claude is built to catch its own mistakes — the enterprise's top agentic fear.</h4><span class="persona"><span class="pk">Best for</span> Security &amp; regulated</span></div>
+              <p>The real objection to autonomous coding is unreviewed, unsafe output. Opus 4.8 is ~4x less likely than 4.7 to let flawed code pass without flagging it, and enterprise testers like Bridgewater specifically praised it for proactively surfacing issues other models missed. This lands hardest with regulated, security-conscious buyers.</p>
+              <div class="callout sb"><b>Soundbite</b>"The risk with agents isn't speed, it's silent errors. Opus 4.8 is four times less likely to ship faulty code without flagging it — it tells you when something's wrong."</div>
+              <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://siliconangle.com/2026/05/28/anthropic-launches-claude-opus-4-8-raises-65b-new-funding/" target="_blank" rel="noopener">siliconangle.com</a></div></div>
+          </div>
+          <div class="sub">
+            <span class="sublabel contested">Where it's a fight</span><span class="subcount">2 items</span>
+            <div class="item"><div class="ihead"><h4>The headline leaderboard currently reads in OpenAI's favor.</h4><span class="persona"><span class="pk">Best for</span> Technical evaluator</span></div>
+              <p>GPT-5.5 leads SWE-bench Verified at 88.7% to Claude Opus 4.7's 87.6% — a 1.1-point, vendor-self-reported gap that OpenAI reps will quote. It's close enough that it tips on the buyer's own eval, not the leaderboard, so the move is to get them off the public number and onto their codebase.</p>
+              <div class="callout sb"><b>Soundbite</b>"It's 88.7 to 87.6, both self-reported — a rounding error. Run it on your own repo for a week; that's the only benchmark that pays your bills."</div>
+              <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.marc0.dev/en/leaderboard" target="_blank" rel="noopener">marc0.dev</a></div></div>
+            <div class="item"><div class="ihead"><h4>On raw token price for high-volume coding, OpenAI can undercut.</h4><span class="persona"><span class="pk">Best for</span> Economic buyer</span></div>
+              <p>OpenAI's dedicated gpt-5.3-codex lists at $1.75/$14 per 1M tokens versus Claude Opus 4.8's $5/$25, so a cost-led buyer running massive automated volume will hear a cheaper number from OpenAI. The counter is Claude Sonnet 4.6 ($3/$15) for mid-tier work and fewer retries/cleaner diffs lowering total tokens to a correct result.</p>
+              <div class="callout sb"><b>Soundbite</b>"Compare cost-per-solved-task, not cost-per-token. Cheaper tokens that need three more passes to get it right aren't cheaper."</div>
+              <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://developers.openai.com/api/docs/pricing" target="_blank" rel="noopener">developers.openai.com</a></div></div>
+          </div>
+          <div class="sub">
+            <span class="sublabel lose">Where OpenAI wins</span><span class="subcount">1 item</span>
+            <div class="item"><div class="ihead"><h4>OpenAI wins on scale, breadth, and channel — especially top-down deals.</h4><span class="persona"><span class="pk">Best for</span> Exec / top-down</span></div>
+              <p>Codex passed 5M weekly users, is expanding to non-developers, and ships through a named SI network (Accenture, PwC, Infosys, TCS, and more) plus deep Azure/GitHub integration. In an exec-led, "one-vendor-for-everything" enterprise buy routed through an SI, OpenAI is the path of least resistance.</p>
+              <div class="callout sb"><b>Soundbite</b>"If the decision is being made top-down for breadth, OpenAI looks easy. If it's being made by the engineers who'll use it daily, that's our ground — so get to them."</div>
+              <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.constellationr.com/insights/news/openai-touts-broadening-codex-usage-5-million-weekly-active-users" target="_blank" rel="noopener">constellationr.com</a></div></div>
+          </div>
+        </div>
+      </details>
+
+      <!-- SENTIMENT -->
+      <details class="sec" id="sent" open>
+        <summary><span class="stitle">Sentiment</span><span class="scount">1 signal</span><span class="chev">›</span></summary>
+        <div class="sbody">
+          <div class="item"><p>Developer sentiment toward the Microsoft/OpenAI coding stack soured sharply after Copilot's June 1 metered-billing switch — communities described it as moving from a "predictable subscription" to a "stressful meter," with users openly saying they'll route work to Anthropic. This is sentiment, but it's a live defection signal worth catching in real time.</p><div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.theregister.com/ai-and-ml/2026/06/02/github-copilot-users-threaten-exit-as-metered-billing-kicks-in/5249826" target="_blank" rel="noopener">theregister.com</a><span class="sep">·</span>as of Jun 2</div></div>
+        </div>
+      </details>
+
+      <!-- OBJECTION HANDLING -->
+      <details class="sec" id="obj" open>
+        <summary><span class="stitle">Objection Handling</span><span class="scount">6 objections</span><span class="chev">›</span></summary>
+        <div class="sbody">
+          <div class="item"><div class="ihead"><h4>"I heard Microsoft is pulling Claude Code from its own engineers — why should we adopt it?"</h4><span class="persona"><span class="pk">Raised by</span> Economic buyer</span></div>
+            <p>It's true: Microsoft is canceling Claude Code licenses in its Experiences + Devices division by June 30, steering engineers to its own GitHub Copilot CLI. But the reporting is clear this is a financial and competitive decision — Claude Code was "undermining" a product Microsoft sells — not a quality verdict; engineers reportedly preferred Claude. And Opus 4.8 is now GA inside Copilot itself.</p>
+            <div class="callout sw"><b>So what</b>Microsoft protecting its own SKU isn't a knock on Claude's quality — it's the opposite. Their engineers liked it enough that it threatened Copilot, and you can still run Claude through Copilot today.</div>
+            <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.windowscentral.com/microsoft/microsoft-cancels-claude-code-licenses-shifting-developers-to-github-copilot-cli-a-move-likely-driven-by-financial-motives" target="_blank" rel="noopener">windowscentral.com</a></div></div>
+          <div class="item"><div class="ihead"><h4>"Uber blew through its AI budget on Claude Code and capped spend — how do we avoid that?"</h4><span class="persona"><span class="pk">Raised by</span> Economic buyer</span></div>
+            <p>Real story: Uber's COO said it couldn't yet tie Claude Code spend to shipped features, exhausted its 2026 budget by April, and capped engineers at $1,500/month. But the root cause was ungoverned, leaderboard-driven adoption with no spend controls — a procurement failure, not a product one. Anthropic's new per-user credit model and task budgets in Opus 4.7/4.8 give admins the hard ceilings Uber lacked.</p>
+            <div class="callout sw"><b>So what</b>Buy it with governance from day one — seat-level budgets, usage caps, and a defined ROI metric — and you capture the productivity without the bill shock Uber walked into.</div>
+            <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://fortune.com/2026/05/26/uber-coo-ai-spending-tokens-claude-code/" target="_blank" rel="noopener">fortune.com</a></div></div>
+          <div class="item"><div class="ihead"><h4>"Claude went down the day after your IPO filing — can it handle our production load?"</h4><span class="persona"><span class="pk">Raised by</span> Technical evaluator</span></div>
+            <p>Yes, that happened: a global outage on June 2, 2026 tied to capacity constraints. It was fixed same day, and customers running Claude through Google Vertex AI or Amazon Bedrock were unaffected. The $65B Series H and the SpaceX/Colossus compute deal (300+ MW, which let Anthropic double Claude Code rate limits) are explicitly aimed at this.</p>
+            <div class="callout sw"><b>So what</b>For production workloads, deploy via Bedrock or Vertex with an enterprise SLA, not the consumer endpoint — that's the architecture that was insulated from the outage in the first place.</div>
+            <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.thenationalnews.com/future/technology/2026/06/02/anthropics-claude-hit-by-major-global-outage-due-to-unexpected-capacity-constraints/" target="_blank" rel="noopener">thenationalnews.com</a></div></div>
+          <div class="item"><div class="ihead"><h4>"Didn't Claude Code get worse, and doesn't Veracode say it writes insecure code?"</h4><span class="persona"><span class="pk">Raised by</span> Security &amp; regulated</span></div>
+            <p>Both have a real basis. Anthropic acknowledged three engineering missteps degraded Claude Code from March–April 2026, and Veracode found Opus 4.7 introduced a vulnerability in 52% of tested tasks vs ~30% for OpenAI's models. The honest answer: all three regressions were fixed by April 20, the figure was for 4.7 during the degraded window, and Opus 4.8 (May 28) is specifically ~4x less likely to ship unflagged flawed code — ask for current 4.8 data.</p>
+            <div class="callout sw"><b>So what</b>Don't dodge it — concede the 4.7 period, then move to 4.8 and a security eval on the prospect's own code, where the self-verification improvements show up.</div>
+            <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://fortune.com/2026/04/24/anthropic-engineering-missteps-claude-code-performance-decline-user-backlash/" target="_blank" rel="noopener">fortune.com</a></div></div>
+          <div class="item"><div class="ihead"><h4>"The federal government banned Anthropic — is it a risky vendor to standardize on?"</h4><span class="persona"><span class="pk">Raised by</span> Security &amp; regulated</span></div>
+            <p>Real and serious for gov-adjacent buyers: in February 2026 the administration ordered federal agencies to stop using Anthropic and designated it a national-security supply-chain risk, with litigation still ongoing as of June. But the trigger was Anthropic's refusal to allow unrestricted military use without guardrails against mass surveillance and autonomous weapons — a stance most commercial buyers read as a feature. It doesn't affect commercial access via AWS Bedrock or Google Vertex AI.</p>
+            <div class="callout sw"><b>So what</b>If they have federal compliance needs, have the conversation honestly. For commercial enterprise, the dispute is about military red lines, not product reliability — and your cloud procurement path is unaffected.</div>
+            <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="https://www.cbsnews.com/news/trump-anthropic-ai-order-federal-agencies/" target="_blank" rel="noopener">cbsnews.com</a></div></div>
+          <div class="item"><div class="ihead"><h4>"Anthropic keeps changing its pricing — how do I budget against a moving target?"</h4><span class="persona"><span class="pk">Raised by</span> Economic buyer</span></div>
+            <p>Fair: the June 15 Agent-SDK credit split is Anthropic's third billing change in 2026, and a brief April test even pulled Claude Code from the Pro page before being reversed within a day. The honest framing is that flat-rate subscriptions genuinely couldn't sustain agent compute, and the fix for enterprise is to bill predictably on the Claude Platform API rather than ride subscription tokens that can shift.</p>
+            <div class="callout sw"><b>So what</b>Put production usage on the pay-as-you-go API with committed-use terms — that's metered, SLA-backed, and immune to the subscription-tier churn the headlines are about.</div>
+            <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span><a href="http://www.techtimes.com/articles/317625/20260602/anthropic-ends-subscription-subsidy-agents-june-15-credit-pool-replaces-flat-rate-access.htm" target="_blank" rel="noopener">techtimes.com</a></div></div>
+        </div>
+      </details>
+
+      <!-- CUT LOG -->
+      <details class="sec" id="cut" open>
+        <summary><span class="stitle">Cut Log</span><span class="scount">8 removed / revised</span><span class="chev">›</span></summary>
+        <div class="sbody">
+          <div class="cutnote">This is what verification removed or corrected during fact-checking, and why.</div>
+          <div class="cut"><span class="cuttag cut">CUT</span><div class="body"><b>Claude Opus 4.6 leads SWE-bench Verified 80.8% vs GPT-5.4 80.0%; 70% of developers prefer Claude for coding.</b> — Anchored only on tech-insider.org, a comparison/aggregator site (excluded as a non-primary roundup), and the figures cite superseded models (Opus 4.6 / GPT-5.4). Replaced with the current Opus 4.7 vs GPT-5.5 benchmark split verified on the marc0.dev leaderboard.</div></div>
+          <div class="cut"><span class="cuttag cut">CUT</span><div class="body"><b>GPT-5.5 was silently downgraded to a weaker variant; 86% hallucination rate at uncertainty vs Opus 4.7's 36%.</b> — Sole source was kucoin.com, a crypto-exchange domain explicitly excluded as an off-topic/unreliable source. No reputable Tier 1/2 corroboration of the silent-downgrade claim was found, so it cannot be asserted even as sentiment.</div></div>
+          <div class="cut"><span class="cuttag cut">CUT</span><div class="body"><b>Anthropic's June 15 change moves programmatic usage to a separate credit pool (per-plan credit amounts).</b> — Original draft anchored on findskill.ai, a blog aggregator (excluded). Re-anchored the surviving pricing claim on TechTimes reporting that cites Anthropic's Help Center directly; dropped the aggregator.</div></div>
+          <div class="cut"><span class="cuttag rev">REVISED</span><div class="body"><b>OpenAI's Codex 'created' a novel HTTP/2 Bomb DoS exploit.</b> — Adjusted to state a researcher used Codex to chain two known public techniques into the attack, per The Register — the agent recognized the composition rather than inventing the vulnerability. Overstating autonomy would misrepresent the source.</div></div>
+          <div class="cut"><span class="cuttag rev">REVISED</span><div class="body"><b>The DoD designated Anthropic a supply-chain risk to national security.</b> — Verifier flagged the CBS source attributes the designation specifically to Defense Secretary Hegseth ('Department of War'), and the order to agencies to the President. Kept the substance, attributed it as a government/administration action rather than a generic 'DoD' label.</div></div>
+          <div class="cut"><span class="cuttag rev">REVISED</span><div class="body"><b>Anthropic's $47B run-rate vastly exceeds OpenAI's ~$24B run-rate.</b> — Softened to note the two company-stated, unaudited figures are disclosed ~2 months apart (OpenAI March, Anthropic May) and labeled both as company-stated, per the methodology's audited-vs-stated rule — avoiding an apples-to-apples overstatement.</div></div>
+          <div class="cut"><span class="cuttag cut">CUT</span><div class="body"><b>Anthropic enterprise pricing shift could 'triple costs for heavy users' per an analyst.</b> — Single-analyst estimate reported second-hand via Fortune citing The Information; the modeled '3x' figure is unverifiable against a primary source and risks stating an estimate as fact. The underlying billing-change fact is retained without the unverified multiplier.</div></div>
+          <div class="cut"><span class="cuttag cut">CUT</span><div class="body"><b>Developer sentiment on Claude Code is consistently two-sided: strong praise for large-context understanding, architecture reasoning, and cleaner diffs with less back-and-forth, paired with a recurring complaint that token usage drains fast and drives up cost during longer sessions. The quality reputation is real; the cost/limits anxiety is also real.</b> — source unreachable for grounding</div></div>
+          <div class="cut"><span class="cuttag cut">CUT</span><div class="body"><b>Senior engineers are publicly putting Claude on real production work: at Anthropic's Code with Claude event, roughly half the room said they'd shipped a pull request entirely written by Claude, and rsync creator Andrew Tridgell used Claude (with other models) to rewrite rsync's test suite. Adoption is reaching credibility-carrying veterans, not just early adopters — though it also stirs "AI in critical infrastructure" debate.</b> — evidence excerpt not found in source</div></div>
+        </div>
+      </details>
+
+      <!-- ===== CLAIM FRESHNESS TABLE ===== -->
+      <div class="freshness" id="claims">
+        <div class="fhead">
+          <div class="ftitle">Claim freshness — 42 claims (0 updated &lt;24h)</div>
+          <div class="fcap"><code>as_of</code> = the date the fact is true as-of · <code>verified_on</code> = when grounding last confirmed the exact wording · <code>is_new</code> = a monitor run touched it &lt;24h ago.</div>
+        </div>
+        <div class="ftab-scroll">
+          <table class="ftab">
+            <thead><tr><th>subject_key</th><th>section</th><th>as_of</th><th>verified_on</th><th>is_new</th></tr></thead>
+            <tbody>
+              <tr><td class="key">anthropic-vs-openai | enterprise-coding-position | current</td><td class="sec">executive_summary</td><td>2026-05-13</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">github-copilot | billing-backlash | 2026-06</td><td class="sec">executive_summary</td><td>2026-05-30</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">claude-code | developer-loyalty | current</td><td class="sec">executive_summary</td><td>2026-04-30</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">anthropic | adverse-exposure | current</td><td class="sec">executive_summary</td><td>2026-05-15</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">claude-vs-gpt | coding-benchmark | current</td><td class="sec">executive_summary</td><td>2026-05-31</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">anthropic | valuation | current</td><td class="sec">snapshot</td><td>2026-05-28</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">anthropic | revenue-run-rate | current</td><td class="sec">snapshot</td><td>2026-05-28</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">openai | revenue-run-rate | current</td><td class="sec">snapshot</td><td>2026-03-31</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">anthropic | flagship-model | current</td><td class="sec">snapshot</td><td>2026-05-28</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">openai | flagship-model | current</td><td class="sec">snapshot</td><td>2026-05-17</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">openai-codex | weekly-active-users | current</td><td class="sec">snapshot</td><td>2026-06-02</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">anthropic | ipo-filing | 2026</td><td class="sec">snapshot</td><td>2026-06-01</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">github-copilot | pricing-model | 2026-06</td><td class="sec">recent_moves</td><td>2026-06-02</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">openai-codex | enterprise-expansion | 2026-06</td><td class="sec">recent_moves</td><td>2026-06-02</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">openai | competitive-switch-offer | 2026-06</td><td class="sec">recent_moves</td><td>2026-06-02</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">microsoft | in-house-coding-model | 2026-06</td><td class="sec">recent_moves</td><td>2026-06-02</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">openai-codex | security-exploit-discovery | 2026-06</td><td class="sec">recent_moves</td><td>2026-06-04</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">microsoft-openai | partnership-restructure | 2026-04</td><td class="sec">recent_moves</td><td>2026-04-27</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">openai | gpt-5-5-launch | 2026-04</td><td class="sec">recent_moves</td><td>2026-04-23</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">openai | si-partner-network | 2026</td><td class="sec">recent_moves</td><td>2026-04-22</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">anthropic | coding-positioning | current</td><td class="sec">positioning</td><td>2026-05-21</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">claude-code | dynamic-workflows | 2026-05</td><td class="sec">positioning</td><td>2026-05-28</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">openai-codex | positioning | current</td><td class="sec">positioning</td><td>2026-01-14</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">claude-opus | github-copilot-availability | 2026-05</td><td class="sec">positioning</td><td>2026-05-28</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">anthropic | api-list-price | current</td><td class="sec">pricing</td><td>2026-06-04</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">openai | api-list-price | current</td><td class="sec">pricing</td><td>2026-06-04</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">claude-code-vs-codex | subscription-price | current</td><td class="sec">pricing</td><td>2026-06-04</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">anthropic | agent-billing-change | 2026-06</td><td class="sec">pricing</td><td>2026-06-02</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">battlecard | developer-loyalty-adoption | where_we_win</td><td class="sec">battlecard</td><td>2026-04-30</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">battlecard | business-customer-lead | where_we_win</td><td class="sec">battlecard</td><td>2026-05-13</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">battlecard | swe-bench-pro-lead | where_we_win</td><td class="sec">battlecard</td><td>2026-05-31</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">battlecard | agentic-self-verification | where_we_win</td><td class="sec">battlecard</td><td>2026-05-28</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">battlecard | swe-bench-verified-headline | contested</td><td class="sec">battlecard</td><td>2026-05-31</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">battlecard | token-cost | contested</td><td class="sec">battlecard</td><td>2026-06-04</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">battlecard | codex-scale-distribution | where_they_win</td><td class="sec">battlecard</td><td>2026-06-02</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">openai-copilot | sentiment-billing-defection | current</td><td class="sec">sentiment</td><td>2026-06-02</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">objection | microsoft-dropped-claude-code | current</td><td class="sec">objection_handling</td><td>2026-05-15</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">objection | uber-cost-roi-cap | current</td><td class="sec">objection_handling</td><td>2026-05-26</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">objection | claude-outage-capacity | current</td><td class="sec">objection_handling</td><td>2026-06-02</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">objection | claude-code-quality-decline-veracode | current</td><td class="sec">objection_handling</td><td>2026-04-24</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">objection | federal-blacklisting | current</td><td class="sec">objection_handling</td><td>2026-02-27</td><td>2026-06-04</td><td class="no">false</td></tr>
+              <tr><td class="key">objection | billing-instability | current</td><td class="sec">objection_handling</td><td>2026-06-02</td><td>2026-06-04</td><td class="no">false</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="foot">Agent Scout · battlecard mockup — content &amp; modules ported verbatim from agent-scout.streamlit.app, reorganized into the sober, denser layout</div>
+    </main>
+  </div>
+</div>
+
+<script>
+// functional only — countdown to next update + TOC scroll-spy
+let s=4*3600+12*60;const cd=document.getElementById('cd');
+function tick(){if(s<=0){cd.textContent='check due now';return;}var h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=Math.floor(s%60);cd.textContent='in '+h+'h '+String(m).padStart(2,'0')+'m '+String(x).padStart(2,'0')+'s';s--;}
+tick();setInterval(tick,1000);
+const links=[...document.querySelectorAll('#toc a')];const ids=links.map(a=>a.getAttribute('href'));
+addEventListener('scroll',()=>{let cur=ids[0];ids.forEach(id=>{const el=document.querySelector(id);if(el&&el.getBoundingClientRect().top<160)cur=id;});
+  links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')===cur));},{passive:true});
+</script>
+</body>
+</html>
