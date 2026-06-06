@@ -323,7 +323,8 @@ def _render_job_status(job_id: str) -> str | None:
                                mime="text/markdown")
         with a2:
             if claims:
-                components.html(_print_button(page.call_sheet_from_claims(claims, meta)), height=46)
+                components.html(_print_button(page.call_sheet_from_claims(claims, meta), full=True),
+                                height=48)
         with a3:
             if st.button("✚ Create another", use_container_width=True):
                 _reset_selfserve()
@@ -473,17 +474,30 @@ def _title_block_html(slug: str) -> str:
             f'<div class="rt-sub">{sub}</div>{foc}</div></div></div>')
 
 
-def _print_button(sheet_html: str) -> str:
+def _print_button(sheet_html: str, full: bool = False) -> str:
     """A real, reliable print button: opens the call sheet in a FRESH window and prints that
     (no dependency on the cross-origin parent, and immune to the page's scroll-container clip).
-    Rendered via components.html so its inline <script> actually runs."""
+    Rendered via components.html so its inline <script> actually runs. `full=True` makes it a
+    full-width, sans-serif button that sits flush with native Streamlit buttons in the
+    self-serve action bar (default is the right-aligned mono pill for the roster row)."""
     tmpl = sheet_html.replace("</script>", "<\\/script>")   # don't break the template script
+    if full:
+        wrap = "display:flex;align-items:center;height:100%;"
+        btn = ("font:400 14px/1.4 'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;"
+               "color:#1c1d16;background:#fbfaf6;border:1px solid #dfdbcf;border-radius:8px;"
+               "padding:0 14px;min-height:40px;width:100%;cursor:pointer;white-space:nowrap;"
+               "display:inline-flex;align-items:center;justify-content:center;gap:7px;"
+               "transition:border-color .15s,color .15s;")
+    else:
+        wrap = "display:flex;justify-content:flex-end;align-items:center;height:100%;"
+        btn = ("font:600 12px/1 ui-monospace,'IBM Plex Mono',monospace;color:#34566b;"
+               "background:#fbfaf6;border:1px solid #dfdbcf;border-radius:7px;"
+               "padding:10px 15px;cursor:pointer;white-space:nowrap;")
     return (
-        '<div style="display:flex;justify-content:flex-end;align-items:center;height:100%;">'
-        '<style>html,body{margin:0;background:transparent;overflow:hidden;}</style>'
-        '<button id="psb" style="font:600 12px/1 ui-monospace,\'IBM Plex Mono\',monospace;'
-        'color:#34566b;background:#fbfaf6;border:1px solid #dfdbcf;border-radius:7px;'
-        'padding:10px 15px;cursor:pointer;white-space:nowrap;">🖨  Print call sheet</button>'
+        f'<div style="{wrap}">'
+        '<style>html,body{margin:0;background:transparent;overflow:hidden;}'
+        '#psb:hover{border-color:#34566b!important;color:#34566b!important;}</style>'
+        f'<button id="psb" style="{btn}">🖨 Print call sheet</button>'
         '<script type="text/html" id="cs">' + tmpl + '</script>'
         '<script>document.getElementById("psb").addEventListener("click",function(){'
         'var h=document.getElementById("cs").textContent;var w=window.open("","_blank");'
