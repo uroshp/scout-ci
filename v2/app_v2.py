@@ -777,7 +777,11 @@ _MODE_CSS = (
     'border-right:1px solid #dfdbcf;transition:background .15s,color .15s;}'
     'div[role="radiogroup"]>label:last-child{border-right:none;}'
     'div[role="radiogroup"]>label:hover{color:#34566b;}'
-    'div[role="radiogroup"]>label:has(input:checked){background:#34566b;color:#fff;}'
+    'div[role="radiogroup"]>label:has(input:checked){background:#34566b!important;}'
+    # Streamlit nests the label text in a child with its own color, so white must be forced on
+    # the descendants too — otherwise the active segment is dark text on the dark slate fill.
+    'div[role="radiogroup"]>label:has(input:checked),'
+    'div[role="radiogroup"]>label:has(input:checked) *{color:#fff!important;}'
     'div[role="radiogroup"]>label>div:first-child{display:none!important;}'
 )
 
