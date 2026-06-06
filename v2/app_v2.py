@@ -582,7 +582,10 @@ def main():
     with mc1:
         mode = st.radio("Mode", ["Living battlecards", "Create your own"],
                         index=1 if job_param else 0, horizontal=True, label_visibility="collapsed")
-    is_create = bool(job_param) or mode == "Create your own"
+    # The radio is authoritative: a ?job= deep link defaults it to "Create your own" (index above),
+    # but once shown, clicking "Living battlecards" must win — so derive is_create from the radio,
+    # NOT from job_param (which lingers in the URL and otherwise pinned the user on the report).
+    is_create = mode == "Create your own"
     slug = None
     with mc2:
         if not is_create and cards:
