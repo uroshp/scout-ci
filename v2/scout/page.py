@@ -292,7 +292,7 @@ def _briefing(claims: list) -> str:
             f'<div class="bbody">{angle_html}{plays_html}</div></div>')
 
 
-def _metrics(cp: dict, claims_n: int, remaining: int) -> str:
+def _metrics(cp: dict, claims_n: int, remaining: int, new_count: int = 0) -> str:
     last_d, last_t = _fmt_dt(cp.get("last_checked_ts") or cp.get("last_checked"))
     next_d, next_t = _fmt_dt(cp.get("next_check"))
     base_d, _ = _fmt_dt(cp.get("baseline_date"))
@@ -301,6 +301,8 @@ def _metrics(cp: dict, claims_n: int, remaining: int) -> str:
         cd = f'<div class="cd">in {h}h {m:02d}m</div>'
     else:
         cd = '<div class="cd">update due now</div>'
+    delta = (f'<span class="mdelta" title="{new_count} new since the last update">'
+             f'+{new_count}</span>') if new_count else ""
 
     def card(label, val, sub_t=""):
         t = f'<span class="t">{_html.escape(sub_t)}</span>' if sub_t else ""
@@ -312,7 +314,7 @@ def _metrics(cp: dict, claims_n: int, remaining: int) -> str:
               f'<div class="mv">{_html.escape(next_d)}<span class="t">{_html.escape(next_t)}</span></div>{cd}</div>'
             + card("Baseline", _html.escape(base_d))
             + '<div class="metric claims"><div class="ml">Claims tracked &amp; verified</div>'
-              f'<div class="mv"><a href="#claims">{claims_n}</a></div>'
+              f'<div class="mv"><a href="#claims">{claims_n}</a>{delta}</div>'
               '<div class="sub"><a href="#claims">see all ↓</a></div></div>'
             + "</div>")
 
@@ -360,6 +362,9 @@ _OVERRIDES = """
 #scout-page .rail-credit{font-family:var(--mono);font-size:10px;color:var(--faint);
   padding:12px 2px 0;line-height:1.4;}
 #scout-page .rail-credit a{color:var(--muted);}
+#scout-page .metric .mv .mdelta{font-family:var(--mono);font-size:10px;font-weight:600;
+  color:var(--win);background:var(--win-soft);border:1px solid var(--win-line);
+  border-radius:5px;padding:1px 5px;margin-left:7px;vertical-align:middle;white-space:nowrap;}
 @media(min-width:861px){#scout-page .cols{grid-template-columns:218px 1fr!important;}}
 @media(max-width:860px){#scout-page .cols{grid-template-columns:1fr!important;}}
 """
@@ -473,7 +478,8 @@ def content_html(slug: str) -> str:
         '<hr class="rule">'
         '<div class="cols">' + _rail(status, present)
         + '<div class="maincol">'
-        + _metrics(cp, status["agent_activity"]["claims_tracked"], max(remaining, 0))
+        + _metrics(cp, status["agent_activity"]["claims_tracked"], max(remaining, 0),
+                   sum(1 for r in rows if r.get("is_new")))
         + _briefing(claims)
         + '<div class="divider"><span class="t">The full brief</span><span class="ln"></span></div>'
         + "".join(secs) + cut_html + _freshness(rows)
