@@ -764,7 +764,7 @@ def main():
     # Cropped, margin-free version for the header so the dog sits tight against the name.
     head_logo = _asset("scout_logo_crop_t.png") or logo
     st.set_page_config(page_title="Agent Scout — Living Battlecards", layout="wide",
-                       page_icon=icon or "🐕")
+                       page_icon=icon or "🐕", initial_sidebar_state="expanded")
     # Lift everything up: Streamlit reserves a big top pad on the main container by default.
     st.markdown('<style>[data-testid="stMainBlockContainer"],[data-testid="block-container"],'
                 '.block-container{padding-top:2.9rem!important;}</style>',
@@ -810,11 +810,11 @@ def main():
             "var e=d.querySelector(s);if(e)e.scrollTo({top:0});});"
             "window.parent.scrollTo({top:0});</script>",
             height=0)
-    # The whole battlecard is rendered as the approved mockup's OWN document (scout.page),
-    # dropped in as ONE iframe so Streamlit's chrome can't bleed in — the only way to get exact
-    # mockup fidelity. The page's own script grows the iframe to its content height, so the
-    # battlecard scrolls as a single page. The initial height is just a reserve before fit runs.
-    components.html(page.render_page(slug), height=1400, scrolling=True)
+    # The whole battlecard is rendered INLINE as the approved mockup's HTML (scout.page) — in
+    # Streamlit's OWN document, so scrolling and #anchor (TOC) jumps work natively. (An iframe
+    # looked right but broke both on Streamlit Cloud, where it's cross-origin.) The page's CSS is
+    # scoped to #scout-page so it can't bleed into Streamlit's chrome.
+    st.markdown(page.render_page(slug), unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
