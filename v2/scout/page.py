@@ -354,6 +354,7 @@ _OVERRIDES = """
 #scout-page .wrap{padding-left:0;padding-right:0;padding-bottom:32px;}
 #scout-page{max-width:1240px;margin-left:auto;margin-right:auto;}
 #scout-page .maincol{min-width:0;}
+#scout-page .rule{margin:2px 0 12px!important;}
 #scout-page table.ftab td.secn{color:var(--muted);}
 #scout-page [id]{scroll-margin-top:14px;}
 #scout-page .rail-credit{font-family:var(--mono);font-size:10px;color:var(--faint);
