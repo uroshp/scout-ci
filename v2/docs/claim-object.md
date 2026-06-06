@@ -69,6 +69,7 @@ One battlecard's state of record is `claims.json`: a JSON array of claim objects
 | `source_tier` | enum | yes | `primary` (Tier 1A) \| `reputable_secondary` (Tier 2/2E, labeled) \| `sentiment_only` (Tier 3S/4). Maps to the v1 hierarchy. |
 | `evidence_excerpt` | string | yes | A **verbatim** span copied from the fetched source that backs the claim. Min 40 chars / 6 words so the substring check is meaningful; keep it tight. |
 | `as_of` | string (date) or null | optional (→ **required for `fact` claims**, see §6) | The date the fact is true as-of / source publication date. Supports recency overrides and date-scoped monitoring. |
+| `persona` | enum or null | optional | **Battlecard plays + `objection_handling` only.** The primary buyer persona a play is aimed at / who tends to raise an objection: `eng_led` \| `technical_evaluator` \| `economic_buyer` \| `security_regulated` \| `exec_top_down`. `null`/absent for every other section. Presentational only (like `section`/`zone`); lets the viewer badge plays and objections by audience. |
 | `verified` | boolean | yes | Always `true` for stored claims (see Design rule 4). Kept explicit for audit. |
 | `confidence` | enum | yes | `high` \| `medium` \| `low`. The verifier's confidence in support, independent of grounding. |
 | `grounding` | object | yes | Result of the deterministic grounding check (§4). |
@@ -127,6 +128,7 @@ This is honest about tiers: the *proven* source becomes the fetchable one (often
     "source_tier": { "enum": ["primary","reputable_secondary","sentiment_only"] },
     "evidence_excerpt": { "type": "string", "minLength": 40 },
     "as_of": { "type": ["string","null"], "format": "date" },
+    "persona": { "enum": ["eng_led","technical_evaluator","economic_buyer","security_regulated","exec_top_down", null] },
     "verified": { "const": true },
     "confidence": { "enum": ["high","medium","low"] },
     "grounding": {
