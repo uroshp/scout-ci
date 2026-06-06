@@ -34,6 +34,10 @@ SECTIONS = [
 ]
 ZONES = ["where_we_win", "contested", "where_they_win"]
 SOURCE_TIERS = ["primary", "reputable_secondary", "sentiment_only"]
+# Primary buyer persona a play is aimed at / that tends to raise an objection. Optional, and
+# meaningful ONLY for the rep-facing prose sections (battlecard + objection_handling); null
+# everywhere else. Lets the viewer badge plays/objections by audience (see docs/claim-object.md).
+PERSONAS = ["eng_led", "technical_evaluator", "economic_buyer", "security_regulated", "exec_top_down"]
 
 CLAIM_SCHEMA = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -57,6 +61,8 @@ CLAIM_SCHEMA = {
         "source_tier": {"enum": SOURCE_TIERS},
         "evidence_excerpt": {"type": "string", "minLength": 40},
         "as_of": {"type": ["string", "null"], "format": "date"},
+        # Optional audience tag for battlecard plays + objections; null/absent elsewhere.
+        "persona": {"enum": PERSONAS + [None]},
         "verified": {"const": True},
         "confidence": {"enum": ["high", "medium", "low"]},
         "grounding": {

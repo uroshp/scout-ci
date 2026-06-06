@@ -135,6 +135,10 @@ CLAIM_CONTRACT = f"""Emit each claim as a JSON object with EXACTLY these fields 
   deterministic check will RE-FETCH source_url and require this excerpt to literally appear on
   the page. If you paraphrase, tighten, or stitch it, the claim WILL BE CUT. Copy, do not write.
 - "as_of": the date the fact is true as-of / the source's date, "YYYY-MM-DD" (required for facts).
+- "persona" (battlecard + objection_handling ONLY; omit for every other section): the primary buyer
+  persona this play is aimed at, or that tends to raise this objection — one of "eng_led" |
+  "technical_evaluator" | "economic_buyer" | "security_regulated" | "exec_top_down". Choose the
+  single best fit from the "for which buyer" reasoning you already do; do not invent new values.
 - "confidence": "high" | "medium" | "low".
 - "corroboration" (optional): a list of secondary sources confirming the SAME value, each
   {{"source_url","source_tier","note","grounded":false}}. Never grounded; never the anchor.
