@@ -506,8 +506,12 @@ def main():
 
     # Mode switch + card picker on ONE tight row (no sidebar). A ?job= deep link opens the
     # create surface; a ?card=<slug> deep link selects that battlecard directly (permalink).
+    # Mode switch + card picker + print button on ONE tight row (no sidebar, no extra row). A
+    # ?job= deep link opens the create surface; a ?card=<slug> deep link selects a card directly.
+    # (The button lives here rather than beside the focus line because a second column-row forces
+    # Streamlit to reserve a tall block around the components.html iframe — that was the empty gap.)
     cards = display.list_battlecards()
-    mc1, mc2, _sp = st.columns([1.2, 1.1, 2.2], gap="small", vertical_alignment="center")
+    mc1, mc2, mc3 = st.columns([1.2, 1.1, 2.0], gap="small", vertical_alignment="center")
     with mc1:
         mode = st.radio("Mode", ["Living battlecards", "Create your own"],
                         index=1 if job_param else 0, horizontal=True, label_visibility="collapsed")
@@ -520,6 +524,9 @@ def main():
                 st.session_state["card_select"] = card_param        # honor the ?card= permalink
             slug = st.selectbox("Battlecard", cards, format_func=_card_label,
                                 label_visibility="collapsed", key="card_select")
+    with mc3:
+        if not is_create and cards and slug:
+            components.html(_print_button(page.call_sheet_html(slug)), height=46)
 
     if is_create:
         _render_selfserve(job_param)
@@ -535,14 +542,8 @@ def main():
     if st.session_state.get("_last_slug") != slug:
         st.session_state["_last_slug"] = slug
         components.html("<script>window.parent.scrollTo({top:0});</script>", height=0)
-    # Report title + print button share a row — the button is bottom-aligned, sitting opposite
-    # the focus-area line. It opens the call sheet in a fresh window and prints it.
-    tcol, pcol = st.columns([4, 1.3], gap="small", vertical_alignment="bottom")
-    with tcol:
-        st.markdown(_title_block_html(slug), unsafe_allow_html=True)
-    with pcol:
-        components.html(_print_button(page.call_sheet_html(slug)), height=46)
-    # The battlecard body (rule + brief + freshness), rendered INLINE. Credit lives in the rail.
+    # Title (full width) then the brief body — both inline. Credit lives in the left rail.
+    st.markdown(_title_block_html(slug), unsafe_allow_html=True)
     st.markdown(page.content_html(slug), unsafe_allow_html=True)
 
 
