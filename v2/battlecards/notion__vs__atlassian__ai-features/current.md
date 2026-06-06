@@ -49,6 +49,7 @@ Notion's Custom Agents moved from free to paid credits on May 4, 2026, and a dat
 - April 22, 2026: Atlassian expanded its Google Cloud partnership so that Google's Gemini 3 Flash now powers select Rovo capabilities, and Rovo became accessible inside Gemini Enterprise — deepening Atlassian's model and infrastructure bets. ([siliconangle.com](https://siliconangle.com/2026/04/22/atlassian-expands-google-cloud-partnership-deeper-rovo-gemini-integrations/))
 - April 18, 2026 (ADVERSE for Atlassian): Atlassian changed its policy to use customer Jira/Confluence data to train its AI models by default, with no full opt-out below the Enterprise tier — reversing its prior stance and drawing public criticism and a competitive campaign from GitLab. ([theregister.com](https://www.theregister.com/2026/04/18/atlassians_new_data_collection_policy/))
 - March 11, 2026 (ADVERSE for Atlassian): Atlassian cut ~1,600 jobs (~10% of staff), more than 900 of them in software R&D, and replaced its CTO — a restructuring it frames as self-funding AI investment. ([thenextweb.com](https://thenextweb.com/news/atlassian-is-cutting-1600-jobs-and-replacing-its-cto))
+- Atlassian is moving through a wide C-suite turnover that compounds its restructuring: CFO Joe Binz will retire effective June 30, 2026 — announced October 31, 2025 as a planned, amicable transition ("not the result of any disagreement") with no named successor and a search underway — alongside a March 2026 CTO replacement, president Anu Bharadwaj stepping down effective December 31, and a new chief product & AI officer (Tamar Yehoshua) added in November 2025. The CFO exit is a normal retirement, not a forced one, but the cumulative churn is a fair leadership-continuity question in multi-year deals. ([cfodive.com](https://www.cfodive.com/news/atlassian-cfo-step-down-among-leadership-shifts/))
 
 ## Positioning and Differentiation
 
@@ -155,18 +156,3 @@ Notion is private but strongly capitalized: a January 2026 tender by GIC, Sequoi
 Be honest: Notion's databases degrade noticeably past roughly 5,000 records, and it's not the right tool to be a raw database engine for tens of thousands of rows. Position Notion as the knowledge, docs, and agent layer, and use its May 2026 Database Sync to pull large datasets from Postgres, Salesforce, or Zendesk rather than store them natively.
 
 **So what:** Set scope honestly — Notion orchestrates and surfaces the data; pair it with a dedicated system of record for massive structured datasets. ([hackceleration.com](https://hackceleration.com/notion-review/))
-
-
-## Cut Log
-
-This is what verification removed or corrected during fact-checking, and why.
-- **REVISED — Notion AI data-exfiltration vulnerability is 'unpatched':** Verifier confirmed the PromptArmor page now carries a Jan 8, 2026 update stating Notion shipped the remediation to production. Reframed as disclosed late Dec 2025 and patched Jan 8, 2026 (and noted prompt injection is an industry-wide structural risk affecting Rovo too).
-- **REVISED — Notion 'doesn't train on your content, Enterprise plans have zero data retention':** That exact wording does not appear on the Notion security page. Replaced with the verbatim page text: 'By default, Notion and its AI Subprocessors do not use Customer Data to train any models.'
-- **CUT — Notion ARR is ~\$500-600M:** Only third-party estimates (Sacra/Latka) with no groundable primary excerpt, and the estimates conflict (\$500M vs \$600M). Used the company-stated, verifiable '>50% of ARR from AI-enabled customers' instead.
-- **CUT — Over 50% of the Fortune 500 are Notion customers:** Appears only on third-party comparison sites with no primary Notion citation found; unverifiable, so excluded rather than asserted.
-- **CUT — Atlassian shares fell 6.7% on June 2, 2026:** Sector-wide profit-taking with no Atlassian-specific or competitive 'so what' for Notion's position. Noise, not signal.
-- **CUT — Atlassian-wide outage on May 14, 2026 (Rovo/Jira/Confluence):** Sourced only to a community forum thread; no independent reputable-news confirmation of a material outage. Fails the Tier-1/2 sourcing bar for a status claim.
-- **CUT — Rovo Dev credit-limit bug blocked a developer at 576 of 2,000 credits (March 2026):** Single uncorroborated community complaint; too thin to assert as a pattern, and not competitively load-bearing given the broader, better-sourced credit-pricing point already stands.
-- **CUT — Rovo MAU surpassed 5 million (Feb 2026):** Real and notable, but anchored only on a syndicated press-release aggregator (StockTitan) at risk of failing re-fetch; dropped to keep the snapshot's adoption point on the cleanly-verified Team '26 figure instead.
-- **CUT — Rovo 'is not truly agentic / chatbot not automation' (RWAI.ch test, July 2025):** Single independent-blog test now partly outdated by Atlassian's May 2026 Team '26 agentic GA; superseded by current, better-sourced sentiment on write-action reliability.
-- **CUT — User sentiment on Notion AI is not all positive — a recurring complaint is that raw outputs feel generic and "middle-of-the-road," still needing human polishing for marketing or brand-voice copy. Reps should expect this and pivot to the consistently-praised use cases (AI Meeting Notes, workspace-grounded drafting).:** evidence excerpt not found in source
