@@ -32,7 +32,7 @@ from scout import config, store
 from scout.fetch_tool import FETCH_SERVER, FETCH_TOOL_NAME, reset_log
 from scout.generate import _drive, _extract_json
 from scout.grounding import ground_claims
-from scout.render import claims_to_markdown, clean_output, format_report
+from scout.render import claims_to_markdown, clean_output, extract_cut_log, format_report
 from scout.schema import claim_id, pregrounding_errors, validation_errors
 
 MATERIAL_CATEGORIES = (
@@ -294,9 +294,14 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     if write and new_alerts:
         meta["last_checked"] = checked_at
         meta.setdefault("alerted_fingerprints", []).extend(a["fingerprint"] for a in new_alerts)
-        current_md = format_report(clean_output(
-            claims_to_markdown(new_claims, _title(meta),
-                               my_company=meta.get("my_company"), competitor=meta.get("competitor"))))
+        # Regenerating the body from claims drops the Cut Log (it lives only in the
+        # markdown, never in the claim store) — carry the existing one forward.
+        body = claims_to_markdown(new_claims, _title(meta),
+                                  my_company=meta.get("my_company"), competitor=meta.get("competitor"))
+        cut_log = extract_cut_log(_current_md(slug))
+        if cut_log:
+            body = body.rstrip() + "\n\n" + cut_log
+        current_md = format_report(clean_output(body))
         store.write_baseline(slug, new_claims, meta, current_md)
         _append_alerts(slug, new_alerts)
     elif write:  # candidates existed but nothing survived as material -> bump timestamp only

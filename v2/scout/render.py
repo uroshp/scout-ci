@@ -5,6 +5,7 @@ in app.py), kept here as a starting point for v2. v1 is frozen and retains its o
 inline copies — app.py does NOT import from scout/. v2 evolves these freely without
 any risk to the shipped v1 app. The duplication is intentional.
 """
+import re
 from urllib.parse import urlparse
 
 from scout.schema import SECTIONS, ZONES
@@ -198,3 +199,12 @@ def render_cut_log(entries):
             else:
                 lines.append(f"- {str(e).strip()}")
     return "\n".join(lines)
+
+
+def extract_cut_log(md):
+    """Pull the verbatim `## Cut Log` section (header through end of section) out
+    of a rendered brief, or "" if absent. Used to carry the generation-time Cut
+    Log forward when the body is later regenerated from claims (monitoring),
+    since cut-log entries live only in the markdown — never in the claim store."""
+    m = re.search(r"^##\s+Cut Log\s*$.*?(?=^##\s|\Z)", md, re.S | re.M)
+    return m.group(0).rstrip() if m else ""
