@@ -152,10 +152,12 @@ def _snapshot_box(c: dict) -> str:
 
 
 def _section(sid: str, title: str, count_label: str, inner: str) -> str:
-    return (f'<div class="sec" id="{sid}"><div class="summary">'
+    # <details>/<summary> => collapsible, open by default. Survives st.markdown sanitization.
+    return (f'<details class="sec" id="{sid}" open><summary>'
             f'<span class="stitle">{_html.escape(title)}</span>'
-            f'<span class="scount">{_html.escape(count_label)}</span></div>'
-            f'<div class="sbody">{inner}</div></div>')
+            f'<span class="scount">{_html.escape(count_label)}</span>'
+            f'<span class="chev">›</span></summary>'
+            f'<div class="sbody">{inner}</div></details>')
 
 
 def _battlecard(claims: list) -> str:
@@ -223,9 +225,13 @@ def _rail(status: dict, present: list) -> str:
         return (f'<div class="panel"><div class="phead"><span class="ey">{label}</span>{extra}</div>'
                 f'<div class="feed">{body}</div></div>')
 
+    name = _html.escape(config.AUTHOR_NAME or "Urosh P")
+    credit = (f'Built by <a href="{_html.escape(config.AUTHOR_LINKEDIN)}" target="_blank" '
+              f'rel="noopener">{name}</a>') if config.AUTHOR_LINKEDIN else f"Built by {name}"
     return ('<div class="rail">' + nav
             + panel("Just updated", ju, f'<span class="ph-n">{new_count}</span>')
-            + panel("Change feed", cf) + panel("Alerts", al) + "</div>")
+            + panel("Change feed", cf) + panel("Alerts", al)
+            + f'<div class="rail-credit">{credit}</div>' + "</div>")
 
 
 def _freshness(rows: list) -> str:
@@ -341,20 +347,18 @@ FONT_HEAD = (
     'wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,1,400;9..144,1,500'
     '&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">')
 
-# Appended after the mockup CSS: section cards rendered from <div class="sec"> (we dropped
-# <details> so Streamlit's sanitizer can't strip the wrapper), and a wider 2-col breakpoint so
-# opening the Streamlit sidebar doesn't collapse the rail on top of the brief.
+# Appended after the mockup CSS. Sections use the mockup's own <details class="sec"> styling;
+# here we only cap width, fix the freshness column color, add the rail credit, and widen the
+# 2-col breakpoint so a narrow viewport doesn't stack the rail on top of the brief.
 _OVERRIDES = """
 #scout-page .wrap{padding-left:0;padding-right:0;padding-bottom:32px;}
-#scout-page .sec{background:var(--paper);border:1px solid var(--line);border-radius:7px;
-  margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden;scroll-margin-top:16px;}
-#scout-page .sec>.summary{padding:11px 18px;display:flex;align-items:center;gap:11px;
-  border-bottom:1px solid var(--line2);}
-#scout-page .sec .sbody{padding:2px 18px 14px;}
 #scout-page{max-width:1240px;margin-left:auto;margin-right:auto;}
 #scout-page .maincol{min-width:0;}
 #scout-page table.ftab td.secn{color:var(--muted);}
 #scout-page [id]{scroll-margin-top:14px;}
+#scout-page .rail-credit{font-family:var(--mono);font-size:10px;color:var(--faint);
+  padding:12px 2px 0;line-height:1.4;}
+#scout-page .rail-credit a{color:var(--muted);}
 @media(min-width:861px){#scout-page .cols{grid-template-columns:218px 1fr!important;}}
 @media(max-width:860px){#scout-page .cols{grid-template-columns:1fr!important;}}
 """
