@@ -818,7 +818,8 @@ def main():
         'padding:1.2rem 2rem 2.5rem!important;}'
         '[data-testid="stSidebar"],[data-testid="collapsedControl"]{display:none!important;}'
         # Tighten the vertical rhythm between masthead, the control row, and the brief.
-        '[data-testid="stVerticalBlock"]{gap:.55rem!important;}'
+        '[data-testid="stVerticalBlock"]{gap:.3rem!important;}'
+        '[data-testid="stHorizontalBlock"]{margin-bottom:0!important;}'
         + _MODE_CSS + '</style>', unsafe_allow_html=True)
 
     job_param = st.query_params.get("job")
@@ -829,11 +830,10 @@ def main():
     st.markdown(page.style_block(), unsafe_allow_html=True)
     st.markdown(page.masthead_html(), unsafe_allow_html=True)
 
-    # Mode switch + card picker on ONE tight row (no sidebar). A ?job= deep link (returning
-    # self-serve visitor) opens the create surface. The trailing spacer column keeps the
-    # dropdown from stretching the full width.
+    # Mode switch + card picker on ONE tight row (no sidebar). A ?job= deep link opens the
+    # create surface; a ?card=<slug> deep link selects that battlecard directly (permalink).
     cards = display.list_battlecards()
-    mc1, mc2, _sp = st.columns([1.3, 1.7, 1], gap="small")
+    mc1, mc2, _sp = st.columns([1.2, 1.2, 2.1], gap="small")
     with mc1:
         mode = st.radio("Mode", ["Living battlecards", "Create your own"],
                         index=1 if job_param else 0, horizontal=True, label_visibility="collapsed")
@@ -841,8 +841,11 @@ def main():
     slug = None
     with mc2:
         if not is_create and cards:
+            card_param = st.query_params.get("card")
+            if "card_select" not in st.session_state and card_param in cards:
+                st.session_state["card_select"] = card_param        # honor the ?card= permalink
             slug = st.selectbox("Battlecard", cards, format_func=_card_label,
-                                label_visibility="collapsed")
+                                label_visibility="collapsed", key="card_select")
 
     if is_create:
         _render_selfserve(job_param)
@@ -851,14 +854,17 @@ def main():
     if not cards:
         st.info("No battlecards have been generated yet.")
         return
+    # Reflect the selection in the URL so each card has a shareable permalink (?card=<slug>).
+    if st.query_params.get("card") != slug:
+        st.query_params["card"] = slug
     # Land at the top of a newly selected card (Streamlit preserves scroll across reruns).
     if st.session_state.get("_last_slug") != slug:
         st.session_state["_last_slug"] = slug
         components.html("<script>window.parent.scrollTo({top:0});</script>", height=0)
     # The battlecard body, rendered INLINE in Streamlit's own document (scroll + #anchor jumps
     # work natively; an iframe broke both on Streamlit Cloud). CSS scoped to #scout-page.
+    # Credit ("Built by …") lives in the left rail, under Alerts — no bottom footer here.
     st.markdown(page.content_html(slug), unsafe_allow_html=True)
-    _footer()
 
 
 if __name__ == "__main__":
