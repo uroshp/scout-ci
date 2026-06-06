@@ -768,31 +768,29 @@ _FONT_LINKS = (
     '&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">')
 
 
-# In-page mode switch styled as a sober segmented control (replaces the sidebar radio).
+# In-page mode toggle as a connected SEGMENTED CONTROL (one line, no wrap, slate-filled active).
 _MODE_CSS = (
-    'div[role="radiogroup"]{gap:.5rem;margin:.1rem 0 .9rem;}'
-    'div[role="radiogroup"]>label{border:1px solid #dfdbcf;background:#fbfaf6;border-radius:7px;'
-    'padding:.4rem .95rem;font-weight:600;color:#5f5e54;cursor:pointer;'
-    'transition:border-color .15s,color .15s;}'
-    'div[role="radiogroup"]>label:hover{border-color:#34566b;color:#34566b;}'
-    'div[role="radiogroup"]>label:has(input:checked){border-color:#34566b;color:#2a4658;'
-    'background:rgba(52,86,107,.08);box-shadow:inset 0 0 0 1px #34566b;}'
-    'div[role="radiogroup"]>label>div:first-child{display:none;}'
+    'div[role="radiogroup"]{display:inline-flex!important;flex-wrap:nowrap!important;gap:0!important;'
+    'border:1px solid #dfdbcf;border-radius:8px;overflow:hidden;background:#fbfaf6;}'
+    'div[role="radiogroup"]>label{margin:0!important;padding:.42rem 1.05rem;font-weight:600;'
+    'font-size:.92rem;color:#5f5e54;cursor:pointer;white-space:nowrap;'
+    'border-right:1px solid #dfdbcf;transition:background .15s,color .15s;}'
+    'div[role="radiogroup"]>label:last-child{border-right:none;}'
+    'div[role="radiogroup"]>label:hover{color:#34566b;}'
+    'div[role="radiogroup"]>label:has(input:checked){background:#34566b;color:#fff;}'
+    'div[role="radiogroup"]>label>div:first-child{display:none!important;}'
 )
 
 
 def _card_label(slug: str) -> str:
-    """Proper-cased dropdown label from meta, e.g. 'OpenAI vs Anthropic · Enterprise coding'."""
+    """Short, proper-cased dropdown label from meta, e.g. 'OpenAI vs Anthropic'. (Focus area is
+    already shown in the title block, so it's dropped here to keep the dropdown compact.)"""
     m = store.load_meta(slug) or {}
     comp = (m.get("competitor") or "").strip()
     mine = (m.get("my_company") or "").strip()
-    focus = (m.get("focus") or "").strip()
     if not comp:
         return _pretty(slug)
-    label = f"{comp} vs {mine}" if mine else comp
-    if focus:
-        label += " · " + focus[:1].upper() + focus[1:]
-    return label
+    return f"{comp} vs {mine}" if mine else comp
 
 
 def _footer():
@@ -833,7 +831,7 @@ def main():
     # Mode switch + card picker on ONE tight row (no sidebar). A ?job= deep link opens the
     # create surface; a ?card=<slug> deep link selects that battlecard directly (permalink).
     cards = display.list_battlecards()
-    mc1, mc2, _sp = st.columns([1.2, 1.2, 2.1], gap="small")
+    mc1, mc2, _sp = st.columns([1.2, 1.1, 2.2], gap="small", vertical_alignment="center")
     with mc1:
         mode = st.radio("Mode", ["Living battlecards", "Create your own"],
                         index=1 if job_param else 0, horizontal=True, label_visibility="collapsed")
