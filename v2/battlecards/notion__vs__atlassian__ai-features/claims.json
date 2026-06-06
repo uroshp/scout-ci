@@ -856,5 +856,27 @@
       "fetched_at": "2026-06-05",
       "detail": null
     }
+  },
+  {
+    "subject_key": "atlassian | executive-departures | 2026",
+    "claim": "Atlassian is moving through a wide C-suite turnover that compounds its restructuring: CFO Joe Binz will retire effective June 30, 2026 — announced October 31, 2025 as a planned, amicable transition (\"not the result of any disagreement\") with no named successor and a search underway — alongside a March 2026 CTO replacement, president Anu Bharadwaj stepping down effective December 31, and a new chief product & AI officer (Tamar Yehoshua) added in November 2025. The CFO exit is a normal retirement, not a forced one, but the cumulative churn is a fair leadership-continuity question in multi-year deals.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 19,
+    "source_url": "https://www.cfodive.com/news/atlassian-cfo-step-down-among-leadership-shifts/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Atlassian CFO Joe Binz will retire from his role effective June 30, 2026, the project management software provider announced Thursday. The transition is not the result of any disagreement with the company, Atlassian said in a securities filing. “We have mutually decided that the time is right for a thoughtful transition, and we have initiated a search for our next Chief Financial Officer,” the San Francisco-based company said",
+    "as_of": "2025-10-31",
+    "confidence": "high",
+    "id": "c_bb5f6aadd543",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "fuzzy",
+      "fetched_at": "2026-06-06",
+      "detail": "partial_ratio 0.998"
+    }
   }
 ]
