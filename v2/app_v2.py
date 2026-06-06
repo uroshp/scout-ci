@@ -790,8 +790,10 @@ def main():
         + _MODE_CSS + '</style>', unsafe_allow_html=True)
 
     job_param = st.query_params.get("job")
-    # CSS and masthead each go in their OWN st.markdown call — Streamlit's sanitizer strips a
-    # <style> block if it's bundled with body HTML, which is what garbled the first inline cut.
+    # Fonts (separate <link>), CSS, and masthead each go in their OWN st.markdown call —
+    # Streamlit's sanitizer drops a <style> bundled with body HTML (or one containing @import),
+    # which is what garbled the earlier cuts.
+    st.markdown(page.FONT_HEAD, unsafe_allow_html=True)
     st.markdown(page.style_block(), unsafe_allow_html=True)
     st.markdown(page.masthead_html(), unsafe_allow_html=True)
 

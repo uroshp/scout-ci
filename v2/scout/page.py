@@ -330,12 +330,16 @@ _LIVE_BOX = (
 _TAGLINE = ('<div class="tagline">Living competitive battlecards: Every claim verified for '
             'accuracy and kept current by an orchestra of AI agents.</div>')
 
-# @import MUST be the first rule in the stylesheet or the browser drops it (there is no <head>
-# <link> when we render inline), so it goes at the very front of _style().
-_FONT_IMPORT = ("@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,"
-                "wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,1,400;9..144,1,500"
-                "&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600"
-                "&display=swap');")
+# Fonts load via <link> tags injected SEPARATELY from the main <style> — a sanitizer that
+# dislikes @import can drop a whole <style> that contains it, which would wipe ALL styling and
+# leave the "elements in place but unstyled" look. Injecting fonts on their own keeps the main
+# stylesheet clean; if the <link> is ever stripped, only the typeface falls back.
+FONT_HEAD = (
+    '<link rel="preconnect" href="https://fonts.googleapis.com">'
+    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+    '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,'
+    'wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,1,400;9..144,1,500'
+    '&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">')
 
 # Appended after the mockup CSS: section cards rendered from <div class="sec"> (we dropped
 # <details> so Streamlit's sanitizer can't strip the wrapper), and a wider 2-col breakpoint so
@@ -378,7 +382,7 @@ def _style() -> str:
     css = css.replace("a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}",
                       "#scout-page a{color:var(--accent);text-decoration:none}"
                       "#scout-page a:hover{text-decoration:underline}")
-    return f"<style>{_FONT_IMPORT}{css}{_OVERRIDES}</style>"
+    return f"<style>{css}{_OVERRIDES}</style>"
 
 
 def _read_current(slug: str) -> str:
@@ -462,5 +466,10 @@ def content_html(slug: str) -> str:
 
 
 def render_page(slug: str) -> str:
-    """Full standalone page (CSS + masthead + content) — used for the static preview file."""
-    return style_block() + masthead_html() + content_html(slug)
+    """Full standalone HTML document (fonts + CSS + masthead + content) — the static preview.
+    The app renders the same pieces inline; this just wraps them so the file stands alone."""
+    return ('<!doctype html><html lang="en"><head><meta charset="utf-8">'
+            '<meta name="viewport" content="width=device-width, initial-scale=1">'
+            + FONT_HEAD + style_block()
+            + '</head><body style="background:#f4f2ec;margin:0;padding:24px 0">'
+            + masthead_html() + content_html(slug) + '</body></html>')
