@@ -28,7 +28,7 @@ try:
 except Exception:
     pass
 
-from scout import config, display, selfserve, store
+from scout import config, display, page, selfserve, store
 
 # Rotating status copy — ported verbatim from v1 app.py (the "v1 progress messages") so the
 # self-serve wait feels like the rest of Scout. The bar is a timed estimate (the real job runs
@@ -738,6 +738,26 @@ def _render_selfserve(job_param: str | None) -> None:
         st.rerun()
 
 
+def _st_masthead(head_logo):
+    """Branded Agent Scout header for the self-serve surface. The living-battlecard VIEWER
+    renders its own masthead inside the page iframe, so this is NOT used there."""
+    if head_logo:
+        with open(head_logo, "rb") as f:
+            b64 = base64.b64encode(f.read()).decode()
+        st.markdown(
+            '<div style="display:flex;align-items:center;gap:.45rem;margin:.2rem 0 .4rem;">'
+            f'<img src="data:image/png;base64,{b64}" style="height:88px;width:auto;" alt="Agent Scout">'
+            '<span style="font-size:2.6rem;font-weight:800;line-height:1;">Agent Scout</span>'
+            '</div>', unsafe_allow_html=True)
+    else:
+        st.title("Agent Scout")
+    st.markdown(
+        '<div style="color:#34566b;font-size:1.08rem;font-weight:600;line-height:1.4;'
+        'margin:-.1rem 0 .5rem;">Living competitive battlecards: Every claim verified '
+        'for accuracy and kept current by an orchestra of AI agents.</div>',
+        unsafe_allow_html=True)
+
+
 def main():
     icon = _asset("scout_icon_t.png", "scout_icon.png")
     logo = _asset("scout_logo_t.png", "scout_logo.png")
@@ -751,24 +771,9 @@ def main():
                 unsafe_allow_html=True)
     if logo:
         st.logo(logo, icon_image=icon)
-    # Header rendered as one inline flex row (logo then name, small gap) so it reads like a
-    # normal site masthead instead of two stretched columns with a big void between them.
-    if head_logo:
-        with open(head_logo, "rb") as f:
-            b64 = base64.b64encode(f.read()).decode()
-        st.markdown(
-            '<div style="display:flex;align-items:center;gap:.45rem;margin:.2rem 0 .4rem;">'
-            f'<img src="data:image/png;base64,{b64}" style="height:88px;width:auto;" alt="Agent Scout">'
-            '<span style="font-size:2.6rem;font-weight:800;line-height:1;">Agent Scout</span>'
-            '</div>',
-            unsafe_allow_html=True)
-    else:
-        st.title("Agent Scout")
-    st.markdown(
-        '<div style="color:#34566b;font-size:1.08rem;font-weight:600;line-height:1.4;'
-        'margin:-.1rem 0 .5rem;">Living competitive battlecards: Every claim verified '
-        'for accuracy and kept current by an orchestra of AI agents.</div>',
-        unsafe_allow_html=True)
+    # NOTE: the living-battlecard VIEWER renders its own masthead (brand + tagline) inside the
+    # page iframe (scout.page), so the Streamlit-level header is rendered ONLY on the self-serve
+    # surface below — otherwise it would duplicate the iframe's header and re-create a hybrid look.
 
     # Mode: the public living-battlecard viewer, or the gated 'create your own' entry point.
     # A ?job= URL (a returning self-serve visitor) forces the create view.
@@ -783,6 +788,7 @@ def main():
     st.sidebar.markdown("---")
     st.sidebar.caption(f"Built by {_credit}")
     if job_param or mode == "✨ Create your own":
+        _st_masthead(head_logo)      # branded header for the self-serve surface
         _render_selfserve(job_param)
         return
 
@@ -804,92 +810,11 @@ def main():
             "var e=d.querySelector(s);if(e)e.scrollTo({top:0});});"
             "window.parent.scrollTo({top:0});</script>",
             height=0)
-    status = display.card_status(slug)
-    cp, act = status["checkpoints"], status["agent_activity"]
-    recent = status["recent_updates"]
-    rows = status["claim_timestamps"]
-    new_count = sum(1 for r in rows if r.get("is_new"))
-
-    # --- Elements 1 + 3: build the monitoring / freshness strip (rendered below the rule) ---
-    try:
-        remaining = int((datetime.fromisoformat(cp["next_check"]) - datetime.now()).total_seconds())
-    except (ValueError, TypeError):
-        remaining = 0
-    strip = (_METRICS_STRIP
-             .replace("__LAST__", _utc_attr(cp["last_checked_ts"] or cp["last_checked"]))
-             .replace("__NEXT__", _utc_attr(cp["next_check"]))
-             .replace("__BASE__", _fmt_date_human(cp["baseline_date"]))
-             .replace("__N__", str(act["claims_tracked"]))
-             .replace("__R__", str(max(remaining, 0))))
-    md = _read_current(slug)
-    meta = store.load_meta(slug)
-    claims = store.load_claims(slug)          # one read, reused by the 5-min layer + persona badges
-    personas = _persona_title_map(claims)     # full-brief audience badges (empty on pre-persona cards)
-
-    # LIVE box (pulsing) — the agentic story, above the fold and right-aligned like the mockup.
-    st.markdown(_LIVE_BOX, unsafe_allow_html=True)
-    # Master report title ABOVE THE FOLD so visitors see who/what this covers immediately
-    # (_FIVE_MIN_CSS styles #scout-rt, so inject it before the title).
-    st.markdown(_FIVE_MIN_CSS, unsafe_allow_html=True)
-    st.markdown(_report_title_html(md, meta), unsafe_allow_html=True)
-    st.markdown('<hr style="border:none;border-top:2px solid #1c1d16;'
-                'margin:.4rem 0 .65rem;">', unsafe_allow_html=True)
-
-    # Rail on the LEFT, brief on the RIGHT (matches the mockup: modules left, content right).
-    side_col, brief_col = st.columns([1, 3], gap="large")
-
-    with brief_col:
-        # Metric strip — small cards at the top of the brief column, below the rule.
-        components.html(strip, height=96)
-        # 5-minute brief — derived from the verified claims (no new prose).
-        st.markdown(_five_min_html(claims), unsafe_allow_html=True)
-        # Full verified brief — always visible, full Executive Summary included,
-        # title stripped (rendered above). Persona map badges battlecard plays + objections.
-        st.markdown(_BRIEF_CSS, unsafe_allow_html=True)
-        st.markdown(_render_brief_html(_strip_h1(md), personas), unsafe_allow_html=True)
-
-    with side_col:
-        # --- Jump navigation over the brief's sections ---
-        st.markdown(_TOC_CSS, unsafe_allow_html=True)
-        st.markdown(_toc_html(md), unsafe_allow_html=True)
-        st.divider()
-        # --- A4: claims a monitor run touched in the last 24h (empty on a fresh baseline) ---
-        st.subheader(f"Just updated ({new_count})")
-        if recent:
-            for r in recent:
-                when = r.get("detected_at") or r.get("date") or ""
-                st.markdown(f"- 🟢 **NEW** `{when}` — {r.get('headline', r.get('subject_key',''))}")
-        else:
-            st.caption("Nothing updated in the last 24h.")
-
-        # --- Element 2: per-card change feed (git heartbeat, now with time) ---
-        st.subheader("Change feed")
-        feed = status["change_feed"]
-        if feed:
-            for e in feed:
-                st.markdown(f"- `{e['date']}` — {e['subject']}")
-        else:
-            st.caption("No changes recorded yet.")
-
-        # --- Alert log (populated once monitoring runs) ---
-        st.subheader("Alerts")
-        alerts = display.load_alerts(slug)
-        if alerts:
-            for a in alerts:
-                when = a.get("detected_at") or a.get("date", "")
-                st.markdown(f"- **{when}** — {a.get('headline', a.get('so_what', a))}")
-        else:
-            st.caption("No material changes alerted yet.")
-
-    # --- Element 4: timestamps on every claim (+ NEW flag) ---
-    # Anchor target for the top "Verified claims" stat (which links here).
-    st.markdown('<div id="verified-claims" style="scroll-margin-top:1rem"></div>',
-                unsafe_allow_html=True)
-    with st.expander(f"Claim freshness — {len(rows)} claims ({new_count} updated <24h)",
-                     expanded=True):
-        st.caption("`as_of` = the date the fact is true as-of · `verified_on` = when grounding "
-                   "last confirmed the exact wording · `is_new` = a monitor run touched it <24h ago.")
-        st.dataframe(rows, use_container_width=True, hide_index=True)
+    # The whole battlecard is rendered as the approved mockup's OWN document (scout.page),
+    # dropped in as ONE iframe so Streamlit's chrome can't bleed in — the only way to get exact
+    # mockup fidelity. The page's own script grows the iframe to its content height, so the
+    # battlecard scrolls as a single page. The initial height is just a reserve before fit runs.
+    components.html(page.render_page(slug), height=1400, scrolling=True)
 
 
 if __name__ == "__main__":
