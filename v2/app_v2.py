@@ -8,6 +8,7 @@ Run:  streamlit run app_v2.py
 """
 import base64
 import html
+import json
 import os
 import random
 import re
@@ -57,8 +58,10 @@ PROGRESS_MESSAGES = {
     ],
 }
 
-# "~6–8 minutes" — the estimate the bar fills against. Decoupled from the actual job.
-_SELFSERVE_ESTIMATE_S = 420
+# The estimate the bar fills against (decoupled from the actual job). Measured first
+# live run was ~12 min for a broad "general" card; pace to 10 min so the bar is still
+# climbing near the end rather than sitting maxed-out (which reads as "stuck").
+_SELFSERVE_ESTIMATE_S = 600
 
 _BRIEF_CSS = """<style>
 #scout-brief { line-height: 1.55; }
@@ -266,6 +269,20 @@ def _phase_message(frac: float) -> str:
     return pool[int(time.time() // 20) % len(pool)]
 
 
+def _selfserve_meta(job_id: str, res: dict) -> dict | None:
+    """competitor / my_company / focus for the brief title — from the result record if
+    it carries them, else the original request. None if neither has a competitor."""
+    meta = {k: res.get(k) for k in ("competitor", "my_company", "focus") if res.get(k)}
+    if not meta.get("competitor"):
+        try:
+            req = json.loads(selfserve._read(f"{selfserve.REQUESTS_DIR}/{job_id}.json") or "{}")
+            meta = {"competitor": req.get("competitor"), "my_company": req.get("my_company"),
+                    "focus": req.get("focus")}
+        except Exception:
+            meta = {}
+    return meta if meta.get("competitor") else None
+
+
 def _render_job_status(job_id: str) -> None:
     """Show a self-serve job: a timed-estimate progress bar while pending, the rendered card
     when done, or the gate message if it was rejected. Polls by sleeping then rerunning."""
@@ -274,11 +291,12 @@ def _render_job_status(job_id: str) -> None:
         started = st.session_state.setdefault(f"job_start_{job_id}", time.time())
         elapsed = time.time() - started
         frac = min(elapsed / _SELFSERVE_ESTIMATE_S, 0.99)
-        st.info("**This usually takes ~6–8 minutes.** Keep this tab open, or bookmark this URL "
-                "and come back — your report will be here when it's done.")
+        st.info("**This usually takes 8–10 minutes, sometimes longer — perfection takes time!** "
+                "Keep this tab open, or bookmark this URL and come back; your report will be "
+                "here when it's done.")
         st.progress(frac)
         st.markdown("*" + _phase_message(frac) + "*")
-        st.caption(f"Job `{job_id}` · elapsed {int(elapsed // 60)}m {int(elapsed % 60)}s")
+        st.caption(f"Elapsed {int(elapsed // 60)}m {int(elapsed % 60)}s")
         time.sleep(6)
         st.rerun()
         return
@@ -286,11 +304,20 @@ def _render_job_status(job_id: str) -> None:
     if status == "done":
         st.success("Your report is ready.")
         md = res.get("markdown", "")
-        st.markdown("---")
-        st.markdown(_BRIEF_CSS, unsafe_allow_html=True)
-        st.markdown(_render_brief_html(md), unsafe_allow_html=True)
+        claims = res.get("claims") or []
+        if claims:
+            # Render through the SAME engine as the living-battlecard viewer (rich CSS
+            # already injected in main()), minus the monitoring furniture — so a
+            # self-serve card and a roster card share one consistent UI.
+            st.markdown(page.static_brief_html(claims, md, meta=_selfserve_meta(job_id, res)),
+                        unsafe_allow_html=True)
+        else:  # older job with no stored claims — fall back to the flat markdown render
+            st.markdown("---")
+            st.markdown(_BRIEF_CSS, unsafe_allow_html=True)
+            st.markdown(_render_brief_html(md), unsafe_allow_html=True)
         st.download_button("Download report (.md)", data=md,
-                           file_name=f"{job_id}.md", mime="text/markdown")
+                           file_name=f"{res.get('slug') or 'competitive-brief'}.md",
+                           mime="text/markdown")
     elif status == "rejected":
         st.warning(res.get("message", "The free window is closed."))
         st.markdown(f"**For access, {_contact_md()}.**")

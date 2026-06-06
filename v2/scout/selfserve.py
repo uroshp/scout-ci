@@ -270,6 +270,12 @@ def get_result(job_id: str) -> dict | None:
         return None
     if res.get("status") == "done" and "markdown" not in res:
         res["markdown"] = _read(f"{RESULTS_DIR}/{job_id}/card.md") or ""
+        # Claims back the rich (claim-object) render; absent on very old jobs.
+        raw_claims = _read(f"{RESULTS_DIR}/{job_id}/claims.json")
+        try:
+            res["claims"] = json.loads(raw_claims) if raw_claims else []
+        except json.JSONDecodeError:
+            res["claims"] = []
     return res
 
 

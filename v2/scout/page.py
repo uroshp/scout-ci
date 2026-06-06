@@ -428,15 +428,10 @@ def title_html(slug: str) -> str:
     return '<div id="scout-page"><div class="wrap">' + _title_block(meta) + "</div></div>"
 
 
-def content_html(slug: str) -> str:
-    """The card body below the title: rule → metric strip + 5-min briefing → full brief →
-    freshness, plus the left rail. CSS + masthead + title are injected separately."""
-    status = display.card_status(slug)
-    cp = status["checkpoints"]
-    claims = store.load_claims(slug)
-    meta = store.load_meta(slug)
-    md = _read_current(slug)
-    rows = status["claim_timestamps"]
+def _brief_sections(claims: list, md: str):
+    """The full-brief body rendered from claim objects (+ Cut Log parsed from md) — the
+    part SHARED by the live viewer and the static self-serve render. Returns
+    (sections_html, cut_html, present) where `present` is the section-nav list."""
     by_sec = {}
     for c in claims:
         by_sec.setdefault(c.get("section"), []).append(c)
@@ -468,6 +463,38 @@ def content_html(slug: str) -> str:
     cut_html, cut_n = _cut_log(md)
     if cut_html:
         present.append(("cut", "Cut Log", str(cut_n)))
+    return "".join(secs), cut_html, present
+
+
+def static_brief_html(claims: list, md: str, meta: dict | None = None,
+                      briefing: bool = False) -> str:
+    """Render a one-off brief (e.g. a self-serve card) with the SAME look as the live
+    viewer's full brief, MINUS the monitoring furniture — no left rail, metric strip,
+    countdown, or freshness table, since those need monitoring state a fresh card has
+    no. Title renders when `meta` (competitor/my_company/focus) is supplied. Lets the
+    self-serve result share the viewer's exact styling instead of a separate UI."""
+    secs, cut_html, _present = _brief_sections(claims, md)
+    title = _title_block(meta) if meta else ""
+    brief = _briefing(claims) if briefing else ""
+    inner = (title
+             + '<hr class="rule"><div class="maincol">'
+             + brief
+             + '<div class="divider"><span class="t">The full brief</span>'
+               '<span class="ln"></span></div>'
+             + secs + cut_html
+             + '</div>')
+    return '<div id="scout-page"><div class="wrap">' + inner + '</div></div>'
+
+
+def content_html(slug: str) -> str:
+    """The card body below the title: rule → metric strip + 5-min briefing → full brief →
+    freshness, plus the left rail. CSS + masthead + title are injected separately."""
+    status = display.card_status(slug)
+    cp = status["checkpoints"]
+    claims = store.load_claims(slug)
+    md = _read_current(slug)
+    rows = status["claim_timestamps"]
+    secs, cut_html, present = _brief_sections(claims, md)
 
     try:
         remaining = int((datetime.fromisoformat(cp["next_check"]) - datetime.now()).total_seconds())
@@ -482,7 +509,7 @@ def content_html(slug: str) -> str:
                    sum(1 for r in rows if r.get("is_new")))
         + _briefing(claims)
         + '<div class="divider"><span class="t">The full brief</span><span class="ln"></span></div>'
-        + "".join(secs) + cut_html + _freshness(rows)
+        + secs + cut_html + _freshness(rows)
         + '</div></div>')
     return '<div id="scout-page"><div class="wrap">' + inner + '</div></div>'
 
