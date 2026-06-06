@@ -228,12 +228,10 @@ def _rail(status: dict, present: list) -> str:
     name = _html.escape(config.AUTHOR_NAME or "Urosh P")
     credit = (f'Built by <a href="{_html.escape(config.AUTHOR_LINKEDIN)}" target="_blank" '
               f'rel="noopener">{name}</a>') if config.AUTHOR_LINKEDIN else f"Built by {name}"
-    tip = ('<div class="rail-tip">Tip: print this page (⌘P / Ctrl+P) for a '
-           'one-page call sheet.</div>')
     return ('<div class="rail">' + nav
             + panel("Just updated", ju, f'<span class="ph-n">{new_count}</span>')
             + panel("Change feed", cf) + panel("Alerts", al)
-            + f'<div class="rail-credit">{credit}</div>' + tip + "</div>")
+            + f'<div class="rail-credit">{credit}</div>' + "</div>")
 
 
 def _freshness(rows: list) -> str:
@@ -361,8 +359,6 @@ _OVERRIDES = """
 #scout-page .rail-credit{font-family:var(--mono);font-size:10px;color:var(--faint);
   padding:12px 2px 0;line-height:1.4;}
 #scout-page .rail-credit a{color:var(--muted);}
-#scout-page .rail-tip{font-family:var(--mono);font-size:9.5px;color:var(--faint);
-  padding:9px 2px 0;line-height:1.45;}
 @media(min-width:861px){#scout-page .cols{grid-template-columns:218px 1fr!important;}}
 @media(max-width:860px){#scout-page .cols{grid-template-columns:1fr!important;}}
 """
@@ -475,6 +471,94 @@ def content_html(slug: str) -> str:
         + "".join(secs) + cut_html + _freshness(rows)
         + '</div></div>')
     return '<div id="scout-page"><div class="wrap">' + inner + '</div></div>'
+
+
+_CALL_SHEET_CSS = """
+@page{margin:1.3cm;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;color:#1c1d16;
+  line-height:1.45;font-size:12.5px;background:#fff;}
+.cs{max-width:780px;margin:0 auto;padding:20px;}
+.cs h1{font-family:'Fraunces',Georgia,serif;font-size:21px;font-weight:600;letter-spacing:-.01em;}
+.cs .sub{color:#5f5e54;font-size:12.5px;margin:3px 0 2px;}.cs .sub b{color:#1c1d16;}
+.cs .focus{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;color:#2a4658;margin-bottom:6px;}
+.cs .lbl{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9px;letter-spacing:.13em;
+  text-transform:uppercase;color:#8a6322;font-weight:600;margin:16px 0 7px;
+  border-bottom:1px solid #e6e2d6;padding-bottom:3px;}
+.cs .angle{border-left:3px solid #2a4658;padding-left:11px;margin-bottom:10px;}
+.cs .angle p{margin-bottom:4px;}
+.cs .play{margin-bottom:11px;break-inside:avoid;}
+.cs .play .num{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9px;font-weight:600;
+  color:#34566b;letter-spacing:.05em;}
+.cs .play .h{font-family:'Fraunces',Georgia,serif;font-size:14px;font-weight:600;line-height:1.25;}
+.cs .play .why{margin:3px 0;}
+.cs .sb{font-family:'Fraunces',Georgia,serif;font-style:italic;color:#33312a;
+  border-left:2px solid #8a6322;padding-left:9px;margin-top:4px;}
+.cs .obj{margin-bottom:9px;break-inside:avoid;}
+.cs .obj .q{font-weight:600;}
+.cs .obj .a{color:#2a4658;margin-top:2px;}
+.cs .obj .a .k,.cs .angle .k{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9px;
+  text-transform:uppercase;letter-spacing:.08em;color:#34566b;font-weight:600;}
+.cs a{color:inherit;text-decoration:none;}
+.cs .ft{margin-top:18px;border-top:1px solid #e6e2d6;padding-top:6px;
+  font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9px;color:#908e82;}
+"""
+
+
+def call_sheet_html(slug: str) -> str:
+    """A self-contained, print-optimized one-pager (the pitch + the rebuttals). The print button
+    opens this in a fresh window and prints it — so it never touches Streamlit's layout and can't
+    be clipped by the scroll container."""
+    claims = store.load_claims(slug)
+    meta = store.load_meta(slug)
+    comp = _html.escape((meta.get("competitor") or "").strip())
+    mine = _html.escape((meta.get("my_company") or "").strip())
+    focus = _html.escape((meta.get("focus") or "").strip())
+
+    moves = [c for c in claims if c.get("section") == "recent_moves"]
+    pri = [c for c in moves if re.search(r"billing|pricing|price|metered",
+                                         (c.get("subject_key", "") + c.get("claim", "")), re.I)]
+    pool = pri or moves
+    angle_html = ""
+    if pool:
+        a = max(pool, key=lambda c: (c.get("as_of") or "", -c.get("order", 0)))
+        p = _parse_claim(a)
+        text = " ".join(([p["title"]] if p["title"] else []) + p["body"])
+        sw = (f'<p><span class="k">So what:</span> {_inline(p["so_what"])}</p>'
+              if p["so_what"] else "")
+        angle_html = (f'<div class="lbl">Today\'s angle</div>'
+                      f'<div class="angle"><p>{_inline(text)}</p>{sw}</div>')
+
+    wins = sorted([c for c in claims if c.get("section") == "battlecard"
+                   and c.get("zone") == "where_we_win"], key=lambda c: c.get("order", 0))[:3]
+    plays = []
+    for i, c in enumerate(wins, 1):
+        p = _parse_claim(c)
+        why = f'<div class="why">{_inline(" ".join(p["body"]))}</div>' if p["body"] else ""
+        sb = f'<div class="sb">{_inline(p["soundbite"])}</div>' if p["soundbite"] else ""
+        plays.append(f'<div class="play"><div class="num">PLAY {i:02d}</div>'
+                     f'<div class="h">{_inline(p["title"])}</div>{why}{sb}</div>')
+    plays_html = ('<div class="lbl">Top 3 plays</div>' + "".join(plays)) if plays else ""
+
+    objs = sorted([c for c in claims if c.get("section") == "objection_handling"],
+                  key=lambda c: c.get("order", 0))
+    obj_items = []
+    for c in objs:
+        p = _parse_claim(c)
+        ans = (f'<div class="a"><span class="k">Counter:</span> {_inline(p["so_what"])}</div>'
+               if p["so_what"] else "")
+        obj_items.append(f'<div class="obj"><div class="q">{_inline(p["title"])}</div>{ans}</div>')
+    obj_html = ('<div class="lbl">Objection handling</div>' + "".join(obj_items)) if obj_items else ""
+
+    sub = f"Researched: <b>{comp}</b>" + (f" · for <b>{mine}</b> reps" if mine else "")
+    focus_html = f'<div class="focus">Focus: {focus}</div>' if focus else ""
+    body = (f'<div class="cs"><h1>Competitive Brief — Call Sheet</h1>'
+            f'<div class="sub">{sub}</div>{focus_html}{angle_html}{plays_html}{obj_html}'
+            f'<div class="ft">Agent Scout · every claim verified against its source · '
+            f'{len(claims)} claims tracked</div></div>')
+    return (f'<!doctype html><html lang="en"><head><meta charset="utf-8">'
+            f'<title>Call sheet — {comp}</title>{FONT_HEAD}'
+            f'<style>{_CALL_SHEET_CSS}</style></head><body>{body}</body></html>')
 
 
 def render_page(slug: str) -> str:

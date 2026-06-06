@@ -412,6 +412,26 @@ def _card_label(slug: str) -> str:
     return f"{comp} vs {mine}" if mine else comp
 
 
+def _print_button(sheet_html: str) -> str:
+    """A real, reliable print button: opens the call sheet in a FRESH window and prints that
+    (no dependency on the cross-origin parent, and immune to the page's scroll-container clip).
+    Rendered via components.html so its inline <script> actually runs."""
+    tmpl = sheet_html.replace("</script>", "<\\/script>")   # don't break the template script
+    return (
+        '<div style="display:flex;justify-content:flex-end;align-items:center;height:100%;">'
+        '<style>html,body{margin:0;background:transparent;overflow:hidden;}</style>'
+        '<button id="psb" style="font:600 12px/1 ui-monospace,\'IBM Plex Mono\',monospace;'
+        'color:#34566b;background:#fbfaf6;border:1px solid #dfdbcf;border-radius:7px;'
+        'padding:10px 15px;cursor:pointer;white-space:nowrap;">🖨  Print call sheet</button>'
+        '<script type="text/html" id="cs">' + tmpl + '</script>'
+        '<script>document.getElementById("psb").addEventListener("click",function(){'
+        'var h=document.getElementById("cs").textContent;var w=window.open("","_blank");'
+        'if(!w){alert("Please allow pop-ups to open the printable call sheet.");return;}'
+        'w.document.open();w.document.write(h);w.document.close();'
+        'setTimeout(function(){try{w.focus();w.print();}catch(e){}},450);});</script>'
+        '</div>')
+
+
 def _footer():
     credit = (f"[{config.AUTHOR_NAME}]({config.AUTHOR_LINKEDIN})"
               if config.AUTHOR_LINKEDIN else config.AUTHOR_NAME)
@@ -443,6 +463,13 @@ def main():
         'header,[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stSidebar"],'
         '[data-testid="stHorizontalBlock"],[data-testid="stStatusWidget"],footer{display:none!important;}'
         '[data-testid="stMainBlockContainer"],.block-container{max-width:none!important;padding:0!important;}'
+        # Streamlit's main view is a FIXED-HEIGHT scroll container, so print clips to one
+        # screenful. Force the chain to flow so the whole sheet paginates instead of cutting off.
+        'html,body,[data-testid="stApp"],[data-testid="stAppViewContainer"],[data-testid="stMain"],'
+        'section[data-testid="stMain"],[data-testid="stMainBlockContainer"],.block-container,'
+        '[data-testid="stVerticalBlock"],#scout-page,#scout-page .cols,#scout-page .maincol'
+        '{height:auto!important;min-height:0!important;max-height:none!important;'
+        'overflow:visible!important;position:static!important;}'
         '#scout-page .rail,#scout-page .metrics,#scout-page .livebox,#scout-page .divider,'
         '#scout-page #executive_summary,#scout-page #snapshot,#scout-page #recent_moves,'
         '#scout-page #positioning,#scout-page #pricing,#scout-page #bc,#scout-page #sentiment,'
@@ -478,6 +505,9 @@ def main():
                 st.session_state["card_select"] = card_param        # honor the ?card= permalink
             slug = st.selectbox("Battlecard", cards, format_func=_card_label,
                                 label_visibility="collapsed", key="card_select")
+    with _sp:
+        if not is_create and cards and slug:
+            components.html(_print_button(page.call_sheet_html(slug)), height=46)
 
     if is_create:
         _render_selfserve(job_param)
