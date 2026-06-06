@@ -550,8 +550,13 @@ def call_sheet_html(slug: str) -> str:
     """A self-contained, print-optimized one-pager (the pitch + the rebuttals). The print button
     opens this in a fresh window and prints it — so it never touches Streamlit's layout and can't
     be clipped by the scroll container."""
-    claims = store.load_claims(slug)
-    meta = store.load_meta(slug)
+    return call_sheet_from_claims(store.load_claims(slug), store.load_meta(slug))
+
+
+def call_sheet_from_claims(claims: list, meta: dict | None) -> str:
+    """The call sheet built directly from claim objects + meta — so the self-serve result can
+    print the same one-pager as a roster card without the card being in the store."""
+    meta = meta or {}
     comp = _html.escape((meta.get("competitor") or "").strip())
     mine = _html.escape((meta.get("my_company") or "").strip())
     focus = _html.escape((meta.get("focus") or "").strip())

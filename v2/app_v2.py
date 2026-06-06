@@ -283,9 +283,18 @@ def _selfserve_meta(job_id: str, res: dict) -> dict | None:
     return meta if meta.get("competitor") else None
 
 
-def _render_job_status(job_id: str) -> None:
+def _reset_selfserve() -> None:
+    """Clear the per-session job state + URL so 'Create another' returns to a fresh form."""
+    for k in [k for k in st.session_state if k.startswith("job_start_")]:
+        st.session_state.pop(k, None)
+    st.session_state.pop("selfserve_job", None)
+    st.query_params.clear()
+
+
+def _render_job_status(job_id: str) -> str | None:
     """Show a self-serve job: a timed-estimate progress bar while pending, the rendered card
-    when done, or the gate message if it was rejected. Polls by sleeping then rerunning."""
+    when done, or the gate message if it was rejected. Polls by sleeping then rerunning.
+    Returns the job status ('done'/'rejected'/'error') or None while still pending."""
     res = selfserve.get_result(job_id)
     if res is None:
         started = st.session_state.setdefault(f"job_start_{job_id}", time.time())
@@ -299,30 +308,41 @@ def _render_job_status(job_id: str) -> None:
         st.caption(f"Elapsed {int(elapsed // 60)}m {int(elapsed % 60)}s")
         time.sleep(6)
         st.rerun()
-        return
+        return None
     status = res.get("status")
     if status == "done":
         st.success("Your report is ready.")
         md = res.get("markdown", "")
         claims = res.get("claims") or []
+        meta = _selfserve_meta(job_id, res)
+        # Actions at the TOP — these reports are long, so don't bury them at the bottom.
+        a1, a2, a3 = st.columns(3, gap="small", vertical_alignment="center")
+        with a1:
+            st.download_button("⬇ Download (.md)", data=md, use_container_width=True,
+                               file_name=f"{res.get('slug') or 'competitive-brief'}.md",
+                               mime="text/markdown")
+        with a2:
+            if claims:
+                components.html(_print_button(page.call_sheet_from_claims(claims, meta)), height=46)
+        with a3:
+            if st.button("✚ Create another", use_container_width=True):
+                _reset_selfserve()
+                st.rerun()
         if claims:
-            # Render through the SAME engine as the living-battlecard viewer (rich CSS
-            # already injected in main()), minus the monitoring furniture — so a
-            # self-serve card and a roster card share one consistent UI.
-            st.markdown(page.static_brief_html(claims, md, meta=_selfserve_meta(job_id, res)),
-                        unsafe_allow_html=True)
+            # Render through the SAME engine as the living-battlecard viewer (rich CSS already
+            # injected in main()), minus the monitoring furniture — so a self-serve card and a
+            # roster card share one consistent UI.
+            st.markdown(page.static_brief_html(claims, md, meta=meta), unsafe_allow_html=True)
         else:  # older job with no stored claims — fall back to the flat markdown render
             st.markdown("---")
             st.markdown(_BRIEF_CSS, unsafe_allow_html=True)
             st.markdown(_render_brief_html(md), unsafe_allow_html=True)
-        st.download_button("Download report (.md)", data=md,
-                           file_name=f"{res.get('slug') or 'competitive-brief'}.md",
-                           mime="text/markdown")
     elif status == "rejected":
         st.warning(res.get("message", "The free window is closed."))
         st.markdown(f"**For access, {_contact_md()}.**")
     else:
         st.error(res.get("message", "Something went wrong generating this report."))
+    return status
 
 
 def _contact_md() -> str:
@@ -345,12 +365,11 @@ def _render_selfserve(job_param: str | None) -> None:
             st.error("That job link looks malformed.")
             return
         st.session_state["selfserve_job"] = job_id
-        _render_job_status(job_id)
-        if st.button("← Start another report"):
-            for k in [k for k in st.session_state if k.startswith("job_start_")]:
-                st.session_state.pop(k, None)
-            st.session_state.pop("selfserve_job", None)
-            st.query_params.clear()
+        status = _render_job_status(job_id)
+        # The done view has its own top action bar (incl. Create another); only the
+        # pending/rejected/error views (which are short) need a bottom restart button.
+        if status != "done" and st.button("← Start another report"):
+            _reset_selfserve()
             st.rerun()
         return
 
@@ -563,6 +582,8 @@ def main():
             components.html(_print_button(page.call_sheet_html(slug)), height=46)
 
     if is_create:
+        if "card" in st.query_params:   # don't leave a stale ?card= alongside ?job=
+            del st.query_params["card"]
         _render_selfserve(job_param)
         _footer()
         return
@@ -572,6 +593,8 @@ def main():
     # Reflect the selection in the URL so each card has a shareable permalink (?card=<slug>).
     if st.query_params.get("card") != slug:
         st.query_params["card"] = slug
+    if "job" in st.query_params:        # a roster card never carries a ?job= (no Frankenlinks)
+        del st.query_params["job"]
     # Land at the top of a newly selected card (Streamlit preserves scroll across reruns).
     if st.session_state.get("_last_slug") != slug:
         st.session_state["_last_slug"] = slug
