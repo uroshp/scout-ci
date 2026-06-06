@@ -781,6 +781,20 @@ _MODE_CSS = (
 )
 
 
+def _card_label(slug: str) -> str:
+    """Proper-cased dropdown label from meta, e.g. 'OpenAI vs Anthropic · Enterprise coding'."""
+    m = store.load_meta(slug) or {}
+    comp = (m.get("competitor") or "").strip()
+    mine = (m.get("my_company") or "").strip()
+    focus = (m.get("focus") or "").strip()
+    if not comp:
+        return _pretty(slug)
+    label = f"{comp} vs {mine}" if mine else comp
+    if focus:
+        label += " · " + focus[:1].upper() + focus[1:]
+    return label
+
+
 def _footer():
     credit = (f"[{config.AUTHOR_NAME}]({config.AUTHOR_LINKEDIN})"
               if config.AUTHOR_LINKEDIN else config.AUTHOR_NAME)
@@ -801,8 +815,10 @@ def main():
         '[data-testid="stMainBlockContainer"],'
         'section[data-testid="stMain"] .block-container,.stMainBlockContainer,.block-container'
         '{max-width:1240px!important;margin-left:auto!important;margin-right:auto!important;'
-        'padding:2.2rem 2rem 3rem!important;}'
+        'padding:1.2rem 2rem 2.5rem!important;}'
         '[data-testid="stSidebar"],[data-testid="collapsedControl"]{display:none!important;}'
+        # Tighten the vertical rhythm between masthead, the control row, and the brief.
+        '[data-testid="stVerticalBlock"]{gap:.55rem!important;}'
         + _MODE_CSS + '</style>', unsafe_allow_html=True)
 
     job_param = st.query_params.get("job")
@@ -813,22 +829,28 @@ def main():
     st.markdown(page.style_block(), unsafe_allow_html=True)
     st.markdown(page.masthead_html(), unsafe_allow_html=True)
 
-    # Mode switch — in the page, right below the masthead (no sidebar). A ?job= deep link
-    # (returning self-serve visitor) opens the create surface.
-    mode = st.radio("Mode", ["📋 Living battlecards", "✨ Create your own"],
-                    index=1 if job_param else 0, horizontal=True, label_visibility="collapsed")
+    # Mode switch + card picker on ONE tight row (no sidebar). A ?job= deep link (returning
+    # self-serve visitor) opens the create surface. The trailing spacer column keeps the
+    # dropdown from stretching the full width.
+    cards = display.list_battlecards()
+    mc1, mc2, _sp = st.columns([1.3, 1.7, 1], gap="small")
+    with mc1:
+        mode = st.radio("Mode", ["Living battlecards", "Create your own"],
+                        index=1 if job_param else 0, horizontal=True, label_visibility="collapsed")
+    is_create = bool(job_param) or mode == "Create your own"
+    slug = None
+    with mc2:
+        if not is_create and cards:
+            slug = st.selectbox("Battlecard", cards, format_func=_card_label,
+                                label_visibility="collapsed")
 
-    if job_param or mode == "✨ Create your own":
+    if is_create:
         _render_selfserve(job_param)
         _footer()
         return
-
-    cards = display.list_battlecards()
     if not cards:
         st.info("No battlecards have been generated yet.")
         return
-    slug = st.selectbox("Choose a battlecard", cards, format_func=_pretty,
-                        label_visibility="collapsed")
     # Land at the top of a newly selected card (Streamlit preserves scroll across reruns).
     if st.session_state.get("_last_slug") != slug:
         st.session_state["_last_slug"] = slug
