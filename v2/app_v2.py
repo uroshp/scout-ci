@@ -758,63 +758,67 @@ def _st_masthead(head_logo):
         unsafe_allow_html=True)
 
 
+# In-page mode switch styled as a sober segmented control (replaces the sidebar radio).
+_MODE_CSS = (
+    'div[role="radiogroup"]{gap:.5rem;margin:.1rem 0 .9rem;}'
+    'div[role="radiogroup"]>label{border:1px solid #dfdbcf;background:#fbfaf6;border-radius:7px;'
+    'padding:.4rem .95rem;font-weight:600;color:#5f5e54;cursor:pointer;'
+    'transition:border-color .15s,color .15s;}'
+    'div[role="radiogroup"]>label:hover{border-color:#34566b;color:#34566b;}'
+    'div[role="radiogroup"]>label:has(input:checked){border-color:#34566b;color:#2a4658;'
+    'background:rgba(52,86,107,.08);box-shadow:inset 0 0 0 1px #34566b;}'
+    'div[role="radiogroup"]>label>div:first-child{display:none;}'
+)
+
+
+def _footer():
+    credit = (f"[{config.AUTHOR_NAME}]({config.AUTHOR_LINKEDIN})"
+              if config.AUTHOR_LINKEDIN else config.AUTHOR_NAME)
+    st.caption(f"Built by {credit}")
+
+
 def main():
     icon = _asset("scout_icon_t.png", "scout_icon.png")
-    logo = _asset("scout_logo_t.png", "scout_logo.png")
-    # Cropped, margin-free version for the header so the dog sits tight against the name.
-    head_logo = _asset("scout_logo_crop_t.png") or logo
     st.set_page_config(page_title="Agent Scout — Living Battlecards", layout="wide",
-                       page_icon=icon or "🐕", initial_sidebar_state="expanded")
-    # Lift everything up: Streamlit reserves a big top pad on the main container by default.
-    st.markdown('<style>[data-testid="stMainBlockContainer"],[data-testid="block-container"],'
-                '.block-container{padding-top:2.9rem!important;}</style>',
-                unsafe_allow_html=True)
-    if logo:
-        st.logo(logo, icon_image=icon)
-    # NOTE: the living-battlecard VIEWER renders its own masthead (brand + tagline) inside the
-    # page iframe (scout.page), so the Streamlit-level header is rendered ONLY on the self-serve
-    # surface below — otherwise it would duplicate the iframe's header and re-create a hybrid look.
+                       page_icon=icon or "🐕", initial_sidebar_state="collapsed")
+    # Center the content to the same 1240px as the page's own .wrap (so masthead, the mode
+    # switch, the card picker and the brief all line up), pull it up, and remove the sidebar
+    # entirely — navigation lives IN the page now.
+    st.markdown(
+        '<style>.block-container{max-width:1240px;margin:0 auto;padding:2.2rem 1.5rem 3rem!important;}'
+        '[data-testid="stSidebar"],[data-testid="collapsedControl"]{display:none!important;}'
+        + _MODE_CSS + '</style>', unsafe_allow_html=True)
 
-    # Mode: the public living-battlecard viewer, or the gated 'create your own' entry point.
-    # A ?job= URL (a returning self-serve visitor) forces the create view.
     job_param = st.query_params.get("job")
-    st.sidebar.markdown(_NAV_CSS, unsafe_allow_html=True)
-    st.sidebar.markdown("###### Navigate")
-    mode = st.sidebar.radio(
-        "Mode", ["📋 Living battlecards", "✨ Create your own"],
-        index=1 if job_param else 0, label_visibility="collapsed")
-    _credit = (f"[{config.AUTHOR_NAME}]({config.AUTHOR_LINKEDIN})"
-               if config.AUTHOR_LINKEDIN else config.AUTHOR_NAME)
-    st.sidebar.markdown("---")
-    st.sidebar.caption(f"Built by {_credit}")
+    # CSS and masthead each go in their OWN st.markdown call — Streamlit's sanitizer strips a
+    # <style> block if it's bundled with body HTML, which is what garbled the first inline cut.
+    st.markdown(page.style_block(), unsafe_allow_html=True)
+    st.markdown(page.masthead_html(), unsafe_allow_html=True)
+
+    # Mode switch — in the page, right below the masthead (no sidebar). A ?job= deep link
+    # (returning self-serve visitor) opens the create surface.
+    mode = st.radio("Mode", ["📋 Living battlecards", "✨ Create your own"],
+                    index=1 if job_param else 0, horizontal=True, label_visibility="collapsed")
+
     if job_param or mode == "✨ Create your own":
-        _st_masthead(head_logo)      # branded header for the self-serve surface
         _render_selfserve(job_param)
+        _footer()
         return
 
     cards = display.list_battlecards()
     if not cards:
         st.info("No battlecards have been generated yet.")
         return
-
-    slug = st.sidebar.selectbox("Choose a battlecard", cards, format_func=_pretty)
-    # Switching battlecards should land you at the TOP of the new card, not at whatever
-    # scroll depth you'd reached in the previous one. Streamlit preserves scroll across
-    # reruns, so we reset it ourselves the first render after the selection changes.
+    slug = st.selectbox("Choose a battlecard", cards, format_func=_pretty,
+                        label_visibility="collapsed")
+    # Land at the top of a newly selected card (Streamlit preserves scroll across reruns).
     if st.session_state.get("_last_slug") != slug:
         st.session_state["_last_slug"] = slug
-        components.html(
-            "<script>var d=window.parent.document;"
-            "['section.main','.stMain','[data-testid=\"stMain\"]',"
-            "'[data-testid=\"stAppViewContainer\"]'].forEach(function(s){"
-            "var e=d.querySelector(s);if(e)e.scrollTo({top:0});});"
-            "window.parent.scrollTo({top:0});</script>",
-            height=0)
-    # The whole battlecard is rendered INLINE as the approved mockup's HTML (scout.page) — in
-    # Streamlit's OWN document, so scrolling and #anchor (TOC) jumps work natively. (An iframe
-    # looked right but broke both on Streamlit Cloud, where it's cross-origin.) The page's CSS is
-    # scoped to #scout-page so it can't bleed into Streamlit's chrome.
-    st.markdown(page.render_page(slug), unsafe_allow_html=True)
+        components.html("<script>window.parent.scrollTo({top:0});</script>", height=0)
+    # The battlecard body, rendered INLINE in Streamlit's own document (scroll + #anchor jumps
+    # work natively; an iframe broke both on Streamlit Cloud). CSS scoped to #scout-page.
+    st.markdown(page.content_html(slug), unsafe_allow_html=True)
+    _footer()
 
 
 if __name__ == "__main__":

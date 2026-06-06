@@ -341,7 +341,7 @@ _FONT_IMPORT = ("@import url('https://fonts.googleapis.com/css2?family=Fraunces:
 # <details> so Streamlit's sanitizer can't strip the wrapper), and a wider 2-col breakpoint so
 # opening the Streamlit sidebar doesn't collapse the rail on top of the brief.
 _OVERRIDES = """
-#scout-page .wrap{padding-bottom:32px;}
+#scout-page .wrap{padding-left:0;padding-right:0;padding-bottom:32px;}
 #scout-page .sec{background:var(--paper);border:1px solid var(--line);border-radius:7px;
   margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden;scroll-margin-top:16px;}
 #scout-page .sec>.summary{padding:11px 18px;display:flex;align-items:center;gap:11px;
@@ -389,10 +389,23 @@ def _read_current(slug: str) -> str:
     return ""
 
 
-def render_page(slug: str) -> str:
-    """Inline HTML for one battlecard, in the approved mockup's look. Inject with
-    st.markdown(..., unsafe_allow_html=True) — it renders in Streamlit's own document, so
-    scrolling and #anchor jumps work natively."""
+def style_block() -> str:
+    """The scoped CSS. MUST be injected in its OWN st.markdown call — Streamlit's sanitizer
+    drops a <style> block when it's bundled in the same call as body HTML."""
+    return _style()
+
+
+def masthead_html() -> str:
+    """Brand + tagline + right-hand LIVE box. Card-independent; rendered once, above the
+    in-page mode switch."""
+    top = ('<div class="top"><div class="brand"><span class="d"></span>'
+           '<span class="nm">Agent Scout</span></div>' + _LIVE_BOX + '</div>')
+    return '<div id="scout-page"><div class="wrap mast">' + top + _TAGLINE + '</div></div>'
+
+
+def content_html(slug: str) -> str:
+    """The card body: title → 5-min briefing → full brief → freshness. CSS + masthead are
+    injected separately (see style_block / masthead_html)."""
     status = display.card_status(slug)
     cp = status["checkpoints"]
     claims = store.load_claims(slug)
@@ -436,16 +449,18 @@ def render_page(slug: str) -> str:
     except (ValueError, TypeError):
         remaining = 0
 
-    body = (
-        '<div class="wrap">'
-        '<div class="top"><div class="brand"><span class="d"></span>'
-        '<span class="nm">Agent Scout</span></div>' + _LIVE_BOX + '</div>'
-        + _TAGLINE + _title_block(meta)
-        + '<hr class="rule">'
+    inner = (
+        _title_block(meta) + '<hr class="rule">'
         '<div class="cols">' + _rail(status, present)
-        + '<div class="maincol">' + _metrics(cp, status["agent_activity"]["claims_tracked"], max(remaining, 0))
+        + '<div class="maincol">'
+        + _metrics(cp, status["agent_activity"]["claims_tracked"], max(remaining, 0))
         + _briefing(claims)
         + '<div class="divider"><span class="t">The full brief</span><span class="ln"></span></div>'
         + "".join(secs) + cut_html + _freshness(rows)
-        + '</div></div></div>')
-    return _style() + '<div id="scout-page">' + body + "</div>"
+        + '</div></div>')
+    return '<div id="scout-page"><div class="wrap">' + inner + '</div></div>'
+
+
+def render_page(slug: str) -> str:
+    """Full standalone page (CSS + masthead + content) — used for the static preview file."""
+    return style_block() + masthead_html() + content_html(slug)
