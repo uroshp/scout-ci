@@ -27,6 +27,11 @@ SUBAGENT_MODEL = os.environ.get("SUBAGENT_MODEL", "claude-sonnet-4-6")
 # it uses Haiku — the cheapest model — to keep the no-news floor low (lever A).
 FAST_MODEL = os.environ.get("FAST_MODEL", "claude-haiku-4-5-20251001")
 
+# --- Analytics ----------------------------------------------------------------
+# GA4 Measurement ID for the viewer. This is a CLIENT-side id (it ships in every
+# visitor's page source), so it is not a secret. Empty string disables tracking.
+GA_MEASUREMENT_ID = os.environ.get("GA_MEASUREMENT_ID", "G-MR1Z8NB7BP")
+
 # --- Guards (§10) -------------------------------------------------------------
 # Hard caps so an agent that can loop can't burn money. The SDK enforces both
 # natively (ClaudeAgentOptions.max_turns / max_budget_usd).

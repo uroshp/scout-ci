@@ -28,7 +28,7 @@ try:
 except Exception:
     pass
 
-from scout import config, display, page, selfserve, store
+from scout import analytics, config, display, page, selfserve, store
 
 # Rotating status copy — ported verbatim from v1 app.py (the "v1 progress messages") so the
 # self-serve wait feels like the rest of Scout. The bar is a timed estimate (the real job runs
@@ -454,6 +454,9 @@ def _footer():
 
 
 def main():
+    # Patch the GA4 tag into Streamlit's static index.html so it loads top-level
+    # (correct URL + referrer + geo). No-op if already patched or disabled.
+    analytics.inject_ga()
     icon = _asset("scout_icon_t.png", "scout_icon.png")
     st.set_page_config(page_title="Agent Scout — Living Battlecards", layout="wide",
                        page_icon=icon or "🐕", initial_sidebar_state="collapsed")
