@@ -1,16 +1,20 @@
 """Data-driven renderer for the living-battlecard page.
 
-The viewer must look EXACTLY like the approved mockup (docs/mockups/command-center.html),
-which Streamlit's own page chrome can't deliver when you merely inject CSS over its widgets.
-So we render the whole battlecard as that mockup's OWN self-contained HTML document, filled
-from the claim/meta/status data, and (in app_v2) drop it into the page as one components.html
-iframe — Streamlit styling can't bleed in.
+The viewer must look EXACTLY like the approved mockup (docs/mockups/command-center.html).
+Styling Streamlit's own widgets produced a hybrid (its fonts/spacing/sidebar bled through);
+rendering inside a components.html IFRAME looked right but broke on Streamlit Cloud, where the
+iframe is cross-origin — height auto-fit and anchor-scroll can't reach the parent, so the page
+wouldn't scroll and TOC links went blank.
 
-Single source of truth for styling: the <head> (fonts + <style>) is read verbatim from the
-mockup file, so the look can't drift from what was approved. Only the <body> is generated here.
+So we render the whole battlecard INLINE, as one big HTML string injected with
+st.markdown(unsafe_allow_html=True): same document as the page, so scrolling and #anchor jumps
+work natively, no JS required. To survive that path the markup is kept to tags Streamlit's
+sanitizer passes (div/span/p/a/h1-4/ul/li/strong/em/table/style/img — no <details>/<script>),
+sections are always-open cards, and every '$' is escaped so Streamlit never reads '$…$' as LaTeX.
 
-Pure module — no Streamlit import — so the same output can be written to a static preview file
-and eyeballed without running the app.
+Styling source of truth: the <style> block is read verbatim from the mockup file, plus a small
+override block (section cards, fonts via @import, a wider 2-col breakpoint). Pure module — no
+Streamlit import — so the same output can be wrapped into a static preview file.
 """
 import html as _html
 import os
@@ -19,8 +23,6 @@ from datetime import datetime
 
 from scout import config, display, store
 
-# subject-key substring -> persona (back-fill / fallback). The authoritative source is the
-# claim's own `persona` field once cards are (re)generated; this only fills older cards.
 _PERSONA_LABELS = {
     "eng_led": "Eng-led champion",
     "technical_evaluator": "Technical evaluator",
@@ -46,13 +48,14 @@ _ZONES = [("where_we_win", "Where we win", "win"),
           ("where_they_win", "Where they win", "lose")]
 
 
-# --- inline markdown -> html -------------------------------------------------
+# --- inline markdown -> html (escapes $ so Streamlit doesn't LaTeX dollar amounts) -----------
 def _inline(text: str) -> str:
     s = _html.escape(text or "", quote=False)
     s = re.sub(r"\[([^\]]+)\]\(([^)]+)\)",
                r'<a href="\2" target="_blank" rel="noopener">\1</a>', s)
     s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
     s = re.sub(r"\*([^*]+)\*", r"<em>\1</em>", s)
+    s = s.replace("$", "&#36;")
     return s
 
 
@@ -71,7 +74,6 @@ def _fmt_asof(s: str | None) -> str:
 
 
 def _fmt_dt(s: str | None):
-    """(date, time) human strings for the metric cards, e.g. ('Jun 5, 2026','6:33 PM')."""
     if not s:
         return ("—", "")
     try:
@@ -85,7 +87,6 @@ def _fmt_dt(s: str | None):
 
 
 def _parse_claim(c: dict) -> dict:
-    """Split a claim's prose into title / body / so_what / soundbite (verbatim, no rewrite)."""
     out = {"title": "", "body": [], "so_what": "", "soundbite": ""}
     for p in (s.strip() for s in (c.get("claim", "") or "").split("\n\n")):
         if not p:
@@ -101,20 +102,15 @@ def _parse_claim(c: dict) -> dict:
     return out
 
 
-def _persona_of(c: dict) -> str | None:
-    return c.get("persona")
-
-
 def _badge(c: dict, prefix: str) -> str:
-    label = _PERSONA_LABELS.get(_persona_of(c))
+    label = _PERSONA_LABELS.get(c.get("persona"))
     if not label:
         return ""
     return (f'<span class="persona"><span class="pk">{_html.escape(prefix)}</span> '
             f'{_html.escape(label)}</span>')
 
 
-# --- shared fragments --------------------------------------------------------
-def _verified(url: str, asof: str = "", grounded: str = "") -> str:
+def _verified(url: str, asof: str = "") -> str:
     bits = ['<span class="verified"><span class="tick">✓</span>Verified</span>']
     if url:
         bits.append(f'<span class="sep">·</span><a href="{_html.escape(url)}" target="_blank" '
@@ -125,24 +121,24 @@ def _verified(url: str, asof: str = "", grounded: str = "") -> str:
 
 
 def _callout(kind: str, label: str, text: str) -> str:
-    return (f'<div class="callout {kind}"><b>{_html.escape(label)}</b>{_inline(text)}</div>')
+    return f'<div class="callout {kind}"><b>{_html.escape(label)}</b>{_inline(text)}</div>'
 
 
-# --- section renderers -------------------------------------------------------
 def _prose_item(c: dict, *, callout_label=None, callout_kind="sw", badge_prefix=None) -> str:
     p = _parse_claim(c)
-    title = _inline(p["title"])
     badge = _badge(c, badge_prefix) if badge_prefix else ""
-    head = (f'<div class="ihead"><h4>{title}</h4>{badge}</div>' if badge
-            else f"<h4>{title}</h4>") if p["title"] else ""
+    if p["title"]:
+        head = (f'<div class="ihead"><h4>{_inline(p["title"])}</h4>{badge}</div>' if badge
+                else f'<h4>{_inline(p["title"])}</h4>')
+    else:
+        head = ""
     body = "".join(f"<p>{_inline(b)}</p>" for b in p["body"])
     call = ""
     if p["soundbite"]:
         call = _callout("sb", "Soundbite", p["soundbite"])
     elif p["so_what"] and callout_label:
         call = _callout(callout_kind, callout_label, p["so_what"])
-    return (f'<div class="item">{head}{body}{call}'
-            f'{_verified(c.get("source_url",""))}</div>')
+    return f'<div class="item">{head}{body}{call}{_verified(c.get("source_url",""))}</div>'
 
 
 def _bullet_item(c: dict) -> str:
@@ -156,11 +152,10 @@ def _snapshot_box(c: dict) -> str:
 
 
 def _section(sid: str, title: str, count_label: str, inner: str) -> str:
-    return (f'<details class="sec" id="{sid}" open><summary>'
+    return (f'<div class="sec" id="{sid}"><div class="summary">'
             f'<span class="stitle">{_html.escape(title)}</span>'
-            f'<span class="scount">{_html.escape(count_label)}</span>'
-            f'<span class="chev">›</span></summary>'
-            f'<div class="sbody">{inner}</div></details>')
+            f'<span class="scount">{_html.escape(count_label)}</span></div>'
+            f'<div class="sbody">{inner}</div></div>')
 
 
 def _battlecard(claims: list) -> str:
@@ -176,10 +171,10 @@ def _battlecard(claims: list) -> str:
     return _section("bc", "Competitive Battlecard", f"{n} across 3 zones", "".join(subs))
 
 
-def _cut_log(md: str) -> str:
+def _cut_log(md: str):
     m = re.search(r"^##\s+Cut Log\s*$(.*?)(?=^##\s|\Z)", md, re.S | re.M)
     if not m:
-        return ""
+        return "", 0
     rows, n = [], 0
     for line in m.group(1).splitlines():
         mm = re.match(r"-\s+\*\*(CUT|REVISED)\s+—\s+(.*?):\*\*\s*(.*)$", line.strip())
@@ -191,32 +186,28 @@ def _cut_log(md: str) -> str:
         rows.append(f'<div class="cut"><span class="cuttag {cls}">{tag}</span>'
                     f'<div class="body"><b>{_inline(subj)}</b> — {_inline(why)}</div></div>')
     if not rows:
-        return ""
+        return "", 0
     note = ('<div class="cutnote">This is what verification removed or corrected during '
             'fact-checking, and why.</div>')
-    return _section("cut", "Cut Log", f"{n} removed / revised", note + "".join(rows))
+    return _section("cut", "Cut Log", f"{n} removed / revised", note + "".join(rows)), n
 
 
-# --- the four "show the work" rail modules + freshness table -----------------
-def _rail(status: dict, sections_present: list) -> str:
+def _rail(status: dict, present: list) -> str:
     toc = ['<div class="grp brief first">Your daily briefing</div>',
-           '<a href="#brief" class="on">Today\'s angle</a>',
+           '<a href="#brief">Today\'s angle</a>',
            '<a href="#brief2">Top 3 plays <span class="c">3</span></a>',
            '<div class="grp">The full brief</div>']
-    for sid, title, n in sections_present:
+    for sid, title, n in present:
         toc.append(f'<a href="#{sid}">{_html.escape(title)} <span class="c">{n}</span></a>')
     toc.append('<a href="#claims">Claim freshness <span class="c">'
                f'{len(status["claim_timestamps"])}</span></a>')
-    nav = '<nav class="toc" id="toc">' + "".join(toc) + "</nav>"
+    nav = '<div class="toc" id="toc">' + "".join(toc) + "</div>"
 
     recent = status["recent_updates"]
-    if recent:
-        ju = "".join(
-            f'<div class="row"><span class="new">NEW</span>'
-            f'<span>{_html.escape(str(r.get("headline", r.get("subject_key",""))))}</span></div>'
-            for r in recent)
-    else:
-        ju = '<div class="empty">Nothing updated in the last 24h.</div>'
+    ju = ("".join(f'<div class="row"><span class="new">NEW</span>'
+                  f'<span>{_html.escape(str(r.get("headline", r.get("subject_key",""))))}</span></div>'
+                  for r in recent)
+          if recent else '<div class="empty">Nothing updated in the last 24h.</div>')
     feed = status["change_feed"]
     cf = ("".join(f'<div class="row"><span class="dt">{_html.escape(e["date"])}</span>'
                   f'<span>{_html.escape(e["subject"])}</span></div>' for e in feed)
@@ -232,11 +223,9 @@ def _rail(status: dict, sections_present: list) -> str:
         return (f'<div class="panel"><div class="phead"><span class="ey">{label}</span>{extra}</div>'
                 f'<div class="feed">{body}</div></div>')
 
-    return ('<aside class="rail">' + nav
+    return ('<div class="rail">' + nav
             + panel("Just updated", ju, f'<span class="ph-n">{new_count}</span>')
-            + panel("Change feed", cf)
-            + panel("Alerts", al)
-            + "</aside>")
+            + panel("Change feed", cf) + panel("Alerts", al) + "</div>")
 
 
 def _freshness(rows: list) -> str:
@@ -246,7 +235,7 @@ def _freshness(rows: list) -> str:
         isnew = r.get("is_new")
         trs.append(
             f'<tr><td class="key">{_html.escape(str(r.get("subject_key","")))}</td>'
-            f'<td class="sec">{_html.escape(str(r.get("section","")))}</td>'
+            f'<td class="secn">{_html.escape(str(r.get("section","")))}</td>'
             f'<td>{_html.escape(str(r.get("as_of") or "—"))}</td>'
             f'<td>{_html.escape(str(r.get("verified_on") or "—"))}</td>'
             f'<td class="{"" if isnew else "no"}">{"true" if isnew else "false"}</td></tr>')
@@ -261,17 +250,12 @@ def _freshness(rows: list) -> str:
             '</tr></thead><tbody>' + "".join(trs) + "</tbody></table></div></div>")
 
 
-# --- the 5-minute briefing (Today's angle + Top 3 plays) ---------------------
 def _briefing(claims: list) -> str:
     moves = [c for c in claims if c.get("section") == "recent_moves"]
-    # Today's angle = the sharpest opener, not merely the newest: prefer a pricing/billing
-    # disruption (the strongest sales wedge) if one is live, else the freshest recent move.
-    angle = None
     pri = [c for c in moves if re.search(r"billing|pricing|price|metered",
                                          (c.get("subject_key", "") + c.get("claim", "")), re.I)]
     pool = pri or moves
-    if pool:
-        angle = max(pool, key=lambda c: (c.get("as_of") or "", -c.get("order", 0)))
+    angle = max(pool, key=lambda c: (c.get("as_of") or "", -c.get("order", 0))) if pool else None
     angle_html = ""
     if angle:
         p = _parse_claim(angle)
@@ -302,26 +286,28 @@ def _briefing(claims: list) -> str:
             f'<div class="bbody">{angle_html}{plays_html}</div></div>')
 
 
-# --- masthead ----------------------------------------------------------------
-def _metrics(cp: dict, claims_n: int) -> str:
+def _metrics(cp: dict, claims_n: int, remaining: int) -> str:
     last_d, last_t = _fmt_dt(cp.get("last_checked_ts") or cp.get("last_checked"))
     next_d, next_t = _fmt_dt(cp.get("next_check"))
     base_d, _ = _fmt_dt(cp.get("baseline_date"))
+    if remaining > 0:
+        h, m = remaining // 3600, (remaining % 3600) // 60
+        cd = f'<div class="cd">in {h}h {m:02d}m</div>'
+    else:
+        cd = '<div class="cd">update due now</div>'
 
-    def card(label, val, sub_t="", cd=False, claims=False):
+    def card(label, val, sub_t=""):
         t = f'<span class="t">{_html.escape(sub_t)}</span>' if sub_t else ""
-        cls = "metric claims" if claims else "metric"
-        cdiv = '<div class="cd" id="cd"></div>' if cd else ""
-        return f'<div class="{cls}"><div class="ml">{label}</div><div class="mv">{val}{t}</div>{cdiv}</div>'
+        return f'<div class="metric"><div class="ml">{label}</div><div class="mv">{val}{t}</div></div>'
 
-    claims_val = f'<a href="#claims">{claims_n}</a>'
-    claims_sub = '<div class="sub"><a href="#claims">see all ↓</a></div>'
     return ('<div class="metrics">'
             + card("Last updated", _html.escape(last_d), last_t)
-            + card("Next update", _html.escape(next_d), next_t, cd=True)
+            + f'<div class="metric"><div class="ml">Next update</div>'
+              f'<div class="mv">{_html.escape(next_d)}<span class="t">{_html.escape(next_t)}</span></div>{cd}</div>'
             + card("Baseline", _html.escape(base_d))
-            + f'<div class="metric claims"><div class="ml">Claims tracked &amp; verified</div>'
-              f'<div class="mv">{claims_val}</div>{claims_sub}</div>'
+            + '<div class="metric claims"><div class="ml">Claims tracked &amp; verified</div>'
+              f'<div class="mv"><a href="#claims">{claims_n}</a></div>'
+              '<div class="sub"><a href="#claims">see all ↓</a></div></div>'
             + "</div>")
 
 
@@ -344,49 +330,69 @@ _LIVE_BOX = (
 _TAGLINE = ('<div class="tagline">Living competitive battlecards: Every claim verified for '
             'accuracy and kept current by an orchestra of AI agents.</div>')
 
-_COUNTDOWN_JS = """<script>
-(function(){
- var el=document.getElementById('cd');
- if(el){var s=__R__;(function t(){if(s<=0){el.textContent='update due now';return;}
-   var h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=Math.floor(s%60);
-   el.textContent='in '+h+'h '+String(m).padStart(2,'0')+'m '+String(x).padStart(2,'0')+'s';s--;
-   setTimeout(t,1000);})();}
- // When embedded (components.html iframe), grow the iframe to the content height so the page
- // scrolls as ONE document — no internal scrollbar. No-op as a standalone file (no frameElement).
- function fit(){try{if(!window.frameElement)return;
-   var h=document.documentElement.scrollHeight;
-   window.frameElement.style.height=h+'px';
-   var w=window.frameElement.parentElement; if(w)w.style.height=h+'px';}catch(e){}}
- window.addEventListener('load',fit);[60,300,900,1800].forEach(function(d){setTimeout(fit,d);});
- if(window.ResizeObserver){new ResizeObserver(fit).observe(document.body);}
- document.querySelectorAll('details').forEach(function(d){d.addEventListener('toggle',fit);});
- // Anchor jumps: scroll the PARENT (the iframe is full-height, so it can't scroll itself).
- function jump(id){var t=document.querySelector(id);if(!t)return;
-   try{ if(window.frameElement){
-     var y=window.parent.scrollY+window.frameElement.getBoundingClientRect().top
-           +t.getBoundingClientRect().top-12;
-     window.parent.scrollTo({top:y,behavior:'smooth'});
-   } else { t.scrollIntoView({behavior:'smooth',block:'start'}); } }
-   catch(e){ try{t.scrollIntoView();}catch(_){} } }
- [].slice.call(document.querySelectorAll('a[href^="#"]')).forEach(function(a){
-   a.addEventListener('click',function(ev){var href=a.getAttribute('href');
-     if(href&&href.length>1){ev.preventDefault();jump(href);}});});
-})();
-</script>"""
+# @import MUST be the first rule in the stylesheet or the browser drops it (there is no <head>
+# <link> when we render inline), so it goes at the very front of _style().
+_FONT_IMPORT = ("@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,"
+                "wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,1,400;9..144,1,500"
+                "&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600"
+                "&display=swap');")
+
+# Appended after the mockup CSS: section cards rendered from <div class="sec"> (we dropped
+# <details> so Streamlit's sanitizer can't strip the wrapper), and a wider 2-col breakpoint so
+# opening the Streamlit sidebar doesn't collapse the rail on top of the brief.
+_OVERRIDES = """
+#scout-page .wrap{padding-bottom:32px;}
+#scout-page .sec{background:var(--paper);border:1px solid var(--line);border-radius:7px;
+  margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden;scroll-margin-top:16px;}
+#scout-page .sec>.summary{padding:11px 18px;display:flex;align-items:center;gap:11px;
+  border-bottom:1px solid var(--line2);}
+#scout-page .sec .sbody{padding:2px 18px 14px;}
+#scout-page .maincol{min-width:0;}
+#scout-page table.ftab td.secn{color:var(--muted);}
+#scout-page [id]{scroll-margin-top:14px;}
+@media(min-width:861px){#scout-page .cols{grid-template-columns:218px 1fr!important;}}
+@media(max-width:860px){#scout-page .cols{grid-template-columns:1fr!important;}}
+"""
 
 
-def _head() -> str:
-    """Reuse the approved mockup's <head> (fonts + <style>) verbatim — single source of truth
-    for styling, so the rendered page cannot drift from what was signed off."""
+def _style() -> str:
+    """The mockup's <style> + overrides. CRITICAL: the mockup has GLOBAL selectors (* / body / a)
+    that would clobber Streamlit's own layout if injected as-is, so we re-scope them under
+    #scout-page. Everything else is class-based and only matches our injected markup."""
     path = os.path.join(config.APP_ROOT, "docs", "mockups", "command-center.html")
-    with open(path) as f:
-        doc = f.read()
-    m = re.search(r"<head>(.*?)</head>", doc, re.S)
-    return m.group(1) if m else "<meta charset='utf-8'>"
+    css = ""
+    try:
+        with open(path) as f:
+            m = re.search(r"<style>(.*?)</style>", f.read(), re.S)
+            css = m.group(1) if m else ""
+    except OSError:
+        pass
+    # Neutralize the global resets so they apply ONLY inside our page, not to all of Streamlit.
+    css = css.replace("*{box-sizing:border-box;margin:0;padding:0}",
+                      "#scout-page *{box-sizing:border-box;margin:0;padding:0}")
+    css = css.replace(
+        "body{font-family:var(--body);color:var(--ink);background:var(--bg);"
+        "-webkit-font-smoothing:antialiased;line-height:1.5}",
+        "#scout-page{font-family:var(--body);color:var(--ink);"
+        "-webkit-font-smoothing:antialiased;line-height:1.5}")
+    css = css.replace("a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}",
+                      "#scout-page a{color:var(--accent);text-decoration:none}"
+                      "#scout-page a:hover{text-decoration:underline}")
+    return f"<style>{_FONT_IMPORT}{css}{_OVERRIDES}</style>"
+
+
+def _read_current(slug: str) -> str:
+    p = os.path.join(store.battlecard_dir(slug), "current.md")
+    if os.path.exists(p):
+        with open(p) as f:
+            return f.read()
+    return ""
 
 
 def render_page(slug: str) -> str:
-    """Full self-contained HTML document for one battlecard, in the approved mockup's look."""
+    """Inline HTML for one battlecard, in the approved mockup's look. Inject with
+    st.markdown(..., unsafe_allow_html=True) — it renders in Streamlit's own document, so
+    scrolling and #anchor jumps work natively."""
     status = display.card_status(slug)
     cp = status["checkpoints"]
     claims = store.load_claims(slug)
@@ -397,36 +403,34 @@ def render_page(slug: str) -> str:
     for c in claims:
         by_sec.setdefault(c.get("section"), []).append(c)
 
-    # full-brief sections, in canonical order, each as an open <details> card
     secs, present = [], []
     for sid in _SECTION_ORDER:
         cs = sorted(by_sec.get(sid, []), key=lambda c: c.get("order", 0))
         if not cs:
             continue
         title = _SECTION_TITLES[sid]
-        present.append((sid, title, len(cs)))
+        anchor = "bc" if sid == "battlecard" else sid   # battlecard's card uses id="bc"
+        present.append((anchor, title, len(cs)))
         if sid == "battlecard":
             secs.append(_battlecard(cs))
         elif sid == "snapshot":
-            boxes = "".join(_snapshot_box(c) for c in cs)
             secs.append(_section(sid, title, f"{len(cs)} facts",
-                                 f'<div class="snap">{boxes}</div>'))
+                                 '<div class="snap">' + "".join(_snapshot_box(c) for c in cs) + "</div>"))
         elif sid == "executive_summary":
-            items = "".join(_prose_item(c, callout_label="So what") for c in cs)
-            secs.append(_section(sid, title, f"{len(cs)} takeaways", items))
+            secs.append(_section(sid, title, f"{len(cs)} takeaways",
+                                 "".join(_prose_item(c, callout_label="So what") for c in cs)))
         elif sid == "objection_handling":
-            items = "".join(_prose_item(c, callout_label="So what", badge_prefix="Raised by")
-                            for c in cs)
-            secs.append(_section(sid, title, f"{len(cs)} objections", items))
-        else:  # recent_moves / positioning / pricing / sentiment — plain bullets
+            secs.append(_section(sid, title, f"{len(cs)} objections",
+                                 "".join(_prose_item(c, callout_label="So what",
+                                                     badge_prefix="Raised by") for c in cs)))
+        else:
             label = {"recent_moves": "moves", "sentiment": "signal"}.get(sid, "items")
-            items = "".join(_bullet_item(c) for c in cs)
-            secs.append(_section(sid, title, f"{len(cs)} {label}", items))
-    cut = _cut_log(md)
-    if cut:
-        present.append(("cut", "Cut Log", "8"))
+            secs.append(_section(sid, title, f"{len(cs)} {label}",
+                                 "".join(_bullet_item(c) for c in cs)))
+    cut_html, cut_n = _cut_log(md)
+    if cut_html:
+        present.append(("cut", "Cut Log", str(cut_n)))
 
-    # next-check countdown seconds
     try:
         remaining = int((datetime.fromisoformat(cp["next_check"]) - datetime.now()).total_seconds())
     except (ValueError, TypeError):
@@ -439,18 +443,9 @@ def render_page(slug: str) -> str:
         + _TAGLINE + _title_block(meta)
         + '<hr class="rule">'
         '<div class="cols">' + _rail(status, present)
-        + '<main>' + _metrics(cp, status["agent_activity"]["claims_tracked"])
+        + '<div class="maincol">' + _metrics(cp, status["agent_activity"]["claims_tracked"], max(remaining, 0))
         + _briefing(claims)
         + '<div class="divider"><span class="t">The full brief</span><span class="ln"></span></div>'
-        + "".join(secs) + cut + _freshness(rows)
-        + '</main></div></div>'
-        + _COUNTDOWN_JS.replace("__R__", str(max(remaining, 0))))
-    return f"<!doctype html><html lang=\"en\"><head>{_head()}</head><body>{body}</body></html>"
-
-
-def _read_current(slug: str) -> str:
-    path = os.path.join(store.battlecard_dir(slug), "current.md")
-    if os.path.exists(path):
-        with open(path) as f:
-            return f.read()
-    return ""
+        + "".join(secs) + cut_html + _freshness(rows)
+        + '</div></div></div>')
+    return _style() + '<div id="scout-page">' + body + "</div>"
