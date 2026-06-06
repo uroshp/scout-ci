@@ -795,9 +795,13 @@ def main():
     # switch, the card picker and the brief all line up), pull it up, and remove the sidebar
     # entirely — navigation lives IN the page now.
     st.markdown(
-        '<style>[data-testid="stMainBlockContainer"],[data-testid="stAppViewBlockContainer"],'
-        'section.main>div.block-container,.block-container{max-width:1240px!important;'
-        'margin-left:auto!important;margin-right:auto!important;padding:2.2rem 2rem 3rem!important;}'
+        '<style>'
+        # High-specificity + !important so it beats Streamlit's own wide-layout rule.
+        '[data-testid="stAppViewContainer"] section[data-testid="stMain"] '
+        '[data-testid="stMainBlockContainer"],'
+        'section[data-testid="stMain"] .block-container,.stMainBlockContainer,.block-container'
+        '{max-width:1240px!important;margin-left:auto!important;margin-right:auto!important;'
+        'padding:2.2rem 2rem 3rem!important;}'
         '[data-testid="stSidebar"],[data-testid="collapsedControl"]{display:none!important;}'
         + _MODE_CSS + '</style>', unsafe_allow_html=True)
 

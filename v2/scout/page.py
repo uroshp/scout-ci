@@ -351,6 +351,7 @@ _OVERRIDES = """
 #scout-page .sec>.summary{padding:11px 18px;display:flex;align-items:center;gap:11px;
   border-bottom:1px solid var(--line2);}
 #scout-page .sec .sbody{padding:2px 18px 14px;}
+#scout-page{max-width:1240px;margin-left:auto;margin-right:auto;}
 #scout-page .maincol{min-width:0;}
 #scout-page table.ftab td.secn{color:var(--muted);}
 #scout-page [id]{scroll-margin-top:14px;}
