@@ -415,9 +415,16 @@ def masthead_html() -> str:
     return '<div id="scout-page"><div class="wrap mast">' + top + _TAGLINE + '</div></div>'
 
 
+def title_html(slug: str) -> str:
+    """Just the report title block (Competitive Intelligence Brief / Researched / Focus area).
+    Rendered in its own row so the print button can sit beside the focus-area line."""
+    meta = store.load_meta(slug)
+    return '<div id="scout-page"><div class="wrap">' + _title_block(meta) + "</div></div>"
+
+
 def content_html(slug: str) -> str:
-    """The card body: title → 5-min briefing → full brief → freshness. CSS + masthead are
-    injected separately (see style_block / masthead_html)."""
+    """The card body below the title: rule → metric strip + 5-min briefing → full brief →
+    freshness, plus the left rail. CSS + masthead + title are injected separately."""
     status = display.card_status(slug)
     cp = status["checkpoints"]
     claims = store.load_claims(slug)
@@ -462,7 +469,7 @@ def content_html(slug: str) -> str:
         remaining = 0
 
     inner = (
-        _title_block(meta) + '<hr class="rule">'
+        '<hr class="rule">'
         '<div class="cols">' + _rail(status, present)
         + '<div class="maincol">'
         + _metrics(cp, status["agent_activity"]["claims_tracked"], max(remaining, 0))
@@ -568,4 +575,4 @@ def render_page(slug: str) -> str:
             '<meta name="viewport" content="width=device-width, initial-scale=1">'
             + FONT_HEAD + style_block()
             + '</head><body style="background:#f4f2ec;margin:0;padding:24px 0">'
-            + masthead_html() + content_html(slug) + '</body></html>')
+            + masthead_html() + title_html(slug) + content_html(slug) + '</body></html>')

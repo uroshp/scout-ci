@@ -452,7 +452,7 @@ def main():
         '[data-testid="stMainBlockContainer"],'
         'section[data-testid="stMain"] .block-container,.stMainBlockContainer,.block-container'
         '{max-width:1240px!important;margin-left:auto!important;margin-right:auto!important;'
-        'padding:1.2rem 2rem 2.5rem!important;}'
+        'padding:2.9rem 2rem 2.5rem!important;}'
         '[data-testid="stSidebar"],[data-testid="collapsedControl"]{display:none!important;}'
         # Tighten the vertical rhythm between masthead, the control row, and the brief.
         '[data-testid="stVerticalBlock"]{gap:.3rem!important;}'
@@ -505,9 +505,6 @@ def main():
                 st.session_state["card_select"] = card_param        # honor the ?card= permalink
             slug = st.selectbox("Battlecard", cards, format_func=_card_label,
                                 label_visibility="collapsed", key="card_select")
-    with _sp:
-        if not is_create and cards and slug:
-            components.html(_print_button(page.call_sheet_html(slug)), height=46)
 
     if is_create:
         _render_selfserve(job_param)
@@ -523,9 +520,14 @@ def main():
     if st.session_state.get("_last_slug") != slug:
         st.session_state["_last_slug"] = slug
         components.html("<script>window.parent.scrollTo({top:0});</script>", height=0)
-    # The battlecard body, rendered INLINE in Streamlit's own document (scroll + #anchor jumps
-    # work natively; an iframe broke both on Streamlit Cloud). CSS scoped to #scout-page.
-    # Credit ("Built by …") lives in the left rail, under Alerts — no bottom footer here.
+    # Report title + print button share a row — the button is bottom-aligned, sitting opposite
+    # the focus-area line. It opens the call sheet in a fresh window and prints it.
+    tcol, pcol = st.columns([4, 1.3], gap="small", vertical_alignment="bottom")
+    with tcol:
+        st.markdown(page.title_html(slug), unsafe_allow_html=True)
+    with pcol:
+        components.html(_print_button(page.call_sheet_html(slug)), height=46)
+    # The battlecard body (rule + brief + freshness), rendered INLINE. Credit lives in the rail.
     st.markdown(page.content_html(slug), unsafe_allow_html=True)
 
 
