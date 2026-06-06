@@ -635,7 +635,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-04",
       "detail": "partial_ratio 0.992"
-    }
+    },
+    "persona": "eng_led"
   },
   {
     "subject_key": "battlecard | business-customer-lead | where_we_win",
@@ -657,7 +658,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "persona": "economic_buyer"
   },
   {
     "subject_key": "battlecard | swe-bench-pro-lead | where_we_win",
@@ -679,7 +681,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "persona": "technical_evaluator"
   },
   {
     "subject_key": "battlecard | agentic-self-verification | where_we_win",
@@ -701,7 +704,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "persona": "security_regulated"
   },
   {
     "subject_key": "battlecard | swe-bench-verified-headline | contested",
@@ -723,7 +727,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "persona": "technical_evaluator"
   },
   {
     "subject_key": "battlecard | token-cost | contested",
@@ -745,7 +750,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "persona": "economic_buyer"
   },
   {
     "subject_key": "battlecard | codex-scale-distribution | where_they_win",
@@ -767,7 +773,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "persona": "exec_top_down"
   },
   {
     "subject_key": "openai-copilot | sentiment-billing-defection | current",
@@ -811,7 +818,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "persona": "economic_buyer"
   },
   {
     "subject_key": "objection | uber-cost-roi-cap | current",
@@ -833,7 +841,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-04",
       "detail": "partial_ratio 0.985"
-    }
+    },
+    "persona": "economic_buyer"
   },
   {
     "subject_key": "objection | claude-outage-capacity | current",
@@ -855,7 +864,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "persona": "technical_evaluator"
   },
   {
     "subject_key": "objection | claude-code-quality-decline-veracode | current",
@@ -877,7 +887,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "persona": "security_regulated"
   },
   {
     "subject_key": "objection | federal-blacklisting | current",
@@ -899,7 +910,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "persona": "security_regulated"
   },
   {
     "subject_key": "objection | billing-instability | current",
@@ -921,6 +933,7 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "persona": "economic_buyer"
   }
 ]
