@@ -412,6 +412,21 @@ def _card_label(slug: str) -> str:
     return f"{comp} vs {mine}" if mine else comp
 
 
+def _title_block_html(slug: str) -> str:
+    """The report title (Competitive Intelligence Brief / Researched / Focus area). Built HERE in
+    the always-reloaded entry script — not via a new page.py symbol — so it can't hit Streamlit
+    Cloud's stale-module cache (the cross-module-new-attr crash we keep tripping)."""
+    m = store.load_meta(slug) or {}
+    comp = html.escape((m.get("competitor") or "").strip())
+    mine = html.escape((m.get("my_company") or "").strip())
+    focus = html.escape((m.get("focus") or "").strip())
+    sub = f"Researched: <b>{comp}</b>" + (f" · For <b>{mine}</b> reps" if mine else "")
+    foc = f'<div class="rt-focus">Focus area: {focus}</div>' if focus else ""
+    return ('<div id="scout-page"><div class="wrap"><div class="rt">'
+            '<h1>Competitive Intelligence Brief</h1>'
+            f'<div class="rt-sub">{sub}</div>{foc}</div></div></div>')
+
+
 def _print_button(sheet_html: str) -> str:
     """A real, reliable print button: opens the call sheet in a FRESH window and prints that
     (no dependency on the cross-origin parent, and immune to the page's scroll-container clip).
@@ -524,7 +539,7 @@ def main():
     # the focus-area line. It opens the call sheet in a fresh window and prints it.
     tcol, pcol = st.columns([4, 1.3], gap="small", vertical_alignment="bottom")
     with tcol:
-        st.markdown(page.title_html(slug), unsafe_allow_html=True)
+        st.markdown(_title_block_html(slug), unsafe_allow_html=True)
     with pcol:
         components.html(_print_button(page.call_sheet_html(slug)), height=46)
     # The battlecard body (rule + brief + freshness), rendered INLINE. Credit lives in the rail.
