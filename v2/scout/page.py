@@ -228,10 +228,12 @@ def _rail(status: dict, present: list) -> str:
     name = _html.escape(config.AUTHOR_NAME or "Urosh P")
     credit = (f'Built by <a href="{_html.escape(config.AUTHOR_LINKEDIN)}" target="_blank" '
               f'rel="noopener">{name}</a>') if config.AUTHOR_LINKEDIN else f"Built by {name}"
+    tip = ('<div class="rail-tip">Tip: print this page (⌘P / Ctrl+P) for a '
+           'one-page call sheet.</div>')
     return ('<div class="rail">' + nav
             + panel("Just updated", ju, f'<span class="ph-n">{new_count}</span>')
             + panel("Change feed", cf) + panel("Alerts", al)
-            + f'<div class="rail-credit">{credit}</div>' + "</div>")
+            + f'<div class="rail-credit">{credit}</div>' + tip + "</div>")
 
 
 def _freshness(rows: list) -> str:
@@ -359,6 +361,8 @@ _OVERRIDES = """
 #scout-page .rail-credit{font-family:var(--mono);font-size:10px;color:var(--faint);
   padding:12px 2px 0;line-height:1.4;}
 #scout-page .rail-credit a{color:var(--muted);}
+#scout-page .rail-tip{font-family:var(--mono);font-size:9.5px;color:var(--faint);
+  padding:9px 2px 0;line-height:1.45;}
 @media(min-width:861px){#scout-page .cols{grid-template-columns:218px 1fr!important;}}
 @media(max-width:860px){#scout-page .cols{grid-template-columns:1fr!important;}}
 """

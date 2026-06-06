@@ -437,6 +437,21 @@ def main():
         # Tighten the vertical rhythm between masthead, the control row, and the brief.
         '[data-testid="stVerticalBlock"]{gap:.3rem!important;}'
         '[data-testid="stHorizontalBlock"]{margin-bottom:0!important;}'
+        # Print / one-page call sheet (⌘P): drop all chrome + prep-only sections, keep the pitch
+        # (title + Today's angle + Top 3 plays) and the rebuttals (objections, condensed).
+        '@media print{'
+        'header,[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stSidebar"],'
+        '[data-testid="stHorizontalBlock"],[data-testid="stStatusWidget"],footer{display:none!important;}'
+        '[data-testid="stMainBlockContainer"],.block-container{max-width:none!important;padding:0!important;}'
+        '#scout-page .rail,#scout-page .metrics,#scout-page .livebox,#scout-page .divider,'
+        '#scout-page #executive_summary,#scout-page #snapshot,#scout-page #recent_moves,'
+        '#scout-page #positioning,#scout-page #pricing,#scout-page #bc,#scout-page #sentiment,'
+        '#scout-page #cut,#scout-page .freshness,#scout-page .srcline{display:none!important;}'
+        '#scout-page .cols,#scout-page .maincol{display:block!important;}'
+        '#scout-page #objection_handling .item p{display:none!important;}'
+        '#scout-page .sec,#scout-page .briefing,#scout-page .item,#scout-page .play'
+        '{break-inside:avoid;box-shadow:none!important;}'
+        '@page{margin:1.4cm;}}'
         + _MODE_CSS + '</style>', unsafe_allow_html=True)
 
     job_param = st.query_params.get("job")
