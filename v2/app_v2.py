@@ -497,6 +497,11 @@ _CTRL_CSS = (
     # zero the markdown wrapper margins in the control row so the 40px-tall controls center-align
     # cleanly against the print button (an offset bottom-margin otherwise nudged them down)
     '[data-testid="stHorizontalBlock"] [data-testid="stMarkdown"]{margin:0!important;}'
+    # the print button is the only iframe in this row; iframes render INLINE by default, so a
+    # baseline descender gap (plus the component's default margin) lifted it ABOVE the 40px tabs/
+    # dropdown — pure height-matching can't fix that. Make it a block with no margin so all three
+    # are the same 40px box and center-alignment lines them up exactly.
+    '[data-testid="stHorizontalBlock"] iframe{display:block!important;margin:0!important;}'
 )
 
 
