@@ -561,8 +561,9 @@ def _print_button(sheet_html: str, full: bool = False) -> str:
     else:
         wrap = "display:flex;justify-content:flex-end;align-items:center;height:100%;"
         btn = ("font:600 12px/1 ui-monospace,'IBM Plex Mono',monospace;color:#34566b;"
-               "background:#fbfaf6;border:1px solid #dfdbcf;border-radius:7px;"
-               "padding:10px 15px;cursor:pointer;white-space:nowrap;")
+               "background:#fbfaf6;border:1px solid #dfdbcf;border-radius:8px;box-sizing:border-box;"
+               "min-height:40px;display:inline-flex;align-items:center;"
+               "padding:0 15px;cursor:pointer;white-space:nowrap;")
     return (
         f'<div style="{wrap}">'
         '<style>html,body{margin:0;background:transparent;overflow:hidden;}'
