@@ -399,7 +399,7 @@ _OVERRIDES = """
    keeps its padding for the page end), pull the tagline up under the name, and close the
    Researched/focus lines under the brief title — lifting the whole header up. */
 #scout-page .wrap.mast{padding-bottom:6px;}
-#scout-page .wrap.tw{padding-bottom:8px;}
+#scout-page .wrap.tw{padding-bottom:20px;}
 #scout-page .tagline{margin:5px 0 0;}
 #scout-page .rt .rt-sub{margin-top:2px;}
 #scout-page .rt .rt-focus{margin-top:10px;}
