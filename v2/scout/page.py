@@ -193,9 +193,17 @@ def _battlecard(claims: list) -> str:
         zc = sorted([c for c in claims if c.get("zone") == zid], key=lambda c: c.get("order", 0))
         if not zc:
             continue
-        items = "".join(_prose_item(c, badge_prefix="Best for") for c in zc)
-        subs.append(f'<div class="sub"><span class="sublabel {zcls}">{_html.escape(zlabel)}</span>'
-                    f'<span class="subcount">{len(zc)} item{"s" if len(zc)!=1 else ""}</span>{items}</div>')
+        items = [_prose_item(c, badge_prefix="Best for") for c in zc]
+        head = (f'<div class="zhead"><span class="zlabel {zcls}">{_html.escape(zlabel)}</span>'
+                f'<span class="subcount">{len(zc)} item{"s" if len(zc)!=1 else ""}</span></div>')
+        more = ""
+        if items[1:]:
+            more = ('<details class="more"><summary>'
+                    f'<span class="lbl-more">Expand · {len(items) - 1} more</span>'
+                    '<span class="lbl-less">Collapse</span>'
+                    '<span class="mchev">▾</span></summary>'
+                    f'<div class="rest">{"".join(items[1:])}</div></details>')
+        subs.append(f'<div class="sub zone {zcls}">{head}{items[0]}{more}</div>')
     n = len([c for c in claims if c.get("zone")])
     return _section("bc", "Competitive Battlecard", f"{n} across 3 zones", "".join(subs))
 
@@ -416,22 +424,39 @@ _OVERRIDES = """
   margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden;scroll-margin-top:14px;}
 #scout-page .sec.preview .shead{padding:11px 18px;display:flex;align-items:center;gap:11px;
   border-bottom:1px solid var(--line2);}
-#scout-page .sec.preview .more{text-align:right;border-top:1px solid var(--line2);
+#scout-page .more{text-align:right;border-top:1px solid var(--line2);
   margin-top:12px;padding-top:12px;}
-#scout-page .sec.preview .more>summary{list-style:none;cursor:pointer;user-select:none;
+#scout-page .more>summary{list-style:none;cursor:pointer;user-select:none;
   display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;
   font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-deep);
   background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:6px;
   padding:8px 14px;transition:background .12s,color .12s;}
-#scout-page .sec.preview .more>summary::-webkit-details-marker{display:none;}
-#scout-page .sec.preview .more>summary:hover{background:var(--accent-deep);color:#fff;
+#scout-page .more>summary::-webkit-details-marker{display:none;}
+#scout-page .more>summary:hover{background:var(--accent-deep);color:#fff;
   border-color:var(--accent-deep);}
-#scout-page .sec.preview .more .lbl-less{display:none;}
-#scout-page .sec.preview .more[open]>summary .lbl-more{display:none;}
-#scout-page .sec.preview .more[open]>summary .lbl-less{display:inline;}
-#scout-page .sec.preview .more .mchev{font-size:10px;transition:transform .15s;}
-#scout-page .sec.preview .more[open] .mchev{transform:rotate(180deg);}
-#scout-page .sec.preview .rest{text-align:left;margin-top:8px;}
+#scout-page .more .lbl-less{display:none;}
+#scout-page .more[open]>summary .lbl-more{display:none;}
+#scout-page .more[open]>summary .lbl-less{display:inline;}
+#scout-page .more .mchev{font-size:10px;transition:transform .15s;}
+#scout-page .more[open] .mchev{transform:rotate(180deg);}
+#scout-page .rest{text-align:left;margin-top:8px;}
+
+/* --- Battlecard zones --------------------------------------------------------------------------
+   The zone label ("Where we win" / "...a fight" / "Where they win") was a tiny 10px mono pill,
+   dwarfed by the 16px item titles it heads. Promote it to a clear, color-coded serif heading with
+   a matching zone-colored rule, and give each zone the same teaser + Expand treatment. */
+#scout-page .sec .sub.zone{margin-top:20px;padding-left:14px;border-left:3px solid var(--line);}
+#scout-page .sec .sub.zone:first-child{margin-top:6px;}
+#scout-page .sec .sub.zone.win{border-left-color:var(--win-line);}
+#scout-page .sec .sub.zone.contested{border-left-color:var(--amber-line);}
+#scout-page .zhead{display:flex;align-items:baseline;gap:9px;margin-bottom:2px;}
+#scout-page .zlabel{font-family:var(--display);font-size:17px;font-weight:600;letter-spacing:-.005em;}
+#scout-page .zlabel.win{color:var(--win);}
+#scout-page .zlabel.contested{color:var(--amber);}
+#scout-page .zlabel.lose{color:var(--muted);}
+#scout-page .sub.zone .subcount{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--faint);}
+#scout-page .sub.zone .zhead + .item{border-top:none;padding-top:6px;}
 """
 
 
