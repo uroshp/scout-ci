@@ -459,22 +459,59 @@ _FONT_LINKS = (
     '&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">')
 
 
-# In-page mode toggle as a connected SEGMENTED CONTROL (one line, no wrap, slate-filled active).
-_MODE_CSS = (
-    'div[role="radiogroup"]{display:inline-flex!important;flex-wrap:nowrap!important;gap:0!important;'
-    'border:1px solid #dfdbcf;border-radius:8px;overflow:hidden;background:#fbfaf6;}'
-    'div[role="radiogroup"]>label{margin:0!important;padding:.42rem 1.05rem;font-weight:600;'
-    'font-size:.92rem;color:#5f5e54;cursor:pointer;white-space:nowrap;'
-    'border-right:1px solid #dfdbcf;transition:background .15s,color .15s;}'
-    'div[role="radiogroup"]>label:last-child{border-right:none;}'
-    'div[role="radiogroup"]>label:hover{color:#34566b;}'
-    'div[role="radiogroup"]>label:has(input:checked){background:#34566b!important;}'
-    # Streamlit nests the label text in a child with its own color, so white must be forced on
-    # the descendants too — otherwise the active segment is dark text on the dark slate fill.
-    'div[role="radiogroup"]>label:has(input:checked),'
-    'div[role="radiogroup"]>label:has(input:checked) *{color:#fff!important;}'
-    'div[role="radiogroup"]>label>div:first-child{display:none!important;}'
+# In-page control bar (mode tabs + card dropdown) — all custom HTML in the editorial palette so it
+# matches the print button instead of reading like default Streamlit widgets. Anchors drive state
+# via query params (?mode=create / ?card=<slug>): a full, reliable navigation, no native widget.
+_CTRL_CSS = (
+    ".scout-ctl,.scout-ctl *{box-sizing:border-box;"
+    "font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;}"
+    ".scout-ctl a{text-decoration:none;}"
+    # segmented mode tabs (slate-filled active, matches the old look but fully owned)
+    ".scout-tabs{display:inline-flex;border:1px solid #dfdbcf;border-radius:8px;overflow:hidden;"
+    "background:#fbfaf6;}"
+    ".scout-tabs a{padding:.5rem 1.05rem;font-weight:600;font-size:13px;color:#5f5e54;"
+    "white-space:nowrap;border-right:1px solid #dfdbcf;transition:background .15s,color .15s;}"
+    ".scout-tabs a:last-child{border-right:none;}"
+    ".scout-tabs a:hover{color:#34566b;}"
+    ".scout-tabs a.on{background:#34566b;color:#fff;}"
+    # custom dropdown — a native <details> (survives Streamlit's sanitizer), menu overlays
+    ".scout-dd{position:relative;display:block;width:100%;max-width:340px;}"
+    ".scout-dd>summary{list-style:none;cursor:pointer;display:flex;align-items:center;"
+    "justify-content:space-between;gap:10px;padding:.5rem .8rem;font-size:13px;font-weight:500;"
+    "color:#1c1d16;background:#fbfaf6;border:1px solid #dfdbcf;border-radius:8px;"
+    "transition:border-color .15s;}"
+    ".scout-dd>summary::-webkit-details-marker{display:none;}"
+    ".scout-dd>summary:hover,.scout-dd[open]>summary{border-color:#34566b;}"
+    ".scout-dd>summary .cv{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;"
+    "color:#908e82;transition:transform .15s;}"
+    ".scout-dd[open]>summary .cv{transform:rotate(180deg);}"
+    ".scout-dd .menu{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:60;"
+    "background:#fbfaf6;border:1px solid #dfdbcf;border-radius:8px;"
+    "box-shadow:0 6px 24px rgba(28,29,22,.12);padding:5px;max-height:62vh;overflow:auto;}"
+    ".scout-dd .menu a{display:block;padding:8px 11px;border-radius:6px;font-size:13px;color:#33312a;}"
+    ".scout-dd .menu a:hover{background:rgba(52,86,107,.08);color:#1c1d16;}"
+    ".scout-dd .menu a.on{background:#34566b;color:#fff;}"
+    # let the dropdown overlay escape the Streamlit column/row boxes instead of being clipped
+    '[data-testid="stColumn"],[data-testid="stHorizontalBlock"]{overflow:visible!important;}'
 )
+
+
+def _mode_tabs_html(is_create: bool, living_href: str) -> str:
+    return ('<div class="scout-ctl"><div class="scout-tabs">'
+            f'<a class="{"" if is_create else "on"}" href="{living_href}" target="_self">'
+            'Living battlecards</a>'
+            f'<a class="{"on" if is_create else ""}" href="?mode=create" target="_self">'
+            'Create your own</a></div></div>')
+
+
+def _card_dropdown_html(cards: list, slug: str) -> str:
+    opts = "".join(
+        f'<a class="{"on" if c == slug else ""}" href="?card={c}" target="_self">'
+        f'{html.escape(_card_label(c))}</a>' for c in cards)
+    return ('<div class="scout-ctl"><details class="scout-dd">'
+            f'<summary><span>{html.escape(_card_label(slug))}</span>'
+            '<span class="cv">▾</span></summary>'
+            f'<div class="menu">{opts}</div></details></div>')
 
 
 def _card_label(slug: str) -> str:
@@ -590,7 +627,7 @@ def main():
         '#scout-page .sec,#scout-page .briefing,#scout-page .item,#scout-page .play'
         '{break-inside:avoid;box-shadow:none!important;}'
         '@page{margin:1.4cm;}}'
-        + _MODE_CSS + '</style>', unsafe_allow_html=True)
+        + _CTRL_CSS + '</style>', unsafe_allow_html=True)
 
     job_param = st.query_params.get("job")
     # Fonts (separate <link>), CSS, and masthead each go in their OWN st.markdown call —
@@ -600,35 +637,31 @@ def main():
     st.markdown(page.style_block(), unsafe_allow_html=True)
     st.markdown(page.masthead_html(), unsafe_allow_html=True)
 
-    # Mode switch + card picker on ONE tight row (no sidebar). A ?job= deep link opens the
-    # create surface; a ?card=<slug> deep link selects that battlecard directly (permalink).
-    # Mode switch + card picker + print button on ONE tight row (no sidebar, no extra row). A
-    # ?job= deep link opens the create surface; a ?card=<slug> deep link selects a card directly.
-    # (The button lives here rather than beside the focus line because a second column-row forces
-    # Streamlit to reserve a tall block around the components.html iframe — that was the empty gap.)
+    # Control bar (mode tabs + card dropdown + print) on ONE tight row — all custom HTML, no
+    # native widgets. Anchors drive state via query params (full navigation). A ?job= deep link
+    # opens the create surface; ?card=<slug> selects a battlecard directly (permalink).
+    # (Print lives here, not beside the focus line, because a second column-row forces Streamlit
+    # to reserve a tall block around the components.html iframe — that was the empty gap.)
     cards = display.list_battlecards()
-    mc1, mc2, mc3 = st.columns([1.2, 1.1, 2.0], gap="small", vertical_alignment="center")
+    mode_param = st.query_params.get("mode")
+    card_param = st.query_params.get("card")
+    # mode is authoritative when present (an explicit tab click wins over a lingering ?job=).
+    is_create = (mode_param == "create") if mode_param is not None else bool(job_param)
+    slug = card_param if card_param in cards else (cards[0] if cards else None)
+    living_href = f"?card={slug}" if slug else "?mode=battlecards"
+
+    mc1, mc2, mc3 = st.columns([1.5, 1.4, 1.5], gap="small", vertical_alignment="center")
     with mc1:
-        mode = st.radio("Mode", ["Living battlecards", "Create your own"],
-                        index=1 if job_param else 0, horizontal=True, label_visibility="collapsed")
-    # The radio is authoritative: a ?job= deep link defaults it to "Create your own" (index above),
-    # but once shown, clicking "Living battlecards" must win — so derive is_create from the radio,
-    # NOT from job_param (which lingers in the URL and otherwise pinned the user on the report).
-    is_create = mode == "Create your own"
-    slug = None
+        st.markdown(_mode_tabs_html(is_create, living_href), unsafe_allow_html=True)
     with mc2:
-        if not is_create and cards:
-            card_param = st.query_params.get("card")
-            if "card_select" not in st.session_state and card_param in cards:
-                st.session_state["card_select"] = card_param        # honor the ?card= permalink
-            slug = st.selectbox("Battlecard", cards, format_func=_card_label,
-                                label_visibility="collapsed", key="card_select")
+        if not is_create and slug:
+            st.markdown(_card_dropdown_html(cards, slug), unsafe_allow_html=True)
     with mc3:
-        if not is_create and cards and slug:
+        if not is_create and slug:
             components.html(_print_button(page.call_sheet_html(slug)), height=46)
 
     if is_create:
-        if "card" in st.query_params:   # don't leave a stale ?card= alongside ?job=
+        if "card" in st.query_params:   # don't leave a stale ?card= on the create surface
             del st.query_params["card"]
         _render_selfserve(job_param)
         _footer()
@@ -636,11 +669,12 @@ def main():
     if not cards:
         st.info("No battlecards have been generated yet.")
         return
-    # Reflect the selection in the URL so each card has a shareable permalink (?card=<slug>).
+    # Clean, shareable URL: just ?card=<slug> (drop the mode/job scaffolding once resolved).
     if st.query_params.get("card") != slug:
         st.query_params["card"] = slug
-    if "job" in st.query_params:        # a roster card never carries a ?job= (no Frankenlinks)
-        del st.query_params["job"]
+    for _k in ("job", "mode"):           # a roster card carries neither (no Frankenlinks)
+        if _k in st.query_params:
+            del st.query_params[_k]
     # Land at the top of a newly selected card (Streamlit preserves scroll across reruns).
     if st.session_state.get("_last_slug") != slug:
         st.session_state["_last_slug"] = slug
