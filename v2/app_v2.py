@@ -469,15 +469,16 @@ _CTRL_CSS = (
     # segmented mode tabs (slate-filled active, matches the old look but fully owned)
     ".scout-tabs{display:inline-flex;border:1px solid #dfdbcf;border-radius:8px;overflow:hidden;"
     "background:#fbfaf6;}"
-    ".scout-tabs a{padding:.5rem 1.05rem;font-weight:600;font-size:13px;color:#5f5e54;"
+    ".scout-tabs a{display:inline-flex;align-items:center;min-height:40px;padding:0 1.05rem;"
+    "font-weight:600;font-size:13px;color:#5f5e54;"
     "white-space:nowrap;border-right:1px solid #dfdbcf;transition:background .15s,color .15s;}"
     ".scout-tabs a:last-child{border-right:none;}"
     ".scout-tabs a:hover{color:#34566b;}"
     ".scout-tabs a.on{background:#34566b;color:#fff;}"
     # custom dropdown — a native <details> (survives Streamlit's sanitizer), menu overlays
     ".scout-dd{position:relative;display:block;width:100%;max-width:340px;}"
-    ".scout-dd>summary{list-style:none;cursor:pointer;display:flex;align-items:center;"
-    "justify-content:space-between;gap:10px;padding:.5rem .8rem;font-size:13px;font-weight:500;"
+    ".scout-dd>summary{list-style:none;cursor:pointer;display:flex;align-items:center;min-height:40px;"
+    "justify-content:space-between;gap:10px;padding:0 .8rem;font-size:13px;font-weight:500;"
     "color:#1c1d16;background:#fbfaf6;border:1px solid #dfdbcf;border-radius:8px;"
     "transition:border-color .15s;}"
     ".scout-dd>summary::-webkit-details-marker{display:none;}"
@@ -493,6 +494,9 @@ _CTRL_CSS = (
     ".scout-dd .menu a.on{background:#34566b;color:#fff;}"
     # let the dropdown overlay escape the Streamlit column/row boxes instead of being clipped
     '[data-testid="stColumn"],[data-testid="stHorizontalBlock"]{overflow:visible!important;}'
+    # zero the markdown wrapper margins in the control row so the 40px-tall controls center-align
+    # cleanly against the print button (an offset bottom-margin otherwise nudged them down)
+    '[data-testid="stHorizontalBlock"] [data-testid="stMarkdown"]{margin:0!important;}'
 )
 
 
@@ -535,7 +539,7 @@ def _title_block_html(slug: str) -> str:
     focus = html.escape((m.get("focus") or "").strip())
     sub = f"Researched: <b>{comp}</b>" + (f" · For <b>{mine}</b> reps" if mine else "")
     foc = f'<div class="rt-focus">Focus area: {focus}</div>' if focus else ""
-    return ('<div id="scout-page"><div class="wrap"><div class="rt">'
+    return ('<div id="scout-page"><div class="wrap tw"><div class="rt">'
             '<h1>Competitive Intelligence Brief</h1>'
             f'<div class="rt-sub">{sub}</div>{foc}</div></div></div>')
 
@@ -658,7 +662,7 @@ def main():
             st.markdown(_card_dropdown_html(cards, slug), unsafe_allow_html=True)
     with mc3:
         if not is_create and slug:
-            components.html(_print_button(page.call_sheet_html(slug)), height=46)
+            components.html(_print_button(page.call_sheet_html(slug)), height=40)
 
     if is_create:
         if "card" in st.query_params:   # don't leave a stale ?card= on the create surface

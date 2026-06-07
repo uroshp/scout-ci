@@ -394,6 +394,15 @@ FONT_HEAD = (
 # 2-col breakpoint so a narrow viewport doesn't stack the rail on top of the brief.
 _OVERRIDES = """
 #scout-page .wrap{padding-left:0;padding-right:0;padding-bottom:32px;}
+/* Tighten the top: the masthead + title blocks each sit in a .wrap whose 32px bottom padding
+   opened big gaps above the control row and below the title. Trim those two (the content .wrap
+   keeps its padding for the page end), pull the tagline up under the name, and close the
+   Researched/focus lines under the brief title — lifting the whole header up. */
+#scout-page .wrap.mast{padding-bottom:6px;}
+#scout-page .wrap.tw{padding-bottom:8px;}
+#scout-page .tagline{margin:5px 0 0;}
+#scout-page .rt .rt-sub{margin-top:4px;}
+#scout-page .rt .rt-focus{margin-top:5px;}
 #scout-page{max-width:1240px;margin-left:auto;margin-right:auto;}
 #scout-page .maincol{min-width:0;}
 #scout-page .rule{margin:2px 0 12px!important;}
