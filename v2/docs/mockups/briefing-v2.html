@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Scout — Daily Briefing redesign (mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,1,400;9..144,1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --display:"Fraunces",Georgia,Cambria,serif; --body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --bg:#f4f2ec; --paper:#fbfaf6; --paper2:#ffffff;
+  --line:#dfdbcf; --line2:#ebe8df; --ink:#1c1d16; --muted:#5f5e54; --faint:#908e82;
+  --accent:#34566b; --accent-deep:#2a4658; --accent-soft:rgba(52,86,107,.06); --accent-line:rgba(52,86,107,.24);
+  --win:#2f6149; --win-soft:rgba(47,97,73,.06); --win-line:rgba(47,97,73,.26);
+  --amber:#8a6322; --amber-soft:rgba(138,99,34,.06); --amber-line:rgba(138,99,34,.26);
+  --shadow:0 1px 2px rgba(28,29,22,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--body);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;line-height:1.5}
+.wrap{max-width:880px;margin:0 auto;padding:0 24px 64px}
+
+/* mockup ribbon */
+.ribbon{background:var(--accent-deep);color:#fff;font-family:var(--mono);font-size:11px;letter-spacing:.04em;
+  text-align:center;padding:7px 14px;line-height:1.5}
+.ribbon b{font-weight:600}
+
+/* slim context masthead */
+.mast{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:22px 0 10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .d{width:13px;height:13px;border-radius:4px;background:var(--accent-deep)}
+.brand .nm{font-family:var(--display);font-weight:600;font-size:26px;letter-spacing:-.02em;line-height:1}
+.mast .ctx{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:right;line-height:1.5}
+.mast .ctx b{color:var(--ink);font-weight:600}
+.rule{border:none;border-top:2px solid var(--ink);margin:8px 0 18px}
+
+/* ===== briefing shell ===== */
+.briefing{border:1px solid var(--line);border-top:3px solid var(--accent-deep);border-radius:8px;overflow:hidden;box-shadow:var(--shadow)}
+.bhead{background:var(--paper);border-bottom:1px solid var(--line2);padding:14px 18px;display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.bhead .l{display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:22px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+.bhead .l .dot{width:8px;height:8px;border-radius:50%;background:var(--win);flex:none}
+.bhead .r{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.bbody{padding:16px 18px 10px}
+
+/* ===== HERO: what changed since you last looked ===== */
+.whatsnew{background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:8px;padding:14px 16px 12px}
+.wn-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.wn-title{font-family:var(--display);font-weight:600;font-size:18px;letter-spacing:-.01em;color:var(--ink)}
+.wn-since{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:2px}
+.wn-chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;font-weight:500;
+  color:var(--win);background:var(--win-soft);border:1px solid var(--win-line);border-radius:6px;padding:4px 9px;white-space:nowrap}
+.wn-chip .tick{width:12px;height:12px;border-radius:50%;background:var(--win);color:#fff;display:grid;place-items:center;font-size:7px}
+.wn-rows{margin-top:11px}
+.wn-row{display:flex;gap:11px;padding:11px 0;border-top:1px solid var(--accent-line)}
+.wn-row:first-child{border-top:none;padding-top:3px}
+.wn-tag{font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.06em;padding:3px 7px;border-radius:4px;height:fit-content;white-space:nowrap;margin-top:1px}
+.wn-tag.new{color:var(--win);background:#fff;border:1px solid var(--win-line)}
+.wn-tag.upd{color:var(--accent);background:#fff;border:1px solid var(--accent-line)}
+.wn-tag.price{color:var(--amber);background:#fff;border:1px solid var(--amber-line)}
+.wn-row .c{flex:1;min-width:0}
+.wn-row .h{font-size:14px;font-weight:600;color:var(--ink);line-height:1.4}
+.wn-row .lead{font-family:var(--mono);font-size:8px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--accent-deep);background:#fff;border:1px solid var(--accent-line);border-radius:4px;padding:2px 6px;margin-left:8px;white-space:nowrap;vertical-align:middle}
+.wn-row .sw{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.5}
+.wn-row .sw .k{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-right:5px}
+.wn-row .meta{font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:6px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.wn-row .meta .v{display:inline-flex;align-items:center;gap:4px;color:var(--win);font-weight:600}
+.wn-row .meta .v .tick{width:11px;height:11px;border-radius:50%;background:var(--win);color:#fff;display:grid;place-items:center;font-size:6.5px}
+.wn-row .meta .sep{color:var(--line)}
+.wn-foot{font-family:var(--mono);font-size:10.5px;color:var(--faint);font-style:italic;margin-top:11px;padding-top:9px;border-top:1px dashed var(--accent-line)}
+
+/* ===== Top 3 plays — soundbite-led ===== */
+.bsub{display:flex;align-items:baseline;gap:9px;font-family:var(--display);font-size:17px;font-weight:600;
+  letter-spacing:-.005em;color:var(--ink);margin:20px 0 4px}
+.bsub .hint{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.04em;text-transform:none;color:var(--faint)}
+.bsub::after{content:"";flex:1;height:1px;background:var(--line2);align-self:center}
+
+.play{padding:14px 0;border-top:1px solid var(--line2)}
+.play:first-of-type{border-top:none}
+.ptop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
+.ptop .num{font-family:var(--mono);font-size:10px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+.persona{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--accent-deep);background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:4px;padding:3px 8px;white-space:nowrap}
+.persona .pk{color:var(--faint);margin-right:4px}
+.say{background:var(--amber-soft);border:1px solid var(--amber-line);border-left:3px solid var(--amber);
+  border-radius:0 7px 7px 0;padding:12px 16px}
+.say .k{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);display:block;margin-bottom:6px}
+.say .q{font-family:var(--display);font-style:italic;font-size:17px;line-height:1.42;color:#33312a}
+.why{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+.why .k{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);margin-right:6px}
+.srcline{margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--faint);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.verified{display:inline-flex;align-items:center;gap:5px;color:var(--win);font-weight:600}
+.verified .tick{width:11px;height:11px;border-radius:50%;background:var(--win);color:#fff;display:grid;place-items:center;font-size:6.5px}
+.sep{color:var(--line)}
+
+/* fade hint that the full brief continues below */
+.contd{margin-top:18px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.04em}
+.contd .ln{display:block;height:34px;background:linear-gradient(var(--bg),rgba(244,242,236,0));margin-bottom:6px}
+.note{max-width:880px;margin:22px auto 0;padding:0 24px;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.7}
+.note b{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<div class="ribbon"><b>MOCKUP</b> &nbsp;·&nbsp; proposed Daily Briefing &nbsp;—&nbsp; "what changed since you last looked" + soundbite-led plays</div>
+
+<div class="wrap">
+
+  <div class="mast">
+    <div class="brand"><span class="d"></span><span class="nm">Agent Scout</span></div>
+    <div class="ctx">Researched: <b>Anthropic (Claude)</b><br>For <b>OpenAI</b> reps · enterprise coding</div>
+  </div>
+  <hr class="rule">
+
+  <div class="briefing">
+    <div class="bhead">
+      <span class="l"><span class="dot"></span>Your Daily Briefing</span>
+      <span class="r">the 2-min version before your call · refreshed today 9:12 AM</span>
+    </div>
+    <div class="bbody">
+
+      <!-- HERO: the pre-call payload -->
+      <div class="whatsnew">
+        <div class="wn-head">
+          <div>
+            <div class="wn-title">What changed since you last looked</div>
+            <div class="wn-since">You last opened this Fri — 3 days ago · 3 moves since</div>
+          </div>
+          <span class="wn-chip"><span class="tick">✓</span>47 claims · all verified · current as of today</span>
+        </div>
+
+        <div class="wn-rows">
+          <div class="wn-row">
+            <span class="wn-tag price">PRICING</span>
+            <div class="c">
+              <div class="h">Anthropic cut Claude enterprise seat pricing ~20% (now ~&#36;25/seat/mo, annual)<span class="lead">← open with this</span></div>
+              <div class="sw"><span class="k">On your call</span>Expect a price objection. Don't defend list price — pivot to total cost with your tooling bundled in (Play 02).</div>
+              <div class="meta"><span class="v"><span class="tick">✓</span>Verified</span><span class="sep">·</span>anthropic.com<span class="sep">·</span>2 days ago</div>
+            </div>
+          </div>
+
+          <div class="wn-row">
+            <span class="wn-tag new">NEW</span>
+            <div class="c">
+              <div class="h">Claude Code shipped native Jira + Linear integration (GA last week)</div>
+              <div class="sw"><span class="k">On your call</span>They just closed a gap you've been winning on. Stop leaning on "they don't integrate" — move the fight to depth of CI/CD and 1,400+ connectors.</div>
+              <div class="meta"><span class="v"><span class="tick">✓</span>Verified</span><span class="sep">·</span>techcrunch.com<span class="sep">·</span>4 days ago</div>
+            </div>
+          </div>
+
+          <div class="wn-row">
+            <span class="wn-tag upd">UPDATED</span>
+            <div class="c">
+              <div class="h">Anthropic raised its enterprise SLA to 99.9% (was 99.5%)</div>
+              <div class="sw"><span class="k">On your call</span>Reliability is no longer a clean win. Shift the proof point to multi-region failover, which they still don't offer.</div>
+              <div class="meta"><span class="v"><span class="tick">✓</span>Verified</span><span class="sep">·</span>anthropic.com<span class="sep">·</span>6 days ago</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wn-foot">Nothing else material moved since Fri. Full brief below is unchanged.</div>
+      </div>
+
+      <!-- soundbite-led plays -->
+      <div class="bsub">Top 3 plays <span class="hint">— the lines to say</span></div>
+
+      <div class="play">
+        <div class="ptop"><span class="num">PLAY 01</span><span class="persona"><span class="pk">Best for</span>Technical evaluator</span></div>
+        <div class="say"><span class="k">Say it like this</span>
+          <span class="q">"Claude's a strong model — but we're the platform your engineers already build on. GPT is in their IDE, their CI, and 1,400+ tools out of the box. Switching isn't a model decision, it's a re-platforming project."</span>
+        </div>
+        <div class="why"><span class="k">Why it lands</span>Ecosystem lock-in is the switching cost Anthropic can't close this quarter — and the evaluator feels the migration pain immediately.</div>
+        <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span>openai.com<span class="sep">·</span>as of Jun 5</div>
+      </div>
+
+      <div class="play">
+        <div class="ptop"><span class="num">PLAY 02</span><span class="persona"><span class="pk">Best for</span>Economic buyer</span></div>
+        <div class="say"><span class="k">Say it like this</span>
+          <span class="q">"Their seat price looks lower until you add the tools you'd buy separately to match us. Bundle it and we're at or under their real TCO — with one vendor, one invoice, one security review."</span>
+        </div>
+        <div class="why"><span class="k">Why it lands</span>Reframes this week's price cut from a loss into your consolidation pitch — the buyer's own budget math does the selling.</div>
+        <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span>openai.com/pricing<span class="sep">·</span>as of Jun 6</div>
+      </div>
+
+      <div class="play">
+        <div class="ptop"><span class="num">PLAY 03</span><span class="persona"><span class="pk">Best for</span>Security &amp; regulated</span></div>
+        <div class="say"><span class="k">Say it like this</span>
+          <span class="q">"We're SOC 2, FedRAMP-authorized, and multi-region by default. When your auditor asks where the data lives, you get one answer today — not a roadmap promise for next year."</span>
+        </div>
+        <div class="why"><span class="k">Why it lands</span>Turns compliance into a present-tense win against their in-progress posture — and FedRAMP is a moat in regulated deals.</div>
+        <div class="srcline"><span class="verified"><span class="tick">✓</span>Verified</span><span class="sep">·</span>openai.com/security<span class="sep">·</span>as of Jun 4</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="contd"><span class="ln"></span>↓ &nbsp; The full brief continues below — Snapshot, Recent Moves, Battlecard, Pricing, Objection Handling</div>
+
+</div>
+
+<div class="note">
+<b>What's new vs. today:</b> (1) a <b>"What changed since you last looked"</b> delta block is the new hero — the rep's actual pre-call job, answered in ~20 seconds, with each change carrying an "on your call" instruction and a verified receipt. (2) The <b>plays now lead with the soundbite</b> — the line to say is the headline, not buried under the explanation. (3) Verification shows up as a quiet <b>confidence + currency</b> chip ("all verified · current as of today"), not a methodology exposé. The full Cut Log / freshness machinery stays backstage, one scroll down.
+</div>
+
+</body>
+</html>
