@@ -10,16 +10,15 @@
 ## What's different from v1
 
 - **Model-driven orchestration.** The agent decides its own steps (research → draft → verify),
-  parallelizes subagent work, and runs under iteration/cost guards — instead of two hardcoded calls.
-- **Grounding.** Claims are re-fetched and checked against the actual source text before they survive.
+  parallelizes subagent work and runs under iteration/cost guards. Specialized agents are kept separate so the verification step stays independent of the drafting step.
+- **Grounding.** Claims are re-fetched and checked against the actual source text by model-free code (httpx + fuzzy match) before they survive, so a model can’t fake a citation, because the code that verifies provenance shares nothing with the code that writes the claim. 
 - **Living battlecards.** Each card is stored as JSON state + rendered markdown under
-  `battlecards/<slug>/`, and a daily GitHub Action re-checks it, surfacing only what's *new and
+  `battlecards/<slug>/`, it's re-checked twice a day, before the work day and at lunch, surfacing only what's *new and
   material* (with a per-card cadence and a cheap triage gate to keep cost down).
-- **The viewer** (`app_v2.py`) is **read-only** — it renders committed cards plus the four
-  "show-the-agentic-work" elements (freshness strip, change feed, just-updated, per-claim timestamps).
+- **The viewer** (`app_v2.py`) is **read-only** — it renders committed cards plus the freshness/updates indicators.
   It never generates or monitors.
 - **Self-serve** ("create your own") runs **out-of-band**: the app commits a request, a GitHub
-  Action runs the same pipeline headless and commits a private result to `user_reports/`.
+  Action runs the same pipeline headless and commits a private result to a private repo visible only to the author.
 
 ## Run it
 
@@ -51,7 +50,6 @@ v2/
 │   └── prompts.py       # SOURCE_HIERARCHY / FORMATTING_RULES (+ loads methodology.md)
 ├── battlecards/         # committed living battlecards (the showcase set)
 ├── selfserve/           # request queue + gate state (state.json)
-├── user_reports/        # private self-serve outputs (never shown publicly, never monitored)
 ├── scripts/             # run_selfserve.py (Action entrypoint), render_static.py, source_audit.py
 ├── assets/              # logo / icon
 ├── docs/                # v2 spec, claim-object schema, launch decision log
@@ -73,3 +71,4 @@ through `scout/selfserve.py`'s GitHub-API backend, so submissions are never worl
 
 See [`docs/architecture.md`](docs/architecture.md) for diagrams (generation flow, monitoring loop,
 control-vs-autonomy) and [`docs/v2-agent-spec.md`](docs/v2-agent-spec.md) for the full design.
+[`ROADMAP.md`](ROADMAP.md) records what I chose to defer and the next step for each.
