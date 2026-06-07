@@ -43,6 +43,11 @@ _SECTION_TITLES = {
 }
 _SECTION_ORDER = ["executive_summary", "snapshot", "recent_moves", "positioning",
                   "pricing", "battlecard", "sentiment", "objection_handling"]
+# Sections still generated and stored, but intentionally NOT rendered in the viewer. The Daily
+# Briefing is the single summary surface, so the Executive Summary — a second summary of the same
+# analysis written as the report's lead-off digest — is hidden to avoid redundant summaries. It
+# stays in the schema, the prompts, and the saved brief; to bring it back, drop the id from here.
+_HIDDEN_SECTIONS = {"executive_summary"}
 _ZONES = [("where_we_win", "Where we win", "win"),
           ("contested", "Where it's a fight", "contested"),
           ("where_they_win", "Where they win", "lose")]
@@ -528,6 +533,8 @@ def _brief_sections(claims: list, md: str):
 
     secs, present = [], []
     for sid in _SECTION_ORDER:
+        if sid in _HIDDEN_SECTIONS:   # generated/stored but not shown (see _HIDDEN_SECTIONS)
+            continue
         cs = sorted(by_sec.get(sid, []), key=lambda c: c.get("order", 0))
         if not cs:
             continue
