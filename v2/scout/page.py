@@ -401,8 +401,8 @@ _OVERRIDES = """
 #scout-page .wrap.mast{padding-bottom:6px;}
 #scout-page .wrap.tw{padding-bottom:8px;}
 #scout-page .tagline{margin:5px 0 0;}
-#scout-page .rt .rt-sub{margin-top:4px;}
-#scout-page .rt .rt-focus{margin-top:5px;}
+#scout-page .rt .rt-sub{margin-top:2px;}
+#scout-page .rt .rt-focus{margin-top:10px;}
 #scout-page{max-width:1240px;margin-left:auto;margin-right:auto;}
 #scout-page .maincol{min-width:0;}
 #scout-page .rule{margin:2px 0 12px!important;}
