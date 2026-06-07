@@ -399,10 +399,10 @@ _OVERRIDES = """
 #scout-page .rule{margin:2px 0 12px!important;}
 #scout-page table.ftab td.secn{color:var(--muted);}
 #scout-page [id]{scroll-margin-top:14px;}
-#scout-page .rail-credit{font-family:var(--mono);font-size:10px;color:var(--faint);
+#scout-page .rail-credit{font-family:var(--mono);font-size:10.5px;color:var(--faint);
   padding:12px 2px 0;line-height:1.4;}
 #scout-page .rail-credit a{color:var(--muted);}
-#scout-page .metric .mv .mdelta{font-family:var(--mono);font-size:10px;font-weight:600;
+#scout-page .metric .mv .mdelta{font-family:var(--mono);font-size:10.5px;font-weight:600;
   color:var(--win);background:var(--win-soft);border:1px solid var(--win-line);
   border-radius:5px;padding:1px 5px;margin-left:7px;vertical-align:middle;white-space:nowrap;}
 @media(min-width:861px){#scout-page .cols{grid-template-columns:218px 1fr!important;}}
@@ -432,7 +432,7 @@ _OVERRIDES = """
 #scout-page .more{text-align:right;border-top:1px solid var(--line2);
   margin-top:12px;padding-top:12px;}
 #scout-page .more>summary{list-style:none;cursor:pointer;user-select:none;
-  display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;
+  display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10.5px;
   font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-deep);
   background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:6px;
   padding:8px 14px;transition:background .12s,color .12s;}
@@ -459,7 +459,7 @@ _OVERRIDES = """
 #scout-page .zlabel.win{color:var(--win);}
 #scout-page .zlabel.contested{color:var(--amber);}
 #scout-page .zlabel.lose{color:var(--muted);}
-#scout-page .sub.zone .subcount{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;
+#scout-page .sub.zone .subcount{font-family:var(--mono);font-size:9px;letter-spacing:.05em;
   text-transform:uppercase;color:var(--faint);}
 #scout-page .sub.zone .zhead + .item{border-top:none;padding-top:6px;}
 """
