@@ -160,6 +160,33 @@ def _section(sid: str, title: str, count_label: str, inner: str) -> str:
             f'<div class="sbody">{inner}</div></details>')
 
 
+# Long scrolling sections that open showing only a teaser (the first item[s]) plus a prominent
+# "EXPAND SECTION" toggle, instead of dumping every item inline. The teaser stays always-visible;
+# the remainder lives in a nested <details class="more"> so the toggle works without JS.
+_PREVIEW_SECTIONS = ("snapshot", "recent_moves", "positioning", "pricing")
+
+
+def _preview_section(sid: str, title: str, count_label: str, items: list,
+                     n_first: int, *, snap: bool = False) -> str:
+    first, rest = items[:n_first], items[n_first:]
+    if snap:
+        first_html = '<div class="snap">' + "".join(first) + "</div>"
+        rest_html = '<div class="snap">' + "".join(rest) + "</div>" if rest else ""
+    else:
+        first_html, rest_html = "".join(first), "".join(rest)
+    head = (f'<div class="shead"><span class="stitle">{_html.escape(title)}</span>'
+            f'<span class="scount">{_html.escape(count_label)}</span></div>')
+    more = ""
+    if rest:
+        more = ('<details class="more"><summary>'
+                f'<span class="lbl-more">Expand section · {len(rest)} more</span>'
+                '<span class="lbl-less">Collapse section</span>'
+                '<span class="mchev">▾</span></summary>'
+                f'<div class="rest">{rest_html}</div></details>')
+    return (f'<div class="sec preview" id="{sid}">{head}'
+            f'<div class="sbody">{first_html}{more}</div></div>')
+
+
 def _battlecard(claims: list) -> str:
     subs = []
     for zid, zlabel, zcls in _ZONES:
@@ -367,6 +394,44 @@ _OVERRIDES = """
   border-radius:5px;padding:1px 5px;margin-left:7px;vertical-align:middle;white-space:nowrap;}
 @media(min-width:861px){#scout-page .cols{grid-template-columns:218px 1fr!important;}}
 @media(max-width:860px){#scout-page .cols{grid-template-columns:1fr!important;}}
+
+/* --- Title hierarchy -------------------------------------------------------------------------
+   Two top-level sections ("Your Daily Briefing" + "The full brief") read as real headlines, set
+   clearly above the section titles (18px) below them. Their subheads ("Today's angle", "Top 3
+   plays") are promoted above the play/item names they head — they were dwarfed by them before. */
+#scout-page .bhead{padding:13px 18px;}
+#scout-page .bhead .l{font-family:var(--display);font-size:22px;font-weight:600;
+  letter-spacing:-.01em;text-transform:none;}
+#scout-page .divider{margin:18px 0 14px;}
+#scout-page .divider .t{font-family:var(--display);font-size:22px;font-weight:600;
+  letter-spacing:-.01em;text-transform:none;color:var(--ink);}
+#scout-page .bsub{font-family:var(--display);font-size:17px;font-weight:600;
+  letter-spacing:-.005em;text-transform:none;color:var(--ink);}
+#scout-page .play h4{font-size:16px;}
+
+/* --- Preview sections (snapshot / recent moves / positioning / pricing) ----------------------
+   A .sec.preview is a DIV (not <details>), so it needs the card chrome the mockup pins to
+   details.sec. It shows a teaser, then a prominent EXPAND toggle in the lower-right corner. */
+#scout-page .sec.preview{background:var(--paper);border:1px solid var(--line);border-radius:7px;
+  margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden;scroll-margin-top:14px;}
+#scout-page .sec.preview .shead{padding:11px 18px;display:flex;align-items:center;gap:11px;
+  border-bottom:1px solid var(--line2);}
+#scout-page .sec.preview .more{text-align:right;border-top:1px solid var(--line2);
+  margin-top:12px;padding-top:12px;}
+#scout-page .sec.preview .more>summary{list-style:none;cursor:pointer;user-select:none;
+  display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;
+  font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-deep);
+  background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:6px;
+  padding:8px 14px;transition:background .12s,color .12s;}
+#scout-page .sec.preview .more>summary::-webkit-details-marker{display:none;}
+#scout-page .sec.preview .more>summary:hover{background:var(--accent-deep);color:#fff;
+  border-color:var(--accent-deep);}
+#scout-page .sec.preview .more .lbl-less{display:none;}
+#scout-page .sec.preview .more[open]>summary .lbl-more{display:none;}
+#scout-page .sec.preview .more[open]>summary .lbl-less{display:inline;}
+#scout-page .sec.preview .more .mchev{font-size:10px;transition:transform .15s;}
+#scout-page .sec.preview .more[open] .mchev{transform:rotate(180deg);}
+#scout-page .sec.preview .rest{text-align:left;margin-top:8px;}
 """
 
 
@@ -447,8 +512,8 @@ def _brief_sections(claims: list, md: str):
         if sid == "battlecard":
             secs.append(_battlecard(cs))
         elif sid == "snapshot":
-            secs.append(_section(sid, title, f"{len(cs)} facts",
-                                 '<div class="snap">' + "".join(_snapshot_box(c) for c in cs) + "</div>"))
+            secs.append(_preview_section(sid, title, f"{len(cs)} facts",
+                                         [_snapshot_box(c) for c in cs], 2, snap=True))
         elif sid == "executive_summary":
             secs.append(_section(sid, title, f"{len(cs)} takeaways",
                                  "".join(_prose_item(c, callout_label="So what") for c in cs)))
@@ -456,8 +521,12 @@ def _brief_sections(claims: list, md: str):
             secs.append(_section(sid, title, f"{len(cs)} objections",
                                  "".join(_prose_item(c, callout_label="So what",
                                                      badge_prefix="Raised by") for c in cs)))
+        elif sid in _PREVIEW_SECTIONS:   # recent_moves, positioning, pricing
+            label = {"recent_moves": "moves"}.get(sid, "items")
+            secs.append(_preview_section(sid, title, f"{len(cs)} {label}",
+                                         [_bullet_item(c) for c in cs], 1))
         else:
-            label = {"recent_moves": "moves", "sentiment": "signal"}.get(sid, "items")
+            label = {"sentiment": "signal"}.get(sid, "items")
             secs.append(_section(sid, title, f"{len(cs)} {label}",
                                  "".join(_bullet_item(c) for c in cs)))
     cut_html, cut_n = _cut_log(md)
