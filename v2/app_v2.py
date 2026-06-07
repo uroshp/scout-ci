@@ -476,7 +476,7 @@ _CTRL_CSS = (
     ".scout-tabs a:hover{color:#34566b;}"
     ".scout-tabs a.on{background:#34566b;color:#fff;}"
     # custom dropdown — a native <details> (survives Streamlit's sanitizer), menu overlays
-    ".scout-dd{position:relative;display:block;width:100%;max-width:340px;}"
+    ".scout-dd{position:relative;display:block;width:auto;min-width:240px;max-width:340px;}"
     ".scout-dd>summary{list-style:none;cursor:pointer;display:flex;align-items:center;min-height:40px;"
     "justify-content:space-between;gap:10px;padding:0 .8rem;font-size:13px;font-weight:500;"
     "color:#1c1d16;background:#fbfaf6;border:1px solid #dfdbcf;border-radius:8px;"
@@ -492,35 +492,67 @@ _CTRL_CSS = (
     ".scout-dd .menu a{display:block;padding:8px 11px;border-radius:6px;font-size:13px;color:#33312a;}"
     ".scout-dd .menu a:hover{background:rgba(52,86,107,.08);color:#1c1d16;}"
     ".scout-dd .menu a.on{background:#34566b;color:#fff;}"
-    # let the dropdown overlay escape the Streamlit column/row boxes instead of being clipped
-    '[data-testid="stColumn"],[data-testid="stHorizontalBlock"]{overflow:visible!important;}'
-    # zero the markdown wrapper margins in the control row so the 40px-tall controls center-align
-    # cleanly against the print button (an offset bottom-margin otherwise nudged them down)
-    '[data-testid="stHorizontalBlock"] [data-testid="stMarkdown"]{margin:0!important;}'
-    # the print button is the only iframe in this row; iframes render INLINE by default, so a
-    # baseline descender gap (plus the component's default margin) lifted it ABOVE the 40px tabs/
-    # dropdown — pure height-matching can't fix that. Make it a block with no margin so all three
-    # are the same 40px box and center-alignment lines them up exactly.
-    '[data-testid="stHorizontalBlock"] iframe{display:block!important;margin:0!important;}'
+    # the whole bar is ONE flex row: tabs left, the picker + print grouped right. align-items
+    # centers all three (tabs / dropdown / print) so they line up BY CONSTRUCTION — no Streamlit
+    # columns and no iframe, which is what kept the print button mis-registered no matter the height.
+    ".scout-bar{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;}"
+    ".scout-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}"
+    # print is now an inline link (opens the call sheet in a new tab) so it shares the row's exact
+    # box model — the same 40px pill as the tabs and dropdown
+    ".scout-print{display:inline-flex;align-items:center;gap:7px;box-sizing:border-box;"
+    "min-height:40px;padding:0 15px;font-family:'IBM Plex Mono',ui-monospace,monospace;"
+    "font-weight:600;font-size:12px;color:#34566b;background:#fbfaf6;border:1px solid #dfdbcf;"
+    "border-radius:8px;white-space:nowrap;transition:border-color .15s,color .15s;}"
+    ".scout-print:hover{border-color:#34566b;color:#2a4658;}"
 )
 
 
-def _mode_tabs_html(is_create: bool, living_href: str) -> str:
-    return ('<div class="scout-ctl"><div class="scout-tabs">'
+def _control_bar_html(is_create: bool, slug: str, cards: list, living_href: str) -> str:
+    """The entire control row as ONE inline flex bar: mode tabs (left), then the card dropdown +
+    print link grouped (right). All three are sibling inline elements with the same 40px box, so
+    align-items:center lines them up exactly — no Streamlit columns or iframe to mis-register."""
+    tabs = ('<div class="scout-tabs">'
             f'<a class="{"" if is_create else "on"}" href="{living_href}" target="_self">'
             'Living battlecards</a>'
             f'<a class="{"on" if is_create else ""}" href="?mode=create" target="_self">'
-            'Create your own</a></div></div>')
+            'Create your own</a></div>')
+    right = ""
+    if not is_create and slug:
+        opts = "".join(
+            f'<a class="{"on" if c == slug else ""}" href="?card={c}" target="_self">'
+            f'{html.escape(_card_label(c))}</a>' for c in cards)
+        dd = ('<details class="scout-dd">'
+              f'<summary><span>{html.escape(_card_label(slug))}</span>'
+              '<span class="cv">&#9662;</span></summary>'
+              f'<div class="menu">{opts}</div></details>')
+        pr = (f'<a class="scout-print" href="?print={slug}" target="_blank" rel="noopener">'
+              '&#128424; Print call sheet</a>')
+        right = f'<div class="scout-right">{dd}{pr}</div>'
+    return f'<div class="scout-ctl scout-bar">{tabs}{right}</div>'
 
 
-def _card_dropdown_html(cards: list, slug: str) -> str:
-    opts = "".join(
-        f'<a class="{"on" if c == slug else ""}" href="?card={c}" target="_self">'
-        f'{html.escape(_card_label(c))}</a>' for c in cards)
-    return ('<div class="scout-ctl"><details class="scout-dd">'
-            f'<summary><span>{html.escape(_card_label(slug))}</span>'
-            '<span class="cv">▾</span></summary>'
-            f'<div class="menu">{opts}</div></details></div>')
+def _autoprint(sheet_html: str) -> str:
+    """Inject an auto-print into the call-sheet document so the ?print tab opens the print dialog
+    on load (the user already gestured by clicking the link). Degrades gracefully — if the dialog
+    doesn't fire, the polished, print-optimized call sheet is still shown for a manual ⌘P."""
+    script = ("<script>window.addEventListener('load',function(){"
+              "setTimeout(function(){try{window.print();}catch(e){}},500);});</script>")
+    return sheet_html.replace("</body>", script + "</body>", 1)
+
+
+def _render_print_tab(slug: str):
+    """The ?print=<slug> tab: strip all Streamlit chrome and render the call sheet full-bleed so
+    it both displays cleanly and prints cleanly (the call sheet carries its own print CSS)."""
+    if slug not in display.list_battlecards():
+        st.error("That battlecard could not be found.")
+        return
+    st.markdown(
+        '<style>[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stStatusWidget"],'
+        'footer,[data-testid="stSidebar"]{display:none!important;}'
+        '[data-testid="stMainBlockContainer"],.block-container{max-width:920px!important;'
+        'padding:0.5rem 0 0!important;}[data-testid="stAppViewContainer"]{background:#fff!important;}'
+        '</style>', unsafe_allow_html=True)
+    components.html(_autoprint(page.call_sheet_html(slug)), height=1100, scrolling=True)
 
 
 def _card_label(slug: str) -> str:
@@ -600,6 +632,12 @@ def main():
     _ga = analytics.ga_component_html()
     if _ga:
         components.html(_ga, height=0)
+    # ?print=<slug> opens a clean tab showing just the call sheet and auto-fires the print dialog.
+    # The inline "Print call sheet" link points here: a link can't call window.open, but it CAN
+    # navigate to this route, where the call sheet's own document triggers print on load.
+    if st.query_params.get("print"):
+        _render_print_tab(st.query_params["print"])
+        return
     # Center the content to the same 1240px as the page's own .wrap (so masthead, the mode
     # switch, the card picker and the brief all line up), pull it up, and remove the sidebar
     # entirely — navigation lives IN the page now.
@@ -647,11 +685,9 @@ def main():
     st.markdown(page.style_block(), unsafe_allow_html=True)
     st.markdown(page.masthead_html(), unsafe_allow_html=True)
 
-    # Control bar (mode tabs + card dropdown + print) on ONE tight row — all custom HTML, no
-    # native widgets. Anchors drive state via query params (full navigation). A ?job= deep link
-    # opens the create surface; ?card=<slug> selects a battlecard directly (permalink).
-    # (Print lives here, not beside the focus line, because a second column-row forces Streamlit
-    # to reserve a tall block around the components.html iframe — that was the empty gap.)
+    # Control bar — mode tabs + card dropdown + print as ONE inline flex row (no Streamlit columns,
+    # no iframe), so all three align by construction. Anchors drive state via query params (full
+    # navigation). A ?job= deep link opens the create surface; ?card=<slug> selects a card directly.
     cards = display.list_battlecards()
     mode_param = st.query_params.get("mode")
     card_param = st.query_params.get("card")
@@ -659,16 +695,7 @@ def main():
     is_create = (mode_param == "create") if mode_param is not None else bool(job_param)
     slug = card_param if card_param in cards else (cards[0] if cards else None)
     living_href = f"?card={slug}" if slug else "?mode=battlecards"
-
-    mc1, mc2, mc3 = st.columns([1.5, 1.4, 1.5], gap="small", vertical_alignment="center")
-    with mc1:
-        st.markdown(_mode_tabs_html(is_create, living_href), unsafe_allow_html=True)
-    with mc2:
-        if not is_create and slug:
-            st.markdown(_card_dropdown_html(cards, slug), unsafe_allow_html=True)
-    with mc3:
-        if not is_create and slug:
-            components.html(_print_button(page.call_sheet_html(slug)), height=40)
+    st.markdown(_control_bar_html(is_create, slug, cards, living_href), unsafe_allow_html=True)
 
     if is_create:
         if "card" in st.query_params:   # don't leave a stale ?card= on the create surface
