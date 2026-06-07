@@ -336,11 +336,14 @@ def _metrics(cp: dict, claims_n: int, remaining: int, new_count: int = 0) -> str
     last_d, last_t = _fmt_dt(cp.get("last_checked_ts") or cp.get("last_checked"))
     next_d, next_t = _fmt_dt(cp.get("next_check"))
     base_d, _ = _fmt_dt(cp.get("baseline_date"))
+    # The countdown ticks live: server-render the seconds, then a parent-injected script (see
+    # app_v2._countdown_component) re-renders #scout-countdown every second from data-remaining.
     if remaining > 0:
-        h, m = remaining // 3600, (remaining % 3600) // 60
-        cd = f'<div class="cd">in {h}h {m:02d}m</div>'
+        h, m, s = remaining // 3600, (remaining % 3600) // 60, remaining % 60
+        cd = (f'<div class="cd" id="scout-countdown" data-remaining="{remaining}">'
+              f'in {h}h {m:02d}m {s:02d}s</div>')
     else:
-        cd = '<div class="cd">update due now</div>'
+        cd = '<div class="cd" id="scout-countdown" data-remaining="0">update due now</div>'
     delta = (f'<span class="mdelta" title="{new_count} new since the last update">'
              f'+{new_count}</span>') if new_count else ""
 

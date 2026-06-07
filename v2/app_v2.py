@@ -545,6 +545,27 @@ def _autoprint(sheet_html: str) -> str:
     return sheet_html.replace("</body>", script + "</body>", 1)
 
 
+def _countdown_component() -> str:
+    """A height-0 component that drives the live 'Next update' countdown. Same parent-injection
+    trick as GA (proven to reach window.parent on Cloud): one global interval re-renders
+    #scout-countdown every second from its data-remaining, anchored to the client clock at load.
+    A fresh element each rerun re-anchors to the server's recomputed value. Degrades gracefully —
+    if the parent isn't reachable, the server-rendered seconds simply stay put."""
+    return (
+        "<script>(function(){"
+        "var p=window.parent;if(!p||p.__scoutCD)return;p.__scoutCD=true;"
+        "function pad(n){return (n<10?'0':'')+n;}"
+        "p.setInterval(function(){"
+        "var el=p.document.getElementById('scout-countdown');if(!el)return;"
+        "if(el.__end===undefined){var r=parseInt(el.getAttribute('data-remaining')||'0',10);"
+        "if(r<=0)return;el.__end=Date.now()+r*1000;}"
+        "var s=Math.round((el.__end-Date.now())/1000);"
+        "if(s<=0){el.textContent='update due now';return;}"
+        "var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;"
+        "el.textContent='in '+h+'h '+pad(m)+'m '+pad(sec)+'s';"
+        "},1000);})();</script>")
+
+
 def _render_print_tab(slug: str):
     """The ?print=<slug> tab: strip all Streamlit chrome and render the call sheet full-bleed so
     it both displays cleanly and prints cleanly (the call sheet carries its own print CSS)."""
@@ -724,6 +745,7 @@ def main():
     # Title (full width) then the brief body — both inline. Credit lives in the left rail.
     st.markdown(_title_block_html(slug), unsafe_allow_html=True)
     st.markdown(page.content_html(slug), unsafe_allow_html=True)
+    components.html(_countdown_component(), height=0)   # live-tick the "Next update" countdown
 
 
 if __name__ == "__main__":
