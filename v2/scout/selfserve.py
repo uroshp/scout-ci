@@ -183,15 +183,20 @@ def new_job_id(competitor: str, my_company: str | None, focus: str | None) -> st
     return f"{base}__{stamp}"
 
 
-def submit(competitor: str, my_company: str | None, focus: str | None) -> dict:
+def submit(competitor: str, my_company: str | None, focus: str | None,
+           notify_email: str | None = None) -> dict:
     """Capture a request (does NOT generate). Writes selfserve/requests/<id>.json, which
-    triggers the Action. Returns the request record (incl. job_id) for the app to track."""
+    triggers the Action. Returns the request record (incl. job_id) for the app to track.
+    notify_email (optional) is carried through so the ACTION can email the result link when the
+    job finishes — the app never sends, because the visitor may have closed the tab."""
     job_id = new_job_id(competitor, my_company, focus)
+    email = (notify_email or "").strip() or None
     req = {
         "job_id": job_id,
         "competitor": (competitor or "").strip(),
         "my_company": (my_company or "").strip() or None,
         "focus": (focus or "").strip() or None,
+        "notify_email": email if (email and valid_email(email)) else None,
         "requested_at": _now(),
         "status": "queued",
     }
@@ -285,3 +290,12 @@ _SAFE_ID = re.compile(r"^[a-z0-9][a-z0-9_\-]{3,120}$")
 def valid_job_id(job_id: str) -> bool:
     """Guard a job id coming from a URL query param before using it in a path."""
     return bool(job_id and _SAFE_ID.match(job_id) and ".." not in job_id)
+
+
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+
+def valid_email(addr: str) -> bool:
+    """Light sanity check on a user-supplied notification address — not full RFC validation,
+    just enough to reject obvious garbage before we store/send to it."""
+    return bool(addr and len(addr) <= 254 and _EMAIL_RE.match(addr))

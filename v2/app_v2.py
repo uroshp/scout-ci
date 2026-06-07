@@ -300,9 +300,15 @@ def _render_job_status(job_id: str) -> str | None:
         started = st.session_state.setdefault(f"job_start_{job_id}", time.time())
         elapsed = time.time() - started
         frac = min(elapsed / _SELFSERVE_ESTIMATE_S, 0.99)
-        st.info("**This usually takes 8–10 minutes, sometimes longer — perfection takes time!** "
-                "Keep this tab open, or bookmark this URL and come back; your report will be "
-                "here when it's done.")
+        if st.session_state.get("selfserve_notify"):
+            wait_note = ("**This usually takes 8–10 minutes, sometimes longer — perfection takes "
+                         "time!** You can close this tab; we'll email you a link the moment it's "
+                         "ready.")
+        else:
+            wait_note = ("**This usually takes 8–10 minutes, sometimes longer — perfection takes "
+                         "time!** Keep this tab open, or bookmark this URL and come back; your "
+                         "report will be here when it's done.")
+        st.info(wait_note)
         st.progress(frac)
         st.markdown("*" + _phase_message(frac) + "*")
         st.caption(f"Elapsed {int(elapsed // 60)}m {int(elapsed % 60)}s")
@@ -315,29 +321,38 @@ def _render_job_status(job_id: str) -> str | None:
         md = res.get("markdown", "")
         claims = res.get("claims") or []
         meta = _selfserve_meta(job_id, res)
-        # Actions at the TOP — these reports are long, so don't bury them at the bottom.
-        a1, a2, a3 = st.columns(3, gap="small", vertical_alignment="center")
-        with a1:
-            st.download_button("⬇ Download (.md)", data=md, use_container_width=True,
-                               file_name=f"{res.get('slug') or 'competitive-brief'}.md",
-                               mime="text/markdown")
-        with a2:
-            if claims:
+        # EXPORT actions at the top — reports are long, so a reader can grab the artifact without
+        # scrolling first. Print / Save as PDF leads (the rep-friendly call sheet); Markdown is the
+        # secondary power-user export. "Create another" is deliberately NOT up here: it's a restart,
+        # and at equal weight it just invites a bounce off the report before it's been read. It
+        # lives at the bottom, where a "what next" action belongs.
+        if claims:
+            a1, a2 = st.columns(2, gap="small", vertical_alignment="center")
+            with a1:
                 components.html(_print_button(page.call_sheet_from_claims(claims, meta), full=True),
                                 height=48)
-        with a3:
-            if st.button("✚ Create another", use_container_width=True):
-                _reset_selfserve()
-                st.rerun()
-        if claims:
+            with a2:
+                st.download_button("⬇ Download (Markdown)", data=md, use_container_width=True,
+                                   file_name=f"{res.get('slug') or 'competitive-brief'}.md",
+                                   mime="text/markdown")
             # Render through the SAME engine as the living-battlecard viewer (rich CSS already
             # injected in main()), minus the monitoring furniture — so a self-serve card and a
             # roster card share one consistent UI.
             st.markdown(page.static_brief_html(claims, md, meta=meta), unsafe_allow_html=True)
-        else:  # older job with no stored claims — fall back to the flat markdown render
+        else:  # older job with no stored claims — no call sheet, so Markdown export stands alone
+            st.download_button("⬇ Download (Markdown)", data=md, use_container_width=True,
+                               file_name=f"{res.get('slug') or 'competitive-brief'}.md",
+                               mime="text/markdown")
             st.markdown("---")
             st.markdown(_BRIEF_CSS, unsafe_allow_html=True)
             st.markdown(_render_brief_html(md), unsafe_allow_html=True)
+        # Quiet escape hatch, set apart and AFTER the report — not competing with it up top.
+        st.markdown("<div style='margin-top:1.25rem'></div>", unsafe_allow_html=True)
+        _, restart_col = st.columns([3, 1])
+        with restart_col:
+            if st.button("✚ Create another", use_container_width=True):
+                _reset_selfserve()
+                st.rerun()
     elif status == "rejected":
         st.warning(res.get("message", "The free window is closed."))
         st.markdown(f"**For access, {_contact_md()}.**")
@@ -367,8 +382,8 @@ def _render_selfserve(job_param: str | None) -> None:
             return
         st.session_state["selfserve_job"] = job_id
         status = _render_job_status(job_id)
-        # The done view has its own top action bar (incl. Create another); only the
-        # pending/rejected/error views (which are short) need a bottom restart button.
+        # The done view renders its own "Create another" (a quiet one, below the report); only the
+        # pending/rejected/error views (which are short) need this bottom restart button.
         if status != "done" and st.button("← Start another report"):
             _reset_selfserve()
             st.rerun()
@@ -393,9 +408,20 @@ def _render_selfserve(job_param: str | None) -> None:
     competitor = st.text_input("Competitor to research (required)", placeholder="e.g. OpenAI")
     my_company = st.text_input("Your company (optional)", placeholder="e.g. Anthropic")
     focus = st.text_input("Focus area (optional)", placeholder="e.g. enterprise coding")
+    # Only offered when the backend can actually deliver it (Resend wired in the Action), so the
+    # form never promises a notification that won't arrive. Reports take ~10 min, so this is the
+    # difference between a visitor coming back and silently dropping out of the funnel.
+    email = ""
+    if config.SELFSERVE_EMAIL_ENABLED:
+        email = st.text_input("Email me when it's ready (optional)",
+                              placeholder="you@company.com")
     if st.button("Generate my report", type="primary"):
         if not competitor.strip():
             st.warning("Please enter a competitor to research.")
+            return
+        email_clean = email.strip()
+        if email_clean and not selfserve.valid_email(email_clean):
+            st.warning("That email doesn't look right — fix it or clear it to continue.")
             return
         # Soft per-session throttle (a 60s cooldown + a 3-per-session cap). This only blunts
         # double-clicks and casual spamming of the public form from one browser session — it is
@@ -415,9 +441,12 @@ def _render_selfserve(job_param: str | None) -> None:
         if not selfserve.gate()["open"]:                # re-check; the view can be stale
             st.warning("The free window just closed. For access, see the DM link below.")
             return
-        req = selfserve.submit(competitor, my_company, focus)
+        req = selfserve.submit(competitor, my_company, focus, notify_email=email_clean or None)
         hist.append(now_dt)
         st.session_state["selfserve_job"] = req["job_id"]
+        # Remember (this session) whether they asked to be emailed, so the pending view can tell
+        # them they're free to close the tab instead of babysitting a 10-minute progress bar.
+        st.session_state["selfserve_notify"] = bool(req.get("notify_email"))
         st.query_params["job"] = req["job_id"]
         st.rerun()
 

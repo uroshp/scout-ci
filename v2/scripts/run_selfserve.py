@@ -17,7 +17,7 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from scout import selfserve
+from scout import notify, selfserve
 from scout.generate import generate
 
 
@@ -70,6 +70,19 @@ def main() -> None:
         }, markdown=res.get("markdown"), claims=res.get("kept"))
         print(f"{job_id}: DONE  cost=${total}  claims={len(res.get('kept', []))}  "
               f"(used={state['used']}/{state['free_limit']}, spend=${state['spend_usd']})")
+
+        # Optional "your report is ready" email — only if the user left an address AND Resend is
+        # configured in this Action. Best-effort: a mail failure must never fail a paid-for job.
+        if req.get("notify_email"):
+            comp = req.get("competitor") or ""
+            mine = req.get("my_company")
+            label = f"{comp} vs {mine}" if mine else comp
+            try:
+                r = notify.send_selfserve_ready(req["notify_email"], job_id, label or None)
+                print(f"{job_id}: email {'sent' if r.get('sent') else 'skipped'}"
+                      f" ({r.get('reason', r.get('status'))})")
+            except Exception as e:   # belt-and-suspenders; send_selfserve_ready already guards
+                print(f"{job_id}: email error {e}")
 
 
 if __name__ == "__main__":
