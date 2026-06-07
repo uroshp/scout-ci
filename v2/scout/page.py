@@ -324,7 +324,8 @@ def _briefing(claims: list) -> str:
         sb = _callout("sb", "Soundbite", p["soundbite"]) if p["soundbite"] else ""
         plays.append(f'<div class="play">{top}<h4>{_inline(p["title"])}</h4>{why}{sb}'
                      f'{_verified(c.get("source_url",""))}</div>')
-    plays_html = ('<div class="bsub two" id="brief2">Top 3 plays</div>' + "".join(plays)) if plays else ""
+    plays_html = ('<div class="bsub two" id="brief2">Top 3 plays</div>'
+                  f'<div class="playbox">{"".join(plays)}</div>') if plays else ""
 
     return ('<div class="briefing" id="brief"><div class="bhead">'
             '<span class="l"><span class="dot"></span>Your Daily Briefing</span>'
@@ -477,6 +478,18 @@ _OVERRIDES = """
 #scout-page .sub.zone .subcount{font-family:var(--mono);font-size:9px;letter-spacing:.05em;
   text-transform:uppercase;color:var(--faint);}
 #scout-page .sub.zone .zhead + .item{border-top:none;padding-top:0;}
+
+/* --- Group "Top 3 plays" into one panel + box each objection on its own ------------------------
+   Same "bring it together in a box" treatment as the battlecard zones. The 3 plays read as a
+   single category, so wrap them in one panel matching the "Today's angle" box; each objection is
+   its own self-contained Q+counter, so each item becomes its own card. */
+#scout-page .playbox{background:var(--paper2);border:1px solid var(--line);
+  border-left:3px solid var(--accent-deep);border-radius:0 8px 8px 0;padding:2px 16px 6px;}
+#scout-page #objection_handling .sbody>.item,
+#scout-page #objection_handling .sbody>.item:first-child{
+  border:1px solid var(--line);border-radius:8px;padding:13px 16px;margin-bottom:10px;
+  background:var(--paper2);}
+#scout-page #objection_handling .sbody>.item:last-child{margin-bottom:2px;}
 """
 
 
