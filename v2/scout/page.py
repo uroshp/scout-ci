@@ -456,21 +456,24 @@ _OVERRIDES = """
 #scout-page .rest{text-align:left;margin-top:8px;}
 
 /* --- Battlecard zones --------------------------------------------------------------------------
-   The zone label ("Where we win" / "...a fight" / "Where they win") was a tiny 10px mono pill,
-   dwarfed by the 16px item titles it heads. Promote it to a clear, color-coded serif heading with
-   a matching zone-colored rule, and give each zone the same teaser + Expand treatment. */
-#scout-page .sec .sub.zone{margin-top:20px;padding-left:14px;border-left:3px solid var(--line);}
-#scout-page .sec .sub.zone:first-child{margin-top:6px;}
-#scout-page .sec .sub.zone.win{border-left-color:var(--win-line);}
-#scout-page .sec .sub.zone.contested{border-left-color:var(--amber-line);}
-#scout-page .zhead{display:flex;align-items:baseline;gap:9px;margin-bottom:2px;}
+   The three subsections ("Where we win" / "...a fight" / "Where they win") read as one continuous
+   block before. Make each a DISTINCT tinted panel — green = we win, amber = a fight, slate = they
+   win — with its colored heading over a divider, so a reader sees three clearly separate areas. */
+#scout-page .sec .sub.zone{margin-top:16px;padding:13px 16px 6px;border:1px solid var(--line);
+  border-left-width:3px;border-radius:8px;}
+#scout-page .sec .sub.zone:first-child{margin-top:8px;}
+#scout-page .sec .sub.zone.win{background:var(--win-soft);border-color:var(--win-line);}
+#scout-page .sec .sub.zone.contested{background:rgba(138,99,34,.09);border-color:var(--amber-line);}
+#scout-page .sec .sub.zone.lose{background:var(--accent-soft);border-color:var(--accent-line);}
+#scout-page .zhead{display:flex;align-items:baseline;gap:9px;margin-bottom:9px;
+  padding-bottom:7px;border-bottom:1px solid var(--line2);}
 #scout-page .zlabel{font-family:var(--display);font-size:17px;font-weight:600;letter-spacing:-.005em;}
 #scout-page .zlabel.win{color:var(--win);}
 #scout-page .zlabel.contested{color:var(--amber);}
-#scout-page .zlabel.lose{color:var(--muted);}
+#scout-page .zlabel.lose{color:var(--accent-deep);}
 #scout-page .sub.zone .subcount{font-family:var(--mono);font-size:9px;letter-spacing:.05em;
   text-transform:uppercase;color:var(--faint);}
-#scout-page .sub.zone .zhead + .item{border-top:none;padding-top:6px;}
+#scout-page .sub.zone .zhead + .item{border-top:none;padding-top:0;}
 """
 
 
