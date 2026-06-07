@@ -31,6 +31,36 @@ def render_digest(competitor: str, alerts: list[dict]) -> tuple[str, str]:
     return subject, "\n".join(lines)
 
 
+def send_selfserve_ready(to: str, job_id: str, label: str | None = None) -> dict:
+    """Email a self-serve user that their report is ready, with the deep link back to it. Sent
+    from the ACTION (not the app) because the user may have closed the tab. SAFE BY DEFAULT: a
+    no-op unless RESEND_API_KEY and a recipient are both present, so unconfigured runs send nothing.
+    Never raises — a notification failure must not fail the job."""
+    key = config.RESEND_API_KEY
+    if not key or not to:
+        return {"sent": False, "reason": "unconfigured or no recipient (no email sent)"}
+    link = f"{config.SELFSERVE_APP_URL.rstrip('/')}/?job={job_id}"
+    what = f" — {label}" if label else ""
+    subject = f"Your Scout battlecard is ready{what}"
+    body = (
+        f"Your competitive battlecard{what} is ready.\n\n"
+        f"View it here: {link}\n\n"
+        "Every claim was verified against its source; anything that couldn't be verified was cut "
+        "and logged in the Cut Log.\n\n"
+        "— Scout"
+    )
+    try:
+        resp = httpx.post(
+            RESEND_ENDPOINT,
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+            json={"from": config.ALERT_EMAIL_FROM, "to": [to], "subject": subject, "text": body},
+            timeout=20,
+        )
+        return {"sent": resp.status_code < 300, "status": resp.status_code}
+    except Exception as e:
+        return {"sent": False, "reason": f"send error: {type(e).__name__}"}
+
+
 def send_digest(competitor: str, alerts: list[dict], dry_run: bool = True) -> dict:
     """Send ONE digest of the run's material deltas. No-op (dry) unless fully configured.
     Returns a result dict; never raises on a missing-config path."""

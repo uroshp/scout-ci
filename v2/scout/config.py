@@ -109,6 +109,14 @@ SELFSERVE_FREE_LIMIT = int(os.environ.get("SCOUT_SELFSERVE_FREE_LIMIT", "10"))
 SELFSERVE_SPEND_CEILING_USD = float(os.environ.get("SCOUT_SELFSERVE_SPEND_CEILING_USD", "100"))
 # Where "DM me for access" should point once the window closes (shown by the app).
 SELFSERVE_CONTACT = os.environ.get("SCOUT_SELFSERVE_CONTACT", "urospajic@gmail.com")
+# Optional "email me when it's ready" on the self-serve form. OFF by default so the form NEVER
+# promises a notification the backend can't deliver. Turn on (SCOUT_SELFSERVE_EMAIL=1, app-side)
+# ONLY after RESEND_API_KEY is configured in the self-serve ACTION's secrets — the Action is what
+# actually sends, since the user may have closed the tab. App-side this flag only decides whether
+# to SHOW the optional email field; the Action sends iff RESEND_API_KEY + a recipient are present.
+SELFSERVE_EMAIL_ENABLED = os.environ.get("SCOUT_SELFSERVE_EMAIL", "") == "1"
+# Public base URL of the deployed viewer, used to build the result link in the "ready" email.
+SELFSERVE_APP_URL = os.environ.get("SCOUT_SELFSERVE_APP_URL", "https://agent-scout.streamlit.app")
 
 # --- Author / credit ---------------------------------------------------------
 # Shown in the app footer and used as the self-serve "get in touch" link. When
