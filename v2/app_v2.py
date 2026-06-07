@@ -492,11 +492,13 @@ _CTRL_CSS = (
     ".scout-dd .menu a{display:block;padding:8px 11px;border-radius:6px;font-size:13px;color:#33312a;}"
     ".scout-dd .menu a:hover{background:rgba(52,86,107,.08);color:#1c1d16;}"
     ".scout-dd .menu a.on{background:#34566b;color:#fff;}"
-    # the whole bar is ONE flex row: tabs left, the picker + print grouped right. align-items
-    # centers all three (tabs / dropdown / print) so they line up BY CONSTRUCTION — no Streamlit
-    # columns and no iframe, which is what kept the print button mis-registered no matter the height.
-    ".scout-bar{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;}"
-    ".scout-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}"
+    # the whole bar is ONE flex row with three direct children spread across it (tabs left, picker
+    # middle, print right). align-items centers all three so they line up BY CONSTRUCTION — no
+    # Streamlit columns and no iframe, which is what kept the print button mis-registered. The
+    # margin-top restores the breathing room the removed column wrapper used to give us.
+    ".scout-bar{display:flex;align-items:center;justify-content:space-between;gap:18px;"
+    "flex-wrap:wrap;margin:16px 0 6px;}"
+    ".scout-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}"
     # print is now an inline link (opens the call sheet in a new tab) so it shares the row's exact
     # box model — the same 40px pill as the tabs and dropdown
     ".scout-print{display:inline-flex;align-items:center;gap:7px;box-sizing:border-box;"
@@ -516,7 +518,8 @@ def _control_bar_html(is_create: bool, slug: str, cards: list, living_href: str)
             'Living battlecards</a>'
             f'<a class="{"on" if is_create else ""}" href="?mode=create" target="_self">'
             'Create your own</a></div>')
-    right = ""
+    left = tabs
+    print_btn = ""
     if not is_create and slug:
         opts = "".join(
             f'<a class="{"on" if c == slug else ""}" href="?card={c}" target="_self">'
@@ -525,10 +528,12 @@ def _control_bar_html(is_create: bool, slug: str, cards: list, living_href: str)
               f'<summary><span>{html.escape(_card_label(slug))}</span>'
               '<span class="cv">&#9662;</span></summary>'
               f'<div class="menu">{opts}</div></details>')
-        pr = (f'<a class="scout-print" href="?print={slug}" target="_blank" rel="noopener">'
-              '&#128424; Print call sheet</a>')
-        right = f'<div class="scout-right">{dd}{pr}</div>'
-    return f'<div class="scout-ctl scout-bar">{tabs}{right}</div>'
+        # mode tabs + card picker are both "what am I viewing" — group them on the left; print is
+        # the action, alone on the right (never the picker glued to print).
+        left = f'<div class="scout-left">{tabs}{dd}</div>'
+        print_btn = (f'<a class="scout-print" href="?print={slug}" target="_blank" rel="noopener">'
+                     '&#128424; Print call sheet</a>')
+    return f'<div class="scout-ctl scout-bar">{left}{print_btn}</div>'
 
 
 def _autoprint(sheet_html: str) -> str:
