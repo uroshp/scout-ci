@@ -489,6 +489,7 @@ _OVERRIDES = """
 #scout-page #objection_handling .sbody>.item:first-child{
   border:1px solid var(--line);border-radius:8px;padding:13px 16px;margin-bottom:10px;
   background:var(--paper2);}
+#scout-page #objection_handling .sbody>.item:first-child{margin-top:8px;}  /* clear the section divider */
 #scout-page #objection_handling .sbody>.item:last-child{margin-bottom:2px;}
 """
 
