@@ -5,7 +5,7 @@
   "focus": null,
   "baseline_date": "2026-06-05",
   "last_checked": "2026-06-05T01:46:25",
-  "cadence_hours": 24,
+  "cadence_hours": 72,
   "alerted_fingerprints": [],
-  "monitored": false
+  "monitored": true
 }

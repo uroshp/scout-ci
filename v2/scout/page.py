@@ -339,7 +339,10 @@ def _metrics(cp: dict, claims_n: int, remaining: int, new_count: int = 0) -> str
     base_d, _ = _fmt_dt(cp.get("baseline_date"))
     # The countdown ticks live: server-render the seconds, then a parent-injected script (see
     # app_v2._countdown_component) re-renders #scout-countdown every second from data-remaining.
-    if remaining > 0:
+    # An unmonitored card (next_check is None) is never re-checked — show that, never "due now".
+    if not cp.get("next_check"):
+        cd = '<div class="cd cd-off">not monitored</div>'
+    elif remaining > 0:
         h, m, s = remaining // 3600, (remaining % 3600) // 60, remaining % 60
         cd = (f'<div class="cd" id="scout-countdown" data-remaining="{remaining}">'
               f'in {h}h {m:02d}m {s:02d}s</div>')
@@ -418,6 +421,8 @@ _OVERRIDES = """
 #scout-page .metric .mv .mdelta{font-family:var(--mono);font-size:10.5px;font-weight:600;
   color:var(--win);background:var(--win-soft);border:1px solid var(--win-line);
   border-radius:5px;padding:1px 5px;margin-left:7px;vertical-align:middle;white-space:nowrap;}
+/* Unmonitored cards have no next-check: render the countdown slot muted, not as a live accent. */
+#scout-page .metric .cd.cd-off{color:var(--faint);font-weight:500;}
 @media(min-width:861px){#scout-page .cols{grid-template-columns:218px 1fr!important;}}
 @media(max-width:860px){#scout-page .cols{grid-template-columns:1fr!important;}}
 

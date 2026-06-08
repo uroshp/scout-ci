@@ -508,6 +508,26 @@ _CTRL_CSS = (
     ".scout-print:hover{border-color:#34566b;color:#2a4658;}"
 )
 
+# The "Create your own" form is built from NATIVE Streamlit widgets (st.text_input / st.button /
+# st.subheader / st.caption / st.warning), which render in Streamlit's default typeface — out of
+# step with the rest of the page (custom HTML on the Inter/Fraunces stack). Pull the form controls
+# onto the app's font. Scoped to widget classes that the brief (pure custom HTML inside #scout-page)
+# never uses, so this can't reach into the battlecard render. Form controls don't inherit font, so
+# the labels/inputs/button are targeted explicitly; !important beats Streamlit's own widget rules.
+_FORM_CSS = (
+    'section[data-testid="stMain"] .stTextInput,'
+    'section[data-testid="stMain"] .stTextInput input,'
+    'section[data-testid="stMain"] .stTextInput label,'
+    'section[data-testid="stMain"] [data-testid="stWidgetLabel"],'
+    'section[data-testid="stMain"] .stButton button,'
+    'section[data-testid="stMain"] [data-testid="stHeading"] *,'
+    'section[data-testid="stMain"] [data-testid="stCaptionContainer"],'
+    'section[data-testid="stMain"] [data-testid="stCaptionContainer"] *,'
+    'section[data-testid="stMain"] [data-testid="stAlertContainer"],'
+    'section[data-testid="stMain"] [data-testid="stAlertContainer"] *'
+    "{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif!important;}"
+)
+
 
 def _control_bar_html(is_create: bool, slug: str, cards: list, living_href: str) -> str:
     """The entire control row as ONE inline flex bar: mode tabs (left), then the card dropdown +
@@ -701,7 +721,7 @@ def main():
         '#scout-page .sec,#scout-page .briefing,#scout-page .item,#scout-page .play'
         '{break-inside:avoid;box-shadow:none!important;}'
         '@page{margin:1.4cm;}}'
-        + _CTRL_CSS + '</style>', unsafe_allow_html=True)
+        + _CTRL_CSS + _FORM_CSS + '</style>', unsafe_allow_html=True)
 
     job_param = st.query_params.get("job")
     # Fonts (separate <link>), CSS, and masthead each go in their OWN st.markdown call —
