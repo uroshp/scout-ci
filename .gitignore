@@ -226,3 +226,8 @@ out/
 # Generation debug artifacts (SCOUT_DEBUG_DIR)
 debug_runs/
 .debug_runs/
+
+# Scout v3.5 shadow-eval capture — local-FS fallback only; the real store is the PRIVATE
+# data repo. Never commit captured champion decisions into the public code repo.
+shadow/
+v2/shadow/
