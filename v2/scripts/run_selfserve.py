@@ -17,7 +17,7 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from scout import notify, selfserve
+from scout import notify, selfserve, shadow
 from scout.generate import generate
 
 
@@ -70,6 +70,16 @@ def main() -> None:
         }, markdown=res.get("markdown"), claims=res.get("kept"))
         print(f"{job_id}: DONE  cost=${total}  claims={len(res.get('kept', []))}  "
               f"(used={state['used']}/{state['free_limit']}, spend=${state['spend_usd']})")
+
+        # Shadow-eval observer (v3.5): a self-serve card is a REAL paid generation, so record its
+        # champion decisions too. generate(write=False) here means "don't touch battlecards/", NOT
+        # "dry run" — so we capture explicitly at the caller that knows the spend was real (the
+        # generate() hook only fires for write=True roster baselines). No-op unless
+        # SCOUT_SHADOW_EVAL=1; never raises (scout/shadow.py).
+        shadow.capture(res.get("slug"), "selfserve", kept=res.get("kept", []),
+                       cut=res.get("cut_log", []), grounding=res.get("grounding", {}),
+                       competitor=req.get("competitor"), my_company=req.get("my_company"),
+                       focus=req.get("focus"))
 
         # Optional "your report is ready" email — only if the user left an address AND Resend is
         # configured in this Action. Best-effort: a mail failure must never fail a paid-for job.

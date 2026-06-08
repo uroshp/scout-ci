@@ -46,4 +46,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           SELFSERVE_GH_TOKEN: ${{ secrets.SELFSERVE_GH_TOKEN }}
           SELFSERVE_REPO: ${{ secrets.SELFSERVE_REPO }}
+          # Shadow-eval capture (v3.5): a self-serve card is a real paid generation, so record its
+          # champion decisions to the PRIVATE data repo too (pure observer — scout/shadow.py).
+          SCOUT_SHADOW_EVAL: "1"
         run: python scripts/run_selfserve.py
