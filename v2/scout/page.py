@@ -380,7 +380,7 @@ _LIVE_BOX = (
     '<div class="livebox"><div class="lb-live"><span class="live">'
     '<span class="pulse"></span>LIVE</span></div>'
     '<div class="lb-agents">Monitored by an orchestra of specialized agents (Sonnet &amp; Haiku) '
-    '+ 1 orchestrator (Opus).</div></div>')
+    '+ 1 conductor (Opus).</div></div>')
 
 _TAGLINE = ('<div class="tagline">Living competitive battlecards: Every claim verified for '
             'accuracy and kept current by an orchestra of AI agents.</div>')
