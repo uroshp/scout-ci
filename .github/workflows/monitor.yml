@@ -53,6 +53,14 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           SCOUT_ALERT_TO: ${{ secrets.SCOUT_ALERT_TO }}
           SCOUT_ALERT_FROM: ${{ secrets.SCOUT_ALERT_FROM }}
+          # Shadow-eval capture (v3.5): record champion decisions to the PRIVATE data repo so an
+          # offline challenger can be scored later. Needs the same data-repo token/repo as
+          # self-serve (capture writes via the GitHub API, NOT the public-repo git push below;
+          # without these it would fall back to local-FS and be discarded). Pure observer — see
+          # scout/shadow.py for the non-disruption guarantees.
+          SCOUT_SHADOW_EVAL: "1"
+          SELFSERVE_GH_TOKEN: ${{ secrets.SELFSERVE_GH_TOKEN }}
+          SELFSERVE_REPO: ${{ secrets.SELFSERVE_REPO }}
         run: python -m scout.monitor
       - name: Commit per §9 policy (last_checked bump every run; content on material change)
         run: |

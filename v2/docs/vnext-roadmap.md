@@ -154,11 +154,15 @@ being paid for and is split in two so a shadow failure can never touch productio
     the high-signal target ("watch the 0.80–0.92 band for true-claim cuts") — true-but-cut claims
     where the model-judge might recover value. Free stratification.
   - `generate()`'s `cut_log = model_cut + final_cut` is the verifier CUT/REVISED stream.
-- **(A) Capture — rides existing paid runs.** At the tail of `generate()` (where `cut_log` is built
-  / `write_baseline` is called) and the monitor's post-verify point, drop ONE JSON record
-  `{slug, run_ts, kept[id, claim, evidence_excerpt, source_url, best_ratio], cut[claim, reason,
-  best_ratio]}` into a **separate** store. Pure logging: milliseconds, `try/except`-swallowed,
-  gated behind `SCOUT_SHADOW_EVAL=1`. Cannot alter or crash the production run.
+- **(A) Capture — rides existing paid runs.** Three real-run sites drop ONE JSON record
+  `{slug, source, run_ts, kept[...], cut[...], grounding_results[... best_ratio]}` into a
+  **separate** store: `generate()` (write=True roster baselines), the monitor's post-verify point
+  (live checks), and the self-serve runner (a real paid card — captured explicitly there because
+  self-serve runs `generate(write=False)`, which means "don't touch battlecards/", not "dry run").
+  Pure logging: milliseconds, `try/except`-swallowed, gated behind `SCOUT_SHADOW_EVAL=1`. Cannot
+  alter or crash the production run. NOTE: the monitor workflow must carry the same
+  `SELFSERVE_GH_TOKEN`/`SELFSERVE_REPO` as self-serve, or capture falls back to local-FS in the
+  runner and is discarded (gitignored).
 - **(B) Judge — a separate scheduled Action (`shadow-eval.yml`).** Own cron; reads unprocessed
   capture records; runs the challenger (Haiku, cheap) over the **captured evidence** — no
   re-research, batched one call per card; appends `{champion, challenger, best_ratio}` rows to an
