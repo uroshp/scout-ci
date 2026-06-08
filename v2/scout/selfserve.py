@@ -263,6 +263,14 @@ def save_state(state: dict) -> None:
            "selfserve: advance gate state")
 
 
+def write_data(path: str, text: str, message: str) -> None:
+    """Public backend-aware write into the DATA store (private GitHub repo when configured,
+    else the local-FS fallback). Lets sibling features (e.g. scout/shadow.py) persist to the
+    SAME private store as user data — never the public code repo — without re-implementing the
+    GitHub-API plumbing or reaching into the private `_write`."""
+    _write(path, text, message)
+
+
 def get_result(job_id: str) -> dict | None:
     """Return the finished result record for a job, or None if still pending.
     status is one of: done | rejected | error. card.md is fetched alongside on done."""

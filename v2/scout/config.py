@@ -64,6 +64,14 @@ GROUNDING_TIMEOUT_S = float(os.environ.get("SCOUT_GROUNDING_TIMEOUT_S", "20"))
 GROUNDING_CONTACT = os.environ.get("SCOUT_GROUNDING_CONTACT", "urospajic@gmail.com")
 
 
+# --- Shadow-mode eval (v3.5 challenger qualification; docs/vnext-roadmap.md) --
+# PURE OBSERVER, OFF by default. When "1", REAL generation/monitor runs record the CHAMPION
+# decisions (the deterministic code grader + the verifier cut log) to shadow/<slug>/ in the
+# PRIVATE data store, so an OFFLINE challenger model-judge can be scored against them later.
+# It triggers no model call and never alters or gates a production run (scout/shadow.py).
+SHADOW_EVAL_ENABLED = os.environ.get("SCOUT_SHADOW_EVAL", "") == "1"
+
+
 # --- Monitoring cadence (per-competitor; A1) ---------------------------------
 # Default hours between checks for a battlecard with no explicit cadence_hours in
 # its meta.json. Used ONLY by the legacy relative due-gate (when anchors are
