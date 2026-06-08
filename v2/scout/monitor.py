@@ -28,7 +28,7 @@ from datetime import datetime, timedelta
 
 from claude_agent_sdk import ClaudeAgentOptions
 
-from scout import config, store
+from scout import config, shadow, store
 from scout.fetch_tool import FETCH_SERVER, FETCH_TOOL_NAME, reset_log
 from scout.generate import _drive, _extract_json
 from scout.grounding import ground_claims
@@ -290,6 +290,13 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     result["material"] = [
         {"subject_key": c["subject_key"], "alert": a} for c, a in material_grounded]
     result["alerts"] = new_alerts
+
+    # Shadow-eval observer (v3.5): on a real escalated check, record the champion grounding
+    # decisions for offline challenger scoring. No-op unless SCOUT_SHADOW_EVAL=1; never raises.
+    if write:
+        shadow.capture(slug, "monitor", kept=grounded["kept"], cut=grounded["cut"],
+                       grounding=grounded, competitor=meta.get("competitor"),
+                       my_company=meta.get("my_company"), focus=meta.get("focus"))
 
     if write and new_alerts:
         meta["last_checked"] = checked_at

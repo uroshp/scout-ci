@@ -25,7 +25,7 @@ from datetime import date
 
 from claude_agent_sdk import AgentDefinition, ClaudeAgentOptions, query
 
-from scout import config
+from scout import config, shadow
 from scout.prompts import SOURCE_HIERARCHY, load_methodology
 from scout.schema import (
     SECTIONS, ZONES, claim_id, pregrounding_errors, validation_errors,
@@ -579,6 +579,10 @@ def generate(target, perspective=None, focus=None, write=True, retry=True):
     if write:
         meta = new_meta(target, perspective, focus, slug)
         paths = write_baseline(slug, kept, meta, markdown)
+        # Shadow-eval observer (v3.5): record champion decisions for offline challenger scoring.
+        # No-op unless SCOUT_SHADOW_EVAL=1; guaranteed not to raise (scout/shadow.py).
+        shadow.capture(slug, "generate", kept=kept, cut=cut_log, grounding=grounded,
+                       competitor=target, my_company=perspective, focus=focus)
 
     coverage = _coverage_report(grounded.get("results", []), FETCH_LOG)
 
