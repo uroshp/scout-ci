@@ -520,12 +520,16 @@ _FORM_CSS = (
     'section[data-testid="stMain"] .stTextInput label,'
     'section[data-testid="stMain"] [data-testid="stWidgetLabel"],'
     'section[data-testid="stMain"] .stButton button,'
-    'section[data-testid="stMain"] [data-testid="stHeading"] *,'
     'section[data-testid="stMain"] [data-testid="stCaptionContainer"],'
     'section[data-testid="stMain"] [data-testid="stCaptionContainer"] *,'
     'section[data-testid="stMain"] [data-testid="stAlertContainer"],'
     'section[data-testid="stMain"] [data-testid="stAlertContainer"] *'
     "{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif!important;}"
+    # The form heading (st.subheader) is a TITLE, so it matches the brief's <h1> display serif
+    # (Fraunces) — not the Inter body stack the controls above use.
+    'section[data-testid="stMain"] [data-testid="stHeading"],'
+    'section[data-testid="stMain"] [data-testid="stHeading"] *'
+    "{font-family:'Fraunces',Georgia,Cambria,'Times New Roman',serif!important;}"
 )
 
 
