@@ -379,7 +379,7 @@ def _title_block(meta: dict) -> str:
 _LIVE_BOX = (
     '<div class="livebox"><div class="lb-live"><span class="live">'
     '<span class="pulse"></span>LIVE</span></div>'
-    '<div class="lb-agents">Monitored by a team of specialized agents (Sonnet &amp; Haiku) '
+    '<div class="lb-agents">Monitored by an orchestra of specialized agents (Sonnet &amp; Haiku) '
     '+ 1 orchestrator (Opus).</div></div>')
 
 _TAGLINE = ('<div class="tagline">Living competitive battlecards: Every claim verified for '
