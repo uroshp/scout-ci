@@ -1,0 +1,15 @@
+<svg width="200" height="200" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#2f6149" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- floppy ears -->
+    <path d="M40 40 C24 36 20 60 30 74 C38 84 46 78 46 70" fill="#2f6149" stroke="#2f6149"/>
+    <path d="M80 40 C96 36 100 60 90 74 C82 84 74 78 74 70" fill="#2f6149" stroke="#2f6149"/>
+    <!-- head -->
+    <path d="M40 44 C40 30 80 30 80 44 C84 60 76 78 60 82 C44 78 36 60 40 44 Z" fill="#fbfaf6"/>
+    <!-- eyes -->
+    <circle cx="51" cy="54" r="2.6" fill="#2f6149" stroke="none"/>
+    <circle cx="69" cy="54" r="2.6" fill="#2f6149" stroke="none"/>
+    <!-- muzzle + nose -->
+    <path d="M54 66 C54 74 66 74 66 66" />
+    <circle cx="60" cy="64" r="3.4" fill="#2f6149" stroke="none"/>
+  </g>
+</svg>
