@@ -1,7 +1,6 @@
 # Scout v2 — Launch Decision Log
 
-Decisions made wrapping the v2 build for launch (June 2026). Newest context at top of each
-section. This is the "why", not the "how" — code and commit history carry the implementation.
+Logging my decision while building Scout. 
 
 ---
 
@@ -11,21 +10,21 @@ section. This is the "why", not the "how" — code and commit history carry the 
 request and the **same SDK generation pipeline runs out-of-band in a GitHub Action**, which
 commits the result back. Chosen over a synchronous Google Cloud Run service.
 
-**Why:** Async delivers the *same hero-fidelity* output (it's the identical pipeline, just
-triggered out-of-band) with far less infra and risk — no Docker image bundling Node + the
+**Why:** Async delivers the *same high-fidelity* output (it's the identical pipeline, just
+triggered out-of-band) with far less infra and risk: no Docker image bundling Node + the
 `claude` CLI, no standing Cloud Run service, free Streamlit hosting — and a better UX ("we're
 generating it, check back" beats a 5–8 minute in-browser spinner). Cloud Run was scoped at
 ~2 days with a real rabbit-hole risk (proving the CLI runs headless in-container); async reuses
 the Action pattern already in the repo (`monitor.yml`). Cloud Run kept as a later upgrade if
-instant in-browser generation ever justifies the standing infra.
+instant in-browser generation ever justifies the standing infra. Given this is a study project, a full production-grade environment was unnecessary. 
 
-## 2. Showcase battlecard set — 6 generated + the hero
+## 2. Showcase battlecard set
 
 **Decision:** Generated 6 cards under the validated prompts; the pre-existing Anthropic vs
-OpenAI (enterprise coding) card is the hero. #1 (Cursor vs Cognition) gated on manual review
-(0 hard failures) before batching the rest.
+OpenAI (enterprise coding) card is the hero - it has the highest velocity of market changes.
+Added a Google V Cohesity after a test run - expecting high velocity of changes with this one as well. 
 
-### Batch cost audit — 6 cards generated
+### Batch cost audit: 6 cards generated
 
 | Card | Cost | Claims | Grounded | Audit |
 |---|---|---|---|---|
@@ -40,7 +39,7 @@ OpenAI (enterprise coding) card is the hero. #1 (Cursor vs Cognition) gated on m
 **Variance: $5.37–$9.12, σ ≈ $1.5.** Every card passed the source audit with 0 hard failures,
 ~100% grounded.
 
-**What drives the spread — it's search volume, not claim count.** The cost tracks how much the
+**Search volume is what's driving most of the cost** The cost tracks how much the
 researcher had to *search*, not how many claims it kept:
 - Cursor: 134 web searches → $3.67 of the bill was search fees alone.
 - Batman: 62 searches → $1.65. Fewer because the facts are finite (box office, release dates) vs
@@ -48,18 +47,19 @@ researcher had to *search*, not how many claims it kept:
 - Tell: Salesforce cost *more* ($8.95) with the *fewest* claims (25); Notion cost *less* ($6.63)
   with the *most* (39). Claim count is uncorrelated — **news density is the driver**.
 
-**Batman (stress-test):** the pipeline refused to hallucinate a fictional matchup — it grounded
+**Batman (stress-test):** the pipeline refused to hallucinate a fictional matchup and it grounded
 the *real* Batman/Superman film-franchise rivalry (box office, Man of Tomorrow 2026, RT
 sentiment) on real entertainment-news sources. 0 hard failures. The sourcing discipline holds
-even on an absurd input.
+even on an absurd input. 
 
 **Can they be cheaper? Decided NOT to.** The one lever is capping the researcher's web searches,
 but that trades away research depth on the exact showcase cards whose quality is the credibility
-pitch. Generation is a **one-time ~$46** for the whole set; the recurring cost was monitoring,
-where we already won big. **Leave generation alone; bank the monitoring savings.** Revisit the
-researcher cap only if regenerating frequently.
+pitch. Generation is a **one-time cost** for the whole set; the recurring cost was monitoring,
+where we already won big. 
 
-## 3. Monitoring cost — Haiku triage + capped searches + strict escalation gate
+Generally, in a corporate environment spending even $10 for a base battlecard that will drive significantly more in revenue is a good trade off. Given this is a study project, I decided to constrain costs.
+
+## 3. Monitoring cost: Haiku triage + capped searches + strict escalation gate
 
 **Decision:** Cut per-check cost hard before launch:
 - **A — Haiku triage:** the every-check gate runs on `claude-haiku-4-5-20251001` (was Sonnet).
@@ -71,11 +71,11 @@ researcher cap only if regenerating frequently.
 
 **Measured result: $0.16 per quiet daily check** (Haiku, 0 escalation), down from $1–2.
 
-**Tradeoff (accepted):** the strict gate trades a little recall/latency for the big saving — if
+**Tradeoff (accepted):** the strict gate trades a little recall/latency for the big saving: if
 Haiku tags a genuinely material item "minor," it's caught on the next day's check, not same-day.
-Fine for a daily-cadence battlecard; not for breaking-news same-day alerting.
+Fine for a daily-cadence battlecard; not for breaking-news same-day alerting. In a real production environment, I would not accept this trade off.
 
-## 4. Cadence & schedule — twice daily, window-anchored at 7am + 1pm US Eastern
+## 4. Cadence & schedule: twice daily, window-anchored at 7am + 1pm US Eastern with the goal of providing sales team with the freshes POV
 
 **Decision (2026-06-05, supersedes the earlier once-daily plan):** For the launch window, check
 **twice a day at fixed real-world times — 07:00 and 13:00 US Eastern (11:00 / 17:00 UTC, EDT)**,
@@ -84,7 +84,7 @@ Pare back to once-daily after week one.
 
 **Why this shape — the product promise is PREDICTABLE freshness, not just "twice a day."** A
 battlecard that updates last-night-for-one, noon-for-another, whenever-for-a-third *looks broken*
-even when the analysis is good. Two failures were producing exactly that drift, and both are now
+even when the analysis is good. Two failures were producing exactly that drift and both are now
 fixed:
 
 1. **The gate was relative, so it drifted.** `_is_due` checked `last_checked + cadence_hours`,

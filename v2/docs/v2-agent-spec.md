@@ -1,17 +1,17 @@
 # Scout v2 — Agent Spec (the Living Battlecard)
 
-**Status:** direction doc, written before building. Claude Code builds against this.
+**Status:** Final for v2, used to direct Claude Code
 **Date:** June 2026.
 
-**One line:** Scout is a self-verifying living battlecard — it generates a sourced competitive brief, monitors for material changes, and updates only when something changes the GTM story.
+**One line:** Scout is a self-verifying living competitive intelligence brief tool. It generates a sourced competitive brief, monitors for material changes and updates only when something changes the GTM story.
 
 -----
 
-## 1. Why this is an agent (not a button)
+## 1. Introducing the agentic structure
 
-v1 is a fixed pipeline: generate → verify → render, the same two calls in the same order every time. It produces a document. A document is a snapshot — true the day it’s made, stale the week after.
+v1 is a fixed pipeline: generate → verify → render, the same two calls in the same order every time. It produces a document. A document is a snapshot: true the day it’s made, stale the week after.
 
-v2 is an agent because it has a *recurring job that requires judgment on every cycle*: watch a set of competitors, decide what has genuinely changed, decide whether each change is **material** (does it move a battlecard zone, a price, a positioning claim, or introduce a risk?), and surface only the signal — with a “so what” — while staying silent when nothing matters.
+v2 is an agent because it has a *recurring job that requires judgment on every cycle*: watch a set of competitors, decide what has genuinely changed, decide whether each change is **material** (does it move a battlecard zone, a price, a positioning claim or introduce a risk?), and surface only the signal along with a “so what” all while staying silent when nothing matters.
 
 > Re-running a report on a schedule is a cron job; judging materiality and maintaining a living document is an agent.
 
