@@ -584,7 +584,7 @@ def _countdown_component() -> str:
         "if(el.__end===undefined){var r=parseInt(el.getAttribute('data-remaining')||'0',10);"
         "if(r<=0)return;el.__end=Date.now()+r*1000;}"
         "var s=Math.round((el.__end-Date.now())/1000);"
-        "if(s<=0){el.textContent='update due now';return;}"
+        "if(s<=0){el.textContent='refresh due now';return;}"
         "var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;"
         "el.textContent='in '+h+'h '+pad(m)+'m '+pad(sec)+'s';"
         "},1000);})();</script>")
@@ -612,12 +612,31 @@ _PINNED_POSITION = 3  # 0-based -> the 4th item
 _EMOJI = {"batman": "🦇", "superman": "🦸"}
 
 
+def _last_update_ts(slug: str) -> datetime:
+    """When a card's CONTENT last changed: most recent material-change alert, else creation date.
+    Deliberately NOT last_checked (uniform refresh cadence can't tell which card changed).
+    Defined HERE in the always-reloaded entry script — using only pre-existing scout.display /
+    scout.store symbols — to dodge Streamlit Cloud's stale-module cache for NEW cross-module
+    attributes (the same reason _title_block_html is built here; see its note)."""
+    def _ts(s):
+        try:
+            return datetime.fromisoformat(s) if s else None
+        except (ValueError, TypeError):
+            return None
+    times = [t for a in display.load_alerts(slug)
+             if (t := _ts(a.get("detected_at") or a.get("date")))]
+    base = _ts((store.load_meta(slug) or {}).get("baseline_date"))
+    if base:
+        times.append(base)
+    return max(times) if times else datetime.min
+
+
 def _ordered_cards() -> list:
     """Dropdown order: most-recently-UPDATED card first (by content-change time, not refresh),
     with the Batman vs Superman showcase card pinned to the 4th slot regardless of its age."""
     slugs = display.list_battlecards()
     rest = sorted((s for s in slugs if s != _PINNED_SLUG),
-                  key=display.last_update_ts, reverse=True)
+                  key=_last_update_ts, reverse=True)
     if _PINNED_SLUG in slugs:
         rest.insert(min(_PINNED_POSITION, len(rest)), _PINNED_SLUG)
     return rest
