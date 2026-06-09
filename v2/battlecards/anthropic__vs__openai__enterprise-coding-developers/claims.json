@@ -935,5 +935,27 @@
       "detail": null
     },
     "persona": "economic_buyer"
+  },
+  {
+    "subject_key": "openai | ipo-filing | 2026",
+    "claim": "OpenAI confidentially filed a draft S-1 with the SEC for an IPO, the company announced Monday, June 8, 2026. OpenAI is valued at $852 billion and said it has not decided on timing — \"it may be a while\" — but the filing preserves the option to go public sooner. The move follows Anthropic's own confidential S-1 filed the prior week (June 1, 2026), putting both leading AI labs in the public-markets pipeline.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 5,
+    "source_url": "https://www.cbsnews.com/news/openai-files-confidential-initial-public-offering/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI has filed a confidential initial public offering, the ChatGPT maker said Monday, bringing it one step closer to its official market debut. \"We recently submitted a confidential S-1. We expect it to leak so we're just announcing it,\" OpenAI said in a statement published Monday on its website.",
+    "as_of": "2026-06-08",
+    "confidence": "high",
+    "id": "c_8be924c5362b",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-09",
+      "detail": null
+    }
   }
 ]
