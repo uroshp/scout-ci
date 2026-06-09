@@ -1,8 +1,10 @@
 """Scheduling + spend-gate invariants: the window-anchored due-gate, the viewer's next-check,
 and the self-serve gate (the money guard). Run from v2/:  python -m unittest discover -s tests
 """
+import json
 import unittest
 from datetime import datetime
+from unittest import mock
 
 from scout import config, display, selfserve
 from scout import monitor
@@ -72,6 +74,68 @@ class SpendGate(unittest.TestCase):
         g = selfserve.gate(self._state(spend=ceiling - headroom + 1))
         self.assertFalse(g["open"])
         self.assertEqual(g["reason"], "spend_ceiling")
+
+
+class WatermarkHold(unittest.TestCase):
+    """A SUBSTANTIAL development that survives nothing (no material captured) must NOT let the
+    detection window advance past it — else it's lost forever (the original bug). Instead the
+    window is HELD at `since` across up to MONITOR_MAX_UNRESOLVED_RETRIES checks, while
+    last_checked still advances (due-gate stays honest). After the bound, give up but SURFACE it.
+    No API: triage + materiality are stubbed; the store is in-memory."""
+
+    def _check(self, state, *, substantial=True):
+        cands = ([{"signal": "Acme files S-1 (2026-06-08)", "subject_key": "NEW",
+                   "substantial": True, "why_new": "n", "source_hint": "reuters.com"}]
+                 if substantial else [])
+        triage = {"text": "```json\n" + json.dumps(
+            {"has_candidates": bool(cands), "candidates": cands}) + "\n```", "cost_usd": 0.0}
+        mat = {"text": "```json\n{\"material\": [], \"immaterial\": []}\n```", "cost_usd": 0.0}
+
+        async def fake_triage(*a, **k):
+            return triage
+
+        async def fake_mat(*a, **k):
+            return mat
+
+        store_stub = mock.Mock()
+        store_stub.load_meta.side_effect = lambda slug: dict(state["meta"])
+        store_stub.load_claims.side_effect = lambda slug: list(state["claims"])
+
+        def _wb(slug, claims, meta, md):
+            state["meta"] = dict(meta)
+
+        store_stub.write_baseline.side_effect = _wb
+        with mock.patch.object(monitor, "_run_triage", fake_triage), \
+             mock.patch.object(monitor, "_run_materiality", fake_mat), \
+             mock.patch.object(monitor, "store", store_stub), \
+             mock.patch.object(monitor, "_current_md", lambda slug: ""):
+            return monitor.check("test-slug", write=True)
+
+    def test_window_held_then_abandoned_but_never_silently_lost(self):
+        state = {"meta": {"last_checked": "2026-06-08T17:00:00", "baseline_date": "2026-06-04"},
+                 "claims": []}
+        # Checks 1..(N-1): window HELD at the original date, last_checked still advances.
+        for attempt in range(1, config.MONITOR_MAX_UNRESOLVED_RETRIES):
+            res = self._check(state)
+            self.assertEqual(res["since"], "2026-06-08")                 # window stays anchored
+            self.assertEqual(state["meta"]["unresolved_attempts"], attempt)
+            self.assertEqual(state["meta"]["unresolved_since"], "2026-06-08")
+            self.assertNotEqual(state["meta"]["last_checked"], "2026-06-08T17:00:00")  # advanced
+            self.assertIn("unresolved_held", res)
+        # Final check: bound hit -> give up scanning, clear the hold, but SURFACE the abandonment.
+        res = self._check(state)
+        self.assertIn("abandoned_substantial", res)
+        self.assertNotIn("unresolved_since", state["meta"])
+        self.assertNotIn("unresolved_attempts", state["meta"])
+
+    def test_quiet_window_clears_a_held_window(self):
+        state = {"meta": {"last_checked": "2026-06-08T17:00:00", "baseline_date": "2026-06-04",
+                          "unresolved_since": "2026-06-08", "unresolved_attempts": 1},
+                 "claims": []}
+        res = self._check(state, substantial=False)                      # nothing substantial now
+        self.assertTrue(res["no_change"])
+        self.assertNotIn("unresolved_since", state["meta"])
+        self.assertNotIn("unresolved_attempts", state["meta"])
 
 
 if __name__ == "__main__":

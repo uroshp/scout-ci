@@ -79,6 +79,12 @@ SHADOW_EVAL_ENABLED = os.environ.get("SCOUT_SHADOW_EVAL", "") == "1"
 # gate; the Actions cron must fire at least this often for the gate to matter.
 DEFAULT_CADENCE_HOURS = int(os.environ.get("SCOUT_DEFAULT_CADENCE_HOURS", "24"))
 
+# When triage flags a SUBSTANTIAL development but nothing survives grounding+retry, the
+# detection window is HELD OPEN (not advanced past it) so the next check re-attempts it,
+# rather than losing it forever. Bounded: after this many consecutive failed attempts on the
+# same window, give up (advance, surface the abandonment) so we don't re-escalate indefinitely.
+MONITOR_MAX_UNRESOLVED_RETRIES = int(os.environ.get("SCOUT_MONITOR_MAX_UNRESOLVED_RETRIES", "3"))
+
 # --- Monitoring anchors (window-anchored due-gate; the launch promise) -------
 # Daily wall-clock times (UTC) at which every monitored card becomes due. The
 # product promise for the launch window is PREDICTABLE freshness — a morning
