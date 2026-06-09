@@ -30,10 +30,14 @@ from claude_agent_sdk import ClaudeAgentOptions
 
 from scout import config, shadow, store
 from scout.fetch_tool import FETCH_SERVER, FETCH_TOOL_NAME, reset_log
-from scout.generate import _drive, _extract_json
-from scout.grounding import ground_claims
+from scout.generate import _drive, _extract_json, _build_retry_payload, _run_retry
+from scout.grounding import CUT_ABSENT, ground_claims, is_excluded_source
 from scout.render import claims_to_markdown, clean_output, extract_cut_log, format_report
-from scout.schema import claim_id, pregrounding_errors, validation_errors
+from scout.schema import SOURCE_TIERS, claim_id, pregrounding_errors, validation_errors
+
+# Source-tier preference order for multi-source grounding (best first): a primary filing /
+# company release beats reputable secondary reporting, which beats sentiment-only.
+_TIER_RANK = {tier: i for i, tier in enumerate(SOURCE_TIERS)}
 
 MATERIAL_CATEGORIES = (
     "funding, IPO/S-1 filing, M&A, exec hire/departure, pricing/packaging change, "
@@ -151,7 +155,8 @@ battlecard zone, a price, a positioning claim, a metric the brief tracks, or int
 versus NOISE (routine posts, minor features, restated known facts, sentiment churn).
 
 For each MATERIAL change: use fetch_page to READ the source, then emit an updated claim object
-(same contract as generation: subject_key, claim, claim_type, section [executive_summary|snapshot|
+(same contract as generation: subject_key, claim, claim_type [fact|interpretation|sentiment — an
+IPO/M&A/launch/exec-move is a "fact"; NEVER invent values like "competitive_move"], section [executive_summary|snapshot|
 recent_moves|positioning|pricing|battlecard|sentiment|objection_handling], zone [battlecard only,
 else null], order, source_url, source_tier [primary|reputable_secondary|sentiment_only],
 evidence_excerpt [VERBATIM from fetch_page's real page text], as_of [YYYY-MM-DD], confidence)
@@ -161,13 +166,25 @@ it updates in place; if genuinely new, use a fresh subject_key in the same style
 Do NOT include id/verified/grounding (filled downstream). Every alert MUST carry a "so_what" — the
 decision it changes — or the item is NOT material.
 
-SOURCING: anchor source_url on a reputable NEWS outlet (Reuters, Bloomberg, The Information, CNBC,
-TechCrunch, major outlet) or a primary filing/announcement. NEVER Wikipedia, a wiki, an
-encyclopedia, or a promo/SEO listicle — a deterministic check cuts wiki/encyclopedia anchors, so
-you would lose the change. An ADVERSE development (cancellation, churn, loss) should trace to
-independent reporting, not only the affected company.
+MULTI-SOURCE (this is how a claim survives grounding — do it for EVERY material change): find
+EVERY credible source for the development, then RANK them by source tier — primary (SEC/EDGAR
+filing, the company's own 8-K / press release / blog announcement, a court document) outranks
+reputable_secondary (Reuters, Bloomberg, The Information, CNBC, TechCrunch, a major outlet).
+DISCARD anything low-tier: sentiment_only sources, AND any wiki/encyclopedia/promo/SEO listicle/
+aggregator (a deterministic check cuts those, so sending one just loses the claim). From what
+remains, emit the TOP 2-3 — HIGHEST TIER FIRST — as a "candidate_sources" array, each entry
+{source_url, source_tier, evidence_excerpt}. Set the claim's top-level source_url / source_tier /
+evidence_excerpt to candidate #1 (the highest-tier source). Grounding will independently re-fetch
+each candidate in tier order and keep the best one that verifies, so 2-3 good sources make a true
+claim robust to one paywalled/flaky page.
 
-Return ONLY a single fenced ```json block:
+EXCERPTS: every evidence_excerpt (top-level AND each candidate) MUST be copied VERBATIM,
+character-for-character, from THAT page's real text as fetch_page returns it — never paraphrased,
+never from memory — and SHORT: a single sentence, ideally <=160 chars, so the independent re-fetch
+can confirm it. Never list a source you did not actually fetch and read. An ADVERSE development
+(cancellation, churn, loss) should trace to independent reporting, not only the affected company.
+
+Return ONLY a single fenced ```json block (the claim object includes "candidate_sources"):
 {"material": [ {"claim": { ...claim object... },
                "alert": {"old_value": "<prior, or null if new>", "new_value": "<now>",
                          "headline": "<one line>", "so_what": "<the decision it changes>"}} ],
@@ -191,6 +208,72 @@ async def _run_materiality(meta, since, candidates, claims):
         max_budget_usd=config.MAX_BUDGET_USD,
     )
     return await _drive(user, options, "materiality")
+
+
+def _candidate_variants(claim: dict) -> list[dict]:
+    """Tier-ranked, deduped, usable source candidates for one claim (best first, max 3).
+    Uses the judge's candidate_sources when present, else falls back to the single anchor.
+    Drops sources that are unusable up front: missing fields, excluded (wiki/encyclopedia),
+    or sentiment_only under a 'fact' (the schema forbids it anyway)."""
+    raw = claim.get("candidate_sources") or [{
+        "source_url": claim.get("source_url"), "source_tier": claim.get("source_tier"),
+        "evidence_excerpt": claim.get("evidence_excerpt")}]
+    clean, seen = [], set()
+    for s in raw:
+        s = s or {}
+        url, tier, ex = s.get("source_url"), s.get("source_tier"), s.get("evidence_excerpt")
+        if not (url and tier and ex) or tier not in _TIER_RANK:
+            continue
+        if is_excluded_source(url) or url in seen:
+            continue
+        if claim.get("claim_type") == "fact" and tier == "sentiment_only":
+            continue
+        seen.add(url)
+        clean.append({"source_url": url, "source_tier": tier, "evidence_excerpt": ex})
+    clean.sort(key=lambda s: _TIER_RANK[s["source_tier"]])  # primary first
+    return clean[:3]
+
+
+def _ground_best(claims: list[dict]) -> dict:
+    """Multi-source grounding (lever 4): for each claim, independently re-fetch its tier-ranked
+    candidate sources and KEEP THE HIGHEST-TIER ONE THAT GROUNDS, demoting the rest to
+    corroboration. Falls back to single-anchor behavior when the judge supplied no candidates.
+    Same {kept, failed, cut} contract as grounding.ground_claims so check()'s retry round can
+    consume it unchanged. A claim only enters `failed` when EVERY candidate failed to ground."""
+    kept, failed, cut = [], [], []
+    for claim in claims:
+        variants = _candidate_variants(claim)
+        # Build one grounding-ready variant per candidate (candidate_sources is transient — it is
+        # NOT in the claim schema, so it must never reach ground_claims or validation).
+        vclaims = []
+        for v in variants:
+            vc = {k: val for k, val in claim.items() if k != "candidate_sources"}
+            vc.update(source_url=v["source_url"], source_tier=v["source_tier"],
+                      evidence_excerpt=v["evidence_excerpt"])
+            vclaims.append(vc)
+        if not vclaims:  # no usable source at all — let ground_claims emit the failure record
+            vclaims = [{k: val for k, val in claim.items() if k != "candidate_sources"}]
+        g = ground_claims(vclaims)
+        if g["kept"]:
+            best = min(g["kept"], key=lambda c: _TIER_RANK.get(c.get("source_tier"), 99))
+            # Demote the OTHER candidate sources (whatever their fate) to corroboration pointers.
+            corro = [c for c in (claim.get("corroboration") or [])
+                     if c.get("source_url") != best["source_url"]]
+            for v in variants:
+                if v["source_url"] == best["source_url"]:
+                    continue
+                corro.append({"source_url": v["source_url"], "source_tier": v["source_tier"],
+                              "note": "tier-ranked alternate source for the same development",
+                              "grounded": False})
+            if corro:
+                best["corroboration"] = corro[:5]
+            kept.append(best)
+        else:  # every candidate failed — surface ONE failure (the top-tier try) for the retry round
+            failed.append(g["failed"][0] if g["failed"]
+                          else {"claim": vclaims[0], "status": "absent", "reason": CUT_ABSENT})
+            if g["cut"]:
+                cut.append(g["cut"][0])
+    return {"kept": kept, "failed": failed, "cut": cut}
 
 
 def _apply_updates(claims, material_grounded, alerted_fingerprints):
@@ -225,7 +308,12 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     since_override forces the detection window (e.g. an old date to simulate a stale baseline)."""
     meta = store.load_meta(slug) or {}
     claims = store.load_claims(slug)
-    since = _since_date(since_override or meta.get("last_checked") or meta.get("baseline_date"))
+    # Detection window: a HELD `unresolved_since` (a prior substantial item we detected but
+    # couldn't ground) takes precedence over last_checked, so we keep re-scanning from that date
+    # until the item is captured or the retry bound is hit — last_checked still advances for the
+    # due-gate, so this never causes same-window re-escalation storms.
+    since = _since_date(since_override or meta.get("unresolved_since")
+                        or meta.get("last_checked") or meta.get("baseline_date"))
     checked_at = datetime.now().isoformat(timespec="seconds")  # full timestamp, not just a date
     reset_log()
 
@@ -252,9 +340,12 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
 
     if not substantial:
         # Quiet OR minor-only window: triage-only, cheap. Advance last_checked and stop —
-        # the Opus materiality stage never runs.
+        # the Opus materiality stage never runs. Clear any held detection window: nothing
+        # substantial is surfacing anymore, so there's nothing left to keep re-scanning for.
         if write:
             meta["last_checked"] = checked_at
+            meta.pop("unresolved_since", None)
+            meta.pop("unresolved_attempts", None)
             store.write_baseline(slug, claims, meta, _current_md(slug))
         return result
 
@@ -266,23 +357,61 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     except Exception:
         mdata = {"material": []}
 
-    # Validate + ground the proposed updated claims
-    pending = []
+    # Validate, then ground via tier-ranked MULTI-SOURCE (lever 4). candidate_sources is a
+    # TRANSIENT field the judge adds for grounding (not in the claim schema): strip it for the
+    # pre-grounding shape check, but keep it on the claim so _ground_best can try each source.
+    alert_by_id, to_ground = {}, []
     for m in (mdata.get("material") or []):
         c = m.get("claim")
         if not isinstance(c, dict) or "subject_key" not in c:
             continue
         c["id"] = claim_id(slug, str(c["subject_key"]))
         c["verified"] = True
-        if not pregrounding_errors(c):
-            pending.append((c, m.get("alert", {})))
-    grounded = ground_claims([c for c, _ in pending])
-    kept_ids = {c["id"] for c in grounded["kept"]}
-    grounded_by_id = {c["id"]: c for c in grounded["kept"]}
-    material_grounded = [
-        (grounded_by_id[c["id"]], alert) for c, alert in pending
-        if c["id"] in kept_ids and not validation_errors(grounded_by_id[c["id"]])
-    ]
+        # If the judge filled only candidate_sources, seed the top-level anchor from the best one.
+        cand = _candidate_variants(c)
+        if cand and not c.get("source_url"):
+            c.update(source_url=cand[0]["source_url"], source_tier=cand[0]["source_tier"],
+                     evidence_excerpt=cand[0]["evidence_excerpt"])
+        if pregrounding_errors({k: v for k, v in c.items() if k != "candidate_sources"}):
+            continue
+        alert_by_id[c["id"]] = m.get("alert", {})
+        to_ground.append(c)
+
+    grounded = _ground_best(to_ground)
+    kept = [c for c in grounded["kept"] if not validation_errors(c)]
+
+    # FEEDBACK RETRY (lever 1, ported from generate.generate): a claim only reaches `failed`
+    # when ALL its tier-ranked sources failed to ground. Send those back to the repair agent
+    # with the REAL page text + failure reason — it re-extracts a verbatim excerpt or re-sources
+    # to a fetchable AGREEING outlet — then re-ground. This is what stops true claims (an IPO,
+    # an exec change) from dropping on a single excerpt-drift or paywalled fetch. (Bounded: one
+    # round, Sonnet, capped turns/budget — see generate._run_retry.)
+    failed = grounded.get("failed", [])
+    if failed:
+        rr = asyncio.run(_run_retry(_build_retry_payload(failed)))
+        result["cost"]["materiality"] = (result["cost"]["materiality"] or 0) + (rr.get("cost_usd") or 0)
+        try:
+            rdata = _extract_json(rr["text"])
+        except Exception:
+            rdata = {"revised": []}
+        revised = []
+        for c in rdata.get("revised", []):
+            if not isinstance(c, dict) or "subject_key" not in c:
+                continue
+            c["id"] = claim_id(slug, str(c["subject_key"]))
+            c["verified"] = True
+            if not pregrounding_errors({k: v for k, v in c.items() if k != "candidate_sources"}):
+                revised.append(c)
+        reground = _ground_best(revised) if revised else {"kept": []}
+        kept += [c for c in reground["kept"] if not validation_errors(c)]
+
+    # Dedup by id (an original keep and a retry recovery can't both win) and remap to alerts.
+    seen_ids, material_grounded = set(), []
+    for c in kept:
+        if c["id"] in seen_ids or c["id"] not in alert_by_id:
+            continue
+        seen_ids.add(c["id"])
+        material_grounded.append((c, alert_by_id[c["id"]]))
 
     new_claims, new_alerts = _apply_updates(
         claims, material_grounded, meta.get("alerted_fingerprints", []))
@@ -300,6 +429,8 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
 
     if write and new_alerts:
         meta["last_checked"] = checked_at
+        meta.pop("unresolved_since", None)  # window resolved — we captured a material change
+        meta.pop("unresolved_attempts", None)
         meta.setdefault("alerted_fingerprints", []).extend(a["fingerprint"] for a in new_alerts)
         # Regenerating the body from claims drops the Cut Log (it lives only in the
         # markdown, never in the claim store) — carry the existing one forward.
@@ -311,8 +442,22 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
         current_md = format_report(clean_output(body))
         store.write_baseline(slug, new_claims, meta, current_md)
         _append_alerts(slug, new_alerts)
-    elif write:  # candidates existed but nothing survived as material -> bump timestamp only
+    elif write:
+        # Substantial development detected, but NOTHING survived grounding+retry. Do NOT lose it:
+        # always advance last_checked (keeps the due-gate honest / no same-window storm), but HOLD
+        # the detection window open at `since` so the next check re-attempts it — bounded, so a
+        # genuinely ungroundable item can't make us re-escalate the Opus judge forever.
         meta["last_checked"] = checked_at
+        attempts = (meta.get("unresolved_attempts") or 0) + 1
+        if attempts < config.MONITOR_MAX_UNRESOLVED_RETRIES:
+            meta["unresolved_since"] = since
+            meta["unresolved_attempts"] = attempts
+            result["unresolved_held"] = {"since": since, "attempt": attempts}
+        else:
+            # Bound hit: give up re-scanning, but SURFACE the abandonment (never silent).
+            meta.pop("unresolved_since", None)
+            meta.pop("unresolved_attempts", None)
+            result["abandoned_substantial"] = [c.get("signal") for c in substantial]
         store.write_baseline(slug, claims, meta, _current_md(slug))
     return result
 

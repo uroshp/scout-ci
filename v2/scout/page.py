@@ -347,8 +347,8 @@ def _metrics(cp: dict, claims_n: int, remaining: int, new_count: int = 0) -> str
         cd = (f'<div class="cd" id="scout-countdown" data-remaining="{remaining}">'
               f'in {h}h {m:02d}m {s:02d}s</div>')
     else:
-        cd = '<div class="cd" id="scout-countdown" data-remaining="0">update due now</div>'
-    delta = (f'<span class="mdelta" title="{new_count} new since the last update">'
+        cd = '<div class="cd" id="scout-countdown" data-remaining="0">refresh due now</div>'
+    delta = (f'<span class="mdelta" title="{new_count} new since the last refresh">'
              f'+{new_count}</span>') if new_count else ""
 
     def card(label, val, sub_t=""):
@@ -356,8 +356,8 @@ def _metrics(cp: dict, claims_n: int, remaining: int, new_count: int = 0) -> str
         return f'<div class="metric"><div class="ml">{label}</div><div class="mv">{val}{t}</div></div>'
 
     return ('<div class="metrics">'
-            + card("Last updated", _html.escape(last_d), last_t)
-            + f'<div class="metric"><div class="ml">Next update</div>'
+            + card("Last refresh", _html.escape(last_d), last_t)
+            + f'<div class="metric"><div class="ml">Next refresh</div>'
               f'<div class="mv">{_html.escape(next_d)}<span class="t">{_html.escape(next_t)}</span></div>{cd}</div>'
             + card("Baseline", _html.escape(base_d))
             + '<div class="metric claims"><div class="ml">Claims tracked &amp; verified</div>'
