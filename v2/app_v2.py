@@ -605,6 +605,24 @@ def _render_print_tab(slug: str):
     components.html(_autoprint(page.call_sheet_html(slug)), height=1100, scrolling=True)
 
 
+# The Batman vs Superman showcase/stress-test card: always pinned to the 4th dropdown slot, and
+# its players are flagged with their emoji so it reads as the deliberate easter-egg it is.
+_PINNED_SLUG = "batman__vs__superman__general"
+_PINNED_POSITION = 3  # 0-based -> the 4th item
+_EMOJI = {"batman": "🦇", "superman": "🦸"}
+
+
+def _ordered_cards() -> list:
+    """Dropdown order: most-recently-UPDATED card first (by content-change time, not refresh),
+    with the Batman vs Superman showcase card pinned to the 4th slot regardless of its age."""
+    slugs = display.list_battlecards()
+    rest = sorted((s for s in slugs if s != _PINNED_SLUG),
+                  key=display.last_update_ts, reverse=True)
+    if _PINNED_SLUG in slugs:
+        rest.insert(min(_PINNED_POSITION, len(rest)), _PINNED_SLUG)
+    return rest
+
+
 def _card_label(slug: str) -> str:
     """Short, proper-cased dropdown label from meta, e.g. 'OpenAI vs Anthropic'. (Focus area is
     already shown in the title block, so it's dropped here to keep the dropdown compact.)"""
@@ -613,7 +631,12 @@ def _card_label(slug: str) -> str:
     mine = (m.get("my_company") or "").strip()
     if not comp:
         return _pretty(slug)
-    return f"{comp} vs {mine}" if mine else comp
+
+    def _name(n: str) -> str:  # prefix a known player with its emoji (showcase card only)
+        e = _EMOJI.get(n.lower())
+        return f"{e} {n}" if e else n
+
+    return f"{_name(comp)} vs {_name(mine)}" if mine else _name(comp)
 
 
 def _title_block_html(slug: str) -> str:
@@ -738,7 +761,7 @@ def main():
     # Control bar — mode tabs + card dropdown + print as ONE inline flex row (no Streamlit columns,
     # no iframe), so all three align by construction. Anchors drive state via query params (full
     # navigation). A ?job= deep link opens the create surface; ?card=<slug> selects a card directly.
-    cards = display.list_battlecards()
+    cards = _ordered_cards()  # most-recently-updated first; Batman vs Superman pinned to #4
     mode_param = st.query_params.get("mode")
     card_param = st.query_params.get("card")
     # mode is authoritative when present (an explicit tab click wins over a lingering ?job=).

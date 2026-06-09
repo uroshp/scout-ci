@@ -58,6 +58,19 @@ def list_battlecards() -> list[str]:
     )
 
 
+def last_update_ts(slug: str) -> datetime:
+    """When this card's CONTENT last changed: the most recent material-change alert, else the
+    card's creation/baseline date. Drives the viewer's most-recently-updated-first ordering.
+    NOTE: deliberately NOT last_checked — every card is refreshed on the same cadence, so refresh
+    time can't distinguish which card actually changed (the Last refresh vs content-update split)."""
+    times = [t for a in load_alerts(slug)
+             if (t := _parse_ts(a.get("detected_at") or a.get("date")))]
+    base = _parse_ts((store.load_meta(slug) or {}).get("baseline_date"))
+    if base:
+        times.append(base)
+    return max(times) if times else datetime.min
+
+
 # --- 1. last-checked / next-check --------------------------------------------
 def _next_anchor_after(dt: datetime) -> datetime | None:
     """Earliest daily monitoring anchor (config.MONITOR_ANCHORS_UTC = 7am + 1pm ET, wall-clock
