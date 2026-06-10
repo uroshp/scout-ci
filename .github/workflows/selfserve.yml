@@ -36,8 +36,8 @@ jobs:
       run:
         working-directory: v2          # the v2 app lives in v2/; run all steps from there
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - run: pip install -q -r requirements.txt

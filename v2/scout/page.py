@@ -60,6 +60,9 @@ def _inline(text: str) -> str:
                r'<a href="\2" target="_blank" rel="noopener">\1</a>', s)
     s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
     s = re.sub(r"\*([^*]+)\*", r"<em>\1</em>", s)
+    # Cut-log text arrives Streamlit-escaped (\$ — historically even \\$ from a re-escape bug);
+    # this HTML path needs no markdown escaping, so drop the backslashes before our own &#36;.
+    s = re.sub(r"\\+\$", "$", s)
     s = s.replace("$", "&#36;")
     return s
 
@@ -499,6 +502,18 @@ _OVERRIDES = """
   background:var(--paper2);}
 #scout-page #objection_handling .sbody>.item:first-child{margin-top:8px;}  /* clear the section divider */
 #scout-page #objection_handling .sbody>.item:last-child{margin-bottom:2px;}
+
+/* --- Mobile: stack the item heads ---------------------------------------------------------------
+   .ihead is a flex row (title left, persona badge right) and .persona is nowrap, so on a phone the
+   badge ate most of the row and crushed the title into a skinny multi-line column (battlecard zones
+   + objection handling). Below 640px the badge wraps under the full-width title; same guard for the
+   play head (.ptop), whose badge is the identical nowrap chip. */
+@media(max-width:640px){
+  #scout-page .ihead{flex-wrap:wrap;gap:4px 14px;}
+  #scout-page .ihead h4{flex:1 1 100%;}
+  #scout-page .ihead .persona{margin-top:0;margin-bottom:4px;}
+  #scout-page .ptop{flex-wrap:wrap;}
+}
 """
 
 

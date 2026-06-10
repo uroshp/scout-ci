@@ -41,12 +41,13 @@ jobs:
       run:
         working-directory: v2          # the v2 app lives in v2/; run all steps from there
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - run: pip install -q -r requirements.txt
       - name: Run monitoring checks (live)
+        id: monitor
         env:
           SCOUT_MONITOR_LIVE: "1"
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -63,6 +64,11 @@ jobs:
           SELFSERVE_REPO: ${{ secrets.SELFSERVE_REPO }}
         run: python -m scout.monitor
       - name: Commit per §9 policy (last_checked bump every run; content on material change)
+        # Run even when the monitor step exits 1 (a PARTIAL failure: scout.monitor now
+        # continues past a single bad card and exits non-zero only after every card ran),
+        # so the cards that DID check successfully still get their results committed.
+        # Skipped only if the monitor never ran (checkout/pip failure) or was cancelled.
+        if: ${{ !cancelled() && steps.monitor.outcome != 'skipped' }}
         run: |
           git config user.name "scout-monitor[bot]"
           git config user.email "scout-monitor@users.noreply.github.com"
