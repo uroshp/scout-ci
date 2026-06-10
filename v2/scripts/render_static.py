@@ -75,11 +75,17 @@ def _read_current(slug: str) -> str:
 
 
 def _fmt_dt(iso: str | None) -> str:
-    """'2026-06-04T23:46:11' -> '2026-06-04 23:46'. Pass non-ISO through."""
+    """'2026-06-04T23:46:11' (naive UTC, see scout.display) -> 'Jun 4, 7:46 PM ET'.
+    Pass non-ISO through."""
     if not iso:
         return "—"
     try:
-        return datetime.fromisoformat(iso).strftime("%Y-%m-%d %H:%M")
+        from datetime import timezone
+        dt = datetime.fromisoformat(iso)
+        if len(iso.strip()) <= 10:                  # date-only — no wall-clock to convert
+            return dt.strftime("%b %-d, %Y")
+        dt = (dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)).astimezone(display._ET_TZ)
+        return dt.strftime("%b %-d, %-I:%M %p ET")
     except ValueError:
         return iso
 
