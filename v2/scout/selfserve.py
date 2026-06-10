@@ -179,6 +179,9 @@ def new_job_id(competitor: str, my_company: str | None, focus: str | None) -> st
     """A request id that is human-legible and collision-resistant: the perspective slug
     plus a timestamp. (Same slug helper the store uses, so the id reads like the card.)"""
     base = store.make_slug(competitor, my_company, focus)
+    # valid_job_id caps ids at 120 chars — trim the slug so every issued id validates back
+    # (otherwise a long competitor name buys a report whose link is then rejected).
+    base = base[:100].rstrip("-_")
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     return f"{base}__{stamp}"
 
@@ -269,6 +272,18 @@ def write_data(path: str, text: str, message: str) -> None:
     SAME private store as user data — never the public code repo — without re-implementing the
     GitHub-API plumbing or reaching into the private `_write`."""
     _write(path, text, message)
+
+
+def get_request(job_id: str) -> dict | None:
+    """Return the queued request record for a job, or None if it never existed. Lets the
+    app tell 'still generating' apart from a mistyped/bogus ?job= link."""
+    raw = _read(f"{REQUESTS_DIR}/{job_id}.json")
+    if not raw:
+        return None
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        return None
 
 
 def get_result(job_id: str) -> dict | None:

@@ -22,7 +22,7 @@ Google's 8th-gen TPU 8i (announced April 22, 2026) is purpose-built for inferenc
 
 **Be honest about where we're exposed: reliability and capacity are live objections the rep will be asked.**
 
-Google Cloud's June 2025 global outage (70+ services), a May 2026 unexplained suspension of a multimillion-dollar customer (Railway), and Pichai's own "compute constrained" admission are all real and will surface in deals. AWS has its own outages, but our reps must own ours, not duck them.
+Google Cloud's June 2025 global outage (70+ services) and Pichai's own "compute constrained" admission are both real and will surface in deals. AWS has its own outages, but our reps must own ours, not duck them.
 
 **So what:** Don't lead with reliability — lead with AI economics and roadmap control, and have a rehearsed, evidence-based answer ready for the outage and capacity objections (see Objection Handling). A prepared answer beats a defensive one. ([cnbc.com](https://www.cnbc.com/2025/06/16/google-cloud-outage-apology.html))
 
@@ -162,4 +162,4 @@ This is what verification removed or corrected during fact-checking, and why.
 - **REVISED — AWS 13-hour December 2025 outage caused by its own Kiro AI tool.:** Added Amazon's on-record denial (an 'extremely limited event' affecting only Cost Explorer in one region) for balance, since the adverse framing comes from FT reporting that Amazon disputes.
 - **REVISED — Cloud market share figures.:** Standardized to a single reputable source (Synergy Research: AWS 28% / Azure 21% / Google 14%) and dropped conflicting 30-31%/12-13% figures from secondary aggregators to keep one value per metric.
 - **REVISED — 'Google kills products' objection sourcing.:** Re-anchored from killedbygoogle.com and a dev.to post onto the official Google Cloud blog announcing the Gemini Enterprise Agent Platform as 'the evolution of Vertex AI,' which is both more reputable and directly on-point for the objection's honest rebuttal.
-- **CUT — Objection-handling block on Google suspending a paying customer's account (Railway, May 2026; the 2024 UniSuper wipe):** source unreachable for grounding.
+- **CUT — Objection-handling block on Google account suspensions (Railway, May 2026; the 2024 UniSuper wipe):** the cited source was unreachable during verification, so the block was removed rather than left ungrounded.

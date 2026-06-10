@@ -10,7 +10,7 @@ Google's AI Mode passed 1 billion monthly users one year after launch and Q1 202
 
 **Perplexity is growing fast but small and legally exposed — go in with the litigation answer already loaded.**
 
-Revenue tripled in 2026 to roughly \$500M ARR and 92% of the Fortune 500 now use it, but nine publishers have active copyright suits (CNN filed May 28), Amazon won a court order against the Comet shopping agent, and a privacy class action is live. Compliance teams in regulated verticals will surface all of this.
+Revenue tripled in 2026 to roughly \$500M ARR, but nine publishers have active copyright suits (CNN filed May 28), Amazon won a court order against the Comet shopping agent, and a privacy class action is live. Compliance teams in regulated verticals will surface all of this.
 
 **So what:** Pair the momentum story with a prepared, honest legal-risk answer (licensing deals signed, fair-use defense, category-wide risk) so the objection doesn't stall the deal. ([cnn.com](https://www.cnn.com/2026/05/28/media/cnn-sues-perplexity-ai-copyright))
 
@@ -188,4 +188,4 @@ This is what verification removed or corrected during fact-checking, and why.
 - **REVISED — Gemini app monthly active users:** Snapshot research had 750M (Feb 4) and recent research had 900M (I/O May 19). Reconciled to the single most-recent value, 900M, per one-value-per-metric and freshness rules.
 - **REVISED — AI Overviews reach:** Sources gave 2B (Nov 2025) and 2.5B (May 2026). Used the most recent verified figure, 2.5B monthly users, as the current-state value.
 - **CUT — Perplexity ad-free pivot sourced to Search Engine Land:** Search Engine Land URL returned HTTP 403 (unfetchable by plain HTTP client). Re-anchored the same fact on MacRumors (Tier 1, fetchable) carrying the identical executive quote.
-- **CUT — On the Q1 2026 call (April 29) Google raised full-year capex guidance to \$180–190B and said it is 'compute constrained' — a reminder that even Google can't fully meet AI demand, opening room for neutral, efficiency-focused players.:** evidence excerpt not found in source
+- **CUT — Google's Q1 2026 capex-guidance raise (\$180–190B, 'compute constrained') as an opening for neutral players:** the supporting excerpt couldn't be found verbatim in the cited source, so the claim was dropped rather than kept on a loose match.

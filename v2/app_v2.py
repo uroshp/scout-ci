@@ -289,14 +289,38 @@ def _reset_selfserve() -> None:
         st.session_state.pop(k, None)
     st.session_state.pop("selfserve_job", None)
     st.query_params.clear()
+    st.query_params["mode"] = "create"   # land on a fresh form, not back on the card viewer
 
 
 def _render_job_status(job_id: str) -> str | None:
     """Show a self-serve job: a timed-estimate progress bar while pending, the rendered card
     when done, or the gate message if it was rejected. Polls by sleeping then rerunning.
     Returns the job status ('done'/'rejected'/'error') or None while still pending."""
-    res = selfserve.get_result(job_id)
+    try:
+        res = selfserve.get_result(job_id)
+    except Exception:
+        # A backend hiccup (rate limit, expired token, GitHub outage) must never stacktrace
+        # on a public page. Tell the visitor we're retrying and back off harder than the
+        # normal poll so a crowd of waiters doesn't burn the API quota.
+        st.info("We're having trouble reaching the report backend — retrying automatically. "
+                "Your report is safe; this page will recover on its own.")
+        time.sleep(45)
+        st.rerun()
+        return None
     if res is None:
+        # Distinguish "still generating" from "never existed", so a mistyped or made-up
+        # ?job= link gets a clear error instead of an infinite progress bar. One backend
+        # check per session; on backend trouble give the link the benefit of the doubt.
+        if not st.session_state.get(f"job_known_{job_id}"):
+            try:
+                known = selfserve.get_request(job_id) is not None
+            except Exception:
+                known = True
+            if not known:
+                st.error("We can't find that report request — the link may be incomplete or "
+                         "mistyped. Double-check the URL, or start a new report.")
+                return "error"
+            st.session_state[f"job_known_{job_id}"] = True
         started = st.session_state.setdefault(f"job_start_{job_id}", time.time())
         elapsed = time.time() - started
         frac = min(elapsed / _SELFSERVE_ESTIMATE_S, 0.99)
@@ -312,7 +336,9 @@ def _render_job_status(job_id: str) -> str | None:
         st.progress(frac)
         st.markdown("*" + _phase_message(frac) + "*")
         st.caption(f"Elapsed {int(elapsed // 60)}m {int(elapsed % 60)}s")
-        time.sleep(6)
+        # 20s, not faster: each poll is a GitHub API read on one shared PAT (5k req/hr),
+        # and a launch-day crowd of pending tabs must not rate-limit the whole job view.
+        time.sleep(20)
         st.rerun()
         return None
     status = res.get("status")
@@ -405,9 +431,12 @@ def _render_selfserve(job_param: str | None) -> None:
 
     st.caption(f"**{gate['free_left']} free reports left.** Two companies, optional focus. "
                "We research, verify every claim against its source, then show you the card.")
-    competitor = st.text_input("Competitor to research (required)", placeholder="e.g. OpenAI")
-    my_company = st.text_input("Your company (optional)", placeholder="e.g. Anthropic")
-    focus = st.text_input("Focus area (optional)", placeholder="e.g. enterprise coding")
+    competitor = st.text_input("Competitor to research (required)", placeholder="e.g. OpenAI",
+                               max_chars=60)
+    my_company = st.text_input("Your company (optional)", placeholder="e.g. Anthropic",
+                               max_chars=60)
+    focus = st.text_input("Focus area (optional)", placeholder="e.g. enterprise coding",
+                          max_chars=80)
     # Only offered when the backend can actually deliver it (Resend wired in the Action), so the
     # form never promises a notification that won't arrive. Reports take ~10 min, so this is the
     # difference between a visitor coming back and silently dropping out of the funnel.
@@ -438,10 +467,17 @@ def _render_selfserve(job_param: str | None) -> None:
             st.warning("You've reached this session's limit of 3 reports.")
             st.markdown(f"Want more? {_contact_md()}.")
             return
-        if not selfserve.gate()["open"]:                # re-check; the view can be stale
-            st.warning("The free window just closed. For access, see the DM link below.")
+        try:
+            if not selfserve.gate()["open"]:            # re-check; the view can be stale
+                st.warning("The free window just closed. For access, see the DM link below.")
+                return
+            req = selfserve.submit(competitor, my_company, focus,
+                                   notify_email=email_clean or None)
+        except Exception:
+            st.warning("Couldn't reach the report backend just now — nothing was submitted. "
+                       "Please try again in a minute.")
+            st.markdown(f"If it keeps happening, {_contact_md()}.")
             return
-        req = selfserve.submit(competitor, my_company, focus, notify_email=email_clean or None)
         hist.append(now_dt)
         st.session_state["selfserve_job"] = req["job_id"]
         # Remember (this session) whether they asked to be emailed, so the pending view can tell
