@@ -83,7 +83,8 @@ def _fmt_dt(s: str | None):
         return ("—", "")
     try:
         dt = datetime.fromisoformat(s)
-        return (dt.strftime("%b %-d, %Y"), dt.strftime("%-I:%M %p"))
+        # Store timestamps are UTC wall-clock; label them so "11:00 AM" isn't read as local time.
+        return (dt.strftime("%b %-d, %Y"), dt.strftime("%-I:%M %p") + " UTC")
     except ValueError:
         try:
             return (datetime.strptime(s[:10], "%Y-%m-%d").strftime("%b %-d, %Y"), "")
@@ -234,10 +235,11 @@ def _cut_log(md: str):
     return _section("cut", "Cut Log", f"{n} removed / revised", note + "".join(rows)), n
 
 
-def _rail(status: dict, present: list) -> str:
+def _rail(status: dict, present: list, plays_n: int = 3) -> str:
+    plays_lbl = "Top play" if plays_n == 1 else f"Top {plays_n} plays"
     toc = ['<div class="grp brief first">Your daily briefing</div>',
            '<a href="#brief">Today\'s angle</a>',
-           '<a href="#brief2">Top 3 plays <span class="c">3</span></a>',
+           f'<a href="#brief2">{plays_lbl} <span class="c">{plays_n}</span></a>',
            '<div class="grp">The full brief</div>']
     for sid, title, n in present:
         toc.append(f'<a href="#{sid}">{_html.escape(title)} <span class="c">{n}</span></a>')
@@ -324,7 +326,8 @@ def _briefing(claims: list) -> str:
         sb = _callout("sb", "Soundbite", p["soundbite"]) if p["soundbite"] else ""
         plays.append(f'<div class="play">{top}<h4>{_inline(p["title"])}</h4>{why}{sb}'
                      f'{_verified(c.get("source_url",""))}</div>')
-    plays_html = ('<div class="bsub two" id="brief2">Top 3 plays</div>'
+    plays_lbl = "Top play" if len(plays) == 1 else f"Top {len(plays)} plays"
+    plays_html = (f'<div class="bsub two" id="brief2">{plays_lbl}</div>'
                   f'<div class="playbox">{"".join(plays)}</div>') if plays else ""
 
     return ('<div class="briefing" id="brief"><div class="bhead">'
@@ -636,9 +639,11 @@ def content_html(slug: str) -> str:
     except (ValueError, TypeError):
         remaining = 0
 
+    plays_n = len([c for c in claims if c.get("section") == "battlecard"
+                   and c.get("zone") == "where_we_win"][:3])
     inner = (
         '<hr class="rule">'
-        '<div class="cols">' + _rail(status, present)
+        '<div class="cols">' + _rail(status, present, plays_n)
         + '<div class="maincol">'
         + _metrics(cp, status["agent_activity"]["claims_tracked"], max(remaining, 0),
                    sum(1 for r in rows if r.get("is_new")))
@@ -719,7 +724,8 @@ def call_sheet_from_claims(claims: list, meta: dict | None) -> str:
         sb = f'<div class="sb">{_inline(p["soundbite"])}</div>' if p["soundbite"] else ""
         plays.append(f'<div class="play"><div class="num">PLAY {i:02d}</div>'
                      f'<div class="h">{_inline(p["title"])}</div>{why}{sb}</div>')
-    plays_html = ('<div class="lbl">Top 3 plays</div>' + "".join(plays)) if plays else ""
+    plays_lbl = "Top play" if len(plays) == 1 else f"Top {len(plays)} plays"
+    plays_html = (f'<div class="lbl">{plays_lbl}</div>' + "".join(plays)) if plays else ""
 
     objs = sorted([c for c in claims if c.get("section") == "objection_handling"],
                   key=lambda c: c.get("order", 0))

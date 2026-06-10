@@ -62,22 +62,6 @@ Batman doesn't need a shared universe to work — an on-record box-office analys
 
 **Soundbite:** *"Batman has never needed a cinematic universe to be a billion-dollar character. Superman is betting his whole comeback on one."* ([variety.com](https://variety.com/2023/film/news/the-flash-box-office-dc-blue-beetle-aquaman-1235650170/))
 
-### Where it's a fight
-
-**Superman genuinely reset DC's momentum — don't pretend otherwise.**
-
-The reboot opened to \$125M, the biggest DC debut since The Batman, with strong reviews and an A- CinemaScore. After years of DC misfires, Gunn put real critical and commercial goodwill back on the board.
-
-**Soundbite:** *"Credit where it's due — Gunn stuck the landing at home. The question is whether one strong opening offsets a thinner global run and a one-person dependency."* ([variety.com](https://variety.com/2025/film/box-office/superman-box-office-opening-weekend-1236459080/))
-
-**Domestically, Superman is a real fight.**
-
-Superman became the first DC film since The Batman to cross \$300M at the domestic box office — proof the character still has top-tier pull in the U.S. market, which is where our own strength is most direct.
-
-**Soundbite:** *"At home, this is a contest, not a blowout. We win it on consistency and global reach, not by dismissing their domestic number."* ([hollywoodreporter.com](https://www.hollywoodreporter.com/movies/movie-news/superman-box-office-milestone-1236333843/))
-
-### Where Superman wins
-
 **Superman doesn't travel — that's the cleanest place to beat it.**
 
 A named analyst called Superman's \$95M international opening disappointing, and the film drew under 43% of its gross from abroad. The character is American-coded in a moment when that's a headwind; Batman's appeal is global.
@@ -95,6 +79,22 @@ The DCU reset follows a 2023 slate that cost an estimated \$1.1–1.2B and colla
 Gunn writes, directs, and runs DC Studios, out-earning his star 20-to-1. That's enormous key-person concentration: if his attention or the slate slips, there's no obvious second engine. Batman's success was built by a different filmmaker on a separate track.
 
 **Soundbite:** *"Superman is a single-point-of-failure bet on James Gunn. Batman's value doesn't hinge on any one person staying in the chair."* ([variety.com](https://variety.com/2025/film/news/superman-success-budget-cast-salaries-1236462393/))
+
+### Where it's a fight
+
+**Domestically, Superman is a real fight.**
+
+Superman became the first DC film since The Batman to cross \$300M at the domestic box office — proof the character still has top-tier pull in the U.S. market, which is where our own strength is most direct.
+
+**Soundbite:** *"At home, this is a contest, not a blowout. We win it on consistency and global reach, not by dismissing their domestic number."* ([hollywoodreporter.com](https://www.hollywoodreporter.com/movies/movie-news/superman-box-office-milestone-1236333843/))
+
+### Where Superman wins
+
+**Superman genuinely reset DC's momentum — don't pretend otherwise.**
+
+The reboot opened to \$125M, the biggest DC debut since The Batman, with strong reviews and an A- CinemaScore. After years of DC misfires, Gunn put real critical and commercial goodwill back on the board.
+
+**Soundbite:** *"Credit where it's due — Gunn stuck the landing at home. The question is whether one strong opening offsets a thinner global run and a one-person dependency."* ([variety.com](https://variety.com/2025/film/box-office/superman-box-office-opening-weekend-1236459080/))
 
 ## Sentiment
 

@@ -67,7 +67,7 @@
   },
   {
     "subject_key": "google-cloud | reliability-objection | current",
-    "claim": "**Be honest about where we're exposed: reliability and capacity are live objections the rep will be asked.**\n\nGoogle Cloud's June 2025 global outage (70+ services), a May 2026 unexplained suspension of a multimillion-dollar customer (Railway), and Pichai's own \"compute constrained\" admission are all real and will surface in deals. AWS has its own outages, but our reps must own ours, not duck them.\n\n**So what:** Don't lead with reliability — lead with AI economics and roadmap control, and have a rehearsed, evidence-based answer ready for the outage and capacity objections (see Objection Handling). A prepared answer beats a defensive one.",
+    "claim": "**Be honest about where we're exposed: reliability and capacity are live objections the rep will be asked.**\n\nGoogle Cloud's June 2025 global outage (70+ services) and Pichai's own \"compute constrained\" admission are both real and will surface in deals. AWS has its own outages, but our reps must own ours, not duck them.\n\n**So what:** Don't lead with reliability — lead with AI economics and roadmap control, and have a rehearsed, evidence-based answer ready for the outage and capacity objections (see Objection Handling). A prepared answer beats a defensive one.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
