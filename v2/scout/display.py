@@ -19,9 +19,17 @@ The four elements:
 import json
 import os
 import subprocess
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from scout import config, store
+
+# Display-only Eastern conversion — storage stays naive-UTC (scout.monitor's due-gate
+# compares stored timestamps against the UTC runner clock; see page.py for the same note).
+try:
+    from zoneinfo import ZoneInfo
+    _ET_TZ = ZoneInfo("America/New_York")
+except Exception:                       # no tzdata on host — fixed EST beats crashing the viewer
+    _ET_TZ = timezone(timedelta(hours=-5), "ET")
 
 # How recently a monitor run must have touched a claim for the "NEW" badge (A4).
 NEW_BADGE_WINDOW_HOURS = 24
@@ -29,8 +37,11 @@ NEW_BADGE_WINDOW_HOURS = 24
 
 def _git(args: list[str]) -> str:
     try:
+        # TZ pinned so --date=format-local renders Eastern wherever the server runs
+        # (Streamlit Cloud and the Actions runners are both UTC).
         return subprocess.run(
-            ["git", *args], capture_output=True, text=True, timeout=10
+            ["git", *args], capture_output=True, text=True, timeout=10,
+            env={**os.environ, "TZ": "America/New_York"},
         ).stdout
     except Exception:
         return ""
@@ -123,7 +134,7 @@ def change_feed(slug: str, limit: int = 25) -> list[dict]:
     and the true 'created' date survive a move; it needs a SINGLE path, so we follow
     current.md, which every material update and the baseline both touch."""
     path = store.battlecard_dir(slug)
-    out = _git(["log", f"-{limit}", "--follow", "--date=format-local:%Y-%m-%d %H:%M",
+    out = _git(["log", f"-{limit}", "--follow", "--date=format-local:%b %-d, %-I:%M %p ET",
                 "--format=%h%x09%ad%x09%ae%x09%s", "--",
                 os.path.join(path, "current.md")])
     rows = []
@@ -175,7 +186,13 @@ def agent_activity(slug: str, meta: dict | None = None, claims: list | None = No
     alerts = load_alerts(slug)
     raw = meta.get("last_checked") or meta.get("baseline_date")
     last_dt = _parse_ts(raw)
-    last = last_dt.strftime("%Y-%m-%d %H:%M") if last_dt else (raw or "—")
+    if last_dt and len(str(raw).strip()) > 10:      # full timestamp (naive UTC) -> Eastern
+        last = (last_dt.replace(tzinfo=timezone.utc).astimezone(_ET_TZ)
+                .strftime("%b %-d, %-I:%M %p ET"))
+    elif last_dt:                                   # date-only (baseline) — no time to convert
+        last = last_dt.strftime("%b %-d, %Y")
+    else:
+        last = raw or "—"
     n, a = len(claims), len(alerts)
     # Frame as active monitoring, never "nothing's happening". A quiet window reads
     # as "all current", and real movement is surfaced by the "Just updated" panel.

@@ -19,9 +19,22 @@ Streamlit import — so the same output can be wrapped into a static preview fil
 import html as _html
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from scout import config, display, store
+
+# Stored timestamps are naive UTC wall-clock (datetime.now() on the UTC Actions runner — the
+# due-gate in scout.monitor compares against the same clock, so STORAGE must stay UTC). All
+# conversion to Eastern happens here, at display time only.
+try:
+    from zoneinfo import ZoneInfo
+    _ET = ZoneInfo("America/New_York")
+except Exception:                       # no tzdata on host — fixed EST beats crashing the viewer
+    _ET = timezone(timedelta(hours=-5), "ET")
+
+
+def _to_et(dt: datetime) -> datetime:
+    return (dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)).astimezone(_ET)
 
 _PERSONA_LABELS = {
     "eng_led": "Eng-led champion",
@@ -86,13 +99,22 @@ def _fmt_dt(s: str | None):
         return ("—", "")
     try:
         dt = datetime.fromisoformat(s)
-        # Store timestamps are UTC wall-clock; label them so "11:00 AM" isn't read as local time.
-        return (dt.strftime("%b %-d, %Y"), dt.strftime("%-I:%M %p") + " UTC")
+        if len(s.strip()) <= 10:   # date-only (e.g. baseline_date) — no wall-clock to convert;
+            return (dt.strftime("%b %-d, %Y"), "")   # shifting it to ET would move the DAY back
+        dt = _to_et(dt)
+        return (dt.strftime("%b %-d, %Y"), dt.strftime("%-I:%M %p") + " ET")
     except ValueError:
         try:
             return (datetime.strptime(s[:10], "%Y-%m-%d").strftime("%b %-d, %Y"), "")
         except ValueError:
             return (s, "")
+
+
+def _fmt_short(s: str | None) -> str:
+    """Compact rail-row timestamp: 'Jun 10 · 1:09 PM ET' (year dropped), date-only passes
+    through, unparseable strings come back as-is."""
+    d, t = _fmt_dt(s)
+    return f"{d.rsplit(', ', 1)[0]} · {t}" if t else d
 
 
 def _parse_claim(c: dict) -> dict:
@@ -260,7 +282,7 @@ def _rail(status: dict, present: list, plays_n: int = 3) -> str:
                   f'<span>{_html.escape(e["subject"])}</span></div>' for e in feed)
           if feed else '<div class="empty">No changes recorded yet.</div>')
     alerts = display.load_alerts(status["slug"])
-    al = ("".join(f'<div class="row"><span class="dt">{_html.escape(a.get("detected_at", a.get("date","")))}'
+    al = ("".join(f'<div class="row"><span class="dt">{_html.escape(_fmt_short(a.get("detected_at", a.get("date",""))))}'
                   f'</span><span>{_html.escape(str(a.get("headline", a.get("so_what",""))))}</span></div>'
                   for a in alerts)
           if alerts else '<div class="empty">No material changes alerted yet.</div>')
