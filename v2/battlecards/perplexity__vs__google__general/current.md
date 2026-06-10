@@ -47,6 +47,7 @@ Google AI Mode is free to 1B+ users and Gemini is included in paid Workspace tie
 
 ## Recent Strategic Moves
 
+- **Perplexity is now a disciplined pre-IPO company, not a flailing startup — it's holding a self-imposed 2028 IPO line by choice while rivals rush to file.** CEO Aravind Srinivas told CNBC on June 9, 2026 that Perplexity plans to go public in 2028 regardless of how the confidential IPO filings of Anthropic (valued near \$1T) and OpenAI (\$852B) perform; Chief Business Officer Dmitry Shevelenko framed holding 2028 as the earliest date as a strategy that let Perplexity 'build a healthy, high-growth business.' ([cnbc.com](https://www.cnbc.com/2026/06/09/perplexity-ipo-2028-as-anthropic-openai-prepare-listings.html))
 - Within two weeks of Google's May 19 AI-search overhaul, DuckDuckGo traffic ran ~84% above baseline and its no-AI search page visits tripled on May 28 — a measurable user-defection signal against Google force-feeding AI with no opt-out. ([techcrunch.com](https://techcrunch.com/2026/06/01/duckduckgo-makes-its-no-ai-search-engine-easier-to-access-as-its-traffic-booms/))
 - The European Commission is finalizing its largest-ever DMA fine against Google — a 'high triple-digit million euro' penalty for ranking its own Shopping, Flights and Hotels above rivals — expected before the August recess, per Handelsblatt/Reuters. ([techtimes.com](https://www.techtimes.com/articles/317268/20260527/google-dma-fine-breaks-eu-record-search-self-preferencing-ruling-due.htm))
 - At I/O (May 19, 2026) Google restructured consumer AI subscriptions, launching a \$100/month AI Ultra tier and cutting its top Ultra plan from \$250 to \$200 — a signal Google was mispriced and is now competing aggressively on AI value, not just distribution. ([blog.google](https://blog.google/products-and-platforms/products/google-one/google-ai-subscriptions/))
@@ -177,15 +178,14 @@ Users did complain on Reddit about tighter rate limits in 2026, and it's a fair 
 
 **So what:** Steer the conversation to Enterprise SLAs, where consumer rate-limit noise doesn't apply. ([techcrunch.com](https://techcrunch.com/2026/02/27/perplexitys-new-computer-is-another-bet-that-users-need-many-ai-models/))
 
-
 ## Cut Log
 
 This is what verification removed or corrected during fact-checking, and why.
 - **CUT — Perplexity Sonar Pro has the lowest citation hallucination rate (37% on CJR benchmark):** Only anchor was suprmind.ai, a weak aggregator citing CJR at second hand (proxy attribution). Could not verify the CJR origin directly; replaced the accuracy edge with Google's documented error-rate evidence instead.
-- **CUT — Perplexity consumer/Pro list price of \$20/mo as a standalone fact:** Cleanest available anchors were aggregators (costbench.com, screenapp.io). Kept Max \$200 (CNBC, Tier 1) and folded the \$20 Pro figure into objection-handling prose anchored on a primary source rather than asserting it on a weak source.
-- **CUT — Google Network ad revenue fell 4% to \$6.97B in Q1 2026:** Load-bearing source was ppc.land, a trade aggregator. Replaced the publisher-harm angle with The Next Web's 58% CTR-decline reporting (more established) to avoid a marginal anchor.
-- **CUT — Perplexity counts 92% of the Fortune 500 as users; total funding \$1.7B:** Lacked a confidently verbatim Tier 1/2 excerpt; conflicting funding figures (\$1.5B vs \$1.7B). Used \$1.5B total funding (TechCrunch/PitchBook, clean verbatim) and dropped the unverifiable 92% stat to avoid a re-fetch failure.
+- **CUT — Perplexity consumer/Pro list price of \\$20/mo as a standalone fact:** Cleanest available anchors were aggregators (costbench.com, screenapp.io). Kept Max \\$200 (CNBC, Tier 1) and folded the \\$20 Pro figure into objection-handling prose anchored on a primary source rather than asserting it on a weak source.
+- **CUT — Google Network ad revenue fell 4% to \\$6.97B in Q1 2026:** Load-bearing source was ppc.land, a trade aggregator. Replaced the publisher-harm angle with The Next Web's 58% CTR-decline reporting (more established) to avoid a marginal anchor.
+- **CUT — Perplexity counts 92% of the Fortune 500 as users; total funding \\$1.7B:** Lacked a confidently verbatim Tier 1/2 excerpt; conflicting funding figures (\\$1.5B vs \\$1.7B). Used \\$1.5B total funding (TechCrunch/PitchBook, clean verbatim) and dropped the unverifiable 92% stat to avoid a re-fetch failure.
 - **REVISED — Gemini app monthly active users:** Snapshot research had 750M (Feb 4) and recent research had 900M (I/O May 19). Reconciled to the single most-recent value, 900M, per one-value-per-metric and freshness rules.
 - **REVISED — AI Overviews reach:** Sources gave 2B (Nov 2025) and 2.5B (May 2026). Used the most recent verified figure, 2.5B monthly users, as the current-state value.
 - **CUT — Perplexity ad-free pivot sourced to Search Engine Land:** Search Engine Land URL returned HTTP 403 (unfetchable by plain HTTP client). Re-anchored the same fact on MacRumors (Tier 1, fetchable) carrying the identical executive quote.
-- **CUT — Google's Q1 2026 capex-guidance raise (\$180–190B, 'compute constrained') as an opening for neutral players:** the supporting excerpt couldn't be found verbatim in the cited source, so the claim was dropped rather than kept on a loose match.
+- **CUT — Google's Q1 2026 capex-guidance raise (\\$180–190B, 'compute constrained') as an opening for neutral players:** the supporting excerpt couldn't be found verbatim in the cited source, so the claim was dropped rather than kept on a loose match.

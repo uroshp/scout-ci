@@ -1113,5 +1113,35 @@
       "fetched_at": "2026-06-06",
       "detail": null
     }
+  },
+  {
+    "subject_key": "perplexity | strategic-milestone | ipo-roadmap",
+    "claim": "**Perplexity is now a disciplined pre-IPO company, not a flailing startup — it's holding a self-imposed 2028 IPO line by choice while rivals rush to file.** CEO Aravind Srinivas told CNBC on June 9, 2026 that Perplexity plans to go public in 2028 regardless of how the confidential IPO filings of Anthropic (valued near $1T) and OpenAI ($852B) perform; Chief Business Officer Dmitry Shevelenko framed holding 2028 as the earliest date as a strategy that let Perplexity 'build a healthy, high-growth business.'",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 10,
+    "source_url": "https://www.cnbc.com/2026/06/09/perplexity-ipo-2028-as-anthropic-openai-prepare-listings.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "\"Agnostic of these two companies, we were planning for something in 2028 so that still remains the case,\" Srinivas said",
+    "as_of": "2026-06-09",
+    "confidence": "high",
+    "id": "c_621783444ea0",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-10",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://finance.yahoo.com/markets/stocks/articles/perplexity-ceo-confirms-2028-ipo-121751836.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
