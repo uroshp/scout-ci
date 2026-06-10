@@ -552,7 +552,22 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
                             "cadence_hours": meta.get("cadence_hours") or config.DEFAULT_CADENCE_HOURS,
                             "last_checked": meta.get("last_checked")})
             continue
-        res = check(slug, write=write)
+        try:
+            res = check(slug, write=write)
+        except Exception as first_err:
+            # One bounded retry: a transient SDK/API hiccup (observed 2026-06-10: the agent
+            # subprocess surfaced an error result mid-stream) must not kill the cron run.
+            # check() writes the store only at its very end, so a failed attempt leaves the
+            # card untouched and is safe to redo. Worst-case extra spend is one more check.
+            print(f"check({slug}) failed ({type(first_err).__name__}: {first_err}) — retrying once")
+            try:
+                res = check(slug, write=write)
+            except Exception as e:
+                # Record the failure and move on: one bad card must not block the other
+                # cards' checks (or the workflow committing their results). __main__ exits
+                # non-zero when any card errored, so the Actions run still notifies.
+                summary.append({"slug": slug, "error": f"{type(e).__name__}: {e}"})
+                continue
         emailed = None
         if send and res["alerts"]:
             meta = store.load_meta(slug) or {}
@@ -587,3 +602,7 @@ if __name__ == "__main__":
     live = os.environ.get("SCOUT_MONITOR_LIVE") == "1"
     out = run_all(write=live, send=True, email_dry_run=not live)
     print(_json.dumps(out, indent=2, default=str))
+    # Partial failure still exits 1 (after the full summary prints) so the Actions run
+    # notifies — but only after every card had its chance to check and write.
+    if any(r.get("error") for r in out):
+        raise SystemExit(1)

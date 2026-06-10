@@ -28,8 +28,11 @@ def clean_output(text):
     idx = text.find("# Competitive Intelligence Brief")
     if idx != -1:
         text = text[idx:]
-    # Escape dollar signs so Streamlit doesn't treat $...$ as LaTeX math
-    text = text.replace("$", "\\$")
+    # Escape dollar signs so Streamlit doesn't treat $...$ as LaTeX math.
+    # IDEMPOTENT (don't touch an already-escaped \$): the monitor re-runs the carried-forward
+    # Cut Log through this function on every material change, and the naive replace doubled
+    # the backslashes each time (\$ -> \\$ -> ...), which leaked into the rendered page.
+    text = re.sub(r"(?<!\\)\$", r"\\$", text)
     # Remove leading whitespace on lines so they aren't rendered as code blocks
     lines = [line.lstrip() if line.startswith(("    ", "\t")) else line for line in text.split("\n")]
     text = "\n".join(lines)
