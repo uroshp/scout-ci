@@ -1,14 +1,9 @@
 {
-  "name": "Python 3 + Claude Code",
+  "name": "Python 3",
+  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
   "image": "mcr.microsoft.com/devcontainers/python:1-3.11-bookworm",
-  "features": {
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "20"
-    }
-  },
   "customizations": {
     "codespaces": {
-    
     },
     "vscode": {
       "settings": {},
@@ -18,8 +13,8 @@
       ]
     }
   },
-  "updateContentCommand": "[ -f packages.txt ] && sudo apt-get update && sudo xargs apt-get install -y <packages.txt; [ -f v2/requirements.txt ] && pip3 install --user -r v2/requirements.txt; pip3 install --user streamlit; npm install -g @anthropic-ai/claude-code; echo '✅ Environment ready'",
-  "postAttachCommand": "tmux new -A -s claude || true",
+  "updateContentCommand": "[ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; [ -f v2/requirements.txt ] && pip3 install --user -r v2/requirements.txt; pip3 install --user streamlit; echo '✅ Packages installed and Requirements met'",
+"postAttachCommand": "tmux new -A -s claude || true",
   "portsAttributes": {
     "8501": {
       "label": "Application",
