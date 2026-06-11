@@ -39,6 +39,7 @@ Microsoft has publicly admitted Teams' meeting UI is cluttered enough to cause a
 
 ## Recent Strategic Moves
 
+- Salesforce's Summer '26 release (generally available June 15, 2026) makes Slack the default, auto-provisioned collaboration platform for every new Enterprise and Unlimited org: a fully configured Slack workspace and CRM-connected Salesforce channels are created automatically with no separate purchase or setup, and Chatter is turned off by default for new orgs — structurally mirroring Microsoft's Teams-in-Microsoft-365 bundling and removing Slack as a separate procurement decision inside Salesforce's 150,000+ customer base. ([uctoday.com](https://www.uctoday.com/unified-communications/salesforce-summer-26-slack-is-now-the-default-for-every-new-customer-heres-what-that-changes/))
 - Bank of America reinstated Salesforce (CRM) at Underperform with a \$160 target on May 18, 2026 — against a ~\$268 consensus and a stock down ~33% YTD — on the bear case that AI agents erode Salesforce's per-seat model. So what for Teams: Slack's parent is under visible financial and investor pressure, undercutting any 'Slack-plus-Salesforce is the safe platform bet' pitch. ([247wallst.com](https://247wallst.com/investing/2026/05/18/bofa-slaps-salesforce-with-underperform-rating-160-price-target-is-the-ai-story-falling-flat/))
 - On April 1, 2026 Salesforce CEO Marc Benioff publicly projected Slack revenue of about \$3 billion this year — a company claim, not an audited figure, and not broken out in Salesforce filings. So what for Teams: probe the number's verifiability and counter with Microsoft's audited M365 commercial growth. ([247wallst.com](https://247wallst.com/investing/2026/04/01/salesforce-ceo-benioff-slack-revenue-expected-to-hit-3-billion-this-year/))
 - On March 31, 2026 Salesforce unveiled an AI-heavy makeover of Slack — about 30 new features repositioning Slackbot as an agent that routes work across Agentforce and thousands of apps. So what for Teams: Slack is attacking Copilot's 'AI work hub' narrative head-on; counter with Copilot's reach across all of Microsoft 365, not just chat. ([techcrunch.com](https://techcrunch.com/2026/03/31/salesforce-announces-an-ai-heavy-makeover-for-slack-with-30-new-features/))
@@ -141,7 +142,6 @@ Often true, and worth conceding: users rate Slack's search and integration exper
 Acknowledge it: Teams had worldwide disruptions in late 2025 with message delays, tracked openly in the admin center. Microsoft backs M365 with a financially-backed 99.9% uptime SLA and publishes incident reviews.
 
 **So what:** Put the SLA and continuity options (including Teams Phone fallback) on the table, and ask whether the buyer is holding Slack — which has its own outage history — to the same standard. ([cyberpress.org](https://cyberpress.org/worldwide-microsoft-teams-outage-leads-to-message-delivery-delays/))
-
 
 ## Cut Log
 

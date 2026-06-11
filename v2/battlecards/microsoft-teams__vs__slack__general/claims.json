@@ -779,5 +779,35 @@
       "detail": null
     },
     "persona": "security_regulated"
+  },
+  {
+    "subject_key": "slack | distribution | salesforce-bundled-default",
+    "claim": "Salesforce's Summer '26 release (generally available June 15, 2026) makes Slack the default, auto-provisioned collaboration platform for every new Enterprise and Unlimited org: a fully configured Slack workspace and CRM-connected Salesforce channels are created automatically with no separate purchase or setup, and Chatter is turned off by default for new orgs — structurally mirroring Microsoft's Teams-in-Microsoft-365 bundling and removing Slack as a separate procurement decision inside Salesforce's 150,000+ customer base.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.uctoday.com/unified-communications/salesforce-summer-26-slack-is-now-the-default-for-every-new-customer-heres-what-that-changes/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "From June 15, a new Salesforce org in Enterprise or Unlimited edition comes with a Slack workspace already built and configured.",
+    "as_of": "2026-06-11",
+    "confidence": "high",
+    "id": "c_603e4df68b42",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-11",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://voip.review/2026/06/11/salesforce-transforms-enterprise-collaboration-slack-now-default-platform/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
