@@ -117,6 +117,22 @@ def _fmt_short(s: str | None) -> str:
     return f"{d.rsplit(', ', 1)[0]} · {t}" if t else d
 
 
+def _utc_attr(s: str | None) -> str:
+    """data-utc value for client-side localization: the stored naive-UTC timestamp with an
+    explicit Z so JS Date() parses it as UTC. Empty for date-only / unparseable values (those
+    stay server-rendered — a bare date must never shift a day under conversion)."""
+    s = (s or "").strip()
+    if len(s) <= 10:
+        return ""
+    try:
+        dt = datetime.fromisoformat(s)
+    except ValueError:
+        return ""
+    if dt.tzinfo:
+        return _html.escape(dt.isoformat())
+    return _html.escape(s + "Z")
+
+
 def _parse_claim(c: dict) -> dict:
     out = {"title": "", "body": [], "so_what": "", "soundbite": ""}
     for p in (s.strip() for s in (c.get("claim", "") or "").split("\n\n")):
@@ -278,11 +294,22 @@ def _rail(status: dict, present: list, plays_n: int = 3) -> str:
                   for r in recent)
           if recent else '<div class="empty">Nothing updated in the last 24h.</div>')
     feed = status["change_feed"]
-    cf = ("".join(f'<div class="row"><span class="dt">{_html.escape(e["date"])}</span>'
+    def _cf_ts(e):
+        try:    # git %at epoch -> data-utc, so the localizer can rewrite this row too
+            iso = datetime.fromtimestamp(int(e["epoch"]), tz=timezone.utc) \
+                .isoformat().replace("+00:00", "Z")
+            return f'<span class="scout-lts" data-utc="{iso}">{_html.escape(e["date"])}</span>'
+        except (KeyError, ValueError, TypeError):
+            return _html.escape(e["date"])
+    cf = ("".join(f'<div class="row"><span class="dt">{_cf_ts(e)}</span>'
                   f'<span>{_html.escape(e["subject"])}</span></div>' for e in feed)
           if feed else '<div class="empty">No changes recorded yet.</div>')
     alerts = display.load_alerts(status["slug"])
-    al = ("".join(f'<div class="row"><span class="dt">{_html.escape(_fmt_short(a.get("detected_at", a.get("date",""))))}'
+    def _rail_ts(s):
+        iso = _utc_attr(s)
+        attr = f' class="scout-lts" data-utc="{iso}"' if iso else ""
+        return f'<span{attr}>{_html.escape(_fmt_short(s))}</span>'
+    al = ("".join(f'<div class="row"><span class="dt">{_rail_ts(a.get("detected_at", a.get("date","")))}'
                   f'</span><span>{_html.escape(str(a.get("headline", a.get("so_what",""))))}</span></div>'
                   for a in alerts)
           if alerts else '<div class="empty">No material changes alerted yet.</div>')
@@ -362,9 +389,11 @@ def _briefing(claims: list) -> str:
 
 
 def _metrics(cp: dict, claims_n: int, remaining: int, new_count: int = 0) -> str:
-    last_d, last_t = _fmt_dt(cp.get("last_checked_ts") or cp.get("last_checked"))
+    last_raw = cp.get("last_checked_ts") or cp.get("last_checked")
+    last_d, last_t = _fmt_dt(last_raw)
     next_d, next_t = _fmt_dt(cp.get("next_check"))
     base_d, _ = _fmt_dt(cp.get("baseline_date"))
+    last_iso, next_iso = _utc_attr(last_raw), _utc_attr(cp.get("next_check"))
     # The countdown ticks live: server-render the seconds, then a parent-injected script (see
     # app_v2._countdown_component) re-renders #scout-countdown every second from data-remaining.
     # An unmonitored card (next_check is None) is never re-checked — show that, never "due now".
@@ -379,15 +408,21 @@ def _metrics(cp: dict, claims_n: int, remaining: int, new_count: int = 0) -> str
     delta = (f'<span class="mdelta" title="{new_count} new since the last refresh">'
              f'+{new_count}</span>') if new_count else ""
 
-    def card(label, val, sub_t=""):
-        t = f'<span class="t">{_html.escape(sub_t)}</span>' if sub_t else ""
-        return f'<div class="metric"><div class="ml">{label}</div><div class="mv">{val}{t}</div></div>'
+    # Server renders ET; data-utc lets the parent-injected localizer (app_v2._countdown_component)
+    # rewrite date + time to the VIEWER's timezone in-browser. No attribute -> stays ET.
+    def card(label, val, sub_t="", iso=""):
+        a = f' data-utc="{iso}"' if iso else ""
+        d = f'<span class="scout-ld"{a}>{_html.escape(val)}</span>' if iso else _html.escape(val)
+        t = f'<span class="t scout-lt"{a}>{_html.escape(sub_t)}</span>' if sub_t else ""
+        return f'<div class="metric"><div class="ml">{label}</div><div class="mv">{d}{t}</div></div>'
 
+    next_a = f' data-utc="{next_iso}"' if next_iso else ""
+    next_dh = f'<span class="scout-ld"{next_a}>{_html.escape(next_d)}</span>' if next_iso else _html.escape(next_d)
     return ('<div class="metrics">'
-            + card("Last refresh", _html.escape(last_d), last_t)
+            + card("Last refresh", last_d, last_t, last_iso)
             + f'<div class="metric"><div class="ml">Next refresh</div>'
-              f'<div class="mv">{_html.escape(next_d)}<span class="t">{_html.escape(next_t)}</span></div>{cd}</div>'
-            + card("Baseline", _html.escape(base_d))
+              f'<div class="mv">{next_dh}<span class="t scout-lt"{next_a}>{_html.escape(next_t)}</span></div>{cd}</div>'
+            + card("Baseline", base_d)
             + '<div class="metric claims"><div class="ml">Claims tracked &amp; verified</div>'
               f'<div class="mv"><a href="#claims">{claims_n}</a>{delta}</div>'
               '<div class="sub"><a href="#claims">see all ↓</a></div></div>'
