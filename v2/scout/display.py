@@ -135,14 +135,14 @@ def change_feed(slug: str, limit: int = 25) -> list[dict]:
     current.md, which every material update and the baseline both touch."""
     path = store.battlecard_dir(slug)
     out = _git(["log", f"-{limit}", "--follow", "--date=format-local:%b %-d, %-I:%M %p ET",
-                "--format=%h%x09%ad%x09%ae%x09%s", "--",
+                "--format=%h%x09%ad%x09%at%x09%ae%x09%s", "--",
                 os.path.join(path, "current.md")])
     rows = []
     for line in out.splitlines():
         parts = line.split("\t")
-        if len(parts) == 4:
-            rows.append({"hash": parts[0], "date": parts[1],
-                         "email": parts[2], "subject": parts[3]})
+        if len(parts) == 5:
+            rows.append({"hash": parts[0], "date": parts[1], "epoch": parts[2],
+                         "email": parts[3], "subject": parts[4]})
     if not rows:
         return []
     baseline_hash = rows[-1]["hash"]                 # oldest content commit = card creation
@@ -159,7 +159,8 @@ def change_feed(slug: str, limit: int = 25) -> list[dict]:
             label = subj
         else:
             continue                                 # product/code commit — not a card update
-        events.append({"hash": r["hash"], "date": r["date"], "subject": label})
+        events.append({"hash": r["hash"], "date": r["date"], "epoch": r["epoch"],
+                       "subject": label})
     return events
 
 

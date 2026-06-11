@@ -606,11 +606,14 @@ def _autoprint(sheet_html: str) -> str:
 
 
 def _countdown_component() -> str:
-    """A height-0 component that drives the live 'Next update' countdown. Same parent-injection
-    trick as GA (proven to reach window.parent on Cloud): one global interval re-renders
-    #scout-countdown every second from its data-remaining, anchored to the client clock at load.
-    A fresh element each rerun re-anchors to the server's recomputed value. Degrades gracefully —
-    if the parent isn't reachable, the server-rendered seconds simply stay put."""
+    """A height-0 component that drives the live 'Next update' countdown AND localizes
+    timestamps. Same parent-injection trick as GA (proven to reach window.parent on Cloud):
+    one global interval re-renders #scout-countdown every second from its data-remaining,
+    anchored to the client clock at load. A second interval rewrites .scout-ld/.scout-lt/
+    .scout-lts elements (server-rendered in ET as the no-JS fallback — see page._utc_attr)
+    to the VIEWER's timezone from their data-utc; once localized there's no tz suffix, the
+    local convention. Fresh elements each rerun re-localize within a tick. Degrades
+    gracefully — if the parent isn't reachable, the server-rendered ET simply stays put."""
     return (
         "<script>(function(){"
         "var p=window.parent;if(!p||p.__scoutCD)return;p.__scoutCD=true;"
@@ -623,7 +626,21 @@ def _countdown_component() -> str:
         "if(s<=0){el.textContent='refresh due now';return;}"
         "var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;"
         "el.textContent='in '+h+'h '+pad(m)+'m '+pad(sec)+'s';"
-        "},1000);})();</script>")
+        "},1000);})();"
+        "(function(){"
+        "var p=window.parent;if(!p||p.__scoutLT)return;p.__scoutLT=true;"
+        "function fd(d){return d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});}"
+        "function fds(d){return d.toLocaleDateString(undefined,{month:'short',day:'numeric'});}"
+        "function ft(d){return d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});}"
+        "p.setInterval(function(){"
+        "var els=p.document.querySelectorAll('.scout-ld[data-utc],.scout-lt[data-utc],.scout-lts[data-utc]');"
+        "for(var i=0;i<els.length;i++){var el=els[i];if(el.__loc)continue;"
+        "var d=new Date(el.getAttribute('data-utc'));if(isNaN(d.getTime()))continue;el.__loc=true;"
+        "var c=el.className;"
+        "if(c.indexOf('scout-lts')>-1){el.textContent=fds(d)+' \\u00b7 '+ft(d);}"
+        "else if(c.indexOf('scout-ld')>-1){el.textContent=fd(d);}"
+        "else{el.textContent=ft(d);}"
+        "}},1000);})();</script>")
 
 
 def _render_print_tab(slug: str):
