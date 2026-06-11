@@ -13,6 +13,7 @@
       ]
     }
   },
-  "updateContentCommand": "[ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; [ -f v2/requirements.txt ] && pip3 install --user -r v2/requirements.txt; pip3 install --user streamlit; echo '✅ Packages installed and Requirements met'"
+  "updateContentCommand": "[ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; [ -f v2/requirements.txt ] && pip3 install --user -r v2/requirements.txt; pip3 install --user streamlit; echo '✅ Packages installed and Requirements met'",
+"postAttachCommand": "tmux new -A -s claude || true",
 
 }

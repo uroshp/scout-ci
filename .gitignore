@@ -231,3 +231,6 @@ debug_runs/
 # data repo. Never commit captured champion decisions into the public code repo.
 shadow/
 v2/shadow/
+
+# Claude memory stash for codespace rebuilds (claude-backup.sh) — never commit
+.claude-backup/
