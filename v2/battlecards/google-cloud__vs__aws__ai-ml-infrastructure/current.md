@@ -36,6 +36,7 @@ Google Cloud's June 2025 global outage (70+ services) and Pichai's own "compute 
 
 ## Recent Strategic Moves
 
+- AWS brought Graviton5 — its first custom CPU purpose-built for agentic AI — to general availability on June 10, 2026 in the EC2 M9g/M9gd instances, extending AWS's silicon story from training (Trainium) into CPU-bound agentic inference (real-time reasoning, code generation, multi-step orchestration). The 3nm, 192-core chip delivers up to 25% better compute performance than Graviton4, and AWS landed marquee validation: Meta committed to deploy 'tens of millions' of Graviton5 cores under a multibillion-dollar deal, with Uber and Snowflake also onboard, joining 120,000+ existing Graviton customers. ([aboutamazon.com](https://www.aboutamazon.com/news/aws/meta-aws-graviton-ai-partnership))
 - On June 1, 2026, AWS made OpenAI's GPT-5.5, GPT-5.4 and Codex generally available on Amazon Bedrock at OpenAI-matching token rates — its first frontier OpenAI access, landing weeks after Microsoft's exclusivity lapsed. So what for us: it confirms Bedrock is a model marketplace, not a differentiated first-party model — Google still has the only fully-owned frontier model (Gemini) trained on its own silicon. ([aboutamazon.com](https://www.aboutamazon.com/news/aws/bedrock-openai-models))
 - On April 20, 2026, Amazon agreed to invest up to \$25B more in Anthropic (on top of ~\$8B prior), and Anthropic committed to spend \$100B+ on AWS over ten years, including up to 5GW of Trainium capacity. So what for us: AWS is deepening a dependency on a partner it doesn't own — and Claude still runs on Google Cloud too, so "we need Claude" is not a reason to pick AWS. ([cnbc.com](https://www.cnbc.com/2026/04/20/amazon-invest-up-to-25-billion-in-anthropic-part-of-ai-infrastructure.html))
 - In his April 2026 shareholder letter, Andy Jassy disclosed that Trainium2 (roughly 30% better price-performance than comparable GPUs) is "largely sold out" and Trainium3 is "nearly fully-subscribed." So what for us: even buyers who want Trainium can't get it — sell Google Cloud TPU and GPU availability today, not spec-sheet comparisons. ([cio.com](https://www.cio.com/article/4157494/ai-demand-is-so-high-aws-customers-are-trying-to-buy-out-its-entire-capacity-2.html))
@@ -149,7 +150,6 @@ Not exclusive: Anthropic itself states Claude is available on all three major cl
 Fair on today's numbers: AWS holds ~28% share to Google's 14% (Synergy). But "safe" is a snapshot, and the snapshot is moving — Google Cloud grew 63% YoY vs AWS's 28%, led by enterprise AI. The safer long-term bet is the platform whose AI economics and model ownership are pulling the market toward it.
 
 **So what:** Concede the current-share point, then redirect to a 3–5 year trajectory framing where the growth gap and AI differentiation favor Google. ([srgresearch.com](https://www.srgresearch.com/articles/cloud-market-annual-revenue-run-rate-topped-half-a-trillion-dollars-in-q1-as-growth-surge-continues))
-
 
 ## Cut Log
 
