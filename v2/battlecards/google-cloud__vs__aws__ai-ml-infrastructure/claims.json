@@ -847,5 +847,35 @@
       "detail": null
     },
     "persona": "exec_top_down"
+  },
+  {
+    "subject_key": "aws | launch | graviton5-2026-06",
+    "claim": "AWS brought Graviton5 — its first custom CPU purpose-built for agentic AI — to general availability on June 10, 2026 in the EC2 M9g/M9gd instances, extending AWS's silicon story from training (Trainium) into CPU-bound agentic inference (real-time reasoning, code generation, multi-step orchestration). The 3nm, 192-core chip delivers up to 25% better compute performance than Graviton4, and AWS landed marquee validation: Meta committed to deploy 'tens of millions' of Graviton5 cores under a multibillion-dollar deal, with Uber and Snowflake also onboard, joining 120,000+ existing Graviton customers.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.aboutamazon.com/news/aws/meta-aws-graviton-ai-partnership",
+    "source_tier": "primary",
+    "evidence_excerpt": "The Graviton5 chip features 192 cores and a cache that is five times larger than the previous generation, which reduces delays in how quickly those cores communicate with each other by up to 33%.",
+    "as_of": "2026-06-10",
+    "confidence": "high",
+    "id": "c_4e5883c5d5d0",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-11",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://siliconangle.com/2026/06/10/aws-powerful-graviton5-cpu-makes-debut-new-m9g-m9gd-cloud-instances/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
