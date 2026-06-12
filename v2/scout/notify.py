@@ -18,7 +18,8 @@ def render_digest(competitor: str, alerts: list[dict]) -> tuple[str, str]:
     subject = f"Scout — {n} material change{'s' if n != 1 else ''}: {competitor}"
     lines = [f"{n} material change{'s' if n != 1 else ''} detected for {competitor}.", ""]
     for a in alerts:
-        lines.append(f"• {a.get('headline', a.get('subject_key', 'change'))}")
+        sev = f"[{a['severity'].upper()}] " if a.get("severity") else ""
+        lines.append(f"• {sev}{a.get('headline', a.get('subject_key', 'change'))}")
         old, new = a.get("old_value"), a.get("new_value")
         if old or new:
             lines.append(f"    {old} → {new}")

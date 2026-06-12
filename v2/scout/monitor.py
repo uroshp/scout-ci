@@ -164,7 +164,11 @@ AND an alert. If the change updates an existing tracked subject, REUSE that subj
 it updates in place; if genuinely new, use a fresh subject_key in the same style.
 
 Do NOT include id/verified/grounding (filled downstream). Every alert MUST carry a "so_what" — the
-decision it changes — or the item is NOT material.
+decision it changes — or the item is NOT material. Every alert also carries a "severity":
+"act" when the change demands reps change what they SAY or DO in live deals NOW (a price change,
+a launch that moves a battlecard zone, a differentiator gained/lost, a breaking risk);
+"watch" when it is material context but changes no rep behavior yet (an early signal, a capacity
+datapoint, exec commentary, a roadmap announcement with no shipped product).
 
 MULTI-SOURCE (this is how a claim survives grounding — do it for EVERY material change): find
 EVERY credible source for the development, then RANK them by source tier — primary (SEC/EDGAR
@@ -187,7 +191,8 @@ can confirm it. Never list a source you did not actually fetch and read. An ADVE
 Return ONLY a single fenced ```json block (the claim object includes "candidate_sources"):
 {"material": [ {"claim": { ...claim object... },
                "alert": {"old_value": "<prior, or null if new>", "new_value": "<now>",
-                         "headline": "<one line>", "so_what": "<the decision it changes>"}} ],
+                         "headline": "<one line>", "so_what": "<the decision it changes>",
+                         "severity": "act|watch"}} ],
  "immaterial": [ {"signal": "<...>", "why_not": "<...>"} ]}"""
 
 
@@ -297,6 +302,9 @@ def _apply_updates(claims, material_grounded, alerted_fingerprints):
             "new_value": alert.get("new_value"),
             "headline": alert.get("headline"),
             "so_what": alert.get("so_what"),
+            # Normalized in code (deterministic): anything but a clean "act" demotes to "watch",
+            # so a judge hiccup can only under-flag, never invent urgency.
+            "severity": "act" if str(alert.get("severity", "")).strip().lower() == "act" else "watch",
             "source_url": claim.get("source_url"),
             "fingerprint": fp,
         })
@@ -474,7 +482,8 @@ def _append_alerts(slug, alerts):
             f.write(json.dumps(a, ensure_ascii=False) + "\n")
     with open(os.path.join(d, "alerts.md"), "a") as f:
         for a in alerts:
-            f.write(f"- **{a['date']} — {a['headline']}** ({a['subject_key']}): "
+            f.write(f"- **[{a.get('severity', 'watch').upper()}] {a['date']} — {a['headline']}** "
+                    f"({a['subject_key']}): "
                     f"{a['old_value']} → {a['new_value']}. **So what:** {a['so_what']}\n")
 
 

@@ -299,12 +299,6 @@ def _rail(status: dict, present: list, plays_n: int = 3) -> str:
                f'{len(status["claim_timestamps"])}</span></a>')
     nav = '<div class="toc" id="toc">' + "".join(toc) + "</div>"
 
-    recent = status["recent_updates"]
-    ju = ("".join(f'<div class="row"><span class="new">NEW</span>'
-                  f'<span>{_html.escape(str(r.get("headline", r.get("subject_key",""))))}</span></div>'
-                  for r in recent)
-          if recent else f'<div class="empty">Nothing updated in the last '
-                         f'{display.NEW_BADGE_WINDOW_HOURS}h.</div>')
     feed = status["change_feed"]
     def _cf_ts(e):
         try:    # git %at epoch -> data-utc, so the localizer can rewrite this row too
@@ -316,16 +310,33 @@ def _rail(status: dict, present: list, plays_n: int = 3) -> str:
     cf = ("".join(f'<div class="row"><span class="dt">{_cf_ts(e)}</span>'
                   f'<span>{_html.escape(e["subject"])}</span></div>' for e in feed)
           if feed else '<div class="empty">No changes recorded yet.</div>')
-    alerts = display.load_alerts(status["slug"])
     def _rail_ts(s):
         iso = _utc_attr(s)
         attr = f' class="scout-lts" data-utc="{iso}"' if iso else ""
         return f'<span{attr}>{_html.escape(_fmt_short(s))}</span>'
-    al = ("".join(f'<div class="row"><span class="dt">{_rail_ts(a.get("detected_at", a.get("date","")))}'
-                  f'</span><span>{_html.escape(str(a.get("headline", a.get("so_what",""))))}</span></div>'
-                  for a in alerts)
-          if alerts else '<div class="empty">No material changes alerted yet.</div>')
-    new_count = sum(1 for r in status["claim_timestamps"] if r.get("is_new"))
+
+    # One "Material changes" panel: the full alert history, newest first. Recency is a property
+    # of a row (the NEW chip), not a separate box — this replaced the old "Just updated" panel,
+    # which was just the <48h slice of the same data restyled. Each row surfaces the judge's
+    # stored severity (ACT = change what reps say/do now; WATCH = material context) and its
+    # so_what reasoning behind a "Why it matters" toggle.
+    recent_fps = {a.get("fingerprint") or a.get("subject_key") for a in status["recent_updates"]}
+    mc_rows = []
+    for a in reversed(display.load_alerts(status["slug"])):
+        chips = ""
+        sev = str(a.get("severity") or "").lower()
+        if sev in ("act", "watch"):
+            chips += f'<span class="sev {sev}">{sev.upper()}</span>'
+        if (a.get("fingerprint") or a.get("subject_key")) in recent_fps:
+            chips += '<span class="new">NEW</span>'
+        sw = a.get("so_what")
+        swx = (f'<details class="swx"><summary>Why it matters</summary>'
+               f'<div class="swb">{_inline(str(sw))}</div></details>') if sw else ""
+        mc_rows.append(
+            f'<div class="row"><div class="rmeta"><span class="dt">'
+            f'{_rail_ts(a.get("detected_at", a.get("date","")))}</span>{chips}</div>'
+            f'<span>{_html.escape(str(a.get("headline", a.get("so_what",""))))}</span>{swx}</div>')
+    mc = "".join(mc_rows) if mc_rows else '<div class="empty">No material changes detected yet.</div>'
 
     def panel(label, body, extra=""):
         return (f'<div class="panel"><div class="phead"><span class="ey">{label}</span>{extra}</div>'
@@ -335,8 +346,8 @@ def _rail(status: dict, present: list, plays_n: int = 3) -> str:
     credit = (f'Built by <a href="{_html.escape(config.AUTHOR_LINKEDIN)}" target="_blank" '
               f'rel="noopener">{name}</a>') if config.AUTHOR_LINKEDIN else f"Built by {name}"
     return ('<div class="rail">' + nav
-            + panel("Just updated", ju, f'<span class="ph-n">{new_count}</span>')
-            + panel("Change feed", cf) + panel("Alerts", al)
+            + panel("Material changes", mc, f'<span class="ph-n">{len(mc_rows)}</span>')
+            + panel("Change feed", cf)
             + f'<div class="rail-credit">{credit}</div>' + "</div>")
 
 
@@ -501,7 +512,21 @@ _OVERRIDES = """
 #scout-page .feed .row{display:block;padding:4px 0;}
 #scout-page .feed .row .dt{display:block;margin-bottom:1px;}
 #scout-page .feed .row+.row{border-top:1px solid var(--line2);margin-top:3px;padding-top:7px;}
-#scout-page .feed .new{margin-right:7px;}  /* was spaced by the flex gap the block layout drops */
+/* Material-changes rows: timestamp + severity/NEW chips on one meta line above the headline. */
+#scout-page .feed .rmeta{display:flex;align-items:center;gap:6px;margin-bottom:1px;}
+#scout-page .feed .rmeta .dt{margin-bottom:0;}
+#scout-page .sev{font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.08em;
+  border-radius:4px;padding:0 4px;border:1px solid;line-height:1.5;}
+#scout-page .sev.act{color:var(--amber);border-color:var(--amber-line);background:rgba(138,99,34,.09);}
+#scout-page .sev.watch{color:var(--muted);border-color:var(--line);background:var(--paper2);}
+#scout-page .swx{margin-top:2px;}
+#scout-page .swx>summary{list-style:none;cursor:pointer;user-select:none;font-family:var(--mono);
+  font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-deep);}
+#scout-page .swx>summary::-webkit-details-marker{display:none;}
+#scout-page .swx>summary::after{content:' \\25be';}
+#scout-page .swx[open]>summary::after{content:' \\25b4';}
+#scout-page .swb{margin-top:3px;font-size:11.5px;color:var(--muted);line-height:1.45;
+  border-left:2px solid var(--accent-line);padding-left:8px;}
 #scout-page .metric .mv .mdelta{font-family:var(--mono);font-size:10.5px;font-weight:600;
   color:var(--win);background:var(--win-soft);border:1px solid var(--win-line);
   border-radius:5px;padding:1px 5px;margin-left:7px;vertical-align:middle;white-space:nowrap;}
