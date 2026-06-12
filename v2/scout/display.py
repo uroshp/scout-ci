@@ -31,8 +31,10 @@ try:
 except Exception:                       # no tzdata on host — fixed EST beats crashing the viewer
     _ET_TZ = timezone(timedelta(hours=-5), "ET")
 
-# How recently a monitor run must have touched a claim for the "NEW" badge (A4).
-NEW_BADGE_WINDOW_HOURS = 24
+# How recently a monitor run must have touched a claim for the "NEW" badge (A4) — also drives
+# the "Just updated" rail panel and every "<Nh" label in the viewer (page.py derives them all
+# from this constant). 48h so a once-a-day reader still catches yesterday afternoon's update.
+NEW_BADGE_WINDOW_HOURS = 48
 
 
 def _git(args: list[str]) -> str:
@@ -237,7 +239,7 @@ def claim_timestamps(claims: list[dict], recent_keys: set | None = None) -> list
             "section": c.get("section"),
             "as_of": c.get("as_of"),                  # fact is true as-of this date
             "verified_on": grounding.get("fetched_at"),  # grounding last confirmed it on the page
-            "is_new": c.get("subject_key") in recent_keys,  # touched by a monitor run <24h ago
+            "is_new": c.get("subject_key") in recent_keys,  # monitor-touched within the badge window
         })
     return rows
 
