@@ -155,6 +155,7 @@ def change_feed(slug: str, limit: int = 25) -> list[dict]:
             label = "Battlecard created"
         elif subj.startswith("monitor:"):
             label = subj.split(":", 1)[1].strip().capitalize() or "Battlecard updated"
+            label = label.replace(" — ", ": ")   # historical commit subjects carry em dashes
         elif subj.startswith("selfserve:"):
             label = "Battlecard regenerated"
         elif r["email"] in _AGENT_AUTHORS:

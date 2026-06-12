@@ -15,7 +15,7 @@ RESEND_ENDPOINT = "https://api.resend.com/emails"
 def render_digest(competitor: str, alerts: list[dict]) -> tuple[str, str]:
     """Subject + plain-text body. One material change per block, each with its so-what."""
     n = len(alerts)
-    subject = f"Scout — {n} material change{'s' if n != 1 else ''}: {competitor}"
+    subject = f"Scout: {n} material change{'s' if n != 1 else ''} for {competitor}"
     lines = [f"{n} material change{'s' if n != 1 else ''} detected for {competitor}.", ""]
     for a in alerts:
         sev = f"[{a['severity'].upper()}] " if a.get("severity") else ""
@@ -41,7 +41,7 @@ def send_selfserve_ready(to: str, job_id: str, label: str | None = None) -> dict
     if not key or not to:
         return {"sent": False, "reason": "unconfigured or no recipient (no email sent)"}
     link = f"{config.SELFSERVE_APP_URL.rstrip('/')}/?job={job_id}"
-    what = f" — {label}" if label else ""
+    what = f": {label}" if label else ""
     subject = f"Your Scout battlecard is ready{what}"
     body = (
         f"Your competitive battlecard{what} is ready.\n\n"

@@ -461,7 +461,7 @@ def _render_selfserve(job_param: str | None) -> None:
         now_dt = datetime.now()
         if hist and (now_dt - hist[-1]).total_seconds() < 60:
             wait = 60 - int((now_dt - hist[-1]).total_seconds())
-            st.warning(f"Easy there — one report at a time. Try again in {wait}s.")
+            st.warning(f"Easy there, one report at a time. Try again in {wait}s.")
             return
         if len(hist) >= 3:
             st.warning("You've reached this session's limit of 3 reports.")

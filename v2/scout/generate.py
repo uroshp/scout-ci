@@ -26,7 +26,7 @@ from datetime import date
 from claude_agent_sdk import AgentDefinition, ClaudeAgentOptions, query
 
 from scout import config, shadow
-from scout.prompts import SOURCE_HIERARCHY, load_methodology
+from scout.prompts import SOURCE_HIERARCHY, WRITING_STYLE, load_methodology
 from scout.schema import (
     SECTIONS, ZONES, claim_id, pregrounding_errors, validation_errors,
 )
@@ -263,6 +263,8 @@ Follow this methodology exactly:
 
 {SOURCE_HIERARCHY}
 
+{WRITING_STYLE}
+
 {SUBJECT_KEY_GUIDE}
 
 {CLAIM_CONTRACT}
@@ -373,7 +375,8 @@ async def _run_retry(payload):
     options = ClaudeAgentOptions(
         model=config.SUBAGENT_MODEL,            # mechanical repair — Sonnet
         # Free lever N: the static repair contract goes in the (cached) system prompt.
-        system_prompt={"type": "preset", "preset": "claude_code", "append": RETRY_CONTRACT},
+        system_prompt={"type": "preset", "preset": "claude_code",
+                       "append": RETRY_CONTRACT + "\n\n" + WRITING_STYLE},
         mcp_servers={"scoutfetch": FETCH_SERVER},
         allowed_tools=["WebSearch", FETCH_TOOL_NAME],  # re-source 'unreachable' claims via real fetch
         disallowed_tools=["WebFetch"],

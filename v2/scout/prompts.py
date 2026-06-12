@@ -34,6 +34,18 @@ RULES:
 - NO PROXY ATTRIBUTION: if a Tier 3 source merely REPORTS a figure it attributes to a more authoritative origin (a named survey, filing, or analyst firm), find and cite that origin directly, or cut the claim. Never cite an aggregator or directory blog as a stand-in for the origin it is quoting (e.g. do not cite a blog "reporting a JetBrains survey" - cite JetBrains, or cut it).
 - Keep four things explicitly separate and never blur them: VERIFIED FACT, the COMPANY'S OWN CLAIM/positioning, ANALYST/MODELED ESTIMATE, and SENTIMENT."""
 
+WRITING_STYLE = """WRITING STYLE (applies to EVERY sentence you write — claims, so-whats,
+headlines, soundbites, cut-log reasons):
+- NO EM DASHES (—). Ever. Use a comma, a colon, a period, or parentheses, or split the sentence.
+- No "rule of three" filler: do not reflexively list exactly three parallel items ("X, Y, and Z")
+  when the evidence gives you two, or four, or one. List what the evidence supports.
+- No negation-contrast framing: never "it's not X, it's Y", "this isn't about X but Y",
+  "X is no longer the point". State directly what IS true.
+- Write like a sharp human analyst briefing a colleague: concrete subjects, active verbs, plain
+  words. No throat-clearing ("It's worth noting", "Importantly"), no marketing gloss
+  ("seamless", "robust", "game-changing"), no symmetrical sentence patterns repeated across
+  bullets. If a sentence would sound canned read aloud, rewrite it."""
+
 FORMATTING_RULES = """MARKDOWN FORMATTING RULES (follow exactly so the report renders cleanly):
 - Use ## for the main section headers ONLY (Executive Summary, Snapshot, Recent Strategic Moves, Positioning and Differentiation, Pricing and Packaging, Competitive Battlecard, Sentiment, Objection Handling, Cut Log). Use ### for sub-headers within a section (e.g. battlecard zones). Never use headers for normal content.
 - Three sections are written as PROSE BLOCKS, not bullets: the Executive Summary, the Competitive Battlecard (inside each zone), and Objection Handling. Each entry there is a short multi-line block (a bolded title line, a blank line, a 1-2 sentence paragraph, a blank line, then its labeled soundbite/so-what line) — NOT a one-line bullet. Do not prefix these blocks with "- ".

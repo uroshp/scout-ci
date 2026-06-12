@@ -32,6 +32,7 @@ from scout import config, shadow, store
 from scout.fetch_tool import FETCH_SERVER, FETCH_TOOL_NAME, reset_log
 from scout.generate import _drive, _extract_json, _build_retry_payload, _run_retry
 from scout.grounding import CUT_ABSENT, ground_claims, is_excluded_source
+from scout.prompts import WRITING_STYLE
 from scout.render import claims_to_markdown, clean_output, extract_cut_log, format_report
 from scout.schema import SOURCE_TIERS, claim_id, pregrounding_errors, validation_errors
 
@@ -204,7 +205,8 @@ async def _run_materiality(meta, since, candidates, claims):
             "\n\nCANDIDATE SIGNALS FROM TRIAGE:\n" + json.dumps(candidates, ensure_ascii=False))
     options = ClaudeAgentOptions(
         model=config.ORCHESTRATOR_MODEL,
-        system_prompt={"type": "preset", "preset": "claude_code", "append": _MATERIALITY_SYSTEM},
+        system_prompt={"type": "preset", "preset": "claude_code",
+                       "append": _MATERIALITY_SYSTEM + "\n\n" + WRITING_STYLE},
         mcp_servers={"scoutfetch": FETCH_SERVER},
         allowed_tools=["WebSearch", FETCH_TOOL_NAME],
         disallowed_tools=["WebFetch"],
