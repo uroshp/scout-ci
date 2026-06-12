@@ -494,6 +494,14 @@ _OVERRIDES = """
 #scout-page .rail-credit{font-family:var(--mono);font-size:10.5px;color:var(--faint);
   padding:12px 2px 0;line-height:1.4;}
 #scout-page .rail-credit a{color:var(--muted);}
+/* Rail feed rows: the mockup's flex row (timestamp column | label) only works for short labels —
+   in the 218px rail a real headline got squeezed beside the ~110px timestamp and wrapped one
+   word per line. Stack the timestamp ABOVE its label so the text gets the full rail width.
+   ("Just updated" rows have no timestamp; their NEW chip stays inline before the text.) */
+#scout-page .feed .row{display:block;padding:4px 0;}
+#scout-page .feed .row .dt{display:block;margin-bottom:1px;}
+#scout-page .feed .row+.row{border-top:1px solid var(--line2);margin-top:3px;padding-top:7px;}
+#scout-page .feed .new{margin-right:7px;}  /* was spaced by the flex gap the block layout drops */
 #scout-page .metric .mv .mdelta{font-family:var(--mono);font-size:10.5px;font-weight:600;
   color:var(--win);background:var(--win-soft);border:1px solid var(--win-line);
   border-radius:5px;padding:1px 5px;margin-left:7px;vertical-align:middle;white-space:nowrap;}
