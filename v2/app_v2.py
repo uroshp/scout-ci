@@ -615,19 +615,29 @@ def _countdown_component() -> str:
     local convention. Fresh elements each rerun re-localize within a tick. Degrades
     gracefully — if the parent isn't reachable, the server-rendered ET simply stays put.
 
-    Also patches a missing viewport meta into the parent document: Streamlit's own index.html
-    ships NONE, so when the bare app frame (/~/+/ — the public viewer link) is opened directly
-    on a phone, mobile Safari lays it out at its 980px default and the responsive breakpoints
-    never fire — desktop columns on a phone. Browsers honor a dynamically-inserted viewport
-    meta on the TOP-LEVEL document and ignore it in iframes, so this fixes the direct visit
-    and is a no-op when the host page (which has its own meta) frames the app."""
+    Also normalizes the viewport meta on the TOP-LEVEL document: Streamlit's index.html ships
+    none and its React app only injects one at runtime — too late for iOS Safari, which commits
+    its 980px desktop layout at first paint and (unlike Chrome) won't re-evaluate a LATE-INSERTED
+    meta. So opening the bare app frame (/~/+/ — the public viewer link) on a phone rendered
+    desktop columns. WebKit DOES reliably re-parse the viewport when an EXISTING meta's content
+    attribute CHANGES, so we rewrite it to our canonical value rather than skip when one exists
+    (the original skip-if-present guard never fired — Streamlit's ignored meta was already
+    there). Patched on window.top (same-origin on Cloud); viewport metas only matter on the
+    top-level document, so when the host page frames the app its own (parse-time, working) meta
+    is already canonical-equivalent and is left alone."""
     return (
         "<script>(function(){"
-        "var p=window.parent;if(!p||p.__scoutVP)return;p.__scoutVP=true;"
-        "try{var d=p.document;"
-        "if(!d.querySelector('meta[name=\"viewport\"]')){"
-        "var m=d.createElement('meta');m.name='viewport';"
-        "m.content='width=device-width, initial-scale=1';d.head.appendChild(m);}}catch(e){}"
+        "var t=null;try{t=window.top;void t.document.head;}catch(e){}"
+        "if(!t)try{t=window.parent;void t.document.head;}catch(e){return;}"
+        "if(!t||t.__scoutVP)return;t.__scoutVP=true;"
+        "try{var d=t.document,want='width=device-width, initial-scale=1';"
+        "var m=d.querySelector('meta[name=\"viewport\"]');"
+        "if(!m){m=d.createElement('meta');m.name='viewport';m.content=want;"
+        "d.head.appendChild(m);}"
+        "else if((m.getAttribute('content')||'').indexOf('device-width')<0||"
+        "m.getAttribute('content')!==want&&"
+        "(m.getAttribute('content')||'').indexOf('user-scalable')<0){"
+        "m.setAttribute('content',want);}}catch(e){}"
         "})();"
         "(function(){"
         "var p=window.parent;if(!p||p.__scoutCD)return;p.__scoutCD=true;"
