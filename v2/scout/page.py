@@ -157,6 +157,13 @@ def _badge(c: dict, prefix: str) -> str:
             f'{_html.escape(label)}</span>')
 
 
+def _new_chip(new: bool) -> str:
+    """The per-item NEW badge — same signal as the rail's 'Just updated' rows, shown on the
+    claim itself wherever it renders. Keyed off recent_keys (a monitor ACTION within
+    display.NEW_BADGE_WINDOW_HOURS), so it ages out on its own."""
+    return '<span class="scout-new">NEW</span>' if new else ""
+
+
 def _verified(url: str, asof: str = "") -> str:
     bits = ['<span class="verified"><span class="tick">✓</span>Verified</span>']
     if url:
@@ -171,14 +178,16 @@ def _callout(kind: str, label: str, text: str) -> str:
     return f'<div class="callout {kind}"><b>{_html.escape(label)}</b>{_inline(text)}</div>'
 
 
-def _prose_item(c: dict, *, callout_label=None, callout_kind="sw", badge_prefix=None) -> str:
+def _prose_item(c: dict, *, callout_label=None, callout_kind="sw", badge_prefix=None,
+                new: bool = False) -> str:
     p = _parse_claim(c)
     badge = _badge(c, badge_prefix) if badge_prefix else ""
+    chip = _new_chip(new)
     if p["title"]:
-        head = (f'<div class="ihead"><h4>{_inline(p["title"])}</h4>{badge}</div>' if badge
-                else f'<h4>{_inline(p["title"])}</h4>')
+        head = (f'<div class="ihead"><h4>{chip}{_inline(p["title"])}</h4>{badge}</div>' if badge
+                else f'<h4>{chip}{_inline(p["title"])}</h4>')
     else:
-        head = ""
+        head = chip
     body = "".join(f"<p>{_inline(b)}</p>" for b in p["body"])
     call = ""
     if p["soundbite"]:
@@ -188,13 +197,13 @@ def _prose_item(c: dict, *, callout_label=None, callout_kind="sw", badge_prefix=
     return f'<div class="item">{head}{body}{call}{_verified(c.get("source_url",""))}</div>'
 
 
-def _bullet_item(c: dict) -> str:
-    return (f'<div class="item"><p>{_inline(c.get("claim",""))}</p>'
+def _bullet_item(c: dict, new: bool = False) -> str:
+    return (f'<div class="item"><p>{_new_chip(new)}{_inline(c.get("claim",""))}</p>'
             f'{_verified(c.get("source_url",""), _fmt_asof(c.get("as_of")))}</div>')
 
 
-def _snapshot_box(c: dict) -> str:
-    return (f'<div class="box">{_inline(c.get("claim",""))}'
+def _snapshot_box(c: dict, new: bool = False) -> str:
+    return (f'<div class="box">{_new_chip(new)}{_inline(c.get("claim",""))}'
             f'{_verified(c.get("source_url",""), _fmt_asof(c.get("as_of")))}</div>')
 
 
@@ -234,13 +243,15 @@ def _preview_section(sid: str, title: str, count_label: str, items: list,
             f'<div class="sbody">{first_html}{more}</div></div>')
 
 
-def _battlecard(claims: list) -> str:
+def _battlecard(claims: list, recent_keys: set | None = None) -> str:
+    recent_keys = recent_keys or set()
     subs = []
     for zid, zlabel, zcls in _ZONES:
         zc = sorted([c for c in claims if c.get("zone") == zid], key=lambda c: c.get("order", 0))
         if not zc:
             continue
-        items = [_prose_item(c, badge_prefix="Best for") for c in zc]
+        items = [_prose_item(c, badge_prefix="Best for",
+                             new=c.get("subject_key") in recent_keys) for c in zc]
         head = (f'<div class="zhead"><span class="zlabel {zcls}">{_html.escape(zlabel)}</span>'
                 f'<span class="subcount">{len(zc)} item{"s" if len(zc)!=1 else ""}</span></div>')
         more = ""
@@ -292,7 +303,8 @@ def _rail(status: dict, present: list, plays_n: int = 3) -> str:
     ju = ("".join(f'<div class="row"><span class="new">NEW</span>'
                   f'<span>{_html.escape(str(r.get("headline", r.get("subject_key",""))))}</span></div>'
                   for r in recent)
-          if recent else '<div class="empty">Nothing updated in the last 24h.</div>')
+          if recent else f'<div class="empty">Nothing updated in the last '
+                         f'{display.NEW_BADGE_WINDOW_HOURS}h.</div>')
     feed = status["change_feed"]
     def _cf_ts(e):
         try:    # git %at epoch -> data-utc, so the localizer can rewrite this row too
@@ -339,12 +351,13 @@ def _freshness(rows: list) -> str:
             f'<td>{_html.escape(str(r.get("as_of") or "—"))}</td>'
             f'<td>{_html.escape(str(r.get("verified_on") or "—"))}</td>'
             f'<td class="{"" if isnew else "no"}">{"true" if isnew else "false"}</td></tr>')
+    win = f"{display.NEW_BADGE_WINDOW_HOURS}h"   # one knob (display.py) drives badge + labels
     return (f'<div class="freshness" id="claims"><div class="fhead">'
             f'<div class="ftitle">Claim freshness — {len(rows)} claims '
-            f'({new_count} updated &lt;24h)</div>'
+            f'({new_count} updated &lt;{win})</div>'
             '<div class="fcap"><code>as_of</code> = the date the fact is true as-of · '
             '<code>verified_on</code> = when grounding last confirmed the exact wording · '
-            '<code>is_new</code> = a monitor run touched it &lt;24h ago.</div></div>'
+            f'<code>is_new</code> = a monitor run touched it &lt;{win} ago.</div></div>'
             '<div class="ftab-scroll"><table class="ftab"><thead><tr>'
             '<th>subject_key</th><th>section</th><th>as_of</th><th>verified_on</th><th>is_new</th>'
             '</tr></thead><tbody>' + "".join(trs) + "</tbody></table></div></div>")
@@ -484,6 +497,12 @@ _OVERRIDES = """
 #scout-page .metric .mv .mdelta{font-family:var(--mono);font-size:10.5px;font-weight:600;
   color:var(--win);background:var(--win-soft);border:1px solid var(--win-line);
   border-radius:5px;padding:1px 5px;margin-left:7px;vertical-align:middle;white-space:nowrap;}
+/* Per-item NEW chip — the rail's "Just updated" signal shown on the claim itself. Same win-green
+   treatment as .mdelta so "new" reads consistently everywhere. */
+#scout-page .scout-new{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.08em;
+  color:var(--win);background:var(--win-soft);border:1px solid var(--win-line);border-radius:5px;
+  padding:1px 5px;margin-right:8px;vertical-align:middle;white-space:nowrap;display:inline-block;
+  transform:translateY(-1px);}
 /* Unmonitored cards have no next-check: render the countdown slot muted, not as a live accent. */
 #scout-page .metric .cd.cd-off{color:var(--faint);font-weight:500;}
 @media(min-width:861px){#scout-page .cols{grid-template-columns:218px 1fr!important;}}
@@ -632,44 +651,56 @@ def title_html(slug: str) -> str:
     return '<div id="scout-page"><div class="wrap">' + _title_block(meta) + "</div></div>"
 
 
-def _brief_sections(claims: list, md: str):
+def _brief_sections(claims: list, md: str, recent_keys: set | None = None):
     """The full-brief body rendered from claim objects (+ Cut Log parsed from md) — the
     part SHARED by the live viewer and the static self-serve render. Returns
-    (sections_html, cut_html, present) where `present` is the section-nav list."""
+    (sections_html, cut_html, present) where `present` is the section-nav list.
+    recent_keys: subject_keys a monitor run touched recently — those items get a NEW chip."""
+    recent_keys = recent_keys or set()
     by_sec = {}
     for c in claims:
         by_sec.setdefault(c.get("section"), []).append(c)
+
+    def _new(c):
+        return c.get("subject_key") in recent_keys
 
     secs, present = [], []
     for sid in _SECTION_ORDER:
         if sid in _HIDDEN_SECTIONS:   # generated/stored but not shown (see _HIDDEN_SECTIONS)
             continue
         cs = sorted(by_sec.get(sid, []), key=lambda c: c.get("order", 0))
+        if sid == "recent_moves":
+            # A chronological section: the latest development belongs on top, regardless of the
+            # `order` the model assigned (monitor-added claims get arbitrary orders). Stable sort,
+            # so same-day items keep their model-assigned order.
+            cs = sorted(cs, key=lambda c: c.get("as_of") or "", reverse=True)
         if not cs:
             continue
         title = _SECTION_TITLES[sid]
         anchor = "bc" if sid == "battlecard" else sid   # battlecard's card uses id="bc"
         present.append((anchor, title, len(cs)))
         if sid == "battlecard":
-            secs.append(_battlecard(cs))
+            secs.append(_battlecard(cs, recent_keys))
         elif sid == "snapshot":
             secs.append(_preview_section(sid, title, f"{len(cs)} facts",
-                                         [_snapshot_box(c) for c in cs], 2, snap=True))
+                                         [_snapshot_box(c, _new(c)) for c in cs], 2, snap=True))
         elif sid == "executive_summary":
             secs.append(_section(sid, title, f"{len(cs)} takeaways",
-                                 "".join(_prose_item(c, callout_label="So what") for c in cs)))
+                                 "".join(_prose_item(c, callout_label="So what",
+                                                     new=_new(c)) for c in cs)))
         elif sid == "objection_handling":
             secs.append(_section(sid, title, f"{len(cs)} objections",
                                  "".join(_prose_item(c, callout_label="So what",
-                                                     badge_prefix="Raised by") for c in cs)))
+                                                     badge_prefix="Raised by",
+                                                     new=_new(c)) for c in cs)))
         elif sid in _PREVIEW_SECTIONS:   # recent_moves, positioning, pricing
             label = {"recent_moves": "moves"}.get(sid, "items")
             secs.append(_preview_section(sid, title, f"{len(cs)} {label}",
-                                         [_bullet_item(c) for c in cs], 1))
+                                         [_bullet_item(c, _new(c)) for c in cs], 1))
         else:
             label = {"sentiment": "signal"}.get(sid, "items")
             secs.append(_section(sid, title, f"{len(cs)} {label}",
-                                 "".join(_bullet_item(c) for c in cs)))
+                                 "".join(_bullet_item(c, _new(c)) for c in cs)))
     cut_html, cut_n = _cut_log(md)
     if cut_html:
         present.append(("cut", "Cut Log", str(cut_n)))
@@ -704,7 +735,7 @@ def content_html(slug: str) -> str:
     claims = store.load_claims(slug)
     md = _read_current(slug)
     rows = status["claim_timestamps"]
-    secs, cut_html, present = _brief_sections(claims, md)
+    secs, cut_html, present = _brief_sections(claims, md, set(status["recent_keys"]))
 
     try:
         remaining = int((datetime.fromisoformat(cp["next_check"]) - datetime.now()).total_seconds())

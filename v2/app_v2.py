@@ -613,9 +613,23 @@ def _countdown_component() -> str:
     .scout-lts elements (server-rendered in ET as the no-JS fallback — see page._utc_attr)
     to the VIEWER's timezone from their data-utc; once localized there's no tz suffix, the
     local convention. Fresh elements each rerun re-localize within a tick. Degrades
-    gracefully — if the parent isn't reachable, the server-rendered ET simply stays put."""
+    gracefully — if the parent isn't reachable, the server-rendered ET simply stays put.
+
+    Also patches a missing viewport meta into the parent document: Streamlit's own index.html
+    ships NONE, so when the bare app frame (/~/+/ — the public viewer link) is opened directly
+    on a phone, mobile Safari lays it out at its 980px default and the responsive breakpoints
+    never fire — desktop columns on a phone. Browsers honor a dynamically-inserted viewport
+    meta on the TOP-LEVEL document and ignore it in iframes, so this fixes the direct visit
+    and is a no-op when the host page (which has its own meta) frames the app."""
     return (
         "<script>(function(){"
+        "var p=window.parent;if(!p||p.__scoutVP)return;p.__scoutVP=true;"
+        "try{var d=p.document;"
+        "if(!d.querySelector('meta[name=\"viewport\"]')){"
+        "var m=d.createElement('meta');m.name='viewport';"
+        "m.content='width=device-width, initial-scale=1';d.head.appendChild(m);}}catch(e){}"
+        "})();"
+        "(function(){"
         "var p=window.parent;if(!p||p.__scoutCD)return;p.__scoutCD=true;"
         "function pad(n){return (n<10?'0':'')+n;}"
         "p.setInterval(function(){"
