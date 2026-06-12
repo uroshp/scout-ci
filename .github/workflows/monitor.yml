@@ -81,7 +81,7 @@ jobs:
             if git diff --cached --name-only | grep -qE 'claims.json|current.md|alerts'; then
               git commit -m "monitor: material change(s) detected"
             else
-              git commit -m "monitor: heartbeat — advance last_checked"
+              git commit -m "monitor: heartbeat (advance last_checked)"
             fi
             git push
           fi

@@ -279,7 +279,7 @@ def _cut_log(md: str):
         tag, subj, why = mm.group(1), mm.group(2), mm.group(3)
         cls = "cut" if tag == "CUT" else "rev"
         rows.append(f'<div class="cut"><span class="cuttag {cls}">{tag}</span>'
-                    f'<div class="body"><b>{_inline(subj)}</b> — {_inline(why)}</div></div>')
+                    f'<div class="body"><b>{_inline(subj)}</b> · {_inline(why)}</div></div>')
     if not rows:
         return "", 0
     note = ('<div class="cutnote">This is what verification removed or corrected during '
@@ -364,7 +364,7 @@ def _freshness(rows: list) -> str:
             f'<td class="{"" if isnew else "no"}">{"true" if isnew else "false"}</td></tr>')
     win = f"{display.NEW_BADGE_WINDOW_HOURS}h"   # one knob (display.py) drives badge + labels
     return (f'<div class="freshness" id="claims"><div class="fhead">'
-            f'<div class="ftitle">Claim freshness — {len(rows)} claims '
+            f'<div class="ftitle">Claim freshness · {len(rows)} claims '
             f'({new_count} updated &lt;{win})</div>'
             '<div class="fcap"><code>as_of</code> = the date the fact is true as-of · '
             '<code>verified_on</code> = when grounding last confirmed the exact wording · '
@@ -885,12 +885,12 @@ def call_sheet_from_claims(claims: list, meta: dict | None) -> str:
 
     sub = f"Researched: <b>{comp}</b>" + (f" · for <b>{mine}</b> reps" if mine else "")
     focus_html = f'<div class="focus">Focus: {focus}</div>' if focus else ""
-    body = (f'<div class="cs"><h1>Competitive Brief — Call Sheet</h1>'
+    body = (f'<div class="cs"><h1>Competitive Brief: Call Sheet</h1>'
             f'<div class="sub">{sub}</div>{focus_html}{angle_html}{plays_html}{obj_html}'
             f'<div class="ft">Agent Scout · every claim verified against its source · '
             f'{len(claims)} claims tracked</div></div>')
     return (f'<!doctype html><html lang="en"><head><meta charset="utf-8">'
-            f'<title>Call sheet — {comp}</title>{FONT_HEAD}'
+            f'<title>Call sheet: {comp}</title>{FONT_HEAD}'
             f'<style>{_CALL_SHEET_CSS}</style></head><body>{body}</body></html>')
 
 
