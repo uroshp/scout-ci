@@ -1,7 +1,7 @@
 [
   {
     "subject_key": "microsoft-teams vs slack | overall-position | current",
-    "claim": "**Teams still owns the enterprise default, but the ground is shifting under it.**\n\nBy the last public count Teams holds about 37% of the team-collaboration market and roughly 320M monthly active users, versus Slack's ~13% and ~65M — a 5x scale lead rooted in Microsoft 365 distribution. The contest now is less about installed base and more about who owns the AI layer and whether regulators force that distribution open.\n\n**So what:** Lead with the installed-base and M365-integration story, but don't assume the bundle alone closes deals anymore — be ready for the AI and antitrust conversations.",
+    "claim": "**Teams still owns the enterprise default, but the ground is shifting under it.**\n\nBy the last public count Teams holds about 37% of the team-collaboration market and roughly 320M monthly active users, versus Slack's ~13% and ~65M, a 5x scale lead rooted in Microsoft 365 distribution. The contest now is less about installed base and more about who owns the AI layer and whether regulators force that distribution open.\n\n**So what:** Lead with the installed-base and M365-integration story, but don't assume the bundle alone closes deals anymore. Be ready for the AI and antitrust conversations.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -45,7 +45,7 @@
   },
   {
     "subject_key": "microsoft-teams vs slack | ai-agent-battleground | current",
-    "claim": "**The real fight is the AI agent layer, not chat.**\n\nSalesforce is openly repositioning Slack from a messaging app into an 'agentic' work surface — Slackbot as an agent that routes work across Agentforce and thousands of apps — while Microsoft answers with Copilot embedded across Teams and the whole M365 suite, now at 20M paid seats. Both are betting the workspace becomes the front door to enterprise AI.\n\n**So what:** Sell Teams as the AI surface customers already have and use, and make every deal a Copilot-vs-Agentforce conversation about breadth and where the data already lives.",
+    "claim": "**The real fight is the AI agent layer, not chat.**\n\nSalesforce is openly repositioning Slack from a messaging app into an 'agentic' work surface (Slackbot as an agent that routes work across Agentforce and thousands of apps) while Microsoft answers with Copilot embedded across Teams and the whole M365 suite, now at 20M paid seats. Both are betting the workspace becomes the front door to enterprise AI.\n\n**So what:** Sell Teams as the AI surface customers already have and use, and make every deal a Copilot-vs-Agentforce conversation about breadth and where the data already lives.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -67,7 +67,7 @@
   },
   {
     "subject_key": "microsoft-365 | regulatory-pricing-exposure | current",
-    "claim": "**Regulation has handed buyers a pricing crowbar on Teams.**\n\nThe EU forced Microsoft to sell Microsoft 365 without Teams and to widen the price gap, and a fresh UK lawsuit filed in April 2026 keeps the bundling question live; one analysis pegs the Teams 'premium' at roughly $513k a year for a 5,000-seat E3 org. Meanwhile a July 2026 M365 list-price increase lands right at renewal time.\n\n**So what:** Expect procurement to ask for Teams-excluded pricing and to cite antitrust — go in with the value and TCO case (Copilot, meetings, compliance in one suite), not a bundle-or-nothing posture.",
+    "claim": "**Regulation has handed buyers a pricing crowbar on Teams.**\n\nThe EU forced Microsoft to sell Microsoft 365 without Teams and to widen the price gap, and a fresh UK lawsuit filed in April 2026 keeps the bundling question live; one analysis pegs the Teams 'premium' at roughly $513k a year for a 5,000-seat E3 org. Meanwhile a July 2026 M365 list-price increase lands right at renewal time.\n\n**So what:** Expect procurement to ask for Teams-excluded pricing and to cite antitrust. Go in with the value and TCO case (Copilot, meetings, compliance in one suite), not a bundle-or-nothing posture.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -89,7 +89,7 @@
   },
   {
     "subject_key": "microsoft-teams | product-quality-exposure | current",
-    "claim": "**Teams' own quality reputation is your softest flank.**\n\nMicrosoft has publicly admitted Teams' meeting UI is cluttered enough to cause accidental screen-shares, conceded the client's heavy memory use, and weathered global outages in late 2025 — all things a Slack rep will happily repeat.\n\n**So what:** Pre-empt the 'Teams is clunky and unreliable' objection with the current build, the fixes Microsoft has shipped, and the SLA, rather than letting the prospect raise it first.",
+    "claim": "**Teams' own quality reputation is your softest flank.**\n\nMicrosoft has publicly admitted Teams' meeting UI is cluttered enough to cause accidental screen-shares, conceded the client's heavy memory use, and weathered global outages in late 2025, all things a Slack rep will happily repeat.\n\n**So what:** Pre-empt the 'Teams is clunky and unreliable' objection with the current build, the fixes Microsoft has shipped, and the SLA, rather than letting the prospect raise it first.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -111,7 +111,7 @@
   },
   {
     "subject_key": "slack | ownership | current",
-    "claim": "Slack is owned by Salesforce — Microsoft Teams' direct rival — which acquired the messaging app in 2021 and now runs it as its competing chat service and AI-agent interface.",
+    "claim": "Slack is owned by Salesforce, Microsoft Teams' direct rival, which acquired the messaging app in 2021 and now runs it as its competing chat service and AI-agent interface.",
     "claim_type": "fact",
     "section": "snapshot",
     "zone": null,
@@ -155,7 +155,7 @@
   },
   {
     "subject_key": "salesforce | analyst-rating | 2026-05",
-    "claim": "Bank of America reinstated Salesforce (CRM) at Underperform with a $160 target on May 18, 2026 — against a ~$268 consensus and a stock down ~33% YTD — on the bear case that AI agents erode Salesforce's per-seat model. So what for Teams: Slack's parent is under visible financial and investor pressure, undercutting any 'Slack-plus-Salesforce is the safe platform bet' pitch.",
+    "claim": "Bank of America reinstated Salesforce (CRM) at Underperform with a $160 target on May 18, 2026 (against a ~$268 consensus and a stock down ~33% YTD) on the bear case that AI agents erode Salesforce's per-seat model. So what for Teams: Slack's parent is under visible financial and investor pressure, undercutting any 'Slack-plus-Salesforce is the safe platform bet' pitch.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
@@ -177,7 +177,7 @@
   },
   {
     "subject_key": "slack | ai-product-relaunch | 2026",
-    "claim": "On March 31, 2026 Salesforce unveiled an AI-heavy makeover of Slack — about 30 new features repositioning Slackbot as an agent that routes work across Agentforce and thousands of apps. So what for Teams: Slack is attacking Copilot's 'AI work hub' narrative head-on; counter with Copilot's reach across all of Microsoft 365, not just chat.",
+    "claim": "On March 31, 2026 Salesforce unveiled an AI-heavy makeover of Slack: about 30 new features repositioning Slackbot as an agent that routes work across Agentforce and thousands of apps. So what for Teams: Slack is attacking Copilot's 'AI work hub' narrative head-on; counter with Copilot's reach across all of Microsoft 365, not just chat.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
@@ -199,7 +199,7 @@
   },
   {
     "subject_key": "slack | revenue-run-rate | 2026",
-    "claim": "On April 1, 2026 Salesforce CEO Marc Benioff publicly projected Slack revenue of about $3 billion this year — a company claim, not an audited figure, and not broken out in Salesforce filings. So what for Teams: probe the number's verifiability and counter with Microsoft's audited M365 commercial growth.",
+    "claim": "On April 1, 2026 Salesforce CEO Marc Benioff publicly projected Slack revenue of about $3 billion this year (a company claim, not an audited figure, and not broken out in Salesforce filings). So what for Teams: probe the number's verifiability and counter with Microsoft's audited M365 commercial growth.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
@@ -243,7 +243,7 @@
   },
   {
     "subject_key": "slack | key-departure | ceo-2025",
-    "claim": "Slack CEO Denise Dresser left in December 2025 to become OpenAI's chief revenue officer, with chief product officer Rob Seaman stepping in on an interim basis. So what for Teams: Slack's leadership is in transition exactly as enterprises commit to multi-year AI platform bets — a fair stability question to raise.",
+    "claim": "Slack CEO Denise Dresser left in December 2025 to become OpenAI's chief revenue officer, with chief product officer Rob Seaman stepping in on an interim basis. So what for Teams: Slack's leadership is in transition exactly as enterprises commit to multi-year AI platform bets, a fair stability question to raise.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
@@ -309,7 +309,7 @@
   },
   {
     "subject_key": "microsoft-teams | differentiator | bundling",
-    "claim": "Microsoft Teams ships inside every Microsoft 365 business subscription (from Business Basic at $6/user/month) as an included app, giving it near-frictionless distribution to hundreds of millions of M365 seats — adopting Slack means standing up and paying for a second tool.",
+    "claim": "Microsoft Teams ships inside every Microsoft 365 business subscription (from Business Basic at $6/user/month) as an included app, giving it near-frictionless distribution to hundreds of millions of M365 seats. Adopting Slack means standing up and paying for a second tool.",
     "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
@@ -331,7 +331,7 @@
   },
   {
     "subject_key": "slack | positioning | agentic-os",
-    "claim": "Salesforce positions Slack as 'the operating system for work' and Slackbot as the conversational front door to enterprise AI agents — its explicit counter to Microsoft Copilot, and the frame a Teams rep will meet in Salesforce-centric accounts.",
+    "claim": "Salesforce positions Slack as 'the operating system for work' and Slackbot as the conversational front door to enterprise AI agents: its explicit counter to Microsoft Copilot, and the frame a Teams rep will meet in Salesforce-centric accounts.",
     "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
@@ -353,7 +353,7 @@
   },
   {
     "subject_key": "microsoft-teams | list-price | current",
-    "claim": "Microsoft Teams list pricing through June 30, 2026: Teams Essentials $4.00, Microsoft 365 Business Basic $6.00, and Business Standard $12.50 per user/month (annual) — with Teams included in the Microsoft 365 suites.",
+    "claim": "Microsoft Teams list pricing through June 30, 2026: Teams Essentials $4.00, Microsoft 365 Business Basic $6.00, and Business Standard $12.50 per user/month (annual), with Teams included in the Microsoft 365 suites.",
     "claim_type": "fact",
     "section": "pricing",
     "zone": null,
@@ -397,7 +397,7 @@
   },
   {
     "subject_key": "microsoft-365 | teams-premium-delta | current",
-    "claim": "Because the EU settlement forces a price gap between Teams-included and Teams-excluded Microsoft 365, one analysis estimates a 5,000-seat M365 E3 org pays a ~$513,000/year 'Teams premium' — a procurement lever buyers can now pull at renewal to demand Teams-excluded pricing.",
+    "claim": "Because the EU settlement forces a price gap between Teams-included and Teams-excluded Microsoft 365, one analysis estimates a 5,000-seat M365 E3 org pays a ~$513,000/year 'Teams premium', a procurement lever buyers can now pull at renewal to demand Teams-excluded pricing.",
     "claim_type": "interpretation",
     "section": "pricing",
     "zone": null,
@@ -419,7 +419,7 @@
   },
   {
     "subject_key": "microsoft-teams | copilot-adoption | current",
-    "claim": "**The AI customers want is already running inside Teams.**\n\nMicrosoft 365 Copilot reached 20 million paid enterprise seats by April 2026, with engagement Microsoft compares to Outlook — meaning for most large customers, Teams-native AI is deployed and in daily use before Slack's Agentforce can even land.\n\n**Soundbite:** *\"Your people don't have to adopt a new platform to get AI — it's already in the Teams they open every morning, with 20 million seats already paying for it.\"*",
+    "claim": "**The AI customers want is already running inside Teams.**\n\nMicrosoft 365 Copilot reached 20 million paid enterprise seats by April 2026, with engagement Microsoft compares to Outlook, meaning for most large customers, Teams-native AI is deployed and in daily use before Slack's Agentforce can even land.\n\n**Soundbite:** *\"The AI is already in the Teams your people open every morning, with 20 million seats already paying for it. No new platform to adopt.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_we_win",
@@ -442,7 +442,7 @@
   },
   {
     "subject_key": "microsoft-teams | differentiator | all-in-one-video",
-    "claim": "**One suite for meetings, calling, chat, and files — at enterprise meeting scale.**\n\nTeams carries full-scale video (300-participant meetings, webinars to 1,000) plus calling, files, and compliance in the same Microsoft 365 license, where Slack is still primarily messaging and tops out at 50 on a huddle. For an org already on M365, that's capability they own versus a second tool to buy.\n\n**Soundbite:** *\"Slack is a great chat app. Teams is chat plus meetings to 300, calling, and compliance — all inside the license you already pay for.\"*",
+    "claim": "**One suite for meetings, calling, chat, and files, at enterprise meeting scale.**\n\nTeams carries full-scale video (300-participant meetings, webinars to 1,000) plus calling, files, and compliance in the same Microsoft 365 license, where Slack is still primarily messaging and tops out at 50 on a huddle. For an org already on M365, that's capability they own versus a second tool to buy.\n\n**Soundbite:** *\"Slack is a great chat app. Teams is chat plus meetings to 300, calling, and compliance, all inside the license you already pay for.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_we_win",
@@ -465,7 +465,7 @@
   },
   {
     "subject_key": "microsoft-teams vs slack | ai-agents | contested",
-    "claim": "**The agent race is genuinely contested — don't wave it away.**\n\nSlack put Agentforce agents and a rebuilt Slackbot natively in the workspace, and for Salesforce-centric teams that CRM-aware context is real; Microsoft counters with Copilot wired across Teams, Office, and Power Platform. Whoever already owns the customer's core stack tends to win the agent layer.\n\n**Soundbite:** *\"If your system of record is Salesforce, Slack's agents are compelling — but if your work lives in Office and Windows, Copilot's reach across everything you do is the stronger bet.\"*",
+    "claim": "**The agent race is genuinely contested. Don't wave it away.**\n\nSlack put Agentforce agents and a rebuilt Slackbot natively in the workspace, and for Salesforce-centric teams that CRM-aware context is real; Microsoft counters with Copilot wired across Teams, Office, and Power Platform. Whoever already owns the customer's core stack tends to win the agent layer.\n\n**Soundbite:** *\"If your system of record is Salesforce, Slack's agents are compelling. But if your work lives in Office and Windows, Copilot's reach across everything you do is the stronger bet.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
@@ -488,7 +488,7 @@
   },
   {
     "subject_key": "slack | differentiator | slack-connect",
-    "claim": "**Slack Connect is a real external-collaboration moat.**\n\nSlack has long cited 77 of the Fortune 100 using Slack Connect to work across company lines, and those external webs are sticky — if a prospect's partners and clients all live in Slack, that's genuine switching friction Teams has to work around with federation and guest access. (Slack's own figure, and several years old — concede the network effect, not the exact number.)\n\n**Soundbite:** *\"If your outside partners are all on Slack Connect today, let's talk honestly about a phased path — Teams external federation plus guest access — rather than pretending the switch is free.\"*",
+    "claim": "**Slack Connect is a real external-collaboration moat.**\n\nSlack has long cited 77 of the Fortune 100 using Slack Connect to work across company lines, and those external webs are sticky: if a prospect's partners and clients all live in Slack, that's genuine switching friction Teams has to work around with federation and guest access. (Slack's own figure, and several years old. Concede the network effect, not the exact number.)\n\n**Soundbite:** *\"If your outside partners are all on Slack Connect today, let's talk honestly about a phased path (Teams external federation plus guest access) rather than pretending the switch is free.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_they_win",
@@ -511,7 +511,7 @@
   },
   {
     "subject_key": "slack | differentiator | app-ecosystem",
-    "claim": "**Slack still owns developer mindshare and the deepest app ecosystem.**\n\nSlack's marketplace and integration culture run deep — Salesforce touts AI-enabled Slack apps growing 690% year over year — and developer-heavy teams genuinely prefer its extensibility and feel. This is where Teams has to earn the seat, not assume it.\n\n**Soundbite:** *\"For an engineering-led team that lives in integrations, Slack's ecosystem is real — so let's scope where Teams' Copilot, Power Platform, and native Office depth matter more to your whole org, not just the dev team.\"*",
+    "claim": "**Slack still owns developer mindshare and the deepest app ecosystem.**\n\nSlack's marketplace and integration culture run deep (Salesforce touts AI-enabled Slack apps growing 690% year over year), and developer-heavy teams genuinely prefer its extensibility and feel. This is where Teams has to earn the seat, not assume it.\n\n**Soundbite:** *\"For an engineering-led team that lives in integrations, Slack's ecosystem is real, so let's scope where Teams' Copilot, Power Platform, and native Office depth matter more to your whole org, not just the dev team.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_they_win",
@@ -534,7 +534,7 @@
   },
   {
     "subject_key": "slack | sentiment | user-satisfaction",
-    "claim": "Sentiment: Slack is rated #1 for business instant messaging in G2's Winter 2026 report at 4.5/5, edging Teams (~4.4) on day-to-day user satisfaction — a small but persistent gap reflecting Slack's messaging UX.",
+    "claim": "Sentiment: Slack is rated #1 for business instant messaging in G2's Winter 2026 report at 4.5/5, edging Teams (~4.4) on day-to-day user satisfaction, a small but persistent gap reflecting Slack's messaging UX.",
     "claim_type": "sentiment",
     "section": "sentiment",
     "zone": null,
@@ -556,7 +556,7 @@
   },
   {
     "subject_key": "microsoft-teams | sentiment | meeting-ui",
-    "claim": "Sentiment: users complain Teams' meeting controls are cluttered enough to cause accidental screen-shares — a gripe serious enough that Microsoft publicly acknowledged it in May 2026.",
+    "claim": "Sentiment: users complain Teams' meeting controls are cluttered enough to cause accidental screen-shares, a gripe serious enough that Microsoft publicly acknowledged it in May 2026.",
     "claim_type": "sentiment",
     "section": "sentiment",
     "zone": null,
@@ -578,7 +578,7 @@
   },
   {
     "subject_key": "microsoft-teams | sentiment | channels-usability",
-    "claim": "Sentiment: users repeatedly find Teams' channels clunky and hard to navigate, with many defaulting to plain chat instead — a recurring confusion about where conversations belong.",
+    "claim": "Sentiment: users repeatedly find Teams' channels clunky and hard to navigate, with many defaulting to plain chat instead, a recurring confusion about where conversations belong.",
     "claim_type": "sentiment",
     "section": "sentiment",
     "zone": null,
@@ -644,7 +644,7 @@
   },
   {
     "subject_key": "microsoft-teams | objection | antitrust-bundling",
-    "claim": "**\"Regulators say you only beat Slack by illegally bundling Teams — and Slack is suing you again.\"**\n\nIt's a fair point: the EU made Microsoft unbundle Teams and widen the price gap, and Slack filed a fresh UK suit in April 2026 over tying. Microsoft accepted binding commitments rather than fight — including selling Microsoft 365 without Teams and letting customers export their Teams data.\n\n**So what:** Reframe the settlement as leverage you're handing the buyer — Teams-free pricing and data-portability guarantees — and compete on value, which moves the deal off the 'did you cheat' axis.",
+    "claim": "**\"Regulators say you only beat Slack by illegally bundling Teams. And Slack is suing you again.\"**\n\nIt's a fair point: the EU made Microsoft unbundle Teams and widen the price gap, and Slack filed a fresh UK suit in April 2026 over tying. Microsoft accepted binding commitments rather than fight, including selling Microsoft 365 without Teams and letting customers export their Teams data.\n\n**So what:** Reframe the settlement as leverage you're handing the buyer (Teams-free pricing and data-portability guarantees) and compete on value, which moves the deal off the 'did you cheat' axis.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -667,7 +667,7 @@
   },
   {
     "subject_key": "microsoft-teams | objection | performance",
-    "claim": "**\"Isn't Teams slow and a memory hog?\"**\n\nMicrosoft itself acknowledged the older client could use up to a gigabyte of RAM at idle and felt sluggish in calls, so the complaint has real history — don't deny it. The fix shipped in early 2026, moving calling into its own process.\n\n**So what:** Offer a live demo on the current build and pivot to suite value; note Slack's desktop app is also web-tech with its own footprint, so 'lighter' isn't a clean win for them.",
+    "claim": "**\"Isn't Teams slow and a memory hog?\"**\n\nMicrosoft itself acknowledged the older client could use up to a gigabyte of RAM at idle and felt sluggish in calls, so the complaint has real history. Don't deny it. The fix shipped in early 2026, moving calling into its own process.\n\n**So what:** Offer a live demo on the current build and pivot to suite value; note Slack's desktop app is also web-tech with its own footprint, so 'lighter' isn't a clean win for them.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -690,7 +690,7 @@
   },
   {
     "subject_key": "microsoft-365 | objection | price-increase",
-    "claim": "**\"You're raising prices to push Copilot AI we didn't ask for.\"**\n\nIt's true M365 list prices rise on July 1, 2026 (Business Basic $6 to $7, Standard $12.50 to $14), and Microsoft ties the investment to AI. But standalone Teams and Copilot SKUs are excluded from the change, and the suites folded in additional security value.\n\n**So what:** Run a real TCO comparison — M365 with Copilot optional versus Slack plus Office plus Agentforce/Salesforce licensing — and let the buyer add AI when ready instead of being forced into a separate ecosystem.",
+    "claim": "**\"You're raising prices to push Copilot AI we didn't ask for.\"**\n\nIt's true M365 list prices rise on July 1, 2026 (Business Basic $6 to $7, Standard $12.50 to $14), and Microsoft ties the investment to AI. But standalone Teams and Copilot SKUs are excluded from the change, and the suites folded in additional security value.\n\n**So what:** Run a real TCO comparison (M365 with Copilot optional versus Slack plus Office plus Agentforce/Salesforce licensing) and let the buyer add AI when ready instead of being forced into a separate ecosystem.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -713,7 +713,7 @@
   },
   {
     "subject_key": "microsoft | objection | security-breach",
-    "claim": "**\"Can I trust Microsoft on security after Storm-0558 and Midnight Blizzard?\"**\n\nDon't minimize it — the US Cyber Safety Review Board called Microsoft's security culture inadequate after the 2023 Exchange breach. Microsoft's answer is the Secure Future Initiative and shipping more security capability into E3/E5 by default.\n\n**So what:** Meet it head-on with the SFI changes and a CISO-track security briefing; for sovereign and government needs, Teams plus Azure Government is often the only qualifying option anyway.",
+    "claim": "**\"Can I trust Microsoft on security after Storm-0558 and Midnight Blizzard?\"**\n\nDon't minimize it: the US Cyber Safety Review Board called Microsoft's security culture inadequate after the 2023 Exchange breach. Microsoft's answer is the Secure Future Initiative and shipping more security capability into E3/E5 by default.\n\n**So what:** Meet it head-on with the SFI changes and a CISO-track security briefing; for sovereign and government needs, Teams plus Azure Government is often the only qualifying option anyway.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -736,7 +736,7 @@
   },
   {
     "subject_key": "slack | objection | user-preference",
-    "claim": "**\"Our developers just prefer Slack — it's more usable.\"**\n\nOften true, and worth conceding: users rate Slack's search and integration experience highly, and engineering teams like its feel. That's a genuine preference, not a misunderstanding.\n\n**So what:** Scope it — how many seats actually need that versus the whole org — then weigh Copilot, Office-native depth, and one bundled license against a separate paid tool the rest of the company won't fully use.",
+    "claim": "**\"Our developers just prefer Slack. It's more usable.\"**\n\nOften true, and worth conceding: users rate Slack's search and integration experience highly, and engineering teams like its feel. That's a genuine preference, not a misunderstanding.\n\n**So what:** Scope it (how many seats actually need that versus the whole org), then weigh Copilot, Office-native depth, and one bundled license against a separate paid tool the rest of the company won't fully use.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -759,7 +759,7 @@
   },
   {
     "subject_key": "microsoft-teams | objection | reliability-outage",
-    "claim": "**\"Teams went down globally in December — how can we rely on it?\"**\n\nAcknowledge it: Teams had worldwide disruptions in late 2025 with message delays, tracked openly in the admin center. Microsoft backs M365 with a financially-backed 99.9% uptime SLA and publishes incident reviews.\n\n**So what:** Put the SLA and continuity options (including Teams Phone fallback) on the table, and ask whether the buyer is holding Slack — which has its own outage history — to the same standard.",
+    "claim": "**\"Teams went down globally in December. How can we rely on it?\"**\n\nAcknowledge it: Teams had worldwide disruptions in late 2025 with message delays, tracked openly in the admin center. Microsoft backs M365 with a financially-backed 99.9% uptime SLA and publishes incident reviews.\n\n**So what:** Put the SLA and continuity options (including Teams Phone fallback) on the table, and ask whether the buyer is holding Slack (which has its own outage history) to the same standard.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -782,7 +782,7 @@
   },
   {
     "subject_key": "slack | distribution | salesforce-bundled-default",
-    "claim": "Salesforce's Summer '26 release (generally available June 15, 2026) makes Slack the default, auto-provisioned collaboration platform for every new Enterprise and Unlimited org: a fully configured Slack workspace and CRM-connected Salesforce channels are created automatically with no separate purchase or setup, and Chatter is turned off by default for new orgs — structurally mirroring Microsoft's Teams-in-Microsoft-365 bundling and removing Slack as a separate procurement decision inside Salesforce's 150,000+ customer base.",
+    "claim": "Salesforce's Summer '26 release (generally available June 15, 2026) makes Slack the default, auto-provisioned collaboration platform for every new Enterprise and Unlimited org: a fully configured Slack workspace and CRM-connected Salesforce channels are created automatically with no separate purchase or setup, and Chatter is turned off by default for new orgs, structurally mirroring Microsoft's Teams-in-Microsoft-365 bundling and removing Slack as a separate procurement decision inside Salesforce's 150,000+ customer base.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,

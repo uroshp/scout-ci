@@ -1,7 +1,7 @@
 [
   {
     "subject_key": "perplexity-vs-google | competitive-frame | 2026",
-    "claim": "**Google absorbed the AI-search threat — so stop selling Perplexity as the \"Google killer\" and sell it as the enterprise orchestration layer.**\n\nGoogle's AI Mode passed 1 billion monthly users one year after launch and Q1 2026 Search revenue grew 19% to $60.4B with queries at an all-time high — AI made Google's core business bigger, not smaller. Perplexity's consumer web traffic has been roughly flat over the same window. The real contest has moved to agentic, multi-model enterprise workflows, where Perplexity ($500M ARR, tripled in 2026) is purpose-built and Google is least entrenched.\n\n**So what:** Lead enterprise deals on vendor-neutral multi-model orchestration and cited research, not on head-to-head consumer search where Google's distribution is overwhelming.",
+    "claim": "**Google absorbed the AI-search threat, so stop selling Perplexity as the \"Google killer\" and sell it as the enterprise orchestration layer.**\n\nGoogle's AI Mode passed 1 billion monthly users one year after launch and Q1 2026 Search revenue grew 19% to $60.4B with queries at an all-time high: AI made Google's core business bigger, not smaller. Perplexity's consumer web traffic has been roughly flat over the same window. The real contest has moved to agentic, multi-model enterprise workflows, where Perplexity ($500M ARR, tripled in 2026) is purpose-built and Google is least entrenched.\n\n**So what:** Lead enterprise deals on vendor-neutral multi-model orchestration and cited research, not on head-to-head consumer search where Google's distribution is overwhelming.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -23,7 +23,7 @@
   },
   {
     "subject_key": "perplexity | legal-exposure | 2026",
-    "claim": "**Perplexity is growing fast but small and legally exposed — go in with the litigation answer already loaded.**\n\nRevenue tripled in 2026 to roughly $500M ARR, but nine publishers have active copyright suits (CNN filed May 28), Amazon won a court order against the Comet shopping agent, and a privacy class action is live. Compliance teams in regulated verticals will surface all of this.\n\n**So what:** Pair the momentum story with a prepared, honest legal-risk answer (licensing deals signed, fair-use defense, category-wide risk) so the objection doesn't stall the deal.",
+    "claim": "**Perplexity is growing fast but small and legally exposed, so go in with the litigation answer already loaded.**\n\nRevenue tripled in 2026 to roughly $500M ARR, but nine publishers have active copyright suits (CNN filed May 28), Amazon won a court order against the Comet shopping agent, and a privacy class action is live. Compliance teams in regulated verticals will surface all of this.\n\n**So what:** Pair the momentum story with a prepared, honest legal-risk answer (licensing deals signed, fair-use defense, category-wide risk) so the objection doesn't stall the deal.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -45,7 +45,7 @@
   },
   {
     "subject_key": "google | distribution-under-legal-attack | 2026",
-    "claim": "**\"Google is everywhere\" is now \"Google's everywhere-ness is being dismantled in court\" — reframe the distribution objection.**\n\nA federal judge barred Google from exclusive default-distribution deals for Search and Gemini, the DOJ and states are appealing for stronger remedies, the EU is finalizing a record DMA fine, and DuckDuckGo traffic surged ~84% above baseline as users reject force-fed AI. The moat that makes Google the default is under active legal and user-trust pressure.\n\n**So what:** When a buyer says Google is too embedded to displace, point out the embedding mechanism itself is being ruled an illegal monopoly — a reason to keep options open with a platform-agnostic tool.",
+    "claim": "**\"Google is everywhere\" is now \"Google's everywhere-ness is being dismantled in court\", so reframe the distribution objection.**\n\nA federal judge barred Google from exclusive default-distribution deals for Search and Gemini, the DOJ and states are appealing for stronger remedies, the EU is finalizing a record DMA fine, and DuckDuckGo traffic surged ~84% above baseline as users reject force-fed AI. The moat that makes Google the default is under active legal and user-trust pressure.\n\n**So what:** When a buyer says Google is too embedded to displace, point out the embedding mechanism itself is being ruled an illegal monopoly, a reason to keep options open with a platform-agnostic tool.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -67,7 +67,7 @@
   },
   {
     "subject_key": "perplexity-vs-google | accuracy-trust-wedge | 2026",
-    "claim": "**The sharpest wedge is trust: Google's AI answers are wrong at industrial scale, Perplexity's are cited and ad-free.**\n\nIndependent analysis estimates Google AI Overviews produce tens of millions of questionable answers per hour at Google's query volume, and publisher click-throughs to top pages fell ~58%. Perplexity dropped advertising entirely in early 2026 and grounds every answer in inline citations.\n\n**So what:** Win trust-sensitive buyers — research, media, legal, regulated industries — on verifiable, ad-free, source-cited answers rather than on raw model horsepower.",
+    "claim": "**The sharpest wedge is trust: Google's AI answers are wrong at industrial scale, Perplexity's are cited and ad-free.**\n\nIndependent analysis estimates Google AI Overviews produce tens of millions of questionable answers per hour at Google's query volume, and publisher click-throughs to top pages fell ~58%. Perplexity dropped advertising entirely in early 2026 and grounds every answer in inline citations.\n\n**So what:** Win trust-sensitive buyers (research, media, legal, regulated industries) on verifiable, ad-free, source-cited answers rather than on raw model horsepower.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -89,7 +89,7 @@
   },
   {
     "subject_key": "perplexity-vs-google | price-vs-value | 2026",
-    "claim": "**Don't fight Google on price — it bundles AI into free Search and into Workspace at zero marginal cost. Fight on neutrality and citations.**\n\nGoogle AI Mode is free to 1B+ users and Gemini is included in paid Workspace tiers, so Perplexity's $20 Pro and $40-seat Enterprise can never win a pure cost comparison. Perplexity's defensible value is model neutrality (route to Claude, Gemini, GPT in one product), cited answers, and FedRAMP-cleared deployment.\n\n**So what:** Reframe every price objection as a value-and-trust conversation; conceding the price axis and winning the neutrality axis is the stronger play.",
+    "claim": "**Don't fight Google on price: it bundles AI into free Search and into Workspace at zero marginal cost. Fight on neutrality and citations.**\n\nGoogle AI Mode is free to 1B+ users and Gemini is included in paid Workspace tiers, so Perplexity's $20 Pro and $40-seat Enterprise can never win a pure cost comparison. Perplexity's defensible value is model neutrality (route to Claude, Gemini, GPT in one product), cited answers, and FedRAMP-cleared deployment.\n\n**So what:** Reframe every price objection as a value-and-trust conversation; conceding the price axis and winning the neutrality axis is the stronger play.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -177,7 +177,7 @@
   },
   {
     "subject_key": "alphabet | valuation | current",
-    "claim": "Alphabet's market capitalization was approximately $4.5 trillion as of June 5, 2026 — roughly 225x Perplexity's reported $20B valuation, underscoring the scale asymmetry.",
+    "claim": "Alphabet's market capitalization was approximately $4.5 trillion as of June 5, 2026, roughly 225x Perplexity's reported $20B valuation, underscoring the scale asymmetry.",
     "claim_type": "fact",
     "section": "snapshot",
     "zone": null,
@@ -243,7 +243,7 @@
   },
   {
     "subject_key": "google | gemini-app-mau | current",
-    "claim": "Google's Gemini app reported more than 900 million monthly active users at I/O (May 19, 2026), available in 230+ countries — up from 750M in February 2026 (company-stated).",
+    "claim": "Google's Gemini app reported more than 900 million monthly active users at I/O (May 19, 2026), available in 230+ countries, up from 750M in February 2026 (company-stated).",
     "claim_type": "fact",
     "section": "snapshot",
     "zone": null,
@@ -265,7 +265,7 @@
   },
   {
     "subject_key": "perplexity | revenue-run-rate | current",
-    "claim": "Perplexity's CEO stated the company grew revenue 5x from $100M to $500M ARR with only 34% headcount growth, and told CNBC on June 3 it tripled annualized revenue in 2026 (company-stated, unaudited — private company).",
+    "claim": "Perplexity's CEO stated the company grew revenue 5x from $100M to $500M ARR with only 34% headcount growth, and told CNBC on June 3 it tripled annualized revenue in 2026 (company-stated, unaudited; private company).",
     "claim_type": "fact",
     "section": "snapshot",
     "zone": null,
@@ -331,7 +331,7 @@
   },
   {
     "subject_key": "google | search-backlash | duckduckgo-surge",
-    "claim": "Within two weeks of Google's May 19 AI-search overhaul, DuckDuckGo traffic ran ~84% above baseline and its no-AI search page visits tripled on May 28 — a measurable user-defection signal against Google force-feeding AI with no opt-out.",
+    "claim": "Within two weeks of Google's May 19 AI-search overhaul, DuckDuckGo traffic ran ~84% above baseline and its no-AI search page visits tripled on May 28, a measurable user-defection signal against Google force-feeding AI with no opt-out.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
@@ -353,7 +353,7 @@
   },
   {
     "subject_key": "google | legal-action | eu-dma-fine",
-    "claim": "The European Commission is finalizing its largest-ever DMA fine against Google — a 'high triple-digit million euro' penalty for ranking its own Shopping, Flights and Hotels above rivals — expected before the August recess, per Handelsblatt/Reuters.",
+    "claim": "The European Commission is finalizing its largest-ever DMA fine against Google, a 'high triple-digit million euro' penalty for ranking its own Shopping, Flights and Hotels above rivals, expected before the August recess, per Handelsblatt/Reuters.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
@@ -375,7 +375,7 @@
   },
   {
     "subject_key": "google | launch | ai-mode-io-2026",
-    "claim": "At Google I/O on May 19, 2026, Google made Gemini 3.5 Flash the default model in AI Mode for everyone globally and shipped 'the biggest upgrade to our Search box in over 25 years,' plus background 24/7 Search Agents — directly adopting Perplexity's answer-and-agent framing at Google's scale.",
+    "claim": "At Google I/O on May 19, 2026, Google made Gemini 3.5 Flash the default model in AI Mode for everyone globally and shipped 'the biggest upgrade to our Search box in over 25 years,' plus background 24/7 Search Agents, directly adopting Perplexity's answer-and-agent framing at Google's scale.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
@@ -397,7 +397,7 @@
   },
   {
     "subject_key": "google | pricing-change | ai-subscription-overhaul",
-    "claim": "At I/O (May 19, 2026) Google restructured consumer AI subscriptions, launching a $100/month AI Ultra tier and cutting its top Ultra plan from $250 to $200 — a signal Google was mispriced and is now competing aggressively on AI value, not just distribution.",
+    "claim": "At I/O (May 19, 2026) Google restructured consumer AI subscriptions, launching a $100/month AI Ultra tier and cutting its top Ultra plan from $250 to $200, a signal Google was mispriced and is now competing aggressively on AI value, not just distribution.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
@@ -419,7 +419,7 @@
   },
   {
     "subject_key": "google | ai-overviews-traffic-impact | 2026",
-    "claim": "An Ahrefs study found Google AI Overviews correlate with a 58% drop in click-throughs for top-ranking pages — nearly double the prior year's decline — triggering a Penske Media antitrust suit and an EU competition investigation; a narrative lever for Perplexity in media/publishing verticals.",
+    "claim": "An Ahrefs study found Google AI Overviews correlate with a 58% drop in click-throughs for top-ranking pages (nearly double the prior year's decline), triggering a Penske Media antitrust suit and an EU competition investigation; a narrative lever for Perplexity in media/publishing verticals.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
@@ -441,7 +441,7 @@
   },
   {
     "subject_key": "google | legal-action | doj-remedies-appeal",
-    "claim": "On February 3, 2026, the DOJ and a coalition of states appealed the search-monopoly remedies ruling, calling the behavioral remedies a 'slap on the wrist for a recidivist monopolist' and seeking stronger structural relief — keeping Google's default-distribution model legally unsettled into 2026–27.",
+    "claim": "On February 3, 2026, the DOJ and a coalition of states appealed the search-monopoly remedies ruling, calling the behavioral remedies a 'slap on the wrist for a recidivist monopolist' and seeking stronger structural relief, keeping Google's default-distribution model legally unsettled into 2026–27.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
@@ -463,7 +463,7 @@
   },
   {
     "subject_key": "perplexity | positioning | answer-engine",
-    "claim": "Perplexity positions itself as an 'answer engine' replacing ranked blue links with a single synthesized, cited answer, and frames accuracy as foundational — CEO Aravind Srinivas: 'hallucination is a bug,' not a feature (the company's own positioning).",
+    "claim": "Perplexity positions itself as an 'answer engine' replacing ranked blue links with a single synthesized, cited answer, and frames accuracy as foundational. CEO Aravind Srinivas: 'hallucination is a bug,' not a feature (the company's own positioning).",
     "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
@@ -485,7 +485,7 @@
   },
   {
     "subject_key": "perplexity | positioning | orchestration-layer",
-    "claim": "As of June 2026 Perplexity has repositioned from answer engine to a 'hybrid neutral orchestration layer' — a model- and chip-agnostic platform that routes each task to the best model across device and cloud, which it frames as its durable advantage versus Google, OpenAI and Anthropic (company claim).",
+    "claim": "As of June 2026 Perplexity has repositioned from answer engine to a 'hybrid neutral orchestration layer': a model- and chip-agnostic platform that routes each task to the best model across device and cloud, which it frames as its durable advantage versus Google, OpenAI and Anthropic (company claim).",
     "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
@@ -507,7 +507,7 @@
   },
   {
     "subject_key": "perplexity | positioning | ad-free",
-    "claim": "Perplexity abandoned advertising entirely in early 2026, with an executive arguing 'a user needs to believe this is the best possible answer' — positioning trust and freedom from commercial bias against Google's structurally ad-funded search (company claim).",
+    "claim": "Perplexity abandoned advertising entirely in early 2026, with an executive arguing 'a user needs to believe this is the best possible answer', positioning trust and freedom from commercial bias against Google's structurally ad-funded search (company claim).",
     "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
@@ -529,7 +529,7 @@
   },
   {
     "subject_key": "google | positioning | full-stack-agentic",
-    "claim": "Google positions itself as a full-stack, billion-user AI company — custom silicon to models to products touching billions — and now openly adopts the 'answer' and 'agent' framing Perplexity pioneered, but backed by distribution Perplexity cannot match (company claim).",
+    "claim": "Google positions itself as a full-stack, billion-user AI company (custom silicon to models to products touching billions) and now openly adopts the 'answer' and 'agent' framing Perplexity pioneered, but backed by distribution Perplexity cannot match (company claim).",
     "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
@@ -573,7 +573,7 @@
   },
   {
     "subject_key": "perplexity | list-price | sonar-api",
-    "claim": "Perplexity's Sonar API is priced per million tokens (Sonar $1 in/$1 out; Sonar Pro $3 in/$15 out; Deep Research $2 in/$8 out) plus per-request and citation/search fees — a usage-based developer model competing with Google's Gemini API/Vertex.",
+    "claim": "Perplexity's Sonar API is priced per million tokens (Sonar $1 in/$1 out; Sonar Pro $3 in/$15 out; Deep Research $2 in/$8 out) plus per-request and citation/search fees, a usage-based developer model competing with Google's Gemini API/Vertex.",
     "claim_type": "fact",
     "section": "pricing",
     "zone": null,
@@ -595,7 +595,7 @@
   },
   {
     "subject_key": "google | list-price | ai-pro",
-    "claim": "Google AI Pro is $19.99/month — at functional price parity with Perplexity Pro ($20) — but bundles YouTube Premium Lite, 5TB storage, and Gemini across Gmail/Docs, none of which Perplexity offers.",
+    "claim": "Google AI Pro is $19.99/month, at functional price parity with Perplexity Pro ($20), but bundles YouTube Premium Lite, 5TB storage, and Gemini across Gmail/Docs, none of which Perplexity offers.",
     "claim_type": "fact",
     "section": "pricing",
     "zone": null,
@@ -617,7 +617,7 @@
   },
   {
     "subject_key": "google | pricing-model | workspace-gemini-bundled",
-    "claim": "Google no longer sells Gemini as a standalone Workspace add-on — it is bundled into Business Standard ($14/user/month) and above, meaning Google's enterprise AI distribution is effectively zero incremental cost to existing Workspace customers.",
+    "claim": "Google no longer sells Gemini as a standalone Workspace add-on: it is bundled into Business Standard ($14/user/month) and above, meaning Google's enterprise AI distribution is effectively zero incremental cost to existing Workspace customers.",
     "claim_type": "fact",
     "section": "pricing",
     "zone": null,
@@ -639,7 +639,7 @@
   },
   {
     "subject_key": "perplexity | pricing-model | telco-bundle",
-    "claim": "Perplexity leans on partner bundles to reach users outside its paywall — e.g. Deutsche Telekom's T Phone 3 includes 18 months of Perplexity Pro ($360 value) free — a distribution workaround against Google's native free reach, but one that creates churn risk when promos expire.",
+    "claim": "Perplexity leans on partner bundles to reach users outside its paywall: Deutsche Telekom's T Phone 3, for example, includes 18 months of Perplexity Pro ($360 value) free. It's a distribution workaround against Google's native free reach, but one that creates churn risk when promos expire.",
     "claim_type": "fact",
     "section": "pricing",
     "zone": null,
@@ -661,7 +661,7 @@
   },
   {
     "subject_key": "perplexity | battlecard | multi-model-orchestration",
-    "claim": "**Best-of-breed model choice in one product — Google can only give you Gemini.**\n\nPerplexity's Computer orchestrates 19 models (Claude, Gemini, GPT, Grok) and routes each subtask to the strongest one; architects who don't want to bet their whole AI stack on a single vendor get real optionality that a Gemini-only Google cannot offer.\n\n**Soundbite:** *\"With us you route medical research to one model and coding to another, automatically. With Google, every answer is Gemini — whether it's the best tool for that job or not.\"*",
+    "claim": "**Best-of-breed model choice in one product. Google can only give you Gemini.**\n\nPerplexity's Computer orchestrates 19 models (Claude, Gemini, GPT, Grok) and routes each subtask to the strongest one; architects who don't want to bet their whole AI stack on a single vendor get real optionality that a Gemini-only Google cannot offer.\n\n**Soundbite:** *\"With us you route medical research to one model and coding to another, automatically. With Google, every answer is Gemini, whether it's the best tool for that job or not.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_we_win",
@@ -684,7 +684,7 @@
   },
   {
     "subject_key": "perplexity | battlecard | ad-free-cited",
-    "claim": "**Ad-free, cited answers a buyer can defend — Google's answers are ad-supported and increasingly wrong at scale.**\n\nPerplexity dropped advertising entirely in 2026 and shows inline sources on every answer; for economic buyers in research, finance, legal and media who must justify what they act on, that verifiability and absence of commercial bias is the whole point.\n\n**Soundbite:** *\"Every answer comes with its sources, and we make no money from ads — so what you read is the best answer we can find, not the one someone paid to place.\"*",
+    "claim": "**Ad-free, cited answers a buyer can defend. Google's answers are ad-supported and increasingly wrong at scale.**\n\nPerplexity dropped advertising entirely in 2026 and shows inline sources on every answer; for economic buyers in research, finance, legal and media who must justify what they act on, that verifiability and absence of commercial bias is the whole point.\n\n**Soundbite:** *\"Every answer comes with its sources, and we make no money from ads, so what you read is the best answer we can find, not the one someone paid to place.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_we_win",
@@ -707,7 +707,7 @@
   },
   {
     "subject_key": "perplexity | battlecard | fedramp-gov-neutrality",
-    "claim": "**Vendor-neutral AI cleared for government — a wedge where single-model pitches stall.**\n\nPerplexity Enterprise Pro for Government earned FedRAMP prioritization and a GSA OneGov deal as the 'first multi-model AI platform,' letting federal teams reach Gemini, Claude, GPT and Sonar in one accredited platform without locking into one vendor — exactly what risk-averse public-sector and regulated buyers want.\n\n**Soundbite:** *\"We're FedRAMP-cleared and model-neutral — your agency isn't betting its AI future on any one lab's roadmap.\"*",
+    "claim": "**Vendor-neutral AI cleared for government: a wedge where single-model pitches stall.**\n\nPerplexity Enterprise Pro for Government earned FedRAMP prioritization and a GSA OneGov deal as the 'first multi-model AI platform,' letting federal teams reach Gemini, Claude, GPT and Sonar in one accredited platform without locking into one vendor, exactly what risk-averse public-sector and regulated buyers want.\n\n**Soundbite:** *\"We're FedRAMP-cleared and model-neutral: your agency isn't betting its AI future on any one lab's roadmap.\"*",
     "claim_type": "fact",
     "section": "battlecard",
     "zone": "where_we_win",
@@ -730,7 +730,7 @@
   },
   {
     "subject_key": "perplexity-vs-google | battlecard | agentic-race",
-    "claim": "**The agentic race is genuinely contested — both are shipping autonomous agents right now.**\n\nGoogle launched 24/7 background Search Agents at I/O while Perplexity shipped Computer for Enterprise with 100+ connectors; neither has a decisive deployment lead, so deals turn on integration fit and trust, not on who has 'agents' at all.\n\n**Soundbite:** *\"Everyone's demoing agents. The question is whose agents plug into your actual stack and show their sources — and that's where we compete hard.\"*",
+    "claim": "**The agentic race is genuinely contested: both are shipping autonomous agents right now.**\n\nGoogle launched 24/7 background Search Agents at I/O while Perplexity shipped Computer for Enterprise with 100+ connectors; neither has a decisive deployment lead, so deals turn on integration fit and trust, not on who has 'agents' at all.\n\n**Soundbite:** *\"Everyone's demoing agents. The question is whose agents plug into your actual stack and show their sources, and that's where we compete hard.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
@@ -753,7 +753,7 @@
   },
   {
     "subject_key": "perplexity-vs-google | battlecard | price-parity",
-    "claim": "**At the Pro tier, price is a wash — so don't let the deal become a price contest.**\n\nPerplexity Pro ($20) and Google AI Pro ($19.99) are effectively identical on price, but Google folds in YouTube Premium and Workspace. On sticker price alone Perplexity loses the bundle math, which is exactly why these deals must be steered to neutrality, citations and connectors.\n\n**Soundbite:** *\"Same twenty dollars — the difference is what you're buying it for: a trusted, multi-model research tool, not a bundle add-on.\"*",
+    "claim": "**At the Pro tier, price is a wash, so don't let the deal become a price contest.**\n\nPerplexity Pro ($20) and Google AI Pro ($19.99) are effectively identical on price, but Google folds in YouTube Premium and Workspace. On sticker price alone Perplexity loses the bundle math, which is exactly why these deals must be steered to neutrality, citations and connectors.\n\n**Soundbite:** *\"Same twenty dollars. The difference is what you're buying it for: a trusted, multi-model research tool, not a bundle add-on.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
@@ -776,7 +776,7 @@
   },
   {
     "subject_key": "google | battlecard | distribution-moat",
-    "claim": "**Google's distribution is overwhelming — its AI is the default for over a billion people at zero acquisition cost.**\n\nAI Mode hit 1B monthly users free inside Search, Chrome and Android in a single year; any Perplexity buyer has to choose to leave a tool already in everyone's hands. Be honest that this is real, then move the conversation to where defaults don't decide — accredited, neutral, cited enterprise workflows.\n\n**Soundbite:** *\"Google wins the default. We win the deliberate choice — the teams who care enough about accuracy and neutrality to pick the right tool, not just the pre-installed one.\"*",
+    "claim": "**Google's distribution is overwhelming: its AI is the default for over a billion people at zero acquisition cost.**\n\nAI Mode hit 1B monthly users free inside Search, Chrome and Android in a single year; any Perplexity buyer has to choose to leave a tool already in everyone's hands. Be honest that this is real, then move the conversation to where defaults don't decide: accredited, neutral, cited enterprise workflows.\n\n**Soundbite:** *\"Google wins the default. We win the deliberate choice: the teams who care enough about accuracy and neutrality to pick the right tool, not just the pre-installed one.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_they_win",
@@ -799,7 +799,7 @@
   },
   {
     "subject_key": "google | battlecard | gemini-benchmark-strength",
-    "claim": "**Gemini 3 is a genuinely top-tier model — concede the benchmark fight and win the trust fight.**\n\nGemini 3 Pro topped LMArena at 1501 Elo with PhD-level reasoning scores; Perplexity builds no frontier model of its own. For benchmark-driven technical buyers this is Google's strongest card, so pivot from raw model scores to answer accuracy, citations and the freedom to use Gemini inside Perplexity when it's the best fit.\n\n**Soundbite:** *\"Gemini's a great model — so good we'll route to it when it's the right one. We're not betting against any single model; we're betting on always picking the best one.\"*",
+    "claim": "**Gemini 3 is a genuinely top-tier model: concede the benchmark fight and win the trust fight.**\n\nGemini 3 Pro topped LMArena at 1501 Elo with PhD-level reasoning scores; Perplexity builds no frontier model of its own. For benchmark-driven technical buyers this is Google's strongest card, so pivot from raw model scores to answer accuracy, citations and the freedom to use Gemini inside Perplexity when it's the best fit.\n\n**Soundbite:** *\"Gemini's a great model, so good we'll route to it when it's the right one. We're not betting against any single model; we're betting on always picking the best one.\"*",
     "claim_type": "fact",
     "section": "battlecard",
     "zone": "where_they_win",
@@ -822,7 +822,7 @@
   },
   {
     "subject_key": "google | battlecard | workspace-lockin",
-    "claim": "**Workspace lock-in is real — Gemini lives inside the Gmail, Docs and Meet that 3B people already use.**\n\nGoogle embeds AI into the daily apps of over 3 billion Workspace users, so for an org already standardized on Google, switching cost is organizational, not technical. Don't fight replacement — sell Perplexity as the additive, neutral research layer alongside Workspace.\n\n**Soundbite:** *\"We're not asking you to leave Workspace. We're the trusted research and multi-model layer that sits on top of it.\"*",
+    "claim": "**Workspace lock-in is real: Gemini lives inside the Gmail, Docs and Meet that 3B people already use.**\n\nGoogle embeds AI into the daily apps of over 3 billion Workspace users, so for an org already standardized on Google, switching cost is organizational, not technical. Don't fight replacement. Sell Perplexity as the additive, neutral research layer alongside Workspace.\n\n**Soundbite:** *\"We're not asking you to leave Workspace. We're the trusted research and multi-model layer that sits on top of it.\"*",
     "claim_type": "fact",
     "section": "battlecard",
     "zone": "where_they_win",
@@ -889,7 +889,7 @@
   },
   {
     "subject_key": "google | sentiment | ai-overviews-dangerous-health",
-    "claim": "A Guardian investigation found Google AI Overviews giving health advice doctors called 'really dangerous' — e.g. telling pancreatic cancer patients to avoid high-fat foods — fueling a trust narrative Perplexity can use in high-stakes domains.",
+    "claim": "A Guardian investigation found Google AI Overviews giving health advice doctors called 'really dangerous' (e.g. telling pancreatic cancer patients to avoid high-fat foods), fueling a trust narrative Perplexity can use in high-stakes domains.",
     "claim_type": "sentiment",
     "section": "sentiment",
     "zone": null,
@@ -911,7 +911,7 @@
   },
   {
     "subject_key": "google | sentiment | zero-click-publisher-backlash",
-    "claim": "Publishers and users describe Google's AI Mode turning search into a zero-click engine (~60% of queries, 69% for news) with one outlet calling it an 'extinction-level event' — driving defections to DuckDuckGo, Kagi and Brave (documented backlash).",
+    "claim": "Publishers and users describe Google's AI Mode turning search into a zero-click engine (~60% of queries, 69% for news) with one outlet calling it an 'extinction-level event', driving defections to DuckDuckGo, Kagi and Brave (documented backlash).",
     "claim_type": "sentiment",
     "section": "sentiment",
     "zone": null,
@@ -955,7 +955,7 @@
   },
   {
     "subject_key": "objection | google-free-vs-paid",
-    "claim": "**\"Google gives me AI answers free in Search — why would I pay $20 for Perplexity?\"**\n\nIt's a fair question — Google AI Mode is genuinely free to over a billion users. But Google's free answers are ad-supported and single-model, and at Google's scale independent analysis pegs AI Overviews at tens of millions of questionable answers an hour. The $20 buys an ad-free, source-cited answer and the ability to route each question to the best of 19 models — value, not just access.\n\n**So what:** Concede the price axis, win on trust and neutrality; the buyer who cares what they act on will pay for verifiability.",
+    "claim": "**\"Google gives me AI answers free in Search. Why would I pay $20 for Perplexity?\"**\n\nIt's a fair question: Google AI Mode is genuinely free to over a billion users. But Google's free answers are ad-supported and single-model, and at Google's scale independent analysis pegs AI Overviews at tens of millions of questionable answers an hour. The $20 buys an ad-free, source-cited answer and the ability to route each question to the best of 19 models: value, not just access.\n\n**So what:** Concede the price axis, win on trust and neutrality; the buyer who cares what they act on will pay for verifiability.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -978,7 +978,7 @@
   },
   {
     "subject_key": "objection | perplexity-is-a-wrapper",
-    "claim": "**\"Perplexity is just a wrapper on other people's models — Google owns its models and infrastructure.\"**\n\nThat critique was fair early on, and TechCrunch has named it. The honest counter: Perplexity now runs its own AI-optimized web index and Sonar models and no longer depends on others' APIs for search, and the real IP is the orchestration layer that picks the best of 19 models per task in real time. Owning one model is a constraint; orchestrating all of them is the product.\n\n**So what:** Reframe 'wrapper' as 'neutral orchestration' — the buyer's hedge against any single lab's roadmap.",
+    "claim": "**\"Perplexity is just a wrapper on other people's models. Google owns its models and infrastructure.\"**\n\nThat critique was fair early on, and TechCrunch has named it. The honest counter: Perplexity now runs its own AI-optimized web index and Sonar models and no longer depends on others' APIs for search, and the real IP is the orchestration layer that picks the best of 19 models per task in real time. Owning one model is a constraint; orchestrating all of them is the product.\n\n**So what:** Reframe 'wrapper' as 'neutral orchestration', the buyer's hedge against any single lab's roadmap.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -1001,7 +1001,7 @@
   },
   {
     "subject_key": "objection | perplexity-copyright-lawsuits",
-    "claim": "**\"Nine publishers are suing Perplexity for copyright — what's our exposure if we standardize on it?\"**\n\nThis is real and unresolved: CNN, the NYT, News Corp and six others have active suits as of May 2026. The honest answer is that Perplexity is simultaneously signing licensing deals (Gannett, TIME, Le Monde, Der Spiegel), its fair-use 'you can't copyright facts' defense has genuine legal footing, and this is a category-wide AI risk Google itself has faced and settled via licensing — not a Perplexity-specific defect.\n\n**So what:** Acknowledge the risk plainly, then show the licensing trajectory and category context so legal/compliance can get comfortable.",
+    "claim": "**\"Nine publishers are suing Perplexity for copyright. What's our exposure if we standardize on it?\"**\n\nThis is real and unresolved: CNN, the NYT, News Corp and six others have active suits as of May 2026. The honest answer is that Perplexity is simultaneously signing licensing deals (Gannett, TIME, Le Monde, Der Spiegel), its fair-use 'you can't copyright facts' defense has genuine legal footing, and this is a category-wide AI risk Google itself has faced and settled via licensing, not a Perplexity-specific defect.\n\n**So what:** Acknowledge the risk plainly, then show the licensing trajectory and category context so legal/compliance can get comfortable.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -1024,7 +1024,7 @@
   },
   {
     "subject_key": "objection | comet-security-vulnerabilities",
-    "claim": "**\"I read Perplexity's Comet browser had serious security holes — can we trust it with our data?\"**\n\nDon't dodge it: security researchers disclosed prompt-injection and data-exfiltration flaws in Comet, and Perplexity initially under-rated one report before patching by February 2026. The honest framing is that indirect prompt injection is an industry-wide agentic-browser problem (Brave and others have flagged the same class), the specific vectors were patched, and Perplexity has since pursued FedRAMP-grade controls for sensitive deployments.\n\n**So what:** Lead with the patch-and-hardening story and the industry-wide context; a CISO trusts a vendor that names the risk over one that pretends it away.",
+    "claim": "**\"I read Perplexity's Comet browser had serious security holes. Can we trust it with our data?\"**\n\nDon't dodge it: security researchers disclosed prompt-injection and data-exfiltration flaws in Comet, and Perplexity initially under-rated one report before patching by February 2026. The honest framing is that indirect prompt injection is an industry-wide agentic-browser problem (Brave and others have flagged the same class), the specific vectors were patched, and Perplexity has since pursued FedRAMP-grade controls for sensitive deployments.\n\n**So what:** Lead with the patch-and-hardening story and the industry-wide context; a CISO trusts a vendor that names the risk over one that pretends it away.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -1047,7 +1047,7 @@
   },
   {
     "subject_key": "objection | perplexity-financial-stability",
-    "claim": "**\"Is Perplexity stable enough to bet on against a trillion-dollar Google?\"**\n\nIt's a legitimate concern — at a $20B valuation Perplexity is a fraction of Alphabet's ~$4.5T. But it tripled annualized revenue in 2026 to roughly $500M ARR, raised ~$1.5B from SoftBank, Nvidia and others, and counts the bulk of the Fortune 500 as users. The right comparison isn't Perplexity vs Alphabet — it's whether the product survives and delivers ROI over the buyer's horizon, and the trajectory says yes.\n\n**So what:** Answer with the growth and enterprise-adoption proof points, and reframe the stability question to the buyer's actual time horizon.",
+    "claim": "**\"Is Perplexity stable enough to bet on against a trillion-dollar Google?\"**\n\nIt's a legitimate concern: at a $20B valuation Perplexity is a fraction of Alphabet's ~$4.5T. But it tripled annualized revenue in 2026 to roughly $500M ARR, raised ~$1.5B from SoftBank, Nvidia and others, and counts the bulk of the Fortune 500 as users. The question that matters is whether the product survives and delivers ROI over the buyer's horizon, and the trajectory says yes.\n\n**So what:** Answer with the growth and enterprise-adoption proof points, and reframe the stability question to the buyer's actual time horizon.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -1070,7 +1070,7 @@
   },
   {
     "subject_key": "objection | perplexity-privacy-data-sharing",
-    "claim": "**\"I heard a lawsuit says Perplexity sends user chats to Google and Meta — even in Incognito.\"**\n\nA March 2026 class action does allege embedded trackers forwarded chat data to Google and Meta without consent — reps will be asked about it, so don't bury it. The honest answer: these are unproven allegations Perplexity is contesting, paid Pro/Max subscribers are excluded from the proposed class, and Perplexity's enterprise and FedRAMP-cleared government offerings run under separate, accredited data controls from the consumer web product.\n\n**So what:** Acknowledge the suit, separate consumer-tier allegations from the enterprise data posture, and point security buyers to the accredited deployment.",
+    "claim": "**\"I heard a lawsuit says Perplexity sends user chats to Google and Meta, even in Incognito.\"**\n\nA March 2026 class action does allege embedded trackers forwarded chat data to Google and Meta without consent. Reps will be asked about it, so don't bury it. The honest answer: these are unproven allegations Perplexity is contesting, paid Pro/Max subscribers are excluded from the proposed class, and Perplexity's enterprise and FedRAMP-cleared government offerings run under separate, accredited data controls from the consumer web product.\n\n**So what:** Acknowledge the suit, separate consumer-tier allegations from the enterprise data posture, and point security buyers to the accredited deployment.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -1093,7 +1093,7 @@
   },
   {
     "subject_key": "objection | perplexity-usage-limit-cuts",
-    "claim": "**\"Perplexity quietly cut Pro usage limits — is the pricing even stable?\"**\n\nUsers did complain on Reddit about tighter rate limits in 2026, and it's a fair flag. Perplexity attributes the change to cracking down on promo-code resale fraud rather than degrading the product, and an executive publicly denied the free tier was being intentionally throttled. For business buyers the relevant tier is Enterprise, which carries its own SLAs separate from consumer Pro limits.\n\n**So what:** Steer the conversation to Enterprise SLAs, where consumer rate-limit noise doesn't apply.",
+    "claim": "**\"Perplexity quietly cut Pro usage limits. Is the pricing even stable?\"**\n\nUsers did complain on Reddit about tighter rate limits in 2026, and it's a fair flag. Perplexity attributes the change to cracking down on promo-code resale fraud rather than degrading the product, and an executive publicly denied the free tier was being intentionally throttled. For business buyers the relevant tier is Enterprise, which carries its own SLAs separate from consumer Pro limits.\n\n**So what:** Steer the conversation to Enterprise SLAs, where consumer rate-limit noise doesn't apply.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -1116,7 +1116,7 @@
   },
   {
     "subject_key": "perplexity | strategic-milestone | ipo-roadmap",
-    "claim": "**Perplexity is now a disciplined pre-IPO company, not a flailing startup — it's holding a self-imposed 2028 IPO line by choice while rivals rush to file.** CEO Aravind Srinivas told CNBC on June 9, 2026 that Perplexity plans to go public in 2028 regardless of how the confidential IPO filings of Anthropic (valued near $1T) and OpenAI ($852B) perform; Chief Business Officer Dmitry Shevelenko framed holding 2028 as the earliest date as a strategy that let Perplexity 'build a healthy, high-growth business.'",
+    "claim": "**Perplexity is now a disciplined pre-IPO company, not a flailing startup: it's holding a self-imposed 2028 IPO line by choice while rivals rush to file.** CEO Aravind Srinivas told CNBC on June 9, 2026 that Perplexity plans to go public in 2028 regardless of how the confidential IPO filings of Anthropic (valued near $1T) and OpenAI ($852B) perform; Chief Business Officer Dmitry Shevelenko framed holding 2028 as the earliest date as a strategy that let Perplexity 'build a healthy, high-growth business.'",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
