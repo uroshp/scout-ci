@@ -507,6 +507,16 @@ _OVERRIDES = """
 #scout-page .metric .cd.cd-off{color:var(--faint);font-weight:500;}
 @media(min-width:861px){#scout-page .cols{grid-template-columns:218px 1fr!important;}}
 @media(max-width:860px){#scout-page .cols{grid-template-columns:1fr!important;}}
+/* Belt-and-braces for phones whose LAYOUT viewport is stuck at Safari's 980px desktop default
+   (viewport meta missing/ignored — e.g. the bare /~/+/ frame, or Request Desktop Website):
+   max-device-width keys off the PHYSICAL screen, not the layout viewport, so the column still
+   stacks. Never matches a desktop monitor, and width-based queries keep ruling when they work. */
+@media(max-device-width:640px){
+  #scout-page .cols{grid-template-columns:1fr!important;}
+  #scout-page .rail{position:static;}
+  #scout-page .snap{grid-template-columns:1fr;}
+  #scout-page .metrics{grid-template-columns:1fr 1fr;}
+}
 
 /* --- Title hierarchy -------------------------------------------------------------------------
    Two top-level sections ("Your Daily Briefing" + "The full brief") read as real headlines, set
