@@ -734,5 +734,35 @@
       "detail": null
     },
     "persona": "technical_evaluator"
+  },
+  {
+    "subject_key": "the batman part ii | production-status",
+    "claim": "The Batman Part II began principal photography in London on June 12, 2026, with director Matt Reeves posting the first-shot slate to confirm cameras are rolling. The sequel holds its October 1, 2027 release date, so Batman now has a film actively shooting rather than only a finished script, which narrows the visible-momentum gap against Superman's Man of Tomorrow to a pure release-date difference.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.justjared.com/2026/06/12/the-batman-part-ii-begins-filming-writer-director-matt-reeves-confirms/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Writer and director Matt Reeves confirmed the start of production on Friday (June 12), sharing a photo from the set.",
+    "as_of": "2026-06-12",
+    "confidence": "high",
+    "id": "c_a72ca7c3a5f1",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-13",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.comingsoon.net/movies/news/2147851-the-batman-2-director-matt-revees-announces-filming-start-with-new-photo",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
