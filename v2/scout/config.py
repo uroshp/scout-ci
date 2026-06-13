@@ -52,6 +52,10 @@ GEN_MAX_BUDGET_USD = float(os.environ.get("SCOUT_GEN_MAX_BUDGET_USD", "10.0"))
 TRIAGE_MAX_TURNS = int(os.environ.get("SCOUT_TRIAGE_MAX_TURNS", "8"))
 TRIAGE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_TRIAGE_MAX_BUDGET_USD", "0.50"))
 TRIAGE_MAX_SEARCHES = int(os.environ.get("SCOUT_TRIAGE_MAX_SEARCHES", "5"))
+# Propose pass (propagation step 3): tools-off Sonnet drafting over already-grounded facts, so it
+# is short and cheap. Tight caps keep it bounded; it never searches or fetches.
+PROPOSE_MAX_TURNS = int(os.environ.get("SCOUT_PROPOSE_MAX_TURNS", "6"))
+PROPOSE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_PROPOSE_MAX_BUDGET_USD", "0.50"))
 
 # --- Grounding (claim-object.md §4) -------------------------------------------
 # Provisional fuzzy threshold (0..1) — to be TUNED from real fetched pages at the
