@@ -75,6 +75,10 @@ One battlecard's state of record is `claims.json`: a JSON array of claim objects
 | `grounding` | object | yes | Result of the deterministic grounding check (§4). |
 | `corroboration` | array | optional | Secondary sources that confirm the same value. **Never grounded** — each entry carries no excerpt and `grounded` is always `false`. Preserves reconciliation nuance; the single `evidence_excerpt`/`source_url` stays the only proven anchor. See §2.1. |
 | `anchor_substitution` | object | optional | Present only when the grounded anchor was substituted for a *blocked* higher-tier source. Records the preferred (unreadable) source and an `agreement_verified` flag that **must be true**. See §2.2. |
+| `derived_from` | string (id) or null | optional | **Propagation only.** The `id` of the grounded fact this interpretation descends from. It is the claim's provenance anchor: a propagated play/objection has no source of its own, so it inherits the parent fact's grounding through this link. Also the dependency edge the retire-cascade walks. Absent on ordinary generated claims. See §2.3. |
+| `status` | enum | optional | `active` (default when absent) or `retired`. A retired claim has left the active card and lives only in the lineage/retired view. Never hard-deleted. See §2.3. |
+| `retired_on` | string (date) or null | optional | Date a claim was retired. Set together with `status: retired`. |
+| `retired_reason` | string or null | optional | Short reason a claim was retired (neutralized to a wash, or invalidated by a fact). Paired with the killing fact via `derived_from`. |
 
 ### `grounding` sub-object
 
@@ -104,6 +108,15 @@ Reachability probing (build step 5) showed ~25–32% of cited sources are bot-bl
 - **Recorded for audit.** A substitution sets `anchor_substitution = {preferred_url, preferred_tier, agreement_verified: true, note}`, and the preferred source also appears in `corroboration`. `agreement_verified` is a `const true`: the object's mere existence asserts a verified agreement. Grounding flags every substituted claim (`substituted: true`) in its instrumentation so substitutions can be eyeballed at #7 — we have both URLs, so the verifier's agreement call is checkable, not just asserted.
 
 This is honest about tiers: the *proven* source becomes the fetchable one (often Tier 2), while the un-fetchable Tier 1A source is preserved as named-but-ungrounded corroboration — never presented as if it passed the check.
+
+### 2.3 `derived_from` + lifecycle (`status`/`retired_on`/`retired_reason`) — propagation only
+
+These four optional fields support **propagation** (the monitor reshaping rep-facing prose from a material fact; full design in `v2-agent-spec.md` §17). They are **additive and backward-compatible**: every existing claim, and all eight committed cards, omit them and stay valid. Absence of `status` means `active`, so no backfill of the hard-won cards is needed.
+
+- **`derived_from`** is the thesis anchor. A propagated play or objection is an *interpretation* with no source of its own, so it cannot be ground-checked the way a fact is (§4). Instead it points at the grounded fact's `id` it descends from and **inherits that fact's provenance**. This keeps propagation inside the load-bearing thesis (*no ungrounded model judgment in the seat of final authority*): the fact is the authority; the interpretation may only state what the fact licenses. The same link is the dependency edge the **retire-cascade** walks — when a fact is falsified, the monitor follows `derived_from` to the claims that just became false.
+- **`status: retired`** means a claim has left the active card (a play neutralized to a wash, or a claim a fact made false) and now lives only in the **lineage / retired view**, with `retired_on` + `retired_reason` + the killing fact via `derived_from`. Retirement is a status transition, **never a hard delete** — identity stays stable, so git history + `alerts.jsonl` preserve the "tracked and updated since <date>" lineage.
+
+Two conditionals that ENFORCE the above are deliberately **not** in the schema yet (see §7): they ship with the propose/judge code that first emits these claims, so the schema change here stays purely additive and inert.
 
 ### Formal JSON Schema (Draft 2020-12)
 
@@ -167,7 +180,11 @@ This is honest about tiers: the *proven* source becomes the fetchable one (often
         "agreement_verified": { "const": true },
         "note": { "type": "string", "minLength": 1 }
       }
-    }
+    },
+    "derived_from": { "type": ["string","null"], "pattern": "^c_[0-9a-f]{12}$" },
+    "status": { "enum": ["active","retired"] },
+    "retired_on": { "type": ["string","null"], "format": "date" },
+    "retired_reason": { "type": ["string","null"], "minLength": 1 }
   },
   "allOf": [
     {
@@ -272,3 +289,6 @@ A deterministic post-step (plain code, **not** an agent tool) run after the veri
 ## 7. Planned changes (decided, not yet enforced)
 
 - **`as_of` becomes required for `fact` claims.** Currently optional across the board. The intent (confirmed) is to make it mandatory when `claim_type == "fact"` — a fact without an as-of date is hard to monitor for recency overrides. To enforce later, add a conditional to the JSON Schema: `if claim_type == "fact" then required: ["as_of"]` with a non-null `as_of`. Deferred only so the first generation port isn't blocked on backfilling dates; the verifier should already populate `as_of` for facts wherever the source gives one.
+
+- **`derived_from` exempts a claim from its own-source grounding.** The fields exist now (additive), but the conditional that lets a `derived_from`-anchored interpretation be stored *without* `source_url`/`evidence_excerpt`/`grounding` (because its provenance is the parent grounded fact) is deferred to the propose/judge build, where it ships alongside the deterministic propagation **floor** (derived_from resolves to a surviving grounded fact, a `retire` points at an actually-falsified fact, propagation never mints a `claim_type: fact`). Until then the schema still requires an own anchor, so nothing can store a half-built propagated claim by accident.
+- **`status: retired` requires `retired_on` + `derived_from`.** The `if status == "retired" then required: ["retired_on","derived_from"]` conditional is deferred to the same build, for the same reason: it is enforced by the code that first emits retirements, keeping this step purely additive and inert.

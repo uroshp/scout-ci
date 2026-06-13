@@ -106,6 +106,19 @@ CLAIM_SCHEMA = {
                 "note": {"type": "string", "minLength": 1},
             },
         },
+        # --- Propagation / living-card lifecycle (v2.5, claim-object.md §2.3 / spec §17) ---
+        # All OPTIONAL and additive: existing claims (and the 8 committed cards) omit them and
+        # stay valid; absence of `status` means "active", so no backfill is needed. A propagated
+        # play/objection carries `derived_from` = the grounded fact's id it descends from (its
+        # provenance anchor, since an interpretation has no source of its own). Retiring a claim
+        # is a `status` transition into the lineage view, never a delete. The conditional that
+        # EXEMPTS a derived_from claim from its own-source grounding, and the one that REQUIRES
+        # retired_on/derived_from when status==retired, are deferred to the propose/judge build
+        # (they ship with the code that emits these claims — see §7 Planned changes).
+        "derived_from": {"type": ["string", "null"], "pattern": "^c_[0-9a-f]{12}$"},
+        "status": {"enum": ["active", "retired"]},
+        "retired_on": {"type": ["string", "null"], "format": "date"},
+        "retired_reason": {"type": ["string", "null"], "minLength": 1},
     },
     "allOf": [
         {
