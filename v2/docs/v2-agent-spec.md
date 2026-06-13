@@ -102,6 +102,7 @@ Runs on the GitHub Actions schedule, once per tracked competitor. **Staged to co
 1. **Retrieve (cheap)** — date-scoped `WebSearch` since `last_checked`, `WebFetch` to read.
 1. **Triage gate (FAST_MODEL)** — “Is there anything here that *could* be material?” If no -> stop, log a no-change run (no Opus, no commit; see §9).
 1. **Judge materiality (ORCHESTRATOR / Opus 4.8)** — only on candidates that pass triage. Apply the materiality threshold (§8) and verify with the same source-tiering discipline as generation. **The materiality judgment itself always runs on Opus — triage is allowed to be cheap, the decision to alert is not.**
+1. **Propagate (act-grade only):** when a surviving change clears the deal-impact bar (`severity: "act"`, §8), re-derive the dependent plays and objections it changes via the propagation step (§17). A `watch`-grade change updates the feed only and stops here.
 1. **Update + record** — for each material change: update the affected claims in `claims.json` (and re-render `current.md`), append to `alerts.md` + `alerts.jsonl` with a dedup fingerprint, add the fingerprint to `meta.json`.
 1. **Side-effects in code** — commit changed files; send ONE email digest of material deltas (each with its “so what”). Nothing material -> no email.
 
@@ -171,6 +172,8 @@ This is the judgment that separates an agent from a cron job. Most of it already
 **Noise (ignore):** routine blog posts, minor features, conference talks with no strategic shift, restatements of known facts, sentiment churn.
 
 Every alert must carry a **so what** — the decision it should change — or it doesn’t ship. (Designing for signal, not notification volume: most alerting tools over-notify; this one is built to stay quiet.)
+
+**Two grades of material.** `watch` is material context that changes no rep behavior yet, so it updates the `recent_moves` feed only. `act` is strong enough to change what a rep says or does in a live deal, so it ALSO triggers propagation into plays and objections (§17). The deal-impact bar is what gates a prose change. The feed stays more permissive than the battlecard.
 
 -----
 
@@ -247,3 +250,99 @@ In-app tracking configuration (tracking = committed files); more than one alert 
 - Email mechanism (transactional API vs. SMTP) — pick one pipe.
 - Monitor cadence (start daily; tune).
 - Triage-gate model (Sonnet vs. Haiku) — measure cost/accuracy before locking.
+
+-----
+
+## 17. Propagation: a material fact reshapes the rep-facing prose (the part that makes it *living*)
+
+**The gap this closes.** Today the monitor is a claim *patcher*: one news item becomes one fact claim in one section, updated in place. In production every alert that has fired (five of five, across the cards that have fired) landed in `recent_moves`. `objection_handling`, the battlecard plays, `positioning`, and the exec summary have never been touched by a monitor run. So "living battlecard" has meant "a new line in the feed", not a card that rewrites itself. The plays and objections, the part a rep actually reads before a call, stay frozen. Propagation is the step that changes that, and it is the headline behavior the product is named for.
+
+**Fan-out, not full regeneration.** Re-synthesizing the whole card on every alert would churn every claim, force re-grounding the entire card, and destroy the per-claim git and grounding diff that *is* the verification story (the receipt that makes "verified" credible: this objection changed because of this news, on this date, from this source). Propagation instead touches only the **dependent** claims a single grounded fact implies. Each stays individually grounded. Each is a clean one-claim diff.
+
+**The gate is deal impact, not notability.** A fact propagates into plays or objections **only if it is strong enough to change a customer or deal outcome**, which is exactly the existing `severity: "act"` definition (*reps change what they SAY or DO in a live deal NOW*). This reuses a threshold instead of inventing one:
+
+- `watch`-grade material updates the `recent_moves` feed only. The prose does not move.
+- `act`-grade material updates the feed **and** triggers propagation.
+
+Load-bearing guardrail: **"changes nothing for us" is a first-class, common verdict.** Most `act`-adjacent news still moves no specific play or objection. A proposer forced to emit a prose edit per fact would manufacture an objection for every item, the GenAI tic Scout bans elsewhere via `WRITING_STYLE`. Propagation is built to stay quiet, the way triage is.
+
+**Detection punches both ways (dual-scope triage).** Triage searches `my_company` as well as `competitor`, and routes each candidate by valence:
+
+- **Back foot** (competitor ships something strong, or we stumble: a model pulled, an outage, a price hike) routes to an **`objection_handling`** entry ("they will raise X, here is the answer").
+- **Front foot** (competitor stumbles, or we ship) routes to a **play** (`battlecard` / `where_we_win`).
+
+The same event can do both. Our own bad news is the case a competitor-only monitor is structurally blind to today.
+
+**The mechanic, carried by one new field: `derived_from`.** A propagated play or objection is an interpretation derived from a grounded fact, and it has no web source of its own. Add `derived_from: <parent fact's claim id>` to the claim schema (`claim-object.md`). It does double duty:
+
+1. **Grounding anchor.** The interpretation is verified by pointing at the grounded fact it descends from, inheriting that fact's provenance instead of needing its own URL. Without this, the verifier cuts every propagated play.
+2. **Retire-cascade edge.** When a fact is later falsified (its value flips, the source is pulled), the monitor walks `derived_from` to find the dependent plays and objections it made false and acts per the operations below.
+
+**Nothing is hard-deleted; lineage is preserved.** Identity is the subject (§7), so a changed claim keeps its `id`, and git history plus `alerts.jsonl` already record every transition. That trail IS the "tracked and updated since <date>" lineage, and it is an asset (it shows judgment and auditability, and is future training signal), so propagation never destroys it. "Remove from the active card" is a `status: retired` transition into the lineage view, never a delete.
+
+**Operations (the judge picks one per affected claim):**
+
+- **add** — the fact creates a new play or objection.
+- **revise (in place)** — the fact *narrows but does not kill* a still-winning play, or updates an objection's rebuttal. Same `id`, new `as_of` + source; it stays on the active card. (This is the answer to "is there ever a reason to keep an undercut play": yes, when it still net-wins.)
+- **retire** — the fact *neutralizes a play to a wash* OR *invalidates it (makes it false)*. Either way it leaves the active card: set `status: retired` + `retired_on` + `retired_reason` + the killing fact's `id`, and it lives only in the **lineage / retired view**. A contested-but-true play is noise to a rep mid-call ("if it's contested, don't serve it to me"), so the active card carries only live wins and live objections; everything degraded goes to lineage. If a neutralized play raises a new buyer objection, that objection is a separate **add** (the dead play goes to lineage, the live objection it spawned goes on the card).
+
+**Blast-radius cap:** a fact may only add / revise / retire a claim it directly creates, undercuts, or invalidates. It may not touch anything else.
+
+**Control: propose, then judge, both model, logged.** This extends the v1 generate-then-verify pattern one layer up:
+
+1. **Propose (one pass).** From each surviving `act`-grade grounded fact, draft candidate `add` / `revise` / `retire` operations on `objection_handling` and plays, each carrying `derived_from`.
+2. **Judge (independent adversarial pass).** Confirm or reject each candidate: is the implication warranted by the anchored fact, is the retire correct, is the objection real or invented. The judge may reject everything and return "no rep-facing change".
+
+The human is not in this loop, except a deliberate interim training window that reuses the **v3.5 shadow-eval** capture path: run propose-then-judge live, surface to a human during the interim, capture the human verdicts as ground truth, and promote the judge to autonomous once agreement is high enough. The **decision log is two artifacts in one**: an audit trail of every model-made prose edit, and the judge's training corpus.
+
+**Decision-log record (one per proposed operation):**
+
+```json
+{
+  "trigger_claim_id": "c_…",            // the grounded fact that fired propagation
+  "trigger_source_url": "https://…",
+  "operation": "add | revise | retire",
+  "section": "objection_handling | battlecard",
+  "old_text": "… | null",
+  "new_text": "… | null",               // null on retire
+  "derived_from": "c_…",
+  "judge_verdict": "confirm | reject",
+  "judge_reason": "…",
+  "committed": true
+}
+```
+
+**Pipeline insertion point.** After triage, materiality, grounding, and retry (the fact has survived as true and `act`-grade), and before apply and render. Only `act`-grade survivors enter propagation. `watch`-grade and ungrounded items never reach it.
+
+**Build order (proposed):**
+
+1. Schema: add `derived_from` (+ `status` / `retired_on` / `retired_reason` for the retire band) to the claim object and `claim-object.md`. Render plays and objections with their anchor visible, plus a lineage / retired view fed by `alerts.jsonl` + `as_of`.
+2. Dual-scope triage: a second search arm on `my_company`, with a valence tag on each candidate.
+3. Propose pass and prompt (the `act`-grade gate, "no change is common", the add/revise/retire contract).
+4. Judge pass and prompt (adversarial confirm or reject, veto-all allowed), plus the decision log.
+5. Retire-cascade: on a falsified fact, walk `derived_from` and revise or retire dependents.
+6. Shadow-eval hook on propagation decisions, plus the interim human-review surface.
+
+**Resolved (2026-06-13):**
+
+- **Graduated response, lineage preserved, no hard deletes.** Narrows-but-still-wins → revise in place and keep. Neutralizes-to-a-wash OR invalidates → retire to the lineage view (`status: retired`), off the active card. The active card serves only live wins and live objections; contested-but-true content is rep noise and is not served. Identity stays stable, so "tracked and updated since <date>" renders from `alerts.jsonl` + `as_of`.
+- **Impact-scoped cap (not a count).** Propagation may only touch a claim the firing fact directly **creates, undercuts, or invalidates**, and nothing else. The cap is blast radius, not a number of operations.
+- **PROPOSE step = separate staged agent** after grounding (propose on **Sonnet**, judge on **Opus**). Cost delta over inline is negligible (rare trigger), so the call was made on regression isolation and tunability: a separate agent keeps the tuned materiality prompt untouched, matches the project's "keep verification independent of drafting" rule (README), and lets propagation be shadow-evaluated on its own.
+
+**Open (the coherence-review finding — pick before build):**
+
+- **Thesis governance.** Propagation is the first user-facing content gated by a model with no model-free authority behind it: an interpretation cannot be deterministically grounded the way a fact can. To stay inside Scout's load-bearing thesis (*no ungrounded model judgment in the seat of final authority* — `vnext-roadmap.md`), bind propagation to it: (a) every propagated claim is `claim_type: interpretation` carrying a `derived_from` that code-checks to a surviving grounded fact; (b) a deterministic propagation **floor** (the code grader) enforces derived_from-exists, retire-points-at-an-actually-falsified-fact, no model-minted `fact` claims, and the blast-radius cap; (c) ship in **shadow first** and earn autonomy via the v3.5 champion-challenger window, with **add** (pure authorship) held most conservative and **retire-on-a-falsified-fact** freest (it is itself grounded). This sequences propagation as v2.5 *into* the v3/v3.5 eval work, not as a standalone bolt-on. Confirm this framing before build.
+
+**Two judgments, two shadow trials (framing).** Scout exercises model judgment over user-facing content in exactly two seats. Each is qualified the same way (champion-challenger, human-adjudicated disagreements, promote only on data, code grader stays the floor):
+
+- **Materiality / verification judgment:** should this claim exist on the card at all (the keep / cut / material call the existing v3.5 shadow-eval already targets).
+- **Authorship judgment:** given a true material fact, what prose should change (propagation's add / revise / retire).
+
+The two accumulate disagreements at very different rates (verification runs on every claim; authorship fires only on rare `act`-grade survivors), so promotion is gated on **adjudicated-delta count, not calendar**, and authorship will qualify much later than verification. **Check-in windows (set 2026-06-13):**
+
+- **Weekly adjudication (Friday, ~15 min, skipped when the queue is empty).** One slot covers both streams; the shadow digest reports "N verification / M authorship deltas waiting", and a human labels who was actually right only when there is something to label. Most weeks: a few verification deltas, often zero authorship.
+- **Promotion checkpoint, per judge, count-gated (not by calendar).** Evaluate a judge for promotion once it has roughly **30 adjudicated verification deltas** (weeks away) or **20 adjudicated authorship deltas** (likely months, given the rare trigger). The gate stays net-positive-on-deltas AND slop-admission near zero, into a bounded role only.
+- **Authorship promotes in stages, safest operation first:** retire-on-a-falsified-fact (grounded) first, then revise, then add (pure authorship) last, each its own count-gated checkpoint.
+- The first checkpoint is not a date. It is "review batch one", whenever capture has accumulated enough adjudicated deltas. The recurring Friday reminder is wired up only once authorship capture is live and producing data.
+
+**What "good" looks like.** A deliberately stale baseline, a scheduled run that finds an `act`-grade change (ours or theirs), a proposer that drafts the objection it creates or the play it kills, a judge that confirms, and the relevant play or objection **visibly changing**, anchored to the grounded fact, as a clean one-claim diff. Meanwhile most facts that day produce "no rep-facing change". The card demonstrably rewrites itself, and only when a deal is actually on the line.
