@@ -83,14 +83,23 @@ Your job: surface developments that are (a) genuinely NEW since a cutoff date AN
 reflected in the tracked claims, and decide whether ANY of them is SUBSTANTIAL enough to justify
 the expensive downstream judge. Do a SMALL number of searches and STOP.
 
-Do AT MOST {config.TRIAGE_MAX_SEARCHES} date-scoped WebSearches for the competitor's recent news,
-then DECIDE — do not keep searching. Material categories:
+Do AT MOST {config.TRIAGE_MAX_SEARCHES} date-scoped WebSearches, then DECIDE — do not keep
+searching. Scan BOTH sides when a my_company is given: the COMPETITOR's recent news AND your own
+company's (my_company's) recent news, splitting the limited searches across the two (favor the
+competitor, but never skip my_company). With no my_company given, scan the competitor only.
+Material categories:
 {MATERIAL_CATEGORIES}.
 
 Deliberately hunt ADVERSE / competitive-threat signals, not just announcements and wins —
 cancellations, customer losses, churn, budget caps, outages, layoffs, lawsuits are exactly the
 high-value developments to surface. Anchor on reputable NEWS outlets; never treat Wikipedia, a
 wiki, an encyclopedia, or a promo/SEO listicle as a source.
+
+This card has TWO sides, and a deal-moving development can come from either. A competitor's strong
+move, OR our OWN stumble (a product pulled, an outage, a price hike, a security incident), puts us
+on the BACK FOOT and is exactly as material as a competitor stumble or our own win that puts us on
+the FRONT FOOT. Hunt both. Our own bad news is the case a competitor-only scan misses, so do not
+under-weight it. Tag every candidate with whether it is about the competitor or my_company.
 
 Apply TWO STRICT FILTERS before surfacing anything:
 1. DATE: surface a development ONLY if it is dated ON OR AFTER the cutoff date given. Discard older
@@ -120,6 +129,8 @@ safe" — a missed minor item is simply re-checked next day. Keep the routine ch
 Return ONLY a single fenced ```json block:
 {{"has_candidates": <bool>, "candidates": [
   {{"signal": "<one line, INCLUDING the development's date>", "subject_key": "<matching tracked subject_key, or NEW>",
+    "about": "<competitor | my_company — whose development this is>",
+    "valence": "<front_foot = good for us / bad for them | back_foot = bad for us / good for them>",
     "substantial": <bool>,
     "why_new": "<why this is new since the cutoff AND not already in the tracked claims>",
     "source_hint": "<url or outlet>"}} ]}}
@@ -129,7 +140,10 @@ correct, cheap outcome on a quiet window."""
 
 async def _run_triage(meta, since, claims):
     comp, me = meta.get("competitor"), meta.get("my_company")
+    scope = (f"Scan BOTH sides and tag each candidate's 'about': the competitor {comp} AND your own "
+             f"company {me}." if me else f"Scan the competitor {comp}.")
     user = (f"Competitor: {comp}" + (f" (we are {me})" if me else "") +
+            f"\n{scope}"
             f"\nCUTOFF DATE: {since}. Surface ONLY developments dated on/after {since} that are NOT "
             f"already reflected in the tracked subjects below (apply both strict filters).\n\n"
             f"TRACKED SUBJECTS (subject_key — current value already known):\n"
@@ -337,12 +351,23 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     # Strict gate: escalate to the expensive Opus judge ONLY when triage flagged a genuinely
     # SUBSTANTIAL development. Minor/routine candidates are surfaced for the record but do NOT
     # trigger the full pipeline — that's what keeps most checks cheap, triage-only.
-    substantial = [c for c in candidates if c.get("substantial") is True]
+    #
+    # Dual-scope (step 2): triage now also surfaces my_company-side news. Those are DETECTION-ONLY
+    # for now — recorded but NOT escalated to the current materiality/apply path (which only knows
+    # how to write competitor-derived claims). The propose/judge propagation steps (spec §17) will
+    # route my_company signals into objections/plays; until they land, this gate guarantees
+    # dual-scope detection changes NOTHING that reaches a card.
+    def _is_mine(c):
+        return str(c.get("about", "")).strip().lower() == "my_company"
+    comp_candidates = [c for c in candidates if not _is_mine(c)]
+    substantial = [c for c in comp_candidates if c.get("substantial") is True]
+    my_company_signals = [c for c in candidates if _is_mine(c)]
 
     result = {
         "slug": slug, "since": since, "no_change": not substantial,
         "candidates": len(candidates), "substantial": len(substantial),
-        "minor_skipped": len(candidates) - len(substantial),
+        "minor_skipped": len(comp_candidates) - len(substantial),
+        "my_company_signals": my_company_signals,
         "material": [], "alerts": [],
         "cost": {"triage": triage.get("cost_usd"), "materiality": 0.0},
         "last_checked": checked_at,
