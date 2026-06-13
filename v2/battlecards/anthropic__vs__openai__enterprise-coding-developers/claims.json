@@ -957,5 +957,35 @@
       "fetched_at": "2026-06-09",
       "detail": null
     }
+  },
+  {
+    "subject_key": "openai-state-ag-investigation",
+    "claim": "On Friday, June 12, 2026, OpenAI was served a subpoena by a coalition of state attorneys general, led by New York, opening an investigation into the company. The subpoena seeks documentation on OpenAI's advertising, user engagement and retention, handling of consumer and health data, activities involving minor and senior users, its deep-learning models, and model sycophancy. The action lands days after OpenAI confidentially filed its IPO prospectus with the SEC and follows Florida's earlier suit over alleged consumer harm. OpenAI said it intends to engage constructively and takes the concerns seriously.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.cnbc.com/2026/06/12/openai-says-its-engaging-constructively-with-state-ags-.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI was reportedly served with a subpoena seeking information about its approach to advertising, consumer and health data, minor and senior users and models, among other activities.",
+    "as_of": "2026-06-12",
+    "confidence": "high",
+    "id": "c_6ece7c53e71a",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-13",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.engadget.com/2193666/openai-investigation-state-attorneys-general/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
