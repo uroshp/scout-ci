@@ -50,7 +50,14 @@ because it is notable. Quality over volume; the card stays lean.
 VALENCE ROUTES THE OUTPUT:
 - BACK FOOT (a competitor's strong move, OR our own stumble: a product pulled or restricted, an
   outage, a price hike, a security incident) -> an OBJECTION the buyer will now raise, in
-  objection_handling, with the rep's answer.
+  objection_handling. An objection is NOT complete until its rebuttal PIVOTS to a genuine, currently-
+  true strength and hands the rep a CONCRETE alternative or next move — never merely "confirm",
+  "check", or "verify eligibility". State the constraint honestly, then redirect to a real capability
+  the buyer can act on TODAY (e.g. a generally-available default to standardize on while the issue is
+  worked). The strength you pivot to MUST itself be grounded — drawn from the given facts or the
+  card's existing claims, never invented — and do NOT speculate about if/when the constraint resolves
+  unless a fact states it. A rebuttal that only restates the problem is a FAIL; rep-facing prose must
+  leave the rep with a move.
 - FRONT FOOT (a competitor stumble, OR our own win or ship) -> a PLAY, in battlecard / where_we_win.
 
 OPERATIONS (pick the lightest that is true; identity is the SUBJECT, not the text):
@@ -282,9 +289,16 @@ REJECT an op if ANY of these holds:
 - BLAST RADIUS: it touches a claim the fact does not DIRECTLY create, undercut, or invalidate.
 - WEAK RETIRE: a retire whose killing fact does not truly neutralize-to-a-wash or invalidate the
   target play. The bar to pull a play off the active card is HIGH.
+- HOLLOW REBUTTAL: a back-foot objection whose answer only RESTATES the constraint ("confirm
+  eligibility", "verify availability", "check with us") without pivoting to a genuine, grounded
+  strength and a concrete move the rep can make. An honest objection-handler redirects to a real,
+  currently-true capability; one that just names the problem leaves the rep worse off than silence.
+  (The pivot's strength must be grounded — reject it equally if the rebuttal INVENTS a capability or
+  speculates about when the constraint lifts.)
 
 CONFIRM an op ONLY when the grounded fact DIRECTLY and near-certainly licenses exactly that change, at
-exactly that scope, routed by the correct valence, as the lightest true operation.
+exactly that scope, routed by the correct valence, as the lightest true operation. For a back-foot
+objection, "lightest true" still REQUIRES a grounded pivot — an honest constraint plus a real next move.
 
 Return ONLY a single fenced ```json block:
 {"verdicts": [
