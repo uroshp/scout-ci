@@ -694,11 +694,50 @@ def title_html(slug: str) -> str:
     return '<div id="scout-page"><div class="wrap">' + _title_block(meta) + "</div></div>"
 
 
-def _brief_sections(claims: list, md: str, recent_keys: set | None = None):
+def _prepare_display(claims: list):
+    """Split claims for the viewer and resolve propagated source links. Returns (active, retired):
+    a `status: retired` claim leaves the active card for the lineage view (claim-object.md §2.3); a
+    propagated claim (no own source_url) borrows the source of the grounded fact it derives_from, so
+    its 'Verified · <domain>' line still renders. Returns NEW dicts — never mutates the store list."""
+    by_id = {c.get("id"): c for c in claims if c.get("id")}
+    active, retired = [], []
+    for c in claims:
+        if not c.get("source_url") and c.get("derived_from"):
+            parent = by_id.get(c["derived_from"])
+            if parent and parent.get("source_url"):
+                c = {**c, "source_url": parent["source_url"]}
+        (retired if str(c.get("status", "active")) == "retired" else active).append(c)
+    return active, retired
+
+
+def _lineage(retired: list) -> str:
+    """The lineage / retired view: plays + objections a propagation retire moved OFF the active card,
+    kept as a visible 'tracked since / retired' record — never deleted (claim-object.md §2.3)."""
+    if not retired:
+        return ""
+    rows = []
+    for c in sorted(retired, key=lambda c: c.get("retired_on") or "", reverse=True):
+        p = _parse_claim(c)
+        title = _inline(p["title"]) if p.get("title") else _inline(str(c.get("claim", ""))[:90])
+        bits = []
+        if c.get("retired_on"):
+            bits.append(f'Retired {_html.escape(str(c["retired_on"]))}')
+        if c.get("as_of"):
+            bits.append(f'tracked since {_html.escape(str(c["as_of"]))}')
+        reason = c.get("retired_reason") or "retired"
+        rows.append(f'<div class="item retired"><div class="ihead"><h4>{title}</h4></div>'
+                    f'<p class="rtmeta"><b>{" · ".join(bits)}</b> — {_inline(reason)}</p>'
+                    f'{_verified(c.get("source_url", ""))}</div>')
+    return _section("lineage", "Lineage — retired plays & objections",
+                    f"{len(retired)} retired", "".join(rows))
+
+
+def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retired: list | None = None):
     """The full-brief body rendered from claim objects (+ Cut Log parsed from md) — the
     part SHARED by the live viewer and the static self-serve render. Returns
-    (sections_html, cut_html, present) where `present` is the section-nav list.
-    recent_keys: subject_keys a monitor run touched recently — those items get a NEW chip."""
+    (sections_html, cut_html, present) where `present` is the section-nav list. `claims` are the
+    ACTIVE claims (callers pre-split via _prepare_display); `retired`, if given, renders a lineage
+    view after the regular sections. recent_keys: subject_keys a monitor run touched recently."""
     recent_keys = recent_keys or set()
     by_sec = {}
     for c in claims:
@@ -744,6 +783,10 @@ def _brief_sections(claims: list, md: str, recent_keys: set | None = None):
             label = {"sentiment": "signal"}.get(sid, "items")
             secs.append(_section(sid, title, f"{len(cs)} {label}",
                                  "".join(_bullet_item(c, _new(c)) for c in cs)))
+    lineage_html = _lineage(retired or [])
+    if lineage_html:
+        secs.append(lineage_html)
+        present.append(("lineage", "Lineage", str(len(retired))))
     cut_html, cut_n = _cut_log(md)
     if cut_html:
         present.append(("cut", "Cut Log", str(cut_n)))
@@ -757,9 +800,10 @@ def static_brief_html(claims: list, md: str, meta: dict | None = None,
     countdown, or freshness table, since those need monitoring state a fresh card has
     no. Title renders when `meta` (competitor/my_company/focus) is supplied. Lets the
     self-serve result share the viewer's exact styling instead of a separate UI."""
-    secs, cut_html, _present = _brief_sections(claims, md)
+    active, retired = _prepare_display(claims)
+    secs, cut_html, _present = _brief_sections(active, md, retired=retired)
     title = _title_block(meta) if meta else ""
-    brief = _briefing(claims) if briefing else ""
+    brief = _briefing(active) if briefing else ""
     inner = (title
              + '<hr class="rule"><div class="maincol">'
              + brief
@@ -775,10 +819,12 @@ def content_html(slug: str) -> str:
     freshness, plus the left rail. CSS + masthead + title are injected separately."""
     status = display.card_status(slug)
     cp = status["checkpoints"]
-    claims = store.load_claims(slug)
+    # Split retired off the active card (lineage view) and resolve propagated source links once, so
+    # every downstream consumer (rail, briefing, sections) sees only active claims with live sources.
+    claims, retired = _prepare_display(store.load_claims(slug))
     md = _read_current(slug)
     rows = status["claim_timestamps"]
-    secs, cut_html, present = _brief_sections(claims, md, set(status["recent_keys"]))
+    secs, cut_html, present = _brief_sections(claims, md, set(status["recent_keys"]), retired=retired)
 
     try:
         remaining = int((datetime.fromisoformat(cp["next_check"]) - datetime.now()).total_seconds())
