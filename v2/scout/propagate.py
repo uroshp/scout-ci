@@ -43,6 +43,13 @@ fact does not clearly license a rep-facing change, propose nothing for it. You h
 fetch tools on purpose: you cannot go find new facts, only work from these. A downstream judge
 rejects any op resting on something the fact does not state, so do not reach.
 
+NEVER INVENT THE MECHANISM OR REASON. State a grounded CONSEQUENCE in the source's own terms; do NOT
+supply WHY or HOW it happened if the source does not. If the fact is "the order's net effect is that
+the model is disabled for all customers", write exactly that — do NOT add "because they cannot filter
+users by nationality" or any operational reason the source omits, EVEN IF it is plausibly true. A
+grounded conclusion does not license an ungrounded explanation of it. When the source gives you its
+own framing for a consequence ("the net effect of this order is..."), use that framing, not your own.
+
 NO CHANGE IS THE COMMON OUTCOME. Most deal-grade facts still move no specific play or objection. An
 empty ops list is correct and expected. Do NOT manufacture an objection or play for a fact just
 because it is notable. Quality over volume; the card stays lean.
@@ -278,6 +285,11 @@ REJECT an op if ANY of these holds:
   scope. The fact's LITERAL scope governs. "Restricted to foreign nationals" does NOT license "pulled
   for everyone"; a scoped restriction does NOT license retiring a whole play. If the prose reaches past
   what the fact says, reject it.
+- INVENTED MECHANISM/REASON: the prose explains WHY or HOW a fact happened — a causal mechanism, an
+  operational reason — that the source does not state, EVEN IF the conclusion itself is grounded and the
+  explanation is plausibly true. "The model is disabled for all customers" can be grounded while
+  "because they cannot filter users by nationality" is invented; reject the op (or it must be revised to
+  drop the unstated reason). A grounded conclusion never licenses an ungrounded explanation of it.
 - WRONG VALENCE: a back-foot fact (competitor strong, or WE stumble) routed to a play; or a front-foot
   fact (competitor stumbles, or WE ship) routed to an objection.
 - WRONG OPERATION (not the lightest TRUE one): a retire where the fact only NARROWS a still-winning
