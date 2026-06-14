@@ -3,7 +3,6 @@
 The JSON Schema embedded here is the runtime source of truth; the doc is the human
 spec. Keep them in sync. `claim_id` / `normalize_subject_key` implement §3 verbatim.
 """
-import copy
 import hashlib
 import re
 
@@ -39,17 +38,16 @@ SOURCE_TIERS = ["primary", "reputable_secondary", "sentiment_only"]
 # everywhere else. Lets the viewer badge plays/objections by audience (see docs/claim-object.md).
 PERSONAS = ["eng_led", "technical_evaluator", "economic_buyer", "security_regulated", "exec_top_down"]
 
-CLAIM_SCHEMA = {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "title": "Scout v2 claim object",
-    "type": "object",
-    "additionalProperties": False,
-    "required": [
-        "id", "subject_key", "claim", "claim_type", "section", "zone", "order",
-        "source_url", "source_tier", "evidence_excerpt", "verified", "confidence",
-        "grounding",
-    ],
-    "properties": {
+# Fields every claim carries regardless of provenance. The own-source fields
+# (source_url/source_tier/evidence_excerpt/grounding) are NOT here: they are required
+# conditionally — only when a claim is NOT a derived_from-anchored interpretation (see the
+# allOf below). This is what lets a propagated play/objection persist without its own URL.
+_BASE_REQUIRED = [
+    "id", "subject_key", "claim", "claim_type", "section", "zone", "order",
+    "verified", "confidence",
+]
+
+_PROPERTIES = {
         "id": {"type": "string", "pattern": "^c_[0-9a-f]{12}$"},
         "subject_key": {"type": "string", "minLength": 1},
         "claim": {"type": "string", "minLength": 1},
@@ -119,29 +117,78 @@ CLAIM_SCHEMA = {
         "status": {"enum": ["active", "retired"]},
         "retired_on": {"type": ["string", "null"], "format": "date"},
         "retired_reason": {"type": ["string", "null"], "minLength": 1},
-    },
-    "allOf": [
-        {
-            "comment": "zone is non-null only inside the battlecard",
-            "if": {"properties": {"section": {"const": "battlecard"}}},
-            "then": {"properties": {"zone": {"enum": ZONES}}},
-            "else": {"properties": {"zone": {"const": None}}},
-        },
-        {
-            "comment": "a fact may not rest on a sentiment-only source",
-            "if": {"properties": {"claim_type": {"const": "fact"}}},
-            "then": {"properties": {"source_tier": {"enum": ["primary", "reputable_secondary"]}}},
-        },
-    ],
 }
 
+
+def _build_claim_schema(require_grounding: bool) -> dict:
+    """Assemble the claim schema. `require_grounding` distinguishes the PERSISTENCE contract
+    (grounding present) from the PRE-grounding shape the verifier emits (grounding filled in
+    later). The two propagation conditionals (claim-object.md §7) ship HERE, with the code that
+    first emits propagated claims:
+
+      1. derived_from EXEMPTS own-source grounding. A propagated interpretation has no source of
+         its own — its provenance is the parent grounded fact. So when `derived_from` is a present
+         id AND no `source_url` is given, the own-source fields are not required, but the claim
+         MUST be claim_type 'interpretation' (propagation never mints a fact). A claim WITH its own
+         source_url (e.g. a retired claim that kept its evidence and gained a killer-fact link)
+         takes the normal branch and is unaffected.
+      2. status: retired REQUIRES retired_on + derived_from (the killing fact). Retirement is a
+         tracked transition, never a half-built delete.
+    """
+    own_source = ["source_url", "source_tier", "evidence_excerpt"]
+    if require_grounding:
+        own_source = own_source + ["grounding"]
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Scout v2 claim object",
+        "type": "object",
+        "additionalProperties": False,
+        "required": _BASE_REQUIRED,
+        "properties": _PROPERTIES,
+        "allOf": [
+            {
+                "comment": "zone is non-null only inside the battlecard",
+                "if": {"properties": {"section": {"const": "battlecard"}}},
+                "then": {"properties": {"zone": {"enum": ZONES}}},
+                "else": {"properties": {"zone": {"const": None}}},
+            },
+            {
+                "comment": "a fact may not rest on a sentiment-only source",
+                "if": {"properties": {"claim_type": {"const": "fact"}}},
+                "then": {"properties": {"source_tier": {"enum": ["primary", "reputable_secondary"]}}},
+            },
+            {
+                "comment": "derived_from (no own source) exempts own-source grounding but forces "
+                           "claim_type=interpretation; everything else carries its own anchor",
+                "if": {
+                    "required": ["derived_from"],
+                    "properties": {"derived_from": {"type": "string"}},
+                    "not": {"required": ["source_url"]},
+                },
+                "then": {"properties": {"claim_type": {"const": "interpretation"}}},
+                "else": {"required": own_source},
+            },
+            {
+                "comment": "a retired claim records when + why (the killing fact via derived_from)",
+                "if": {"required": ["status"], "properties": {"status": {"const": "retired"}}},
+                "then": {
+                    "required": ["retired_on", "derived_from"],
+                    "properties": {"retired_on": {"type": "string"},
+                                   "derived_from": {"type": "string"}},
+                },
+            },
+        ],
+    }
+
+
+# Persistence contract (what's stored in claims.json): grounding present.
+CLAIM_SCHEMA = _build_claim_schema(require_grounding=True)
 _validator = Draft202012Validator(CLAIM_SCHEMA)
 
 # Pre-grounding shape: the verifier emits everything EXCEPT `grounding`, which the
-# deterministic grounding step fills in (and `id`, which code derives from
-# subject_key). Validate this before spending a fetch on a malformed claim.
-PREGROUNDING_SCHEMA = copy.deepcopy(CLAIM_SCHEMA)
-PREGROUNDING_SCHEMA["required"] = [r for r in CLAIM_SCHEMA["required"] if r != "grounding"]
+# deterministic grounding step fills in (and `id`, which code derives from subject_key).
+# Validate this before spending a fetch on a malformed claim.
+PREGROUNDING_SCHEMA = _build_claim_schema(require_grounding=False)
 _pre_validator = Draft202012Validator(PREGROUNDING_SCHEMA)
 
 

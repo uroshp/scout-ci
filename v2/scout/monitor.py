@@ -31,6 +31,7 @@ from claude_agent_sdk import ClaudeAgentOptions
 from scout import config, shadow, store
 from scout.fetch_tool import FETCH_SERVER, FETCH_TOOL_NAME, reset_log
 from scout.generate import _drive, _extract_json, _build_retry_payload, _run_retry
+from scout.propagate import propagate, apply_ops
 from scout.grounding import CUT_ABSENT, ground_claims, is_excluded_source
 from scout.prompts import WRITING_STYLE
 from scout.render import claims_to_markdown, clean_output, extract_cut_log, format_report
@@ -454,6 +455,30 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     result["material"] = [
         {"subject_key": c["subject_key"], "alert": a} for c, a in material_grounded]
     result["alerts"] = new_alerts
+
+    # PROPAGATION (spec §17): an ACT-grade grounded fact reshapes the rep-facing prose — the step
+    # that makes the card *living*. Runs AFTER the facts are patched into new_claims (so a propagated
+    # play/objection can derive_from a fact now on the card), gated by config.PROPAGATE_MODE:
+    #   off    -> skip entirely (no propose/judge spend)
+    #   shadow -> propose->judge, LOG decisions (training corpus), DO NOT touch the card
+    #   live   -> also apply judge-confirmed add/revise/retire
+    # watch-grade survivors update the feed only; they never reach here (the act-grade gate).
+    act_facts = [c for c, a in material_grounded
+                 if str(a.get("severity", "")).strip().lower() == "act"]
+    if config.PROPAGATE_MODE in ("shadow", "live") and act_facts:
+        today = checked_at[:10]
+        prop = propagate(meta, act_facts, new_claims, slug=slug, source="monitor", persist=write)
+        result["propagation"] = {
+            "mode": config.PROPAGATE_MODE, "act_facts": len(act_facts),
+            "ops": len(prop["ops"]), "confirmed": len(prop["confirmed"]),
+            "no_change": prop["no_change"], "cost": prop["cost_usd"], "applied": []}
+        result["cost"]["propagation"] = sum(v or 0 for v in prop["cost_usd"].values())
+        # SHADOW-FIRST: only "live" mutates the card. "shadow" has captured the decisions above.
+        if write and config.PROPAGATE_MODE == "live" and prop["confirmed"]:
+            ap = apply_ops(new_claims, prop["confirmed"], act_facts, slug, today)
+            new_claims = ap["claims"]
+            result["propagation"]["applied"] = ap["applied"]
+            result["propagation"]["skipped"] = ap["skipped"]
 
     # Shadow-eval observer (v3.5): on a real escalated check, record the champion grounding
     # decisions for offline challenger scoring. No-op unless SCOUT_SHADOW_EVAL=1; never raises.

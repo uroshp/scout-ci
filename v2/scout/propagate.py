@@ -26,7 +26,7 @@ from claude_agent_sdk import ClaudeAgentOptions
 from scout import config, selfserve
 from scout.generate import _drive, _extract_json
 from scout.prompts import WRITING_STYLE
-from scout.schema import ZONES, normalize_subject_key
+from scout.schema import ZONES, claim_id, normalize_subject_key, validation_errors
 
 
 _PROPOSE_SYSTEM = """You are the PROPOSE pass of a living competitive battlecard's PROPAGATION step.
@@ -464,3 +464,135 @@ def propagate(meta: dict, facts: list[dict], claims: list[dict],
         "decisions": records,
         "cost_usd": {"propose": proposed.get("cost_usd"), "judge": judged.get("cost_usd")},
     }
+
+
+# === Step 5: APPLY confirmed ops to the card + the RETIRE-CASCADE ==============================
+#
+# These are PURE, deterministic, model-free transforms on the claim list — the control line takes
+# over once the judge has confirmed (mirrors how generation hands off from the SDK to code). They
+# MATERIALIZE a confirmed op into a real claim object and re-validate it; an op that would produce
+# an invalid claim is dropped, never written. Nothing here calls a model or the network.
+#
+# Lineage is sacred (spec §17): add appends a new derived interpretation; revise edits IN PLACE
+# (same id, re-anchored to the firing fact); retire is a status FLIP that keeps the claim and its
+# text for the lineage view — never a delete.
+
+
+def _next_order(claims: list[dict], section: str, zone) -> int:
+    """Append position: one past the highest order currently in this (section, zone)."""
+    peers = [c.get("order", 0) for c in claims
+             if c.get("section") == section and c.get("zone") == zone
+             and str(c.get("status", "active")) == "active"]
+    return (max(peers) + 1) if peers else 0
+
+
+def _find_active(claims: list[dict], subject_key) -> dict | None:
+    if not subject_key:
+        return None
+    norm = normalize_subject_key(str(subject_key))
+    for c in claims:
+        if str(c.get("status", "active")) != "active":
+            continue
+        if c.get("subject_key") and normalize_subject_key(str(c["subject_key"])) == norm:
+            return c
+    return None
+
+
+# Own-source fields a REVISE strips when it re-anchors a claim to the firing fact: the revised play
+# is now an interpretation derived from the new development, inheriting its provenance via
+# derived_from rather than carrying a URL of its own (claim-object.md §2.3).
+_OWN_SOURCE_FIELDS = ("source_url", "source_tier", "evidence_excerpt", "grounding",
+                      "anchor_substitution", "corroboration")
+
+
+def apply_ops(claims: list[dict], confirmed_ops: list[dict], facts: list[dict],
+              slug: str, today: str) -> dict:
+    """Apply judge-CONFIRMED ops to a copy of `claims`, deterministically. Returns
+    {'claims': new_list, 'applied': [...], 'skipped': [...]}. Each produced/edited claim is
+    re-validated; a malformed result is SKIPPED (logged), never written — apply can only ever
+    add sound claims or leave the card unchanged."""
+    out = [dict(c) for c in claims]                       # shallow-copy each claim; never mutate input
+    facts_by_id = {f.get("id"): f for f in facts if f.get("id")}
+    applied, skipped = [], []
+
+    for op in confirmed_ops:
+        operation = op.get("operation")
+        df = op.get("derived_from")
+        parent = facts_by_id.get(df) or {}
+        as_of = parent.get("as_of") or today
+
+        if operation == "add":
+            sk = op.get("subject_key")
+            new = {
+                "id": claim_id(slug, str(sk)),
+                "subject_key": sk,
+                "claim": op.get("claim"),
+                "claim_type": "interpretation",
+                "section": op.get("section"),
+                "zone": op.get("zone"),
+                "order": _next_order(out, op.get("section"), op.get("zone")),
+                "as_of": as_of,
+                "verified": True,
+                "confidence": "medium",                   # an interpretation, judge-confirmed but not grounded
+                "derived_from": df,
+            }
+            if op.get("persona"):
+                new["persona"] = op["persona"]
+            errs = validation_errors(new)
+            if errs:
+                skipped.append({"op": op, "reason": f"invalid add: {errs[:2]}"})
+                continue
+            out.append(new)
+            applied.append({"operation": "add", "id": new["id"], "subject_key": sk})
+
+        elif operation in ("revise", "retire"):
+            tgt = _find_active(out, op.get("target_subject_key"))
+            if tgt is None:
+                skipped.append({"op": op, "reason": "target not active (already changed?)"})
+                continue
+            before = dict(tgt)
+            if operation == "revise":
+                tgt["claim"] = op.get("claim")
+                tgt["claim_type"] = "interpretation"
+                tgt["derived_from"] = df
+                tgt["as_of"] = as_of
+                for k in _OWN_SOURCE_FIELDS:               # re-anchor to the firing fact's provenance
+                    tgt.pop(k, None)
+            else:  # retire — status flip, keep text + any own source for the lineage view
+                tgt["status"] = "retired"
+                tgt["retired_on"] = today
+                tgt["retired_reason"] = op.get("retired_reason")
+                tgt["derived_from"] = df                   # the killing fact
+            errs = validation_errors(tgt)
+            if errs:                                       # roll back this one claim; never write invalid
+                tgt.clear(); tgt.update(before)
+                skipped.append({"op": op, "reason": f"invalid {operation}: {errs[:2]}"})
+                continue
+            applied.append({"operation": operation, "id": tgt["id"],
+                            "subject_key": tgt["subject_key"]})
+
+    return {"claims": out, "applied": applied, "skipped": skipped}
+
+
+def retire_cascade(claims: list[dict], falsified_fact_ids, today: str) -> dict:
+    """The dependency-edge half of propagation (spec §17): when a grounded fact is FALSIFIED (its
+    value flips, its source is pulled), the interpretations that descend from it just became lies.
+    Walk `derived_from` and retire every ACTIVE claim anchored to a falsified fact. Pure + bounded:
+    it only touches claims whose derived_from is in `falsified_fact_ids`. Returns
+    {'claims': new_list, 'cascaded': [...]}."""
+    falsified = set(falsified_fact_ids or [])
+    out = [dict(c) for c in claims]
+    cascaded = []
+    for c in out:
+        if str(c.get("status", "active")) != "active":
+            continue
+        df = c.get("derived_from")
+        if df and df in falsified:
+            c["status"] = "retired"
+            c["retired_on"] = today
+            c["retired_reason"] = f"invalidated: parent fact {df} was falsified"
+            # derived_from already points at the (now falsified) parent — it IS the killer.
+            if validation_errors(c):
+                continue  # defensive: never leave a half-retired claim (shouldn't happen)
+            cascaded.append({"id": c["id"], "subject_key": c["subject_key"], "derived_from": df})
+    return {"claims": out, "cascaded": cascaded}

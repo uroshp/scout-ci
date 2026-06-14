@@ -61,6 +61,14 @@ PROPOSE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_PROPOSE_MAX_BUDGET_USD", "0
 # model, so it keeps its own (slightly higher) ceiling than propose.
 JUDGE_MAX_TURNS = int(os.environ.get("SCOUT_JUDGE_MAX_TURNS", "6"))
 JUDGE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_JUDGE_MAX_BUDGET_USD", "0.75"))
+# Propagation mode (step 5) — the shadow-first ladder for the AUTHORSHIP judge (spec §17):
+#   "off"    — propagation never runs (no propose/judge spend). DEFAULT.
+#   "shadow" — on each act-grade survivor, run propose->judge and LOG the decisions (the authorship
+#              training corpus), but NEVER mutate the card. Earn autonomy here first.
+#   "live"   — also APPLY judge-confirmed ops (add/revise/retire) to the card.
+# The card is only ever rewritten under "live"; "shadow" is capture-only. Promotion off->shadow->
+# live is count-gated on adjudicated authorship deltas, never calendar.
+PROPAGATE_MODE = os.environ.get("SCOUT_PROPAGATE_MODE", "off").strip().lower()
 
 # --- Grounding (claim-object.md §4) -------------------------------------------
 # Provisional fuzzy threshold (0..1) — to be TUNED from real fetched pages at the
