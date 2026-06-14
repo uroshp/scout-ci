@@ -5,11 +5,56 @@ SAFE BY DEFAULT: send_digest is a no-op (returns the rendered payload without se
 unless RESEND_API_KEY + SCOUT_ALERT_TO are configured AND dry_run is False. So dev/test
 runs and unconfigured environments can never email anyone.
 """
+import smtplib
+from email.message import EmailMessage
+
 import httpx
 
 from scout import config
 
 RESEND_ENDPOINT = "https://api.resend.com/emails"
+
+
+def _dispatch(subject: str, body: str, dry_run: bool = True) -> dict:
+    """Send one owner alert to ALERT_EMAIL_TO, preferring the owner's own Gmail (SMTP + app
+    password — no third-party service) and falling back to Resend. SAFE BY DEFAULT: a no-op (returns
+    a preview) when dry_run is set or nothing is configured; never raises on a config/send path."""
+    to = config.ALERT_EMAIL_TO
+    if dry_run or not to:
+        return {"sent": False, "reason": "dry_run or no recipient (no email sent)",
+                "subject": subject, "to": to, "preview": body}
+
+    guser, gpass = config.GMAIL_USER, (config.GMAIL_APP_PASSWORD or "").replace(" ", "")
+    if guser and gpass:
+        try:
+            msg = EmailMessage()
+            msg["From"], msg["To"], msg["Subject"] = guser, to, subject
+            msg.set_content(body)
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=20) as s:
+                s.login(guser, gpass)
+                s.send_message(msg)
+            return {"sent": True, "via": "gmail", "subject": subject}
+        except Exception as e:
+            return {"sent": False, "via": "gmail", "reason": f"send error: {type(e).__name__}: {e}",
+                    "subject": subject}
+
+    key = config.RESEND_API_KEY
+    if key:
+        try:
+            resp = httpx.post(
+                RESEND_ENDPOINT,
+                headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+                json={"from": config.ALERT_EMAIL_FROM, "to": [to], "subject": subject, "text": body},
+                timeout=20,
+            )
+            return {"sent": resp.status_code < 300, "via": "resend",
+                    "status": resp.status_code, "subject": subject}
+        except Exception as e:
+            return {"sent": False, "via": "resend", "reason": f"send error: {type(e).__name__}",
+                    "subject": subject}
+
+    return {"sent": False, "reason": "no email backend configured (Gmail or Resend)",
+            "subject": subject, "preview": body}
 
 
 def render_digest(competitor: str, alerts: list[dict]) -> tuple[str, str]:
@@ -68,22 +113,7 @@ def send_digest(competitor: str, alerts: list[dict], dry_run: bool = True) -> di
     if not alerts:
         return {"sent": False, "reason": "no material changes"}
     subject, body = render_digest(competitor, alerts)
-    to, key = config.ALERT_EMAIL_TO, config.RESEND_API_KEY
-
-    if dry_run or not key or not to:
-        return {"sent": False, "reason": "dry_run or unconfigured (no email sent)",
-                "subject": subject, "to": to, "preview": body}
-
-    try:
-        resp = httpx.post(
-            RESEND_ENDPOINT,
-            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-            json={"from": config.ALERT_EMAIL_FROM, "to": [to], "subject": subject, "text": body},
-            timeout=20,
-        )
-        return {"sent": resp.status_code < 300, "status": resp.status_code, "subject": subject}
-    except Exception as e:
-        return {"sent": False, "reason": f"send error: {type(e).__name__}", "subject": subject}
+    return _dispatch(subject, body, dry_run=dry_run)
 
 
 def _oneline(text, limit: int = 280) -> str:
@@ -126,17 +156,4 @@ def send_propagation_proposals(slug: str, meta: dict, decisions: list[dict], dry
     if not decisions:
         return {"sent": False, "reason": "no proposals"}
     subject, body = render_propagation_proposals(slug, meta, decisions)
-    to, key = config.ALERT_EMAIL_TO, config.RESEND_API_KEY
-    if dry_run or not key or not to:
-        return {"sent": False, "reason": "dry_run or unconfigured (no email sent)",
-                "subject": subject, "to": to, "preview": body}
-    try:
-        resp = httpx.post(
-            RESEND_ENDPOINT,
-            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-            json={"from": config.ALERT_EMAIL_FROM, "to": [to], "subject": subject, "text": body},
-            timeout=20,
-        )
-        return {"sent": resp.status_code < 300, "status": resp.status_code, "subject": subject}
-    except Exception as e:
-        return {"sent": False, "reason": f"send error: {type(e).__name__}", "subject": subject}
+    return _dispatch(subject, body, dry_run=dry_run)

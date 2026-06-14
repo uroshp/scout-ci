@@ -125,9 +125,14 @@ MONITOR_ANCHORS_UTC = [
 ]
 
 
-# --- Email alerts (transactional API; §5) ------------------------------------
-# Deterministic side-effect in code, NOT an agent tool (control line). Sending is a
-# no-op unless ALL of these are set, so testing/dev can never email anyone.
+# --- Email alerts (§5) -------------------------------------------------------
+# Deterministic side-effect in code, NOT an agent tool (control line). Sending is a no-op unless
+# email is configured, so testing/dev can never email anyone. Two backends, tried in order by
+# notify._dispatch: (1) GMAIL SMTP — the owner's own Google account via an app password, no third-
+# party service; (2) RESEND — a transactional API. Owner alerts (digests + propagation proposals)
+# go to ALERT_EMAIL_TO; Gmail is preferred when its creds are present.
+GMAIL_USER = os.environ.get("SCOUT_GMAIL_USER")              # the sending Gmail address (also the login)
+GMAIL_APP_PASSWORD = os.environ.get("SCOUT_GMAIL_APP_PASSWORD")  # a Google App Password (not the account pw)
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
 ALERT_EMAIL_TO = os.environ.get("SCOUT_ALERT_TO")
 ALERT_EMAIL_FROM = os.environ.get("SCOUT_ALERT_FROM", "Scout <onboarding@resend.dev>")

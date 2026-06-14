@@ -60,6 +60,10 @@ jobs:
           # blocks are wrapped so a failure there can never disrupt the competitor monitor.
           SCOUT_PROPAGATE_MODE: "review"
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Email backend: Gmail SMTP (owner's own account via an app password — no third-party
+          # service) is preferred; Resend is the fallback. Owner alerts go to SCOUT_ALERT_TO.
+          SCOUT_GMAIL_USER: ${{ secrets.SCOUT_GMAIL_USER }}
+          SCOUT_GMAIL_APP_PASSWORD: ${{ secrets.SCOUT_GMAIL_APP_PASSWORD }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           SCOUT_ALERT_TO: ${{ secrets.SCOUT_ALERT_TO }}
           SCOUT_ALERT_FROM: ${{ secrets.SCOUT_ALERT_FROM }}
