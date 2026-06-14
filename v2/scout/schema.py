@@ -27,10 +27,18 @@ def claim_id(slug: str, subject_key: str) -> str:
 
 
 # --- Schema (claim-object.md §2) ---------------------------------------------
+# The RENDERED/GENERATED sections — what generation emits, render iterates, and the viewer shows.
 SECTIONS = [
     "executive_summary", "snapshot", "recent_moves", "positioning",
     "pricing", "battlecard", "sentiment", "objection_handling",
 ]
+# Non-rendered ANCHOR section (propagation §17). Holds grounded my_company facts purely as
+# provenance anchors: a back-foot own-development (e.g. a model pulled) that a propagated objection
+# derives_from. Deliberately NOT in SECTIONS, so it is invisible to render/generation/the viewer
+# (our own news never appears in the competitor feed) yet is a tracked, monitorable claim the
+# retire-cascade can later falsify. The schema accepts it; nothing renders it.
+ANCHOR_SECTION = "tracked_facts"
+ALL_SECTIONS = SECTIONS + [ANCHOR_SECTION]
 ZONES = ["where_we_win", "contested", "where_they_win"]
 SOURCE_TIERS = ["primary", "reputable_secondary", "sentiment_only"]
 # Primary buyer persona a play is aimed at / that tends to raise an objection. Optional, and
@@ -52,7 +60,7 @@ _PROPERTIES = {
         "subject_key": {"type": "string", "minLength": 1},
         "claim": {"type": "string", "minLength": 1},
         "claim_type": {"enum": ["fact", "interpretation", "sentiment"]},
-        "section": {"enum": SECTIONS},
+        "section": {"enum": ALL_SECTIONS},
         "zone": {"enum": ZONES + [None]},
         "order": {"type": "integer", "minimum": 0},
         "source_url": {"type": "string", "format": "uri"},

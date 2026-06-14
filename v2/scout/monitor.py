@@ -35,7 +35,7 @@ from scout.propagate import propagate, apply_ops
 from scout.grounding import CUT_ABSENT, ground_claims, is_excluded_source
 from scout.prompts import WRITING_STYLE
 from scout.render import claims_to_markdown, clean_output, extract_cut_log, format_report
-from scout.schema import SOURCE_TIERS, claim_id, pregrounding_errors, validation_errors
+from scout.schema import ANCHOR_SECTION, SOURCE_TIERS, claim_id, pregrounding_errors, validation_errors
 
 # Source-tier preference order for multi-source grounding (best first): a primary filing /
 # company release beats reputable secondary reporting, which beats sentiment-only.
@@ -328,6 +328,163 @@ def _apply_updates(claims, material_grounded, alerted_fingerprints):
     return list(by_id.values()), new_alerts
 
 
+# --- my_company arm: ground OUR OWN developments into tracked_facts anchors (propagation §17) ---
+_MY_FACTS_SYSTEM = f"""You GROUND our own company's (my_company's) recent developments into tracked
+FACTS for a living competitive battlecard. Triage flagged candidate developments about US — our side,
+NOT the competitor. For each, decide if it is genuinely MATERIAL, then emit a GROUNDED FACT describing
+the development exactly as the source states it. You do NOT write objections or plays; downstream
+propagation turns these facts into rep-facing prose. The section is ALWAYS "{ANCHOR_SECTION}".
+
+FACTS ONLY, CONSEQUENCE-COMPLETE — the cardinal rule. Ground what the SOURCE actually states,
+INCLUDING the full consequence the announcement itself reports. If our company announced it paused or
+pulled a product for ALL users, ground "paused for all users" when the announcement says so — do NOT
+shrink it to the narrower trigger (e.g. a government order's "foreign nationals" wording) when our own
+announcement states a broader pull. EQUALLY, never INFER a broader consequence the source does not
+state: read our company's actual announcement and ground exactly what it says, no more, no less. An
+ungrounded downstream consequence is left for a later pass to ground, never bridged by speculation.
+
+For each MATERIAL development use fetch_page to READ the source, then emit the fact as a claim object
+(subject_key, claim, claim_type:"fact", section:"{ANCHOR_SECTION}", zone:null, order, source_url,
+source_tier [primary|reputable_secondary], evidence_excerpt [VERBATIM from fetch_page], as_of, confidence)
+plus an alert. REUSE an existing subject_key if this updates a tracked development in place.
+
+MULTI-SOURCE (so the fact survives grounding): find every credible source, RANK by tier (primary —
+our 8-K / press release / blog announcement, a court/government document — outranks reputable_secondary
+news), DISCARD wiki/encyclopedia/SEO/sentiment sources, and emit the top 2-3 HIGHEST-TIER-FIRST as a
+"candidate_sources" array, each {{source_url, source_tier, evidence_excerpt}}. Set the top-level
+source_url/source_tier/evidence_excerpt to candidate #1. Every excerpt copied VERBATIM, character-for-
+character, SHORT (<=160 chars), from the real fetched page — never paraphrased, never from memory.
+
+severity: "act" when this changes what reps SAY or DO in live deals NOW (our product pulled or
+restricted, our outage, our price hike, our security incident, a major customer loss); "watch" for
+material context that changes no rep behavior yet.
+
+Return ONLY a single fenced ```json block:
+{{"facts": [ {{"claim": {{ ...claim object incl. candidate_sources... }},
+              "alert": {{"old_value": "<prior or null>", "new_value": "<now>", "headline": "<one line>",
+                        "so_what": "<the decision it changes>", "severity": "act|watch"}} }} ],
+ "immaterial": [ {{"signal": "<...>", "why_not": "<...>"}} ]}}"""
+
+
+async def _run_my_facts(meta, since, candidates, claims):
+    comp, me = meta.get("competitor"), meta.get("my_company")
+    user = (f"We are {me} (competing against {comp}).\nOUR developments SINCE {since}.\n\n"
+            "TRACKED SUBJECTS (subject_key — current value):\n" + _tracked_digest(claims) +
+            "\n\nCANDIDATE OWN-SIDE SIGNALS FROM TRIAGE:\n" + json.dumps(candidates, ensure_ascii=False))
+    options = ClaudeAgentOptions(
+        model=config.ORCHESTRATOR_MODEL,
+        system_prompt={"type": "preset", "preset": "claude_code",
+                       "append": _MY_FACTS_SYSTEM + "\n\n" + WRITING_STYLE},
+        mcp_servers={"scoutfetch": FETCH_SERVER},
+        allowed_tools=["WebSearch", FETCH_TOOL_NAME],
+        disallowed_tools=["WebFetch"],
+        permission_mode="bypassPermissions",
+        max_turns=config.MAX_TURNS,
+        max_budget_usd=config.MAX_BUDGET_USD,
+    )
+    return await _drive(user, options, "my_facts")
+
+
+def _my_company_facts(slug, meta, since, my_substantial, claims):
+    """Ground our own (my_company) substantial signals into tracked_facts anchor facts. Returns
+    {'grounded': [(fact, alert), ...], 'cost': float}. SECTION is forced to the anchor section in
+    code so a prompt slip can't file our news into a rendered section. Mirrors the competitor
+    materiality+grounding path (multi-source, verbatim excerpt, _ground_best) but emits FACTS only —
+    propagation authors the rep-facing prose."""
+    mat = asyncio.run(_run_my_facts(meta, since, my_substantial, claims))
+    try:
+        mdata = _extract_json(mat["text"])
+    except Exception:
+        mdata = {"facts": []}
+    alert_by_id, to_ground = {}, []
+    for m in (mdata.get("facts") or []):
+        c = m.get("claim")
+        if not isinstance(c, dict) or "subject_key" not in c:
+            continue
+        c["section"], c["zone"] = ANCHOR_SECTION, None      # force the anchor home in code
+        c["claim_type"] = "fact"
+        c["id"] = claim_id(slug, str(c["subject_key"]))
+        c["verified"] = True
+        cand = _candidate_variants(c)
+        if cand and not c.get("source_url"):
+            c.update(source_url=cand[0]["source_url"], source_tier=cand[0]["source_tier"],
+                     evidence_excerpt=cand[0]["evidence_excerpt"])
+        if pregrounding_errors({k: v for k, v in c.items() if k != "candidate_sources"}):
+            continue
+        alert_by_id[c["id"]] = m.get("alert", {})
+        to_ground.append(c)
+    grounded = _ground_best(to_ground)
+    kept = [c for c in grounded["kept"] if not validation_errors(c)]
+    pairs, seen = [], set()
+    for c in kept:
+        if c["id"] in seen or c["id"] not in alert_by_id:
+            continue
+        seen.add(c["id"])
+        pairs.append((c, alert_by_id[c["id"]]))
+    return {"grounded": pairs, "cost": mat.get("cost_usd")}
+
+
+def _is_act(alert: dict) -> bool:
+    return str(alert.get("severity", "")).strip().lower() == "act"
+
+
+def _competitor_arm(slug, meta, since, substantial, claims, result):
+    """Competitor materiality (Opus) -> tier-ranked MULTI-SOURCE grounding -> bounded feedback
+    retry -> material_grounded. Logic is UNCHANGED from the pre-my_company flow; extracted verbatim
+    so check() can run it conditionally now that the my_company arm can fire on its own. Returns
+    (material_grounded, grounded)."""
+    mat = asyncio.run(_run_materiality(meta, since, substantial, claims))
+    result["cost"]["materiality"] = mat.get("cost_usd")
+    try:
+        mdata = _extract_json(mat["text"])
+    except Exception:
+        mdata = {"material": []}
+    alert_by_id, to_ground = {}, []
+    for m in (mdata.get("material") or []):
+        c = m.get("claim")
+        if not isinstance(c, dict) or "subject_key" not in c:
+            continue
+        c["id"] = claim_id(slug, str(c["subject_key"]))
+        c["verified"] = True
+        cand = _candidate_variants(c)
+        if cand and not c.get("source_url"):
+            c.update(source_url=cand[0]["source_url"], source_tier=cand[0]["source_tier"],
+                     evidence_excerpt=cand[0]["evidence_excerpt"])
+        if pregrounding_errors({k: v for k, v in c.items() if k != "candidate_sources"}):
+            continue
+        alert_by_id[c["id"]] = m.get("alert", {})
+        to_ground.append(c)
+
+    grounded = _ground_best(to_ground)
+    kept = [c for c in grounded["kept"] if not validation_errors(c)]
+    failed = grounded.get("failed", [])
+    if failed:
+        rr = asyncio.run(_run_retry(_build_retry_payload(failed)))
+        result["cost"]["materiality"] = (result["cost"]["materiality"] or 0) + (rr.get("cost_usd") or 0)
+        try:
+            rdata = _extract_json(rr["text"])
+        except Exception:
+            rdata = {"revised": []}
+        revised = []
+        for c in rdata.get("revised", []):
+            if not isinstance(c, dict) or "subject_key" not in c:
+                continue
+            c["id"] = claim_id(slug, str(c["subject_key"]))
+            c["verified"] = True
+            if not pregrounding_errors({k: v for k, v in c.items() if k != "candidate_sources"}):
+                revised.append(c)
+        reground = _ground_best(revised) if revised else {"kept": []}
+        kept += [c for c in reground["kept"] if not validation_errors(c)]
+
+    seen_ids, material_grounded = set(), []
+    for c in kept:
+        if c["id"] in seen_ids or c["id"] not in alert_by_id:
+            continue
+        seen_ids.add(c["id"])
+        material_grounded.append((c, alert_by_id[c["id"]]))
+    return material_grounded, grounded
+
+
 def check(slug: str, write: bool = False, since_override: str | None = None) -> dict:
     """One monitoring check. write=False measures without mutating the store (for cost runs).
     since_override forces the detection window (e.g. an old date to simulate a stale baseline)."""
@@ -364,20 +521,25 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     substantial = [c for c in comp_candidates if c.get("substantial") is True]
     my_company_signals = [c for c in candidates if _is_mine(c)]
 
+    my_substantial = [c for c in my_company_signals if c.get("substantial") is True]
+    # The my_company arm is PART of propagation (spec §17): it runs only when propagation is enabled.
+    # With PROPAGATE_MODE=off (the default, and production today) do_my is always False, the arm is
+    # dead, and everything below is byte-identical to the competitor-only flow.
+    do_my = config.PROPAGATE_MODE in ("shadow", "live") and bool(my_substantial)
+
     result = {
-        "slug": slug, "since": since, "no_change": not substantial,
+        "slug": slug, "since": since, "no_change": not substantial and not my_substantial,
         "candidates": len(candidates), "substantial": len(substantial),
         "minor_skipped": len(comp_candidates) - len(substantial),
-        "my_company_signals": my_company_signals,
+        "my_company_signals": my_company_signals, "my_substantial": len(my_substantial),
         "material": [], "alerts": [],
         "cost": {"triage": triage.get("cost_usd"), "materiality": 0.0},
         "last_checked": checked_at,
     }
 
-    if not substantial:
-        # Quiet OR minor-only window: triage-only, cheap. Advance last_checked and stop —
-        # the Opus materiality stage never runs. Clear any held detection window: nothing
-        # substantial is surfacing anymore, so there's nothing left to keep re-scanning for.
+    if not substantial and not do_my:
+        # Quiet / minor-only window (neither arm has act-able work): triage-only, cheap. Advance
+        # last_checked and stop. Clear any held detection window — nothing substantial remains.
         if write:
             meta["last_checked"] = checked_at
             meta.pop("unresolved_since", None)
@@ -385,86 +547,41 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
             store.write_baseline(slug, claims, meta, _current_md(slug))
         return result
 
-    # Stage 2: materiality (Opus) on the SUBSTANTIAL candidates only
-    mat = asyncio.run(_run_materiality(meta, since, substantial, claims))
-    result["cost"]["materiality"] = mat.get("cost_usd")
-    try:
-        mdata = _extract_json(mat["text"])
-    except Exception:
-        mdata = {"material": []}
-
-    # Validate, then ground via tier-ranked MULTI-SOURCE (lever 4). candidate_sources is a
-    # TRANSIENT field the judge adds for grounding (not in the claim schema): strip it for the
-    # pre-grounding shape check, but keep it on the claim so _ground_best can try each source.
-    alert_by_id, to_ground = {}, []
-    for m in (mdata.get("material") or []):
-        c = m.get("claim")
-        if not isinstance(c, dict) or "subject_key" not in c:
-            continue
-        c["id"] = claim_id(slug, str(c["subject_key"]))
-        c["verified"] = True
-        # If the judge filled only candidate_sources, seed the top-level anchor from the best one.
-        cand = _candidate_variants(c)
-        if cand and not c.get("source_url"):
-            c.update(source_url=cand[0]["source_url"], source_tier=cand[0]["source_tier"],
-                     evidence_excerpt=cand[0]["evidence_excerpt"])
-        if pregrounding_errors({k: v for k, v in c.items() if k != "candidate_sources"}):
-            continue
-        alert_by_id[c["id"]] = m.get("alert", {})
-        to_ground.append(c)
-
-    grounded = _ground_best(to_ground)
-    kept = [c for c in grounded["kept"] if not validation_errors(c)]
-
-    # FEEDBACK RETRY (lever 1, ported from generate.generate): a claim only reaches `failed`
-    # when ALL its tier-ranked sources failed to ground. Send those back to the repair agent
-    # with the REAL page text + failure reason — it re-extracts a verbatim excerpt or re-sources
-    # to a fetchable AGREEING outlet — then re-ground. This is what stops true claims (an IPO,
-    # an exec change) from dropping on a single excerpt-drift or paywalled fetch. (Bounded: one
-    # round, Sonnet, capped turns/budget — see generate._run_retry.)
-    failed = grounded.get("failed", [])
-    if failed:
-        rr = asyncio.run(_run_retry(_build_retry_payload(failed)))
-        result["cost"]["materiality"] = (result["cost"]["materiality"] or 0) + (rr.get("cost_usd") or 0)
-        try:
-            rdata = _extract_json(rr["text"])
-        except Exception:
-            rdata = {"revised": []}
-        revised = []
-        for c in rdata.get("revised", []):
-            if not isinstance(c, dict) or "subject_key" not in c:
-                continue
-            c["id"] = claim_id(slug, str(c["subject_key"]))
-            c["verified"] = True
-            if not pregrounding_errors({k: v for k, v in c.items() if k != "candidate_sources"}):
-                revised.append(c)
-        reground = _ground_best(revised) if revised else {"kept": []}
-        kept += [c for c in reground["kept"] if not validation_errors(c)]
-
-    # Dedup by id (an original keep and a retry recovery can't both win) and remap to alerts.
-    seen_ids, material_grounded = set(), []
-    for c in kept:
-        if c["id"] in seen_ids or c["id"] not in alert_by_id:
-            continue
-        seen_ids.add(c["id"])
-        material_grounded.append((c, alert_by_id[c["id"]]))
-
+    # COMPETITOR ARM: Opus materiality -> multi-source grounding -> bounded retry. Runs only when
+    # competitor signals are substantial; otherwise the my_company arm is why we escalated.
+    if substantial:
+        material_grounded, grounded = _competitor_arm(slug, meta, since, substantial, claims, result)
+    else:
+        material_grounded, grounded = [], {"kept": [], "cut": [], "results": []}
     new_claims, new_alerts = _apply_updates(
         claims, material_grounded, meta.get("alerted_fingerprints", []))
-
     result["material"] = [
         {"subject_key": c["subject_key"], "alert": a} for c, a in material_grounded]
+
+    # MY_COMPANY ARM (propagation §17): ground OUR developments into tracked_facts anchors. In LIVE,
+    # persist the anchors (non-rendered) + alert, so the derived objections resolve their source and
+    # the retire-cascade can track them; in SHADOW, in-memory only — the decision log is the record.
+    my_grounded = []
+    if do_my:
+        myf = _my_company_facts(slug, meta, since, my_substantial, claims)
+        result["cost"]["my_company"] = myf["cost"]
+        my_grounded = myf["grounded"]
+        result["my_company_facts"] = [
+            {"subject_key": f["subject_key"], "alert": a} for f, a in my_grounded]
+        if write and config.PROPAGATE_MODE == "live" and my_grounded:
+            new_claims, my_alerts = _apply_updates(
+                new_claims, my_grounded, meta.get("alerted_fingerprints", []))
+            new_alerts = new_alerts + my_alerts
+
     result["alerts"] = new_alerts
 
     # PROPAGATION (spec §17): an ACT-grade grounded fact reshapes the rep-facing prose — the step
-    # that makes the card *living*. Runs AFTER the facts are patched into new_claims (so a propagated
-    # play/objection can derive_from a fact now on the card), gated by config.PROPAGATE_MODE:
-    #   off    -> skip entirely (no propose/judge spend)
-    #   shadow -> propose->judge, LOG decisions (training corpus), DO NOT touch the card
-    #   live   -> also apply judge-confirmed add/revise/retire
-    # watch-grade survivors update the feed only; they never reach here (the act-grade gate).
-    act_facts = [c for c, a in material_grounded
-                 if str(a.get("severity", "")).strip().lower() == "act"]
+    # that makes the card *living*. Runs AFTER facts are patched into new_claims (so a propagated
+    # play/objection can derive_from a fact now on the card), on act-grade survivors from BOTH arms.
+    # config.PROPAGATE_MODE: off -> skip; shadow -> propose->judge + LOG decisions, no card change;
+    # live -> also apply judge-confirmed add/revise/retire. watch-grade never reaches here.
+    act_facts = ([c for c, a in material_grounded if _is_act(a)]
+                 + [f for f, a in my_grounded if _is_act(a)])
     if config.PROPAGATE_MODE in ("shadow", "live") and act_facts:
         today = checked_at[:10]
         prop = propagate(meta, act_facts, new_claims, slug=slug, source="monitor", persist=write)
@@ -502,11 +619,11 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
         current_md = format_report(clean_output(body))
         store.write_baseline(slug, new_claims, meta, current_md)
         _append_alerts(slug, new_alerts)
-    elif write:
-        # Substantial development detected, but NOTHING survived grounding+retry. Do NOT lose it:
-        # always advance last_checked (keeps the due-gate honest / no same-window storm), but HOLD
-        # the detection window open at `since` so the next check re-attempts it — bounded, so a
-        # genuinely ungroundable item can't make us re-escalate the Opus judge forever.
+    elif write and substantial:
+        # COMPETITOR substantial development detected, but NOTHING survived grounding+retry. Do NOT
+        # lose it: always advance last_checked (keeps the due-gate honest / no same-window storm),
+        # but HOLD the detection window open at `since` so the next check re-attempts it — bounded,
+        # so a genuinely ungroundable item can't make us re-escalate the Opus judge forever.
         meta["last_checked"] = checked_at
         attempts = (meta.get("unresolved_attempts") or 0) + 1
         if attempts < config.MONITOR_MAX_UNRESOLVED_RETRIES:
@@ -518,6 +635,11 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
             meta.pop("unresolved_since", None)
             meta.pop("unresolved_attempts", None)
             result["abandoned_substantial"] = [c.get("signal") for c in substantial]
+        store.write_baseline(slug, claims, meta, _current_md(slug))
+    elif write:
+        # Escalated for the my_company arm only (SHADOW grounds + proposes but writes no card change,
+        # or LIVE produced no new alert). No competitor window to hold open: just advance the gate.
+        meta["last_checked"] = checked_at
         store.write_baseline(slug, claims, meta, _current_md(slug))
     return result
 
