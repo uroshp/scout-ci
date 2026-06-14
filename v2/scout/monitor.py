@@ -588,7 +588,8 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
         result["propagation"] = {
             "mode": config.PROPAGATE_MODE, "act_facts": len(act_facts),
             "ops": len(prop["ops"]), "confirmed": len(prop["confirmed"]),
-            "no_change": prop["no_change"], "cost": prop["cost_usd"], "applied": []}
+            "no_change": prop["no_change"], "decisions": prop["decisions"],
+            "cost": prop["cost_usd"], "applied": []}
         result["cost"]["propagation"] = sum(v or 0 for v in prop["cost_usd"].values())
         # SHADOW-FIRST: only "live" mutates the card. "shadow" has captured the decisions above.
         if write and config.PROPAGATE_MODE == "live" and prop["confirmed"]:
