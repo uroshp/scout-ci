@@ -274,6 +274,17 @@ def write_data(path: str, text: str, message: str) -> None:
     _write(path, text, message)
 
 
+def read_data(path: str) -> str | None:
+    """Public backend-aware read from the DATA store (None if absent). Mirror of write_data for
+    readers like scout/adjudicate.py that consume what shadow/propagation captured."""
+    return _read(path)
+
+
+def list_data(path: str) -> list[str]:
+    """Public backend-aware directory listing in the DATA store ([] if absent)."""
+    return _listdir(path)
+
+
 def get_request(job_id: str) -> dict | None:
     """Return the queued request record for a job, or None if it never existed. Lets the
     app tell 'still generating' apart from a mistyped/bogus ?job= link."""
