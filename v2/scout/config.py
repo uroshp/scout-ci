@@ -56,6 +56,11 @@ TRIAGE_MAX_SEARCHES = int(os.environ.get("SCOUT_TRIAGE_MAX_SEARCHES", "5"))
 # is short and cheap. Tight caps keep it bounded; it never searches or fetches.
 PROPOSE_MAX_TURNS = int(os.environ.get("SCOUT_PROPOSE_MAX_TURNS", "6"))
 PROPOSE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_PROPOSE_MAX_BUDGET_USD", "0.50"))
+# Judge pass (propagation step 4): tools-off Opus adversarially confirming/rejecting the proposer's
+# ops against the same grounded facts. Also short — it reasons, never searches — but on the pricier
+# model, so it keeps its own (slightly higher) ceiling than propose.
+JUDGE_MAX_TURNS = int(os.environ.get("SCOUT_JUDGE_MAX_TURNS", "6"))
+JUDGE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_JUDGE_MAX_BUDGET_USD", "0.75"))
 
 # --- Grounding (claim-object.md §4) -------------------------------------------
 # Provisional fuzzy threshold (0..1) — to be TUNED from real fetched pages at the
