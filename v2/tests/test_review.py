@@ -76,5 +76,23 @@ class ProposalEmail(unittest.TestCase):
         self.assertFalse(out["sent"])                       # dry_run default -> never emails in tests
 
 
+class Dispatch(unittest.TestCase):
+    def test_prefers_gmail_and_strips_app_password_spaces(self):
+        with mock.patch.object(notify.config, "ALERT_EMAIL_TO", "me@example.com"), \
+             mock.patch.object(notify.config, "GMAIL_USER", "me@gmail.com"), \
+             mock.patch.object(notify.config, "GMAIL_APP_PASSWORD", "abcd efgh ijkl mnop"), \
+             mock.patch("scout.notify.smtplib.SMTP_SSL") as smtp:
+            out = notify._dispatch("subj", "body", dry_run=False)
+        self.assertTrue(out["sent"])
+        self.assertEqual(out["via"], "gmail")
+        session = smtp.return_value.__enter__.return_value
+        session.login.assert_called_once_with("me@gmail.com", "abcdefghijklmnop")  # spaces stripped
+        session.send_message.assert_called_once()
+
+    def test_dry_run_default_never_sends(self):
+        out = notify._dispatch("s", "b")
+        self.assertFalse(out["sent"])
+
+
 if __name__ == "__main__":
     unittest.main()
