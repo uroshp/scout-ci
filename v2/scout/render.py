@@ -101,8 +101,23 @@ def _source_label(url: str) -> str:
     return netloc or url
 
 
-def _source_link(c: dict) -> str:
-    return f"([{_source_label(c['source_url'])}]({c['source_url']}))"
+def _resolve_source_url(c: dict, by_id: dict | None) -> str | None:
+    """The URL to link for a claim. An ordinary claim carries its own `source_url`. A PROPAGATED
+    interpretation has none — its provenance is the grounded fact it descends from, so follow
+    `derived_from` to that parent and borrow its source (claim-object.md §2.3)."""
+    if c.get("source_url"):
+        return c["source_url"]
+    df = c.get("derived_from")
+    if df and by_id:
+        parent = by_id.get(df)
+        if parent and parent.get("source_url"):
+            return parent["source_url"]
+    return None
+
+
+def _source_link(c: dict, by_id: dict | None = None) -> str:
+    url = _resolve_source_url(c, by_id)
+    return f"([{_source_label(url)}]({url}))" if url else ""
 
 
 def _zone_title(zone: str, my_company: str | None, competitor: str | None) -> str:
@@ -121,11 +136,11 @@ def _zone_title(zone: str, my_company: str | None, competitor: str | None) -> st
 BLOCK_SECTIONS = {"executive_summary", "objection_handling"}
 
 
-def _render_block(c):
+def _render_block(c, by_id=None):
     """A claim authored as a prose block: emit it verbatim with its grounded
     source link appended. Mirrors how the executive summary has always rendered;
     the orchestrator writes the title/paragraph/soundbite structure into `claim`."""
-    return f"{c['claim'].strip()} {_source_link(c)}"
+    return f"{c['claim'].strip()} {_source_link(c, by_id)}".rstrip()
 
 
 def _ordered(section, items):
@@ -148,8 +163,14 @@ def claims_to_markdown(claims, title, my_company=None, competitor=None):
     NOTE: corroboration is intentionally NOT rendered in the body — only the
     grounded anchor source appears, per the claim-object.md §2.1 render rule.
     """
+    # Resolve a propagated claim's inherited source against EVERY claim (incl. retired + facts in
+    # other sections), then render only the ACTIVE card — retired claims live in the lineage view,
+    # never on the active card (claim-object.md §2.3).
+    by_id = {c["id"]: c for c in claims if c.get("id")}
+    active = [c for c in claims if str(c.get("status", "active")) == "active"]
+
     by_section = {}
-    for c in claims:
+    for c in active:
         by_section.setdefault(c["section"], []).append(c)
 
     lines = [title.rstrip(), ""]
@@ -171,13 +192,13 @@ def claims_to_markdown(claims, title, my_company=None, competitor=None):
                 # Each zone entry is a prose block (title/paragraph/soundbite),
                 # not a bullet — the v1-readable battlecard format.
                 for c in sorted(z, key=lambda c: c["order"]):
-                    lines += [_render_block(c), ""]
+                    lines += [_render_block(c, by_id), ""]
         elif section in BLOCK_SECTIONS:
             for c in _ordered(section, items):
-                lines += [_render_block(c), ""]
+                lines += [_render_block(c, by_id), ""]
         else:
             for c in _ordered(section, items):
-                lines.append(f"- {c['claim'].strip()} {_source_link(c)}")
+                lines.append(f"- {c['claim'].strip()} {_source_link(c, by_id)}".rstrip())
             lines.append("")
 
     return "\n".join(lines).rstrip() + "\n"
