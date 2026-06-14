@@ -116,38 +116,45 @@ def send_digest(competitor: str, alerts: list[dict], dry_run: bool = True) -> di
     return _dispatch(subject, body, dry_run=dry_run)
 
 
-def _oneline(text, limit: int = 280) -> str:
-    s = " ".join(str(text or "").split())
-    return (s[:limit] + "…") if len(s) > limit else s
+def _block(text) -> str:
+    """Full claim prose, indented, with its line breaks preserved — NEVER truncated. The human
+    needs the WHOLE thing to assess a proposed edit."""
+    return "\n".join(("  " + ln).rstrip() for ln in str(text or "").strip().splitlines())
+
+
+def _flat(text) -> str:
+    return " ".join(str(text or "").split())
 
 
 def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict]) -> tuple[str, str]:
     """Subject + body for the REVIEW-mode approval email: each judge-confirmed proposal with where
-    (card + section), what (op), how it looks (old→new prose), and the judge's reasoning. The card
-    is untouched; these await the human's approval."""
+    (card + section), what (op), how it looks (the FULL old→new prose, never truncated), and the
+    judge's reasoning, spaced for reading. The card is untouched; these await the human's approval."""
     me, comp = meta.get("my_company"), meta.get("competitor")
     card = f"{me} vs {comp}" if me else (comp or slug)
     n = len(decisions)
+    rule = "─" * 48
     subject = f"Scout: {n} proposed card update{'s' if n != 1 else ''} awaiting approval — {card}"
-    lines = [f"Propagation proposed {n} rep-facing change{'s' if n != 1 else ''} for {card}.",
-             "The card is UNCHANGED — these need your approval before they go live.", ""]
+    out = [f"Propagation proposed {n} rep-facing change{'s' if n != 1 else ''} for {card}.",
+           "The card is UNCHANGED — these need your approval before they go live.", "", rule]
     for d in decisions:
         op = str(d.get("operation", "")).upper()
         zone = f" / {d.get('zone')}" if d.get("zone") else ""
-        lines.append(f"• {op} in {d.get('section', '')}{zone}  ({d.get('subject_key')})")
+        out += ["", f"{op} in {d.get('section', '')}{zone}", f"({d.get('subject_key')})"]
         if d.get("old_text"):
-            lines.append(f"    OLD: {_oneline(d['old_text'])}")
+            out += ["", "WAS:", _block(d["old_text"])]
         if d.get("operation") != "retire":
-            lines.append(f"    NEW: {_oneline(d.get('new_text'))}")
+            out += ["", "NEW:", _block(d.get("new_text"))]
         if d.get("judge_reason"):
-            lines.append(f"    Judge: {_oneline(d['judge_reason'])}")
+            out += ["", f"Judge: {_flat(d['judge_reason'])}"]
         if d.get("trigger_source_url"):
-            lines.append(f"    From: {d['trigger_source_url']}")
-        lines.append("")
-    lines.append('To apply any of these, tell Claude in a session — e.g. '
-                 f'"approve the {decisions[0].get("section", "objection")} update on {card}".')
-    lines.append("— Scout (proposed by the authorship judge; awaiting your approval)")
-    return subject, "\n".join(lines)
+            out += ["", f"From: {d['trigger_source_url']}"]
+        out += ["", rule]
+    out += ["",
+            f'To apply, tell Claude in a session — e.g. "approve the '
+            f'{decisions[0].get("section", "objection")} update on {card}".',
+            "— Scout (proposed by the authorship judge; awaiting your approval)"]
+    return subject, "\n".join(out)
 
 
 def send_propagation_proposals(slug: str, meta: dict, decisions: list[dict], dry_run: bool = True) -> dict:
