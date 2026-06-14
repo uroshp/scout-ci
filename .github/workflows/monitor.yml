@@ -50,6 +50,15 @@ jobs:
         id: monitor
         env:
           SCOUT_MONITOR_LIVE: "1"
+          # Propagation (spec §17) in SHADOW: on an act-grade grounded development (ours or the
+          # competitor's), run propose->judge and LOG the authorship decisions to the PRIVATE data
+          # repo (read with `python -m scout.adjudicate`). Shadow NEVER alerts on our own news or
+          # reshapes a card — the rep-facing card is untouched; only the decision log is written.
+          # Promote to "live" only after the authorship judge earns it on adjudicated deltas. Cost is
+          # bounded + rare: ~$0.25 propose/judge per act-grade event, plus ~$0.5-1 my_company
+          # grounding on an act-grade OWN development. The my_company + propagation blocks are wrapped
+          # so a failure there can never disrupt the competitor monitor (scout/monitor.py).
+          SCOUT_PROPAGATE_MODE: "shadow"
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           SCOUT_ALERT_TO: ${{ secrets.SCOUT_ALERT_TO }}
