@@ -431,16 +431,21 @@ def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
     return records
 
 
-def log_decisions(slug: str, records: list, source: str = "monitor") -> list:
+def log_decisions(slug: str, records: list, source: str = "monitor", facts: list = None) -> list:
     """Persist the propagation decision log to the PRIVATE data store, mirroring shadow.capture's
     non-disruption contract: wrapped so it can only ever WARN, never raise into the live monitor
     path. Returns the records regardless, so a caller or test can inspect them even when no backend
-    is configured (the local-FS fallback still writes; an offline test passes persist=False)."""
+    is configured (the local-FS fallback still writes; an offline test passes persist=False).
+
+    `facts` are the FULL grounded act-fact claim dicts the ops derive from — stored alongside so a
+    later out-of-band approval (scout/review.py) can apply a proposal self-contained (it needs the
+    my_company tracked_facts anchor, which shadow/review never persisted to the card)."""
     try:
         now = datetime.now()
         stamp = now.strftime("%Y%m%dT%H%M%S")
         payload = {"schema_version": SCHEMA_VERSION, "slug": slug, "source": source,
-                   "run_ts": now.isoformat(timespec="seconds"), "decisions": records}
+                   "run_ts": now.isoformat(timespec="seconds"), "decisions": records,
+                   "facts": facts or []}
         selfserve.write_data(
             f"{PROP_DIR}/{slug}/{stamp}.json",
             json.dumps(payload, indent=2, default=str, ensure_ascii=False),
@@ -478,7 +483,7 @@ def propagate(meta: dict, facts: list[dict], claims: list[dict],
                  if not floor_results[i] and (verdicts.get(i) or {}).get("verdict") == "confirm"]
 
     if persist and slug:
-        log_decisions(slug, records, source=source)
+        log_decisions(slug, records, source=source, facts=facts)
 
     return {
         "ops": ops,

@@ -526,7 +526,7 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     # The my_company arm is PART of propagation (spec §17): it runs only when propagation is enabled.
     # With PROPAGATE_MODE=off (the default, and production today) do_my is always False, the arm is
     # dead, and everything below is byte-identical to the competitor-only flow.
-    do_my = config.PROPAGATE_MODE in ("shadow", "live") and bool(my_substantial)
+    do_my = config.PROPAGATE_MODE in ("shadow", "review", "live") and bool(my_substantial)
 
     result = {
         "slug": slug, "since": since, "no_change": not substantial and not my_substantial,
@@ -588,7 +588,7 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     # live -> also apply judge-confirmed add/revise/retire. watch-grade never reaches here.
     act_facts = ([c for c, a in material_grounded if _is_act(a)]
                  + [f for f, a in my_grounded if _is_act(a)])
-    if config.PROPAGATE_MODE in ("shadow", "live") and act_facts:
+    if config.PROPAGATE_MODE in ("shadow", "review", "live") and act_facts:
         try:
             today = checked_at[:10]
             prop = propagate(meta, act_facts, new_claims, slug=slug, source="monitor", persist=write)
@@ -762,16 +762,25 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
                 # non-zero when any card errored, so the Actions run still notifies.
                 summary.append({"slug": slug, "error": f"{type(e).__name__}: {e}"})
                 continue
-        emailed = None
-        if send and res["alerts"]:
+        emailed = prop_emailed = None
+        if send:
             meta = store.load_meta(slug) or {}
-            emailed = notify.send_digest(meta.get("competitor"), res["alerts"], dry_run=email_dry_run)
+            if res["alerts"]:
+                emailed = notify.send_digest(meta.get("competitor"), res["alerts"], dry_run=email_dry_run)
+            # REVIEW/LIVE: email each judge-confirmed propagation proposal awaiting approval. In
+            # review the card is untouched (human approves in-session); in live it's already applied.
+            prop = res.get("propagation")
+            if prop and config.PROPAGATE_MODE in ("review", "live"):
+                confirmed = [d for d in prop.get("decisions", []) if d.get("judge_verdict") == "confirm"]
+                if confirmed:
+                    prop_emailed = notify.send_propagation_proposals(
+                        slug, meta, confirmed, dry_run=email_dry_run)
         cost = res["cost"]
         summary.append({
             "slug": slug, "no_change": res["no_change"], "material": len(res["material"]),
             "alerts": len(res["alerts"]),
             "cost_usd": round((cost.get("triage") or 0) + (cost.get("materiality") or 0), 4),
-            "emailed": emailed,
+            "emailed": emailed, "propagation_emailed": prop_emailed,
         })
     return summary
 

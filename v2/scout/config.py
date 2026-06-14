@@ -64,10 +64,13 @@ JUDGE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_JUDGE_MAX_BUDGET_USD", "0.75"
 # Propagation mode (step 5) — the shadow-first ladder for the AUTHORSHIP judge (spec §17):
 #   "off"    — propagation never runs (no propose/judge spend). DEFAULT.
 #   "shadow" — on each act-grade survivor, run propose->judge and LOG the decisions (the authorship
-#              training corpus), but NEVER mutate the card. Earn autonomy here first.
-#   "live"   — also APPLY judge-confirmed ops (add/revise/retire) to the card.
-# The card is only ever rewritten under "live"; "shadow" is capture-only. Promotion off->shadow->
-# live is count-gated on adjudicated authorship deltas, never calendar.
+#              training corpus), but NEVER mutate the card and NEVER notify. Earn autonomy here.
+#   "review" — like shadow, PLUS email the human each judge-confirmed proposal (where/what/how/
+#              verdict). The card is still untouched; a human approves a proposal out-of-band and it
+#              is applied in-session (scout/review.py). The human-approval gate.
+#   "live"   — also APPLY judge-confirmed ops (add/revise/retire) to the card automatically.
+# The card is rewritten automatically only under "live"; "shadow"/"review" never auto-mutate it.
+# Promotion off->shadow->review->live is gated on adjudicated authorship deltas, never calendar.
 PROPAGATE_MODE = os.environ.get("SCOUT_PROPAGATE_MODE", "off").strip().lower()
 
 # --- Grounding (claim-object.md §4) -------------------------------------------
