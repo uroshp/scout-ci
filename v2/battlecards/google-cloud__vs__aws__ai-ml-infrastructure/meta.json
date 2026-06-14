@@ -4,12 +4,10 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-06-14T11:06:08",
+  "last_checked": "2026-06-14T17:06:34",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8"
   ],
-  "monitored": true,
-  "unresolved_since": "2026-06-12",
-  "unresolved_attempts": 2
+  "monitored": true
 }
