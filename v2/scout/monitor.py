@@ -24,6 +24,7 @@ import hashlib
 import json
 import os
 import re
+import sys
 from datetime import datetime, timedelta
 
 from claude_agent_sdk import ClaudeAgentOptions
@@ -563,15 +564,20 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     # the retire-cascade can track them; in SHADOW, in-memory only — the decision log is the record.
     my_grounded = []
     if do_my:
-        myf = _my_company_facts(slug, meta, since, my_substantial, claims)
-        result["cost"]["my_company"] = myf["cost"]
-        my_grounded = myf["grounded"]
-        result["my_company_facts"] = [
-            {"subject_key": f["subject_key"], "alert": a} for f, a in my_grounded]
-        if write and config.PROPAGATE_MODE == "live" and my_grounded:
-            new_claims, my_alerts = _apply_updates(
-                new_claims, my_grounded, meta.get("alerted_fingerprints", []))
-            new_alerts = new_alerts + my_alerts
+        try:
+            myf = _my_company_facts(slug, meta, since, my_substantial, claims)
+            result["cost"]["my_company"] = myf["cost"]
+            my_grounded = myf["grounded"]
+            result["my_company_facts"] = [
+                {"subject_key": f["subject_key"], "alert": a} for f, a in my_grounded]
+            if write and config.PROPAGATE_MODE == "live" and my_grounded:
+                new_claims, my_alerts = _apply_updates(
+                    new_claims, my_grounded, meta.get("alerted_fingerprints", []))
+                new_alerts = new_alerts + my_alerts
+        except Exception as e:  # NON-DISRUPTION: the new arm must never break the competitor monitor
+            print(f"[monitor] my_company arm skipped ({type(e).__name__}: {e})", file=sys.stderr)
+            my_grounded = []
+            result["my_company_error"] = f"{type(e).__name__}: {e}"
 
     result["alerts"] = new_alerts
 
@@ -583,20 +589,24 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     act_facts = ([c for c, a in material_grounded if _is_act(a)]
                  + [f for f, a in my_grounded if _is_act(a)])
     if config.PROPAGATE_MODE in ("shadow", "live") and act_facts:
-        today = checked_at[:10]
-        prop = propagate(meta, act_facts, new_claims, slug=slug, source="monitor", persist=write)
-        result["propagation"] = {
-            "mode": config.PROPAGATE_MODE, "act_facts": len(act_facts),
-            "ops": len(prop["ops"]), "confirmed": len(prop["confirmed"]),
-            "no_change": prop["no_change"], "decisions": prop["decisions"],
-            "cost": prop["cost_usd"], "applied": []}
-        result["cost"]["propagation"] = sum(v or 0 for v in prop["cost_usd"].values())
-        # SHADOW-FIRST: only "live" mutates the card. "shadow" has captured the decisions above.
-        if write and config.PROPAGATE_MODE == "live" and prop["confirmed"]:
-            ap = apply_ops(new_claims, prop["confirmed"], act_facts, slug, today)
-            new_claims = ap["claims"]
-            result["propagation"]["applied"] = ap["applied"]
-            result["propagation"]["skipped"] = ap["skipped"]
+        try:
+            today = checked_at[:10]
+            prop = propagate(meta, act_facts, new_claims, slug=slug, source="monitor", persist=write)
+            result["propagation"] = {
+                "mode": config.PROPAGATE_MODE, "act_facts": len(act_facts),
+                "ops": len(prop["ops"]), "confirmed": len(prop["confirmed"]),
+                "no_change": prop["no_change"], "decisions": prop["decisions"],
+                "cost": prop["cost_usd"], "applied": []}
+            result["cost"]["propagation"] = sum(v or 0 for v in prop["cost_usd"].values())
+            # SHADOW-FIRST: only "live" mutates the card. "shadow" has captured the decisions above.
+            if write and config.PROPAGATE_MODE == "live" and prop["confirmed"]:
+                ap = apply_ops(new_claims, prop["confirmed"], act_facts, slug, today)
+                new_claims = ap["claims"]
+                result["propagation"]["applied"] = ap["applied"]
+                result["propagation"]["skipped"] = ap["skipped"]
+        except Exception as e:  # NON-DISRUPTION: propagation failure must not drop the monitor update
+            print(f"[monitor] propagation skipped ({type(e).__name__}: {e})", file=sys.stderr)
+            result["propagation_error"] = f"{type(e).__name__}: {e}"
 
     # Shadow-eval observer (v3.5): on a real escalated check, record the champion grounding
     # decisions for offline challenger scoring. No-op unless SCOUT_SHADOW_EVAL=1; never raises.

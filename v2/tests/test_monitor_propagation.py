@@ -91,6 +91,26 @@ class MyCompanyArm(unittest.TestCase):
         # last_checked advanced (gate stays honest).
         self.assertEqual(wb.call_args.args[2]["last_checked"], res["last_checked"])
 
+    def test_my_company_arm_failure_never_breaks_the_check(self):
+        # NON-DISRUPTION: if the my_company grounding raises, the check still completes and the gate
+        # advances — the new arm can never take down the monitor.
+        config.PROPAGATE_MODE = "shadow"
+        with mock.patch.object(monitor, "_run_triage",
+                               _triage([{"about": "my_company", "substantial": True,
+                                         "signal": "Fable 5 paused", "valence": "back_foot"}])), \
+             mock.patch.object(monitor, "_my_company_facts",
+                               side_effect=RuntimeError("grounding exploded")), \
+             mock.patch.object(monitor, "propagate") as prop, \
+             mock.patch.object(monitor.store, "load_meta", return_value=dict(META)), \
+             mock.patch.object(monitor.store, "load_claims", return_value=[dict(PLAY)]), \
+             mock.patch.object(monitor.store, "write_baseline") as wb, \
+             mock.patch.object(monitor, "_append_alerts"), \
+             mock.patch.object(monitor, "_current_md", return_value="# card"):
+            res = monitor.check(SLUG, write=True)
+        self.assertIn("my_company_error", res)              # captured, not raised
+        prop.assert_not_called()                            # no act-facts survived -> propagation skipped
+        self.assertEqual(wb.call_args.args[2]["last_checked"], res["last_checked"])  # gate still advanced
+
     def test_mode_off_my_company_signal_is_inert_quiet_return(self):
         def fake_propagate(*a, **k):
             raise AssertionError("propagation must not run when PROPAGATE_MODE=off")
