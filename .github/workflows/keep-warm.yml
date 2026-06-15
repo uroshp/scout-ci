@@ -1,0 +1,36 @@
+name: keep-warm
+
+# Stops the Streamlit viewer (agent-scout.streamlit.app) from sleeping. Community
+# Cloud hibernates an app after ~12h of no traffic, and a plain ping does NOT wake it
+# (sleep is tied to a browser websocket, not the HTTP request). So every 6h we open the
+# app in a real headless browser and click the wake button if it is down. See
+# .github/scripts/keep-warm.mjs.
+#
+# IMPORTANT: scheduled workflows only fire from the DEFAULT branch (main). This does
+# nothing until it is merged to main.
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # every 6 hours, UTC. 12h sleep window => 2x safety margin.
+  workflow_dispatch: {}      # adds a "Run workflow" button for on-demand testing.
+
+# If a scheduled run overlaps a manual one, keep only the latest.
+concurrency:
+  group: keep-warm
+  cancel-in-progress: true
+
+jobs:
+  wake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install Playwright (chromium only)
+        run: npm init -y && npm i -D playwright && npx playwright install --with-deps chromium
+      - name: Visit the app and wake it if asleep
+        env:
+          APP_URL: "https://agent-scout.streamlit.app"
+        run: node .github/scripts/keep-warm.mjs
