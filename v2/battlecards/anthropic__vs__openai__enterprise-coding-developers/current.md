@@ -161,6 +161,10 @@ Fair: the June 15 Agent-SDK credit split is Anthropic's third billing change in 
 
 **So what:** Put production usage on the pay-as-you-go API with committed-use terms: metered, SLA-backed, and immune to the subscription-tier churn the headlines are about. ([techtimes.com](http://www.techtimes.com/articles/317625/20260602/anthropic-ends-subscription-subsidy-agents-june-15-credit-pool-replaces-flat-rate-access.htm))
 
+**"The government forced Anthropic to disable two of its models overnight for every customer. How do we know the same won't happen to what we're building on?"**
+
+Real and recent: a June 12, 2026 export-control directive required Anthropic to suspend foreign-national access to Fable 5 and Mythos 5; to ensure compliance, Anthropic disabled both models for all customers globally. Anthropic complied and disputes the ruling; it is working to restore access. Critically, access to all other Anthropic models is unaffected per Anthropic's own statement. For any team evaluating or building on today's production lineup, including Opus 4.8, nothing changes. Walk the buyer through exactly which models are in scope for their use case and confirm each is in the unaffected set. ([anthropic.com](https://www.anthropic.com/news/fable-mythos-access))
+
 ## Cut Log
 
 This is what verification removed or corrected during fact-checking, and why.

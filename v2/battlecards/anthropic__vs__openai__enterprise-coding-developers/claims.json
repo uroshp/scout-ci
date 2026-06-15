@@ -987,5 +987,54 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "anthropic | government-foreign-access-ban",
+    "claim": "On June 12, 2026, the US government issued an export-control directive ordering Anthropic to suspend all access to its Fable 5 and Mythos 5 models by any foreign national, whether inside or outside the US and including foreign-national Anthropic employees, citing national security. By Anthropic's own statement, the net effect is that it had to abruptly disable Fable 5 and Mythos 5 for all customers to ensure compliance; access to all other Anthropic models is unaffected. Anthropic complied but disputes the directive, saying the cited jailbreak surfaced only a small number of minor, already-known vulnerabilities that other publicly available models can also find, and it is working to restore access.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 45,
+    "source_url": "https://www.anthropic.com/news/fable-mythos-access",
+    "source_tier": "primary",
+    "evidence_excerpt": "The net effect of this order is that we must abruptly disable Fable 5 and Mythos 5 for all our customers to ensure compliance.",
+    "as_of": "2026-06-12",
+    "confidence": "high",
+    "id": "c_737554eeb37c",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-14",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.cnn.com/2026/06/13/business/anthropic-mythos-model-national-security",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.aljazeera.com/news/2026/6/13/us-orders-anthropic-to-disable-ai-models-for-all-foreign-nationals",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_6728a60059ae",
+    "subject_key": "objection | model-govt-disable-fable-mythos | current",
+    "claim": "**\"The government forced Anthropic to disable two of its models overnight for every customer. How do we know the same won't happen to what we're building on?\"**\n\nReal and recent: a June 12, 2026 export-control directive required Anthropic to suspend foreign-national access to Fable 5 and Mythos 5; to ensure compliance, Anthropic disabled both models for all customers globally. Anthropic complied and disputes the ruling; it is working to restore access. Critically, access to all other Anthropic models is unaffected per Anthropic's own statement. For any team evaluating or building on today's production lineup, including Opus 4.8, nothing changes. Walk the buyer through exactly which models are in scope for their use case and confirm each is in the unaffected set.",
+    "claim_type": "interpretation",
+    "section": "objection_handling",
+    "zone": null,
+    "order": 6,
+    "as_of": "2026-06-12",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_737554eeb37c"
   }
 ]
