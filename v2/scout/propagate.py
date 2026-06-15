@@ -65,6 +65,16 @@ VALENCE ROUTES THE OUTPUT:
   card's existing claims, never invented — and do NOT speculate about if/when the constraint resolves
   unless a fact states it. A rebuttal that only restates the problem is a FAIL; rep-facing prose must
   leave the rep with a move.
+  THE MOVE MUST BE THE REP'S, AND IT MUST KEEP THE REP IN CONTROL. The concrete next step is something
+  the REP does or offers TODAY (e.g. "standardize on the GA model now"), never something the BUYER is
+  coached to go extract from us. A rebuttal FAILS if it: (a) tells the buyer to demand a concession,
+  guarantee, escalation, or written commitment ("get your account team to confirm a restoration
+  timeline in writing", "ask them for a date"); (b) commits the rep or our company to a future action
+  outside the rep's authority (restoration dates, written guarantees, anything we cannot promise on the
+  call); or (c) concedes the buyer's switching/migration framing as warranted ("before committing to a
+  migration plan"). Each of these hands the rep a losing script: it puts our own side on defense or
+  validates the fear the objection exists to defuse. Pivot to what is true and ours to offer right now,
+  delivered with a straight back.
 - FRONT FOOT (a competitor stumble, OR our own win or ship) -> a PLAY, in battlecard / where_we_win.
 
 OPERATIONS (pick the lightest that is true; identity is the SUBJECT, not the text):
@@ -307,6 +317,16 @@ REJECT an op if ANY of these holds:
   currently-true capability; one that just names the problem leaves the rep worse off than silence.
   (The pivot's strength must be grounded — reject it equally if the rebuttal INVENTS a capability or
   speculates about when the constraint lifts.)
+- SELF-INCRIMINATING / NOT-REP-OWNABLE: a back-foot rebuttal that DOES pivot to a concrete move, but
+  the move weakens the rep instead of the objection. HOLLOW REBUTTAL kills rebuttals that say nothing;
+  this kills rebuttals that say something self-defeating. Reject if the answer: (a) coaches the BUYER to
+  demand a concession, guarantee, escalation, or written commitment from us ("get your account team to
+  confirm a restoration timeline in writing"); (b) commits the rep or our company to a future action
+  outside the rep's authority (restoration dates, written guarantees, anything unpromisable on the
+  call); or (c) concedes the buyer's switching/migration framing as warranted ("before committing to a
+  migration plan"). A real objection-handler's concrete move is the REP's move, offered today, keeping
+  the rep in control — not the buyer's move against us. "Concrete" is necessary but not sufficient; a
+  concrete step in the wrong direction still fails.
 
 CONFIRM an op ONLY when the grounded fact DIRECTLY and near-certainly licenses exactly that change, at
 exactly that scope, routed by the correct valence, as the lightest true operation. For a back-foot
