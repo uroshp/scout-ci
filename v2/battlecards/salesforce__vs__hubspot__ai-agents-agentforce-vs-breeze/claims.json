@@ -470,26 +470,17 @@
   },
   {
     "subject_key": "salesforce | layoffs | agentforce-2026",
-    "claim": "**\"You just laid off your Agentforce team. Is this product even safe to bet on?\"**\n\nIt's true Salesforce cut close to 1,000 roles in February 2026, \"including marketing, product management, data analytics, and its Agentforce AI unit.\" Be straight: this was consolidation under unified AI leadership, not a retreat. Agentforce ARR has since grown past $1.2B and the platform shipped Operations and Agent Fabric in the months after. Investment is up, not down.\n\n**So what:** Acknowledge the cut, then redirect to shipping velocity and ARR; a defensive non-answer reads as confirmation.",
-    "claim_type": "fact",
+    "claim": "**\"You've now run two rounds of Salesforce layoffs in 2026, both touching Agentforce. Is this product safe to buy?\"**\n\nAcknowledge both rounds directly. The February 2026 round included some Agentforce staff. The June 2026 round cut roles connected to Agentforce, MuleSoft, and Marketing Cloud, with 86 California positions disclosed (63 in technology and product, 21 in general administration, 2 in sales and distribution); Washington state and international impact is undisclosed. Affected California employees remain on payroll through August 7, 2026.\n\nThe critical grounded fact for this deal: a person familiar with the June cuts confirmed Salesforce's core Agentforce teams were not affected. That is not spin — it came from someone inside the company and was reported by Business Insider.\n\nThe buying-decision signal is this: the same core team shipped Agentforce Operations (GA April 29) and drove more than 60% of Q4 Agentforce and Data Cloud bookings from existing customers expanding their deployments. Teams being wound down do not ship GA products and collect expansion revenue from an installed base. The cuts were real; the core product team is intact and shipping.",
+    "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 0,
-    "source_url": "https://www.cio.com/article/4130028/salesforce-lays-off-staffers-as-executive-leadership-churn-continues.html",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "The company has reduced close to 1,000 roles earlier this month across teams, including marketing, product management, data analytics, and its Agentforce AI unit",
-    "as_of": "2026-02-10",
+    "as_of": "2026-06-09",
     "confidence": "high",
     "id": "c_9fe9359b2355",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "derived_from": "c_525e3376ed16"
   },
   {
     "subject_key": "salesforce | analyst-rating | current",
@@ -559,5 +550,35 @@
       "detail": null
     },
     "persona": "economic_buyer"
+  },
+  {
+    "subject_key": "salesforce | layoffs | agentforce-june-2026-round-2",
+    "claim": "Salesforce ran a second 2026 layoff round in June, reported by Business Insider on June 9, 2026. A California WARN notice disclosed 86 eliminated positions in San Francisco (63 in technology and product, 21 in general administration, 2 in sales and distribution); employees in Washington state and outside the US were also affected, with the total undisclosed. The cuts hit roles connected to Agentforce, MuleSoft, and Marketing Cloud, but a person familiar with the matter said Salesforce's core Agentforce teams were not affected. Affected California employees remain on payroll until August 7, 2026. This follows the February 2026 round of fewer than 1,000 roles, which had included some Agentforce staff.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 22,
+    "source_url": "https://www.dqindia.com/news/salesforce-agentforce-arr-layoffs-ai-jobs-12027002",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "a person familiar with the cuts told Business Insider that Salesforce’s core Agentforce teams were not affected.",
+    "as_of": "2026-06-09",
+    "confidence": "high",
+    "id": "c_525e3376ed16",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-15",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.businesstoday.in/technology/news/story/salesforce-cuts-more-jobs-across-agentforce-and-mulesoft-teams-536102-2026-06-10",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
