@@ -107,7 +107,7 @@ Analysts warn Agentforce's hidden complexity means "what was initially perceived
 
 Acknowledge both rounds directly. The February 2026 round included some Agentforce staff. The June 2026 round cut roles connected to Agentforce, MuleSoft, and Marketing Cloud, with 86 California positions disclosed (63 in technology and product, 21 in general administration, 2 in sales and distribution); Washington state and international impact is undisclosed. Affected California employees remain on payroll through August 7, 2026.
 
-The critical grounded fact for this deal: a person familiar with the June cuts confirmed Salesforce's core Agentforce teams were not affected. That is not spin — it came from someone inside the company and was reported by Business Insider.
+The critical grounded fact for this deal: a person familiar with the June cuts confirmed Salesforce's core Agentforce teams were not affected. That is not spin. It came from someone inside the company and was reported by Business Insider.
 
 The buying-decision signal is this: the same core team shipped Agentforce Operations (GA April 29) and drove more than 60% of Q4 Agentforce and Data Cloud bookings from existing customers expanding their deployments. Teams being wound down do not ship GA products and collect expansion revenue from an installed base. The cuts were real; the core product team is intact and shipping. ([dqindia.com](https://www.dqindia.com/news/salesforce-agentforce-arr-layoffs-ai-jobs-12027002))
 
