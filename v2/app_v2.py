@@ -392,7 +392,7 @@ def _contact_md() -> str:
     configured, else a fallback to the contact email. Reused by every access/contact prompt."""
     if config.AUTHOR_LINKEDIN:
         return f"[DM me on LinkedIn]({config.AUTHOR_LINKEDIN})"
-    return f"email **{config.SELFSERVE_CONTACT}**"
+    return f"reach me at **{config.SELFSERVE_CONTACT}**"
 
 
 def _render_selfserve(job_param: str | None) -> None:
