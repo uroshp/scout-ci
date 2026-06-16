@@ -4,10 +4,11 @@
   "competitor": "Superman",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-06-16T11:05:38",
+  "last_checked": "2026-06-16T17:07:29",
   "cadence_hours": 72,
   "alerted_fingerprints": [
-    "f_52241deb54a8"
+    "f_52241deb54a8",
+    "f_52c2ac0db058"
   ],
   "monitored": true
 }

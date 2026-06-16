@@ -1036,5 +1036,35 @@
     "verified": true,
     "confidence": "medium",
     "derived_from": "c_737554eeb37c"
+  },
+  {
+    "subject_key": "openai-codex-ona-acquisition",
+    "claim": "OpenAI announced on June 11, 2026 that it will acquire Ona, the startup formerly known as Gitpod, which runs secure pre-configured cloud environments where AI agents access tools, systems, and context to work over long sessions. OpenAI says Ona's infrastructure will let its Codex coding assistant take on longer-running, multi-step tasks and help more organizations deploy agents into production. Terms were not disclosed, the deal is contingent on customary closing conditions, and Ona's staff join the Codex team once it closes.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 5,
+    "source_url": "https://www.cnbc.com/2026/06/11/open-ai-ona-acquisition-codex.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Ona's technology will allow OpenAI's coding assistant, Codex, to take on longer-running tasks, OpenAI said.",
+    "as_of": "2026-06-11",
+    "confidence": "high",
+    "id": "c_32056af35a70",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-16",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://finance.yahoo.com/sectors/technology/articles/openai-acquires-ona-cloud-startup-172504079.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

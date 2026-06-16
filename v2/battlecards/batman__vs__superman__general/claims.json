@@ -177,15 +177,15 @@
   },
   {
     "subject_key": "supergirl | box-office-tracking | 2026",
-    "claim": "Superman's universe heads into a soft patch: DC's Supergirl (opening June 26, 2026) landed on tracking June 4 with only a $55M+ projected U.S. opening against a reported ~$170M budget, and star Milly Alcock is set to carry into Man of Tomorrow.",
+    "claim": "DC's Supergirl (opening June 26, 2026) weakened further heading into release. On June 13, analytics firm BoxOfficeTheory cut its domestic opening forecast by about 10% to a $51M midpoint (range $47-58M), and Boxoffice Pro landed at $45-55M, both tracking below The Flash's $55M, the 2023 debut Warner Bros. spent three years trying to bury. The film also carries heavy late-stage surgery: 10-plus test screenings (more than any studio film this decade per World of Reel), three composers, three tested endings, and a ~25-minute trim to a final 1h47m, with each recut adding more David Corenswet Superman footage to prop up the new lead. Deadline pegs net production cost at $175M and break-even at $315M worldwide. Superman's universe heads into its second film on the back foot.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 0,
-    "source_url": "https://deadline.com/2026/06/supergirl-box-office-projection-1236940996/",
+    "order": 5,
+    "source_url": "https://www.techtimes.com/articles/318486/20260616/supergirl-box-office-forecast-drops-51m-dcu-film-tracks-below-flash.htm",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Supergirl arrived on three-week tracking Thursday morning with an outlook of $55M+ when it opens on June 26.",
-    "as_of": "2026-06-04",
+    "evidence_excerpt": "A $51 million domestic opening for Supergirl would represent the weakest DCU chapter-one theatrical debut by a significant margin",
+    "as_of": "2026-06-16",
     "confidence": "high",
     "id": "c_56c200c42955",
     "verified": true,
@@ -193,9 +193,17 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-05",
+      "fetched_at": "2026-06-16",
       "detail": null
-    }
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.worldofreel.com/blog/2026/6/10/supergirl-trimmed-by-25-minutes",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "man of tomorrow | production-first-look | 2026",
