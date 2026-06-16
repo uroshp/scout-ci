@@ -4,10 +4,11 @@
   "competitor": "Slack",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-06-15T17:05:15",
+  "last_checked": "2026-06-16T11:13:36",
   "cadence_hours": 23,
   "alerted_fingerprints": [
-    "f_7e46a6f50a55"
+    "f_7e46a6f50a55",
+    "f_9877becb6bda"
   ],
   "monitored": true
 }
