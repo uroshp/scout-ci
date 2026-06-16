@@ -36,7 +36,11 @@ RULES:
 
 WRITING_STYLE = """WRITING STYLE (applies to EVERY sentence you write — claims, so-whats,
 headlines, soundbites, cut-log reasons):
-- NO EM DASHES (—). Ever. Use a comma, a colon, a period, or parentheses, or split the sentence.
+- ABSOLUTELY NO EM DASHES OR EN DASHES USED AS PUNCTUATION (— or –). This is a hard, non-negotiable
+  constraint, checked on every output. There is no sentence where one is acceptable, including inside
+  quotes, soundbites, and parentheticals. Replace it: a period when it joins two independent clauses,
+  a comma for a brief aside, a colon before an explanation or list, or parentheses, or split into two
+  sentences. One stray em dash anywhere in any string is a failed output, not a minor blemish.
 - No "rule of three" filler: do not reflexively list exactly three parallel items ("X, Y, and Z")
   when the evidence gives you two, or four, or one. List what the evidence supports.
 - No negation-contrast framing: never "it's not X, it's Y", "this isn't about X but Y",

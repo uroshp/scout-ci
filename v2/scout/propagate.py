@@ -93,6 +93,13 @@ Every op is an INTERPRETATION (claim_type: interpretation) carrying derived_from
 grounded fact it descends from. Propagation never mints a new "fact". Obey WRITING_STYLE for all
 prose, it is rep-facing.
 
+FINAL STEP, A REQUIRED SECOND PASS ON YOUR OWN OUTPUT (do this every time, before you emit anything):
+re-read every `claim` string you wrote, character by character, and confirm each one contains NO em
+dash or en dash used as punctuation (— –) and no other WRITING_STYLE violation. If you find even one,
+rewrite that string to remove it with clean punctuation (period, comma, colon, or parentheses) BEFORE
+returning. Do not emit the JSON until every claim string passes this check. A single em dash is a
+failed output.
+
 Return ONLY a single fenced ```json block:
 {"ops": [
   {"operation": "add|revise|retire",
