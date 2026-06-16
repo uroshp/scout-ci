@@ -80,8 +80,9 @@ GROUNDING_FUZZY_THRESHOLD = float(os.environ.get("SCOUT_GROUNDING_FUZZY", "0.92"
 GROUNDING_TIMEOUT_S = float(os.environ.get("SCOUT_GROUNDING_TIMEOUT_S", "20"))
 # Contact string for the grounding fetcher's descriptive User-Agent. SEC's
 # fair-access policy 403s requests without a declared contact, so a real one is
-# needed to ground filings. Defaults to the repo author's email; override in .env.
-GROUNDING_CONTACT = os.environ.get("SCOUT_GROUNDING_CONTACT", "urospajic@gmail.com")
+# needed to ground filings. Defaults to the public project URL so no personal email
+# ships in a public default; override with a real contact in .env if a service demands one.
+GROUNDING_CONTACT = os.environ.get("SCOUT_GROUNDING_CONTACT", "https://github.com/uroshp/scout-ci")
 
 
 # --- Shadow-mode eval (v3.5 challenger qualification; docs/vnext-roadmap.md) --
@@ -147,7 +148,7 @@ ALERT_EMAIL_FROM = os.environ.get("SCOUT_ALERT_FROM", "Scout <onboarding@resend.
 SELFSERVE_FREE_LIMIT = int(os.environ.get("SCOUT_SELFSERVE_FREE_LIMIT", "10"))
 SELFSERVE_SPEND_CEILING_USD = float(os.environ.get("SCOUT_SELFSERVE_SPEND_CEILING_USD", "100"))
 # Where "DM me for access" should point once the window closes (shown by the app).
-SELFSERVE_CONTACT = os.environ.get("SCOUT_SELFSERVE_CONTACT", "urospajic@gmail.com")
+SELFSERVE_CONTACT = os.environ.get("SCOUT_SELFSERVE_CONTACT", "https://www.linkedin.com/in/urospajic")
 # Optional "email me when it's ready" on the self-serve form. OFF by default so the form NEVER
 # promises a notification the backend can't deliver. Turn on (SCOUT_SELFSERVE_EMAIL=1, app-side)
 # ONLY after RESEND_API_KEY is configured in the self-serve ACTION's secrets — the Action is what
