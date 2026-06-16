@@ -135,9 +135,7 @@ Fair: the 2025 rollout was botched and our CEO apologized publicly. Since then w
 
 **"If SpaceX buys Cursor, who am I actually contracting with in a year?"**
 
-Legitimate. SpaceX holds a \$60B option to acquire Cursor exercisable later in 2026, but it's an option, not a closed deal; Anysphere operates independently today and existing data agreements remain in force. Make sure change-of-control and data-residency clauses are in the contract you sign now.
-
-**So what:** Name the risk before the buyer does, then neutralize it with contract protections: the rep who raises it first earns the trust. ([cnbc.com](https://www.cnbc.com/2026/04/21/spacex-says-it-can-buy-cursor-later-this-year-for-60-billion-or-pay-10-billion-for-our-work-together.html))
+The deal is now signed: SpaceX and Anysphere executed a definitive merger agreement on June 16, 2026, with close targeted for Q3 2026 pending regulatory approval. Until regulators clear it, Anysphere operates independently and contracts execute with Anysphere today. Cursor's current capabilities, ~\$2B ARR, and Fortune 500 deployment footprint are what this decision rests on. Standardize on Cursor now under current Anysphere terms; the ownership change cannot take legal effect before regulators approve it. ([cnbc.com](https://www.cnbc.com/2026/06/16/spacex-spcx-cursor-acquisition-ipo.html))
 
 ## Cut Log
 
