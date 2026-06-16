@@ -802,25 +802,46 @@
   },
   {
     "subject_key": "objection | cursor-spacex-ownership | cursor-adverse",
-    "claim": "**\"If SpaceX buys Cursor, who am I actually contracting with in a year?\"**\n\nLegitimate. SpaceX holds a $60B option to acquire Cursor exercisable later in 2026, but it's an option, not a closed deal; Anysphere operates independently today and existing data agreements remain in force. Make sure change-of-control and data-residency clauses are in the contract you sign now.\n\n**So what:** Name the risk before the buyer does, then neutralize it with contract protections: the rep who raises it first earns the trust.",
+    "claim": "**\"If SpaceX buys Cursor, who am I actually contracting with in a year?\"**\n\nThe deal is now signed: SpaceX and Anysphere executed a definitive merger agreement on June 16, 2026, with close targeted for Q3 2026 pending regulatory approval. Until regulators clear it, Anysphere operates independently and contracts execute with Anysphere today. Cursor's current capabilities, ~$2B ARR, and Fortune 500 deployment footprint are what this decision rests on. Standardize on Cursor now under current Anysphere terms; the ownership change cannot take legal effect before regulators approve it.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 3,
-    "source_url": "https://www.cnbc.com/2026/04/21/spacex-says-it-can-buy-cursor-later-this-year-for-60-billion-or-pay-10-billion-for-our-work-together.html",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "SpaceX said it's struck a deal with artificial intelligence startup Cursor, obtaining the right to acquire the company for $60 billion later this year, or to pay $10 billion for work they are doing together.",
-    "as_of": "2026-04-21",
+    "as_of": "2026-06-16",
     "confidence": "high",
     "id": "c_9dc1510b77e3",
+    "verified": true,
+    "persona": "security_regulated",
+    "derived_from": "c_e5ed555c40d5"
+  },
+  {
+    "subject_key": "cursor | spacex-acquisition",
+    "claim": "SpaceX entered a definitive all-stock merger agreement on June 16, 2026 to acquire Cursor (parent company Anysphere) for $60 billion in SpaceX Class A common stock; the companies expect the deal to close in the third quarter of 2026, subject to regulatory approvals, per a filing with the SEC. This converts the previously contingent $60B acquisition right SpaceX disclosed in April into a binding deal.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 0,
+    "source_url": "https://www.cnbc.com/2026/06/16/spacex-spcx-cursor-acquisition-ipo.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "SpaceX on Tuesday announced it entered a formal agreement to buy the artificial intelligence startup Cursor for $60 billion worth of stock",
+    "as_of": "2026-06-16",
+    "confidence": "high",
+    "id": "c_e5ed555c40d5",
     "verified": true,
     "grounding": {
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-05",
+      "fetched_at": "2026-06-16",
       "detail": null
     },
-    "persona": "security_regulated"
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/06/16/spacex-to-acquire-cursor-for-60b-in-stock-days-after-blockbuster-ipo/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

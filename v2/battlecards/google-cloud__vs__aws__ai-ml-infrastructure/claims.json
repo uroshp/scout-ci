@@ -877,5 +877,48 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "google-cloud | reliability-incident | june-2026",
+    "claim": "A fire at a third-party data center in Delhi forced an emergency power shutdown on June 9, 2026, isolating a non-compute local Point of Presence and degrading Google Cloud network traffic originating from Delhi, Chennai, Mumbai and surrounding areas with elevated latency and possible packet loss. As of the June 15 update the incident was still unresolved (Hybrid Connectivity, Virtual Private Cloud and Media CDN affected), with mitigations live and the next status update promised for June 17. This is a regional network-edge degradation, not a compute-plane failure.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 12,
+    "source_url": "https://status.cloud.google.com/incidents/5fGQt4VbkDnr3Yp8PXPr",
+    "source_tier": "primary",
+    "evidence_excerpt": "A fire at a third-party data center facility required an emergency power shutdown of networking equipment, isolating a non-compute local Point of Presence (POP) in Delhi",
+    "as_of": "2026-06-15",
+    "confidence": "high",
+    "id": "c_11673e19c0ee",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-16",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.theregister.com/off-prem/2026/06/14/fire-burns-google-cloud-indias-network-which-remains-slow-a-week-later/5255246",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_5b77998bd015",
+    "subject_key": "objection | gcp-india-network-incident-june-2026 | current",
+    "claim": "**\"Google Cloud has an active, unresolved network incident in India. That's not a historical footnote. It's happening right now.\"**\n\nOwn the scope precisely: a fire at a third-party Delhi facility on June 9 forced an emergency power shutdown that isolated a local network POP. As of June 15 the incident remains active, with elevated latency and possible packet loss on Hybrid Connectivity, Virtual Private Cloud, and Media CDN for traffic originating in Delhi, Chennai, Mumbai, and surrounding areas. Mitigations are live.\n\nThe compute plane is unaffected. The fact explicitly describes this as a regional network-edge degradation at a local POP, not a compute-plane or global-infrastructure failure. For buyers whose evaluation centers on AI training or inference, that distinction matters immediately.\n\nRep move: ask which services and regions their workload actually depends on. If it is compute-plane AI work, the affected services do not touch it. If they have genuine Hybrid Connectivity or VPC exposure in India, walk through the current status with them directly and scope the real exposure rather than letting the framing stay at \"Google Cloud is down.\"",
+    "claim_type": "interpretation",
+    "section": "objection_handling",
+    "zone": null,
+    "order": 6,
+    "as_of": "2026-06-15",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_11673e19c0ee"
   }
 ]

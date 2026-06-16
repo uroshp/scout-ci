@@ -151,6 +151,14 @@ Fair on today's numbers: AWS holds ~28% share to Google's 14% (Synergy). But "sa
 
 **So what:** Concede the current-share point, then redirect to a 3–5 year trajectory framing where the growth gap and AI differentiation favor Google. ([srgresearch.com](https://www.srgresearch.com/articles/cloud-market-annual-revenue-run-rate-topped-half-a-trillion-dollars-in-q1-as-growth-surge-continues))
 
+**"Google Cloud has an active, unresolved network incident in India. That's not a historical footnote. It's happening right now."**
+
+Own the scope precisely: a fire at a third-party Delhi facility on June 9 forced an emergency power shutdown that isolated a local network POP. As of June 15 the incident remains active, with elevated latency and possible packet loss on Hybrid Connectivity, Virtual Private Cloud, and Media CDN for traffic originating in Delhi, Chennai, Mumbai, and surrounding areas. Mitigations are live.
+
+The compute plane is unaffected. The fact explicitly describes this as a regional network-edge degradation at a local POP, not a compute-plane or global-infrastructure failure. For buyers whose evaluation centers on AI training or inference, that distinction matters immediately.
+
+Rep move: ask which services and regions their workload actually depends on. If it is compute-plane AI work, the affected services do not touch it. If they have genuine Hybrid Connectivity or VPC exposure in India, walk through the current status with them directly and scope the real exposure rather than letting the framing stay at "Google Cloud is down." ([status.cloud.google.com](https://status.cloud.google.com/incidents/5fGQt4VbkDnr3Yp8PXPr))
+
 ## Cut Log
 
 This is what verification removed or corrected during fact-checking, and why.
