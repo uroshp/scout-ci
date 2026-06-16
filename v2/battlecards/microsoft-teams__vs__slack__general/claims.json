@@ -809,5 +809,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "salesforce | agent-acquisition | fin-2026",
+    "claim": "On June 15, 2026 Salesforce signed a definitive agreement to acquire Fin (formerly Intercom) for about $3.6 billion, adding a packaged customer-service AI agent that resolves on average 76% of support volume end-to-end and runs natively across channels including Slack. The deal reinforces Agentforce (which Salesforce says hit $1.2B ARR in Q1 FY27) and is expected to close in Q4 of Salesforce's fiscal 2027 (early 2027), so it is a buy-not-build escalation of Slack's agent story rather than a capability shipped in Slack today.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 5,
+    "source_url": "https://www.salesforce.com/news/press-releases/2026/06/15/salesforce-signs-definitive-agreement-to-acquire-fin/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Salesforce will acquire Fin for approximately $3.6 billion, subject to customary purchase price adjustments.",
+    "as_of": "2026-06-15",
+    "confidence": "high",
+    "id": "c_fc3e8c874b0f",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-16",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/06/15/salesforce-acquires-ai-customer-service-platform-fin-for-3-6b/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
