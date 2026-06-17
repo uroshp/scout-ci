@@ -772,5 +772,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "supergirl | box-office-tracking",
+    "claim": "DC's Supergirl (opening June 26, 2026) keeps weakening on tracking. On June 13, analytics firm BoxOfficeTheory cut its domestic opening forecast by about 10% to a $51M midpoint, in a $47M to $58M range, with a parallel Boxoffice Pro estimate of $45M to $55M. That midpoint lands below The Flash's $55M domestic opening in June 2023, the debut widely seen as ending the prior DC franchise, and far under Superman's $122M July 2025 bow. On a reported $175M net production cost, the film needs $315M worldwide to break even.",
+    "claim_type": "interpretation",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 5,
+    "source_url": "https://www.techtimes.com/articles/318486/20260616/supergirl-box-office-forecast-drops-51m-dcu-film-tracks-below-flash.htm",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "revised its domestic opening weekend projection downward by roughly 10 percent on June 13, landing on a midpoint forecast of $51 million",
+    "as_of": "2026-06-16",
+    "confidence": "high",
+    "id": "c_3241e22881cf",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-17",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://deadline.com/2026/06/supergirl-box-office-projection-1236940996/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
