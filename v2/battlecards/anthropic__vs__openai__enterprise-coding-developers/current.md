@@ -166,6 +166,10 @@ Fair: the June 15 Agent-SDK credit split is Anthropic's third billing change in 
 
 Real and recent: a June 12, 2026 export-control directive required Anthropic to suspend foreign-national access to Fable 5 and Mythos 5; to ensure compliance, Anthropic disabled both models for all customers globally. Anthropic complied and disputes the ruling; it is working to restore access. Critically, access to all other Anthropic models is unaffected per Anthropic's own statement. For any team evaluating or building on today's production lineup, including Opus 4.8, nothing changes. Walk the buyer through exactly which models are in scope for their use case and confirm each is in the unaffected set. ([anthropic.com](https://www.anthropic.com/news/fable-mythos-access))
 
+**"International buyers are moving to Mistral and Cohere because of the export ban. Is Anthropic losing ground internationally?"**
+
+Real: France's government announced Mistral for its civil service, and Cohere reported a surge of inbound interest after the June 12 export directive restricted Mythos and Fable for foreign nationals. The June 12 directive is a model-access compliance constraint on two specific models. Claude Opus 4.7 leads SWE-bench Pro at 64.3% and holds the highest developer loyalty score (CSAT 91, NPS 54) in the JetBrains survey. Offer to benchmark the buyer's specific coding workload head-to-head against the alternative they are evaluating. ([finance.yahoo.com](https://finance.yahoo.com/technology/ai/articles/trump-anthropic-crackdown-sets-off-104657502.html))
+
 ## Cut Log
 
 This is what verification removed or corrected during fact-checking, and why.

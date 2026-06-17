@@ -1066,5 +1066,48 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "anthropic | export-ban-customer-defection",
+    "claim": "After the June 12, 2026 US export directive ordering Anthropic to deny foreign nationals access to its newest Mythos and Fable models, US allies and enterprises moved to find alternatives to American AI. France's prime minister said the civil service would deploy a tool based on French startup Mistral AI, and Cohere, a smaller Anthropic rival, reported a 'huge' surge of inbound interest since the export ban.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://finance.yahoo.com/technology/ai/articles/trump-anthropic-crackdown-sets-off-104657502.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Cohere, a smaller Anthropic competitor, has seen a \"huge\" amount of inbound interest since the export ban",
+    "as_of": "2026-06-16",
+    "confidence": "high",
+    "id": "c_425c1ee73775",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-17",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.japantimes.co.jp/business/2026/06/16/anthropic-crackdown-ai-alarm/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_d77edb839591",
+    "subject_key": "objection | export-ban-international-defection | current",
+    "claim": "**\"International buyers are moving to Mistral and Cohere because of the export ban. Is Anthropic losing ground internationally?\"**\n\nReal: France's government announced Mistral for its civil service, and Cohere reported a surge of inbound interest after the June 12 export directive restricted Mythos and Fable for foreign nationals. The June 12 directive is a model-access compliance constraint on two specific models. Claude Opus 4.7 leads SWE-bench Pro at 64.3% and holds the highest developer loyalty score (CSAT 91, NPS 54) in the JetBrains survey. Offer to benchmark the buyer's specific coding workload head-to-head against the alternative they are evaluating.",
+    "claim_type": "interpretation",
+    "section": "objection_handling",
+    "zone": null,
+    "order": 7,
+    "as_of": "2026-06-16",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_425c1ee73775"
   }
 ]
