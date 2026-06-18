@@ -7,5 +7,5 @@
   "last_checked": "2026-06-17T14:30:42",
   "cadence_hours": 24,
   "alerted_fingerprints": [],
-  "monitored": false
+  "monitored": true
 }
