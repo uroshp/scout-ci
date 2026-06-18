@@ -808,6 +808,10 @@ def main():
         analytics.record_visit()
     except Exception:
         pass
+    try:
+        analytics.capture_city(st)   # best-effort browser-side city, stitched onto the visit
+    except Exception:
+        pass
     # ?print=<slug> opens a clean tab showing just the call sheet and auto-fires the print dialog.
     # The inline "Print call sheet" link points here: a link can't call window.open, but it CAN
     # navigate to this route, where the call sheet's own document triggers print on load.

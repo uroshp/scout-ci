@@ -15,6 +15,7 @@ import ipaddress
 import json
 import sys
 import threading
+import time
 import urllib.parse
 import urllib.request
 import uuid
@@ -77,7 +78,7 @@ def _client_ip(h):
 
 
 def _visitor_ctx(st):
-    """Visitor IP / referrer / user-agent / card / header-debug from the request. Best-effort."""
+    """Visitor IP / referrer / user-agent / card from the request headers. Best-effort."""
     try:
         h = dict(st.context.headers or {})
     except Exception:
@@ -87,8 +88,7 @@ def _visitor_ctx(st):
         card = st.query_params.get("card") or ""
     except Exception:
         card = ""
-    dbg = "xff=" + (g("X-Forwarded-For", "x-forwarded-for") or "-")[:160]
-    return _client_ip(h), g("Referer", "referer"), g("User-Agent", "user-agent"), card, dbg
+    return _client_ip(h), g("Referer", "referer"), g("User-Agent", "user-agent"), card
 
 
 _BOT_UA = ("headlesschrome", "playwright", "bot", "spider", "crawl", "slurp",
@@ -100,22 +100,6 @@ def _is_bot(ua):
     real-visitor log. Genuine Chrome/Safari/Firefox UAs match none of these."""
     u = (ua or "").lower()
     return any(b in u for b in _BOT_UA)
-
-
-def _geo(ip):
-    """City, Country for an IP via a free lookup. '' on any failure (geo is a bonus)."""
-    if not ip:
-        return ""
-    try:
-        url = f"http://ip-api.com/json/{urllib.parse.quote(ip)}?fields=status,city,country"
-        req = urllib.request.Request(url, headers={"User-Agent": "scout-visitlog/1"})
-        with urllib.request.urlopen(req, timeout=3) as r:
-            d = json.loads(r.read().decode("utf-8"))
-        if d.get("status") == "success":
-            return ", ".join(x for x in (d.get("city"), d.get("country")) if x)
-    except Exception:
-        pass
-    return ""
 
 
 def _ga4_server_event(client_id, ip, ref, card):
@@ -154,13 +138,14 @@ def _append_visit(rec):
     selfserve.write_data(path, body, f"analytics: visit {rec['ts']} {rec.get('geo') or rec.get('ip') or '?'}")
 
 
-def _log_async(client_id, ip, ref, ua, card, dbg=""):
-    """The slow part (geo lookup, GA4 POST, private-store write) off the render thread."""
+def _log_async(client_id, ip, ref, ua, card):
+    """GA4 server event + the first-party visit write, off the render thread. geo starts empty
+    and capture_city() fills it in from the browser, since Streamlit Cloud strips the real IP."""
     _ga4_server_event(client_id, ip, ref, card)
     try:
         _append_visit({
             "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            "ip": ip, "geo": _geo(ip), "card": card, "referrer": ref, "user_agent": ua, "_dbg": dbg,
+            "_cid": client_id, "ip": ip, "geo": "", "card": card, "referrer": ref, "user_agent": ua,
         })
     except Exception as e:
         print(f"[analytics] visit-log write skipped ({type(e).__name__}: {e})", file=sys.stderr)
@@ -177,9 +162,61 @@ def record_visit():
             return
         st.session_state["_visit_logged"] = True
         cid = st.session_state.setdefault("_visit_cid", uuid.uuid4().hex)
-        ip, ref, ua, card, dbg = _visitor_ctx(st)   # fast, from headers, on the render thread
+        ip, ref, ua, card = _visitor_ctx(st)     # fast, from headers, on the render thread
         if _is_bot(ua):                          # keep-warm + crawlers out of the real-visitor log
             return
-        threading.Thread(target=_log_async, args=(cid, ip, ref, ua, card, dbg), daemon=True).start()
+        threading.Thread(target=_log_async, args=(cid, ip, ref, ua, card), daemon=True).start()
     except Exception as e:
         print(f"[analytics] record_visit skipped ({type(e).__name__}: {e})", file=sys.stderr)
+
+
+def _patch_city(cid, city, day):
+    """Stitch the browser-resolved city onto this session's visit record (matched by _cid).
+    The immediate server write may still be in flight, so retry a few times. Best-effort."""
+    from scout import selfserve
+    path = f"analytics/visits-{day}.jsonl"
+    for _ in range(6):
+        try:
+            lines = (selfserve.read_data(path) or "").splitlines()
+            for i, ln in enumerate(lines):
+                try:
+                    rec = json.loads(ln)
+                except Exception:
+                    continue
+                if rec.get("_cid") == cid and not rec.get("geo"):
+                    rec["geo"] = city
+                    lines[i] = json.dumps(rec, ensure_ascii=False)
+                    selfserve.write_data(path, "\n".join(lines) + "\n",
+                                         f"analytics: geo {city} for {cid[:8]}")
+                    return
+        except Exception:
+            pass
+        time.sleep(2)   # the immediate visit write may not have landed yet
+
+
+def capture_city(st):
+    """Best-effort CLIENT-side city, since Streamlit Cloud never gives the app the real IP. A
+    hidden component has the visitor's browser ask a free geo API; when it resolves, the city is
+    stitched onto this session's visit record. Fully wrapped: worst case is no city, never a
+    visible or broken page. Must be called every rerun so the component can resolve."""
+    try:
+        if st.session_state.get("_geo_done") or not st.session_state.get("_visit_cid"):
+            return
+        from streamlit_javascript import st_javascript
+        city = st_javascript(
+            "await (async () => { try {"
+            "  const r = await fetch('https://get.geojs.io/v1/ip/geo.json');"
+            "  const d = await r.json();"
+            "  return [d.city, d.country].filter(Boolean).join(', ');"
+            "} catch (e) { return ''; } })()"
+        )
+        if city is None or city == 0:        # component not resolved yet; retry next rerun
+            return
+        st.session_state["_geo_done"] = True
+        if city:
+            day = datetime.now(timezone.utc).date().isoformat()
+            threading.Thread(target=_patch_city, args=(st.session_state["_visit_cid"], city, day),
+                             daemon=True).start()
+    except Exception as e:
+        st.session_state["_geo_done"] = True     # don't loop forever on a broken setup
+        print(f"[analytics] capture_city skipped ({type(e).__name__}: {e})", file=sys.stderr)
