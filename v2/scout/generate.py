@@ -430,22 +430,33 @@ async def _drive(prompt: str, options, top_role: str) -> dict:
         d["cache_creation"] += _u(usage, "cache_creation_input_tokens")
         d["messages"] += 1
 
-    async for message in query(prompt=prompt, options=options):
-        kind = type(message).__name__
-        if kind == "AssistantMessage":
-            parent = getattr(message, "parent_tool_use_id", None)
-            role = top_role if parent is None else agent_names.get(parent, "subagent")
-            bump(role, getattr(message, "usage", None))
-            for b in getattr(message, "content", []) or []:
-                bk = type(b).__name__
-                if bk == "ToolUseBlock" and getattr(b, "name", "") == "Agent":
-                    inp = getattr(b, "input", {}) or {}
-                    agent_names[getattr(b, "id", "")] = inp.get("subagent_type") or "subagent"
-                elif bk == "TextBlock":
-                    last_text = getattr(b, "text", "") or last_text
-        elif kind == "ResultMessage":
-            result = message
-            final_text = getattr(message, "result", None)
+    try:
+        async for message in query(prompt=prompt, options=options):
+            kind = type(message).__name__
+            if kind == "AssistantMessage":
+                parent = getattr(message, "parent_tool_use_id", None)
+                role = top_role if parent is None else agent_names.get(parent, "subagent")
+                bump(role, getattr(message, "usage", None))
+                for b in getattr(message, "content", []) or []:
+                    bk = type(b).__name__
+                    if bk == "ToolUseBlock" and getattr(b, "name", "") == "Agent":
+                        inp = getattr(b, "input", {}) or {}
+                        agent_names[getattr(b, "id", "")] = inp.get("subagent_type") or "subagent"
+                    elif bk == "TextBlock":
+                        last_text = getattr(b, "text", "") or last_text
+            elif kind == "ResultMessage":
+                result = message
+                final_text = getattr(message, "result", None)
+    except BaseException as e:
+        # A crash mid-stream still costs money: the subagents already ran their web searches
+        # and model calls server-side. Make that LOUD so a failed run is never mistaken for free.
+        tok = sum(d["input"] + d["output"] + d["cache_creation"] for d in by_role.values())
+        msgs = sum(d["messages"] for d in by_role.values())
+        print(f"[generate] {top_role} run FAILED mid-stream — billable work already ran: "
+              f"{msgs} msgs, ~{tok} non-cache tokens across {list(by_role) or '[]'} BEFORE the "
+              f"error. A crashed run is NOT free; verify actual usage before any retry. "
+              f"Error: {type(e).__name__}: {e}", file=sys.stderr, flush=True)
+        raise
 
     return {
         "text": final_text or last_text,
@@ -456,6 +467,29 @@ async def _drive(prompt: str, options, top_role: str) -> dict:
         "by_role": by_role,
         "model_usage": getattr(result, "model_usage", None),
     }
+
+
+async def _preflight():
+    """A trivial one-turn query with a near-zero budget, run BEFORE the expensive
+    orchestration. Its only job is to prove the SDK and the Claude CLI can still talk to
+    each other. If they can't (CLI auto-updated past the pinned SDK, missing CLI, broken
+    auth) this fails for pennies, and generate() aborts before spending real money. This is
+    the exact failure class that silently cost ~$28 once: a full run that bills, then
+    crashes at the final result-parse. Cheap-and-loud beats expensive-and-silent."""
+    options = ClaudeAgentOptions(
+        model=config.SUBAGENT_MODEL,
+        permission_mode="bypassPermissions",
+        max_turns=1,
+        max_budget_usd=0.10,
+        allowed_tools=[],
+        disallowed_tools=["WebSearch", "WebFetch", "Agent"],
+    )
+    saw_result = False
+    async for message in query(prompt="Reply with exactly: OK", options=options):
+        if type(message).__name__ == "ResultMessage":
+            saw_result = True
+    if not saw_result:
+        raise RuntimeError("preflight returned no ResultMessage")
 
 
 async def _run_orchestrator(target, perspective, focus) -> dict:
@@ -502,6 +536,17 @@ def generate(target, perspective=None, focus=None, write=True, retry=True):
     Returns a result dict with claims, cut log, grounding instrumentation, and markdown."""
     slug = make_slug(target, perspective, focus)
     reset_log()  # clear the fetch-tool coverage log for this run
+    # PREFLIGHT: prove the SDK<->CLI handshake works for pennies before committing to the
+    # ~$10 run. If the toolchain is broken (e.g. the local Claude CLI auto-updated past the
+    # pinned SDK), abort here rather than bill a full run that then crashes at the end.
+    try:
+        asyncio.run(_preflight())
+    except BaseException as e:
+        raise RuntimeError(
+            f"PREFLIGHT FAILED ({type(e).__name__}: {e}). The SDK<->CLI handshake is broken, "
+            f"most likely a Claude CLI version that no longer matches claude-agent-sdk. Refusing "
+            f"to start the ~$10 generation. Re-sync the CLI and SDK, then retry."
+        ) from e
     run = asyncio.run(_run_orchestrator(target, perspective, focus))
     data = _extract_json(run["text"])
 
