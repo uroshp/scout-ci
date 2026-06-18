@@ -801,6 +801,9 @@ def main():
     _ga = analytics.ga_component_html()
     if _ga:
         components.html(_ga, height=0)
+    # Reliable, server-side visit capture (first-party log with real geo + GA4 server feed),
+    # once per session. Runs off the render thread and can never break the page.
+    analytics.record_visit()
     # ?print=<slug> opens a clean tab showing just the call sheet and auto-fires the print dialog.
     # The inline "Print call sheet" link points here: a link can't call window.open, but it CAN
     # navigate to this route, where the call sheet's own document triggers print on load.

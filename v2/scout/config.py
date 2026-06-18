@@ -31,6 +31,10 @@ FAST_MODEL = os.environ.get("FAST_MODEL", "claude-haiku-4-5-20251001")
 # GA4 Measurement ID for the viewer. This is a CLIENT-side id (it ships in every
 # visitor's page source), so it is not a secret. Empty string disables tracking.
 GA_MEASUREMENT_ID = os.environ.get("GA_MEASUREMENT_ID", "G-MR1Z8NB7BP")
+# GA4 Measurement Protocol API secret (GA4 Admin -> Data Streams -> Measurement Protocol API
+# secrets). Set in Streamlit secrets to enable the unblockable SERVER-SIDE visit feed; the
+# client-side gtag above keeps working regardless. Empty -> server feed disabled, no-op.
+GA_API_SECRET = os.environ.get("GA_MP_API_SECRET", "")
 
 # --- Guards (§10) -------------------------------------------------------------
 # Hard caps so an agent that can loop can't burn money. The SDK enforces both
