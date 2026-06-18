@@ -1109,5 +1109,35 @@
     "verified": true,
     "confidence": "medium",
     "derived_from": "c_425c1ee73775"
+  },
+  {
+    "subject_key": "openai-shazeer-hire",
+    "claim": "OpenAI hired Noam Shazeer, co-author of the 2017 \"Attention Is All You Need\" Transformer paper and Google's Gemini co-lead, who announced on June 18, 2026 he is leaving Google to join OpenAI. The move lands less than two years after Google paid roughly $2.7B in 2024 to bring Shazeer and his Character.AI team back, and it comes days after OpenAI's confidential IPO filing. Altman publicly called him one of the people he had most wanted to work with since OpenAI's start.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 6,
+    "source_url": "https://www.cnbc.com/2026/06/18/google-gemini-co-lead-noam-shazeer-leaves-for-openai.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "I'm excited to share that I'll be joining OpenAI and look forward to working with the exceptional team there,",
+    "as_of": "2026-06-18",
+    "confidence": "high",
+    "id": "c_5063d7920bf7",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-18",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.benzinga.com/markets/tech/26/06/53269428/google-gemini-co-lead-noam-shazeer-joins-openai-sam-altman-says-its-10-years-in-the-making",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

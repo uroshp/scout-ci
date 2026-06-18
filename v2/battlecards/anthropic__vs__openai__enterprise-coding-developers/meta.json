@@ -4,12 +4,13 @@
   "competitor": "OpenAI",
   "focus": "enterprise coding/developers",
   "baseline_date": "2026-06-04",
-  "last_checked": "2026-06-17T17:00:39",
+  "last_checked": "2026-06-18T11:00:35",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_e5e52edeb211",
     "f_0b39ab159d3c",
-    "f_0f9a38b4b62b"
+    "f_0f9a38b4b62b",
+    "f_5cc1562f6599"
   ],
   "monitored": true
 }
