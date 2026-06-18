@@ -69,6 +69,17 @@ def _visitor_ctx(st):
     return ip, g("Referer", "referer"), g("User-Agent", "user-agent"), card
 
 
+_BOT_UA = ("headlesschrome", "playwright", "bot", "spider", "crawl", "slurp",
+           "python-requests", "curl/", "wget", "lighthouse", "pingdom", "uptime", "monitor")
+
+
+def _is_bot(ua):
+    """True for the keep-warm headless browser and other bots, so they don't pollute the
+    real-visitor log. Genuine Chrome/Safari/Firefox UAs match none of these."""
+    u = (ua or "").lower()
+    return any(b in u for b in _BOT_UA)
+
+
 def _geo(ip):
     """City, Country for an IP via a free lookup. '' on any failure (geo is a bonus)."""
     if not ip:
@@ -145,6 +156,8 @@ def record_visit():
         st.session_state["_visit_logged"] = True
         cid = st.session_state.setdefault("_visit_cid", uuid.uuid4().hex)
         ip, ref, ua, card = _visitor_ctx(st)   # fast, from headers, on the render thread
+        if _is_bot(ua):                          # keep-warm + crawlers out of the real-visitor log
+            return
         threading.Thread(target=_log_async, args=(cid, ip, ref, ua, card), daemon=True).start()
     except Exception as e:
         print(f"[analytics] record_visit skipped ({type(e).__name__}: {e})", file=sys.stderr)
