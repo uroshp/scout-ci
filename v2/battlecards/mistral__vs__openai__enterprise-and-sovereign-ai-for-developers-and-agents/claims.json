@@ -1,7 +1,7 @@
 [
   {
     "subject_key": "openai | eu-sovereignty-exposure | current",
-    "claim": "**Sovereignty just became a structural tailwind for Mistral, not a talking point.**\n\nOn June 3 the European Commission's Tech Sovereignty Package put the US Cloud Act at the center of procurement: Brussels said on the record that American providers cannot reach the highest sovereignty tier because US law can compel their data wherever it sits. For regulated and public-sector buyers in Europe, that reframes the OpenAI question from capability to jurisdiction.\n\n**So what:** Lead every sovereign and regulated EU deal with the Cloud Act exposure, and make data residency the first qualifying question, not the last.",
+    "claim": "**Sovereignty is becoming a structural tailwind for Mistral, not just a talking point.**\n\nOn June 3 the European Commission's proposed Tech Sovereignty Package put the US Cloud Act at the center of procurement: the draft would bar American providers from the highest sovereignty tier because US law can compel their data wherever it sits. These rules are proposed, not enacted, and still in EU negotiation with final form likely a year or more out, but even as a proposal they already reframe the OpenAI question for regulated and public-sector EU buyers from capability to jurisdiction.\n\n**So what:** Lead every sovereign and regulated EU deal with the Cloud Act exposure, make data residency the first qualifying question, and position the EU tier rules as the clear direction of travel rather than settled law.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -625,7 +625,7 @@
   },
   {
     "subject_key": "mistral | battlecard-sovereignty | where-we-win",
-    "claim": "**They cannot legally match top-tier EU data sovereignty.**\n\nThe US Cloud Act lets American authorities compel data from US providers regardless of where it is stored, and the European Commission said in June this keeps US firms from the highest sovereignty tier. Mistral, under French jurisdiction with on-prem deployment, is built for exactly the buyers who care most.\n\n**Soundbite:** *\"If your data can be subpoenaed under US law no matter where it lives, you don't have sovereignty. With us it never leaves your jurisdiction or your hardware.\"*",
+    "claim": "**Proposed EU rules would lock US providers out of the top sovereignty tier.**\n\nThe US Cloud Act lets American authorities compel data from US providers regardless of where it is stored, and the European Commission's June proposal would, on exactly that basis, bar US firms from the highest sovereignty tier. Those rules are not yet enacted, but the direction is clear, and Mistral, under French jurisdiction with on-prem deployment, is built for the buyers who care most.\n\n**Soundbite:** *\"If your data can be subpoenaed under US law no matter where it lives, you don't have sovereignty. With us it never leaves your jurisdiction or your hardware.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_we_win",

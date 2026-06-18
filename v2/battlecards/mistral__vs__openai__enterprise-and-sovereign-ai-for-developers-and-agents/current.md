@@ -2,11 +2,11 @@
 
 ## Executive Summary
 
-**Sovereignty just became a structural tailwind for Mistral, not a talking point.**
+**Sovereignty is becoming a structural tailwind for Mistral, not just a talking point.**
 
-On June 3 the European Commission's Tech Sovereignty Package put the US Cloud Act at the center of procurement: Brussels said on the record that American providers cannot reach the highest sovereignty tier because US law can compel their data wherever it sits. For regulated and public-sector buyers in Europe, that reframes the OpenAI question from capability to jurisdiction.
+On June 3 the European Commission's proposed Tech Sovereignty Package put the US Cloud Act at the center of procurement: the draft would bar American providers from the highest sovereignty tier because US law can compel their data wherever it sits. These rules are proposed, not enacted, and still in EU negotiation with final form likely a year or more out, but even as a proposal they already reframe the OpenAI question for regulated and public-sector EU buyers from capability to jurisdiction.
 
-**So what:** Lead every sovereign and regulated EU deal with the Cloud Act exposure, and make data residency the first qualifying question, not the last. ([cnbc.com](https://www.cnbc.com/2026/06/03/europe-tech-sovereignty-us-tech-reliance.html))
+**So what:** Lead every sovereign and regulated EU deal with the Cloud Act exposure, make data residency the first qualifying question, and position the EU tier rules as the clear direction of travel rather than settled law. ([cnbc.com](https://www.cnbc.com/2026/06/03/europe-tech-sovereignty-us-tech-reliance.html))
 
 **Be honest internally: OpenAI is still the category leader, and that is the real threat.**
 
@@ -71,9 +71,9 @@ BNP Paribas runs Mistral models on-premises to meet strict security requirements
 
 ### Where Mistral wins
 
-**They cannot legally match top-tier EU data sovereignty.**
+**Proposed EU rules would lock US providers out of the top sovereignty tier.**
 
-The US Cloud Act lets American authorities compel data from US providers regardless of where it is stored, and the European Commission said in June this keeps US firms from the highest sovereignty tier. Mistral, under French jurisdiction with on-prem deployment, is built for exactly the buyers who care most.
+The US Cloud Act lets American authorities compel data from US providers regardless of where it is stored, and the European Commission's June proposal would, on exactly that basis, bar US firms from the highest sovereignty tier. Those rules are not yet enacted, but the direction is clear, and Mistral, under French jurisdiction with on-prem deployment, is built for the buyers who care most.
 
 **Soundbite:** *"If your data can be subpoenaed under US law no matter where it lives, you don't have sovereignty. With us it never leaves your jurisdiction or your hardware."* ([cnbc.com](https://www.cnbc.com/2026/06/03/europe-tech-sovereignty-us-tech-reliance.html))
 
@@ -156,7 +156,6 @@ It's true OpenAI has more pre-built tooling and community content today. We inte
 Default is doing less work than it used to. When OpenAI retired GPT-4o, roughly 800,000 active users were disrupted with little notice, and that kind of deprecation churn lands on whoever built workflows on a named model. With open weights, you decide when a model version changes.
 
 **So what:** Reframe 'safe' as 'who controls your migration timeline,' where a closed, frequently-deprecated API is the riskier bet. ([techcrunch.com](https://techcrunch.com/2026/02/06/the-backlash-over-openais-decision-to-retire-gpt-4o-shows-how-dangerous-ai-companions-can-be/))
-
 
 ## Cut Log
 
