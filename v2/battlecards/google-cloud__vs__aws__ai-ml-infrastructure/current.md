@@ -91,6 +91,8 @@ Both clouds are supply-limited on top-end Nvidia capacity (TSMC CoWoS and HBM bo
 
 **Soundbite:** *"Nobody has unlimited Blackwell right now. The difference is we give you a real second path, TPUs, so you're not stuck in one GPU line."* ([aws.amazon.com](https://aws.amazon.com/blogs/machine-learning/aws-and-nvidia-deepen-strategic-collaboration-to-accelerate-ai-from-pilot-to-production/))
 
+Agent-platform maturity is now a contested fight, not a clean Google win. At AWS Summit New York (June 17, 2026), AWS shipped a production-agent stack on Bedrock AgentCore: the AgentCore harness reached general availability, alongside a managed Knowledge Base for enterprise RAG, native Web Search grounding inside the customer's AWS environment, and agent observability with recommendations and A/B testing. AWS also added AWS WAF AI traffic monetization (letting publishers charge AI bots for content) and previewed two agent-infrastructure services, AWS Context (a company-wide knowledge graph for agents) and AWS Continuum (agentic code-vulnerability security). AWS says tasks run on AgentCore grew 15x in six months. This narrows the production-agent gap reps used to claim over Vertex AI and the Gemini Enterprise Agent platform. ([aws.amazon.com](https://aws.amazon.com/blogs/aws/top-announcements-of-the-aws-summit-in-new-york-2026/))
+
 ### Where AWS wins
 
 **AWS wins on incumbency and data gravity. Be honest about it.**
