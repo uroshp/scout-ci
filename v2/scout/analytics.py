@@ -11,6 +11,7 @@ This runs on every page load (no cold-start gap) and needs no filesystem write.
 A guard flag on the parent window makes it idempotent across Streamlit's reruns,
 so a visit is counted once, not once per interaction.
 """
+import ipaddress
 import json
 import sys
 import threading
@@ -53,20 +54,41 @@ def ga_component_html(measurement_id: str | None = None) -> str:
 # session and is fully wrapped: analytics can never break the viewer. Assumes low traffic
 # (a portfolio tool), so a per-visit private-store write is fine.
 
+def _client_ip(h):
+    """First PUBLIC client IP across the common proxy headers. Streamlit Cloud's
+    X-Forwarded-For can LEAD with internal k8s IPs (192.168/10.x), so skip private ones
+    and take the first real public address."""
+    cands = []
+    for k in ("X-Forwarded-For", "x-forwarded-for"):
+        if h.get(k):
+            cands += [p.strip() for p in h[k].split(",") if p.strip()]
+    for k in ("X-Real-IP", "x-real-ip", "CF-Connecting-IP", "cf-connecting-ip",
+              "True-Client-IP", "true-client-ip", "Fastly-Client-IP", "X-Client-IP"):
+        if h.get(k):
+            cands.append(h[k].strip())
+    for ip in cands:
+        try:
+            a = ipaddress.ip_address(ip)
+            if not (a.is_private or a.is_loopback or a.is_reserved or a.is_link_local):
+                return ip
+        except ValueError:
+            continue
+    return cands[0] if cands else ""
+
+
 def _visitor_ctx(st):
-    """Visitor IP / referrer / user-agent / card from the request headers. Best-effort."""
+    """Visitor IP / referrer / user-agent / card / header-debug from the request. Best-effort."""
     try:
         h = dict(st.context.headers or {})
     except Exception:
         h = {}
     g = lambda *keys: next((h[k] for k in keys if k in h), "")
-    xff = g("X-Forwarded-For", "x-forwarded-for")
-    ip = xff.split(",")[0].strip() if xff else ""
     try:
         card = st.query_params.get("card") or ""
     except Exception:
         card = ""
-    return ip, g("Referer", "referer"), g("User-Agent", "user-agent"), card
+    dbg = "xff=" + (g("X-Forwarded-For", "x-forwarded-for") or "-")[:160]
+    return _client_ip(h), g("Referer", "referer"), g("User-Agent", "user-agent"), card, dbg
 
 
 _BOT_UA = ("headlesschrome", "playwright", "bot", "spider", "crawl", "slurp",
@@ -132,13 +154,13 @@ def _append_visit(rec):
     selfserve.write_data(path, body, f"analytics: visit {rec['ts']} {rec.get('geo') or rec.get('ip') or '?'}")
 
 
-def _log_async(client_id, ip, ref, ua, card):
+def _log_async(client_id, ip, ref, ua, card, dbg=""):
     """The slow part (geo lookup, GA4 POST, private-store write) off the render thread."""
     _ga4_server_event(client_id, ip, ref, card)
     try:
         _append_visit({
             "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            "ip": ip, "geo": _geo(ip), "card": card, "referrer": ref, "user_agent": ua,
+            "ip": ip, "geo": _geo(ip), "card": card, "referrer": ref, "user_agent": ua, "_dbg": dbg,
         })
     except Exception as e:
         print(f"[analytics] visit-log write skipped ({type(e).__name__}: {e})", file=sys.stderr)
@@ -155,9 +177,9 @@ def record_visit():
             return
         st.session_state["_visit_logged"] = True
         cid = st.session_state.setdefault("_visit_cid", uuid.uuid4().hex)
-        ip, ref, ua, card = _visitor_ctx(st)   # fast, from headers, on the render thread
+        ip, ref, ua, card, dbg = _visitor_ctx(st)   # fast, from headers, on the render thread
         if _is_bot(ua):                          # keep-warm + crawlers out of the real-visitor log
             return
-        threading.Thread(target=_log_async, args=(cid, ip, ref, ua, card), daemon=True).start()
+        threading.Thread(target=_log_async, args=(cid, ip, ref, ua, card, dbg), daemon=True).start()
     except Exception as e:
         print(f"[analytics] record_visit skipped ({type(e).__name__}: {e})", file=sys.stderr)
