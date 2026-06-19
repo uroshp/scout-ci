@@ -590,6 +590,7 @@ def apply_ops(claims: list[dict], confirmed_ops: list[dict], facts: list[dict],
                 "zone": op.get("zone"),
                 "order": _next_order(out, op.get("section"), op.get("zone")),
                 "as_of": as_of,
+                "updated_on": today,                       # when this change landed (drives the changelog + badge)
                 "verified": True,
                 "confidence": "medium",                   # an interpretation, judge-confirmed but not grounded
                 "derived_from": df,
@@ -614,6 +615,7 @@ def apply_ops(claims: list[dict], confirmed_ops: list[dict], facts: list[dict],
                 tgt["claim_type"] = "interpretation"
                 tgt["derived_from"] = df
                 tgt["as_of"] = as_of
+                tgt["updated_on"] = today                   # when this change landed (changelog + badge)
                 for k in _OWN_SOURCE_FIELDS:               # re-anchor to the firing fact's provenance
                     tgt.pop(k, None)
             else:  # retire — status flip, keep text + any own source for the lineage view
