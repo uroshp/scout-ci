@@ -129,16 +129,14 @@ def _ga4_server_event(client_id, ip, ref, card):
 
 
 def _append_visit(rec):
-    """Append one visit to a per-day JSONL log in the PRIVATE store (real geo/referrer/card,
-    fully ours, unblockable). Low traffic, so a read-modify-write per visit is fine."""
+    """Append one visit to a per-day JSONL log in the PRIVATE store (real geo/referrer/card, fully
+    ours, unblockable). Conflict-safe append (selfserve.append_data re-reads + retries on a sha
+    conflict) so two visits in the same window serialize instead of the second 409ing and being
+    lost — the bug that swallowed real visits."""
     from scout import selfserve
     path = f"analytics/visits-{rec['ts'][:10]}.jsonl"
-    try:
-        existing = (selfserve.read_data(path) or "").rstrip("\n")
-    except Exception:
-        existing = ""
-    body = (existing + "\n" if existing else "") + json.dumps(rec, ensure_ascii=False) + "\n"
-    selfserve.write_data(path, body, f"analytics: visit {rec['ts']} {rec.get('geo') or rec.get('ip') or '?'}")
+    selfserve.append_data(path, json.dumps(rec, ensure_ascii=False),
+                          f"analytics: visit {rec['ts']} {rec.get('geo') or rec.get('ip') or '?'}")
 
 
 def _log_async(client_id, ip, ref, ua, card):
@@ -200,24 +198,30 @@ def record_visit():
 
 
 def _patch_city(cid, city, day):
-    """Stitch the browser-resolved city onto this session's visit record (matched by _cid).
-    The immediate server write may still be in flight, so retry a few times. Best-effort."""
+    """Stitch the browser-resolved city onto this session's visit record (matched by _cid). The
+    immediate server write may still be in flight, so wait for the record to land, then patch it
+    conflict-safe (selfserve.update_data re-reads + retries on a sha conflict, so a concurrent
+    visit append can't make this patch clobber it or 409 away). Best-effort."""
     from scout import selfserve
     path = f"analytics/visits-{day}.jsonl"
+
+    def _set_geo(cur):
+        lines = (cur or "").splitlines()
+        for i, ln in enumerate(lines):
+            try:
+                rec = json.loads(ln)
+            except Exception:
+                continue
+            if rec.get("_cid") == cid and not rec.get("geo"):
+                rec["geo"] = city
+                lines[i] = json.dumps(rec, ensure_ascii=False)
+                return "\n".join(lines) + "\n"
+        return None   # record not landed yet (or already patched) -> no write
+
     for _ in range(6):
         try:
-            lines = (selfserve.read_data(path) or "").splitlines()
-            for i, ln in enumerate(lines):
-                try:
-                    rec = json.loads(ln)
-                except Exception:
-                    continue
-                if rec.get("_cid") == cid and not rec.get("geo"):
-                    rec["geo"] = city
-                    lines[i] = json.dumps(rec, ensure_ascii=False)
-                    selfserve.write_data(path, "\n".join(lines) + "\n",
-                                         f"analytics: geo {city} for {cid[:8]}")
-                    return
+            if selfserve.update_data(path, _set_geo, f"analytics: geo {city} for {cid[:8]}"):
+                return
         except Exception:
             pass
         time.sleep(2)   # the immediate visit write may not have landed yet
