@@ -24,7 +24,9 @@ the GitHub API on SELFSERVE_BRANCH. Otherwise everything falls back to the local
 import base64
 import json
 import os
+import random
 import re
+import time
 from datetime import datetime
 
 import httpx
@@ -283,6 +285,48 @@ def read_data(path: str) -> str | None:
 def list_data(path: str) -> list[str]:
     """Public backend-aware directory listing in the DATA store ([] if absent)."""
     return _listdir(path)
+
+
+def update_data(path: str, transform, message: str, *, retries: int = 8) -> bool:
+    """Read-modify-write into the DATA store under OPTIMISTIC CONCURRENCY. `transform(current_text
+    or None) -> new_text` (return None to abort with no write). The plain `_write` reads the sha
+    then PUTs with NO retry, so two writers that read the same sha race and the loser gets a 409
+    and silently drops its change — exactly how the visit log (appended from many sessions at once)
+    lost writes. Here a 409/422 sha conflict means a concurrent writer moved the file, so we
+    RE-READ and re-apply `transform` to the fresh content and retry — writers serialize instead of
+    clobbering. Returns True if a write landed. Local-FS backend has no concurrency, so one pass."""
+    if not use_github():
+        new = transform(_read(path))
+        if new is None:
+            return False
+        _write(path, new, message)
+        return True
+    for attempt in range(retries):
+        cur, sha = _gh_get(path)
+        new = transform(cur)
+        if new is None:
+            return False
+        try:
+            _gh_put(path, new, message, sha)
+            return True
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code in (409, 422) and attempt < retries - 1:
+                # Back off then re-read with a FRESH sha. The jitter is load-bearing: without it
+                # two writers that collide both sleep the same interval and collide again — jitter
+                # desynchronizes them so each eventually wins a clean slot.
+                time.sleep(0.25 * (attempt + 1) + random.uniform(0, 0.25))
+                continue
+            raise
+    return False
+
+
+def append_data(path: str, line: str, message: str) -> None:
+    """Append one line to a DATA-store file, conflict-safe: re-reads + retries so concurrent
+    appends serialize instead of the loser 409ing and vanishing (see update_data)."""
+    def _append(cur):
+        existing = (cur or "").rstrip("\n")
+        return (existing + "\n" if existing else "") + line + "\n"
+    update_data(path, _append, message)
 
 
 def get_request(job_id: str) -> dict | None:
