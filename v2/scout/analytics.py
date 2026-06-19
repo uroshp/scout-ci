@@ -114,10 +114,17 @@ def _ga4_server_event(client_id, ip, ref, card):
         return
     try:
         loc = config.SELFSERVE_APP_URL + (f"/?card={card}" if card else "")
+        # The Streamlit app sends ONE page_title for every card, so GA's default reports can't tell
+        # which battlecard held a visitor. Stamp the slug onto this server event three ways: a
+        # per-card page_title (shows in the default Page-title report, no setup), page_location with
+        # ?card (drives the Pages/path report), and a clean `card` param (register as an event-scoped
+        # custom dimension in GA to slice server_visit by battlecard).
+        slug = card or "(home)"
         payload = {"client_id": client_id, "events": [{
             "name": "server_visit",
             "params": {"session_id": client_id, "engagement_time_msec": "1",
-                       "page_location": loc, "page_referrer": ref or "(direct)"},
+                       "page_location": loc, "page_referrer": ref or "(direct)",
+                       "page_title": f"Scout · {slug}", "card": slug},
         }]}
         url = ("https://www.google-analytics.com/mp/collect"
                f"?measurement_id={urllib.parse.quote(mid)}&api_secret={urllib.parse.quote(secret)}")
