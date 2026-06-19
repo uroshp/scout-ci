@@ -2,16 +2,21 @@ name: keep-warm
 
 # Stops the Streamlit viewer (agent-scout.streamlit.app) from sleeping. Community
 # Cloud hibernates an app after ~12h of no traffic, and a plain ping does NOT wake it
-# (sleep is tied to a browser websocket, not the HTTP request). So every 6h we open the
-# app in a real headless browser and click the wake button if it is down. See
-# .github/scripts/keep-warm.mjs.
+# (sleep is tied to a browser websocket, not the HTTP request). So we open the app in a
+# real headless browser and click the wake button if it is down. See keep-warm.mjs.
+#
+# CADENCE: every 3h, not 6h. GitHub's scheduled cron is unreliable under load — observed
+# firing 2-4h LATE every slot and occasionally DROPPING a slot entirely (e.g. 6/18 18:00
+# never ran). At 6h, two dropped/late slots in a row could open a >12h gap and let the app
+# sleep (the suspected morning-visitor misses). At 3h (8/day) a single drop or a 4h delay
+# still leaves the effective gap well under the sleep window — redundancy against the flake.
 #
 # IMPORTANT: scheduled workflows only fire from the DEFAULT branch (main). This does
 # nothing until it is merged to main.
 
 on:
   schedule:
-    - cron: "0 */6 * * *"   # every 6 hours, UTC. 12h sleep window => 2x safety margin.
+    - cron: "0 */3 * * *"   # every 3 hours, UTC — redundancy against GitHub dropping/delaying a slot.
   workflow_dispatch: {}      # adds a "Run workflow" button for on-demand testing.
 
 # If a scheduled run overlaps a manual one, keep only the latest.
