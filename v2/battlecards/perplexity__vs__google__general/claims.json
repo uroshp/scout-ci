@@ -1143,5 +1143,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "perplexity | product | brain-agent-memory",
+    "claim": "On June 18, 2026 Perplexity launched Brain, a self-improving memory system for its Computer agent, in Research Preview for Max ($200/month) and Enterprise Max subscribers. Brain builds a traceable context graph of what the agent did, what worked, and what got corrected, then synthesizes it overnight into a per-user LLM wiki loaded before each task. Perplexity's internal tests report 25% higher answer correctness on repeated tasks, 16% better recall, and 13% lower cost on context-heavy work. The figures are first-party with no independent benchmark yet.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 10,
+    "source_url": "https://decrypt.co/371584/perplexity-ai-agent-brain",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Perplexity launched Brain today, a memory system for its Computer agent that gets smarter the more you use it.",
+    "as_of": "2026-06-18",
+    "confidence": "high",
+    "id": "c_60d0d012403a",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-19",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.marktechpost.com/2026/06/18/perplexity-launches-brain/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
