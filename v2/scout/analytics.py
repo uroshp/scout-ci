@@ -32,8 +32,11 @@ def ga_component_html(measurement_id: str | None = None) -> str:
         return ""
     return (
         "<script>(function(){"
-        "var p=window.parent;"
-        "if(!p||p.__scoutGA)return;"          # already loaded in this top-level page
+        "var p=window.parent;if(!p)return;"
+        # opt-out marker: visiting ?me=1 sets a 2-year cookie so this device's OWN visits are
+        # excluded from the log (checked server-side in record_visit). Harmless if a stranger sets it.
+        "try{if(p.location.search.indexOf('me=1')>-1){p.document.cookie='scout_me=1; max-age=63072000; path=/; SameSite=Lax';}}catch(e){}"
+        "if(p.__scoutGA)return;"              # GA already loaded in this top-level page
         "p.__scoutGA=true;"
         "var d=p.document,s=d.createElement('script');"
         "s.async=true;"
@@ -161,6 +164,13 @@ def record_visit():
         if st.session_state.get("_visit_logged"):
             return
         st.session_state["_visit_logged"] = True
+        # skip your own devices, each marked once by visiting ?me=1 (sets the scout_me cookie)
+        try:
+            h = dict(st.context.headers or {})
+            if "scout_me=1" in (h.get("Cookie") or h.get("cookie") or ""):
+                return
+        except Exception:
+            pass
         cid = st.session_state.setdefault("_visit_cid", uuid.uuid4().hex)
         ip, ref, ua, card = _visitor_ctx(st)     # fast, from headers, on the render thread
         if _is_bot(ua):                          # keep-warm + crawlers out of the real-visitor log
