@@ -95,6 +95,10 @@ Mistral lists Devstral 2 as up to 7x more cost-efficient than Claude on real tas
 
 **Soundbite:** *"At a billion tokens a month, the question isn't which model is five points better, it's which bill you can actually run continuously."* ([mistral.ai](https://mistral.ai/news/devstral-2-vibe-cli/))
 
+**Vibe puts work automation and coding under one agent and one license.**
+
+Work Mode runs long-running multi-step tasks across Google Workspace, Outlook, SharePoint, Slack, and GitHub after a plan sign-off. Code Mode launches remote coding agents in isolated sandboxes, ships reviewable pull requests, runs sessions in parallel, and keeps sessions alive while the machine is off. A VS Code extension brings the coding agent across the whole project. Pricing: Free, Pro at \$14.99 per month, Team at \$24.99 per user per month, Enterprise. ([mistral.ai](https://mistral.ai/news/vibe-agent/))
+
 ### Where it's a fight
 
 **On coding capability it's a genuine fight, and closing.**
@@ -147,9 +151,7 @@ Mistral is raising at roughly €20 billion, nearly double its last valuation, w
 
 **"Your ecosystem is smaller, with fewer integrations and guides."**
 
-It's true OpenAI has more pre-built tooling and community content today. We integrate with the major orchestration frameworks and ship native GitHub, Jira and Slack hooks in Vibe, and Apache 2.0 means your team can build and own any integration without waiting on us.
-
-**So what:** Trade breadth-of-marketplace for control, which is the better deal for teams standardizing on a stack they must govern. ([tryorbye.com](https://www.tryorbye.com/products/mistral-ai))
+OpenAI has more community content today. Vibe Work Mode ships native connectors for Google Workspace, Outlook, SharePoint, Slack, and GitHub. Code Mode agents run from VS Code and push reviewable pull requests. Ask the buyer which platforms their workflow runs on, then map Vibe's connector list against that on the call. ([mistral.ai](https://mistral.ai/news/vibe-agent/))
 
 **"Isn't OpenAI the safe default everyone already uses?"**
 
