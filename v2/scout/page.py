@@ -158,10 +158,14 @@ def _badge(c: dict, prefix: str) -> str:
 
 
 def _new_chip(new: bool) -> str:
-    """The per-item NEW badge — same signal as the rail's 'Just updated' rows, shown on the
-    claim itself wherever it renders. Keyed off recent_keys (a monitor ACTION within
-    display.NEW_BADGE_WINDOW_HOURS), so it ages out on its own."""
-    return '<span class="scout-new">NEW</span>' if new else ""
+    """The per-item 'Updated' badge — shown on a claim a monitor run OR an approved edit changed
+    within display.NEW_BADGE_WINDOW_HOURS, so it ages out on its own."""
+    return '<span class="scout-new">Updated</span>' if new else ""
+
+
+def _anchor(subject_key: str) -> str:
+    """Stable HTML id for a claim, so the changelog can deep-link straight to it."""
+    return "u-" + re.sub(r"[^a-z0-9]+", "-", (subject_key or "").lower()).strip("-")
 
 
 def _verified(url: str, asof: str = "") -> str:
@@ -194,11 +198,13 @@ def _prose_item(c: dict, *, callout_label=None, callout_kind="sw", badge_prefix=
         call = _callout("sb", "Soundbite", p["soundbite"])
     elif p["so_what"] and callout_label:
         call = _callout(callout_kind, callout_label, p["so_what"])
-    return f'<div class="item">{head}{body}{call}{_verified(c.get("source_url",""))}</div>'
+    return (f'<div class="item" id="{_anchor(c.get("subject_key"))}">'
+            f'{head}{body}{call}{_verified(c.get("source_url",""))}</div>')
 
 
 def _bullet_item(c: dict, new: bool = False) -> str:
-    return (f'<div class="item"><p>{_new_chip(new)}{_inline(c.get("claim",""))}</p>'
+    return (f'<div class="item" id="{_anchor(c.get("subject_key"))}">'
+            f'<p>{_new_chip(new)}{_inline(c.get("claim",""))}</p>'
             f'{_verified(c.get("source_url",""), _fmt_asof(c.get("as_of")))}</div>')
 
 
@@ -287,7 +293,7 @@ def _cut_log(md: str):
     return _section("cut", "Cut Log", f"{n} removed / revised", note + "".join(rows)), n
 
 
-def _rail(status: dict, present: list, plays_n: int = 3) -> str:
+def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = None) -> str:
     plays_lbl = "Top play" if plays_n == 1 else f"Top {plays_n} plays"
     toc = ['<div class="grp brief first">Your daily briefing</div>',
            '<a href="#brief">Today\'s angle</a>',
@@ -338,6 +344,18 @@ def _rail(status: dict, present: list, plays_n: int = 3) -> str:
             f'<span>{_html.escape(str(a.get("headline", a.get("so_what",""))))}</span>{swx}</div>')
     mc = "".join(mc_rows) if mc_rows else '<div class="empty">No material changes detected yet.</div>'
 
+    # Recently updated: claim-level changelog of approved edits, each a deep-link to the claim it
+    # changed, so a rep or CMO sees what moved and jumps straight to it. Keep only rows whose claim
+    # actually renders an anchor on this page (nav_ids) — a hidden section (e.g. executive_summary)
+    # changing must never leave a dead link in the changelog.
+    ru = [r for r in (status.get("recently_updated") or [])
+          if nav_ids is None or _anchor(r.get("subject_key")) in nav_ids]
+    ru_rows = "".join(
+        f'<div class="row"><span class="dt">Updated {_html.escape(str(r.get("updated_on") or ""))}</span>'
+        f'<a href="#{_anchor(r.get("subject_key"))}">{_html.escape(str(r.get("label") or r.get("subject_key") or ""))}</a></div>'
+        for r in ru)
+    ru_html = ru_rows or '<div class="empty">No content changes recently.</div>'
+
     def panel(label, body, extra=""):
         return (f'<div class="panel"><div class="phead"><span class="ey">{label}</span>{extra}</div>'
                 f'<div class="feed">{body}</div></div>')
@@ -347,6 +365,7 @@ def _rail(status: dict, present: list, plays_n: int = 3) -> str:
               f'rel="noopener">{name}</a>') if config.AUTHOR_LINKEDIN else f"Built by {name}"
     return ('<div class="rail">' + nav
             + panel("Material changes", mc, f'<span class="ph-n">{len(mc_rows)}</span>')
+            + panel("Recently updated", ru_html, f'<span class="ph-n">{len(ru)}</span>')
             + panel("Change feed", cf)
             + f'<div class="rail-credit">{credit}</div>' + "</div>")
 
@@ -833,9 +852,10 @@ def content_html(slug: str) -> str:
 
     plays_n = len([c for c in claims if c.get("section") == "battlecard"
                    and c.get("zone") == "where_we_win"][:3])
+    nav_ids = set(re.findall(r'id="(u-[a-z0-9-]+)"', secs))   # anchors that actually render
     inner = (
         '<hr class="rule">'
-        '<div class="cols">' + _rail(status, present, plays_n)
+        '<div class="cols">' + _rail(status, present, plays_n, nav_ids)
         + '<div class="maincol">'
         + _metrics(cp, status["agent_activity"]["claims_tracked"], max(remaining, 0),
                    sum(1 for r in rows if r.get("is_new")))

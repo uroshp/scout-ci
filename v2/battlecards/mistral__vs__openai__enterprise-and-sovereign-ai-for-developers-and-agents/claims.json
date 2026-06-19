@@ -19,7 +19,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "updated_on": "2026-06-17"
   },
   {
     "subject_key": "openai | scale-leadership | current",
@@ -644,7 +645,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "updated_on": "2026-06-17"
   },
   {
     "subject_key": "mistral | battlecard-self-host | where-we-win",
@@ -975,7 +977,8 @@
     "persona": "eng_led",
     "id": "c_84efa1221718",
     "verified": true,
-    "derived_from": "c_e6d04a91ca10"
+    "derived_from": "c_e6d04a91ca10",
+    "updated_on": "2026-06-19"
   },
   {
     "subject_key": "openai | objection-safe-default | current",
@@ -1028,7 +1031,8 @@
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
       }
-    ]
+    ],
+    "updated_on": "2026-06-19"
   },
   {
     "id": "c_cc3a85867bab",
@@ -1041,6 +1045,7 @@
     "as_of": "2026-05-28",
     "verified": true,
     "confidence": "medium",
-    "derived_from": "c_e6d04a91ca10"
+    "derived_from": "c_e6d04a91ca10",
+    "updated_on": "2026-06-19"
   }
 ]

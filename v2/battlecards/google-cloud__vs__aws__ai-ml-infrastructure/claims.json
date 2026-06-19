@@ -906,7 +906,8 @@
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
       }
-    ]
+    ],
+    "updated_on": "2026-06-16"
   },
   {
     "id": "c_5b77998bd015",
@@ -919,7 +920,8 @@
     "as_of": "2026-06-15",
     "verified": true,
     "confidence": "medium",
-    "derived_from": "c_11673e19c0ee"
+    "derived_from": "c_11673e19c0ee",
+    "updated_on": "2026-06-16"
   },
   {
     "subject_key": "battlecard | contested | agent-platform-maturity",
@@ -949,6 +951,7 @@
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
       }
-    ]
+    ],
+    "updated_on": "2026-06-18"
   }
 ]

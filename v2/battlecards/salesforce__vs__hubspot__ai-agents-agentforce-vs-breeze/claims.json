@@ -480,7 +480,8 @@
     "id": "c_9fe9359b2355",
     "verified": true,
     "persona": "exec_top_down",
-    "derived_from": "c_525e3376ed16"
+    "derived_from": "c_525e3376ed16",
+    "updated_on": "2026-06-15"
   },
   {
     "subject_key": "salesforce | analyst-rating | current",
@@ -579,6 +580,7 @@
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
       }
-    ]
+    ],
+    "updated_on": "2026-06-15"
   }
 ]

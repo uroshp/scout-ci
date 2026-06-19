@@ -1022,7 +1022,8 @@
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
       }
-    ]
+    ],
+    "updated_on": "2026-06-15"
   },
   {
     "id": "c_6728a60059ae",
@@ -1035,7 +1036,8 @@
     "as_of": "2026-06-12",
     "verified": true,
     "confidence": "medium",
-    "derived_from": "c_737554eeb37c"
+    "derived_from": "c_737554eeb37c",
+    "updated_on": "2026-06-15"
   },
   {
     "subject_key": "openai-codex-ona-acquisition",
@@ -1065,7 +1067,8 @@
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
       }
-    ]
+    ],
+    "updated_on": "2026-06-16"
   },
   {
     "subject_key": "anthropic | export-ban-customer-defection",
@@ -1095,7 +1098,8 @@
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
       }
-    ]
+    ],
+    "updated_on": "2026-06-17"
   },
   {
     "id": "c_d77edb839591",
@@ -1108,7 +1112,8 @@
     "as_of": "2026-06-16",
     "verified": true,
     "confidence": "medium",
-    "derived_from": "c_425c1ee73775"
+    "derived_from": "c_425c1ee73775",
+    "updated_on": "2026-06-17"
   },
   {
     "subject_key": "openai-shazeer-hire",
@@ -1138,6 +1143,7 @@
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
       }
-    ]
+    ],
+    "updated_on": "2026-06-18"
   }
 ]

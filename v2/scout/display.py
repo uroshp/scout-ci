@@ -21,7 +21,7 @@ import os
 import subprocess
 from datetime import datetime, timedelta, timezone
 
-from scout import config, store
+from scout import config, schema, store
 
 # Display-only Eastern conversion — storage stays naive-UTC (scout.monitor's due-gate
 # compares stored timestamps against the UTC runner clock; see page.py for the same note).
@@ -158,6 +158,8 @@ def change_feed(slug: str, limit: int = 25) -> list[dict]:
             label = label.replace(" — ", ": ")   # historical commit subjects carry em dashes
         elif subj.startswith("selfserve:"):
             label = "Battlecard regenerated"
+        elif subj.startswith("content(card):"):       # an approved propagation edit to this card
+            label = subj.split(":", 1)[1].strip().capitalize().replace(" — ", ": ")
         elif r["email"] in _AGENT_AUTHORS:
             label = subj
         else:
@@ -230,6 +232,55 @@ def recent_update_keys(slug: str, within_hours: int = NEW_BADGE_WINDOW_HOURS,
             for a in recent_updates(slug, within_hours, now) if a.get("subject_key")}
 
 
+CHANGELOG_WINDOW_DAYS = 14   # how far back the "Recently updated" changelog reaches
+
+
+def recently_updated_keys(claims, within_hours=NEW_BADGE_WINDOW_HOURS, now=None):
+    """subject_keys of claims whose updated_on (an approved propagation edit landed) is within the
+    badge window. Complements the alert-based keys so APPROVED card edits also badge, not just
+    monitor-detected competitor news."""
+    now = now or datetime.now()
+    cutoff = now - timedelta(hours=within_hours)
+    out = set()
+    for c in claims:
+        u = _parse_ts(c.get("updated_on"))
+        if u is not None and u >= cutoff and c.get("subject_key"):
+            out.add(c.get("subject_key"))
+    return out
+
+
+def _claim_label(text):
+    """A short human label for a claim: its bold title if it has one, else the first line."""
+    t = (text or "").strip()
+    if "**" in t:
+        seg = t.split("**", 2)
+        if len(seg) >= 3 and seg[1].strip():
+            return seg[1].strip().strip('"')
+    return (t.splitlines()[0][:70] if t else "")
+
+
+def recently_updated_claims(claims, within_days=CHANGELOG_WINDOW_DAYS, now=None):
+    """The claim-level changelog: active claims edited within the window, newest first, each with
+    what the viewer needs to deep-link to it. Powers the 'Recently updated' panel."""
+    now = now or datetime.now()
+    cutoff = now - timedelta(days=within_days)
+    rows = []
+    for c in claims:
+        if str(c.get("status", "active")) != "active":
+            continue
+        # only RENDERED sections — the tracked_facts anchor (our own my_company news) must never
+        # surface in the competitor-facing changelog, even when stamped with updated_on.
+        if c.get("section") not in schema.SECTIONS:
+            continue
+        u = _parse_ts(c.get("updated_on"))
+        if u is not None and u >= cutoff:
+            rows.append({"subject_key": c.get("subject_key"), "section": c.get("section"),
+                         "zone": c.get("zone"), "updated_on": c.get("updated_on"),
+                         "label": _claim_label(c.get("claim"))})
+    rows.sort(key=lambda r: r.get("updated_on") or "", reverse=True)
+    return rows
+
+
 def claim_timestamps(claims: list[dict], recent_keys: set | None = None) -> list[dict]:
     recent_keys = recent_keys or set()
     rows = []
@@ -250,7 +301,9 @@ def card_status(slug: str) -> dict:
     meta = store.load_meta(slug) or {}
     claims = store.load_claims(slug)
     recent = recent_updates(slug)
+    # badge keys = monitor alerts AND approved propagation edits (updated_on) within the window
     recent_keys = {a.get("subject_key") for a in recent if a.get("subject_key")}
+    recent_keys |= recently_updated_keys(claims)
     return {
         "slug": slug,
         "meta": meta,
@@ -260,4 +313,5 @@ def card_status(slug: str) -> dict:
         "claim_timestamps": claim_timestamps(claims, recent_keys),
         "recent_updates": recent,        # powers the "Just updated" sidebar + NEW badges
         "recent_keys": sorted(recent_keys),
+        "recently_updated": recently_updated_claims(claims),   # claim-level changelog (deep-links)
     }

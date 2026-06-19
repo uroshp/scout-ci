@@ -124,6 +124,7 @@ _PROPERTIES = {
         "derived_from": {"type": ["string", "null"], "pattern": "^c_[0-9a-f]{12}$"},
         "status": {"enum": ["active", "retired"]},
         "retired_on": {"type": ["string", "null"], "format": "date"},
+        "updated_on": {"type": ["string", "null"], "format": "date"},
         "retired_reason": {"type": ["string", "null"], "minLength": 1},
 }
 
