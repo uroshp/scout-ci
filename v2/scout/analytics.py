@@ -154,6 +154,24 @@ def _log_async(client_id, ip, ref, ua, card):
         print(f"[analytics] visit-log write skipped ({type(e).__name__}: {e})", file=sys.stderr)
 
 
+_config_logged = False
+
+
+def _log_config_once():
+    """Print, once per process, whether GA is actually wired up in this environment — so a missing
+    Streamlit secret is visible in the logs instead of silently no-opping the server feed. The MP
+    event only fires when BOTH are present (see _ga4_server_event)."""
+    global _config_logged
+    if _config_logged:
+        return
+    _config_logged = True
+    mid = "present" if config.GA_MEASUREMENT_ID else "absent"
+    sec = "present" if config.GA_API_SECRET else "absent"
+    server_feed = "ON" if (config.GA_MEASUREMENT_ID and config.GA_API_SECRET) else "OFF"
+    print(f"[analytics] GA config — measurement_id: {mid}, MP api_secret: {sec} "
+          f"(server_visit feed: {server_feed})", file=sys.stderr)
+
+
 def record_visit():
     """Reliable, server-side visit capture: a first-party JSONL log (with real geo) plus a GA4
     server-side event. Both run on our server, so ad blockers can't stop them. Fires once per
@@ -161,6 +179,7 @@ def record_visit():
     page render."""
     import streamlit as st
     try:
+        _log_config_once()
         if st.session_state.get("_visit_logged"):
             return
         st.session_state["_visit_logged"] = True
