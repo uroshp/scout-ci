@@ -1,5 +1,6 @@
 [server]
 headless = true
+fileWatcherType = "none"   # production has no source hot-reload; this stops the inotify-watch-limit traceback spam on Streamlit Cloud
 address = "0.0.0.0"
 port = 8501
 enableCORS = false
