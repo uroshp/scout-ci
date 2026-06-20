@@ -16,6 +16,7 @@ import time
 from datetime import datetime
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 # Streamlit Community Cloud exposes configured secrets via st.secrets, NOT as env vars. Bridge
 # them into the environment BEFORE importing scout.config (which reads env at import time), so the
@@ -354,8 +355,8 @@ def _render_job_status(job_id: str) -> str | None:
         if claims:
             a1, a2 = st.columns(2, gap="small", vertical_alignment="center")
             with a1:
-                st.iframe(_print_button(page.call_sheet_from_claims(claims, meta), full=True),
-                          height=48)
+                components.html(_print_button(page.call_sheet_from_claims(claims, meta), full=True),
+                                height=48)
             with a2:
                 st.download_button("⬇ Download (Markdown)", data=md, use_container_width=True,
                                    file_name=f"{res.get('slug') or 'competitive-brief'}.md",
@@ -678,7 +679,7 @@ def _render_print_tab(slug: str):
         '[data-testid="stMainBlockContainer"],.block-container{max-width:920px!important;'
         'padding:0.5rem 0 0!important;}[data-testid="stAppViewContainer"]{background:#fff!important;}'
         '</style>', unsafe_allow_html=True)
-    st.iframe(_autoprint(page.call_sheet_html(slug)), height=1100)   # st.iframe always allows scrolling
+    components.html(_autoprint(page.call_sheet_html(slug)), height=1100, scrolling=True)
 
 
 # The Batman vs Superman showcase/stress-test card: always pinned to the 4th dropdown slot, and
@@ -752,7 +753,7 @@ def _title_block_html(slug: str) -> str:
 def _print_button(sheet_html: str, full: bool = False) -> str:
     """A real, reliable print button: opens the call sheet in a FRESH window and prints that
     (no dependency on the cross-origin parent, and immune to the page's scroll-container clip).
-    Rendered via st.iframe so its inline <script> actually runs. `full=True` makes it a
+    Rendered via components.html so its inline <script> actually runs. `full=True` makes it a
     full-width, sans-serif button that sits flush with native Streamlit buttons in the
     self-serve action bar (default is the right-aligned mono pill for the roster row)."""
     tmpl = sheet_html.replace("</script>", "<\\/script>")   # don't break the template script
@@ -799,7 +800,7 @@ def main():
     # set_page_config (Streamlit requires that to be the first call).
     _ga = analytics.ga_component_html()
     if _ga:
-        st.iframe(_ga, height=0)
+        components.html(_ga, height=0)
     # Reliable, server-side visit capture (first-party log with real geo + GA4 server feed),
     # once per session. Off the render thread, and wrapped here so analytics can NEVER break
     # the viewer (incl. a hot-reload race where the module in memory predates this call).
@@ -894,11 +895,11 @@ def main():
     # Land at the top of a newly selected card (Streamlit preserves scroll across reruns).
     if st.session_state.get("_last_slug") != slug:
         st.session_state["_last_slug"] = slug
-        st.iframe("<script>window.parent.scrollTo({top:0});</script>", height=0)
+        components.html("<script>window.parent.scrollTo({top:0});</script>", height=0)
     # Title (full width) then the brief body — both inline. Credit lives in the left rail.
     st.markdown(_title_block_html(slug), unsafe_allow_html=True)
     st.markdown(page.content_html(slug), unsafe_allow_html=True)
-    st.iframe(_countdown_component(), height=0)   # live-tick the "Next update" countdown
+    components.html(_countdown_component(), height=0)   # live-tick the "Next update" countdown
 
 
 if __name__ == "__main__":
