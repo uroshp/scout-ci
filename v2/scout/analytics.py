@@ -81,17 +81,24 @@ def _client_ip(h):
 
 
 def _visitor_ctx(st):
-    """Visitor IP / referrer / user-agent / card from the request headers. Best-effort."""
+    """Visitor IP / referrer / user-agent / card / utm from the request + URL. Best-effort.
+    Reads the UTM params HERE, at landing (record_visit runs early in main(), before app_v2
+    rewrites the query string — it sets ?card= and drops the utm a beat later). Capturing them
+    now is what makes campaign attribution reliable: Streamlit strips utm from the live URL, so
+    the client gtag often never sees it, but this server-side read does."""
     try:
         h = dict(st.context.headers or {})
     except Exception:
         h = {}
     g = lambda *keys: next((h[k] for k in keys if k in h), "")
     try:
-        card = st.query_params.get("card") or ""
+        qp = st.query_params
+        card = qp.get("card") or ""
+        utm = {k: qp.get(k) for k in ("utm_source", "utm_medium", "utm_campaign",
+                                      "utm_term", "utm_content") if qp.get(k)}
     except Exception:
-        card = ""
-    return _client_ip(h), g("Referer", "referer"), g("User-Agent", "user-agent"), card
+        card, utm = "", {}
+    return _client_ip(h), g("Referer", "referer"), g("User-Agent", "user-agent"), card, utm
 
 
 _BOT_UA = ("headlesschrome", "playwright", "bot", "spider", "crawl", "slurp",
@@ -105,7 +112,7 @@ def _is_bot(ua):
     return any(b in u for b in _BOT_UA)
 
 
-def _ga4_server_event(client_id, ip, ref, card):
+def _ga4_server_event(client_id, ip, ref, card, utm=None):
     """Fire a GA4 Measurement Protocol 'server_visit' event (server-side, unblockable). A
     distinct event name (not page_view) so it never double-counts the client gtag and gives a
     clean reliable visit metric. No-op without an API secret. Best-effort."""
@@ -113,19 +120,24 @@ def _ga4_server_event(client_id, ip, ref, card):
     if not (mid and secret):
         return
     try:
-        loc = config.SELFSERVE_APP_URL + (f"/?card={card}" if card else "")
+        utm = utm or {}
+        # Build page_location with the captured utm + card. The utm rides in the URL so GA4 reads the
+        # campaign source off page_location — Streamlit strips utm from the live client URL before the
+        # gtag reliably sees it, so this server-side copy is the source of truth for attribution.
+        qs = "&".join(f"{k}={urllib.parse.quote(str(v))}"
+                      for k, v in list(utm.items()) + ([("card", card)] if card else []))
+        loc = config.SELFSERVE_APP_URL + (f"/?{qs}" if qs else "")
         # The Streamlit app sends ONE page_title for every card, so GA's default reports can't tell
         # which battlecard held a visitor. Stamp the slug onto this server event three ways: a
         # per-card page_title (shows in the default Page-title report, no setup), page_location with
         # ?card (drives the Pages/path report), and a clean `card` param (register as an event-scoped
         # custom dimension in GA to slice server_visit by battlecard).
         slug = card or "(home)"
-        payload = {"client_id": client_id, "events": [{
-            "name": "server_visit",
-            "params": {"session_id": client_id, "engagement_time_msec": "1",
-                       "page_location": loc, "page_referrer": ref or "(direct)",
-                       "page_title": f"Scout · {slug}", "card": slug},
-        }]}
+        params = {"session_id": client_id, "engagement_time_msec": "1",
+                  "page_location": loc, "page_referrer": ref or "(direct)",
+                  "page_title": f"Scout · {slug}", "card": slug}
+        params.update(utm)   # also expose utm_* as event params for custom-dimension slicing
+        payload = {"client_id": client_id, "events": [{"name": "server_visit", "params": params}]}
         url = ("https://www.google-analytics.com/mp/collect"
                f"?measurement_id={urllib.parse.quote(mid)}&api_secret={urllib.parse.quote(secret)}")
         req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"),
@@ -146,15 +158,18 @@ def _append_visit(rec):
                           f"analytics: visit {rec['ts']} {rec.get('geo') or rec.get('ip') or '?'}")
 
 
-def _log_async(client_id, ip, ref, ua, card):
+def _log_async(client_id, ip, ref, ua, card, utm=None):
     """GA4 server event + the first-party visit write, off the render thread. geo starts empty
     and capture_city() fills it in from the browser, since Streamlit Cloud strips the real IP."""
-    _ga4_server_event(client_id, ip, ref, card)
+    utm = utm or {}
+    _ga4_server_event(client_id, ip, ref, card, utm)
     try:
-        _append_visit({
+        rec = {
             "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "_cid": client_id, "ip": ip, "geo": "", "card": card, "referrer": ref, "user_agent": ua,
-        })
+        }
+        rec.update(utm)   # utm_source / utm_medium / ... captured at landing, before Streamlit strips them
+        _append_visit(rec)
     except Exception as e:
         print(f"[analytics] visit-log write skipped ({type(e).__name__}: {e})", file=sys.stderr)
 
@@ -196,10 +211,10 @@ def record_visit():
         except Exception:
             pass
         cid = st.session_state.setdefault("_visit_cid", uuid.uuid4().hex)
-        ip, ref, ua, card = _visitor_ctx(st)     # fast, from headers, on the render thread
-        if _is_bot(ua):                          # keep-warm + crawlers out of the real-visitor log
+        ip, ref, ua, card, utm = _visitor_ctx(st)   # fast, from headers + URL, on the render thread
+        if _is_bot(ua):                             # keep-warm + crawlers out of the real-visitor log
             return
-        threading.Thread(target=_log_async, args=(cid, ip, ref, ua, card), daemon=True).start()
+        threading.Thread(target=_log_async, args=(cid, ip, ref, ua, card, utm), daemon=True).start()
     except Exception as e:
         print(f"[analytics] record_visit skipped ({type(e).__name__}: {e})", file=sys.stderr)
 
