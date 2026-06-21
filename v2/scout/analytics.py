@@ -215,13 +215,21 @@ def record_visit():
         if st.session_state.get("_visit_logged"):
             return
         st.session_state["_visit_logged"] = True
-        # skip your own devices, each marked once by visiting ?me=1 (sets the scout_me cookie)
+        # skip your own devices: the scout_me cookie (a returning marked device sends it in the
+        # request) OR ?me= in the URL right now. The query-param check is the fix — it catches the
+        # FIRST ?me=1 load too, before the cookie is ever in the request headers, which is exactly
+        # why server_visit kept firing for your own visits even after the client tag was suppressed.
         try:
             h = dict(st.context.headers or {})
-            if "scout_me=1" in (h.get("Cookie") or h.get("cookie") or ""):
-                return
+            opted_out = "scout_me=1" in (h.get("Cookie") or h.get("cookie") or "")
+        except Exception:
+            opted_out = False
+        try:
+            opted_out = opted_out or bool(st.query_params.get("me"))
         except Exception:
             pass
+        if opted_out:
+            return
         cid = st.session_state.setdefault("_visit_cid", uuid.uuid4().hex)
         ip, ref, ua, card, utm = _visitor_ctx(st)   # fast, from headers + URL, on the render thread
         if _is_bot(ua):                             # keep-warm + crawlers out of the real-visitor log
