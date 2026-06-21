@@ -25,17 +25,28 @@ from scout import config
 
 
 def ga_component_html(measurement_id: str | None = None) -> str:
-    """HTML to hand to st.components.v1.html(..., height=0). Empty string when
-    analytics is disabled (no measurement id)."""
+    """HTML to hand to st.iframe(..., height=1). Empty string when analytics is disabled
+    (no measurement id). The injected script SELF-GATES client-side so GA only fires for real
+    prod visitors: (1) it bails unless the page hostname is the prod host — so the app running in
+    a Codespace / localhost / any dev preview never fires GA (the github.dev + localhost dev
+    traffic we saw); (2) it bails if the `scout_me` opt-out cookie is set — so your own marked
+    devices are excluded EVERYWHERE (cellular, Codespace, anywhere), not just by a stale IP filter."""
     mid = measurement_id or config.GA_MEASUREMENT_ID
     if not mid:
         return ""
-    return (
-        "<script>(function(){"
+    host = urllib.parse.urlparse(config.SELFSERVE_APP_URL).hostname or ""
+    # only run on the real prod hostname; if the prod URL is somehow unset, skip the guard rather
+    # than block GA everywhere (an empty host would never match a real hostname).
+    host_guard = (f"try{{if(p.location.hostname!=='{host}')return;}}catch(e){{return;}}"
+                  if host else "")
+    js = (
+        "(function(){"
         "var p=window.parent;if(!p)return;"
+        + host_guard +
         # opt-out marker: visiting ?me=1 sets a 2-year cookie so this device's OWN visits are
-        # excluded from the log (checked server-side in record_visit). Harmless if a stranger sets it.
+        # excluded from the client tag here AND the server feed/log (record_visit checks it too).
         "try{if(p.location.search.indexOf('me=1')>-1){p.document.cookie='scout_me=1; max-age=63072000; path=/; SameSite=Lax';}}catch(e){}"
+        "try{if((p.document.cookie||'').indexOf('scout_me=1')>-1)return;}catch(e){}"
         "if(p.__scoutGA)return;"              # GA already loaded in this top-level page
         "p.__scoutGA=true;"
         "var d=p.document,s=d.createElement('script');"
@@ -47,8 +58,9 @@ def ga_component_html(measurement_id: str | None = None) -> str:
         "p.gtag=gtag;"
         "gtag('js',new Date());"
         f"gtag('config','{mid}');"
-        "})();</script>"
+        "})();"
     )
+    return f"<script>{js}</script>"
 
 
 # --- Server-side, unblockable visit capture -----------------------------------
