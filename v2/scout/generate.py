@@ -407,6 +407,28 @@ def _extract_json(text: str) -> dict:
     raise ValueError("no JSON object found in orchestrator output")
 
 
+def _accept_grounded(slug, grounded_kept, schema_problems):
+    """Filter grounded claims to those we publish, but NEVER silently drop a render-format failure
+    (decision-log §11). A claim that grounded TRUE and fails ONLY the render-structure gate is a
+    confirmed-material claim with a formatting problem -> repair-or-hold it (publish the repair, or
+    HOLD + flag), never cut. Claims with OTHER schema errors are surfaced to schema_problems rather
+    than vanishing. This replaces the old `[c for c in kept if not validation_errors(c)]`, which
+    silently dropped both."""
+    from scout import reformat
+    out = []
+    for c in grounded_kept:
+        errs = validation_errors(c)
+        if not errs:
+            out.append(c)
+        elif all(("So what" in e or "Soundbite" in e) for e in errs):   # render-format only
+            status, c2 = reformat.repair_or_hold(slug, c)
+            if status != "held":
+                out.append(c2)                                          # held -> surfaced, never dropped
+        else:
+            schema_problems.append((c.get("subject_key"), errs))        # other schema errors: surface
+    return out
+
+
 def _u(usage, key):
     if usage is None:
         return 0
@@ -570,7 +592,7 @@ def generate(target, perspective=None, focus=None, write=True, retry=True):
 
     # GROUND (independent fetch; model-free) — drops absent/unreachable claims.
     grounded = ground_claims(candidates)
-    kept = [c for c in grounded["kept"] if not validation_errors(c)]
+    kept = _accept_grounded(slug, grounded["kept"], schema_problems)  # no-drop: repair-or-hold, never silently cut
     failed = grounded.get("failed", [])
 
     # FEEDBACK RETRY (one bounded round): send each failed claim back to repair —
@@ -596,7 +618,7 @@ def generate(target, perspective=None, focus=None, write=True, retry=True):
             if not pregrounding_errors(c):
                 revised.append(c)
         reground = ground_claims(revised) if revised else {"kept": [], "failed": []}
-        newly = [c for c in reground["kept"] if not validation_errors(c)]
+        newly = _accept_grounded(slug, reground["kept"], schema_problems)  # no-drop on the retry path too
         kept += newly
         # Every ORIGINAL failure must end up either recovered (re-grounded into kept)
         # or in the Cut Log — never silently dropped. Match recoveries by stable id.
