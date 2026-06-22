@@ -48,14 +48,37 @@ def _title(meta: dict) -> str:
             else f"# Competitive Intelligence Brief: {comp}")
 
 
+def _decision_to_op(d: dict) -> dict:
+    """Map a LOGGED propagation decision (subject_key/new_text, as written by propagate.log_decisions)
+    to the apply-able op shape apply_ops expects (target_subject_key/claim). Idempotent: an op already
+    in apply shape (carries 'claim', no 'new_text') is returned unchanged. Without this, a logged
+    REVISE skips ('target not active') because its target_subject_key is never set."""
+    if d.get("claim") is not None or "new_text" not in d:
+        return d                                          # already apply-shaped (e.g. lifted from email)
+    op = {"operation": d.get("operation"), "section": d.get("section"), "zone": d.get("zone"),
+          "subject_key": d.get("subject_key"), "derived_from": d.get("derived_from"),
+          "claim_type": "interpretation"}
+    if d.get("operation") in ("revise", "retire"):
+        op["target_subject_key"] = d.get("subject_key")   # revise/retire act in place on this subject_key
+    if d.get("operation") == "retire":
+        op["retired_reason"] = d.get("retired_reason")
+    else:
+        op["claim"] = d.get("new_text")
+    if d.get("persona"):
+        op["persona"] = d["persona"]
+    return op
+
+
 def apply(slug: str, ops: list, facts: list, write: bool = True) -> dict:
     """Apply judge-confirmed propagation ops to the LIVE card. Persists any my_company tracked_facts
     anchor an op derives from that isn't already on the card (review/shadow never wrote it), applies
     via the deterministic apply_ops, re-renders current.md (carrying the Cut Log forward), and writes
     the baseline. Returns {applied, skipped, claims}. The CALLER commits + pushes.
 
-    `ops`/`facts` come from pending(slug) or straight from the approval email — apply itself is the
-    deterministic, model-free step."""
+    `ops`/`facts` come from pending(slug) or straight from the approval email. Each op is normalized
+    through _decision_to_op so a logged decision (subject_key/new_text) applies the same as an
+    apply-shaped op — apply itself is the deterministic, model-free step."""
+    ops = [_decision_to_op(o) for o in (ops or [])]
     if not ops:
         return {"applied": [], "skipped": [], "reason": "no ops to apply", "claims": None}
     meta = store.load_meta(slug) or {}

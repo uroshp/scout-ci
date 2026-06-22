@@ -86,10 +86,11 @@ def label(delta_id: str, human_verdict: str, note: str = "") -> str:
     """Record a human adjudication (append-only): did the judge get this op right?
     human_verdict -> 'agree' (judge right) | 'disagree' (judge wrong)."""
     hv = "agree" if str(human_verdict).strip().lower() in ("agree", "right", "correct", "y", "yes") else "disagree"
-    raw = selfserve.read_data(LABELS_PATH) or ""
     entry = json.dumps({"delta_id": delta_id, "human_verdict": hv, "note": note}, ensure_ascii=False)
-    selfserve.write_data(LABELS_PATH, (raw.rstrip("\n") + "\n" + entry).lstrip("\n"),
-                         f"adjudicate: {delta_id} {hv}")
+    # append_data is conflict-safe (re-reads + retries on a 409); plain read+write raced and dropped a
+    # label when review.apply auto-logged two approvals back-to-back. load_labels is last-wins, so a
+    # duplicate from a retry is harmless.
+    selfserve.append_data(LABELS_PATH, entry, f"adjudicate: {delta_id} {hv}")
     return hv
 
 
