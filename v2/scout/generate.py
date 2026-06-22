@@ -184,8 +184,9 @@ The parts by section:
 - EXECUTIVE SUMMARY: title = the verdict; paragraph = the supporting detail; closing = "**So what:**"
   + the concrete decision it changes. Every exec point needs its So what.
 - BATTLECARD (section "battlecard"): title = the edge in one line; paragraph = why it holds and for
-  which buyer; closing = "**Soundbite:**" + an italicized line a rep could say out loud, e.g.
-  *"..."*. Evidence-backed, never combative trash-talk.
+  which buyer. For a where_we_win / where_they_win PLAY, the closing = "**Soundbite:**" + an
+  italicized line a rep could say out loud, e.g. *"..."* (evidence-backed, never combative
+  trash-talk). A "contested" entry is a neutral framing, not a play, and may omit the Soundbite.
 - OBJECTION HANDLING (section "objection_handling"): title = the objection a prospect raises — citing
   EITHER the competitor's strength OR an adverse development on OUR OWN side (a customer dropping our
   product, our usage limits, a public setback); paragraph = an honest, evidence-based response that

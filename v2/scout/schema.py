@@ -209,19 +209,20 @@ def _errors(validator, claim):
 
 
 def render_structure_errors(claim: dict) -> list[str]:
-    """Deterministic RENDER-CONTRACT check, scoped to ONLY the sections that actually carry these
-    structured blocks (scout/page.py). Other sections — strategic/executive summary, pricing,
-    packaging, recent moves, sentiment — legitimately have no So-what/Soundbite, so we never force one
-    where it does not fit:
-      - objection_handling MUST carry a '**So what:**' block (the rep's move);
-      - battlecard win/lose plays (where_we_win / where_they_win) MUST carry a '**Soundbite:**' block.
+    """Deterministic RENDER-CONTRACT check, scoped to ONLY the sections that actually render a
+    structured response block (scout/page.py). The rest legitimately have none, so we never force one
+    where it does not fit: recent_moves (Recent STRATEGIC Moves — its So-what is OPTIONAL), snapshot,
+    positioning, pricing/packaging, sentiment, tracked_facts.
+      - executive_summary + objection_handling MUST carry a '**So what:**' block;
+      - battlecard win/lose plays (where_we_win / where_they_win) MUST carry a '**Soundbite:**' block
+        (a 'contested' entry is a neutral framing, not a play, and is exempt).
     Within those, a missing marker means the claim renders as an unstructured blob — so it is a hard
     validity error that triggers a re-ask (NOT a drop; see the generation/propagation retry loops)."""
     text = claim.get("claim") or ""
     section, zone = claim.get("section"), claim.get("zone")
     errs = []
-    if section == "objection_handling" and "**So what:**" not in text:
-        errs.append("objection_handling: missing required '**So what:**' block (renders as an unstructured blob)")
+    if section in ("executive_summary", "objection_handling") and "**So what:**" not in text:
+        errs.append(f"{section}: missing required '**So what:**' block (renders as an unstructured blob)")
     if section == "battlecard" and zone in ("where_we_win", "where_they_win") and "**Soundbite:**" not in text:
         errs.append("battlecard win/lose play: missing required '**Soundbite:**' block")
     return errs
