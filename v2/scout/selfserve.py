@@ -72,15 +72,19 @@ def _gh_get(path: str) -> tuple[str | None, str | None]:
     return base64.b64decode(data["content"]).decode("utf-8"), data["sha"]
 
 
-def _gh_list(path: str) -> list[str]:
-    """List the filenames in a repo directory via the GitHub API; [] if the dir 404s."""
+def _gh_list(path: str, include_dirs: bool = False) -> list[str]:
+    """List a repo directory via the GitHub API; [] if the dir 404s. By default returns FILES only
+    (the historical behavior most callers rely on). Pass include_dirs=True to also return
+    SUBDIRECTORIES — needed for stores laid out one-subdir-per-key (shadow/<slug>/, propagation/
+    <slug>/): without it a listing of the parent looks empty even when full (it has only subdirs)."""
     url = f"{_GH_API}/repos/{config.SELFSERVE_REPO}/contents/{_repo_path(path)}"
     r = httpx.get(url, headers=_headers(), params={"ref": config.SELFSERVE_BRANCH}, timeout=20)
     if r.status_code == 404:
         return []
     r.raise_for_status()
     data = r.json()
-    return [e["name"] for e in data if e.get("type") == "file"]
+    return [e["name"] for e in data
+            if e.get("type") == "file" or (include_dirs and e.get("type") == "dir")]
 
 
 def _gh_put(path: str, text: str, message: str, sha: str | None = None) -> None:
@@ -121,10 +125,12 @@ def _write(path: str, text: str, message: str) -> None:
         f.write(text)
 
 
-def _listdir(path: str) -> list[str]:
-    """Filenames in a store directory, backend-aware (GitHub API or local FS)."""
+def _listdir(path: str, include_dirs: bool = False) -> list[str]:
+    """Entries in a store directory, backend-aware (GitHub API or local FS). Default = files only on
+    the GitHub backend; include_dirs=True also returns subdirectories (local os.listdir already
+    returns both, so the flag only changes the GitHub path)."""
     if use_github():
-        return _gh_list(path)
+        return _gh_list(path, include_dirs)
     p = _local(path)
     return sorted(os.listdir(p)) if os.path.isdir(p) else []
 
@@ -282,9 +288,11 @@ def read_data(path: str) -> str | None:
     return _read(path)
 
 
-def list_data(path: str) -> list[str]:
-    """Public backend-aware directory listing in the DATA store ([] if absent)."""
-    return _listdir(path)
+def list_data(path: str, include_dirs: bool = False) -> list[str]:
+    """Public backend-aware directory listing in the DATA store ([] if absent). Files only by
+    default; pass include_dirs=True for stores keyed by subdirectory (shadow/<slug>/, propagation/
+    <slug>/) — otherwise the GitHub backend returns [] for a dir that holds only subdirs."""
+    return _listdir(path, include_dirs)
 
 
 def update_data(path: str, transform, message: str, *, retries: int = 8) -> bool:

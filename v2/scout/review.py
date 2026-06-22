@@ -12,6 +12,7 @@ Two ways to source the op being approved:
     approval email), so approval never hard-depends on local store access.
 """
 import json
+import sys
 from datetime import date
 
 from scout import selfserve, store
@@ -79,7 +80,44 @@ def apply(slug: str, ops: list, facts: list, write: bool = True) -> dict:
         if cut_log:
             body = body.rstrip() + "\n\n" + cut_log
         store.write_baseline(slug, new_claims, meta, format_report(clean_output(body)))
+        # Close the adjudication leak: approving a proposal means the human judged the authorship
+        # judge RIGHT to confirm it. Record that 'agree' (this used to be lost — apply wrote the card
+        # but never labeled the judge), feeding the §17 promotion gate. Best-effort, never blocks.
+        applied_keys = {(a.get("subject_key"), a.get("operation")) for a in res["applied"]}
+        _log_human_verdict(slug, [o for o in ops if (o.get("subject_key"), o.get("operation")) in applied_keys],
+                           "agree", "auto-logged by review.apply on approval")
     return {"applied": res["applied"], "skipped": res["skipped"], "claims": new_claims}
+
+
+def _log_human_verdict(slug: str, ops: list, human_verdict: str, note: str = "") -> int:
+    """Best-effort: append the human's adjudication of the authorship judge (was it right to confirm
+    these ops?) to adjudication/authorship_labels.jsonl, matching each op to its captured propagation
+    decision via the canonical delta_id. Fully wrapped per the non-disruption contract — it can only
+    ever WARN, never raise into the approval path. Returns how many labels it wrote."""
+    n = 0
+    try:
+        from scout import adjudicate
+        want = {(o.get("subject_key"), o.get("operation"), o.get("derived_from")) for o in ops}
+        for d in adjudicate.load_deltas():
+            if d.get("slug") != slug or d.get("judge_verdict") not in ("confirm", "reject"):
+                continue
+            if (d.get("subject_key"), d.get("operation"), d.get("derived_from")) in want:
+                adjudicate.label(d["delta_id"], human_verdict, note)
+                n += 1
+    except Exception as e:
+        print(f"[review] verdict-log skipped ({type(e).__name__}: {e})", file=sys.stderr)
+    return n
+
+
+def reject(slug: str, subject_keys, note: str = "") -> int:
+    """Record that the human DECLINED judge-confirmed proposal(s) for these subject_keys (the judge
+    was WRONG to confirm). A decline leaves no git commit, so without this the disagreement signal is
+    lost. Resolves the ops from the latest logged proposals and labels them 'disagree'. Returns the
+    count. (The approve path auto-logs 'agree'; this is its explicit counterpart for rejections.)"""
+    p = pending(slug)
+    wanted = {str(s) for s in subject_keys}
+    ops = [o for o in p["confirmed"] if str(o.get("subject_key")) in wanted]
+    return _log_human_verdict(slug, ops, "disagree", note or "human declined the proposal")
 
 
 def approve(slug: str, subject_keys=None, write: bool = True) -> dict:

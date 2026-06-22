@@ -43,7 +43,7 @@ def load_deltas() -> list:
     """Every captured propagation op decision, flattened, each tagged with slug, run_ts, delta_id.
     Tolerates a backend that lists files only (GitHub) or dirs+files (local FS)."""
     out = []
-    for slug in selfserve.list_data(PROP_DIR):
+    for slug in selfserve.list_data(PROP_DIR, include_dirs=True):  # propagation/ holds per-card SUBDIRS
         if slug.endswith(".json"):           # a file at the top level is not a slug dir; skip
             continue
         for fn in selfserve.list_data(f"{PROP_DIR}/{slug}"):
