@@ -1145,5 +1145,35 @@
       }
     ],
     "updated_on": "2026-06-18"
+  },
+  {
+    "subject_key": "openai-si-partner-network",
+    "claim": "OpenAI formalized its channel push into the OpenAI Partner Network on June 14, 2026, a $150M tiered program (Select, Advanced, Elite) targeting 300,000 certified consultants by the end of 2026, with specializations in Codex, cybersecurity, and agents plus a Forward Deployed Experts pilot that embeds partner practitioners alongside OpenAI's own engineering teams. Launch partners include Accenture, Bain, BCG, McKinsey, and PwC; the program goes live in July. For scale framing, Anthropic's Claude Partner Network ($100M, launched March 2026) had certified roughly 10,000 consultants and drawn 40,000+ company applicants by mid-June 2026.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 22,
+    "source_url": "https://www.channelinsider.com/news-and-trends/openai-debuts-partner-network-backed-by-150m-investment/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI also plans to train and enable 300,000 certified consultants by the end of 2026.",
+    "as_of": "2026-06-14",
+    "confidence": "high",
+    "id": "c_97401f05539a",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-22",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.techtimes.com/articles/318436/20260615/openai-launches-partner-network-150m-bet-that-implementation-beats-model-power.htm",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
