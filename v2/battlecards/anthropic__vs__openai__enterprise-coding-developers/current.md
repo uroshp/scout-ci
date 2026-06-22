@@ -166,9 +166,11 @@ Fair: the June 15 Agent-SDK credit split is Anthropic's third billing change in 
 
 **"The government forced Anthropic to disable two of its models overnight for every customer. How do we know the same won't happen to what we're building on?"**
 
-Real and recent: a June 12, 2026 export-control directive required Anthropic to suspend foreign-national access to Fable 5 and Mythos 5; to ensure compliance, Anthropic disabled both models for all customers globally. Anthropic complied and disputes the ruling; it is working to restore access. Critically, access to all other Anthropic models is unaffected per Anthropic's own statement. For any team evaluating or building on today's production lineup, including Opus 4.8, nothing changes.
+Real and ongoing: the June 12, 2026 export-control directive suspended Fable 5 and Mythos 5 globally. As of June 21 (day nine of the ban), both remain off for all users. Senate testimony this week widened the reported government concern from a narrow jailbreak to Mythos-class autonomous offensive capability, and reporting frames near-term restoration as harder to negotiate.
 
-**So what:** Walk the buyer through exactly which models are in scope for their use case and confirm each is in the unaffected set. ([anthropic.com](https://www.anthropic.com/news/fable-mythos-access))
+On build risk: Claude Sonnet 4.6 and Opus 4.8 were never under the directive and have stayed fully available throughout.
+
+**So what:** Propose standardizing the customer's production stack on Sonnet 4.6 or Opus 4.8 today. The directive's scope covered only Fable 5 and Mythos 5. ([anthropic.com](https://www.anthropic.com/news/fable-mythos-access))
 
 **"International buyers are moving to Mistral and Cohere because of the export ban. Is Anthropic losing ground internationally?"**
 
