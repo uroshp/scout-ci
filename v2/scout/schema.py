@@ -208,14 +208,36 @@ def _errors(validator, claim):
     ]
 
 
+def render_structure_errors(claim: dict) -> list[str]:
+    """Deterministic RENDER-CONTRACT check. The viewer (scout/page.py) builds the structured
+    "So what" box and soundbite callout by splitting block-section prose on literal markers; a block
+    claim missing its marker renders as an unstructured BLOB. So a missing marker is a hard validity
+    error, not a nicety — we never publish a block claim that cannot render:
+      - executive_summary + objection_handling MUST carry a '**So what:**' block;
+      - battlecard win/lose plays MUST carry a '**Soundbite:**' block.
+    Rejecting forces the model to re-emit the claim in the required shape (no malformed publish)."""
+    text = claim.get("claim") or ""
+    section, zone = claim.get("section"), claim.get("zone")
+    errs = []
+    if section in ("executive_summary", "objection_handling") and "**So what:**" not in text:
+        errs.append(f"{section}: missing required '**So what:**' block (renders as an unstructured blob)")
+    if section == "battlecard" and zone in ("where_we_win", "where_they_win") and "**Soundbite:**" not in text:
+        errs.append("battlecard win/lose play: missing required '**Soundbite:**' block")
+    return errs
+
+
 def validation_errors(claim: dict) -> list[str]:
-    """Return human-readable schema errors for one (final, grounded) claim ([] if valid)."""
-    return _errors(_validator, claim)
+    """Return human-readable schema errors for one (final, grounded) claim ([] if valid). Includes the
+    render-structure contract, so a block claim that would render as a blob is rejected here — the gate
+    that stops a malformed objection/play from ever being applied or published."""
+    return _errors(_validator, claim) + render_structure_errors(claim)
 
 
 def pregrounding_errors(claim: dict) -> list[str]:
-    """Schema errors for a claim before grounding has been attached ([] if valid)."""
-    return _errors(_pre_validator, claim)
+    """Schema errors for a claim before grounding has been attached ([] if valid). Also enforces the
+    render-structure contract, so generation rejects a markerless block claim before spending a fetch
+    — forcing the verifier to re-emit it properly rather than grounding then publishing a blob."""
+    return _errors(_pre_validator, claim) + render_structure_errors(claim)
 
 
 def is_valid(claim: dict) -> bool:
