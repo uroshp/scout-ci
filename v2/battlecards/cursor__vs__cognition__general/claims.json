@@ -802,7 +802,7 @@
   },
   {
     "subject_key": "objection | cursor-spacex-ownership | cursor-adverse",
-    "claim": "**\"If SpaceX buys Cursor, who am I actually contracting with in a year?\"**\n\nThe deal is now signed: SpaceX and Anysphere executed a definitive merger agreement on June 16, 2026, with close targeted for Q3 2026 pending regulatory approval. Until regulators clear it, Anysphere operates independently and contracts execute with Anysphere today. Cursor's current capabilities, ~$2B ARR, and Fortune 500 deployment footprint are what this decision rests on. Standardize on Cursor now under current Anysphere terms; the ownership change cannot take legal effect before regulators approve it.",
+    "claim": "**\"If SpaceX buys Cursor, who am I actually contracting with in a year?\"**\n\nThe deal is now signed: SpaceX and Anysphere executed a definitive merger agreement on June 16, 2026, with close targeted for Q3 2026 pending regulatory approval. Until regulators clear it, Anysphere operates independently and contracts execute with Anysphere today. Cursor's current capabilities, ~$2B ARR, and Fortune 500 deployment footprint are what this decision rests on.\n\n**So what:** Standardize on Cursor now under current Anysphere terms; the ownership change cannot take legal effect before regulators approve it.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,

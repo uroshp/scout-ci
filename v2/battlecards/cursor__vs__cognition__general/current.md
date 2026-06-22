@@ -135,7 +135,9 @@ Fair: the 2025 rollout was botched and our CEO apologized publicly. Since then w
 
 **"If SpaceX buys Cursor, who am I actually contracting with in a year?"**
 
-The deal is now signed: SpaceX and Anysphere executed a definitive merger agreement on June 16, 2026, with close targeted for Q3 2026 pending regulatory approval. Until regulators clear it, Anysphere operates independently and contracts execute with Anysphere today. Cursor's current capabilities, ~\$2B ARR, and Fortune 500 deployment footprint are what this decision rests on. Standardize on Cursor now under current Anysphere terms; the ownership change cannot take legal effect before regulators approve it. ([cnbc.com](https://www.cnbc.com/2026/06/16/spacex-spcx-cursor-acquisition-ipo.html))
+The deal is now signed: SpaceX and Anysphere executed a definitive merger agreement on June 16, 2026, with close targeted for Q3 2026 pending regulatory approval. Until regulators clear it, Anysphere operates independently and contracts execute with Anysphere today. Cursor's current capabilities, ~\$2B ARR, and Fortune 500 deployment footprint are what this decision rests on.
+
+**So what:** Standardize on Cursor now under current Anysphere terms; the ownership change cannot take legal effect before regulators approve it. ([cnbc.com](https://www.cnbc.com/2026/06/16/spacex-spcx-cursor-acquisition-ipo.html))
 
 ## Cut Log
 

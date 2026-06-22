@@ -97,7 +97,9 @@ Mistral lists Devstral 2 as up to 7x more cost-efficient than Claude on real tas
 
 **Vibe puts work automation and coding under one agent and one license.**
 
-Work Mode runs long-running multi-step tasks across Google Workspace, Outlook, SharePoint, Slack, and GitHub after a plan sign-off. Code Mode launches remote coding agents in isolated sandboxes, ships reviewable pull requests, runs sessions in parallel, and keeps sessions alive while the machine is off. A VS Code extension brings the coding agent across the whole project. Pricing: Free, Pro at \$14.99 per month, Team at \$24.99 per user per month, Enterprise. ([mistral.ai](https://mistral.ai/news/vibe-agent/))
+Work Mode runs long-running multi-step tasks across Google Workspace, Outlook, SharePoint, Slack, and GitHub after a plan sign-off. Code Mode launches remote coding agents in isolated sandboxes, ships reviewable pull requests, runs sessions in parallel, and keeps sessions alive while the machine is off. A VS Code extension brings the coding agent across the whole project. Pricing: Free, Pro at \$14.99 per month, Team at \$24.99 per user per month, Enterprise.
+
+**Soundbite:** Vibe is the only tool that covers both work automation and coding agents under a single plan starting at \$14.99 a month. ([mistral.ai](https://mistral.ai/news/vibe-agent/))
 
 ### Where it's a fight
 
@@ -151,7 +153,9 @@ Mistral is raising at roughly €20 billion, nearly double its last valuation, w
 
 **"Your ecosystem is smaller, with fewer integrations and guides."**
 
-OpenAI has more community content today. Vibe Work Mode ships native connectors for Google Workspace, Outlook, SharePoint, Slack, and GitHub. Code Mode agents run from VS Code and push reviewable pull requests. Ask the buyer which platforms their workflow runs on, then map Vibe's connector list against that on the call. ([mistral.ai](https://mistral.ai/news/vibe-agent/))
+OpenAI has more community content today. Vibe Work Mode ships native connectors for Google Workspace, Outlook, SharePoint, Slack, and GitHub. Code Mode agents run from VS Code and push reviewable pull requests.
+
+**So what:** Ask the buyer which platforms their workflow runs on, then map Vibe's connector list against that on the call. ([mistral.ai](https://mistral.ai/news/vibe-agent/))
 
 **"Isn't OpenAI the safe default everyone already uses?"**
 

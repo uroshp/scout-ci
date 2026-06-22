@@ -1028,7 +1028,7 @@
   {
     "id": "c_6728a60059ae",
     "subject_key": "objection | model-govt-disable-fable-mythos | current",
-    "claim": "**\"The government forced Anthropic to disable two of its models overnight for every customer. How do we know the same won't happen to what we're building on?\"**\n\nReal and recent: a June 12, 2026 export-control directive required Anthropic to suspend foreign-national access to Fable 5 and Mythos 5; to ensure compliance, Anthropic disabled both models for all customers globally. Anthropic complied and disputes the ruling; it is working to restore access. Critically, access to all other Anthropic models is unaffected per Anthropic's own statement. For any team evaluating or building on today's production lineup, including Opus 4.8, nothing changes. Walk the buyer through exactly which models are in scope for their use case and confirm each is in the unaffected set.",
+    "claim": "**\"The government forced Anthropic to disable two of its models overnight for every customer. How do we know the same won't happen to what we're building on?\"**\n\nReal and recent: a June 12, 2026 export-control directive required Anthropic to suspend foreign-national access to Fable 5 and Mythos 5; to ensure compliance, Anthropic disabled both models for all customers globally. Anthropic complied and disputes the ruling; it is working to restore access. Critically, access to all other Anthropic models is unaffected per Anthropic's own statement. For any team evaluating or building on today's production lineup, including Opus 4.8, nothing changes.\n\n**So what:** Walk the buyer through exactly which models are in scope for their use case and confirm each is in the unaffected set.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -1104,7 +1104,7 @@
   {
     "id": "c_d77edb839591",
     "subject_key": "objection | export-ban-international-defection | current",
-    "claim": "**\"International buyers are moving to Mistral and Cohere because of the export ban. Is Anthropic losing ground internationally?\"**\n\nReal: France's government announced Mistral for its civil service, and Cohere reported a surge of inbound interest after the June 12 export directive restricted Mythos and Fable for foreign nationals. The June 12 directive is a model-access compliance constraint on two specific models. Claude Opus 4.7 leads SWE-bench Pro at 64.3% and holds the highest developer loyalty score (CSAT 91, NPS 54) in the JetBrains survey. Offer to benchmark the buyer's specific coding workload head-to-head against the alternative they are evaluating.",
+    "claim": "**\"International buyers are moving to Mistral and Cohere because of the export ban. Is Anthropic losing ground internationally?\"**\n\nReal: France's government announced Mistral for its civil service, and Cohere reported a surge of inbound interest after the June 12 export directive restricted Mythos and Fable for foreign nationals. The June 12 directive is a model-access compliance constraint on two specific models. Claude Opus 4.7 leads SWE-bench Pro at 64.3% and holds the highest developer loyalty score (CSAT 91, NPS 54) in the JetBrains survey. Offer to benchmark the buyer's specific coding workload head-to-head against the alternative they are evaluating.\n\n**So what:** Offer to benchmark the buyer's specific coding workload head-to-head against the alternative they are evaluating.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
