@@ -227,3 +227,19 @@ gate). The PROMOTION metric is **`kappa_challenger_vs_human`** (target ~0.6+, la
 a human to adjudicate the mined disagreements (`shadow_eval/challenger_labels.jsonl`, scaffolded).
 Promotion stays gated on net-positive adjudicated deltas + slop≈0 AND a real kappa number, never a
 calendar. A cheap cross-family spot-check is noted as later insurance against same-family bias.
+
+**Update (2026-06-21, first full run + prompt-bias A/B).** Ran the Sonnet challenger over all 17
+captured records (406 claims, $3.19, on estimate). Result: 86% agreement, kappa(champion vs
+challenger) **0.622**, and **56 disagreements — ALL slop-direction, 0 recoveries** (the challenger is
+uniformly stricter than the code grader; it never wanted to revive a cut claim). Built the
+adjudication surface `scout/adjudicate_challenger.py` (sibling of `adjudicate.py`). NOTE: a kappa over
+disagreements-only is degenerate here (one-directional) — the operative promotion signal is
+DISAGREEMENT PRECISION (share of the challenger's slop flags a human confirms), not a kappa.
+**A/B (adversarial vs a neutral prompt told the excerpt may be partial): slop collapsed ~80%**
+(anthropic 14→4, cursor 11→1, $0.60). So the raw 56 was inflated ~5x by (a) the adversarial framing
+and (b) a real data limitation — `shadow.py` captures only ONE evidence excerpt per claim, so
+multi-fact claims grounded on several snippets get flagged when that single excerpt omits a sub-fact.
+TAKEAWAYS: (1) adopt the neutral prompt as the challenger default; (2) the ~5 survivors under neutral
+are the robust, worth-adjudicating slop signal; (3) the single-excerpt capture is a fidelity ceiling
+on challenger accuracy — a future `shadow.py` change (capture all grounding excerpts per claim) would
+raise it, logged for vNext, not fixed now.
