@@ -77,6 +77,16 @@ VALENCE ROUTES THE OUTPUT:
   delivered with a straight back.
 - FRONT FOOT (a competitor stumble, OR our own win or ship) -> a PLAY, in battlecard / where_we_win.
 
+REQUIRED PROSE FORMAT (the viewer renders these markers into the structured card; OMIT them and the
+claim renders as one unbroken blob and is REJECTED — this is not optional):
+- An OBJECTION (objection_handling) claim is written as: a bold question line (**"..."**), then the
+  rebuttal body, then a final block that begins literally with **So what:** stating the rep's concrete
+  move in one or two sentences. The move you were told to hand the rep above GOES in the So-what block.
+- A PLAY (battlecard) claim is written as: a bold one-line headline, then the body, then a final block
+  that begins literally with **Soundbite:** giving one rep-ready sentence.
+Every add/revise you emit must end with its **So what:** (objection) or **Soundbite:** (play) block —
+when you revise in place, keep that block. A claim without it will be rejected and re-asked.
+
 OPERATIONS (pick the lightest that is true; identity is the SUBJECT, not the text):
 - add — the fact creates a genuinely new play or objection not already tracked.
 - revise — the fact NARROWS but does not kill a still-winning play (update its wording to the
