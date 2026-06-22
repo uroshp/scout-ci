@@ -159,7 +159,7 @@ Own the scope precisely: a fire at a third-party Delhi facility on June 9 forced
 
 The compute plane is unaffected. The fact explicitly describes this as a regional network-edge degradation at a local POP, not a compute-plane or global-infrastructure failure. For buyers whose evaluation centers on AI training or inference, that distinction matters immediately.
 
-Rep move: ask which services and regions their workload actually depends on. If it is compute-plane AI work, the affected services do not touch it. If they have genuine Hybrid Connectivity or VPC exposure in India, walk through the current status with them directly and scope the real exposure rather than letting the framing stay at "Google Cloud is down." ([status.cloud.google.com](https://status.cloud.google.com/incidents/5fGQt4VbkDnr3Yp8PXPr))
+**So what:** Ask which services and regions their workload actually depends on. If it is compute-plane AI work, the affected services do not touch it. If they have genuine Hybrid Connectivity or VPC exposure in India, walk through the current status with them directly and scope the real exposure rather than letting the framing stay at "Google Cloud is down." ([status.cloud.google.com](https://status.cloud.google.com/incidents/5fGQt4VbkDnr3Yp8PXPr))
 
 ## Cut Log
 
