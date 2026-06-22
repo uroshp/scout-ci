@@ -1,0 +1,51 @@
+# Scout v3.5 shadow-eval CHALLENGER (docs/vnext-roadmap.md §v3.5, decision-log §11).
+#
+# SEPARATE, OFFLINE job — it never touches a live battlecard. It reads the captured CHAMPION records
+# (shadow/<slug>/*.json in the PRIVATE data repo, written by scout/shadow.py during real monitor/
+# generation runs), runs the SONNET challenger over each record's captured evidence, and writes the
+# challenger-vs-champion results (+ mined disagreements) to shadow_eval/<slug>/ in the SAME private
+# repo via the GitHub API. Nothing is committed to this public repo, so it has read-only perms here
+# and a failure can't disrupt the monitor or the viewer.
+#
+# IDEMPOTENT: run_challenger.py skips any champion record that already has a result (keyed by content
+# hash), so re-runs only judge new captures. --limit bounds spend per run (each challenge call is
+# capped at SCOUT_CHALLENGER_MAX_BUDGET_USD; Sonnet, no search, ~cents/card — see decision-log §11).
+#
+# MODEL: Sonnet (config.CHALLENGER_MODEL), deliberately NOT Haiku and NOT the Opus production
+# authorship judge — see decision-log §11.
+#
+# REQUIRED SECRETS (repo settings): ANTHROPIC_API_KEY, SELFSERVE_GH_TOKEN, SELFSERVE_REPO.
+name: shadow-eval
+
+on:
+  workflow_dispatch:               # manual / on-demand
+  schedule:
+    - cron: "0 9 * * *"            # once daily, off-peak (09:00 UTC); best-effort is fine — idempotent
+
+concurrency:
+  group: scout-shadow-eval
+  cancel-in-progress: false
+
+permissions:
+  contents: read                   # read-only here; results are written to the PRIVATE repo via API
+
+jobs:
+  shadow-eval:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: v2
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -q -r requirements.txt
+      - name: Run the challenger over new champion records
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Reads shadow/ and writes shadow_eval/ in the private data repo (same creds as self-serve).
+          SELFSERVE_GH_TOKEN: ${{ secrets.SELFSERVE_GH_TOKEN }}
+          SELFSERVE_REPO: ${{ secrets.SELFSERVE_REPO }}
+        # --limit bounds per-run spend; un-judged records roll to the next run (idempotent skip).
+        run: python scripts/run_challenger.py --run --write --limit 25

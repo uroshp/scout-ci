@@ -65,6 +65,20 @@ PROPOSE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_PROPOSE_MAX_BUDGET_USD", "0
 # model, so it keeps its own (slightly higher) ceiling than propose.
 JUDGE_MAX_TURNS = int(os.environ.get("SCOUT_JUDGE_MAX_TURNS", "6"))
 JUDGE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_JUDGE_MAX_BUDGET_USD", "0.75"))
+
+# --- Shadow-eval challenger (v3.5; docs/vnext-roadmap.md §v3.5, decision-log §11) -------------
+# The verification-judge CHALLENGER: a tools-off model that re-judges captured champion decisions
+# (kept/cut claims) over their CAPTURED EVIDENCE — no re-research — to mine disagreements with the
+# code grader for offline human adjudication. Pinned to SONNET, NOT Haiku (decision-log §11): the
+# task is discriminating SUBTLE ungroundedness, where capability buys real accuracy and a cheap
+# judge's leniency/verbosity bias skews toward keeping slop; the cost saved by Haiku here is cents
+# across the whole trial (offline, batched ~1 call/card, no search) so it isn't worth the accuracy.
+# Opus is the production AUTHORSHIP judge (ORCHESTRATOR_MODEL), so keeping the challenger BELOW it
+# (Sonnet) means a proven win is a real cost saving and the challenger isn't grading its own family's
+# production pipeline. Reserve Opus as a targeted tie-breaker on the hardest band, run by hand.
+CHALLENGER_MODEL = os.environ.get("CHALLENGER_MODEL", SUBAGENT_MODEL)   # default Sonnet
+CHALLENGER_MAX_TURNS = int(os.environ.get("SCOUT_CHALLENGER_MAX_TURNS", "4"))
+CHALLENGER_MAX_BUDGET_USD = float(os.environ.get("SCOUT_CHALLENGER_MAX_BUDGET_USD", "0.50"))
 # Propagation mode (step 5) — the shadow-first ladder for the AUTHORSHIP judge (spec §17):
 #   "off"    — propagation never runs (no propose/judge spend). DEFAULT.
 #   "shadow" — on each act-grade survivor, run propose->judge and LOG the decisions (the authorship
