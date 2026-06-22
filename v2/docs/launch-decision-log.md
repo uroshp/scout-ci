@@ -191,3 +191,39 @@ supported; a fully custom domain is not, on the free tier — acceptable for the
 - **Materiality findings are high-variance** run-to-run — weigh monitoring alerts accordingly.
 - **No per-user auth on self-serve:** the "10 free" is a global pool on a public URL. The $100
   hard spend ceiling is the real backstop against abuse.
+
+## 11. Shadow-eval challenger model — Sonnet, NOT Haiku (2026-06-21)
+
+**Decision:** The v3.5 verification-judge **challenger** (`scout/challenger.py`, run by
+`scripts/run_challenger.py` and the `shadow-eval.yml` Action) runs on **Sonnet**
+(`config.CHALLENGER_MODEL`, default `claude-sonnet-4-6`), not the Haiku the vnext roadmap originally
+penciled in. Opus is reserved as a by-hand tie-breaker on the hardest band, not the default.
+
+**Why (grounded against 2026 LLM-judge research + lab eval practice, not assertion):**
+- **The task is subtle-groundedness discrimination — exactly where judge capability matters.** On
+  easy/objective calls a cheap judge ≈ a frontier one; on *borderline "is this claim quietly
+  ungrounded"* calls (Scout's whole point) weaker judges degrade predictably — they get lenient and
+  favor longer text, both biasing toward KEEPING claims. In Scout's frame that's false recoveries +
+  waving slop through: the asymmetric-loss direction the roadmap weights hardest against.
+- **The cost Haiku was optimizing barely exists.** The challenger is OFFLINE, judges over already-
+  captured evidence (no re-research), batched ~1 call/card over ~8 cards. Sonnet vs Haiku is cents
+  across the whole multi-week trial — trivial next to the ~$8/report generation already paid. Paying
+  for that saving in judge accuracy on the one dimension being measured is a bad trade.
+- **Sonnet, not Opus, on purpose.** The *production* authorship judge is already Opus
+  (`ORCHESTRATOR_MODEL`, `propagate.py`). An Opus challenger would be the production tier grading a
+  production-adjacent pipeline (more self-homework) and a proven win wouldn't even be a cost saving.
+  A below-production Sonnet challenger is strong enough to catch subtle cases AND, if it earns a
+  role, is a real cost win.
+- **Biggest lever isn't tier at all — give the judge the source.** Reference-based judging is where
+  agreement with ground truth is highest; the challenger judges over the captured excerpt, already.
+- **Inverts the textbook "start strong, then cheapen" only deliberately.** Labs start with the
+  strongest judge, prove human agreement, then drop to cheaper. Starting at Haiku risked an
+  AMBIGUOUS NULL ("Haiku added nothing" wouldn't tell us a better judge wouldn't have). Starting at
+  Sonnet avoids that while staying below production.
+
+**TODO — evaluate the kappa agreement number.** `challenger.py` computes
+`kappa_champion_vs_challenger` for free (model-vs-code-floor alignment; a sanity number, not the
+gate). The PROMOTION metric is **`kappa_challenger_vs_human`** (target ~0.6+, lab practice): it needs
+a human to adjudicate the mined disagreements (`shadow_eval/challenger_labels.jsonl`, scaffolded).
+Promotion stays gated on net-positive adjudicated deltas + slop≈0 AND a real kappa number, never a
+calendar. A cheap cross-family spot-check is noted as later insurance against same-family bias.
