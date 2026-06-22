@@ -65,8 +65,8 @@ def main() -> None:
     ap.add_argument("--limit", type=int, default=None, help="judge at most N records")
     ap.add_argument("--slug", default=None, help="only this card slug")
     ap.add_argument("--force", action="store_true", help="re-judge records that already have a result")
-    ap.add_argument("--variant", choices=["adversarial", "neutral"], default="adversarial",
-                    help="challenger system prompt; 'neutral' is for the prompt-bias A/B (decision-log §11)")
+    ap.add_argument("--variant", choices=["adversarial", "neutral"], default="neutral",
+                    help="challenger system prompt; neutral is the default (decision-log §11), adversarial is the A/B alternate")
     args = ap.parse_args()
     run = args.run or args.write
 

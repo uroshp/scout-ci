@@ -122,7 +122,7 @@ async def _run_challenger(slug: str, model_items: list, system: str = _CHALLENGE
     return await _drive(user, options, "challenger")
 
 
-def judge_record(record: dict, variant: str = "adversarial") -> dict:
+def judge_record(record: dict, variant: str = "neutral") -> dict:
     """Run the challenger over one captured champion record. Returns
     {verdicts: {item_id: {verdict, reason, confidence}}, cost_usd, model}. Never raises into the
     caller — a parse failure yields empty verdicts (the run still cost money; cost is reported).
