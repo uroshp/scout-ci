@@ -33,6 +33,10 @@ class _Store:
                 kids.add(p[len(prefix):].split("/")[0])
         return sorted(kids)
 
+    def append(self, path, line, message=None):
+        existing = (self.files.get(path) or "").rstrip("\n")
+        self.files[path] = (existing + "\n" if existing else "") + line + "\n"
+
 
 PAYLOAD = {
     "schema_version": 1, "slug": "a__vs__b__x", "source": "monitor",
@@ -61,6 +65,7 @@ class Adjudicate(unittest.TestCase):
             mock.patch.object(selfserve, "list_data", self.store.listdir),
             mock.patch.object(selfserve, "read_data", self.store.read),
             mock.patch.object(selfserve, "write_data", self.store.write),
+            mock.patch.object(selfserve, "append_data", self.store.append),
         ]
         for p in self._patches:
             p.start()
