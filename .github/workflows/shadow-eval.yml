@@ -18,9 +18,10 @@
 name: shadow-eval
 
 on:
-  workflow_dispatch:               # manual / on-demand
-  schedule:
-    - cron: "0 9 * * *"            # once daily, off-peak (09:00 UTC); best-effort is fine — idempotent
+  workflow_dispatch:               # MANUAL ONLY for now — run it yourself when ready
+  # schedule:                      # DISABLED pending go-live: the challenger prompt/capture is still
+  #   - cron: "0 9 * * *"          # being tuned (decision-log §11) and we don't want autonomous spend
+                                   # yet. Re-enable by uncommenting once promotion data justifies it.
 
 concurrency:
   group: scout-shadow-eval
