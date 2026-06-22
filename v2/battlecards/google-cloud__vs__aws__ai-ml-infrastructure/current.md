@@ -155,9 +155,11 @@ Fair on today's numbers: AWS holds ~28% share to Google's 14% (Synergy). But "sa
 
 **"Google Cloud has an active, unresolved network incident in India. That's not a historical footnote. It's happening right now."**
 
-Own the scope completely: a fire at a third-party Delhi facility on June 9 forced an emergency power shutdown that isolated a local Point of Presence. As of June 22 the incident remains active, with no resolution posted. The affected surfaces are Hybrid Connectivity, Media CDN, and VPC in asia-south2, with some global impact on those same services. Customers may see elevated latency or packet loss until the affected facility is fully restored; no restoration date has been committed in any status update.
+Own the scope precisely: a fire at a third-party Delhi facility on June 9 forced an emergency power shutdown that isolated a local network POP. As of June 15 the incident remains active, with elevated latency and possible packet loss on Hybrid Connectivity, Virtual Private Cloud, and Media CDN for traffic originating in Delhi, Chennai, Mumbai, and surrounding areas. Mitigations are live.
 
-The rep's move is to map the buyer's actual workloads against that scope right now in the conversation. Ask which services and regions they are evaluating. If their target deployment does not touch Hybrid Connectivity, Media CDN, or VPC in asia-south2, this incident has no operational impact on them today. Confirm that explicitly, then redirect to the workload they came in to evaluate. ([status.cloud.google.com](https://status.cloud.google.com/incidents/5fGQt4VbkDnr3Yp8PXPr))
+The compute plane is unaffected. The fact explicitly describes this as a regional network-edge degradation at a local POP, not a compute-plane or global-infrastructure failure. For buyers whose evaluation centers on AI training or inference, that distinction matters immediately.
+
+Rep move: ask which services and regions their workload actually depends on. If it is compute-plane AI work, the affected services do not touch it. If they have genuine Hybrid Connectivity or VPC exposure in India, walk through the current status with them directly and scope the real exposure rather than letting the framing stay at "Google Cloud is down." ([status.cloud.google.com](https://status.cloud.google.com/incidents/5fGQt4VbkDnr3Yp8PXPr))
 
 ## Cut Log
 
