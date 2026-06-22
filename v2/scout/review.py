@@ -80,7 +80,21 @@ def apply(slug: str, ops: list, facts: list, write: bool = True) -> dict:
     apply-shaped op — apply itself is the deterministic, model-free step."""
     ops = [_decision_to_op(o) for o in (ops or [])]
     if not ops:
-        return {"applied": [], "skipped": [], "reason": "no ops to apply", "claims": None}
+        return {"applied": [], "skipped": [], "held": [], "reason": "no ops to apply", "claims": None}
+
+    # NO-DROP GUARANTEE (decision-log §11): a judge-confirmed op can never be cut or silently dropped
+    # for a formatting problem. Each op is repaired (a model adds the required **So what:**/
+    # **Soundbite:** block, substance unchanged) or, if unrepairable, HELD + flagged — never applied
+    # malformed, never sent to the Cut Log. Only well-formed ops reach apply_ops below.
+    from scout import reformat
+    ready, held = [], []
+    for o in ops:
+        status, o2 = reformat.repair_or_hold(slug, o)
+        (held if status == "held" else ready).append(o2)
+    ops = ready
+    if not ops:
+        return {"applied": [], "skipped": [], "held": held, "reason": "all ops held pending format",
+                "claims": None}
     meta = store.load_meta(slug) or {}
     claims = store.load_claims(slug)
 
@@ -109,7 +123,7 @@ def apply(slug: str, ops: list, facts: list, write: bool = True) -> dict:
         applied_keys = {(a.get("subject_key"), a.get("operation")) for a in res["applied"]}
         _log_human_verdict(slug, [o for o in ops if (o.get("subject_key"), o.get("operation")) in applied_keys],
                            "agree", "auto-logged by review.apply on approval")
-    return {"applied": res["applied"], "skipped": res["skipped"], "claims": new_claims}
+    return {"applied": res["applied"], "skipped": res["skipped"], "held": held, "claims": new_claims}
 
 
 def _log_human_verdict(slug: str, ops: list, human_verdict: str, note: str = "") -> int:
