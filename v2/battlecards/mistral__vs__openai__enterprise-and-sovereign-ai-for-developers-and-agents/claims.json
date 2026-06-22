@@ -1046,6 +1046,7 @@
     "verified": true,
     "confidence": "medium",
     "derived_from": "c_e6d04a91ca10",
-    "updated_on": "2026-06-19"
+    "updated_on": "2026-06-19",
+    "persona": "economic_buyer"
   }
 ]
