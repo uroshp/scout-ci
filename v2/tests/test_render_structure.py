@@ -6,8 +6,8 @@ import unittest
 from scout import schema
 
 
-def _c(section, text, zone=None):
-    return {"section": section, "zone": zone, "claim": text}
+def _c(section, text, zone=None, persona="economic_buyer"):
+    return {"section": section, "zone": zone, "claim": text, "persona": persona}
 
 
 class RenderStructure(unittest.TestCase):
@@ -42,6 +42,20 @@ class RenderStructure(unittest.TestCase):
 
     def test_non_block_sections_unaffected(self):
         self.assertEqual(schema.render_structure_errors(_c("recent_moves", "anything goes here")), [])
+
+    def test_objection_and_play_require_persona(self):
+        # the "Raised by"/"Best for" buyer badge needs a persona — required for objections + win/lose plays
+        obj = {"section": "objection_handling", "zone": None, "claim": '**"Q?"**\n\nbody.\n\n**So what:** move.'}
+        self.assertTrue(any("persona" in e for e in schema.render_structure_errors(obj)))
+        play = {"section": "battlecard", "zone": "where_we_win", "claim": 'play.\n\n**Soundbite:** z.'}
+        self.assertTrue(any("persona" in e for e in schema.render_structure_errors(play)))
+
+    def test_persona_not_required_where_no_badge(self):
+        # exec summary needs a So-what but has no buyer badge; contested has neither
+        exec_ok = {"section": "executive_summary", "zone": None, "claim": 'verdict.\n\n**So what:** d.'}
+        self.assertEqual(schema.render_structure_errors(exec_ok), [])
+        contested_ok = {"section": "battlecard", "zone": "contested", "claim": "neutral framing"}
+        self.assertEqual(schema.render_structure_errors(contested_ok), [])
 
     def test_gate_wired_into_validation_errors(self):
         # a markerless objection must fail the full validator, not just the helper
