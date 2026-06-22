@@ -215,16 +215,22 @@ def render_structure_errors(claim: dict) -> list[str]:
     positioning, pricing/packaging, sentiment, tracked_facts.
       - executive_summary + objection_handling MUST carry a '**So what:**' block;
       - battlecard win/lose plays (where_we_win / where_they_win) MUST carry a '**Soundbite:**' block
-        (a 'contested' entry is a neutral framing, not a play, and is exempt).
-    Within those, a missing marker means the claim renders as an unstructured blob — so it is a hard
-    validity error that triggers a re-ask (NOT a drop; see the generation/propagation retry loops)."""
+        (a 'contested' entry is a neutral framing, not a play, and is exempt);
+      - objection_handling + win/lose plays MUST also carry a `persona` — it renders the per-claim
+        buyer badge ('Raised by …' on objections, 'Best for …' on plays); without it the badge silently
+        vanishes. (exec summary / contested have no such badge, so persona is not required there.)
+    A missing block renders as an unstructured blob; a missing persona drops the badge — both are hard
+    validity errors that trigger a re-ask / re-classify (NOT a drop; see the no-drop repair path)."""
     text = claim.get("claim") or ""
     section, zone = claim.get("section"), claim.get("zone")
+    is_play = section == "battlecard" and zone in ("where_we_win", "where_they_win")
     errs = []
     if section in ("executive_summary", "objection_handling") and "**So what:**" not in text:
         errs.append(f"{section}: missing required '**So what:**' block (renders as an unstructured blob)")
-    if section == "battlecard" and zone in ("where_we_win", "where_they_win") and "**Soundbite:**" not in text:
+    if is_play and "**Soundbite:**" not in text:
         errs.append("battlecard win/lose play: missing required '**Soundbite:**' block")
+    if (section == "objection_handling" or is_play) and not claim.get("persona"):
+        errs.append(f"{section}: missing required persona (renders the per-claim buyer badge)")
     return errs
 
 

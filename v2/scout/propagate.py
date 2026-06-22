@@ -85,7 +85,9 @@ claim renders as one unbroken blob and is REJECTED — this is not optional):
 - A PLAY (battlecard) claim is written as: a bold one-line headline, then the body, then a final block
   that begins literally with **Soundbite:** giving one rep-ready sentence.
 Every add/revise you emit must end with its **So what:** (objection) or **Soundbite:** (play) block —
-when you revise in place, keep that block. A claim without it will be rejected and re-asked.
+when you revise in place, keep that block. A claim without it will be rejected and re-asked. Every
+add/revise must ALSO carry a `persona` — the single best-fit buyer (an enum value, NEVER null) who
+raises the objection or that the play targets; it renders the per-claim buyer badge.
 
 OPERATIONS (pick the lightest that is true; identity is the SUBJECT, not the text):
 - add — the fact creates a genuinely new play or objection not already tracked.

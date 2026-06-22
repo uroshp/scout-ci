@@ -70,6 +70,41 @@ def reformat_claim(claim_text: str, section: str, zone=None, tries: int = 2) -> 
     return None
 
 
+_PERSONA_TOOL = {
+    "name": "assign_persona",
+    "description": "Return the single best-fit buyer persona for this play/objection.",
+    "input_schema": {"type": "object", "properties": {"persona": {"type": "string"}},
+                     "required": ["persona"]},
+}
+
+
+def classify_persona(claim_text: str, section: str, zone=None) -> str | None:
+    """Pick the single buyer persona a play is aimed at / that raises an objection (the 'Raised by' /
+    'Best for' badge). A field, not prose — so the no-drop repair CLASSIFIES it (cheap Haiku) rather
+    than reformatting text. Returns a valid persona from schema.PERSONAS, or None."""
+    import anthropic
+    from scout import schema as _schema
+    personas = list(_schema.PERSONAS)
+    sys_prompt = ("Tag a competitive-battlecard play or objection with the SINGLE buyer persona it is "
+                  "primarily aimed at (or that tends to raise the objection). Choose exactly one of: "
+                  + ", ".join(personas) + ". Use the assign_persona tool.")
+    try:
+        client = anthropic.Anthropic()
+        msg = client.messages.create(
+            model=config.FAST_MODEL, max_tokens=200,
+            system=sys_prompt, tools=[_PERSONA_TOOL],
+            tool_choice={"type": "tool", "name": "assign_persona"},
+            messages=[{"role": "user", "content": f"section={section} zone={zone}\n\n{claim_text}"}],
+        )
+        for block in msg.content:
+            if getattr(block, "type", "") == "tool_use" and block.name == "assign_persona":
+                pid = block.input.get("persona")
+                return pid if pid in personas else None
+    except Exception as e:
+        print(f"[reformat] persona classify failed ({type(e).__name__}: {e})", file=sys.stderr)
+    return None
+
+
 def hold(slug: str, item: dict, reason: str, *, alert: bool = True) -> str:
     """Durably HOLD a confirmed-material update that could not be auto-formatted, and flag it. This is
     NOT the Cut Log: the update is pending publication, owed to the card, awaiting a human edit or a
@@ -103,19 +138,30 @@ def _alert_human(slug: str, item: dict, reason: str) -> None:
         print(f"[reformat] alert skipped ({type(e).__name__}: {e})\n{msg}", file=sys.stderr)
 
 
-def repair_or_hold(slug: str, claim: dict, *, reformatter=reformat_claim) -> tuple[str, dict]:
+def repair_or_hold(slug: str, claim: dict, *, reformatter=reformat_claim,
+                   persona_classifier=classify_persona) -> tuple[str, dict]:
     """The no-drop decision for ONE confirmed claim. Returns (status, claim) where status is:
       'ok'       — already well-formed, publish as-is;
-      'repaired' — a model added the missing block, substance unchanged, publish the repaired claim;
-      'held'     — could not auto-format; HELD + flagged to the human, NEVER cut/dropped.
-    There is no fourth outcome: a confirmed update is published or held, never lost. `reformatter` is
-    injectable for tests."""
-    if not schema.render_structure_errors(claim):
+      'repaired' — auto-fixed (a model added the missing So-what/Soundbite block and/or classified the
+                   missing persona), substance unchanged, publish the repaired claim;
+      'held'     — could not auto-fix; HELD + flagged to the human, NEVER cut/dropped.
+    There is no fourth outcome: a confirmed update is published or held, never lost. `reformatter` /
+    `persona_classifier` are injectable for tests."""
+    errs = schema.render_structure_errors(claim)
+    if not errs:
         return ("ok", claim)
-    new_text = reformatter(claim.get("claim") or "", claim.get("section"), claim.get("zone"))
-    if new_text:
-        repaired = {**claim, "claim": new_text}
-        if not schema.render_structure_errors(repaired):   # re-validate — never publish malformed
-            return ("repaired", repaired)
-    hold(slug, claim, "render-structure repair exhausted")
-    return ("held", claim)
+    fixed = dict(claim)
+    # missing persona (the "Raised by"/"Best for" badge) is a FIELD, not prose -> classify + assign.
+    if any("persona" in e for e in errs) and not fixed.get("persona"):
+        pid = persona_classifier(fixed.get("claim") or "", fixed.get("section"), fixed.get("zone"))
+        if pid:
+            fixed["persona"] = pid
+    # missing So-what/Soundbite BLOCK is prose -> reformat the claim text.
+    if any(("So what" in e or "Soundbite" in e) for e in errs):
+        new_text = reformatter(fixed.get("claim") or "", fixed.get("section"), fixed.get("zone"))
+        if new_text:
+            fixed["claim"] = new_text
+    if not schema.render_structure_errors(fixed):          # re-validate — never publish malformed
+        return ("repaired", fixed)
+    hold(slug, fixed, "render-structure repair exhausted")
+    return ("held", fixed)

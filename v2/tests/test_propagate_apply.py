@@ -63,7 +63,7 @@ class ApplyAdd(unittest.TestCase):
         claims[0]["order"], claims[1]["order"] = 0, 1
         op = {"operation": "add", "section": "battlecard", "zone": "where_we_win",
               "subject_key": "g|h|i", "claim": "**New**\n\nx.\n\n**Soundbite:** *\"y\"*",
-              "claim_type": "interpretation", "derived_from": FACT_ID}
+              "claim_type": "interpretation", "derived_from": FACT_ID, "persona": "technical_evaluator"}
         res = apply_ops(claims, [op], FACTS, SLUG, TODAY)
         self.assertEqual(res["claims"][-1]["order"], 2)
 
@@ -135,11 +135,13 @@ class RetireCascade(unittest.TestCase):
         dep = {"id": claim_id(SLUG, "dep|play|current"), "subject_key": "dep|play|current",
                "claim": "**P**\n\nx.\n\n**Soundbite:** *\"y\"*", "claim_type": "interpretation",
                "section": "battlecard", "zone": "where_we_win", "order": 0, "verified": True,
-               "confidence": "medium", "as_of": "2026-06-11", "derived_from": FACT_ID}
+               "confidence": "medium", "as_of": "2026-06-11", "derived_from": FACT_ID,
+               "persona": "technical_evaluator"}
         indep = {"id": claim_id(SLUG, "indep|play|current"), "subject_key": "indep|play|current",
                  "claim": "**Q**\n\nx.\n\n**Soundbite:** *\"y\"*", "claim_type": "interpretation",
                  "section": "battlecard", "zone": "where_we_win", "order": 1, "verified": True,
-                 "confidence": "medium", "as_of": "2026-06-11", "derived_from": FACT_ID2}
+                 "confidence": "medium", "as_of": "2026-06-11", "derived_from": FACT_ID2,
+                 "persona": "technical_evaluator"}
         res = retire_cascade([dep, indep], {FACT_ID}, TODAY)
         self.assertEqual([x["id"] for x in res["cascaded"]], [dep["id"]])
         self.assertEqual(res["claims"][0]["status"], "retired")
