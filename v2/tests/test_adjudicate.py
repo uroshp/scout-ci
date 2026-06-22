@@ -25,7 +25,7 @@ class _Store:
     def write(self, path, text, message=None):
         self.files[path] = text
 
-    def listdir(self, path):
+    def listdir(self, path, include_dirs=False):
         prefix = path.rstrip("/") + "/"
         kids = set()
         for p in self.files:
