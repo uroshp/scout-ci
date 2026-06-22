@@ -65,6 +65,8 @@ def main() -> None:
     ap.add_argument("--limit", type=int, default=None, help="judge at most N records")
     ap.add_argument("--slug", default=None, help="only this card slug")
     ap.add_argument("--force", action="store_true", help="re-judge records that already have a result")
+    ap.add_argument("--variant", choices=["adversarial", "neutral"], default="adversarial",
+                    help="challenger system prompt; 'neutral' is for the prompt-bias A/B (decision-log §11)")
     args = ap.parse_args()
     run = args.run or args.write
 
@@ -87,10 +89,10 @@ def main() -> None:
         print("\nESTIMATE ONLY — no model calls made. Re-run with --run (and --write to persist).")
         return
 
-    print("\n--- running challenger ---")
+    print(f"\n--- running challenger (variant: {args.variant}) ---")
     results = []
     for r in records:
-        judged = challenger.judge_record(r)
+        judged = challenger.judge_record(r, variant=args.variant)
         comparison = challenger.compare(r, judged)
         result = challenger.result_record(r, judged, comparison)
         results.append(result)

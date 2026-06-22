@@ -52,6 +52,25 @@ _CHALLENGER_SYSTEM = (
     "Return exactly one verdict per item_id you were given."
 )
 
+# Neutral variant — used by the prompt-bias A/B (decision-log §11). Same task, but NOT adversarial,
+# and it explicitly tells the judge that the supplied excerpt may be only ONE of several supporting
+# snippets, so it should not cut merely because the excerpt is partial. If the slop count collapses
+# under this prompt, the adversarial framing + single-excerpt capture were driving the disagreements.
+_CHALLENGER_SYSTEM_NEUTRAL = (
+    "You are a verification judge for a competitive-intelligence pipeline. For each CLAIM, decide "
+    "whether it should SURVIVE verification (keep) or be removed (cut). KEEP a claim if the supplied "
+    "evidence reasonably supports its core assertion from a credible source. CUT only when the "
+    "evidence clearly fails to support the core assertion, or the source is untrustworthy. IMPORTANT: "
+    "the excerpt you are shown may be just ONE of several snippets that grounded the claim — do NOT "
+    "cut a claim merely because this single excerpt omits some sub-detail or figure; cut only if the "
+    "core assertion is clearly unsupported or contradicted. Reason only from what you are given; you "
+    "have no tools. Return ONLY a JSON object:\n"
+    '{"verdicts": [{"item_id": "<id>", "verdict": "keep" | "cut", '
+    '"reason": "<one sentence>", "confidence": "high" | "medium" | "low"}]}\n'
+    "Return exactly one verdict per item_id you were given."
+)
+_SYSTEMS = {"adversarial": _CHALLENGER_SYSTEM, "neutral": _CHALLENGER_SYSTEM_NEUTRAL}
+
 
 def _items(record: dict) -> tuple[list, dict]:
     """Build (model_items, champion_by_id) from a captured champion record. model_items is what the
@@ -85,14 +104,14 @@ def _items(record: dict) -> tuple[list, dict]:
     return model_items, champion
 
 
-async def _run_challenger(slug: str, model_items: list) -> dict:
+async def _run_challenger(slug: str, model_items: list, system: str = _CHALLENGER_SYSTEM) -> dict:
     user = (
         f"Card: {slug}. Judge each of the following {len(model_items)} claims keep-or-cut on "
         "groundedness, independently.\n\n" + json.dumps(model_items, ensure_ascii=False, indent=2)
     )
     options = ClaudeAgentOptions(
         model=config.CHALLENGER_MODEL,                # Sonnet — decision-log §11
-        system_prompt=_CHALLENGER_SYSTEM,
+        system_prompt=system,
         mcp_servers={},
         allowed_tools=[],                             # TOOLS-OFF: judge only the captured evidence
         disallowed_tools=["WebSearch", "WebFetch"],
@@ -103,14 +122,16 @@ async def _run_challenger(slug: str, model_items: list) -> dict:
     return await _drive(user, options, "challenger")
 
 
-def judge_record(record: dict) -> dict:
+def judge_record(record: dict, variant: str = "adversarial") -> dict:
     """Run the challenger over one captured champion record. Returns
     {verdicts: {item_id: {verdict, reason, confidence}}, cost_usd, model}. Never raises into the
-    caller — a parse failure yields empty verdicts (the run still cost money; cost is reported)."""
+    caller — a parse failure yields empty verdicts (the run still cost money; cost is reported).
+    `variant` selects the system prompt ('adversarial' default, or 'neutral' for the prompt-bias A/B)."""
     model_items, _ = _items(record)
     if not model_items:
         return {"verdicts": {}, "cost_usd": 0.0, "model": config.CHALLENGER_MODEL}
-    res = asyncio.run(_run_challenger(record.get("slug", "?"), model_items))
+    res = asyncio.run(_run_challenger(record.get("slug", "?"), model_items,
+                                      _SYSTEMS.get(variant, _CHALLENGER_SYSTEM)))
     verdicts = {}
     try:
         for v in _extract_json(res["text"]).get("verdicts", []) or []:
