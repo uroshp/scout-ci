@@ -20,8 +20,13 @@ class RenderStructure(unittest.TestCase):
             schema.render_structure_errors(_c("objection_handling", '**"Q?"**\n\nbody.\n\n**So what:** move.')),
             [])
 
-    def test_exec_summary_requires_so_what(self):
-        self.assertTrue(schema.render_structure_errors(_c("executive_summary", "no marker here")))
+    def test_exec_summary_and_other_sections_not_forced(self):
+        # strategic/exec summary, pricing, packaging, recent moves don't always carry a So-what — never force it
+        for section in ("executive_summary", "pricing", "packaging", "recent_moves", "sentiment"):
+            self.assertEqual(schema.render_structure_errors(_c(section, "prose with no marker")), [],
+                             f"{section} must not be forced to carry a marker")
+        # battlecard CONTESTED zone is not a win/lose play -> not forced
+        self.assertEqual(schema.render_structure_errors(_c("battlecard", "no soundbite", zone="contested")), [])
 
     def test_battlecard_win_requires_soundbite(self):
         self.assertTrue(schema.render_structure_errors(_c("battlecard", "play prose", zone="where_we_win")))
