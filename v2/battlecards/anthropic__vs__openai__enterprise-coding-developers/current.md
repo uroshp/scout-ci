@@ -135,11 +135,11 @@ Real story: Uber's COO said it couldn't yet tie Claude Code spend to shipped fea
 
 **So what:** Buy it with governance from day one (seat-level budgets, usage caps, and a defined ROI metric) and you capture the productivity without the bill shock Uber walked into. ([fortune.com](https://fortune.com/2026/05/26/uber-coo-ai-spending-tokens-claude-code/))
 
-**"Claude went down the day after your IPO filing. Can it handle our production load?"**
+**"Claude has had multiple outages this month. Can it handle our production load?"**
 
-Yes, that happened: a global outage on June 2, 2026 tied to capacity constraints. It was fixed same day, and customers running Claude through Google Vertex AI or Amazon Bedrock were unaffected. The \$65B Series H and the SpaceX/Colossus compute deal (300+ MW, which let Anthropic double Claude Code rate limits) are explicitly aimed at this.
+Two confirmed: a global outage on June 2, 2026 tied to capacity constraints (fixed same day), and a second broad outage on June 23 that lasted about 85 minutes and hit all Claude platforms (claude.ai, the API, Claude Console, Claude Code, and Claude Cowork), with over 8,000 US Downdetector reports at peak. That is a documented run of disruptions in June, not a one-off. On June 2, customers running Claude through Google Vertex AI or Amazon Bedrock were unaffected. The \$65B Series H and the SpaceX/Colossus compute deal (300+ MW, which let Anthropic double Claude Code rate limits) are aimed at underlying capacity.
 
-**So what:** For production workloads, deploy via Bedrock or Vertex with an enterprise SLA rather than the consumer endpoint; that architecture was insulated from the outage in the first place. ([thenationalnews.com](https://www.thenationalnews.com/future/technology/2026/06/02/anthropics-claude-hit-by-major-global-outage-due-to-unexpected-capacity-constraints/))
+**So what:** For production workloads, deploy via Bedrock or Vertex with an enterprise SLA rather than the consumer endpoint; that architecture was insulated from the June 2 outage and is the right tier for any workload that cannot tolerate direct-API disruptions. ([status.claude.com](https://status.claude.com/))
 
 **"Didn't Claude Code get worse, and doesn't Veracode say it writes insecure code?"**
 

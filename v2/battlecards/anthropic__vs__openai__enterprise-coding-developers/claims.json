@@ -801,26 +801,18 @@
   },
   {
     "subject_key": "objection | claude-outage-capacity | current",
-    "claim": "**\"Claude went down the day after your IPO filing. Can it handle our production load?\"**\n\nYes, that happened: a global outage on June 2, 2026 tied to capacity constraints. It was fixed same day, and customers running Claude through Google Vertex AI or Amazon Bedrock were unaffected. The $65B Series H and the SpaceX/Colossus compute deal (300+ MW, which let Anthropic double Claude Code rate limits) are explicitly aimed at this.\n\n**So what:** For production workloads, deploy via Bedrock or Vertex with an enterprise SLA rather than the consumer endpoint; that architecture was insulated from the outage in the first place.",
-    "claim_type": "fact",
+    "claim": "**\"Claude has had multiple outages this month. Can it handle our production load?\"**\n\nTwo confirmed: a global outage on June 2, 2026 tied to capacity constraints (fixed same day), and a second broad outage on June 23 that lasted about 85 minutes and hit all Claude platforms (claude.ai, the API, Claude Console, Claude Code, and Claude Cowork), with over 8,000 US Downdetector reports at peak. That is a documented run of disruptions in June, not a one-off. On June 2, customers running Claude through Google Vertex AI or Amazon Bedrock were unaffected. The $65B Series H and the SpaceX/Colossus compute deal (300+ MW, which let Anthropic double Claude Code rate limits) are aimed at underlying capacity.\n\n**So what:** For production workloads, deploy via Bedrock or Vertex with an enterprise SLA rather than the consumer endpoint; that architecture was insulated from the June 2 outage and is the right tier for any workload that cannot tolerate direct-API disruptions.",
+    "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 2,
-    "source_url": "https://www.thenationalnews.com/future/technology/2026/06/02/anthropics-claude-hit-by-major-global-outage-due-to-unexpected-capacity-constraints/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Due to unexpected capacity constraints, Claude is unable to respond to your message. Please try again soon",
-    "as_of": "2026-06-02",
+    "as_of": "2026-06-23",
     "confidence": "high",
     "id": "c_b7c42bbe9a94",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-04",
-      "detail": null
-    },
-    "persona": "technical_evaluator"
+    "persona": "technical_evaluator",
+    "derived_from": "c_a0e9ecf9b47d",
+    "updated_on": "2026-06-23"
   },
   {
     "subject_key": "objection | claude-code-quality-decline-veracode | current",
@@ -1208,6 +1200,42 @@
     "corroboration": [
       {
         "source_url": "https://www.testingcatalog.com/openai-launches-new-security-tools-and-updates-gpt-5-5-cyber/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "anthropic | service-outage | 2026-06",
+    "claim": "On June 23, 2026, Claude suffered a broad outage. Anthropic's own status page logged elevated error rates across multiple models from 14:08 to 15:33 UTC (about 85 minutes) and showed a major outage spanning all Claude platforms (claude.ai, the API, Claude Console, Claude Code, and Claude Cowork), with only Claude for Government unaffected. Downdetector logged over 8,000 US reports at peak. This is the second major Claude outage in three weeks, after the June 2 incident, and part of a documented run of June service disruptions.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 100,
+    "source_url": "https://status.claude.com/",
+    "source_tier": "primary",
+    "evidence_excerpt": "We saw elevated error rates on requests to multiple models from 7:08am PT / 14:08 UTC through 8:33am PT / 15:33 UTC.",
+    "as_of": "2026-06-23",
+    "confidence": "high",
+    "id": "c_a0e9ecf9b47d",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-23",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.techtimes.com/articles/318925/20260623/claude-outage-tops-8000-reports-agentic-pipeline-failures-mount-before-anthropic-ipo.htm",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.techradar.com/news/live/claude-down-june-23-2026",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
