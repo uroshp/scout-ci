@@ -356,26 +356,18 @@
   },
   {
     "subject_key": "hubspot-breeze | resolution-rate | current",
-    "claim": "**On front-line support resolution, Breeze is genuinely competitive.**\n\nHubSpot's Customer Agent now resolves about 70% of support conversations autonomously, with some customers above 90%. In a tier-1 support-deflection deal that number is real, and the buyer will cite it. Pretending otherwise costs credibility.\n\n**Soundbite:** *\"Their 70% is real for FAQ deflection, so make them prove it on complex, multi-system B2B workflows, where Agentforce executes the whole process, not just the answer.\"*",
-    "claim_type": "fact",
+    "claim": "**On front-line support resolution, Breeze is genuinely competitive.**\n\nHubSpot's Customer Agent now resolves about 70% of support conversations autonomously, with some customers above 90%. In a tier-1 support-deflection deal that number is real, and the buyer will cite it. Pretending otherwise costs credibility.\n\nWith Salesforce's signed agreement to acquire Fin (expected close Q4 FY2027), the resolution-rate comparison shifts. Fin's AI Agent averages 76% of support volume resolved end-to-end across live chat, email, WhatsApp, SMS, phone, and Slack. On close, Salesforce will have a packaged support AI that runs above Breeze on the headline metric in its own mid-market territory.\n\n**Soundbite:** *\"Their 70% is real for FAQ deflection, so make them prove it on complex, multi-system B2B workflows where Agentforce executes the whole process. And note: Fin, pending Q4 FY2027 close, averages 76% with the same packaged mid-market approach they're pitching.\"*",
+    "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
     "order": 0,
-    "source_url": "https://www.cxtoday.com/contact-center/hubspot-customer-agent-resolution-rate/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "resolving 70% of support conversations autonomously",
-    "as_of": "2026-05-12",
+    "as_of": "2026-06-15",
     "confidence": "high",
     "id": "c_0d8c580bee52",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
-    "persona": "technical_evaluator"
+    "persona": "technical_evaluator",
+    "derived_from": "c_af896f3200dc",
+    "updated_on": "2026-06-15"
   },
   {
     "subject_key": "hubspot-breeze | sales-cycle | current",
@@ -582,5 +574,35 @@
       }
     ],
     "updated_on": "2026-06-15"
+  },
+  {
+    "subject_key": "salesforce | acquisition | fin",
+    "claim": "Salesforce signed a definitive agreement on June 15, 2026 to acquire Fin (formerly Intercom), a customer-service AI agent company, for approximately $3.6 billion. Fin's AI Agent is powered by its proprietary Apex model and resolves queries end-to-end across live chat, email, WhatsApp, SMS, phone, and Slack, with cited examples resolving on average 76% of support volume. Salesforce frames Fin as a fast-to-value, packaged option especially suited to SMB and commercial organizations, complementing Agentforce's customizable platform. The deal brings a team and 30,000+ customers, and is expected to close in Q4 of Salesforce's fiscal year 2027 with no change to FY27 guidance.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 30,
+    "source_url": "https://www.salesforce.com/news/press-releases/2026/06/15/salesforce-signs-definitive-agreement-to-acquire-fin/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Salesforce will acquire Fin for approximately $3.6 billion, subject to customary purchase price adjustments.",
+    "as_of": "2026-06-15",
+    "confidence": "high",
+    "id": "c_af896f3200dc",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-15",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/06/15/salesforce-acquires-ai-customer-service-platform-fin-for-3-6b/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

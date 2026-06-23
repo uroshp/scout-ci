@@ -1028,15 +1028,15 @@
   {
     "id": "c_6728a60059ae",
     "subject_key": "objection | model-govt-disable-fable-mythos | current",
-    "claim": "**\"The government forced Anthropic to disable two of its models overnight for every customer. How do we know the same won't happen to what we're building on?\"**\n\nReal and ongoing: the June 12, 2026 export-control directive suspended Fable 5 and Mythos 5 globally. As of June 21 (day nine of the ban), both remain off for all users. Senate testimony this week widened the reported government concern from a narrow jailbreak to Mythos-class autonomous offensive capability, and reporting frames near-term restoration as harder to negotiate.\n\nOn build risk: Claude Sonnet 4.6 and Opus 4.8 were never under the directive and have stayed fully available throughout.\n\n**So what:** Propose standardizing the customer's production stack on Sonnet 4.6 or Opus 4.8 today. The directive's scope covered only Fable 5 and Mythos 5.",
+    "claim": "**\"The government forced Anthropic to disable two of its models overnight for every customer. How do we know the same won't happen to what we're building on?\"**\n\nReal and ongoing: the June 12 export-control directive suspended Fable 5 and Mythos 5 globally, and both remain off for all users. Senate testimony widened the stated government concern beyond the initial jailbreak incident to Mythos-class autonomous offensive capability. On June 19, President Trump told Axios he no longer views Anthropic as a national security threat (\"not now. But a week ago, maybe\"), called their response to the Commerce Department order \"very responsible,\" and confirmed that Anthropic technical staff met with administration officials and that he met CEO Dario Amodei at the G7. Trump said he would not shut Anthropic down, though he did not rule out Defense Production Act powers.\n\nOn build risk: Claude Sonnet 4.6 and Opus 4.8 were never under the directive and have stayed fully available throughout.\n\n**So what:** Propose standardizing the customer's production stack on Sonnet 4.6 or Opus 4.8 today. The directive's scope covered only Fable 5 and Mythos 5.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 6,
-    "as_of": "2026-06-21",
+    "as_of": "2026-06-19",
     "verified": true,
     "confidence": "medium",
-    "derived_from": "c_737554eeb37c",
+    "derived_from": "c_7b4ec498e422",
     "updated_on": "2026-06-22",
     "persona": "security_regulated"
   },
@@ -1172,6 +1172,36 @@
     "corroboration": [
       {
         "source_url": "https://www.techtimes.com/articles/318436/20260615/openai-launches-partner-network-150m-bet-that-implementation-beats-model-power.htm",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "anthropic | government-relations-thaw",
+    "claim": "On June 19, 2026, in a pretaped Axios Show interview, President Trump said he no longer views Anthropic or CEO Dario Amodei as a national security threat (\"not now. But a week ago, maybe\"), and said Anthropic \"behaved very responsibly\" after the Commerce Department ordered it to seek US approval before any foreign national could use its Fable 5 and Mythos 5 models. Anthropic had disabled access to those two models for all users in response to that order. Anthropic technical staff met administration officials that week and Trump met Amodei at the G7 in France. Trump said he would not shut Anthropic down but did not rule out using Defense Production Act powers.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.cnbc.com/2026/06/19/trump-tells-axios-he-no-longer-views-anthropic-as-national-security-threat.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "President Donald Trump said he might have viewed artificial intelligence company Anthropic as a national security threat last week, but he no longer does",
+    "as_of": "2026-06-19",
+    "confidence": "high",
+    "id": "c_7b4ec498e422",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-21",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://finance.yahoo.com/technology/ai/articles/trump-tells-axios-doesn-t-194923418.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
