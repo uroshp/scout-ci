@@ -166,11 +166,11 @@ Fair: the June 15 Agent-SDK credit split is Anthropic's third billing change in 
 
 **"The government forced Anthropic to disable two of its models overnight for every customer. How do we know the same won't happen to what we're building on?"**
 
-Real and ongoing: the June 12, 2026 export-control directive suspended Fable 5 and Mythos 5 globally. As of June 21 (day nine of the ban), both remain off for all users. Senate testimony this week widened the reported government concern from a narrow jailbreak to Mythos-class autonomous offensive capability, and reporting frames near-term restoration as harder to negotiate.
+Real and ongoing: the June 12 export-control directive suspended Fable 5 and Mythos 5 globally, and both remain off for all users. Senate testimony widened the stated government concern beyond the initial jailbreak incident to Mythos-class autonomous offensive capability. On June 19, President Trump told Axios he no longer views Anthropic as a national security threat ("not now. But a week ago, maybe"), called their response to the Commerce Department order "very responsible," and confirmed that Anthropic technical staff met with administration officials and that he met CEO Dario Amodei at the G7. Trump said he would not shut Anthropic down, though he did not rule out Defense Production Act powers.
 
 On build risk: Claude Sonnet 4.6 and Opus 4.8 were never under the directive and have stayed fully available throughout.
 
-**So what:** Propose standardizing the customer's production stack on Sonnet 4.6 or Opus 4.8 today. The directive's scope covered only Fable 5 and Mythos 5. ([anthropic.com](https://www.anthropic.com/news/fable-mythos-access))
+**So what:** Propose standardizing the customer's production stack on Sonnet 4.6 or Opus 4.8 today. The directive's scope covered only Fable 5 and Mythos 5. ([cnbc.com](https://www.cnbc.com/2026/06/19/trump-tells-axios-he-no-longer-views-anthropic-as-national-security-threat.html))
 
 **"International buyers are moving to Mistral and Cohere because of the export ban. Is Anthropic losing ground internationally?"**
 

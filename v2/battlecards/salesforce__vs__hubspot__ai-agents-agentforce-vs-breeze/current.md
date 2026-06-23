@@ -75,7 +75,9 @@ Agentforce Operations went GA on April 29, taking agents into finance, supply ch
 
 HubSpot's Customer Agent now resolves about 70% of support conversations autonomously, with some customers above 90%. In a tier-1 support-deflection deal that number is real, and the buyer will cite it. Pretending otherwise costs credibility.
 
-**Soundbite:** *"Their 70% is real for FAQ deflection, so make them prove it on complex, multi-system B2B workflows, where Agentforce executes the whole process, not just the answer."* ([cxtoday.com](https://www.cxtoday.com/contact-center/hubspot-customer-agent-resolution-rate/))
+With Salesforce's signed agreement to acquire Fin (expected close Q4 FY2027), the resolution-rate comparison shifts. Fin's AI Agent averages 76% of support volume resolved end-to-end across live chat, email, WhatsApp, SMS, phone, and Slack. On close, Salesforce will have a packaged support AI that runs above Breeze on the headline metric in its own mid-market territory.
+
+**Soundbite:** *"Their 70% is real for FAQ deflection, so make them prove it on complex, multi-system B2B workflows where Agentforce executes the whole process. And note: Fin, pending Q4 FY2027 close, averages 76% with the same packaged mid-market approach they're pitching."* ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/06/15/salesforce-signs-definitive-agreement-to-acquire-fin/))
 
 **The mid-market is contested, but HubSpot's own GTM reset is slowing its deals.**
 
