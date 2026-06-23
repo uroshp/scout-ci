@@ -1183,5 +1183,35 @@
       "method": "manual-reground",
       "fetched_at": "2026-06-22"
     }
+  },
+  {
+    "subject_key": "openai-gpt55-cyber-launch",
+    "claim": "On June 22, 2026 OpenAI released GPT-5.5-Cyber, a model for finding, validating, and patching software vulnerabilities, restricted to verified defenders on authorized security work rather than general access. Alongside it OpenAI shipped a Codex Security plugin that scans codebases and generates patches inside Codex workflows, and launched Patch the Planet, an open-source vulnerability-fixing program with Trail of Bits and HackerOne whose initial participants include cURL, Go, Python, and pyca/cryptography. OpenAI reports GPT-5.5-Cyber scored 85.6% on the CyberGym benchmark versus 81.8% for the base GPT-5.5.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 14,
+    "source_url": "https://thehackernews.com/2026/06/openai-expands-daybreak-with-gpt-55.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI is also launching a new initiative called Patch the Planet in partnership with Trail of Bits to help secure open-source projects.",
+    "as_of": "2026-06-23",
+    "confidence": "high",
+    "id": "c_8fcb077ed288",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-23",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.testingcatalog.com/openai-launches-new-security-tools-and-updates-gpt-5-5-cyber/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
