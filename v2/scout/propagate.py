@@ -111,6 +111,18 @@ OPERATIONS (pick the lightest that is true; identity is the SUBJECT, not the tex
 BLAST-RADIUS CAP. You may only touch a claim the fact DIRECTLY creates, undercuts, or invalidates.
 Do not reword, improve, or re-order anything else. One fact rewrites only what it has high impact on.
 
+RECONCILE FAST-MOVING FOLLOW-UPS — DO NOT REWRITE FROM SCRATCH. Markets move in beats: a story already
+on the card gets a follow-up (a ban, then a directive, then a reversal; a competitor's metric, then our
+counter). When the new fact is the latest beat of a development an existing claim ALREADY reflects (you
+are given each target claim's FULL current text), REVISE that claim SURGICALLY: fold in the new beat and
+KEEP every prior point that is still true, plus the existing rep move and its required **So what:** /
+**Soundbite:** block. A later beat does not erase the earlier ones: a reversal does not unmake the prior
+event (an administration softening on a vendor does NOT delete the earlier ban — state both, reconciled).
+Do NOT rewrite the claim from scratch, do NOT drop still-true prior content, do NOT lose the required
+block. Replacing the whole claim and shedding still-valid content is the wholesale-rewrite error the
+judge rejects on blast-radius grounds — the fast-moving story is exactly where the card must stay both
+FRESH and COMPLETE.
+
 Every op is an INTERPRETATION (claim_type: interpretation) carrying derived_from = the id of the
 grounded fact it descends from. Propagation never mints a new "fact". Obey WRITING_STYLE for all
 prose, it is rep-facing.
@@ -168,7 +180,10 @@ def _trigger_fact_ids(facts: list[dict]) -> set:
 
 
 def _targets_digest(claims: list[dict]) -> list[dict]:
-    """The ACTIVE plays + objections propose may revise or retire (reuse the EXACT subject_key)."""
+    """The ACTIVE plays + objections propose may revise or retire (reuse the EXACT subject_key). The
+    claim text is sent IN FULL (never truncated): to reconcile a fast-moving follow-up into a layered
+    claim, propose AND judge must see every prior beat the claim already encodes — a clipped view is
+    what made the proposer rewrite from scratch and erase still-true content."""
     out = []
     for c in claims:
         if c.get("section") not in ("battlecard", "objection_handling"):
@@ -176,7 +191,7 @@ def _targets_digest(claims: list[dict]) -> list[dict]:
         if str(c.get("status", "active")) != "active":
             continue
         out.append({"subject_key": c.get("subject_key"), "section": c.get("section"),
-                    "zone": c.get("zone"), "claim": str(c.get("claim", ""))[:240]})
+                    "zone": c.get("zone"), "claim": str(c.get("claim", ""))})
     return out
 
 
@@ -381,6 +396,11 @@ REJECT an op if ANY of these holds:
 CONFIRM an op ONLY when the grounded fact DIRECTLY and near-certainly licenses exactly that change, at
 exactly that scope, routed by the correct valence, as the lightest true operation. For a back-foot
 objection, "lightest true" still REQUIRES a grounded pivot — an honest constraint plus a real next move.
+RECONCILING A FOLLOW-UP is a CORRECT, expected revise: when a new beat updates a claim that already
+encodes earlier beats, the right op folds the new beat in while PRESERVING the still-true prior content
+and the required block — confirm that. What you reject on blast-radius is the opposite: a revise that
+ERASES still-true prior content or rewrites the claim from scratch (e.g. a reversal that deletes the
+earlier event instead of reconciling with it).
 
 Return ONLY a single fenced ```json block:
 {"verdicts": [
@@ -432,6 +452,30 @@ async def _run_judge(meta: dict, facts: list[dict], claims: list[dict], indexed_
     return await _drive(user, options, "judge")
 
 
+def _parse_verdicts(text: str) -> dict:
+    """op_index -> {verdict, reason} from the judge's JSON. Tolerant: coerces a digit-string op_index
+    to int (models sometimes quote it) so a stylistic slip doesn't drop a real verdict; anything not a
+    clean confirm normalizes to reject. Returns {} when the text has no parseable verdicts."""
+    try:
+        data = _extract_json(text)
+    except Exception:
+        return {}
+    verdicts = {}
+    for vd in (data.get("verdicts") or []):
+        if not isinstance(vd, dict):
+            continue
+        oi = vd.get("op_index")
+        if isinstance(oi, str) and oi.strip().isdigit():
+            oi = int(oi.strip())
+        if not isinstance(oi, int) or isinstance(oi, bool):
+            continue
+        verdicts[oi] = {
+            "verdict": "confirm" if str(vd.get("verdict", "")).strip().lower() == "confirm" else "reject",
+            "reason": str(vd.get("reason", "")),
+        }
+    return verdicts
+
+
 def judge(meta: dict, facts: list[dict], claims: list[dict], indexed_ops: list) -> dict:
     """Adversarial Opus pass over the floor-surviving ops. `indexed_ops` is a list of (op_index, op)
     pairs (op_index = position in the ORIGINAL proposed list). Returns
@@ -443,19 +487,18 @@ def judge(meta: dict, facts: list[dict], claims: list[dict], indexed_ops: list) 
     if not indexed_ops:
         return {"verdicts": {}, "cost_usd": 0.0}
     res = asyncio.run(_run_judge(meta, facts, claims, indexed_ops))
-    try:
-        data = _extract_json(res["text"])
-    except Exception:
-        data = {"verdicts": []}
-    verdicts = {}
-    for vd in (data.get("verdicts") or []):
-        if not isinstance(vd, dict) or not isinstance(vd.get("op_index"), int):
-            continue
-        verdicts[vd["op_index"]] = {
-            "verdict": "confirm" if str(vd.get("verdict", "")).strip().lower() == "confirm" else "reject",
-            "reason": str(vd.get("reason", "")),
-        }
-    return {"verdicts": verdicts, "cost_usd": res.get("cost_usd")}
+    verdicts = _parse_verdicts(res["text"])
+    cost = res.get("cost_usd") or 0.0
+    # ROBUSTNESS: an unparseable/empty judge response fail-closes EVERY op at once — silently dropping
+    # a whole batch of material edits (the bug that lost the Trump + Salesforce updates: a 3-op response
+    # came back malformed). A real all-reject returns verdicts, so empty == a parse hiccup, not a
+    # decision. Retry the judge ONCE before defaulting the batch to reject. Bounded to one extra call;
+    # fires only on the empty case, so a normal run costs nothing extra.
+    if not verdicts:
+        res2 = asyncio.run(_run_judge(meta, facts, claims, indexed_ops))
+        verdicts = _parse_verdicts(res2["text"])
+        cost += res2.get("cost_usd") or 0.0
+    return {"verdicts": verdicts, "cost_usd": cost}
 
 
 # --- Decision log (spec §17): audit trail AND authorship-shadow training corpus -----------------
