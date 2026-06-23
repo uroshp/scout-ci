@@ -10,7 +10,7 @@ a fact is falsified. Pure functions, no model, no network. Run from v2/:
 """
 import unittest
 
-from scout.propagate import apply_ops, retire_cascade
+from scout.propagate import apply_ops, retire_cascade, _targets_digest, _parse_verdicts
 from scout.schema import claim_id, validation_errors
 from scout.render import claims_to_markdown
 
@@ -178,6 +178,32 @@ class RenderLifecycle(unittest.TestCase):
         md = claims_to_markdown([parent, prop], "# Competitive Intelligence Brief: A vs B",
                                 my_company="A", competitor="B")
         self.assertIn("news.test", md)                  # the inherited source link rendered
+
+
+class ParseVerdicts(unittest.TestCase):
+    def test_coerces_digit_string_op_index(self):
+        text = '```json\n{"verdicts":[{"op_index":"0","verdict":"confirm","reason":"ok"}]}\n```'
+        self.assertEqual(_parse_verdicts(text), {0: {"verdict": "confirm", "reason": "ok"}})
+
+    def test_empty_on_unparseable(self):
+        # the fail-close signal the judge() retry keys off — a parse hiccup, not a decision
+        self.assertEqual(_parse_verdicts("the judge wrote prose, no json"), {})
+
+    def test_non_confirm_normalizes_to_reject(self):
+        text = '```json\n{"verdicts":[{"op_index":1,"verdict":"maybe","reason":"x"}]}\n```'
+        self.assertEqual(_parse_verdicts(text)[1]["verdict"], "reject")
+
+
+class TargetsDigest(unittest.TestCase):
+    def test_current_claim_text_sent_in_full_not_truncated(self):
+        # Reconciling a follow-up into a layered claim needs the FULL prior text; a clipped view is what
+        # made the proposer rewrite from scratch and erase still-true content.
+        long_claim = '**"Is this a risky vendor?"**\n\n' + ("a beat. " * 90) + "\n\n**So what:** the move."
+        self.assertGreater(len(long_claim), 240)
+        c = {"subject_key": "a|b|c", "section": "objection_handling", "zone": None,
+             "claim": long_claim, "status": "active"}
+        d = _targets_digest([c])
+        self.assertEqual(d[0]["claim"], long_claim)        # full text, no truncation
 
 
 if __name__ == "__main__":
