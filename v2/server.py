@@ -244,8 +244,10 @@ def _chrome(is_create: bool, slug, cards: list) -> str:
 
 
 # ----------------------------------------------------------------------------- routes
-@app.get("/healthz")
-def healthz():
+# NB: not "/healthz" — Google's Cloud Run frontend reserves/intercepts that path (it returns
+# the GFE 404 before the request reaches the container), so we expose our own under a free name.
+@app.get("/healthcheck")
+def healthcheck():
     return "ok", 200
 
 
