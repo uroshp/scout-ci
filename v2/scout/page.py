@@ -326,6 +326,18 @@ def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = N
     # which was just the <48h slice of the same data restyled. Each row surfaces the judge's
     # stored severity (ACT = change what reps say/do now; WATCH = material context) and its
     # so_what reasoning behind a "Why it matters" toggle.
+    # Cap each rail feed to a few rows and tuck the rest behind a native <details> expander.
+    # This is not only tidiness: the rail is position:sticky, and a sticky box TALLER than the
+    # viewport can't pin — it scrolls with the page until its bottom edge is reached, then
+    # "catches". As these feeds grew, the rail outgrew the screen, so the panel looked frozen
+    # while scrolling, then lurched near the end. Capping keeps the rail short enough to pin.
+    def _collapse(rows, cap=4, noun="more"):
+        if len(rows) <= cap:
+            return "".join(rows)
+        return ("".join(rows[:cap])
+                + f'<details class="more"><summary>Show {len(rows) - cap} {noun}</summary>'
+                + "".join(rows[cap:]) + "</details>")
+
     recent_fps = {a.get("fingerprint") or a.get("subject_key") for a in status["recent_updates"]}
     mc_rows = []
     for a in reversed(display.load_alerts(status["slug"])):
@@ -342,7 +354,7 @@ def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = N
             f'<div class="row"><div class="rmeta"><span class="dt">'
             f'{_rail_ts(a.get("detected_at", a.get("date","")))}</span>{chips}</div>'
             f'<span>{_html.escape(str(a.get("headline", a.get("so_what",""))))}</span>{swx}</div>')
-    mc = "".join(mc_rows) if mc_rows else '<div class="empty">No material changes detected yet.</div>'
+    mc = _collapse(mc_rows) if mc_rows else '<div class="empty">No material changes detected yet.</div>'
 
     # Recently updated: claim-level changelog of approved edits, each a deep-link to the claim it
     # changed, so a rep or CMO sees what moved and jumps straight to it. Keep only rows whose claim
@@ -350,11 +362,11 @@ def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = N
     # changing must never leave a dead link in the changelog.
     ru = [r for r in (status.get("recently_updated") or [])
           if nav_ids is None or _anchor(r.get("subject_key")) in nav_ids]
-    ru_rows = "".join(
+    ru_rows = [
         f'<div class="row"><span class="dt">Updated {_html.escape(str(r.get("updated_on") or ""))}</span>'
         f'<a href="#{_anchor(r.get("subject_key"))}">{_html.escape(str(r.get("label") or r.get("subject_key") or ""))}</a></div>'
-        for r in ru)
-    ru_html = ru_rows or '<div class="empty">No content changes recently.</div>'
+        for r in ru]
+    ru_html = _collapse(ru_rows) if ru_rows else '<div class="empty">No content changes recently.</div>'
 
     def panel(label, body, extra=""):
         return (f'<div class="panel"><div class="phead"><span class="ey">{label}</span>{extra}</div>'
@@ -547,6 +559,15 @@ _OVERRIDES = """
 #scout-page .swx>summary::-webkit-details-marker{display:none;}
 #scout-page .swx>summary::after{content:' \\25be';}
 #scout-page .swx[open]>summary::after{content:' \\25b4';}
+/* Rail-feed expander ("Show N more"). Same mono micro-link as .swx, but it must override the
+   global summary{padding:11px 18px;border-bottom} or it would render like a section header. */
+#scout-page .feed .more{margin-top:5px;}
+#scout-page .feed .more>summary{list-style:none;cursor:pointer;user-select:none;display:inline-flex;
+  font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--accent-deep);padding:2px 0;border-bottom:none;}
+#scout-page .feed .more>summary::-webkit-details-marker{display:none;}
+#scout-page .feed .more>summary::after{content:' \\25be';}
+#scout-page .feed .more[open]>summary::after{content:' \\25b4';}
 #scout-page .swb{margin-top:3px;font-size:11.5px;color:var(--muted);line-height:1.45;
   border-left:2px solid var(--accent-line);padding-left:8px;}
 #scout-page .metric .mv .mdelta{font-family:var(--mono);font-size:10.5px;font-weight:600;
