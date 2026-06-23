@@ -147,7 +147,7 @@ def _ga4_server_event(client_id, ip, ref, card, utm=None):
         slug = card or "(home)"
         params = {"session_id": client_id, "engagement_time_msec": "1",
                   "page_location": loc, "page_referrer": ref or "(direct)",
-                  "page_title": f"Scout · {slug}", "card": slug}
+                  "page_title": f"Agent Scout · {slug}", "card": slug}
         params.update(utm)   # also expose utm_* as event params for custom-dimension slicing
         payload = {"client_id": client_id, "events": [{"name": "server_visit", "params": params}]}
         url = ("https://www.google-analytics.com/mp/collect"
