@@ -81,6 +81,23 @@ class Compare(unittest.TestCase):
         self.assertEqual(ids_a, ids_b)
 
 
+class ItemsScope(unittest.TestCase):
+    def test_kept_claim_without_excerpt_is_skipped(self):
+        # the capture-bug fix: an interpretation (no evidence excerpt) is out of the excerpt-
+        # groundedness judge's scope, so it isn't shown to the challenger or counted in the comparison
+        rec = {"slug": "a__vs__b__x", "run_ts": "t", "source": "backfill", "cut": [],
+               "kept": [
+                   {"id": "c_fact00000000", "claim": "A fact.", "evidence_excerpt": "the evidence"},
+                   {"id": "c_interp000000", "claim": "**An objection?**\n\nb.\n\n**So what:** m.",
+                    "evidence_excerpt": None},
+               ]}
+        items, champion = challenger._items(rec)
+        ids = {i["item_id"] for i in items}
+        self.assertIn("c_fact00000000", ids)            # excerpt-bearing fact is judged
+        self.assertNotIn("c_interp000000", ids)         # no-excerpt interpretation skipped
+        self.assertNotIn("c_interp000000", champion)    # and not counted as a disagreement
+
+
 class ContentHash(unittest.TestCase):
     def test_deterministic_and_sensitive(self):
         rec = _record()

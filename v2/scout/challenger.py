@@ -81,6 +81,14 @@ def _items(record: dict) -> tuple[list, dict]:
     for i, c in enumerate(record.get("kept") or []):
         if not isinstance(c, dict):
             continue
+        # SCOPE (decision-log §11): the challenger judges EXCERPT-groundedness. A kept claim with no
+        # evidence excerpt is an interpretation (objection/play) grounded structurally via its parent
+        # facts, not via an excerpt — out of this judge's scope (it belongs to the AUTHORSHIP track).
+        # Judging it against a blank excerpt produced ~all the false "slop" cuts (the 7 of 9 Uroš ruled
+        # over-cut). Skip it; only excerpt-bearing claims (facts — including a MIS-grounded fact we DO
+        # want caught) are judged here.
+        if not str(c.get("evidence_excerpt") or "").strip():
+            continue
         item_id = c.get("id") or f"keep:{i}"
         champion[item_id] = "keep"
         model_items.append({
