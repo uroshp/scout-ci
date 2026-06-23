@@ -786,7 +786,7 @@ def _print_button(sheet_html: str, full: bool = False) -> str:
 def _footer():
     credit = (f"[{config.AUTHOR_NAME}]({config.AUTHOR_LINKEDIN})"
               if config.AUTHOR_LINKEDIN else config.AUTHOR_NAME)
-    src = f" · [Source]({config.SOURCE_REPO_URL})" if getattr(config, "SOURCE_REPO_URL", "") else ""
+    src = f" · [GitHub]({config.SOURCE_REPO_URL})" if getattr(config, "SOURCE_REPO_URL", "") else ""
     st.caption(f"Built by {credit}{src}")
 
 
