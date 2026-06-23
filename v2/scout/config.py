@@ -182,6 +182,8 @@ SELFSERVE_APP_URL = os.environ.get("SCOUT_SELFSERVE_APP_URL", "https://agent-sco
 # it falls back to the SELFSERVE_CONTACT email. Set via Streamlit secrets or .env.
 AUTHOR_NAME = os.environ.get("SCOUT_AUTHOR_NAME", "Urosh Pajic")
 AUTHOR_LINKEDIN = os.environ.get("SCOUT_AUTHOR_LINKEDIN", "https://www.linkedin.com/in/urospajic")
+# Public code repo, linked from the footer credit (alongside LinkedIn) so visitors can see the build.
+SOURCE_REPO_URL = os.environ.get("SCOUT_SOURCE_REPO_URL", "https://github.com/uroshp/scout-ci")
 # Storage backend: when a token + repo are set (deployed app), the app reads/writes via the
 # GitHub API on this branch; otherwise it falls back to the local filesystem (dev/test).
 #

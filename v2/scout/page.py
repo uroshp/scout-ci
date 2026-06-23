@@ -363,6 +363,9 @@ def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = N
     name = _html.escape(config.AUTHOR_NAME or "Urosh P")
     credit = (f'Built by <a href="{_html.escape(config.AUTHOR_LINKEDIN)}" target="_blank" '
               f'rel="noopener">{name}</a>') if config.AUTHOR_LINKEDIN else f"Built by {name}"
+    if getattr(config, "SOURCE_REPO_URL", ""):
+        credit += (f' · <a href="{_html.escape(config.SOURCE_REPO_URL)}" target="_blank" '
+                   f'rel="noopener">Source</a>')
     return ('<div class="rail">' + nav
             + panel("Material changes", mc, f'<span class="ph-n">{len(mc_rows)}</span>')
             + panel("Recently updated", ru_html, f'<span class="ph-n">{len(ru)}</span>')
