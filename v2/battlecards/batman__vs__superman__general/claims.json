@@ -177,15 +177,15 @@
   },
   {
     "subject_key": "supergirl | box-office-tracking | 2026",
-    "claim": "DC's Supergirl (opening June 26, 2026) weakened further heading into release. On June 13, analytics firm BoxOfficeTheory cut its domestic opening forecast by about 10% to a $51M midpoint (range $47-58M), and Boxoffice Pro landed at $45-55M, both tracking below The Flash's $55M, the 2023 debut Warner Bros. spent three years trying to bury. The film also carries heavy late-stage surgery: 10-plus test screenings (more than any studio film this decade per World of Reel), three composers, three tested endings, and a ~25-minute trim to a final 1h47m, with each recut adding more David Corenswet Superman footage to prop up the new lead. Deadline pegs net production cost at $175M and break-even at $315M worldwide. Superman's universe heads into its second film on the back foot.",
+    "claim": "Supergirl's pre-release tracking kept sliding into its June 26 opening. By June 21, NRG had its three-day domestic debut at $51M (reported by Puck's Matthew Belloni), and a June 19 BoxOfficeTheory read put the midpoint near $48M in a $39M to $51M range, down from a $65M earlier forecast. Because Toy Story 5 opened to $160M the weekend prior, Supergirl is now projected to lose its own opening frame to that film's second weekend. Superman debuted to $125M last July, so Supergirl is tracking at roughly 40% of its predecessor on a comparable budget.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
     "order": 5,
-    "source_url": "https://www.techtimes.com/articles/318486/20260616/supergirl-box-office-forecast-drops-51m-dcu-film-tracks-below-flash.htm",
+    "source_url": "https://ca.news.yahoo.com/supergirl-opening-weekend-tracking-number-192338832.html",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "A $51 million domestic opening for Supergirl would represent the weakest DCU chapter-one theatrical debut by a significant margin",
-    "as_of": "2026-06-16",
+    "evidence_excerpt": "Pre-release tracking for SUPERGIRL has come down again, now sitting at $51M domestic for the 3-day opening, per NRG.",
+    "as_of": "2026-06-22",
     "confidence": "high",
     "id": "c_56c200c42955",
     "verified": true,
@@ -193,18 +193,17 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-16",
+      "fetched_at": "2026-06-23",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://www.worldofreel.com/blog/2026/6/10/supergirl-trimmed-by-25-minutes",
+        "source_url": "https://www.comingsoon.net/movies/news/2151594-supergirl-trouble-box-office-prediction-low-forecast",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
       }
-    ],
-    "updated_on": "2026-06-16"
+    ]
   },
   {
     "subject_key": "man of tomorrow | production-first-look | 2026",
