@@ -108,6 +108,24 @@ class Adjudicate(unittest.TestCase):
         b = adjudicate.load_deltas()
         self.assertEqual([d["delta_id"] for d in a], [d["delta_id"] for d in b])
 
+    def test_fail_closed_reject_excluded_from_gate_and_surfaced(self):
+        # A judge that returned no verdict is defaulted to reject (fail-closed) — a hiccup, not a
+        # judgment. It must not count toward the gate or sit in the human queue; it is surfaced for re-run.
+        fc = {"schema_version": 1, "slug": "a__vs__b__x", "source": "monitor",
+              "run_ts": "2026-06-15T11:00:00",
+              "decisions": [
+                  {"operation": "revise", "section": "objection_handling", "subject_key": "q|obj|current",
+                   "derived_from": "c_444444444444", "old_text": "old", "new_text": "new",
+                   "judge_verdict": "reject", "judge_reason": "no verdict returned (fail-closed)",
+                   "committed": False, "trigger_source_url": "https://s/4", "floor_violations": []}]}
+        self.store.files["propagation/a__vs__b__x/20260615T110000.json"] = json.dumps(fc)
+        d = adjudicate.digest()
+        self.assertEqual(len(d["fail_closed"]), 1)
+        self.assertEqual(d["fail_closed"][0]["subject_key"], "q|obj|current")
+        self.assertNotIn("q|obj|current", [p["subject_key"] for p in d["pending"]])  # not queued
+        self.assertEqual(len(d["pending"]), 2)            # still only the original confirm + reject
+        self.assertEqual(d["adjudicated"], 0)             # fail-close moves nothing toward the gate
+
 
 if __name__ == "__main__":
     unittest.main()
