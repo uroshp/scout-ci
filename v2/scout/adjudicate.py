@@ -31,6 +31,16 @@ LABELS_PATH = "adjudication/authorship_labels.jsonl"
 # into a bounded role; promote operations safest-first (retire-on-falsified-fact -> revise -> add).
 AUTHORSHIP_GATE = int(config.__dict__.get("PROPAGATE_AUTHORSHIP_GATE", 20))
 _JUDGE_VERDICTS = ("confirm", "reject")  # adjudicatable; floor_reject is deterministic, excluded
+# A judge that returned NO verdict is defaulted to 'reject' (propagate._decision_records, the fail-closed
+# guard). That is a judge HICCUP, not a judgment under review — it must not count toward the promotion
+# gate (it would let an infra error masquerade as a "correct reject") and the dropped op needs a re-run,
+# not a human label. Detected by the canonical fail-closed reason string and excluded below.
+_FAIL_CLOSED_MARK = "fail-closed"
+
+
+def _is_fail_closed(d: dict) -> bool:
+    return (d.get("judge_verdict") == "reject"
+            and _FAIL_CLOSED_MARK in str(d.get("judge_reason", "")).lower())
 
 
 def _delta_id(slug: str, rec: dict) -> str:
@@ -98,7 +108,9 @@ def digest() -> dict:
     """The Friday read: captured/adjudicated/pending counts + promotion-gate progress."""
     deltas = load_deltas()
     labels = load_labels()
-    judged = [d for d in deltas if d.get("judge_verdict") in _JUDGE_VERDICTS]
+    fail_closed = [d for d in deltas if _is_fail_closed(d)]
+    judged = [d for d in deltas
+              if d.get("judge_verdict") in _JUDGE_VERDICTS and not _is_fail_closed(d)]
     pending = [d for d in judged if d["delta_id"] not in labels]
     adjudicated = [d for d in judged if d["delta_id"] in labels]
     right = sum(1 for d in adjudicated if labels[d["delta_id"]]["human_verdict"] == "agree")
@@ -107,6 +119,7 @@ def digest() -> dict:
         "captured": len(deltas),
         "by_verdict": {v: sum(1 for d in deltas if d.get("judge_verdict") == v)
                        for v in ("confirm", "reject", "floor_reject")},
+        "fail_closed": fail_closed,                       # judge hiccups, excluded from the gate; re-run
         "adjudicated": len(adjudicated), "judge_right": right, "judge_wrong": wrong,
         "pending": pending,
         "gate": {"target": AUTHORSHIP_GATE, "progress": len(adjudicated),
@@ -123,6 +136,12 @@ def _print_digest() -> None:
     print(f"adjudicated: {d['adjudicated']}   judge right {d['judge_right']} / wrong {d['judge_wrong']}")
     print(f"promotion gate: {g['progress']}/{g['target']} adjudicated  net_positive={g['net_positive']}  "
           f"READY={g['ready']}")
+    fc = d.get("fail_closed") or []
+    if fc:
+        print(f"\njudge fail-closes EXCLUDED from the gate ({len(fc)} — need a re-run, not a label):")
+        for x in fc:
+            print(f"  [{x['delta_id']}] {x['slug']}  {str(x.get('operation','?')).upper()} "
+                  f"{x.get('section','')}  ({x.get('trigger_source_url')})")
     print(f"\npending ({len(d['pending'])}):")
     for x in d["pending"]:
         print(f"  [{x['delta_id']}] {x['slug']}  {str(x.get('operation','?')).upper()} "

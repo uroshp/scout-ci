@@ -243,3 +243,43 @@ TAKEAWAYS: (1) adopt the neutral prompt as the challenger default; (2) the ~5 su
 are the robust, worth-adjudicating slop signal; (3) the single-excerpt capture is a fidelity ceiling
 on challenger accuracy — a future `shadow.py` change (capture all grounding excerpts per claim) would
 raise it, logged for vNext, not fixed now.
+
+## 12. First authorship-judge adjudication — gate met + the "outage catch-22" (2026-06-22)
+
+**The adjudication.** Uroš adjudicated the 12 merit-based pending authorship (propagation propose→
+judge) decisions. Combined with the earlier 11, the judge is now at **23/20 adjudicated, 21 right / 2
+wrong, net-positive → promotion gate MET (READY)**. Crucially the 2 errors are **bidirectional**: one
+over-permissive (the fable/mythos over-confirm, §earlier) and one over-strict (#5 below) — no
+systematic lean, ~91% agreement. That's a healthier signal than a one-directional error set.
+
+**The outage catch-22 (the finding Uroš spotted from the data).** Of the 28 captured decisions, the
+genuinely status-page/outage-driven ones (~7–8) skew heavily REJECT — and there's a structural reason,
+not bad luck:
+- An outage is a **negative triggering fact that carries no positive capability**.
+- A real objection rebuttal needs a grounded **pivot** ("yes, but here's why you're safe").
+- The propagation judge grounds the rebuttal **only against that single triggering fact**.
+- So any real pivot (multi-cloud SLAs, uptime record) reads as **invented capability → reject**
+  (#5/#6/#9), while a pivot-less rebuttal reads as **hollow → reject** (#7). Pivot or not, it dies.
+- **Canonical example #5** (`a_229fc150e195`, Anthropic/OpenAI): the Vertex/Bedrock-SLA pivot it was
+  killed for is **true AND already published on the live card** — the judge just can't see
+  my_company's own strengths because they aren't fed into propagation grounding. Uroš adjudicated this
+  as **disagree** (judge over-strict): a legitimate carry-forward pivot should be allowed.
+- **This is corroborating evidence for the propagation P0** — the fix is the `my_company` search:
+  fetch a grounded fact about *your side's* strength so the pivot has its own footing. See the
+  living-battlecard propagation note. Without it, outage signals are competitively inert.
+
+**Open product decision — how to handle outage signals (pending Uroš).** Options weighed: (A) drop
+status-portal monitoring, catch outages only via major NEWS (news = built-in materiality filter); vs
+(B) keep status portals but route outage facts through a dedicated discipline (materiality gate,
+accumulate incidents to compute the *pattern* "Nth outage in M days" + service overlap, and only
+author a play when a grounded pivot exists). **Leaning B**: news-only loses the two most useful forms
+— the recurrence *pattern* (needs status-portal history) and *your own* outage awareness for defense
+(rarely in news). News belongs as a severity/corroboration multiplier on the status signal, not the
+sole source. Not built; awaiting decision.
+
+**Bug found.** The 5 still-pending "reject" decisions are judge **fail-closes** (no verdict returned →
+defaulted to reject), not real judgments — yet they count as `reject` in the adjudication queue/gate.
+One (the Trump "no longer a national-security threat" reversal) is a material *positive* update the
+fail-close dropped — a no-drop-guarantee violation on the propagation path. Fix: exclude fail-closes
+from `_JUDGE_VERDICTS` (route them to a re-run, not the human queue) and run them through the no-drop
+hold path. Logged, not yet fixed.

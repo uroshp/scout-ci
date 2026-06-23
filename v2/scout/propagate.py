@@ -61,10 +61,10 @@ VALENCE ROUTES THE OUTPUT:
   true strength and hands the rep a CONCRETE alternative or next move — never merely "confirm",
   "check", or "verify eligibility". State the constraint honestly, then redirect to a real capability
   the buyer can act on TODAY (e.g. a generally-available default to standardize on while the issue is
-  worked). The strength you pivot to MUST itself be grounded — drawn from the given facts or the
-  card's existing claims, never invented — and do NOT speculate about if/when the constraint resolves
-  unless a fact states it. A rebuttal that only restates the problem is a FAIL; rep-facing prose must
-  leave the rep with a move.
+  worked). The strength you pivot to MUST itself be grounded — drawn from the given facts, INCLUDING the
+  standing-strength my_company facts provided for exactly this (see below); never invented — and do NOT
+  speculate about if/when the constraint resolves unless a fact states it. A rebuttal that only restates
+  the problem is a FAIL; rep-facing prose must leave the rep with a move.
   THE MOVE MUST BE THE REP'S, AND IT MUST KEEP THE REP IN CONTROL. The concrete next step is something
   the REP does or offers TODAY (e.g. "standardize on the GA model now"), never something the BUYER is
   coached to go extract from us. A rebuttal FAILS if it: (a) tells the buyer to demand a concession,
@@ -76,6 +76,16 @@ VALENCE ROUTES THE OUTPUT:
   validates the fear the objection exists to defuse. Pivot to what is true and ours to offer right now,
   delivered with a straight back.
 - FRONT FOOT (a competitor stumble, OR our own win or ship) -> a PLAY, in battlecard / where_we_win.
+
+STANDING-STRENGTH FACTS (pivot fuel). Some given facts are marked "standing_strength": true. These are
+grounded, currently-true my_company strengths (e.g. multi-cloud availability / SLAs, security posture, a
+GA model to standardize on) supplied so a BACK-FOOT rebuttal has a grounded strength to pivot to. Use
+them ONLY to ground a pivot. They are NOT new developments: NEVER author an add/revise/retire triggered
+by a standing-strength fact, and NEVER set derived_from to one (derived_from is always the STUMBLE that
+raises the objection — the outage, the restriction). A rebuttal's pivot MAY cite a standing-strength
+fact even though it differs from the op's derived_from trigger: that sibling pivot is fully grounded, not
+an invented capability. If no given fact (trigger or standing-strength) grounds a real pivot, propose no
+objection — leave the development as a tracked fact.
 
 REQUIRED PROSE FORMAT (the viewer renders these markers into the structured card; OMIT them and the
 claim renders as one unbroken blob and is REJECTED — this is not optional):
@@ -133,7 +143,10 @@ correct outcome."""
 
 
 def _facts_digest(facts: list[dict]) -> list[dict]:
-    """The grounded facts propose may draw from. id is the derived_from anchor each op must carry."""
+    """The grounded facts propose may draw from. id is the derived_from anchor each op must carry.
+    `standing_strength` flags a my_company STANDING strength supplied as pivot fuel: admissible
+    evidence a back-foot rebuttal may pivot to, but NEVER a trigger for an op (the floor enforces this
+    — see _trigger_fact_ids)."""
     return [{
         "id": f.get("id"),
         "subject_key": f.get("subject_key"),
@@ -143,7 +156,15 @@ def _facts_digest(facts: list[dict]) -> list[dict]:
         "source_url": f.get("source_url"),
         "evidence_excerpt": f.get("evidence_excerpt"),
         "as_of": f.get("as_of"),
+        "standing_strength": bool(f.get("standing_strength")),
     } for f in facts]
+
+
+def _trigger_fact_ids(facts: list[dict]) -> set:
+    """The facts an op may DERIVE FROM (its trigger). Standing-strength my_company facts are excluded:
+    they are pivot evidence only, never the development that licenses a new op, so the floor rejects
+    any op whose derived_from is one of them (an op must be triggered by a real change)."""
+    return {f.get("id") for f in facts if f.get("id") and not f.get("standing_strength")}
 
 
 def _targets_digest(claims: list[dict]) -> list[dict]:
@@ -308,6 +329,15 @@ active plays + objections, and the PROPOSED OPS. You have no search or fetch too
 ONLY against the grounded facts given, exactly as the proposer was constrained to. You cannot go find
 new support for a weak op.
 
+STANDING-STRENGTH FACTS (marked "standing_strength": true) are grounded my_company strengths supplied as
+PIVOT FUEL, and they ARE admissible evidence. A back-foot rebuttal whose pivot is grounded by a
+standing-strength fact is GROUNDED, not an invented capability — confirm it on that basis even though the
+pivot fact differs from the op's derived_from trigger (derived_from anchors the STUMBLE that raises the
+objection; the pivot may cite a sibling strength fact). But a standing-strength fact is NEVER a trigger:
+reject any op whose derived_from is a standing-strength fact (an op must be licensed by a real change;
+the deterministic floor already rejects these). Only reject a pivot as invented when it rests on NO
+admissible fact at all.
+
 REJECT an op if ANY of these holds:
 - FACTS-ONLY VIOLATION (the cardinal sin): it rests on something the grounded fact does NOT state — an
   inferred motive, a speculated downstream effect, an "effective impact" broader than the fact's stated
@@ -334,8 +364,9 @@ REJECT an op if ANY of these holds:
   eligibility", "verify availability", "check with us") without pivoting to a genuine, grounded
   strength and a concrete move the rep can make. An honest objection-handler redirects to a real,
   currently-true capability; one that just names the problem leaves the rep worse off than silence.
-  (The pivot's strength must be grounded — reject it equally if the rebuttal INVENTS a capability or
-  speculates about when the constraint lifts.)
+  (The pivot's strength must be grounded — in a trigger fact OR a provided standing-strength my_company
+  fact; a standing-strength-grounded pivot IS grounded and passes. Reject only if the rebuttal INVENTS a
+  capability no admissible fact supports, or speculates about when the constraint lifts.)
 - SELF-INCRIMINATING / NOT-REP-OWNABLE: a back-foot rebuttal that DOES pivot to a concrete move, but
   the move weakens the rep instead of the objection. HOLLOW REBUTTAL kills rebuttals that say nothing;
   this kills rebuttals that say something self-defeating. Reject if the answer: (a) coaches the BUYER to
@@ -503,7 +534,7 @@ def propagate(meta: dict, facts: list[dict], claims: list[dict],
     passed AND judge-confirmed — the only ones an apply step would touch), the decision records, and
     cost. APPLIES NOTHING: this ships in shadow first (capture, don't mutate) — apply + the retire-
     cascade are step 5. `persist=False` skips the decision-log write (offline verification)."""
-    surviving_fact_ids = {f.get("id") for f in facts if f.get("id")}
+    surviving_fact_ids = _trigger_fact_ids(facts)        # strengths excluded: pivot fuel, never a trigger
     facts_by_id = {f.get("id"): f for f in facts if f.get("id")}
     active_by_sk = _active_targets(claims)
 

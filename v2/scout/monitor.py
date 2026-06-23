@@ -29,7 +29,7 @@ from datetime import datetime, timedelta
 
 from claude_agent_sdk import ClaudeAgentOptions
 
-from scout import config, shadow, store
+from scout import config, shadow, store, strengths
 from scout.fetch_tool import FETCH_SERVER, FETCH_TOOL_NAME, reset_log
 from scout.generate import _drive, _extract_json, _build_retry_payload, _run_retry
 from scout.propagate import propagate, apply_ops
@@ -186,6 +186,10 @@ decision it changes — or the item is NOT material. Every alert also carries a 
 a launch that moves a battlecard zone, a differentiator gained/lost, a breaking risk);
 "watch" when it is material context but changes no rep behavior yet (an early signal, a capacity
 datapoint, exec commentary, a roadmap announcement with no shipped product).
+OUTAGES ARE NOT AUTOMATICALLY "act": a routine or PARTIAL/single-region cloud-provider outage is
+"watch" — those happen constantly and do not move a deal. Only a BROAD or SUSTAINED outage (multi-region
+/ global, prolonged, or itself major news) changes what a rep says in a live deal and rates "act". A real
+recurring pattern surfaces as major news on its own and is grounded from that source next cycle.
 
 MULTI-SOURCE (this is how a claim survives grounding — do it for EVERY material change): find
 EVERY credible source for the development, then RANK them by source tier — primary (SEC/EDGAR
@@ -357,8 +361,10 @@ source_url/source_tier/evidence_excerpt to candidate #1. Every excerpt copied VE
 character, SHORT (<=160 chars), from the real fetched page — never paraphrased, never from memory.
 
 severity: "act" when this changes what reps SAY or DO in live deals NOW (our product pulled or
-restricted, our outage, our price hike, our security incident, a major customer loss); "watch" for
-material context that changes no rep behavior yet.
+restricted, our price hike, our security incident, a major customer loss); "watch" for
+material context that changes no rep behavior yet. An outage is "act" ONLY if BROAD or SUSTAINED
+(multi-region / global, prolonged, or itself major news); a routine or partial/single-region outage is
+"watch" — they happen constantly and do not move a deal.
 
 Return ONLY a single fenced ```json block:
 {{"facts": [ {{"claim": {{ ...claim object incl. candidate_sources... }},
@@ -591,16 +597,23 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     if config.PROPAGATE_MODE in ("shadow", "review", "live") and act_facts:
         try:
             today = checked_at[:10]
-            prop = propagate(meta, act_facts, new_claims, slug=slug, source="monitor", persist=write)
+            # PIVOT FUEL: grounded my_company STANDING strengths added to the facts pool so a back-foot
+            # rebuttal has admissible footing for its pivot (the catch-22 fix; decision-log §12,
+            # docs/my-company-search-and-outage-spec.md). v1 is deterministic (re-grounds existing
+            # claims) — no spend. These are excluded from derivable triggers inside propagate().
+            strength_facts = strengths.get(slug, meta, new_claims)
+            pool = act_facts + strength_facts
+            prop = propagate(meta, pool, new_claims, slug=slug, source="monitor", persist=write)
             result["propagation"] = {
                 "mode": config.PROPAGATE_MODE, "act_facts": len(act_facts),
+                "strengths": len(strength_facts),
                 "ops": len(prop["ops"]), "confirmed": len(prop["confirmed"]),
                 "no_change": prop["no_change"], "decisions": prop["decisions"],
                 "cost": prop["cost_usd"], "applied": []}
             result["cost"]["propagation"] = sum(v or 0 for v in prop["cost_usd"].values())
             # SHADOW-FIRST: only "live" mutates the card. "shadow" has captured the decisions above.
             if write and config.PROPAGATE_MODE == "live" and prop["confirmed"]:
-                ap = apply_ops(new_claims, prop["confirmed"], act_facts, slug, today)
+                ap = apply_ops(new_claims, prop["confirmed"], pool, slug, today)
                 new_claims = ap["claims"]
                 result["propagation"]["applied"] = ap["applied"]
                 result["propagation"]["skipped"] = ap["skipped"]

@@ -83,8 +83,14 @@ class MyCompanyArm(unittest.TestCase):
         self.assertEqual(res["my_substantial"], 1)
         self.assertIn("my_company_facts", res)
         self.assertIn("propagation", res)
-        # Propagation saw the grounded my_company act-fact.
-        self.assertEqual([f["id"] for f in seen["act_facts"]], [MY_FACT["id"]])
+        # Propagation saw the grounded my_company act-fact (the trigger) ...
+        ids = [f["id"] for f in seen["act_facts"]]
+        self.assertIn(MY_FACT["id"], ids)
+        # ... PLUS deterministic standing-strength pivot fuel re-grounded from the where_we_win play.
+        strength_facts = [f for f in seen["act_facts"] if f.get("standing_strength")]
+        self.assertTrue(strength_facts, "the where_we_win play should re-ground into a strength fact")
+        self.assertNotIn(MY_FACT["id"], [f["id"] for f in strength_facts])   # the trigger is not a strength
+        self.assertEqual(res["propagation"]["strengths"], len(strength_facts))
         # SHADOW: the card written is the ORIGINAL claims (no tracked_fact persisted, no objection).
         written_claims = wb.call_args.args[1]
         self.assertEqual([c["id"] for c in written_claims], [PLAY["id"]])
