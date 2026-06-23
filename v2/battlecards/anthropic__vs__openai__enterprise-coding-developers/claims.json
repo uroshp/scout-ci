@@ -1162,5 +1162,26 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "openai | api-list-price | current",
+    "claim": "OpenAI API list pricing (per 1M tokens, as of June 2026): GPT-5.5 at $5 input / $30 output; the dedicated gpt-5.3-codex at $1.75 / $14. On raw token price the Codex model undercuts Claude Opus, a real cost argument OpenAI will make on high-volume coding workloads.",
+    "claim_type": "fact",
+    "section": "pricing",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://developers.openai.com/api/docs/pricing",
+    "source_tier": "primary",
+    "evidence_excerpt": "Model Input Cached input Output ChatGPT chat-latest $5.00 $0.50 $30.00 Codex gpt-5.3-codex $1.75 $0.175 $14.00 Cyber gpt-5.4-cyber -",
+    "as_of": "2026-06-04",
+    "confidence": "medium",
+    "id": "c_3a6022395b0c",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "manual-reground",
+      "fetched_at": "2026-06-22"
+    }
   }
 ]

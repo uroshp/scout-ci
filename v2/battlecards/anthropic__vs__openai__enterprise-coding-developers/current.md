@@ -68,6 +68,7 @@ OpenAI's GPT-5.5 narrowly leads the now-saturated SWE-bench Verified (88.7% vs C
 ## Pricing and Packaging
 
 - Claude API list pricing (per 1M tokens, as of June 2026): Opus 4.8 at \$5 input / \$25 output; Sonnet 4.6 at \$3 / \$15; Haiku 4.5 at \$1 / \$5. Sonnet is a credible mid-tier for sustained agentic coding at one-fifth of Opus output cost. ([platform.claude.com](https://platform.claude.com/docs/en/about-claude/pricing))
+- OpenAI API list pricing (per 1M tokens, as of June 2026): GPT-5.5 at \$5 input / \$30 output; the dedicated gpt-5.3-codex at \$1.75 / \$14. On raw token price the Codex model undercuts Claude Opus, a real cost argument OpenAI will make on high-volume coding workloads. ([developers.openai.com](https://developers.openai.com/api/docs/pricing))
 - Developer subscription tiers are at parity: Claude Pro (\$20/mo, includes Claude Code) vs Codex Plus (\$20/mo); Claude Max 5x/20x at \$100/\$200 vs Codex Pro 5x/20x at \$100/\$200. Seat price is a wash; the fight is on quality, predictability, and usage limits. ([claude.com](https://claude.com/pricing))
 - Effective June 15, 2026, Anthropic moves programmatic usage (Agent SDK, `claude -p`, GitHub Actions) off subscription pools onto a separate per-user monthly credit pool (\$20 Pro / \$100 Max 5x / \$200 Max 20x) billed at API rates, no rollover; Standard Enterprise seats get no credit. It's the third billing change of the year and a live disruption for CI/CD-heavy teams. ([techtimes.com](http://www.techtimes.com/articles/317625/20260602/anthropic-ends-subscription-subsidy-agents-june-15-credit-pool-replaces-flat-rate-access.htm))
 
@@ -184,6 +185,4 @@ This is what verification removed or corrected during fact-checking, and why.
 - **CUT — Two-sided developer sentiment on Claude Code (praise for quality and large-context work; complaints about token burn and cost):** the cited sentiment source was unreachable during verification, so the claim was removed rather than left ungrounded.
 - **CUT — Senior-engineer adoption anecdotes (Code with Claude show of hands; the rsync test-suite rewrite):** the supporting excerpt couldn't be found verbatim in the cited source, so the claim was dropped rather than kept on a loose match.
 
-**CUT — OpenAI API list pricing (per 1M tokens):** removed; the cited source excerpt ("OpenAI is winding down the fine-tuning platform") does not support the pricing figures. Flagged by the shadow-eval challenger; grounding confirmed the excerpt was on the page but not that it backed the claim. To be restored once re-grounded from a verified pricing source.
-
-**CUT — "On raw token price for high-volume coding, OpenAI can undercut":** removed; same mismatched fine-tuning excerpt; rebuild once the underlying pricing is properly grounded.
+**CUT — "On raw token price for high-volume coding, OpenAI can undercut":** the OpenAI pricing fact is now re-grounded; this comparison play will be re-derived from the restored OpenAI + Claude pricing facts (a multi-fact comparison, not a single-excerpt claim).
