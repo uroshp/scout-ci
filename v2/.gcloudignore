@@ -1,0 +1,12 @@
+# What NOT to upload to Cloud Build on `gcloud run deploy --source .` (mirrors .dockerignore).
+.venv/
+**/__pycache__/
+*.pyc
+.env
+.streamlit/
+tests/
+app_v2.py
+requirements.txt
+sdk_test.py
+*.log
+.git/

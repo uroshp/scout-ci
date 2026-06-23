@@ -1,0 +1,11 @@
+# Keep the image lean and Streamlit-free.
+.venv/
+**/__pycache__/
+*.pyc
+.env
+.streamlit/
+tests/
+app_v2.py
+requirements.txt
+sdk_test.py
+*.log
