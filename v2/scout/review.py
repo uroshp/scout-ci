@@ -12,6 +12,7 @@ Two ways to source the op being approved:
     approval email), so approval never hard-depends on local store access.
 """
 import json
+import re
 import sys
 from datetime import date
 
@@ -167,6 +168,40 @@ def approve(slug: str, subject_keys=None, write: bool = True) -> dict:
         wanted = {str(s) for s in subject_keys}
         ops = [o for o in ops if str(o.get("subject_key")) in wanted]
     return apply(slug, ops, p["facts"], write=write)
+
+
+def _cut_label(c: dict) -> str:
+    """A short human label for a pulled claim — its bold headline, else its first line, trimmed."""
+    t = str(c.get("claim", "")).strip()
+    m = re.match(r"\*\*(.+?)\*\*", t)
+    return (m.group(1).strip().strip('"') if m else t.split("\n")[0])[:90]
+
+
+def pull_contaminated(slug: str, claim_ids, reason: str, write: bool = True) -> dict:
+    """Immediately remove mis-grounded / false claims from a LIVE card and RECORD each in the Cut Log
+    (transparent, never a silent drop). This is the contamination path for a claim caught AFTER
+    publication (a bad-grounding leak), which `retire` can't express because retirement requires a
+    killing fact (derived_from). Deterministic, model-free; re-renders + writes the baseline; the
+    CALLER commits + pushes. `reason` is a short why, appended to every Cut Log entry. Returns
+    {pulled, claims}."""
+    want = {str(x) for x in (claim_ids or [])}
+    meta = store.load_meta(slug) or {}
+    claims = store.load_claims(slug)
+    pulled = [c for c in claims if str(c.get("id")) in want]
+    if not pulled:
+        return {"pulled": [], "reason": "no matching claims on the card", "claims": claims}
+    remaining = [c for c in claims if str(c.get("id")) not in want]
+    if write:
+        body = claims_to_markdown(remaining, _title(meta),
+                                  my_company=meta.get("my_company"), competitor=meta.get("competitor"))
+        cut_log = extract_cut_log(_current_md(slug))
+        entries = "".join(f"\n\n**CUT — {_cut_label(c)}:** removed as contamination. {reason}"
+                          for c in pulled)
+        combined = (cut_log.rstrip() + entries) if cut_log else ("## Cut Log" + entries)
+        store.write_baseline(slug, remaining, meta,
+                             format_report(clean_output(body.rstrip() + "\n\n" + combined)))
+    return {"pulled": [{"id": c.get("id"), "subject_key": c.get("subject_key")} for c in pulled],
+            "claims": remaining}
 
 
 def _current_md(slug: str) -> str:

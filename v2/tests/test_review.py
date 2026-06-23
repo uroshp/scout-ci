@@ -76,6 +76,42 @@ class ProposalEmail(unittest.TestCase):
         self.assertFalse(out["sent"])                       # dry_run default -> never emails in tests
 
 
+class PullContaminated(unittest.TestCase):
+    """A mis-grounded/false claim caught after publication is removed from the live card AND recorded
+    in the Cut Log — never a silent drop (the retire path can't express it: no killing fact)."""
+    _PULL = {"id": "c_pull00000000", "subject_key": "p|a|c", "section": "pricing", "zone": None,
+             "claim": "**OpenAI pricing was here.**\n\nfigures the cited excerpt never supported.",
+             "claim_type": "fact", "order": 1, "source_url": "https://s/p",
+             "source_tier": "reputable_secondary", "evidence_excerpt": "an unrelated snippet",
+             "as_of": "2026-01-01", "verified": True, "confidence": "high",
+             "grounding": {"checked": True, "match": True, "method": "substring", "fetched_at": "2026-01-01"}}
+
+    def test_pull_removes_claim_and_records_in_cut_log(self):
+        written = {}
+        with mock.patch.object(review.store, "load_meta", return_value=dict(META)), \
+             mock.patch.object(review.store, "load_claims", return_value=[dict(PLAY), dict(self._PULL)]), \
+             mock.patch.object(review.store, "write_baseline",
+                               side_effect=lambda s, c, m, md: written.update(claims=c, md=md)), \
+             mock.patch.object(review, "_current_md",
+                               return_value="## Cut Log\n\n**CUT — old item:** a prior cut."):
+            res = review.pull_contaminated(SLUG, ["c_pull00000000"],
+                                           "mis-grounded: cited excerpt does not support the claim")
+        self.assertEqual([p["id"] for p in res["pulled"]], ["c_pull00000000"])
+        ids = {c["id"] for c in written["claims"]}
+        self.assertNotIn("c_pull00000000", ids)                     # contamination gone from the card
+        self.assertIn(PLAY["id"], ids)                              # still-true claim kept
+        self.assertIn("does not support the claim", written["md"])  # Cut Log records WHY (not silent)
+        self.assertIn("**CUT — old item:**", written["md"])         # prior Cut Log carried forward
+
+    def test_no_match_is_a_noop(self):
+        with mock.patch.object(review.store, "load_meta", return_value=dict(META)), \
+             mock.patch.object(review.store, "load_claims", return_value=[dict(PLAY)]), \
+             mock.patch.object(review.store, "write_baseline") as wb:
+            res = review.pull_contaminated(SLUG, ["c_nope00000000"], "x")
+        self.assertEqual(res["pulled"], [])
+        wb.assert_not_called()
+
+
 class Dispatch(unittest.TestCase):
     def test_prefers_gmail_and_strips_app_password_spaces(self):
         with mock.patch.object(notify.config, "ALERT_EMAIL_TO", "me@example.com"), \
