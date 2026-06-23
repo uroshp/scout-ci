@@ -550,28 +550,6 @@
     }
   },
   {
-    "subject_key": "openai | api-list-price | current",
-    "claim": "OpenAI API list pricing (per 1M tokens, as of June 2026): GPT-5.5 at $5 input / $30 output; the dedicated gpt-5.3-codex at $1.75 / $14. On raw token price the Codex model undercuts Claude Opus, a real cost argument OpenAI will make on high-volume coding workloads.",
-    "claim_type": "fact",
-    "section": "pricing",
-    "zone": null,
-    "order": 1,
-    "source_url": "https://developers.openai.com/api/docs/pricing",
-    "source_tier": "primary",
-    "evidence_excerpt": "OpenAI is winding down the fine-tuning platform. The platform is no longer accessible to new users",
-    "as_of": "2026-06-04",
-    "confidence": "medium",
-    "id": "c_3a6022395b0c",
-    "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-04",
-      "detail": null
-    }
-  },
-  {
     "subject_key": "claude-code-vs-codex | subscription-price | current",
     "claim": "Developer subscription tiers are at parity: Claude Pro ($20/mo, includes Claude Code) vs Codex Plus ($20/mo); Claude Max 5x/20x at $100/$200 vs Codex Pro 5x/20x at $100/$200. Seat price is a wash; the fight is on quality, predictability, and usage limits.",
     "claim_type": "fact",
@@ -729,29 +707,6 @@
       "detail": null
     },
     "persona": "technical_evaluator"
-  },
-  {
-    "subject_key": "battlecard | token-cost | contested",
-    "claim": "**On raw token price for high-volume coding, OpenAI can undercut.**\n\nOpenAI's dedicated gpt-5.3-codex lists at $1.75/$14 per 1M tokens versus Claude Opus 4.8's $5/$25, so a cost-led buyer running massive automated volume will hear a cheaper number from OpenAI. The counter is Claude Sonnet 4.6 ($3/$15) for mid-tier work and fewer retries/cleaner diffs lowering total tokens to a correct result.\n\n**Soundbite:** *\"Compare cost-per-solved-task, not cost-per-token. Cheaper tokens that need three more passes to get it right aren't cheaper.\"*",
-    "claim_type": "fact",
-    "section": "battlecard",
-    "zone": "contested",
-    "order": 1,
-    "source_url": "https://developers.openai.com/api/docs/pricing",
-    "source_tier": "primary",
-    "evidence_excerpt": "OpenAI is winding down the fine-tuning platform. The platform is no longer accessible to new users",
-    "as_of": "2026-06-04",
-    "confidence": "low",
-    "id": "c_44b779a46a8e",
-    "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-04",
-      "detail": null
-    },
-    "persona": "economic_buyer"
   },
   {
     "subject_key": "battlecard | codex-scale-distribution | where_they_win",
