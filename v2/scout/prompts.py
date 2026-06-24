@@ -48,7 +48,13 @@ headlines, soundbites, cut-log reasons):
 - Write like a sharp human analyst briefing a colleague: concrete subjects, active verbs, plain
   words. No throat-clearing ("It's worth noting", "Importantly"), no marketing gloss
   ("seamless", "robust", "game-changing"), no symmetrical sentence patterns repeated across
-  bullets. If a sentence would sound canned read aloud, rewrite it."""
+  bullets. If a sentence would sound canned read aloud, rewrite it.
+- Soundbites are the line a salesperson actually says to a buyer on a call. State plainly what the
+  buyer gets and the reason to decide now, in concrete terms a procurement lead would repeat out
+  loud (for example the real dollar cost, or the lock-in it removes). When the
+  competitor has a genuine advantage, concede it first, then give the Anthropic counter as a number
+  or a clear outcome. Never end on a tease like "try it and see" or "see what happens", and never
+  lean on insider jargon such as "tokens-to-resolution" or "merge rate"."""
 
 FORMATTING_RULES = """MARKDOWN FORMATTING RULES (follow exactly so the report renders cleanly):
 - Use ## for the main section headers ONLY (Executive Summary, Snapshot, Recent Strategic Moves, Positioning and Differentiation, Pricing and Packaging, Competitive Battlecard, Sentiment, Objection Handling, Cut Log). Use ### for sub-headers within a section (e.g. battlecard zones). Never use headers for normal content.
