@@ -113,8 +113,15 @@ def _visitor_ctx(st):
     return _client_ip(h), g("Referer", "referer"), g("User-Agent", "user-agent"), card, utm
 
 
-_BOT_UA = ("headlesschrome", "playwright", "bot", "spider", "crawl", "slurp",
-           "python-requests", "curl/", "wget", "lighthouse", "pingdom", "uptime", "monitor")
+# Public-domain (agent-scout.ai) gets crawled/scanned constantly; the server-side catcher can't
+# tell a cookie-less bot from a blocked human, so the UA list must be broad. Observed offenders on
+# .ai: TLM-Audit-Scanner (scanner/audit), CheckMarkNetwork (checkmark), okhttp. None of these tokens
+# occur in a real Chrome/Safari/Firefox UA. (Browser-UA datacenter bots still slip through; that's
+# why human counts read off the CLIENT page_view, which bots don't fire, not server_visit.)
+_BOT_UA = ("headlesschrome", "headless", "playwright", "bot", "spider", "crawl", "slurp",
+           "python-requests", "python/", "curl/", "wget", "lighthouse", "pingdom", "uptime",
+           "monitor", "scanner", "audit", "checkmark", "okhttp", "ahrefs", "semrush", "dataforseo",
+           "facebookexternalhit", "go-http-client", "java/", "node-fetch", "axios", "scrapy")
 
 
 def _is_bot(ua):
