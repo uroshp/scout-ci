@@ -551,7 +551,7 @@ _OVERRIDES = """
 /* Material-changes rows: timestamp + severity/NEW chips on one meta line above the headline. */
 #scout-page .feed .rmeta{display:flex;align-items:center;gap:6px;margin-bottom:1px;}
 #scout-page .feed .rmeta .dt{margin-bottom:0;}
-#scout-page .sev{font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.08em;
+#scout-page .sev{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.08em;
   border-radius:4px;padding:0 4px;border:1px solid;line-height:1.5;}
 #scout-page .sev.act{color:var(--amber);border-color:var(--amber-line);background:rgba(138,99,34,.09);}
 #scout-page .sev.watch{color:var(--muted);border-color:var(--line);background:var(--paper2);}
@@ -570,7 +570,7 @@ _OVERRIDES = """
 #scout-page .feed .more>summary::-webkit-details-marker{display:none;}
 #scout-page .feed .more>summary::after{content:' \\25be';}
 #scout-page .feed .more[open]>summary::after{content:' \\25b4';}
-#scout-page .swb{margin-top:3px;font-size:11.5px;color:var(--muted);line-height:1.45;
+#scout-page .swb{margin-top:3px;font-size:12px;color:var(--muted);line-height:1.45;
   border-left:2px solid var(--accent-line);padding-left:8px;}
 #scout-page .metric .mv .mdelta{font-family:var(--mono);font-size:10.5px;font-weight:600;
   color:var(--win);background:var(--win-soft);border:1px solid var(--win-line);
@@ -601,14 +601,14 @@ _OVERRIDES = """
    clearly above the section titles (18px) below them. Their subheads ("Today's angle", "Top 3
    plays") are promoted above the play/item names they head — they were dwarfed by them before. */
 #scout-page .bhead{padding:13px 18px;}
-#scout-page .bhead .l{font-family:var(--display);font-size:22px;font-weight:600;
+#scout-page .bhead .l{font-family:var(--display);font-size:20px;font-weight:600;
   letter-spacing:-.01em;text-transform:none;}
 #scout-page .divider{margin:18px 0 14px;}
-#scout-page .divider .t{font-family:var(--display);font-size:22px;font-weight:600;
+#scout-page .divider .t{font-family:var(--display);font-size:20px;font-weight:600;
   letter-spacing:-.01em;text-transform:none;color:var(--ink);}
 #scout-page .bsub{font-family:var(--display);font-size:17px;font-weight:600;
   letter-spacing:-.005em;text-transform:none;color:var(--ink);}
-#scout-page .play h4{font-size:16px;}
+#scout-page .play h4{font-size:17px;}
 
 /* --- Preview sections (snapshot / recent moves / positioning / pricing) ----------------------
    A .sec.preview is a DIV (not <details>), so it needs the card chrome the mockup pins to
@@ -630,7 +630,7 @@ _OVERRIDES = """
 #scout-page .more .lbl-less{display:none;}
 #scout-page .more[open]>summary .lbl-more{display:none;}
 #scout-page .more[open]>summary .lbl-less{display:inline;}
-#scout-page .more .mchev{font-size:10px;transition:transform .15s;}
+#scout-page .more .mchev{font-size:10.5px;transition:transform .15s;}
 #scout-page .more[open] .mchev{transform:rotate(180deg);}
 #scout-page .rest{text-align:left;margin-top:8px;}
 
@@ -896,11 +896,11 @@ _CALL_SHEET_CSS = """
 @page{margin:1.3cm;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;color:#1c1d16;
-  line-height:1.45;font-size:12.5px;background:#fff;}
+  line-height:1.45;font-size:12px;background:#fff;}
 .cs{max-width:780px;margin:0 auto;padding:20px;}
-.cs h1{font-family:'Fraunces',Georgia,serif;font-size:21px;font-weight:600;letter-spacing:-.01em;}
-.cs .sub{color:#5f5e54;font-size:12.5px;margin:3px 0 2px;}.cs .sub b{color:#1c1d16;}
-.cs .focus{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;color:#2a4658;margin-bottom:6px;}
+.cs h1{font-family:'Fraunces',Georgia,serif;font-size:20px;font-weight:600;letter-spacing:-.01em;}
+.cs .sub{color:#5f5e54;font-size:12px;margin:3px 0 2px;}.cs .sub b{color:#1c1d16;}
+.cs .focus{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;color:#2a4658;margin-bottom:6px;}
 .cs .lbl{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:9px;letter-spacing:.13em;
   text-transform:uppercase;color:#8a6322;font-weight:600;margin:16px 0 7px;
   border-bottom:1px solid #e6e2d6;padding-bottom:3px;}
