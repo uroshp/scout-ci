@@ -736,7 +736,7 @@ def title_html(slug: str) -> str:
     """Just the report title block (Competitive Intelligence Brief / Researched / Focus area).
     Rendered in its own row so the print button can sit beside the focus-area line."""
     meta = store.load_meta(slug)
-    return '<div id="scout-page"><div class="wrap">' + _title_block(meta) + "</div></div>"
+    return '<div id="scout-page"><div class="wrap tw">' + _title_block(meta) + "</div></div>"
 
 
 def _prepare_display(claims: list):
