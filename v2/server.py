@@ -16,12 +16,14 @@ Deploy: see v2/docs/cloud-run-setup.md
 """
 import html as _html
 import os
+import threading
 import urllib.parse
+import uuid
 from datetime import datetime
 
 from flask import Flask, Response, abort, jsonify, request, send_from_directory, url_for
 
-from scout import config, display, page, selfserve, store
+from scout import analytics, config, display, page, selfserve, store
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS_DIR = os.path.join(HERE, "assets")
@@ -241,6 +243,44 @@ def _doc(body_inner: str, *, title: str) -> str:
 def _chrome(is_create: bool, slug, cards: list) -> str:
     """Masthead + the control bar (centered in a .wrap, matching the card body's own .wrap)."""
     return page.masthead_html() + f'<div class="wrap">{_control_bar(is_create, slug, cards)}</div>'
+
+
+# --- server-side GA4 visit (the unblockable catcher, ported from the Streamlit app) ----------
+# Fires a once-per-session GA4 Measurement Protocol "server_visit" event from our server, so
+# visitors who block the client gtag (ad blockers, Safari ITP) still register IN GA — the cohort
+# that matters. No-ops until GA_MP_API_SECRET is set. The first-party JSONL log is deliberately
+# NOT ported: Cloud Run access logs already give the raw server-side count. Reuses the proven
+# analytics helpers; only the request/cookie plumbing is Flask-specific (was Streamlit's).
+analytics._log_config_once()
+
+_UTM_KEYS = ("utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content")
+
+
+@app.after_request
+def _server_visit(resp):
+    try:
+        if (request.method != "GET" or request.path == "/healthcheck"
+                or not (resp.content_type or "").startswith("text/html")):
+            return resp
+        if request.cookies.get("scout_me") == "1" or request.args.get("me"):
+            return resp                                    # your own marked devices, everywhere
+        if analytics._is_bot(request.headers.get("User-Agent", "")):
+            return resp                                    # crawlers/uptime bots out of the count
+        cid = request.cookies.get("scout_cid")
+        if not cid:                                        # stable per-visitor id (2-year cookie)
+            cid = uuid.uuid4().hex
+            resp.set_cookie("scout_cid", cid, max_age=63072000, samesite="Lax")
+        if not request.cookies.get("scout_sv"):            # fire once per session
+            resp.set_cookie("scout_sv", "1", samesite="Lax")   # session cookie (no max-age)
+            card = request.path[3:] if request.path.startswith("/c/") else ""
+            ip = analytics._client_ip(dict(request.headers))
+            ref = request.headers.get("Referer", "")
+            utm = {k: request.args.get(k) for k in _UTM_KEYS if request.args.get(k)}
+            threading.Thread(target=analytics._ga4_server_event,
+                             args=(cid, ip, ref, card, utm), daemon=True).start()
+    except Exception:
+        pass
+    return resp
 
 
 # ----------------------------------------------------------------------------- routes
