@@ -840,5 +840,35 @@
       }
     ],
     "updated_on": "2026-06-16"
+  },
+  {
+    "subject_key": "slack | ai-integration-claude-tag",
+    "claim": "On June 23, 2026 Anthropic and Salesforce launched Claude Tag, embedding Claude (running on Opus 4.8) as a native, multiplayer agent inside Slack channels that anyone can summon by typing @Claude to delegate tasks, build context over time, and work asynchronously. It replaces the prior standalone Claude in Slack app, with administrators able to opt into migration within 30 days, and ships in beta to Claude Enterprise and Team organizations.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.anthropic.com/news/introducing-claude-tag",
+    "source_tier": "primary",
+    "evidence_excerpt": "Claude Tag replaces the existing Claude in Slack app.",
+    "as_of": "2026-06-23",
+    "confidence": "high",
+    "id": "c_4a77ed86dbd8",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-24",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.salesforceben.com/anthropic-and-salesforce-announce-new-claude-to-slack-integration/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

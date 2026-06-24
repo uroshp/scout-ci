@@ -1310,5 +1310,35 @@
       "detail": null
     },
     "persona": "exec_top_down"
+  },
+  {
+    "subject_key": "openai-broadcom-jalapeno-chip",
+    "claim": "On June 24, 2026, OpenAI and Broadcom unveiled Jalapeño, OpenAI's first custom inference chip: an ASIC designed for OpenAI's LLM serving and built with Broadcom (on TSMC). Early reports put it at roughly 50% lower cost per inference token than current GPUs. The chip is still in testing (OpenAI is running GPT-5.3-Codex-Spark on it in a test environment), with data-center rollout planned by the end of 2026. It targets OpenAI's inference unit economics and its dependence on Nvidia; heavy training is expected to stay on Nvidia hardware.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 12,
+    "source_url": "https://venturebeat.com/infrastructure/openai-unveils-first-custom-ai-inference-chip-jalapeno-with-broadcom-and-its-development-was-sped-up-with-openais-own-models",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "It reportedly cuts inference costs by about 50%, according to Bloomberg.",
+    "as_of": "2026-06-24",
+    "confidence": "high",
+    "id": "c_bc885e4a99ee",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-24",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/06/24/openai-unveils-its-first-custom-chip-built-by-broadcom/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
