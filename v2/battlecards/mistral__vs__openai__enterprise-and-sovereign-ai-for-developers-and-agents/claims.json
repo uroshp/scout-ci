@@ -1048,5 +1048,35 @@
     "derived_from": "c_e6d04a91ca10",
     "updated_on": "2026-06-19",
     "persona": "economic_buyer"
+  },
+  {
+    "subject_key": "openai | gpt-5.5-cyber",
+    "claim": "On June 22 OpenAI shipped the full version of GPT-5.5-Cyber, a model that finds vulnerabilities and generates patches, kept restricted to vetted defenders because of its offensive-leaning skills. OpenAI paired it with an updated Codex Security plugin that runs the full discovery-to-patch pipeline, and a 'Patch the Planet' initiative that fixes open-source projects including Python, Go, and cURL. OpenAI also named cyber partnerships with several governments, including France, Germany, the EU agency ENISA, and the UK, and said GPT-5.5-Cyber leads CyberGym at 85.6%, ahead of Anthropic's Mythos 5 at 83.8%.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 8,
+    "source_url": "https://the-decoder.com/openai-says-new-gpt-5-5-cyber-outperforms-anthropics-mythos-on-cybersecurity-benchmark/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "the GPT-5.5-Cyber cybersecurity model is now fully available after leaving its preview phase.",
+    "as_of": "2026-06-22",
+    "confidence": "high",
+    "id": "c_d15096f5fdb1",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-24",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.infosecurity-magazine.com/news/openai-daybreak-gpt-5-5-cyber/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
