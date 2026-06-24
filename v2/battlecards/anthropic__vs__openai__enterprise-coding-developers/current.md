@@ -109,6 +109,18 @@ GPT-5.5 leads SWE-bench Verified at 88.7% to Claude Opus 4.7's 87.6%, a 1.1-poin
 
 **Soundbite:** *"It's 88.7 to 87.6, both self-reported. That's a rounding error. Run it on your own repo for a week; that's the only benchmark that pays your bills."* ([marc0.dev](https://www.marc0.dev/en/leaderboard))
 
+**On raw token price, OpenAI's workhorse tiers undercut.**
+
+OpenAI's mid-tier models run cheaper per token than Claude's flagship: GPT-5.4 at \$2.50/\$15.00 per million against Claude Opus 4.8 at \$5.00/\$25.00, and pricing trackers call OpenAI cheaper across most comparable tiers in 2026. The leveler is caching and batch. With ~90% prompt-cache discounts on both sides, effective cost on cache-heavy coding runs close to parity. So the comparison that matters is total cost once you count the re-runs and the engineer time behind them.
+
+**Soundbite:** *"Their per-token rate looks lower on paper. Turn on caching and most of that gap closes, and the real spend is re-running the model when the code comes back broken. Claude gets more right the first time, so you pay for fewer of those re-runs and your engineers lose less time babysitting them. Totaled up, your real bill comes in lower with us, even with their cheaper sticker."* ([finout.io](https://www.finout.io/blog/openai-vs-anthropic-api-pricing-comparison))
+
+**If the buy is "one AI platform for everything," OpenAI's breadth is a real fight.**
+
+Beyond code, GPT-5.x bundles native image generation, voice I/O, web search, and a public ecosystem of custom GPTs and plugins, breadth Claude does not match (no native image generation, no built-in voice). A buyer consolidating to a single AI vendor will read OpenAI as the safer one-SKU bet. The move is to name it as lock-in, then show Claude runs alongside what they already have, keeping their pricing leverage and a fallback if OpenAI's price or roadmap turns.
+
+**Soundbite:** *"Putting your coding and everything else on one vendor is lock-in, and lock-in costs you at renewal. Once they know you can't easily walk, your pricing leverage is gone and you're tied to their roadmap and their uptime. Running Claude alongside what you already have keeps a real second option live, which keeps OpenAI honest on price and gives you somewhere to go if their service or direction slips. You're not putting the whole company's AI on one provider."* ([intuitionlabs.ai](https://intuitionlabs.ai/articles/chatgpt-vs-claude-enterprise-comparison))
+
 ### Where OpenAI wins
 
 **OpenAI wins on scale and channel, especially in top-down deals.**
@@ -116,6 +128,12 @@ GPT-5.5 leads SWE-bench Verified at 88.7% to Claude Opus 4.7's 87.6%, a 1.1-poin
 Codex passed 5M weekly users, is expanding to non-developers, and ships through a named SI network (Accenture, PwC, Infosys, TCS, and more) plus deep Azure/GitHub integration. In an exec-led, "one-vendor-for-everything" enterprise buy routed through an SI, OpenAI is the path of least resistance.
 
 **Soundbite:** *"If the decision is being made top-down for breadth, OpenAI looks easy. If it's being made by the engineers who'll use it daily, that's our ground. Get to them."* ([constellationr.com](https://www.constellationr.com/insights/news/openai-touts-broadening-codex-usage-5-million-weekly-active-users))
+
+**OpenAI is often already in the building.**
+
+With over 7 million ChatGPT enterprise workplace seats deployed and 92% of the Fortune 500 already ChatGPT customers, OpenAI usually holds an org-wide relationship before the coding decision is on the table. Adding Codex to an existing ChatGPT Enterprise contract becomes the path of least procurement resistance. The move is to put the decision in front of the engineers who live in the tool, where Claude's first-try accuracy on hard, multi-step work turns into less rework and faster shipping.
+
+**Soundbite:** *"Adding Claude for coding sits on top of your ChatGPT contract, nothing gets ripped out, and your engineers are the ones asking for it. On the hard, multi-step work it gets more right the first time, so the team spends less of the sprint cleaning up after the AI and more of it shipping real features. And because they actually want it, the licenses get used, not paid for and ignored. That's the productivity you're on the hook to deliver."* ([secondtalent.com](https://www.secondtalent.com/resources/chatgpt-statistics/))
 
 ## Sentiment
 

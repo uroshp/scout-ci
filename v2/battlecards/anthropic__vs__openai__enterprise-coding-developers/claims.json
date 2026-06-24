@@ -1241,5 +1241,74 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "battlecard | token-price-undercut | contested",
+    "claim": "**On raw token price, OpenAI's workhorse tiers undercut.**\n\nOpenAI's mid-tier models run cheaper per token than Claude's flagship: GPT-5.4 at $2.50/$15.00 per million against Claude Opus 4.8 at $5.00/$25.00, and pricing trackers call OpenAI cheaper across most comparable tiers in 2026. The leveler is caching and batch. With ~90% prompt-cache discounts on both sides, effective cost on cache-heavy coding runs close to parity. So the comparison that matters is total cost once you count the re-runs and the engineer time behind them.\n\n**Soundbite:** *\"Their per-token rate looks lower on paper. Turn on caching and most of that gap closes, and the real spend is re-running the model when the code comes back broken. Claude gets more right the first time, so you pay for fewer of those re-runs and your engineers lose less time babysitting them. Totaled up, your real bill comes in lower with us, even with their cheaper sticker.\"*",
+    "claim_type": "fact",
+    "section": "battlecard",
+    "zone": "contested",
+    "order": 1,
+    "source_url": "https://www.finout.io/blog/openai-vs-anthropic-api-pricing-comparison",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "At standard rates, OpenAI is cheaper across most comparable tiers in 2026",
+    "as_of": "2026-06-24",
+    "confidence": "high",
+    "id": "c_46eee6ef2add",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-23",
+      "detail": null
+    },
+    "persona": "economic_buyer"
+  },
+  {
+    "subject_key": "battlecard | platform-breadth-lockin | contested",
+    "claim": "**If the buy is \"one AI platform for everything,\" OpenAI's breadth is a real fight.**\n\nBeyond code, GPT-5.x bundles native image generation, voice I/O, web search, and a public ecosystem of custom GPTs and plugins, breadth Claude does not match (no native image generation, no built-in voice). A buyer consolidating to a single AI vendor will read OpenAI as the safer one-SKU bet. The move is to name it as lock-in, then show Claude runs alongside what they already have, keeping their pricing leverage and a fallback if OpenAI's price or roadmap turns.\n\n**Soundbite:** *\"Putting your coding and everything else on one vendor is lock-in, and lock-in costs you at renewal. Once they know you can't easily walk, your pricing leverage is gone and you're tied to their roadmap and their uptime. Running Claude alongside what you already have keeps a real second option live, which keeps OpenAI honest on price and gives you somewhere to go if their service or direction slips. You're not putting the whole company's AI on one provider.\"*",
+    "claim_type": "fact",
+    "section": "battlecard",
+    "zone": "contested",
+    "order": 2,
+    "source_url": "https://intuitionlabs.ai/articles/chatgpt-vs-claude-enterprise-comparison",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Enterprises can develop private GPTs or install vetted plugins (e.g. Gmail, Slack, HubSpot connectors)",
+    "as_of": "2026-06-24",
+    "confidence": "medium",
+    "id": "c_b53778ff8582",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-23",
+      "detail": null
+    },
+    "persona": "exec_top_down"
+  },
+  {
+    "subject_key": "battlecard | chatgpt-enterprise-install-base | where_they_win",
+    "claim": "**OpenAI is often already in the building.**\n\nWith over 7 million ChatGPT enterprise workplace seats deployed and 92% of the Fortune 500 already ChatGPT customers, OpenAI usually holds an org-wide relationship before the coding decision is on the table. Adding Codex to an existing ChatGPT Enterprise contract becomes the path of least procurement resistance. The move is to put the decision in front of the engineers who live in the tool, where Claude's first-try accuracy on hard, multi-step work turns into less rework and faster shipping.\n\n**Soundbite:** *\"Adding Claude for coding sits on top of your ChatGPT contract, nothing gets ripped out, and your engineers are the ones asking for it. On the hard, multi-step work it gets more right the first time, so the team spends less of the sprint cleaning up after the AI and more of it shipping real features. And because they actually want it, the licenses get used, not paid for and ignored. That's the productivity you're on the hook to deliver.\"*",
+    "claim_type": "fact",
+    "section": "battlecard",
+    "zone": "where_they_win",
+    "order": 1,
+    "source_url": "https://www.secondtalent.com/resources/chatgpt-statistics/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Over 7 million enterprise workplace seats deployed",
+    "as_of": "2026-06-24",
+    "confidence": "high",
+    "id": "c_62b0213f98fc",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-23",
+      "detail": null
+    },
+    "persona": "exec_top_down"
   }
 ]
