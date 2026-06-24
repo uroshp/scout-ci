@@ -1,0 +1,31 @@
+# GitOps deploy: build the Flask viewer image and ship it to Cloud Run.
+# Fired by the Cloud Build trigger (agent-scout-deploy) on pushes to main that touch v2/** —
+# i.e. when the agent commits a battlecard update (or viewer code changes). The agent's commit
+# -> this build -> live, so Cloud Run refreshes alongside Streamlit. No cron.
+#
+# Deploys by --image only, so the service's existing config (env vars, secrets, scaling, the
+# allUsers invoker binding) is preserved across deploys; this build just swaps in the new image.
+steps:
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    dir: v2
+    args: ['build', '-t', '${_IMAGE}', '.']
+  - id: push
+    name: gcr.io/cloud-builders/docker
+    args: ['push', '${_IMAGE}']
+  - id: deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - agent-scout
+      - --image=${_IMAGE}
+      - --region=us-west1
+      - --quiet
+images:
+  - '${_IMAGE}'
+substitutions:
+  _IMAGE: 'us-west1-docker.pkg.dev/${PROJECT_ID}/cloud-run-source-deploy/agent-scout:${SHORT_SHA}'
+options:
+  logging: CLOUD_LOGGING_ONLY
