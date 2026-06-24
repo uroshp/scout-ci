@@ -19,7 +19,10 @@ The four elements:
 import json
 import os
 import subprocess
+import time
 from datetime import datetime, timedelta, timezone
+
+import httpx
 
 from scout import config, schema, store
 
@@ -126,6 +129,47 @@ _AGENT_AUTHORS = {
 }
 
 
+_CF_API_CACHE: dict = {}      # repo_path -> (expires_epoch, rows)
+_CF_API_TTL = 600             # 10 min; a card's commit history only changes on a deploy
+
+
+def _commits_via_api(repo_path: str, limit: int) -> list[dict]:
+    """Fallback for change_feed when local git history is unavailable — notably the Cloud Run
+    image, which ships no .git. Reads the public repo's commit log for the file via the GitHub
+    API, mapped to the same row shape _git produces. Best-effort + cached; returns [] on any
+    failure so the feed degrades silently rather than crashing the viewer. Caveat: the API does
+    not --follow renames, so history before the v1->v2 move may be omitted (recent updates — the
+    part that matters — are intact)."""
+    now = time.time()
+    cached = _CF_API_CACHE.get(repo_path)
+    if cached and cached[0] > now:
+        return cached[1]
+    rows: list[dict] = []
+    try:
+        owner_repo = config.SOURCE_REPO_URL.rstrip("/").split("github.com/")[-1]
+        headers = {"Accept": "application/vnd.github+json"}
+        if config.SELFSERVE_GH_TOKEN:
+            headers["Authorization"] = f"Bearer {config.SELFSERVE_GH_TOKEN}"
+        resp = httpx.get(f"https://api.github.com/repos/{owner_repo}/commits",
+                         params={"path": repo_path, "per_page": limit},
+                         headers=headers, timeout=10)
+        if resp.status_code == 200:
+            for c in resp.json():
+                a = c["commit"]["author"]
+                dt = datetime.fromisoformat(a["date"].replace("Z", "+00:00"))
+                rows.append({
+                    "hash": c["sha"][:9],
+                    "date": dt.astimezone(_ET_TZ).strftime("%b %-d, %-I:%M %p ET"),
+                    "epoch": str(int(dt.timestamp())),
+                    "email": a.get("email") or "",
+                    "subject": (c["commit"]["message"] or "").splitlines()[0],
+                })
+    except Exception:
+        rows = []
+    _CF_API_CACHE[repo_path] = (now + _CF_API_TTL, rows)
+    return rows
+
+
 def change_feed(slug: str, limit: int = 25) -> list[dict]:
     """The card's UPDATE history — not every commit that touched the folder. We scope to the
     CONTENT files (current.md / claims.json), which already excludes monitor 'heartbeat'
@@ -145,6 +189,9 @@ def change_feed(slug: str, limit: int = 25) -> list[dict]:
         if len(parts) == 5:
             rows.append({"hash": parts[0], "date": parts[1], "epoch": parts[2],
                          "email": parts[3], "subject": parts[4]})
+    if not rows:
+        # No local git history (the Cloud Run image ships no .git) — read it from the GitHub API.
+        rows = _commits_via_api(f"v2/battlecards/{slug}/current.md", limit)
     if not rows:
         return []
     baseline_hash = rows[-1]["hash"]                 # oldest content commit = card creation
