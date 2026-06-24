@@ -242,7 +242,11 @@ def _doc(body_inner: str, *, title: str) -> str:
 
 def _chrome(is_create: bool, slug, cards: list) -> str:
     """Masthead + the control bar (centered in a .wrap, matching the card body's own .wrap)."""
-    return page.masthead_html() + f'<div class="wrap">{_control_bar(is_create, slug, cards)}</div>'
+    # The control bar lives OUTSIDE #scout-page, so it'd inherit the mockup's base
+    # .wrap{padding:0 24px 56px} — a 56px gap above the title + a 24px indent vs the rest.
+    # Override to align it (no L/R pad, matching the #scout-page .wrap) and close the gap.
+    return (page.masthead_html()
+            + f'<div class="wrap" style="padding:0 0 2px">{_control_bar(is_create, slug, cards)}</div>')
 
 
 # --- server-side GA4 visit (the unblockable catcher, ported from the Streamlit app) ----------
