@@ -235,7 +235,7 @@ def _doc(body_inner: str, *, title: str) -> str:
         + _FONT_LINKS
         + page.style_block()
         + f'<style>{_CTRL_CSS}</style>'
-        + '</head><body style="background:#f4f2ec;margin:0;padding:24px 0">'
+        + '</head><body style="background:#f4f2ec;margin:0;padding:6px 0 24px">'
         + body_inner
         + '</body></html>')
 

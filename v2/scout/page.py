@@ -295,14 +295,13 @@ def _cut_log(md: str):
 
 def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = None) -> str:
     plays_lbl = "Top play" if plays_n == 1 else f"Top {plays_n} plays"
-    toc = ['<div class="grp brief first">Your daily briefing</div>',
+    toc = ['<div class="grp brief first">Contents</div>',
            '<a href="#brief">Today\'s angle</a>',
-           f'<a href="#brief2">{plays_lbl} <span class="c">{plays_n}</span></a>',
+           f'<a href="#brief2">{plays_lbl}</a>',
            '<div class="grp">The full brief</div>']
     for sid, title, n in present:
-        toc.append(f'<a href="#{sid}">{_html.escape(title)} <span class="c">{n}</span></a>')
-    toc.append('<a href="#claims">Claim freshness <span class="c">'
-               f'{len(status["claim_timestamps"])}</span></a>')
+        toc.append(f'<a href="#{sid}">{_html.escape(title)}</a>')
+    toc.append('<a href="#claims">Claim freshness</a>')
     nav = '<div class="toc" id="toc">' + "".join(toc) + "</div>"
 
     feed = status["change_feed"]
@@ -313,9 +312,8 @@ def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = N
             return f'<span class="scout-lts" data-utc="{iso}">{_html.escape(e["date"])}</span>'
         except (KeyError, ValueError, TypeError):
             return _html.escape(e["date"])
-    cf = ("".join(f'<div class="row"><span class="dt">{_cf_ts(e)}</span>'
-                  f'<span>{_html.escape(e["subject"])}</span></div>' for e in feed)
-          if feed else '<div class="empty">No changes recorded yet.</div>')
+    cf_rows = [f'<div class="row"><span class="dt">{_cf_ts(e)}</span>'
+               f'<span>{_html.escape(e["subject"])}</span></div>' for e in feed]
     def _rail_ts(s):
         iso = _utc_attr(s)
         attr = f' class="scout-lts" data-utc="{iso}"' if iso else ""
@@ -381,7 +379,8 @@ def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = N
     return ('<div class="rail">' + nav
             + panel("Material changes", mc, f'<span class="ph-n">{len(mc_rows)}</span>')
             + panel("Recently updated", ru_html, f'<span class="ph-n">{len(ru)}</span>')
-            + panel("Change feed", cf)
+            + panel("Change feed", _collapse(cf_rows) if cf_rows
+                    else '<div class="empty">No changes recorded yet.</div>')
             + f'<div class="rail-credit">{credit}</div>' + "</div>")
 
 
@@ -527,10 +526,13 @@ _OVERRIDES = """
    keeps its padding for the page end), pull the tagline up under the name, and close the
    Researched/focus lines under the brief title — lifting the whole header up. */
 #scout-page .wrap.mast{padding-bottom:6px;}
-#scout-page .wrap.tw{padding-bottom:20px;}
+#scout-page .wrap.tw{padding-bottom:6px;}
 #scout-page .tagline{margin:5px 0 0;}
 #scout-page .rt .rt-sub{margin-top:2px;}
 #scout-page .rt .rt-focus{margin-top:10px;}
+#scout-page .rt h1{margin:0;}                                      /* kill default h1 margin — pull the title up (#1) */
+#scout-page .rail{position:static;}                                /* rail scrolls with the page, not sticky (#5) */
+#scout-page .panel .phead .ey{color:var(--ink);font-weight:600;}  /* much darker rail-panel titles (#3) */
 #scout-page{max-width:1240px;margin-left:auto;margin-right:auto;}
 #scout-page .maincol{min-width:0;}
 #scout-page .rule{margin:2px 0 12px!important;}
