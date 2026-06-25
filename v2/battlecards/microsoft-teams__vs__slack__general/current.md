@@ -82,9 +82,9 @@ Teams carries full-scale video (300-participant meetings, webinars to 1,000) plu
 
 **The agent race is genuinely contested. Don't wave it away.**
 
-Slack put Agentforce agents and a rebuilt Slackbot natively in the workspace, and for Salesforce-centric teams that CRM-aware context is real; Microsoft counters with Copilot wired across Teams, Office, and Power Platform. Whoever already owns the customer's core stack tends to win the agent layer.
+On June 17, 2026 Slack made Slackbot's MCP client generally available, connecting 20-plus third-party apps (Amplitude, Atlassian, Box, Canva, Docusign, Linear, Miro, Zoom, and others) from a single Slackbot conversation. Slack positions this as vendor-neutral orchestration over the customer's existing stack, the same job Teams pitches as an all-in-one suite, but letting customers keep tools they already own rather than replace them. Several integrations (Notion, PagerDuty, Adobe, Tableau Next) and native Block Kit rendering are still coming, so GA today is the routing layer plus a first wave of live apps. For Salesforce-centric teams, Agentforce agents add CRM-aware context on top of this. Microsoft counters with Copilot wired across Teams, Office, and Power Platform, with 20 million paid enterprise seats in daily use as of April 2026. Whoever already owns the customer's core stack tends to win the agent layer.
 
-**Soundbite:** *"If your system of record is Salesforce, Slack's agents are compelling. But if your work lives in Office and Windows, Copilot's reach across everything you do is the stronger bet."* ([cxtoday.com](https://www.cxtoday.com/crm/slack-vs-microsoft-teams/))
+**Soundbite:** *"Slack just put a real orchestration layer over existing tools, and for Salesforce shops that is a strong story. For M365 shops, Copilot is already running in Teams with 20 million enterprise users and no connector wiring needed."* ([slack.com](https://slack.com/blog/news/slackbots-mcp-client))
 
 ### Where Slack wins
 
