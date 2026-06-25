@@ -870,5 +870,41 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "slack | agent-orchestration | slackbot-mcp-client",
+    "claim": "On June 17, 2026 Slack made Slackbot's Model Context Protocol (MCP) client generally available and launched a partner ecosystem of more than 20 third-party apps (including Amplitude, Atlassian, Box, Canva, Docusign, Linear, Miro, Notion, and Zoom) that users drive from one Slackbot conversation. This turns Slackbot from a chat-bound assistant into a vendor-neutral orchestration layer over a customer's existing app stack, the same job Microsoft pitches as Teams' all-in-one suite, except Slack unifies tools the customer already owns rather than replacing them. Several pieces ship later (Notion, PagerDuty, Adobe and Tableau Next are listed coming soon, and native Block Kit rendering is not yet live), so today's GA is the routing layer plus the first wave of live apps.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://slack.com/blog/news/slackbots-mcp-client",
+    "source_tier": "primary",
+    "evidence_excerpt": "Slackbot’s Model Context Protocol (MCP) client is now generally available.",
+    "as_of": "2026-06-17",
+    "confidence": "high",
+    "id": "c_f0b62be02b7b",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-25",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://venturebeat.com/orchestration/slack-adds-30-ai-features-to-slackbot-its-most-ambitious-update-since-the",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.itpro.com/software/slackbot-just-got-a-big-update-with-mcp-and-desktop-access",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
