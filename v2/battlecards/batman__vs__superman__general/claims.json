@@ -775,15 +775,15 @@
   },
   {
     "subject_key": "supergirl | box-office-tracking",
-    "claim": "Supergirl's domestic opening tracking slid into the upper $40Ms days before its June 26 debut, down from the $50M-plus range it carried weeks earlier. Deadline puts it in the upper $40Ms and Variety at $47M to $50M, with first-choice interest strong only among women under 25 and low across all other audiences, the kind of narrow-demo pull that produced soft DC openings like Shazam: Fury of the Gods ($30.1M).",
+    "claim": "Supergirl opened soft on June 26, 2026: $7.8M in domestic previews and $13M worldwide on day one, roughly a third of the $22M in previews Superman pulled a year earlier. Three-day domestic tracking sits at $47M to $50M against a $170M budget plus worldwide marketing, and reviews were rough. The second film of Gunn's rebooted DCU is landing well below its flagship, a sign the reset's momentum has not carried past Superman itself.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
     "order": 2,
-    "source_url": "https://deadline.com/2026/06/box-office-supergirl-toy-story-5-preview-1236966053/",
+    "source_url": "https://variety.com/2026/film/box-office/box-office-supergirl-previews-1236790790/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "is expected to open in the upper $40Ms at 3,600 theaters stateside per presales",
-    "as_of": "2026-06-24",
+    "evidence_excerpt": "made $7.8 million in previews at the box office. It earned $13 million globally.",
+    "as_of": "2026-06-26",
     "confidence": "high",
     "id": "c_3241e22881cf",
     "verified": true,
@@ -796,7 +796,7 @@
     },
     "corroboration": [
       {
-        "source_url": "https://variety.com/2026/film/box-office/supergirl-box-office-opening-projection-toy-story-5-second-weekend-1236787192/",
+        "source_url": "https://deadline.com/2026/06/box-office-supergirl-toy-story-5-preview-1236966053/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
