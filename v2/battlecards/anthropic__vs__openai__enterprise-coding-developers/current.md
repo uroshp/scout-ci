@@ -183,9 +183,11 @@ Fair: the June 15 Agent-SDK credit split is Anthropic's third billing change in 
 
 Real and ongoing: the June 12 export-control directive suspended Fable 5 and Mythos 5 globally, and both remain off for all users. Senate testimony widened the stated government concern beyond the initial jailbreak incident to Mythos-class autonomous offensive capability. On June 19, President Trump told Axios he no longer views Anthropic as a national security threat ("not now. But a week ago, maybe"), called their response to the Commerce Department order "very responsible," and confirmed that Anthropic technical staff met with administration officials and that he met CEO Dario Amodei at the G7. Trump said he would not shut Anthropic down, though he did not rule out Defense Production Act powers.
 
+Government-driven model restrictions have now also reached OpenAI: on June 25, the White House asked OpenAI to limit GPT-5.6 to government-approved accounts before release, with officials clearing access account by account. It is the first time the US government has preemptively restricted an American AI company's model before launch.
+
 On build risk: Claude Sonnet 4.6 and Opus 4.8 were never under the directive and have stayed fully available throughout.
 
-**So what:** Propose standardizing the customer's production stack on Sonnet 4.6 or Opus 4.8 today. The directive's scope covered only Fable 5 and Mythos 5. ([cnbc.com](https://www.cnbc.com/2026/06/19/trump-tells-axios-he-no-longer-views-anthropic-as-national-security-threat.html))
+**So what:** Propose standardizing the customer's production stack on Sonnet 4.6 or Opus 4.8 today. The directive's scope covered only Fable 5 and Mythos 5, and both GA models have been available throughout. If the customer flags government access risk as their core concern, the record now shows OpenAI's newest model is itself restricted to approved accounts. ([cnn.com](https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house))
 
 **"International buyers are moving to Mistral and Cohere because of the export ban. Is Anthropic losing ground internationally?"**
 

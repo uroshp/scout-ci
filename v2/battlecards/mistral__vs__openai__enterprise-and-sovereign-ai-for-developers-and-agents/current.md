@@ -103,6 +103,12 @@ Work Mode runs long-running multi-step tasks across Google Workspace, Outlook, S
 
 **Soundbite:** Vibe is the only tool that covers both work automation and coding agents under a single plan starting at \$14.99 a month. ([mistral.ai](https://mistral.ai/news/vibe-agent/))
 
+**OCR 4 extends Mistral's self-hosted stack into document intelligence.**
+
+Mistral OCR 4 launched June 23, 2026, returning bounding boxes, typed-block classification (titles, tables, equations, signatures), and per-page and per-word confidence scores alongside extracted text. It covers 170 languages across 10 language groups and ships as a single container for fully air-gapped deployment. Pricing is \$4 per 1,000 pages, dropping to \$2 with the Batch API. Mistral reports a 72% average win rate in blind human evaluations against leading systems and the top score on OlmOCRBench (85.20); Mistral itself notes these benchmark figures are directional rather than definitive.
+
+**Soundbite:** Our document-intelligence model runs on-prem in a single container at \$2 per 1,000 pages with the Batch API, covering 170 languages, with no data leaving your infrastructure.
+
 ### Where it's a fight
 
 **On coding capability it's a genuine fight, and closing.**
