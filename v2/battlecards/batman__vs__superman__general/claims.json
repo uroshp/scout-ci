@@ -775,15 +775,15 @@
   },
   {
     "subject_key": "supergirl | box-office-tracking",
-    "claim": "DC's Supergirl (opening June 26, 2026) keeps weakening on tracking. On June 13, analytics firm BoxOfficeTheory cut its domestic opening forecast by about 10% to a $51M midpoint, in a $47M to $58M range, with a parallel Boxoffice Pro estimate of $45M to $55M. That midpoint lands below The Flash's $55M domestic opening in June 2023, the debut widely seen as ending the prior DC franchise, and far under Superman's $122M July 2025 bow. On a reported $175M net production cost, the film needs $315M worldwide to break even.",
-    "claim_type": "interpretation",
+    "claim": "Supergirl's domestic opening tracking slid into the upper $40Ms days before its June 26 debut, down from the $50M-plus range it carried weeks earlier. Deadline puts it in the upper $40Ms and Variety at $47M to $50M, with first-choice interest strong only among women under 25 and low across all other audiences, the kind of narrow-demo pull that produced soft DC openings like Shazam: Fury of the Gods ($30.1M).",
+    "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 5,
-    "source_url": "https://www.techtimes.com/articles/318486/20260616/supergirl-box-office-forecast-drops-51m-dcu-film-tracks-below-flash.htm",
+    "order": 2,
+    "source_url": "https://deadline.com/2026/06/box-office-supergirl-toy-story-5-preview-1236966053/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "revised its domestic opening weekend projection downward by roughly 10 percent on June 13, landing on a midpoint forecast of $51 million",
-    "as_of": "2026-06-16",
+    "evidence_excerpt": "is expected to open in the upper $40Ms at 3,600 theaters stateside per presales",
+    "as_of": "2026-06-24",
     "confidence": "high",
     "id": "c_3241e22881cf",
     "verified": true,
@@ -791,17 +791,16 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-17",
+      "fetched_at": "2026-06-26",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://deadline.com/2026/06/supergirl-box-office-projection-1236940996/",
+        "source_url": "https://variety.com/2026/film/box-office/supergirl-box-office-opening-projection-toy-story-5-second-weekend-1236787192/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
       }
-    ],
-    "updated_on": "2026-06-17"
+    ]
   }
 ]
