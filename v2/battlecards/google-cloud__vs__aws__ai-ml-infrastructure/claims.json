@@ -955,5 +955,35 @@
     ],
     "updated_on": "2026-06-18",
     "persona": "exec_top_down"
+  },
+  {
+    "subject_key": "amazon | capex-india-expansion | 2026",
+    "claim": "On June 25, 2026, Amazon committed an additional $13B to expand AWS AI and cloud capacity in India by 2030, taking its planned India AI/cloud investment to more than $21B for 2026-2030 and total India commitments to $48B over the next five years. The new money expands AWS data-center capacity in Mumbai and Hyderabad with Trainium chips and Bedrock. For context, Google pledged $15B in October 2025 for its first Indian AI hub in Andhra Pradesh, and Microsoft pledged $17.5B in December 2025.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 55,
+    "source_url": "https://www.mobileworldlive.com/ai-cloud/amazon-pumps-additional-13b-into-india-ai-cloud/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "The latest funds will expand AWS data centre capacity in Mumbai and Hyderabad, giving startups, enterprises and government organisations access to custom AI chips, managed AI services, and developer tools, including Trainium chips and Amazon Bedrock.",
+    "as_of": "2026-06-25",
+    "confidence": "high",
+    "id": "c_09cfb8e42cd0",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-26",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.deccanherald.com/business/amazon-to-invest-additional-13-billion-in-india-to-expand-ai-cloud-infrastructure-by-2030-4052036",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
