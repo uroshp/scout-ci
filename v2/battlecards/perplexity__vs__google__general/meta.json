@@ -4,15 +4,14 @@
   "competitor": "Google",
   "focus": null,
   "baseline_date": "2026-06-06",
-  "last_checked": "2026-06-27T11:25:48",
+  "last_checked": "2026-06-27T17:15:56",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_9ea436272f2a",
     "f_766857e0a23e",
     "f_6ea557ca553f",
-    "f_8b5a9ad27904"
+    "f_8b5a9ad27904",
+    "f_3bc88e38b0bd"
   ],
-  "monitored": true,
-  "unresolved_since": "2026-06-26",
-  "unresolved_attempts": 1
+  "monitored": true
 }

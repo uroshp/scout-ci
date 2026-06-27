@@ -1177,34 +1177,28 @@
   },
   {
     "subject_key": "google | talent-loss | deepmind-defections",
-    "claim": "Google DeepMind is losing top AI research talent to direct rivals. Nobel laureate John Jumper, co-creator of AlphaFold, announced on June 19, 2026 he is leaving for Anthropic, days after Gemini co-lead Noam Shazeer said he would leave for OpenAI. The two exits inside 48 hours sent Alphabet shares down more than 5% and prompted public doubts about whether DeepMind can stay at the front of the AI race, part of a wider stream of researcher departures.",
+    "claim": "Google's AI talent drain went from a single marquee exit to a sustained run. Inside a fortnight, Gemini co-author and 'Attention Is All You Need' author Noam Shazeer left for OpenAI, then DeepMind Nobel laureate John Jumper, AI-coding lead Jonas Adler, and pretraining specialist Alexander Pritzel all left for Anthropic. Four senior departures from the team behind Gemini and AlphaFold in a matter of days, three of them to the same rival, Anthropic. Bloomberg's reporting cites compute access (researchers queuing for Google's own TPUs) and pre-IPO equity at Anthropic and OpenAI as the pull.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.cnbc.com/2026/06/19/john-jumper-to-leave-google-deepmind-for-anthropic.html",
+    "source_url": "https://techcrunch.com/2026/06/24/ai-researchers-continue-to-leave-google-for-its-rivals/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Senior research scientist John Jumper said on Friday he would leave Google DeepMind to join AI startup Anthropic",
-    "as_of": "2026-06-23",
+    "evidence_excerpt": "Top AI researchers Jonas Adler and Alexander Pritzel are leaving Google for Anthropic, according to Bloomberg.",
+    "as_of": "2026-06-25",
     "confidence": "high",
     "id": "c_16d4189e9097",
     "verified": true,
     "grounding": {
       "checked": true,
       "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-26",
-      "detail": null
+      "method": "fuzzy",
+      "fetched_at": "2026-06-27",
+      "detail": "partial_ratio 0.991"
     },
     "corroboration": [
       {
-        "source_url": "https://fortune.com/2026/06/23/google-deepmind-ai-researcher-departures-raise-doubts-about-ability-to-win-the-ai-race-shazeer-jumper-eye-on-ai/",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false
-      },
-      {
-        "source_url": "https://techcrunch.com/2026/06/20/nobel-laureate-john-jumper-is-leaving-deepmind-for-rival-anthropic/",
+        "source_url": "https://thenextweb.com/news/google-loses-two-gemini-researchers-anthropic",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
