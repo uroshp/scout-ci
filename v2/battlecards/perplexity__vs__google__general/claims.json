@@ -1,7 +1,7 @@
 [
   {
     "subject_key": "perplexity-vs-google | competitive-frame | 2026",
-    "claim": "**Betting your stack on one model is the risk, and the last two weeks prove it.**\n\nGoogle wants enterprises to standardize on one model, Gemini, but the frontier keeps moving and no single lab stays on top for long. Gemini 3.5 Pro just slipped its June launch to July, and four senior people behind Gemini and AlphaFold left inside a fortnight, three of them to Anthropic. Perplexity is the neutral layer that routes each task to the best of 19 models, so when Anthropic or OpenAI pulls ahead the buyer gets it automatically, with no re-platforming and no waiting on one vendor's roadmap, plus accredited, source-cited workflows a regulated buyer can defend.\n\n**So what:** Frame the choice as betting the stack on one lab versus hedging across all of them, right when that bet just got more dangerous. The talent moved to Anthropic and OpenAI, which proves the point rather than undercutting it: no one can predict which lab leads in twelve months, and neutrality is the insurance.",
+    "claim": "**Betting your whole stack on one model is the risk.**\n\nGemini 3.5 Pro just slipped to July and four senior Gemini and AlphaFold people left in two weeks; Perplexity routes each task to the best of 19 models.\n\n**Soundbite:** \"When a lab has a bad quarter, you switch models, not vendors.\"\n\n**So what:** Frame it as a one-lab bet versus a hedge across all of them.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -9,7 +9,7 @@
     "source_url": "https://techcrunch.com/2026/06/24/ai-researchers-continue-to-leave-google-deepmind/",
     "source_tier": "reputable_secondary",
     "evidence_excerpt": "Just one year after its debut, AI Mode has surpassed one billion monthly users, with queries more than doubling every quarter since launch.",
-    "as_of": "2026-05-19",
+    "as_of": "2026-06-24",
     "confidence": "high",
     "id": "c_008fe507dba8",
     "verified": true,

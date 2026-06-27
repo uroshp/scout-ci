@@ -2,11 +2,13 @@
 
 ## Executive Summary
 
-**US frontier AI is now politically gated, and that turns sovereignty from a value into a continuity-of-access risk.**
+**US frontier AI is now politically gated, so sovereignty is a continuity-of-access risk.**
 
-On June 26 the White House had OpenAI restrict its newest frontier line (Sol, Terra, Luna) to US-government-approved partners, the first time Washington has gated a US frontier model, following the administration forcing Anthropic to cut Fable 5 access. That is a pattern, not a one-off: for any buyer outside the approved circle, OpenAI's actual latest frontier is not purchasable at any price. Mistral ships open weights the customer runs inside its own walls, so access can never be gated or revoked. The EU's proposed Tech Sovereignty Package points the same way, but the US gating has already happened.
+On June 26 the White House restricted OpenAI's newest models to government-approved partners, after the administration forced Anthropic to cut Fable 5 access; Mistral's open weights run inside your walls.
 
-**So what:** Lead with access risk, not benchmarks. Ask who controls the buyer's vendor roadmap, and show that open weights they run themselves are the only access a government cannot revoke. ([cnn.com](https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house))
+**Soundbite:** "No government can revoke open weights you already run."
+
+**So what:** Lead with access risk, not benchmarks. Ask who controls the buyer's vendor roadmap. ([cnn.com](https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house))
 
 **Be honest internally: OpenAI is still the category leader, and that is the real threat.**
 

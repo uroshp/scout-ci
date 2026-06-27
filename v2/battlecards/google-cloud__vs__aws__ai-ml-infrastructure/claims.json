@@ -1,7 +1,7 @@
 [
   {
     "subject_key": "google-cloud vs aws | ai-infra-growth | q1-2026",
-    "claim": "**Inference economics decide the AI bill now, and that is where our owned silicon opens a real gap.**\n\nThe 8th-gen TPU 8i is purpose-built for inference and serves close to twice the volume at the same cost, and the edge is structural rather than a promotion: Google owns the model and the chip together, while AWS rents its frontier models from Anthropic and OpenAI and runs them on Trainium that is largely sold out. The proof is not just Google's own numbers. Blackstone committed $5B to sell TPU capacity as a service, an outside investor betting billions on TPU price-performance over Nvidia.\n\n**So what:** Move the deal from who is bigger to who is cheaper per token at scale, which is what actually decides a multi-year infra commitment. Ask what share of the customer's AI spend is inference, then model Gemini Flash token economics against their own volume.",
+    "claim": "**Inference economics decide the AI bill, and our owned silicon wins there.**\n\nTPU 8i serves close to twice the volume at the same cost, Blackstone just put $5B behind TPU capacity over Nvidia, and AWS rents its frontier models on largely sold-out Trainium.\n\n**Soundbite:** \"Model your token volume on Gemini Flash. That is the line your AI budget actually lands on.\"\n\n**So what:** Move the deal from who is bigger to who is cheaper per token at scale.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -9,7 +9,7 @@
     "source_url": "https://blog.google/innovation-and-ai/infrastructure-and-cloud/",
     "source_tier": "primary",
     "evidence_excerpt": "Google Cloud beat Wall Street's expectations, recording a 63% increase in revenue from a year ago",
-    "as_of": "2026-04-29",
+    "as_of": "2026-05-19",
     "confidence": "high",
     "id": "c_df2638986581",
     "verified": true,

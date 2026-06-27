@@ -424,11 +424,13 @@ def _briefing(claims: list) -> str:
     angle_html = ""
     if angle:
         p = _parse_claim(angle)
-        text = " ".join([p["title"]] + p["body"]) if p["title"] else " ".join(p["body"])
+        body = " ".join(p["body"])
         angle_html = (
             '<div class="bsub">Today\'s angle</div><div class="angle">'
-            f'<p>{_inline(text)}</p>'
-            + (_callout("sw", "So what for us", p["so_what"]) if p["so_what"] else "")
+            + (f'<p class="ah"><strong>{_inline(p["title"])}</strong></p>' if p["title"] else "")
+            + (f'<p>{_inline(body)}</p>' if body else "")
+            + (_callout("sb", "Say", p["soundbite"]) if p["soundbite"] else "")
+            + (_callout("sw", "Move", p["so_what"]) if p["so_what"] else "")
             + _verified(angle.get("source_url", ""), _fmt_asof(angle.get("as_of"))) + "</div>")
 
     wins = sorted([c for c in claims if c.get("section") == "battlecard"
