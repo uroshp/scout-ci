@@ -1110,36 +1110,6 @@
     ]
   },
   {
-    "subject_key": "mistral | ocr4-product-launch | 2026",
-    "claim": "Mistral released OCR 4 on June 23, 2026, a document-intelligence model that returns bounding boxes, typed-block classification (titles, tables, equations, signatures), and per-page and per-word confidence scores alongside extracted text. It supports 170 languages across 10 language groups, runs in a single container for fully self-hosted deployment, and is priced at $4 per 1,000 pages ($2 with the 50% Batch-API discount). Mistral reports a 72% average win rate in blind human evaluations against leading systems and the top score on OlmOCRBench (85.20), while itself cautioning that the aggregate benchmark numbers are directional rather than definitive.",
-    "claim_type": "fact",
-    "section": "tracked_facts",
-    "zone": null,
-    "order": 0,
-    "source_url": "https://mistral.ai/news/ocr-4/",
-    "source_tier": "primary",
-    "evidence_excerpt": "Today, we're releasing Mistral OCR 4, featuring bounding boxes, block classification, and inline confidence scores alongside extracted text.",
-    "as_of": "2026-06-23",
-    "confidence": "high",
-    "id": "c_aea351606f4e",
-    "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-26",
-      "detail": null
-    },
-    "corroboration": [
-      {
-        "source_url": "https://venturebeat.com/data/mistral-launches-ocr-4-turning-document-extraction-into-a-full-enterprise-ai-play",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false
-      }
-    ]
-  },
-  {
     "id": "c_aea351606f4e",
     "subject_key": "mistral | ocr4-product-launch | 2026",
     "claim": "**OCR 4 extends Mistral's self-hosted stack into document intelligence.**\n\nMistral OCR 4 launched June 23, 2026, returning bounding boxes, typed-block classification (titles, tables, equations, signatures), and per-page and per-word confidence scores alongside extracted text. It covers 170 languages across 10 language groups and ships as a single container for fully air-gapped deployment. Pricing is $4 per 1,000 pages, dropping to $2 with the Batch API. Mistral reports a 72% average win rate in blind human evaluations against leading systems and the top score on OlmOCRBench (85.20); Mistral itself notes these benchmark figures are directional rather than definitive.\n\n**Soundbite:** Our document-intelligence model runs on-prem in a single container at $2 per 1,000 pages with the Batch API, covering 170 languages, with no data leaving your infrastructure.",
@@ -1153,5 +1123,35 @@
     "confidence": "medium",
     "derived_from": "c_aea351606f4e",
     "persona": "technical_evaluator"
+  },
+  {
+    "subject_key": "openai | model-release-restriction | gpt-5.6-2026",
+    "claim": "OpenAI is releasing its next-generation GPT-5.6 line (Sol, the flagship; Terra, a mid tier; Luna, a low-cost tier) only to a small group of US-government-approved partners, at the White House's request, before any broad availability. It is the first time Washington has gated a US frontier model's release this way, and OpenAI's own blog says it does not want this access process to become the long-term default. The restriction follows the administration forcing Anthropic to cut access to Fable 5 and Mythos 5 for foreign nationals.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://techcrunch.com/2026/06/26/openai-limits-gpt-5-6-rollout-after-government-request-says-restrictions-shouldnt-be-the-norm/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI is limiting the release of its newest AI models to a “small group of trusted partners” at the behest of the U.S. government, the company said Friday.",
+    "as_of": "2026-06-26",
+    "confidence": "high",
+    "id": "c_1abc15d96670",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-27",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.thenationalnews.com/future/technology/2026/06/27/openai-news-gpt-white-house/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
