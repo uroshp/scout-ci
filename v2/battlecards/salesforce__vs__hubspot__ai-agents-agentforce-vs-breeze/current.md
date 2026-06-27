@@ -2,13 +2,13 @@
 
 ## Executive Summary
 
-**HubSpot's "pay only when it works" pricing is the live threat: answer it with TCO math, not denial.**
+**HubSpot's "pay only when it works" pricing is the live threat: answer it with a one-page Agentforce cost model.**
 
 On April 14 HubSpot moved Breeze Customer Agent to \$0.50 per *resolved* conversation and Prospecting Agent to \$1 per qualified lead, pitching it as "you pay when it works, full stop." Against Agentforce's consumption model (which practitioners openly call a "blank cheque"), that lands hard in price-sensitive mid-market rooms.
 
 **So what:** Every rep needs a one-page Agentforce TCO model and a cost-capped pilot ready before the pricing question is asked, or the deal drifts to HubSpot on perceived risk alone. ([martech.org](https://martech.org/hubspot-moves-to-outcome-based-pricing-for-some-breeze-ai-agents/))
 
-**Agentforce is no longer vapor: \$1.2B ARR is real proof for enterprise buyers.**
+**\$1.2B ARR is hard proof enterprise buyers can put on the table. HubSpot can't match the number.**
 
 Agentforce ARR hit \$1.2 billion in Q1 FY2027, up 205% year over year, the first time it crossed \$1 billion. HubSpot has no comparable agent-revenue metric to put on the table.
 
@@ -109,13 +109,13 @@ Analysts warn Agentforce's hidden complexity means "what was initially perceived
 
 Acknowledge both rounds directly. The February 2026 round included some Agentforce staff. The June 2026 round cut roles connected to Agentforce, MuleSoft, and Marketing Cloud, with 86 California positions disclosed (63 in technology and product, 21 in general administration, 2 in sales and distribution); Washington state and international impact is undisclosed. Affected California employees remain on payroll through August 7, 2026.
 
-The critical grounded fact for this deal: a person familiar with the June cuts confirmed Salesforce's core Agentforce teams were not affected. That is not spin. It came from someone inside the company and was reported by Business Insider.
+The critical grounded fact for this deal: a person familiar with the June cuts confirmed Salesforce's core Agentforce teams were not affected. It came straight from inside the company, reported by Business Insider. It came from someone inside the company and was reported by Business Insider.
 
 **So what:** The buying-decision signal is this: the same core team shipped Agentforce Operations (GA April 29) and drove more than 60% of Q4 Agentforce and Data Cloud bookings from existing customers expanding their deployments. Teams being wound down do not ship GA products and collect expansion revenue from an installed base. The cuts were real; the core product team is intact and shipping. ([dqindia.com](https://www.dqindia.com/news/salesforce-agentforce-arr-layoffs-ai-jobs-12027002))
 
 **"Wall Street says Agentforce has 'limited impact' and your stock is down. Why should I bet my roadmap on it?"**
 
-Bank of America did reinstate Salesforce at Underperform, viewing Agentforce as "directionally correct but having product challenges and limited impact." The honest frame: that's an investor's seat-compression thesis about Salesforce's stock, not a verdict on whether agents work for your team. The same quarter showed \$1.2B Agentforce ARR with 60%+ of bookings from expanding customers.
+Bank of America did reinstate Salesforce at Underperform, viewing Agentforce as "directionally correct but having product challenges and limited impact." That's a call on the stock price. Wall Street's rating of Salesforce shares says nothing about how the product works for your team. The same quarter showed \$1.2B Agentforce ARR with 60%+ of bookings from expanding customers.
 
 **So what:** Separate the equity debate from the deployment decision, and pivot to customer ROI and expansion proof. ([cnbc.com](https://www.cnbc.com/2026/05/18/salesforce-has-been-battered-in-2026-bank-of-america-sees-more-losses-ahead.html))
 

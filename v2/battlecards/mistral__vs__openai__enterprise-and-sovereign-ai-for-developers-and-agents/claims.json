@@ -1,7 +1,7 @@
 [
   {
     "subject_key": "openai | eu-sovereignty-exposure | current",
-    "claim": "**US frontier AI is now politically gated, so sovereignty is a continuity-of-access risk.**\n\nOn June 26 the White House restricted OpenAI's newest models to government-approved partners, after the administration forced Anthropic to cut Fable 5 access; Mistral's open weights run inside your walls.\n\n**Soundbite:** \"No government can revoke open weights you already run.\"\n\n**So what:** Lead with access risk, not benchmarks. Ask who controls the buyer's vendor roadmap.",
+    "claim": "**US frontier AI is now politically gated, so sovereignty is a continuity-of-access risk.**\n\nOn June 26 the White House restricted OpenAI's newest models to government-approved partners, after the administration forced Anthropic to cut Fable 5 access; Mistral's open weights run inside your walls.\n\n**Soundbite:** \"No government can revoke open weights you already run.\"\n\n**So what:** Lead with who controls access to the model, then ask who owns the buyer's vendor roadmap.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -24,7 +24,7 @@
   },
   {
     "subject_key": "openai | scale-leadership | current",
-    "claim": "**Be honest internally: OpenAI is still the category leader, and that is the real threat.**\n\nChatGPT remains the most-used AI assistant in the world at over 1.1 billion monthly users, with the deepest developer ecosystem and frontier coding quality. Pretending otherwise loses credibility in the room.\n\n**So what:** Do not argue OpenAI is worse across the board. Win on deployment model, jurisdiction, and cost, where they structurally cannot follow.",
+    "claim": "**Be honest internally: OpenAI is still the category leader, and that is the real threat.**\n\nChatGPT remains the most-used AI assistant in the world at over 1.1 billion monthly users, with the deepest developer ecosystem and frontier coding quality. Pretending otherwise loses credibility in the room.\n\n**So what:** Do not argue OpenAI is worse across the board. Win where they can't go: deployment model and jurisdiction, with cost on top.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -696,7 +696,7 @@
   },
   {
     "subject_key": "mistral | battlecard-cost | where-we-win",
-    "claim": "**Open weights change the unit economics, not just the sticker price.**\n\nMistral lists Devstral 2 as up to 7x more cost-efficient than Claude on real tasks, and self-hosting the Apache 2.0 models drops per-token cost to your own compute. For high-volume agentic workloads, that gap compounds month over month.\n\n**Soundbite:** *\"At a billion tokens a month, the question isn't which model is five points better, it's which bill you can actually run continuously.\"*",
+    "claim": "**Open weights cut your real monthly bill, the part the sticker price hides.**\n\nMistral lists Devstral 2 as up to 7x more cost-efficient than Claude on real tasks, and self-hosting the Apache 2.0 models drops per-token cost to your own compute. For high-volume agentic workloads, that gap compounds month over month.\n\n**Soundbite:** You'll pay significantly more every month, while a few benchmark points barely change your deployment. And benchmarks reset with every new model release, while the cost keeps piling up.",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_we_win",
@@ -719,7 +719,7 @@
   },
   {
     "subject_key": "mistral | battlecard-coding-capability | contested",
-    "claim": "**On coding capability it's a genuine fight, and closing.**\n\nMistral Medium 3.5 scores 77.6% on SWE-Bench Verified, strong and improving, while OpenAI's closed frontier models still lead the very top of the benchmark. The deployable-versus-best-in-class tradeoff is where these deals are actually decided.\n\n**Soundbite:** *\"For most enterprise coding work our quality clears the bar. The deciding factor then becomes where it runs and what it costs.\"*",
+    "claim": "**On coding capability it's a genuine fight, and closing.**\n\nMistral Medium 3.5 scores 77.6% on SWE-Bench Verified, strong and improving, while OpenAI's closed frontier models still lead the very top of the benchmark. These deals come down to a simple choice: the model you can deploy, or the one with the top score.\n\n**Soundbite:** *\"For most enterprise coding work our quality clears the bar. The deciding factor then becomes where it runs and what it costs.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",

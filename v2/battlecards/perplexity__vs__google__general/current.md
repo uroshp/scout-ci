@@ -14,9 +14,9 @@ Gemini 3.5 Pro just slipped to July and four senior Gemini and AlphaFold people 
 
 Revenue tripled in 2026 to roughly \$500M ARR, but nine publishers have active copyright suits (CNN filed May 28), Amazon won a court order against the Comet shopping agent, and a privacy class action is live. Compliance teams in regulated verticals will surface all of this.
 
-**So what:** Pair the momentum story with a prepared, honest legal-risk answer (licensing deals signed, fair-use defense, category-wide risk) so the objection doesn't stall the deal. ([cnn.com](https://www.cnn.com/2026/05/28/media/cnn-sues-perplexity-ai-copyright))
+**So what:** Pair the momentum story with a straight legal-risk answer: licensing deals are getting signed, and it's an industry-wide risk every AI vendor faces. ([cnn.com](https://www.cnn.com/2026/05/28/media/cnn-sues-perplexity-ai-copyright))
 
-**"Google is everywhere" is now "Google's everywhere-ness is being dismantled in court", so reframe the distribution objection.**
+**A judge just barred Google from buying default placement, so the 'Google's too embedded to displace' objection is weaker than it looks.**
 
 A federal judge barred Google from exclusive default-distribution deals for Search and Gemini, the DOJ and states are appealing for stronger remedies, the EU is finalizing a record DMA fine, and DuckDuckGo traffic surged ~84% above baseline as users reject force-fed AI. The moat that makes Google the default is under active legal and user-trust pressure.
 
@@ -30,7 +30,7 @@ Independent analysis estimates Google AI Overviews produce tens of millions of q
 
 **Don't fight Google on price: it bundles AI into free Search and into Workspace at zero marginal cost. Fight on neutrality and citations.**
 
-Google AI Mode is free to 1B+ users and Gemini is included in paid Workspace tiers, so Perplexity's \$20 Pro and \$40-seat Enterprise can never win a pure cost comparison. Perplexity's defensible value is model neutrality (route to Claude, Gemini, GPT in one product), cited answers, and FedRAMP-cleared deployment.
+Google AI Mode is free to 1B+ users and Gemini is included in paid Workspace tiers, so Perplexity's \$20 Pro and \$40-seat Enterprise can never win a pure cost comparison. Perplexity's edge is that it routes to Claude, Gemini or GPT in one product, cites every answer and is cleared for government use.
 
 **So what:** Reframe every price objection as a value-and-trust conversation; conceding the price axis and winning the neutrality axis is the stronger play. ([blog.google](https://blog.google/products-and-platforms/products/search/search-io-2026/))
 
@@ -123,7 +123,7 @@ AI Mode hit 1B monthly users free inside Search, Chrome and Android in a single 
 
 Gemini 3 Pro topped LMArena at 1501 Elo with PhD-level reasoning scores; Perplexity builds no frontier model of its own. For benchmark-driven technical buyers this is Google's strongest card, so pivot from raw model scores to answer accuracy, citations and the freedom to use Gemini inside Perplexity when it's the best fit.
 
-**Soundbite:** *"Gemini's a great model, so good we'll route to it when it's the right one. We're not betting against any single model; we're betting on always picking the best one."* ([blog.google](https://blog.google/products/gemini/gemini-3/))
+**Soundbite:** *"Gemini's a great model, so good we'll route to it when it's the right one. Gemini's great, so we route to it when it's the right call. Our job is to pick the best model for each task, every time."* ([blog.google](https://blog.google/products/gemini/gemini-3/))
 
 **Workspace lock-in is real: Gemini lives inside the Gmail, Docs and Meet that 3B people already use.**
 

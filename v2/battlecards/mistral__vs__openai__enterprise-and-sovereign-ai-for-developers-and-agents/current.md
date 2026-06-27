@@ -8,13 +8,13 @@ On June 26 the White House restricted OpenAI's newest models to government-appro
 
 **Soundbite:** "No government can revoke open weights you already run."
 
-**So what:** Lead with access risk, not benchmarks. Ask who controls the buyer's vendor roadmap. ([cnn.com](https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house))
+**So what:** Lead with who controls access to the model, then ask who owns the buyer's vendor roadmap. ([cnn.com](https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house))
 
 **Be honest internally: OpenAI is still the category leader, and that is the real threat.**
 
 ChatGPT remains the most-used AI assistant in the world at over 1.1 billion monthly users, with the deepest developer ecosystem and frontier coding quality. Pretending otherwise loses credibility in the room.
 
-**So what:** Do not argue OpenAI is worse across the board. Win on deployment model, jurisdiction, and cost, where they structurally cannot follow. ([techcrunch.com](https://techcrunch.com/2026/06/16/chatgpts-market-share-slips-below-50-for-first-time/))
+**So what:** Do not argue OpenAI is worse across the board. Win where they can't go: deployment model and jurisdiction, with cost on top. ([techcrunch.com](https://techcrunch.com/2026/06/16/chatgpts-market-share-slips-below-50-for-first-time/))
 
 **But OpenAI's footing is slipping, and that opens the 'safe default' wedge.**
 
@@ -94,11 +94,11 @@ France's Ministry of Armed Forces deployed Mistral entirely on national infrastr
 
 **Soundbite:** *"The French military runs us on their own systems. If it clears their bar for sovereign control, it clears yours."* ([techrepublic.com](https://www.techrepublic.com/article/news-mistral-french-military-ai-deal/))
 
-**Open weights change the unit economics, not just the sticker price.**
+**Open weights cut your real monthly bill, the part the sticker price hides.**
 
 Mistral lists Devstral 2 as up to 7x more cost-efficient than Claude on real tasks, and self-hosting the Apache 2.0 models drops per-token cost to your own compute. For high-volume agentic workloads, that gap compounds month over month.
 
-**Soundbite:** *"At a billion tokens a month, the question isn't which model is five points better, it's which bill you can actually run continuously."* ([mistral.ai](https://mistral.ai/news/devstral-2-vibe-cli/))
+**Soundbite:** You'll pay significantly more every month, while a few benchmark points barely change your deployment. And benchmarks reset with every new model release, while the cost keeps piling up. ([mistral.ai](https://mistral.ai/news/devstral-2-vibe-cli/))
 
 **Vibe puts work automation and coding under one agent and one license.**
 
@@ -116,7 +116,7 @@ Mistral OCR 4 launched June 23, 2026, returning bounding boxes, typed-block clas
 
 **On coding capability it's a genuine fight, and closing.**
 
-Mistral Medium 3.5 scores 77.6% on SWE-Bench Verified, strong and improving, while OpenAI's closed frontier models still lead the very top of the benchmark. The deployable-versus-best-in-class tradeoff is where these deals are actually decided.
+Mistral Medium 3.5 scores 77.6% on SWE-Bench Verified, strong and improving, while OpenAI's closed frontier models still lead the very top of the benchmark. These deals come down to a simple choice: the model you can deploy, or the one with the top score.
 
 **Soundbite:** *"For most enterprise coding work our quality clears the bar. The deciding factor then becomes where it runs and what it costs."* ([marktechpost.com](https://www.marktechpost.com/2026/05/02/mistral-ai-launches-remote-agents-in-vibe-and-mistral-medium-3-5-with-77-6-swe-bench-verified-score/))
 

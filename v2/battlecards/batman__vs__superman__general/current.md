@@ -6,15 +6,15 @@
 
 James Gunn's 2025 Superman was the year's top superhero film and the first DC release to clear \$600M since 2022, but the title it had to chase was ours: The Batman topped out at \$772.5M worldwide on a budget \$25M lower.
 
-**So what:** Lead with the head-to-head receipts and ROI, not with Superman's fresh buzz: the numbers favor Batman, so don't let the conversation start from the assumption that we're the underdog. ([hollywoodreporter.com](https://www.hollywoodreporter.com/movies/movie-news/superman-superhero-pic-box-office-1236351240/))
+**So what:** Open with the head-to-head receipts and ROI. The numbers favor Batman, so don't let the buyer treat us as the underdog. ([hollywoodreporter.com](https://www.hollywoodreporter.com/movies/movie-news/superman-superhero-pic-box-office-1236351240/))
 
 **Our real exposure is the calendar: Batman Part II doesn't arrive until October 2027.**
 
 Superman's universe is visibly in motion (Man of Tomorrow began filming in April 2026 for a July 2027 release) while our sequel slipped twice and is set five and a half years after the original. A buyer reads that gap as platform risk.
 
-**So what:** Get ahead of the delay objection rather than waiting for it; frame the wait as Matt Reeves' no-script-no-shoot discipline, the same gate that made the first film land. ([variety.com](https://variety.com/2026/film/news/superman-sequel-man-of-tomorrow-starts-filming-james-gunn-1236726082/))
+**So what:** Raise the delay yourself before the buyer does. Frame the wait as Reeves' rule: no script, no shoot, the same gate that made the first film land. ([variety.com](https://variety.com/2026/film/news/superman-sequel-man-of-tomorrow-starts-filming-james-gunn-1236726082/))
 
-**Superman's weakness is the world map: it's an American icon that doesn't travel.**
+**Superman stalls overseas: a U.S. icon that flops past the border.**
 
 The 2025 film took only 42.7% of its gross from overseas, and analysts openly called its \$95M international debut disappointing. The Batman pulled the majority of its gross (52%) from abroad.
 
@@ -24,7 +24,7 @@ The 2025 film took only 42.7% of its gross from overseas, and analysts openly ca
 
 James Gunn writes it, directs it, and runs the studio. He out-earned his title star twenty-to-one. That's concentration risk: the entire DCU reset is a bet on a single creative, rebuilt on the wreckage of a slate that lost an estimated \$1.1–1.2B in 2023.
 
-**So what:** When a buyer's question is really about stability and staying power, point to Batman's independence from the DCU's one-person, one-reboot bet. ([variety.com](https://variety.com/2025/film/news/superman-success-budget-cast-salaries-1236462393/))
+**So what:** When the buyer is really asking about stability, point out Batman stands on its own, while Superman rides on one person and one reboot. ([variety.com](https://variety.com/2025/film/news/superman-success-budget-cast-salaries-1236462393/))
 
 ## Snapshot
 
@@ -62,7 +62,7 @@ James Gunn writes it, directs it, and runs the studio. He out-earned his title s
 
 Batman doesn't need a shared universe to work: an on-record box-office analyst called him 'so strong on its own' that tying him to other characters is unnecessary, exactly the connective tissue Superman's DCU depends on.
 
-**Soundbite:** *"Batman has never needed a cinematic universe to be a billion-dollar character. Superman is betting his whole comeback on one."* ([variety.com](https://variety.com/2023/film/news/the-flash-box-office-dc-blue-beetle-aquaman-1235650170/))
+**Soundbite:** "Batman cleared a billion dollars on his own. Superman is staking his whole comeback on a shared universe." ([variety.com](https://variety.com/2023/film/news/the-flash-box-office-dc-blue-beetle-aquaman-1235650170/))
 
 **Superman doesn't travel. That's the cleanest place to beat it.**
 
@@ -112,13 +112,13 @@ The reboot opened to \$125M, the biggest DC debut since The Batman, with strong 
 
 It's true the sequel slipped to October 2027, and Gunn said plainly the only reason was that there wasn't a full script. But that's a quality gate, not a stall: Reeves refuses to shoot without a finished script, the discipline that produced the acclaimed, \$772M original, and the completed script is now in production.
 
-**So what:** Reframe the delay from 'they can't execute' to 'they won't compromise the script', and note the film a rushed process produces is exactly what Superman's overstuffed reviews warn against. ([empireonline.com](https://www.empireonline.com/movies/news/the-batman-part-ii-delayed-at-warner-bros-wont-release-until-late-2027/))
+**So what:** Reframe the delay from 'they can't execute' to 'they won't ship a half-written script', then point at Superman's overstuffed reviews as what rushing gets you. ([empireonline.com](https://www.empireonline.com/movies/news/the-batman-part-ii-delayed-at-warner-bros-wont-release-until-late-2027/))
 
 **"Batman isn't even in the main DC Universe. It's a sidelined Elseworlds story."**
 
-DC formally labels our Batman 'DC-Elseworlds,' outside Gunn's interconnected DCU. But that's creative freedom, not exile: it's the only Batman film actually in production, while the DCU's own Batman ('The Brave and the Bold') still has no cast and no release date.
+DC labels our Batman 'DC-Elseworlds,' outside Gunn's DCU. That gives it creative freedom, and it's the only Batman film actually shooting. The DCU's own Batman, 'The Brave and the Bold,' has no cast and no date.
 
-**So what:** Being outside the DCU means The Batman isn't hostage to a shared-universe reboot's risks, and right now it's the only Batman story audiences can actually count on seeing. ([deadline.com](https://deadline.com/2023/01/dc-movie-tv-plan-james-gunn-peter-safran-batman-swamp-thing-green-lantern-1235244926/))
+**So what:** Outside the DCU, The Batman is insulated from the reboot's risks, and it's the only Batman story audiences can count on seeing right now. ([deadline.com](https://deadline.com/2023/01/dc-movie-tv-plan-james-gunn-peter-safran-batman-swamp-thing-green-lantern-1235244926/))
 
 **"Superman has visible momentum (Man of Tomorrow is filming) and Batman has nothing new until 2027."**
 

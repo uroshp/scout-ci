@@ -1,7 +1,7 @@
 [
   {
     "subject_key": "google-cloud vs aws | ai-infra-growth | q1-2026",
-    "claim": "**Inference economics decide the AI bill, and our owned silicon wins there.**\n\nTPU 8i serves close to twice the volume at the same cost, Blackstone just put $5B behind TPU capacity over Nvidia, and AWS rents its frontier models on largely sold-out Trainium.\n\n**Soundbite:** \"Inference is your real AI bill. Price your token volume on Gemini Flash and see the gap.\"\n\n**So what:** Move the deal from who is bigger to who is cheaper per token at scale.",
+    "claim": "**Inference economics decide the AI bill, and our owned silicon wins there.**\n\nTPU 8i serves close to twice the volume at the same cost, Blackstone just put $5B behind TPU capacity over Nvidia, and AWS rents its frontier models on largely sold-out Trainium.\n\n**Soundbite:** \"Inference is your real AI bill. Price your token volume on Gemini Flash and see the gap.\"\n\n**So what:** Get the deal scored on cost per token at scale, which is where we win.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -24,7 +24,7 @@
   },
   {
     "subject_key": "google-cloud vs aws | vertical-integration-edge | current",
-    "claim": "**AWS has no first-party frontier model: it rents its AI soul from Anthropic and OpenAI. Google owns the whole stack.**\n\nAWS's model story now rests on partners it doesn't control: it expanded its Anthropic position to up to $25B, and Anthropic committed to spend more than $100B on AWS over ten years. Bedrock added OpenAI's GPT-5.5 in June. Google, by contrast, owns silicon (TPU), the frontier model (Gemini/DeepMind), the platform, and the distribution channel under one roof.\n\n**So what:** When procurement asks \"who controls the model roadmap?\", the AWS answer is Anthropic and OpenAI, companies with their own agendas. On Google Cloud it's Google. Make roadmap control a buying criterion.",
+    "claim": "AWS leans on Anthropic and OpenAI for its frontier models. Google builds its own.\n\nAWS's model story now rests on partners it doesn't control: it expanded its Anthropic position to up to $25B, and Anthropic committed to spend more than $100B on AWS over ten years. Bedrock added OpenAI's GPT-5.5 in June. Google, by contrast, owns silicon (TPU), the frontier model (Gemini/DeepMind), the platform, and the distribution channel under one roof.\n\n**So what:** When procurement asks \"who controls the model roadmap?\", the AWS answer is Anthropic and OpenAI, companies with their own agendas. On Google Cloud it's Google. Make roadmap control a buying criterion.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -200,7 +200,7 @@
   },
   {
     "subject_key": "aws | launch | openai-on-bedrock-2026-06",
-    "claim": "On June 1, 2026, AWS made OpenAI's GPT-5.5, GPT-5.4 and Codex generally available on Amazon Bedrock at OpenAI-matching token rates, its first frontier OpenAI access, landing weeks after Microsoft's exclusivity lapsed. So what for us: it confirms Bedrock is a model marketplace, not a differentiated first-party model. Google still has the only fully-owned frontier model (Gemini) trained on its own silicon.",
+    "claim": "On June 1, 2026, AWS made OpenAI's GPT-5.5, GPT-5.4 and Codex generally available on Amazon Bedrock at OpenAI-matching token rates, its first frontier OpenAI access, landing weeks after Microsoft's exclusivity lapsed. So what for us: it confirms Bedrock is a model marketplace that resells other labs' models. Google still has the only fully-owned frontier model (Gemini) trained on its own silicon.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
@@ -288,7 +288,7 @@
   },
   {
     "subject_key": "aws | list-price | gpu-capacity-block-hike-2026-01",
-    "claim": "In January 2026 AWS quietly raised EC2 Capacity Block prices for its H200 GPU instances ~15% (the p5e.48xlarge jumped from $34.61 to $39.80/hr), reversing its usual \"prices only go down\" posture amid GPU scarcity. So what for us: this breaks the AWS cost-leadership narrative for guaranteed GPU capacity and hands Google Cloud a pricing talking point.",
+    "claim": "In January 2026 AWS quietly raised EC2 Capacity Block prices for its H200 GPU instances ~15% (the p5e.48xlarge jumped from $34.61 to $39.80/hr), reversing its usual \"prices only go down\" posture amid GPU scarcity. So what for us: this undercuts AWS's claim that its GPU prices only go down, and gives us a price opening.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
@@ -465,7 +465,7 @@
   },
   {
     "subject_key": "battlecard | win | tpu-external-validation-blackstone",
-    "claim": "**External capital is validating TPU demand, not just Google's own books.**\n\nOn May 19, 2026, Blackstone committed $5B to a Google-backed venture to sell TPU capacity as a service, targeting 500MW by 2027. A third party betting billions on TPU (not Nvidia) compute is independent proof that TPU price-performance is credible at enterprise scale. AWS has no comparable outside vote of confidence in Trainium.\n\n**Soundbite:** *\"When Blackstone puts $5 billion behind TPU capacity, that's the market, not Google's marketing, saying this silicon is the real thing.\"*",
+    "claim": "**External capital is validating TPU demand, not just Google's own books.**\n\nOn May 19, 2026, Blackstone committed $5B to a Google-backed venture to sell TPU capacity as a service, targeting 500MW by 2027. A third party betting billions on TPU (not Nvidia) compute is independent proof that TPU price-performance is credible at enterprise scale. AWS has no comparable outside vote of confidence in Trainium.\n\n**Soundbite:** *\"Blackstone just put $5 billion behind TPU capacity. Outside money proves the silicon delivers.\"*",
     "claim_type": "fact",
     "section": "battlecard",
     "zone": "where_we_win",
@@ -511,7 +511,7 @@
   },
   {
     "subject_key": "battlecard | contested | model-breadth",
-    "claim": "**Model breadth is now a real fight, not a Google win.**\n\nBoth platforms offer 200+ models. Bedrock's June addition of OpenAI GPT-5.5 alongside Claude, Llama and Nova is a genuine strength, and its token spend is growing fast. Google counters with first-party Gemini (long-context, multimodal) plus partner models on the Gemini Enterprise Agent Platform. The tie-breaker is rarely model parity. It's data gravity, integration and price.\n\n**Soundbite:** *\"If you just want a model menu, both clouds have one. The question is which one also owns the model and the chip underneath it. That's us.\"*",
+    "claim": "**Model breadth is now a real fight, not a Google win.**\n\nBoth platforms offer 200+ models. Bedrock's June addition of OpenAI GPT-5.5 alongside Claude, Llama and Nova is a genuine strength, and its token spend is growing fast. Google counters with first-party Gemini (long-context, multimodal) plus partner models on the Gemini Enterprise Agent Platform. Deals turn on data gravity and price. A bigger model catalog rarely decides them.\n\n**Soundbite:** *\"Both clouds give you a model menu. Only Google owns the model and the chip running it.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
@@ -534,7 +534,7 @@
   },
   {
     "subject_key": "battlecard | contested | nvidia-gpu-availability",
-    "claim": "**Raw Nvidia GPU availability is a shared constraint, not a clean differentiator.**\n\nBoth clouds are supply-limited on top-end Nvidia capacity (TSMC CoWoS and HBM bottlenecks), and both are co-engineering with Nvidia on next-gen Rubin systems. Whoever can offer a credible custom-silicon alternative reduces the customer's GPU-queue risk, and that favors whichever side the buyer trusts on their specific framework (CUDA vs TPU/JAX/PyTorch).\n\n**Soundbite:** *\"Nobody has unlimited Blackwell right now. The difference is we give you a real second path, TPUs, so you're not stuck in one GPU line.\"*",
+    "claim": "**Raw Nvidia GPU availability is a shared constraint, not a clean differentiator.**\n\nBoth clouds are supply-limited on top-end Nvidia capacity (TSMC CoWoS and HBM bottlenecks), and both are co-engineering with Nvidia on next-gen Rubin systems. Whoever can offer a credible custom-silicon alternative reduces the customer's GPU-queue risk, and that favors whichever side the buyer trusts on their specific framework (CUDA vs TPU/JAX/PyTorch).\n\n**Soundbite:** *\"Blackwell is scarce for everyone. We give you TPUs as a second supply line you can actually get.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
@@ -557,7 +557,7 @@
   },
   {
     "subject_key": "battlecard | lose | aws-incumbency-data-gravity",
-    "claim": "**AWS wins on incumbency and data gravity. Be honest about it.**\n\nWith ~28% market share and revenue nearly double ours, AWS holds the install base, and Jassy's pitch is blunt: customers want inference next to data that already lives in AWS. For a CIO with a decade of AWS footprint, switching cost is the dominant force in the deal.\n\n**Soundbite:** *\"We're not asking you to rip out AWS. We're asking you to put your highest-value AI workloads where the silicon and economics are best, and connect back to your AWS data.\"*",
+    "claim": "**AWS wins on incumbency and data gravity. Be honest about it.**\n\nWith ~28% market share and revenue nearly double ours, AWS holds the install base, and Jassy's pitch is blunt: customers want inference next to data that already lives in AWS. For a CIO with a decade of AWS footprint, switching cost is the dominant force in the deal.\n\n**Soundbite:** *\"Keep AWS. Run your highest-value AI workloads where the silicon and economics are best, and connect back to your AWS data.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_they_win",
@@ -603,7 +603,7 @@
   },
   {
     "subject_key": "battlecard | lose | aws-service-breadth-ecosystem",
-    "claim": "**AWS's service breadth and partner ecosystem are a default-platform advantage.**\n\nThousands of services, the largest ISV and SI ecosystem, and the broadest compliance coverage make AWS the safe anchor for multi-cloud enterprises. Our $20B revenue and ~14% share mean proportionally fewer integrations and certifications, a gap the rep should acknowledge and route around.\n\n**Soundbite:** *\"AWS has more services. For AI/ML specifically (silicon, model, economics), we have the edge, and you can keep the rest of your AWS estate.\"*",
+    "claim": "**AWS's service breadth and partner ecosystem are a default-platform advantage.**\n\nThousands of services, the largest ISV and SI ecosystem, and the broadest compliance coverage make AWS the safe anchor for multi-cloud enterprises. Our $20B revenue and ~14% share mean proportionally fewer integrations and certifications, a gap the rep should acknowledge and route around.\n\n**Soundbite:** *\"AWS has more services. On AI/ML, our silicon and economics win, and you keep the rest of your AWS estate.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_they_win",
@@ -782,7 +782,7 @@
   },
   {
     "subject_key": "objection | gcp-compute-constrained | current",
-    "claim": "**\"Even Pichai says Google Cloud is compute-constrained. We'll be stuck in a queue.\"**\n\nTrue and CEO-stated: \"We are compute constrained in the near term.\" But it's a demand problem, not a viability one: the backlog and a $180–190B 2026 capex plan, plus the Blackstone TPU venture, are closing the gap, and AWS admits the same constraint (Trainium sold out). The right move is to secure committed capacity through the account team now, not to assume an equally-constrained AWS is more available.\n\n**So what:** Reframe constraint as proof of demand, and get the customer a committed-capacity agreement rather than letting them walk to AWS over a shared industry condition.",
+    "claim": "**\"Even Pichai says Google Cloud is compute-constrained. We'll be stuck in a queue.\"**\n\nTrue, Pichai said it: \"We are compute constrained in the near term.\" That's because demand is outrunning supply, and we're spending $180-190B in 2026 to catch up.: the backlog and a $180–190B 2026 capex plan, plus the Blackstone TPU venture, are closing the gap, and AWS admits the same constraint (Trainium sold out). The right move is to secure committed capacity through the account team now, not to assume an equally-constrained AWS is more available.\n\n**So what:** Turn the constraint into proof of demand, and lock in committed capacity now, because AWS is just as supply-limited.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -828,7 +828,7 @@
   },
   {
     "subject_key": "objection | aws-market-share-lead | current",
-    "claim": "**\"AWS is the market leader. That's the safe pick.\"**\n\nFair on today's numbers: AWS holds ~28% share to Google's 14% (Synergy). But \"safe\" is a snapshot, and the snapshot is moving: Google Cloud grew 63% YoY vs AWS's 28%, led by enterprise AI. The safer long-term bet is the platform whose AI economics and model ownership are pulling the market toward it.\n\n**So what:** Concede the current-share point, then redirect to a 3–5 year trajectory framing where the growth gap and AI differentiation favor Google.",
+    "claim": "**\"AWS is the market leader. That's the safe pick.\"**\n\nFair on today's numbers: AWS holds ~28% share to Google's 14% (Synergy). But \"Safe\" is about today. Today is moving fast: we're growing 63% to AWS's 28%.: Google Cloud grew 63% YoY vs AWS's 28%, led by enterprise AI. Over three to five years, the safer bet is the platform winning on AI economics and owning its own model.\n\n**So what:** Concede the current-share point, then redirect to a 3–5 year trajectory framing where the growth gap and AI differentiation favor Google.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,

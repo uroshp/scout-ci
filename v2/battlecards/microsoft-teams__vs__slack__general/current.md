@@ -4,7 +4,7 @@
 
 **Slack is asking you to assemble an agent stack from other vendors.**
 
-In June alone Slack bolted on MCP, native Claude, and a \$3.6B Fin acquisition, each its own license and security review; Microsoft 365 Copilot is one agent at 20M seats on the identity and data you already govern.
+In June alone Slack bolted on three separate things (MCP, native Claude, a \$3.6B Fin acquisition), each its own license and security review. Microsoft 365 Copilot is one agent at 20M seats, on the identity and data you already govern.
 
 **Soundbite:** "Teams is one agent you already govern. Slack is a vendor stack you secure yourself."
 
@@ -16,11 +16,11 @@ Salesforce stock is down about a third in 2026 on fears AI agents erode its per-
 
 **So what:** When a buyer frames Slack-plus-Salesforce as the safe long-term platform bet, you have a credible, sourced 'is this vendor steady right now?' counter. ([247wallst.com](https://247wallst.com/investing/2026/05/18/bofa-slaps-salesforce-with-underperform-rating-160-price-target-is-the-ai-story-falling-flat/))
 
-**The real fight is the AI agent layer, not chat.**
+The real fight is the AI agent layer.
 
-Salesforce is openly repositioning Slack from a messaging app into an 'agentic' work surface (Slackbot as an agent that routes work across Agentforce and thousands of apps) while Microsoft answers with Copilot embedded across Teams and the whole M365 suite, now at 20M paid seats. Both are betting the workspace becomes the front door to enterprise AI.
+Salesforce is openly repositioning Slack from a messaging app into an 'agentic' work surface (Slackbot as an agent that routes work across Agentforce and thousands of apps) while Microsoft answers with Copilot embedded across Teams and the whole M365 suite, now at 20M paid seats. Both want their workspace to be where your people first reach for AI.
 
-**So what:** Sell Teams as the AI surface customers already have and use, and make every deal a Copilot-vs-Agentforce conversation about breadth and where the data already lives. ([techcrunch.com](https://techcrunch.com/2026/03/31/salesforce-announces-an-ai-heavy-makeover-for-slack-with-30-new-features/))
+**So what:** Sell Teams as the AI customers already have running, and turn every deal into Copilot vs Agentforce: who covers more ground, and where the data already lives. ([techcrunch.com](https://techcrunch.com/2026/03/31/salesforce-announces-an-ai-heavy-makeover-for-slack-with-30-new-features/))
 
 **Regulation has handed buyers a pricing crowbar on Teams.**
 
@@ -28,11 +28,11 @@ The EU forced Microsoft to sell Microsoft 365 without Teams and to widen the pri
 
 **So what:** Expect procurement to ask for Teams-excluded pricing and to cite antitrust. Go in with the value and TCO case (Copilot, meetings, compliance in one suite), not a bundle-or-nothing posture. ([uctoday.com](https://www.uctoday.com/unified-communications/microsoft-teams-slack-bundling-antitrust-lawsuit/))
 
-**Teams' own quality reputation is your softest flank.**
+Teams' quality reputation is where you're most exposed.
 
 Microsoft has publicly admitted Teams' meeting UI is cluttered enough to cause accidental screen-shares, conceded the client's heavy memory use, and weathered global outages in late 2025, all things a Slack rep will happily repeat.
 
-**So what:** Pre-empt the 'Teams is clunky and unreliable' objection with the current build, the fixes Microsoft has shipped, and the SLA, rather than letting the prospect raise it first. ([windowslatest.com](https://www.windowslatest.com/2026/05/23/microsoft-admits-teams-ui-is-crowded-and-causes-embarrassing-accidental-screen-shares-confirms-a-fix/))
+**So what:** Raise the 'Teams is clunky and unreliable' objection yourself, and walk through the current build and the SLA before the prospect brings it up. ([windowslatest.com](https://www.windowslatest.com/2026/05/23/microsoft-admits-teams-ui-is-crowded-and-causes-embarrassing-accidental-screen-shares-confirms-a-fix/))
 
 ## Snapshot
 
@@ -84,7 +84,7 @@ Teams carries full-scale video (300-participant meetings, webinars to 1,000) plu
 
 **The agent race is genuinely contested. Don't wave it away.**
 
-On June 17, 2026 Slack made Slackbot's MCP client generally available, connecting 20-plus third-party apps (Amplitude, Atlassian, Box, Canva, Docusign, Linear, Miro, Zoom, and others) from a single Slackbot conversation. Slack positions this as vendor-neutral orchestration over the customer's existing stack, the same job Teams pitches as an all-in-one suite, but letting customers keep tools they already own rather than replace them. Several integrations (Notion, PagerDuty, Adobe, Tableau Next) and native Block Kit rendering are still coming, so GA today is the routing layer plus a first wave of live apps. For Salesforce-centric teams, Agentforce agents add CRM-aware context on top of this. Microsoft counters with Copilot wired across Teams, Office, and Power Platform, with 20 million paid enterprise seats in daily use as of April 2026. Whoever already owns the customer's core stack tends to win the agent layer.
+On June 17, 2026 Slack made Slackbot's MCP client generally available, connecting 20-plus third-party apps (Amplitude, Atlassian, Box, Canva, Docusign, Linear, Miro, Zoom, and others) from a single Slackbot conversation. Slack positions this as vendor-neutral orchestration over the customer's existing stack, the same job Teams pitches as an all-in-one suite, but letting customers keep tools they already own rather than replace them. Several integrations (Notion, PagerDuty, Adobe, Tableau Next) and native Block Kit rendering are still coming, so GA today is the routing layer plus a first wave of live apps. For Salesforce-centric teams, Agentforce agents add CRM-aware context on top of this. Microsoft counters with Copilot wired across Teams, Office, and Power Platform, with 20 million paid enterprise seats in daily use as of April 2026. Whoever already runs the customer's core systems usually wins the AI on top of them.
 
 **Soundbite:** *"Slack just put a real orchestration layer over existing tools, and for Salesforce shops that is a strong story. For M365 shops, Copilot is already running in Teams with 20 million enterprise users and no connector wiring needed."* ([slack.com](https://slack.com/blog/news/slackbots-mcp-client))
 
@@ -98,7 +98,7 @@ Slack has long cited 77 of the Fortune 100 using Slack Connect to work across co
 
 **Slack still owns developer mindshare and the deepest app ecosystem.**
 
-Slack's marketplace and integration culture run deep (Salesforce touts AI-enabled Slack apps growing 690% year over year), and developer-heavy teams genuinely prefer its extensibility and feel. This is where Teams has to earn the seat, not assume it.
+Slack's marketplace and integration culture run deep (Salesforce touts AI-enabled Slack apps growing 690% year over year), and developer-heavy teams genuinely prefer its extensibility and feel. Here, Teams has to earn the seat.
 
 **Soundbite:** *"For an engineering-led team that lives in integrations, Slack's ecosystem is real, so let's scope where Teams' Copilot, Power Platform, and native Office depth matter more to your whole org, not just the dev team."* ([salesforce.com](https://www.salesforce.com/slack/slackbot/agent-orchestration/))
 
