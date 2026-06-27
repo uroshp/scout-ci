@@ -126,11 +126,11 @@ Accenture signed a multi-year Mistral deal, but the same SIs partner with OpenAI
 
 ### Where OpenAI wins
 
-**They win on raw frontier quality, and our own data admits it.**
+**They hold the top-end frontier lead, but the newest tier you can't simply buy.**
 
-Mistral's own Devstral 2 release states that Claude Sonnet 4.5 remains significantly preferred, a candid sign the gap to the best closed models persists. A buyer optimizing purely for top-end model quality will lean OpenAI or Anthropic.
+On the very hardest tasks the leading closed models still edge us out, and we say so plainly. But OpenAI's newest frontier line, GPT-5.6, is restricted to US-government-approved partners at the White House's request, so a buyer who wants the actual latest OpenAI frontier cannot purchase access today. OpenAI itself has said it does not want this to be the long-term default.
 
-**Soundbite:** *"If you only need the single highest benchmark and deployment doesn't matter, we'll tell you honestly that's not our wedge."* ([mistral.ai](https://mistral.ai/news/devstral-2-vibe-cli/))
+**Soundbite:** *"For the single highest benchmark, the top closed models still win, and we won't pretend otherwise. But OpenAI's newest tier you can't even buy right now, and everything you can deploy you run on your own infrastructure with us."* ([cnn.com](https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house)) ([cnn.com](https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house))
 
 **They have scale and enterprise trust we are still building.**
 
@@ -150,9 +150,9 @@ Enterprise is already more than 40% of OpenAI's business, with a vast installed 
 
 **"Mistral's models aren't as good as GPT-5.5."**
 
-On the hardest multi-file refactors the frontier closed models still lead, and we won't pretend otherwise. But for the bulk of enterprise coding our models clear the bar, and for air-gapped or regulated repositories the honest comparison is Mistral versus no OpenAI deployment at all.
+On the hardest multi-file refactors the frontier closed models still lead, and we won't pretend otherwise. But for the bulk of enterprise coding our models clear the bar, and for air-gapped or regulated repositories the honest comparison is Mistral versus no OpenAI deployment at all. And the newer GPT-5.6 isn't a real alternative yet: it's restricted to US-government-approved partners, so for anything a buyer can deploy today, 5.5 is the honest comparison. ([cnn.com](https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house))
 
-**So what:** Move the evaluation from a benchmark leaderboard to the buyer's real deployment constraints, where our edge is structural rather than marginal. ([aizolo.com](https://aizolo.com/blog/mistral-ai-strengths-weaknesses-2026/))
+**So what:** Move the evaluation to the buyer's real deployment constraints, where our edge is structural. If they raise GPT-5.6, note they can't actually buy it today. ([aizolo.com](https://aizolo.com/blog/mistral-ai-strengths-weaknesses-2026/)) ([aizolo.com](https://aizolo.com/blog/mistral-ai-strengths-weaknesses-2026/))
 
 **"Mistral is small. Will you even be around in three years?"**
 
