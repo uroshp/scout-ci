@@ -94,9 +94,9 @@ Superman became the first DC film since The Batman to cross \$300M at the domest
 
 **Superman genuinely reset DC's momentum. Don't pretend otherwise.**
 
-The reboot opened to \$125M, the biggest DC debut since The Batman, with strong reviews and an A- CinemaScore. After years of DC misfires, Gunn put real critical and commercial goodwill back on the board.
+The reboot opened to \$125M, the biggest DC debut since The Batman, with strong reviews and an A- CinemaScore. After years of DC misfires, Gunn put real critical and commercial goodwill back on the board. The second DCU film, Supergirl, did not carry that forward: it opened June 26 to roughly \$40M domestically, the low end of tracking that had it at \$47-50M, fell behind Toy Story 5's second weekend, and drew 57% on Rotten Tomatoes.
 
-**Soundbite:** *"Credit where it's due: Gunn stuck the landing at home. The question is whether one strong opening offsets a thinner global run and a one-person dependency."* ([variety.com](https://variety.com/2025/film/box-office/superman-box-office-opening-weekend-1236459080/))
+**Soundbite:** *"Credit where it's due: Gunn stuck the landing with Superman. The follow-up just opened to \$40M with 57% reviews. One strong reset does not deliver a self-sustaining franchise."* ([deadline.com](https://deadline.com/2026/06/box-office-supergirl-toy-story-5-1236968254/))
 
 ## Sentiment
 
