@@ -885,25 +885,33 @@
   },
   {
     "subject_key": "openai | ipo-filing | 2026",
-    "claim": "OpenAI confidentially filed a draft S-1 with the SEC for an IPO, the company announced Monday, June 8, 2026. OpenAI is valued at $852 billion and said it has not decided on timing (\"it may be a while\"), but the filing preserves the option to go public sooner. The move follows Anthropic's own confidential S-1 filed the prior week (June 1, 2026), putting both leading AI labs in the public-markets pipeline.",
-    "claim_type": "fact",
+    "claim": "As of June 25-26, 2026, OpenAI is leaning toward delaying its IPO to 2027 rather than listing in late 2026, per a New York Times report later echoed by Bloomberg. Advisers gave Sam Altman two options: wait until 2027 to reach a $1 trillion valuation, or accept a lower valuation for a faster listing. Altman rejected cutting the trillion-dollar target. The hesitation follows tech-sector volatility, a weak post-IPO trade in SpaceX shares, and OpenAI's audited $38.5B net loss for last year. Anthropic, which filed confidentially first, is reportedly weighing a listing as soon as October 2026.",
+    "claim_type": "interpretation",
     "section": "recent_moves",
     "zone": null,
-    "order": 5,
-    "source_url": "https://www.cbsnews.com/news/openai-files-confidential-initial-public-offering/",
+    "order": 2,
+    "source_url": "https://finance.yahoo.com/markets/stocks/articles/openai-may-delay-blockbuster-ipo-211919988.html",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "OpenAI has filed a confidential initial public offering, the ChatGPT maker said Monday, bringing it one step closer to its official market debut. \"We recently submitted a confidential S-1. We expect it to leak so we're just announcing it,\" OpenAI said in a statement published Monday on its website.",
-    "as_of": "2026-06-08",
-    "confidence": "high",
+    "evidence_excerpt": "OpenAI is considering postponing its highly anticipated initial public offering (IPO) until 2027",
+    "as_of": "2026-06-26",
+    "confidence": "medium",
     "id": "c_8be924c5362b",
     "verified": true,
     "grounding": {
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-09",
+      "fetched_at": "2026-06-27",
       "detail": null
-    }
+    },
+    "corroboration": [
+      {
+        "source_url": "https://thetechportal.com/2026/06/26/openai-could-delay-ipo-until-2027-uncertainty-triggers-us-stock-sell-off/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "openai-state-ag-investigation",
@@ -1343,15 +1351,15 @@
   },
   {
     "subject_key": "openai | gpt-5-6-government-restricted-release",
-    "claim": "On June 25, 2026 the White House asked OpenAI to limit GPT-5.6's initial release to a small group of government-approved customers, with federal officials clearing access customer by customer during a preview period, because they judge the model 'on par' with Anthropic's restricted Mythos. The request came from the Office of the National Cyber Director and the Office of Science and Technology Policy, and Altman told staff in a memo it is 'not our preferred long term model.' It is the first time the US government has preemptively asked an American AI company to restrict a model before release.",
+    "claim": "OpenAI launched GPT-5.6 on June 26, 2026 as a three-tier series (Sol flagship, Terra mid-range, Luna low-cost), but is complying with a US government request to limit the initial rollout to roughly 20 individually approved partners, with general availability promised in the coming weeks. Sol API pricing is $5 input / $30 output per 1M tokens; Luna is $1 / $6; Terra is positioned at about 2x lower cost than GPT-5.5. It is the first time a US AI company has shipped a frontier model under a government-managed access list, two weeks after the same administration forced Anthropic's Fable 5 and Mythos 5 offline.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 10,
-    "source_url": "https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house",
+    "order": 1,
+    "source_url": "https://www.cnbc.com/2026/06/26/openai-limits-new-ai-models-to-trusted-partners-request-us-government.html",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "The White House has requested OpenAI limit the release of its upcoming GPT 5.6 model to a small number of government-approved partners",
-    "as_of": "2026-06-25",
+    "evidence_excerpt": "OpenAI announced three new AI models: GPT-5.6 Sol, Terra and Luna.",
+    "as_of": "2026-06-26",
     "confidence": "high",
     "id": "c_e5165041096b",
     "verified": true,
@@ -1359,12 +1367,12 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-26",
+      "fetched_at": "2026-06-27",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://www.engadget.com/2202129/openai-will-initially-only-release-chatgpt-5-6-to-government-approved-customers/",
+        "source_url": "https://thenextweb.com/news/openai-gpt-5-6-sol-limited-preview-government-approved-partners",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
