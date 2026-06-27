@@ -22,7 +22,7 @@ The 2025 film took only 42.7% of its gross from overseas, and analysts openly ca
 
 **Superman's momentum rests heavily on one person.**
 
-James Gunn writes it, directs it, and runs the studio. He out-earned his title star twenty-to-one. That's concentration risk: the entire DCU reset is a bet on a single creative, rebuilt on the wreckage of a slate that lost an estimated \$1.1–1.2B in 2023.
+James Gunn writes it and directs it, and he runs the studio that releases it. He out-earned his title star twenty-to-one. That's concentration risk: the entire DCU reset is a bet on a single creative, rebuilt on the wreckage of a slate that lost an estimated \$1.1–1.2B in 2023.
 
 **So what:** When the buyer is really asking about stability, point out Batman stands on its own, while Superman rides on one person and one reboot. ([variety.com](https://variety.com/2025/film/news/superman-success-budget-cast-salaries-1236462393/))
 
@@ -78,7 +78,7 @@ The DCU reset follows a 2023 slate that cost an estimated \$1.1–1.2B and colla
 
 **The whole Superman bet runs through one person.**
 
-Gunn writes, directs, and runs DC Studios, out-earning his star 20-to-1. That's enormous key-person concentration: if his attention or the slate slips, there's no obvious second engine. Batman's success was built by a different filmmaker on a separate track.
+Gunn writes and directs the film and runs DC Studios, and he out-earns his star 20-to-1. That's enormous key-person concentration: if his attention or the slate slips, there's no obvious second engine. Batman's success was built by a different filmmaker on a separate track.
 
 **Soundbite:** *"Superman is a single-point-of-failure bet on James Gunn. Batman's value doesn't hinge on any one person staying in the chair."* ([variety.com](https://variety.com/2025/film/news/superman-success-budget-cast-salaries-1236462393/))
 

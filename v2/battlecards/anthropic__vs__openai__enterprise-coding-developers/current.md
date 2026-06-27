@@ -111,7 +111,7 @@ The real objection to autonomous coding is unreviewed, unsafe output. Opus 4.8 i
 
 GPT-5.5 leads SWE-bench Verified at 88.7% to Claude Opus 4.7's 87.6%, a 1.1-point, vendor-self-reported gap that OpenAI reps will quote. It's close enough that it tips on the buyer's own eval, not the leaderboard, so the move is to get them off the public number and onto their codebase.
 
-**Soundbite:** *"It's 88.7 to 87.6, both self-reported. That's a rounding error. "It's 88.7 to 87.6, both self-reported. That's a rounding error. The score that counts is how it does on your repo, so let's put both on your hardest open tickets.""* ([marc0.dev](https://www.marc0.dev/en/leaderboard))
+**Soundbite:** *"It's 88.7 to 87.6, both self-reported. That's a rounding error. The score that counts is how it does on your repo, so let's put both on your hardest open tickets."* ([marc0.dev](https://www.marc0.dev/en/leaderboard))
 
 **On raw token price, OpenAI's workhorse tiers undercut.**
 
@@ -129,9 +129,9 @@ Beyond code, GPT-5.x bundles native image generation, voice I/O, web search, and
 
 **OpenAI wins on scale and channel, especially in top-down deals.**
 
-Codex passed 5M weekly users, is expanding to non-developers, and ships through a named SI network (Accenture, PwC, Infosys, TCS, and more) plus deep Azure/GitHub integration. In an exec-led, "one-vendor-for-everything" enterprise buy routed through an SI, OpenAI is the path of least resistance.
+Codex passed 5M weekly users, is expanding to non-developers and ships through a named SI network (Accenture, PwC, Infosys, TCS and more) plus deep Azure/GitHub integration. In an exec-led, "one-vendor-for-everything" enterprise buy routed through an SI, OpenAI is the path of least resistance.
 
-**Soundbite:** *""Top-down on breadth, OpenAI's the easy pick. But the engineers who actually live in the tool rate Claude higher, so get this in front of them.""* ([constellationr.com](https://www.constellationr.com/insights/news/openai-touts-broadening-codex-usage-5-million-weekly-active-users))
+**Soundbite:** *"Top-down on breadth, OpenAI's the easy pick. But the engineers who actually live in the tool rate Claude higher, so get this in front of them."* ([constellationr.com](https://www.constellationr.com/insights/news/openai-touts-broadening-codex-usage-5-million-weekly-active-users))
 
 **OpenAI is often already in the building.**
 

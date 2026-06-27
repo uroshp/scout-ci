@@ -24,7 +24,7 @@ Bank of America reinstated Salesforce at Underperform on May 18, calling Agentfo
 
 HubSpot ended Q1 with 299,458 customers and bundles Breeze across paid tiers with no separate AI platform cost, while Agentforce's Data Cloud dependency and multi-month deployments make it a poor fit below the enterprise line.
 
-**So what:** Don't fight HubSpot on time-to-value in a 30-seat marketing-led deal you'll lose; qualify hard and spend energy where governance, scale, and cross-cloud workflows decide it. ([ir.hubspot.com](https://ir.hubspot.com/news-releases/news-release-details/hubspot-reports-strong-q1-2026-results))
+**So what:** Don't fight HubSpot on time-to-value in a 30-seat marketing-led deal you'll lose; qualify hard and spend your energy where governance, scale and cross-cloud workflows decide it. ([ir.hubspot.com](https://ir.hubspot.com/news-releases/news-release-details/hubspot-reports-strong-q1-2026-results))
 
 ## Snapshot
 
@@ -59,13 +59,13 @@ More than 60% of Q4 Agentforce and Data 360 bookings came from existing customer
 
 **Enterprise governance is a category HubSpot doesn't play in.**
 
-Agent Fabric gives Agentforce centralized LLM governance, trusted agent identity for high-stakes actions, and multi-vendor orchestration across Amazon Bedrock and Microsoft Foundry, a control plane Breeze has no equivalent to. For regulated, multi-cloud enterprises this is a category gap, not a feature gap.
+Agent Fabric gives Agentforce centralized LLM governance, trusted agent identity for high-stakes actions and multi-vendor orchestration across Amazon Bedrock and Microsoft Foundry, a control plane Breeze has no equivalent to. For regulated, multi-cloud enterprises this is a category gap, not a feature gap.
 
-**Soundbite:** *"When your agents touch money, PII, or regulated data, who governs every action? Agentforce runs it through one control plane. Breeze has no answer here."* ([salesforce.com](https://www.salesforce.com/news/stories/agent-fabric-control-plane-announcement/))
+**Soundbite:** *"When your agents touch money, PII or regulated data, who governs every action? Agentforce runs it through one control plane. Breeze has no answer here."* ([salesforce.com](https://www.salesforce.com/news/stories/agent-fabric-control-plane-announcement/))
 
 **Agentforce reaches into the back office; Breeze stays in the front.**
 
-Agentforce Operations went GA on April 29, taking agents into finance, supply chain, and procurement with claimed "cycle times reduced by 50 to 70%." When operations and finance stakeholders are in the room, HubSpot has nothing to follow with.
+Agentforce Operations went GA on April 29, taking agents into finance, supply chain and procurement with claimed "cycle times reduced by 50 to 70%." When operations and finance stakeholders are in the room, HubSpot has nothing to follow with.
 
 **Soundbite:** *"Breeze can answer a support ticket. Agentforce can run the back-office process end to end: Operations is live today across finance and supply chain."* ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-operations-announcement/))
 
@@ -75,7 +75,7 @@ Agentforce Operations went GA on April 29, taking agents into finance, supply ch
 
 HubSpot's Customer Agent now resolves about 70% of support conversations autonomously, with some customers above 90%. In a tier-1 support-deflection deal that number is real, and the buyer will cite it. Pretending otherwise costs credibility.
 
-With Salesforce's signed agreement to acquire Fin (expected close Q4 FY2027), the resolution-rate comparison shifts. Fin's AI Agent averages 76% of support volume resolved end-to-end across live chat, email, WhatsApp, SMS, phone, and Slack. On close, Salesforce will have a packaged support AI that runs above Breeze on the headline metric in its own mid-market territory.
+With Salesforce's signed agreement to acquire Fin (expected close Q4 FY2027), the resolution-rate comparison shifts. Fin's AI Agent averages 76% of support volume resolved end-to-end across live chat, email, WhatsApp, SMS, phone and Slack. On close, Salesforce will have a packaged support AI that runs above Breeze on the headline metric in its own mid-market territory.
 
 **Soundbite:** *"Their 70% is real for FAQ deflection, so make them prove it on complex, multi-system B2B workflows where Agentforce executes the whole process. And note: Fin, pending Q4 FY2027 close, averages 76% with the same packaged mid-market approach they're pitching."* ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/06/15/salesforce-signs-definitive-agreement-to-acquire-fin/))
 
@@ -91,7 +91,7 @@ HubSpot retrained its entire sales force in April and its CFO warned the changes
 
 Breeze is bundled across HubSpot's paid tiers and reaches its ~300,000-customer base with no separate AI platform cost, while Agentforce typically requires Enterprise-tier licenses plus Data Cloud before it's viable. A lean, marketing-led team that wants agents working this month picks HubSpot, honestly.
 
-**Soundbite:** *"If they're small, marketing-led, and want AI on today with no platform project, HubSpot is a fair call, so we qualify hard for scale, complexity, and governance, where that simplicity becomes a ceiling."* ([ir.hubspot.com](https://ir.hubspot.com/news-releases/news-release-details/hubspot-reports-strong-q1-2026-results))
+**Soundbite:** *"If they're small, marketing-led and want AI working today with no platform project, HubSpot is a fair call, so we qualify hard for scale, complexity and governance, where that simplicity becomes a ceiling."* ([ir.hubspot.com](https://ir.hubspot.com/news-releases/news-release-details/hubspot-reports-strong-q1-2026-results))
 
 **Implementation drag is our real soft spot.**
 
@@ -109,7 +109,7 @@ Analysts warn Agentforce's hidden complexity means "what was initially perceived
 
 Acknowledge both rounds directly. The February 2026 round included some Agentforce staff. The June 2026 round cut roles connected to Agentforce, MuleSoft, and Marketing Cloud, with 86 California positions disclosed (63 in technology and product, 21 in general administration, 2 in sales and distribution); Washington state and international impact is undisclosed. Affected California employees remain on payroll through August 7, 2026.
 
-The critical grounded fact for this deal: a person familiar with the June cuts confirmed Salesforce's core Agentforce teams were not affected. It came straight from inside the company, reported by Business Insider. It came from someone inside the company and was reported by Business Insider.
+The critical grounded fact for this deal: a person familiar with the June cuts confirmed Salesforce's core Agentforce teams were not affected. It came from someone inside the company and was reported by Business Insider.
 
 **So what:** The buying-decision signal is this: the same core team shipped Agentforce Operations (GA April 29) and drove more than 60% of Q4 Agentforce and Data Cloud bookings from existing customers expanding their deployments. Teams being wound down do not ship GA products and collect expansion revenue from an installed base. The cuts were real; the core product team is intact and shipping. ([dqindia.com](https://www.dqindia.com/news/salesforce-agentforce-arr-layoffs-ai-jobs-12027002))
 

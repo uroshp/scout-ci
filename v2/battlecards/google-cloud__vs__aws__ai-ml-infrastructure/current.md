@@ -140,7 +140,7 @@ This is grounded and fair to raise. But the April 22, 2026 change is an evolutio
 
 **"Even Pichai says Google Cloud is compute-constrained. We'll be stuck in a queue."**
 
-True, Pichai said it: "We are compute constrained in the near term." That's because demand is outrunning supply, and we're spending \$180-190B in 2026 to catch up.: the backlog and a \$180–190B 2026 capex plan, plus the Blackstone TPU venture, are closing the gap, and AWS admits the same constraint (Trainium sold out). The right move is to secure committed capacity through the account team now, not to assume an equally-constrained AWS is more available.
+True, Pichai said it: "We are compute constrained in the near term." Demand is outrunning supply, and Google is spending \$180–190B in 2026 plus standing up the Blackstone TPU venture to close the gap. AWS admits the same constraint, with Trainium sold out. The right move is to secure committed capacity through the account team now, not to assume an equally-constrained AWS is more available.
 
 **So what:** Turn the constraint into proof of demand, and lock in committed capacity now, because AWS is just as supply-limited. ([cnbc.com](https://www.cnbc.com/2026/04/29/alphabet-googl-q1-2026-earnings.html))
 
@@ -152,7 +152,7 @@ Not exclusive: Anthropic itself states Claude is available on all three major cl
 
 **"AWS is the market leader. That's the safe pick."**
 
-Fair on today's numbers: AWS holds ~28% share to Google's 14% (Synergy). But "Safe" is about today. Today is moving fast: we're growing 63% to AWS's 28%.: Google Cloud grew 63% YoY vs AWS's 28%, led by enterprise AI. Over three to five years, the safer bet is the platform winning on AI economics and owning its own model.
+Fair on today's numbers: AWS holds ~28% share to Google's 14% (Synergy). But Google Cloud is growing 63% a year to AWS's 28%, led by enterprise AI, so the safe pick three to five years out is the platform winning on AI economics and owning its own model. Over three to five years, the safer bet is the platform winning on AI economics and owning its own model.
 
 **So what:** Concede the current-share point, then redirect to a 3–5 year trajectory framing where the growth gap and AI differentiation favor Google. ([srgresearch.com](https://www.srgresearch.com/articles/cloud-market-annual-revenue-run-rate-topped-half-a-trillion-dollars-in-q1-as-growth-surge-continues))
 

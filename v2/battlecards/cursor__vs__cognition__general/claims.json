@@ -576,7 +576,7 @@
   },
   {
     "subject_key": "cursor-vs-cognition | battlecard-contested | enterprise-overlap",
-    "claim": "**\"Cursor for devs, Devin for enterprise\" is outdated. We compete for the same enterprise deals now.**\n\nSome enterprises run both (Cursor for senior architectural work, Devin for a parallel maintenance fleet), so deals increasingly hinge on governance, predictability, and which workflow the team actually lives in.\n\n**Soundbite:** *\"Plenty of teams run both. The real question is which tool owns the work your senior engineers do every day, and that's where we're strongest.\"*",
+    "claim": "**\"Cursor for devs, Devin for enterprise\" is outdated. We compete for the same enterprise deals now.**\n\nSome enterprises run both (Cursor for senior architectural work, Devin for a parallel maintenance fleet), so deals increasingly hinge on governance, predictability and which workflow the team actually lives in.\n\n**Soundbite:** *\"Plenty of teams run both. The real question is which tool owns the work your senior engineers do every day, and that's where we're strongest.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",

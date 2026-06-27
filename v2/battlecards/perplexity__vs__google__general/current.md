@@ -123,7 +123,7 @@ AI Mode hit 1B monthly users free inside Search, Chrome and Android in a single 
 
 Gemini 3 Pro topped LMArena at 1501 Elo with PhD-level reasoning scores; Perplexity builds no frontier model of its own. For benchmark-driven technical buyers this is Google's strongest card, so pivot from raw model scores to answer accuracy, citations and the freedom to use Gemini inside Perplexity when it's the best fit.
 
-**Soundbite:** *"Gemini's a great model, so good we'll route to it when it's the right one. Gemini's great, so we route to it when it's the right call. Our job is to pick the best model for each task, every time."* ([blog.google](https://blog.google/products/gemini/gemini-3/))
+**Soundbite:** *"Gemini's a great model, so we route to it when it's the right tool for the job. Our job is to pick the best model for each task."* ([blog.google](https://blog.google/products/gemini/gemini-3/))
 
 **Workspace lock-in is real: Gemini lives inside the Gmail, Docs and Meet that 3B people already use.**
 

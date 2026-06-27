@@ -88,7 +88,7 @@ JetBrains' early-2026 survey of 10,000+ developers shows Cursor used at work by 
 
 **"Cursor for devs, Devin for enterprise" is outdated. We compete for the same enterprise deals now.**
 
-Some enterprises run both (Cursor for senior architectural work, Devin for a parallel maintenance fleet), so deals increasingly hinge on governance, predictability, and which workflow the team actually lives in.
+Some enterprises run both (Cursor for senior architectural work, Devin for a parallel maintenance fleet), so deals increasingly hinge on governance, predictability and which workflow the team actually lives in.
 
 **Soundbite:** *"Plenty of teams run both. The real question is which tool owns the work your senior engineers do every day, and that's where we're strongest."* ([techtimes.com](https://www.techtimes.com/articles/317354/20260529/ai-coding-agents-cognitions-26b-raise-bets-agent-first-architecture-beats-ide-tools.htm))
 

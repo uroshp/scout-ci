@@ -30,7 +30,7 @@ The EU forced Microsoft to sell Microsoft 365 without Teams and to widen the pri
 
 Teams' quality reputation is where you're most exposed.
 
-Microsoft has publicly admitted Teams' meeting UI is cluttered enough to cause accidental screen-shares, conceded the client's heavy memory use, and weathered global outages in late 2025, all things a Slack rep will happily repeat.
+Microsoft has publicly admitted Teams' meeting UI is cluttered enough to cause accidental screen-shares, conceded the client's heavy memory use and weathered global outages in late 2025, all things a Slack rep will happily repeat.
 
 **So what:** Raise the 'Teams is clunky and unreliable' objection yourself, and walk through the current build and the SLA before the prospect brings it up. ([windowslatest.com](https://www.windowslatest.com/2026/05/23/microsoft-admits-teams-ui-is-crowded-and-causes-embarrassing-accidental-screen-shares-confirms-a-fix/))
 
@@ -74,17 +74,17 @@ Microsoft 365 Copilot reached 20 million paid enterprise seats by April 2026, wi
 
 **Soundbite:** *"The AI is already in the Teams your people open every morning, with 20 million seats already paying for it. No new platform to adopt."* ([techcrunch.com](https://techcrunch.com/2026/04/29/microsoft-says-it-has-over-20m-paid-copilot-users-and-they-really-are-using-it/))
 
-**One suite for meetings, calling, chat, and files, at enterprise meeting scale.**
+**One suite for meetings, calling, chat and files, at enterprise meeting scale.**
 
-Teams carries full-scale video (300-participant meetings, webinars to 1,000) plus calling, files, and compliance in the same Microsoft 365 license, where Slack is still primarily messaging and tops out at 50 on a huddle. For an org already on M365, that's capability they own versus a second tool to buy.
+Teams carries full-scale video (300-participant meetings, webinars to 1,000) plus calling, files and compliance in the same Microsoft 365 license, where Slack is still primarily messaging and tops out at 50 on a huddle. For an org already on M365, that's capability they own versus a second tool to buy.
 
-**Soundbite:** *"Slack is a great chat app. Teams is chat plus meetings to 300, calling, and compliance, all inside the license you already pay for."* ([zapier.com](https://zapier.com/blog/slack-vs-microsoft-teams/))
+**Soundbite:** *"Slack is a great chat app. Teams is chat plus meetings to 300, calling and compliance, all inside the license you already pay for."* ([zapier.com](https://zapier.com/blog/slack-vs-microsoft-teams/))
 
 ### Where it's a fight
 
 **The agent race is genuinely contested. Don't wave it away.**
 
-On June 17, 2026 Slack made Slackbot's MCP client generally available, connecting 20-plus third-party apps (Amplitude, Atlassian, Box, Canva, Docusign, Linear, Miro, Zoom, and others) from a single Slackbot conversation. Slack positions this as vendor-neutral orchestration over the customer's existing stack, the same job Teams pitches as an all-in-one suite, but letting customers keep tools they already own rather than replace them. Several integrations (Notion, PagerDuty, Adobe, Tableau Next) and native Block Kit rendering are still coming, so GA today is the routing layer plus a first wave of live apps. For Salesforce-centric teams, Agentforce agents add CRM-aware context on top of this. Microsoft counters with Copilot wired across Teams, Office, and Power Platform, with 20 million paid enterprise seats in daily use as of April 2026. Whoever already runs the customer's core systems usually wins the AI on top of them.
+On June 17, 2026 Slack made Slackbot's MCP client generally available, connecting 20-plus third-party apps (Amplitude, Atlassian, Box, Canva, Docusign, Linear, Miro, Zoom and others) from a single Slackbot conversation. Slack positions this as vendor-neutral orchestration over the customer's existing stack, the same job Teams pitches as an all-in-one suite, but letting customers keep tools they already own rather than replace them. Several integrations (Notion, PagerDuty, Adobe, Tableau Next) and native Block Kit rendering are still coming, so GA today is the routing layer plus a first wave of live apps. For Salesforce-centric teams, Agentforce agents add CRM-aware context on top of this. Microsoft counters with Copilot wired across Teams, Office, and Power Platform, with 20 million paid enterprise seats in daily use as of April 2026. Whoever already runs the customer's core systems usually wins the AI on top of them.
 
 **Soundbite:** *"Slack just put a real orchestration layer over existing tools, and for Salesforce shops that is a strong story. For M365 shops, Copilot is already running in Teams with 20 million enterprise users and no connector wiring needed."* ([slack.com](https://slack.com/blog/news/slackbots-mcp-client))
 
@@ -100,7 +100,7 @@ Slack has long cited 77 of the Fortune 100 using Slack Connect to work across co
 
 Slack's marketplace and integration culture run deep (Salesforce touts AI-enabled Slack apps growing 690% year over year), and developer-heavy teams genuinely prefer its extensibility and feel. Here, Teams has to earn the seat.
 
-**Soundbite:** *"For an engineering-led team that lives in integrations, Slack's ecosystem is real, so let's scope where Teams' Copilot, Power Platform, and native Office depth matter more to your whole org, not just the dev team."* ([salesforce.com](https://www.salesforce.com/slack/slackbot/agent-orchestration/))
+**Soundbite:** *"For an engineering-led team that lives in integrations, Slack's ecosystem is real, so let's scope where Teams' Copilot, Power Platform and native Office depth matter more to your whole org, not just the dev team."* ([salesforce.com](https://www.salesforce.com/slack/slackbot/agent-orchestration/))
 
 ## Sentiment
 
@@ -140,7 +140,7 @@ Don't minimize it: the US Cyber Safety Review Board called Microsoft's security 
 
 Often true, and worth conceding: users rate Slack's search and integration experience highly, and engineering teams like its feel. That's a genuine preference, not a misunderstanding.
 
-**So what:** Scope it (how many seats actually need that versus the whole org), then weigh Copilot, Office-native depth, and one bundled license against a separate paid tool the rest of the company won't fully use. ([zapier.com](https://zapier.com/blog/slack-vs-microsoft-teams/))
+**So what:** Scope it (how many seats actually need that versus the whole org), then weigh Copilot, Office-native depth and one bundled license against a separate paid tool the rest of the company won't fully use. ([zapier.com](https://zapier.com/blog/slack-vs-microsoft-teams/))
 
 **"Teams went down globally in December. How can we rely on it?"**
 
