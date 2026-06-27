@@ -1,7 +1,7 @@
 [
   {
     "subject_key": "microsoft-teams vs slack | overall-position | current",
-    "claim": "**Slack is asking you to assemble an agent stack from other vendors.**\n\nIn June alone Slack bolted on three separate things (MCP, native Claude, a $3.6B Fin acquisition), each its own license and security review. Microsoft 365 Copilot is one agent at 20M seats, on the identity and data you already govern.\n\n**Soundbite:** \"Teams is one agent you already govern. Slack is a vendor stack you secure yourself.\"\n\n**So what:** Make it one governed surface versus a multi-vendor assembly job on top of Salesforce.",
+    "claim": "**Slack is asking you to assemble an agent stack from other vendors.**\n\nIn June alone Slack bolted on three separate things (MCP, native Claude, a $3.6B Fin acquisition), each its own license and security review. Microsoft 365 Copilot is one agent at 20M seats, on the identity and data you already govern.\n\n**Soundbite:** \"Teams is one agent that runs on the identity and data you already control, with nothing new to license or secure.\"\n\n**So what:** Add up what Slack's June additions actually cost the buyer: each one is a separate license and security review, while Teams adds none.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
