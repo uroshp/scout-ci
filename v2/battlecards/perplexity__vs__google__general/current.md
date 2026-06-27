@@ -2,11 +2,13 @@
 
 ## Executive Summary
 
-**Betting your stack on one model is the risk, and the last two weeks prove it.**
+**Betting your whole stack on one model is the risk.**
 
-Google wants enterprises to standardize on one model, Gemini, but the frontier keeps moving and no single lab stays on top for long. Gemini 3.5 Pro just slipped its June launch to July, and four senior people behind Gemini and AlphaFold left inside a fortnight, three of them to Anthropic. Perplexity is the neutral layer that routes each task to the best of 19 models, so when Anthropic or OpenAI pulls ahead the buyer gets it automatically, with no re-platforming and no waiting on one vendor's roadmap, plus accredited, source-cited workflows a regulated buyer can defend.
+Gemini 3.5 Pro just slipped to July and four senior Gemini and AlphaFold people left in two weeks; Perplexity routes each task to the best of 19 models.
 
-**So what:** Frame the choice as betting the stack on one lab versus hedging across all of them, right when that bet just got more dangerous. The talent moved to Anthropic and OpenAI, which proves the point rather than undercutting it: no one can predict which lab leads in twelve months, and neutrality is the insurance. ([techcrunch.com](https://techcrunch.com/2026/06/24/ai-researchers-continue-to-leave-google-deepmind/))
+**Soundbite:** "When a lab has a bad quarter, you switch models, not vendors."
+
+**So what:** Frame it as a one-lab bet versus a hedge across all of them. ([techcrunch.com](https://techcrunch.com/2026/06/24/ai-researchers-continue-to-leave-google-deepmind/))
 
 **Perplexity is growing fast but small and legally exposed, so go in with the litigation answer already loaded.**
 

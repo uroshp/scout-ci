@@ -1,7 +1,7 @@
 [
   {
     "subject_key": "microsoft-teams vs slack | overall-position | current",
-    "claim": "**Slack spent June assembling an agent stack from other vendors. Teams ships one you already govern.**\n\nSlack's June moves look like AI momentum but read as fragmentation: the Slackbot MCP client went GA over 20-plus third-party apps on June 17, Claude went native in Slack channels on June 23, and Salesforce paid $3.6B for Fin on June 15 to bolt on a support agent. That is an agent stack the customer must license and secure vendor by vendor, on a workspace whose parent already blocks Slack data from leaving for outside AI. Microsoft 365 Copilot is one agent, already at 20 million paid seats, grounded in the Graph data and Entra identity the customer already governs, inside the app people open every morning.\n\n**So what:** Put the question as which AI surface the buyer can turn on today and govern under one boundary they already control, versus a multi-vendor stack they assemble and secure on top of Salesforce. Concede outside agents are reachable through Copilot connectors, but under one identity and compliance perimeter.",
+    "claim": "**Slack is asking you to assemble an agent stack from other vendors.**\n\nIn June alone Slack bolted on MCP, native Claude, and a $3.6B Fin acquisition, each its own license and security review; Microsoft 365 Copilot is one agent at 20M seats on the identity and data you already govern.\n\n**Soundbite:** \"One AI agent you already govern, not a vendor federation you have to secure yourself.\"\n\n**So what:** Make it one governed surface versus a multi-vendor assembly job on top of Salesforce.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -9,7 +9,7 @@
     "source_url": "https://www.salesforce.com/news/press-releases/2026/06/15/salesforce-fin/",
     "source_tier": "primary",
     "evidence_excerpt": "Microsoft Teams holds approximately 37 percent of the global team collaboration market, with around 320 million monthly active users, according to the last official count. Slack holds roughly 13 percent market share, with approximately 65 million monthly users, despite having created much of the enterprise messaging category that Teams later entered.",
-    "as_of": "2026-04-29",
+    "as_of": "2026-06-15",
     "confidence": "medium",
     "id": "c_edfe64d0cee3",
     "verified": true,

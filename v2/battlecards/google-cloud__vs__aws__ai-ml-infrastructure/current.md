@@ -2,11 +2,13 @@
 
 ## Executive Summary
 
-**Inference economics decide the AI bill now, and that is where our owned silicon opens a real gap.**
+**Inference economics decide the AI bill, and our owned silicon wins there.**
 
-The 8th-gen TPU 8i is purpose-built for inference and serves close to twice the volume at the same cost, and the edge is structural rather than a promotion: Google owns the model and the chip together, while AWS rents its frontier models from Anthropic and OpenAI and runs them on Trainium that is largely sold out. The proof is not just Google's own numbers. Blackstone committed \$5B to sell TPU capacity as a service, an outside investor betting billions on TPU price-performance over Nvidia.
+TPU 8i serves close to twice the volume at the same cost, Blackstone just put \$5B behind TPU capacity over Nvidia, and AWS rents its frontier models on largely sold-out Trainium.
 
-**So what:** Move the deal from who is bigger to who is cheaper per token at scale, which is what actually decides a multi-year infra commitment. Ask what share of the customer's AI spend is inference, then model Gemini Flash token economics against their own volume. ([blog.google](https://blog.google/innovation-and-ai/infrastructure-and-cloud/))
+**Soundbite:** "Model your token volume on Gemini Flash. That is the line your AI budget actually lands on."
+
+**So what:** Move the deal from who is bigger to who is cheaper per token at scale. ([blog.google](https://blog.google/innovation-and-ai/infrastructure-and-cloud/))
 
 **AWS has no first-party frontier model: it rents its AI soul from Anthropic and OpenAI. Google owns the whole stack.**
 

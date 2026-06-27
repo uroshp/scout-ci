@@ -2,11 +2,13 @@
 
 ## Executive Summary
 
-**Anthropic now leads the enterprise-AI race on independent data, and coding is the engine.**
+**Anthropic now leads the enterprise-AI race, and coding is the engine.**
 
-Independent corporate-card data from Ramp across 50,000-plus companies puts Anthropic ahead of OpenAI in paid business adoption (34.4% vs 32.3%) for the first time. Anthropic's revenue run-rate and valuation both now exceed OpenAI's, and it is Anthropic, not OpenAI, that names Claude Code as the driver. The newest June facts sharpen this rather than blunt it: OpenAI is leaning toward delaying its IPO to 2027 after an audited \$38.5B net loss, while Anthropic filed its S-1 first. The buyer is not taking a risk on a challenger; they are choosing the vendor independent spend and the public markets now rank at the top, with coding as the engine.
+Independent Ramp data across 50,000-plus companies puts Anthropic ahead of OpenAI in paid business adoption for the first time, 34.4% to 32.3%, while OpenAI delays its IPO after a \$38.5B loss.
 
-**So what:** Open by killing the 'OpenAI is the safe default' reflex, because most other objections are downstream of it, then route the decision to the engineers who live in the tool and a paid pilot on the buyer's own repo. Do not lead with the GPT-5.6 government-gating point here: Anthropic just had Fable 5 and Mythos 5 disabled, so it invites mutual destruction. ([techcrunch.com](https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-users-than-openai/))
+**Soundbite:** "By what businesses actually pay, Anthropic now leads. Adopting Claude is not betting on the underdog."
+
+**So what:** Kill the "OpenAI is the safe default" reflex, then get to the engineers and a pilot on their own repo. ([techcrunch.com](https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-users-than-openai/))
 
 **A strong secondary play on cost: the GitHub Copilot billing revolt.**
 
