@@ -201,3 +201,35 @@ def send_propagation_proposals(slug: str, meta: dict, decisions: list[dict], dry
         return {"sent": False, "reason": "no proposals"}
     subject, body = render_propagation_proposals(slug, meta, decisions)
     return _dispatch(subject, body, dry_run=dry_run)
+
+
+def render_strategic_shift(meta: dict, lead: dict) -> tuple[str, str]:
+    """Subject + body for the STRATEGIC-SHIFT email (strategy layer): the single most strategic lead
+    the brief should open with now, with the stress-test and the current lead it would replace. A
+    proposal — the card is untouched until the human approves it in-session."""
+    card = _card_label(meta)
+    rule = "─" * 48
+    subject = f"Scout: STRATEGIC SHIFT proposed — {card}"
+    st = lead.get("stress_test") or {}
+    out = [f"A material change may have shifted the LEAD argument for {card}.",
+           "The card is UNCHANGED — this is the single most strategic point to open with now, for "
+           "your approval.", "", rule, "",
+           "PROPOSED LEAD:", _block(lead.get("thesis")), "",
+           "SOUNDBITE:", _block(lead.get("soundbite")), "",
+           f"WHY THIS NOW (impact x freshness): {_flat(lead.get('why_most_strategic'))}", "",
+           f"FRESHNESS: {_flat(lead.get('freshness_note'))}", "",
+           "STRESS TEST:",
+           f"  Strongest counter: {_flat(st.get('strongest_counter'))}",
+           f"  Survives: {st.get('survives')} — {_flat(st.get('how'))}", "",
+           f"REPLACES: {_flat(lead.get('supersedes'))}", "", rule, "",
+           f'To apply, tell Claude: "apply the strategic lead on {card}".',
+           "— Scout (strategic pass, Opus; awaiting your approval)"]
+    return subject, "\n".join(out)
+
+
+def send_strategic_shift(meta: dict, lead: dict, dry_run: bool = True) -> dict:
+    """Email the run's proposed strategic lead. No-op (dry) unless configured; never raises."""
+    if not lead:
+        return {"sent": False, "reason": "no lead"}
+    subject, body = render_strategic_shift(meta, lead)
+    return _dispatch(subject, body, dry_run=dry_run)

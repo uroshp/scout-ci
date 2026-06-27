@@ -91,6 +91,12 @@ CHALLENGER_MAX_BUDGET_USD = float(os.environ.get("SCOUT_CHALLENGER_MAX_BUDGET_US
 # Promotion off->shadow->review->live is gated on adjudicated authorship deltas, never calendar.
 PROPAGATE_MODE = os.environ.get("SCOUT_PROPAGATE_MODE", "off").strip().lower()
 
+# Strategic-impact pass (strategy layer, scout/strategy.py): on an ACT-grade material change, re-pick
+# the brief's single most strategic lead (impact x freshness, stress-tested) and email a proposal if
+# it shifts. Reuses the Opus judge model; fires ONLY on ACT alerts when PROPAGATE_MODE is review/live,
+# so quiet runs cost nothing. On by default; set SCOUT_STRATEGIC_PASS=0 to disable.
+STRATEGIC_PASS = os.environ.get("SCOUT_STRATEGIC_PASS", "1").strip().lower() not in ("0", "false", "off", "")
+
 # --- Grounding (claim-object.md §4) -------------------------------------------
 # Provisional fuzzy threshold (0..1) — to be TUNED from real fetched pages at the
 # #7 measurement step, watching the 0.80-0.92 band for true claims being cut.

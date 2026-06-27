@@ -775,7 +775,7 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
                 # non-zero when any card errored, so the Actions run still notifies.
                 summary.append({"slug": slug, "error": f"{type(e).__name__}: {e}"})
                 continue
-        emailed = prop_emailed = None
+        emailed = prop_emailed = strat_emailed = None
         if send:
             meta = store.load_meta(slug) or {}
             if res["alerts"]:
@@ -788,6 +788,19 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
                 if confirmed:
                     prop_emailed = notify.send_propagation_proposals(
                         slug, meta, confirmed, dry_run=email_dry_run)
+            # STRATEGIC PASS (strategy layer): on an ACT-grade change, re-pick the brief's single most
+            # strategic lead and email it for approval. Reuses the Opus judge; fires ONLY on ACT alerts
+            # (and only in review/live) so quiet runs cost nothing. Best-effort — never breaks the run.
+            if (config.STRATEGIC_PASS and config.PROPAGATE_MODE in ("review", "live")
+                    and any(_is_act(a) for a in res.get("alerts", []))):
+                try:
+                    from scout import strategy
+                    sres = strategy.strategic_lead(meta, store.load_claims(slug))
+                    res["cost"] = (res.get("cost") or 0.0) + (sres.get("cost_usd") or 0.0)
+                    if sres.get("lead"):
+                        strat_emailed = notify.send_strategic_shift(meta, sres["lead"], dry_run=email_dry_run)
+                except Exception as e:
+                    print(f"[strategy] skipped ({type(e).__name__}: {e})", file=sys.stderr)
         cost = res["cost"]
         summary.append({
             "slug": slug, "no_change": res["no_change"], "material": len(res["material"]),
