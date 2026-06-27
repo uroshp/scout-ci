@@ -831,7 +831,7 @@ def main():
         '[data-testid="stMainBlockContainer"],'
         'section[data-testid="stMain"] .block-container,.stMainBlockContainer,.block-container'
         '{max-width:1240px!important;margin-left:auto!important;margin-right:auto!important;'
-        'padding:2.9rem 2rem 2.5rem!important;}'
+        'padding:2.25rem 2rem 2.5rem!important;}'
         '[data-testid="stSidebar"],[data-testid="collapsedControl"]{display:none!important;}'
         # Tighten the vertical rhythm between masthead, the control row, and the brief.
         '[data-testid="stVerticalBlock"]{gap:.3rem!important;}'
