@@ -6,7 +6,7 @@
 
 Gemini 3.5 Pro just slipped to July and four senior Gemini and AlphaFold people left in two weeks; Perplexity routes each task to the best of 19 models.
 
-**Soundbite:** "When a lab has a bad quarter, you switch models, not vendors."
+**Soundbite:** "Route every task to whichever model is winning that week."
 
 **So what:** Frame it as a one-lab bet versus a hedge across all of them. ([techcrunch.com](https://techcrunch.com/2026/06/24/ai-researchers-continue-to-leave-google-deepmind/))
 

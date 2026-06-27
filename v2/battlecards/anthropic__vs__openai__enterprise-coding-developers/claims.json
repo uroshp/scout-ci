@@ -1,7 +1,7 @@
 [
   {
     "subject_key": "anthropic-vs-openai | enterprise-coding-position | current",
-    "claim": "**Anthropic now leads the enterprise-AI race, and coding is the engine.**\n\nIndependent Ramp data across 50,000-plus companies puts Anthropic ahead of OpenAI in paid business adoption for the first time, 34.4% to 32.3%, while OpenAI delays its IPO after a $38.5B loss.\n\n**Soundbite:** \"By what businesses actually pay, Anthropic now leads. Adopting Claude is not betting on the underdog.\"\n\n**So what:** Kill the \"OpenAI is the safe default\" reflex, then get to the engineers and a pilot on their own repo.",
+    "claim": "**Anthropic now leads the enterprise-AI race, and coding is the engine.**\n\nIndependent Ramp data across 50,000-plus companies puts Anthropic ahead of OpenAI in paid business adoption for the first time, 34.4% to 32.3%, while OpenAI delays its IPO after a $38.5B loss.\n\n**Soundbite:** \"Anthropic now leads in business deployments. Adopting Claude is keeping up with your competitors.\"\n\n**So what:** Kill the \"OpenAI is the safe default\" reflex, then get to the engineers and a pilot on their own repo.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,

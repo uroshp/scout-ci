@@ -6,7 +6,7 @@
 
 Independent Ramp data across 50,000-plus companies puts Anthropic ahead of OpenAI in paid business adoption for the first time, 34.4% to 32.3%, while OpenAI delays its IPO after a \$38.5B loss.
 
-**Soundbite:** "By what businesses actually pay, Anthropic now leads. Adopting Claude is not betting on the underdog."
+**Soundbite:** "Anthropic now leads in business deployments. Adopting Claude is keeping up with your competitors."
 
 **So what:** Kill the "OpenAI is the safe default" reflex, then get to the engineers and a pilot on their own repo. ([techcrunch.com](https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-users-than-openai/))
 

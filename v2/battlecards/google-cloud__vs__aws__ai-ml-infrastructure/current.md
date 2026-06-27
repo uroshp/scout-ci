@@ -6,7 +6,7 @@
 
 TPU 8i serves close to twice the volume at the same cost, Blackstone just put \$5B behind TPU capacity over Nvidia, and AWS rents its frontier models on largely sold-out Trainium.
 
-**Soundbite:** "Model your token volume on Gemini Flash. That is the line your AI budget actually lands on."
+**Soundbite:** "Inference is your real AI bill. Price your token volume on Gemini Flash and see the gap."
 
 **So what:** Move the deal from who is bigger to who is cheaper per token at scale. ([blog.google](https://blog.google/innovation-and-ai/infrastructure-and-cloud/))
 
