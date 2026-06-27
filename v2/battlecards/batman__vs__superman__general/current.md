@@ -22,7 +22,7 @@ The 2025 film took only 42.7% of its gross from overseas, and analysts openly ca
 
 **Superman's momentum rests heavily on one person.**
 
-James Gunn writes it and directs it, and he runs the studio that releases it. He out-earned his title star twenty-to-one. That's concentration risk: the entire DCU reset is a bet on a single creative, rebuilt on the wreckage of a slate that lost an estimated \$1.1–1.2B in 2023.
+James Gunn writes it and directs it, and he runs the studio that releases it. He out-earned his title star twenty-to-one. That's concentration risk: the entire DCU reset is a bet on a single creative, rebuilt on the wreckage of a slate that lost an estimated \$1.1 to 1.2B in 2023.
 
 **So what:** When the buyer is really asking about stability, point out Batman stands on its own, while Superman rides on one person and one reboot. ([variety.com](https://variety.com/2025/film/news/superman-success-budget-cast-salaries-1236462393/))
 
@@ -72,7 +72,7 @@ A named analyst called Superman's \$95M international opening disappointing, and
 
 **Superman is rebuilding on a recently burned franchise.**
 
-The DCU reset follows a 2023 slate that cost an estimated \$1.1–1.2B and collapsed commercially. Gunn is restoring trust, but the shared universe carries inherited damage and reboot fatigue that Batman's standalone track simply doesn't share.
+The DCU reset follows a 2023 slate that cost an estimated \$1.1 to 1.2B and collapsed commercially. Gunn is restoring trust, but the shared universe carries inherited damage and reboot fatigue that Batman's standalone track simply doesn't share.
 
 **Soundbite:** *"Superman is the first chapter of a universe that just lost over a billion dollars. Batman doesn't carry that baggage into the room."* ([variety.com](https://variety.com/2023/film/news/the-flash-box-office-dc-blue-beetle-aquaman-1235650170/))
 
@@ -80,7 +80,7 @@ The DCU reset follows a 2023 slate that cost an estimated \$1.1–1.2B and colla
 
 Gunn writes and directs the film and runs DC Studios, and he out-earns his star 20-to-1. That's enormous key-person concentration: if his attention or the slate slips, there's no obvious second engine. Batman's success was built by a different filmmaker on a separate track.
 
-**Soundbite:** *"Superman is a single-point-of-failure bet on James Gunn. Batman's value doesn't hinge on any one person staying in the chair."* ([variety.com](https://variety.com/2025/film/news/superman-success-budget-cast-salaries-1236462393/))
+**Soundbite:** *"The whole Superman plan rides on James Gunn staying. Batman has delivered hits under many directors."* ([variety.com](https://variety.com/2025/film/news/superman-success-budget-cast-salaries-1236462393/))
 
 ### Where it's a fight
 
@@ -112,7 +112,7 @@ The reboot opened to \$125M, the biggest DC debut since The Batman, with strong 
 
 It's true the sequel slipped to October 2027, and Gunn said plainly the only reason was that there wasn't a full script. But that's a quality gate, not a stall: Reeves refuses to shoot without a finished script, the discipline that produced the acclaimed, \$772M original, and the completed script is now in production.
 
-**So what:** Reframe the delay from 'they can't execute' to 'they won't ship a half-written script', then point at Superman's overstuffed reviews as what rushing gets you. ([empireonline.com](https://www.empireonline.com/movies/news/the-batman-part-ii-delayed-at-warner-bros-wont-release-until-late-2027/))
+**So what:** Explain the delay as a quality gate: Reeves shoots only with a finished script, and Superman's mixed reviews show what rushing produces. ([empireonline.com](https://www.empireonline.com/movies/news/the-batman-part-ii-delayed-at-warner-bros-wont-release-until-late-2027/))
 
 **"Batman isn't even in the main DC Universe. It's a sidelined Elseworlds story."**
 

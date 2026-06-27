@@ -4,7 +4,7 @@
 
 **Cognition has graduated from viral demo to a scaled competitor: sell against it that way.**
 
-In the last two weeks Cognition raised over \$1B at a \$26B valuation (May 27) and reports a \$492M revenue run-rate, up roughly 13x in a year, with named customers including Goldman Sachs, Mercedes-Benz, and the U.S. Army. Devin now shows up in real enterprise evaluations.
+In the last two weeks Cognition raised over \$1B at a \$26B valuation (May 27) and reports a \$492M revenue run-rate, up roughly 13x in a year, with named customers including Goldman Sachs, Mercedes-Benz and the U.S. Army. Devin now shows up in real enterprise evaluations.
 
 **So what:** Retire any 'Devin is a toy that fails most tasks' talk track. It's stale and makes us look uninformed. Win on proven scale and reliability. ([techcrunch.com](https://techcrunch.com/2026/05/27/ai-coding-startup-cognition-raises-1b-at-25b-pre-money-valuation/))
 
@@ -16,7 +16,7 @@ Cursor crossed roughly \$2B ARR by February 2026 (about 4x Cognition's \$492M ru
 
 **Devin's reliability ceiling is our sharpest wedge, and Cognition admits it.**
 
-In its own 2025 performance review Cognition concedes Devin 'can't independently tackle an ambiguous coding project end-to-end' and degrades when requirements change mid-task. Merge rates around 67% mean roughly one in three autonomous runs still doesn't ship.
+In its own 2025 performance review Cognition concedes Devin 'can't independently tackle an ambiguous coding project end-to-end' and degrades when requirements change mid-task. Roughly one in three of Devin's autonomous runs still doesn't produce code the team ships.
 
 **So what:** Steer evaluations toward ambiguous, iterative, architecture-heavy work where human-in-the-loop wins. Use Cognition's own words against them. ([cognition.ai](https://cognition.ai/blog/devin-annual-performance-review-2025))
 
@@ -34,7 +34,7 @@ On June 2 Cognition retired the Windsurf brand, relaunched it as Devin Desktop, 
 
 ## Snapshot
 
-- Cognition raised over \$1B in a Series D at a \$26B post-money valuation (\$25B pre-money), announced May 27, 2026, up from a \$10.2B valuation just eight months earlier. Round led by Lux Capital, General Catalyst, and 8VC. ([techcrunch.com](https://techcrunch.com/2026/05/27/ai-coding-startup-cognition-raises-1b-at-25b-pre-money-valuation/))
+- Cognition raised over \$1B in a Series D at a \$26B post-money valuation (\$25B pre-money), announced May 27, 2026, up from a \$10.2B valuation just eight months earlier. Round led by Lux Capital, General Catalyst and 8VC. ([techcrunch.com](https://techcrunch.com/2026/05/27/ai-coding-startup-cognition-raises-1b-at-25b-pre-money-valuation/))
 - Cognition has now raised more than \$2.5B in total funding to date. ([thenextweb.com](https://thenextweb.com/news/cognition-just-raised-1-billion-at-a-26-billion-valuation-and-90-of-its-own-code-is-written-by-its-ai))
 - Cognition reports a \$492M annualized revenue run-rate (company-stated, unaudited), up roughly 13x from \$37M a year earlier; it says enterprise usage has grown more than 10x since January 2026. ([cognition.ai](https://cognition.ai/blog/series-d))
 - Cognition (Cognition Labs) was founded in November 2023 and is headquartered in San Francisco; its founders are CEO Scott Wu, CTO Steven Hao, and CPO Walden Yan. ([research.contrary.com](https://research.contrary.com/company/cognition))
@@ -84,13 +84,13 @@ Cursor's ~\$2B ARR (Feb 2026) is about 4x Cognition's \$492M run-rate, and Curso
 
 JetBrains' early-2026 survey of 10,000+ developers shows Cursor used at work by 18%, now tied with Claude Code, with growth that 'has slowed down.' Devin-style async agents are still niche for most teams. We have to keep earning this ground.
 
-**Soundbite:** *"More developers open Cursor every day than any agent. Run both side by side for a sprint and see which one your engineers actually keep open."* ([blog.jetbrains.com](https://blog.jetbrains.com/research/2026/04/which-ai-coding-tools-do-developers-actually-use-at-work/))
+**Soundbite:** *"More developers open Cursor every day than any agent. Engineers choose Cursor because it speeds up the code they're already writing and they stay in control of every change."* ([blog.jetbrains.com](https://blog.jetbrains.com/research/2026/04/which-ai-coding-tools-do-developers-actually-use-at-work/))
 
 **"Cursor for devs, Devin for enterprise" is outdated. We compete for the same enterprise deals now.**
 
 Some enterprises run both (Cursor for senior architectural work, Devin for a parallel maintenance fleet), so deals increasingly hinge on governance, predictability and which workflow the team actually lives in.
 
-**Soundbite:** *"Plenty of teams run both. The real question is which tool owns the work your senior engineers do every day, and that's where we're strongest."* ([techtimes.com](https://www.techtimes.com/articles/317354/20260529/ai-coding-agents-cognitions-26b-raise-bets-agent-first-architecture-beats-ide-tools.htm))
+**Soundbite:** *"Plenty of teams run both. Your senior engineers work in the editor all day, and that's where Cursor is strongest."* ([techtimes.com](https://www.techtimes.com/articles/317354/20260529/ai-coding-agents-cognitions-26b-raise-bets-agent-first-architecture-beats-ide-tools.htm))
 
 ### Where Cognition wins
 

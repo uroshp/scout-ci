@@ -1,7 +1,7 @@
 [
   {
     "subject_key": "notion-vs-atlassian | data-governance-verdict | current",
-    "claim": "**Atlassian's new default-on AI training policy is the sharpest wedge Notion has against Confluence right now.**\n\nAs of April 18, 2026, Atlassian uses Jira and Confluence customer data to train its AI models unless the customer is on the most expensive Enterprise plan, and Free, Standard, and Premium customers cannot fully opt out. GitLab has already launched a competitive campaign around it.\n\n**So what:** In any Confluence-displacement deal, open with data governance. For regulated or IP-sensitive buyers, \"their internal docs training a vendor's model\" is a deal-breaker Notion can turn into the whole conversation.",
+    "claim": "**Atlassian's new default-on AI training policy is the sharpest wedge Notion has against Confluence right now.**\n\nAs of April 18, 2026, Atlassian uses Jira and Confluence customer data to train its AI models unless the customer is on the most expensive Enterprise plan, and Free, Standard and Premium customers cannot fully opt out. GitLab has already launched a competitive campaign around it.\n\n**So what:** In any Confluence-displacement deal, open with data governance. For regulated or IP-sensitive buyers, \"their internal docs training a vendor's model\" is a deal-breaker Notion can turn into the whole conversation.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -23,7 +23,7 @@
   },
   {
     "subject_key": "notion-vs-atlassian | ai-buyer-split | current",
-    "claim": "**Atlassian's AI story is built for engineers; Notion's is built for everyone else, and that split decides most deals.**\n\nAtlassian is doubling down on the software-development lifecycle: Rovo Dev plus the May 20, 2026 launch of Cursor in Jira make engineering its AI center of gravity. Marketing, HR, ops, finance, and design are second-class citizens in that vision.\n\n**So what:** Qualify on who the primary buyer is. If it's anyone outside engineering, lead with \"Atlassian's AI knows your dev team's work; Notion's AI knows how your whole company works\"; that's home field.",
+    "claim": "**Atlassian's AI story is built for engineers; Notion's is built for everyone else, and that split decides most deals.**\n\nAtlassian is doubling down on the software-development lifecycle: Rovo Dev plus the May 20, 2026 launch of Cursor in Jira make engineering its AI center of gravity. Marketing, HR, ops, finance and design are second-class citizens in that vision.\n\n**So what:** Qualify on who the primary buyer is. If it's anyone outside engineering, lead with \"Atlassian's AI knows your dev team's work; Notion's AI knows how your whole company works\"; that's home field.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -67,7 +67,7 @@
   },
   {
     "subject_key": "notion-vs-atlassian | ai-pricing-verdict | current",
-    "claim": "**Rovo looks free today, but the meter is already running. Notion's predictable AI cost is a CFO-friendly contrast.**\n\nRovo is bundled into paid Atlassian plans but capped by thin monthly credits (just 25/user on Standard, where a single Rovo Chat costs 10 credits), and Atlassian has explicitly reserved the right to start billing overages after a 90-day notice. Notion bundles its core AI (Agent, Meeting Notes, Enterprise Search) into Business at $20/seat with no per-interaction meter.\n\n**So what:** For finance-led evaluations, frame it as \"know your AI bill today and twelve months from now.\" Only Notion's Custom Agents are metered, and that's transparent and capped.",
+    "claim": "**Rovo looks free today, but the meter is already running. Notion's predictable AI cost is a CFO-friendly contrast.**\n\nRovo is bundled into paid Atlassian plans but capped by thin monthly credits (just 25/user on Standard, where a single Rovo Chat costs 10 credits), and Atlassian has explicitly reserved the right to start billing overages after a 90-day notice. Notion bundles its core AI (Agent, Meeting Notes, Enterprise Search) into Business at $20/seat with no per-interaction meter.\n\n**So what:** For finance-led evaluations, show the AI cost today and the projected cost twelve months out. Only Notion's Custom Agents are metered, and that's transparent and capped.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -155,7 +155,7 @@
   },
   {
     "subject_key": "notion | valuation | 2026",
-    "claim": "Notion is private and well-capitalized: a January 2026 secondary tender by GIC, Sequoia, and Index bought ~$270M of employee shares at an $11B valuation, with no new primary capital needed since its 2021 raise.",
+    "claim": "Notion is private and well-capitalized: a January 2026 secondary tender by GIC, Sequoia and Index bought ~$270M of employee shares at an $11B valuation, with no new primary capital needed since its 2021 raise.",
     "claim_type": "fact",
     "section": "snapshot",
     "zone": null,
@@ -529,7 +529,7 @@
   },
   {
     "subject_key": "battlecard | cross-functional-buyers | where-we-win",
-    "claim": "**Non-engineering and cross-functional buyers are Notion's home field.**\n\nAtlassian's AI roadmap centers on the software-development lifecycle: Rovo Dev and Cursor in Jira are aimed squarely at engineers. Marketing, HR, ops, and finance teams get far less from a Jira-rooted AI, and they're exactly the teams already living in a single Notion workspace.\n\n**Soundbite:** *\"Atlassian's AI is brilliant if your whole company runs on Jira. If it doesn't, you're buying AI for one department and hoping everyone else catches up.\"*",
+    "claim": "**Non-engineering and cross-functional buyers are Notion's home field.**\n\nAtlassian's AI roadmap centers on the software-development lifecycle: Rovo Dev and Cursor in Jira are aimed squarely at engineers. Marketing, HR, ops and finance teams get far less from a Jira-rooted AI, and they're exactly the teams already living in a single Notion workspace.\n\n**Soundbite:** *\"Atlassian's AI is brilliant if your whole company runs on Jira. If it doesn't, you're buying AI for one department and hoping everyone else catches up.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_we_win",
@@ -552,7 +552,7 @@
   },
   {
     "subject_key": "battlecard | data-governance | where-we-win",
-    "claim": "**Data governance is a clean, current win.**\n\nAtlassian now trains its AI models on Jira and Confluence data by default unless you're on its top Enterprise tier. Notion contractually does not use customer data to train any models. For security, legal, and regulated buyers, that contrast does a lot of the selling.\n\n**Soundbite:** *\"Ask your Atlassian rep one question: is our Confluence content training your models? Then ask us. You'll get two very different answers.\"*",
+    "claim": "**Data governance is a clean, current win.**\n\nAtlassian now trains its AI models on Jira and Confluence data by default unless you're on its top Enterprise tier. Notion contractually does not use customer data to train any models. For security, legal, and regulated buyers, that contrast does a lot of the selling.\n\n**Soundbite:** *\"Ask Atlassian if your Confluence content trains their models. It does, by default. Notion never trains on your content.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_we_win",
@@ -782,7 +782,7 @@
   },
   {
     "subject_key": "objection | notion-vendor-stability | current",
-    "claim": "**\"Is Notion a stable enough vendor to bet on versus a public, $26B Atlassian?\"**\n\nNotion is private but strongly capitalized: a January 2026 tender by GIC, Sequoia, and Index valued it at $11B, more than half its ARR comes from AI customers, and an IPO has been reported as a 2026 possibility. Meanwhile the larger incumbent just cut ~10% of staff.\n\n**So what:** Don't argue raw size; argue trajectory and focus. \"Well-funded, growing on AI and adding headcount while the incumbent cuts it\" is a credible counter to the stability objection.",
+    "claim": "**\"Is Notion a stable enough vendor to bet on versus a public, $26B Atlassian?\"**\n\nNotion is private but strongly capitalized: a January 2026 tender by GIC, Sequoia and Index valued it at $11B, more than half its ARR comes from AI customers, and an IPO has been reported as a 2026 possibility. Meanwhile the larger incumbent just cut ~10% of staff.\n\n**So what:** Don't argue raw size; argue trajectory and focus. \"Well-funded, growing on AI and adding headcount while the incumbent cuts it\" is a credible counter to the stability objection.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,

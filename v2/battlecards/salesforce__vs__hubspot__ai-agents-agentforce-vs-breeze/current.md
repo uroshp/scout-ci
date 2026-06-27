@@ -33,13 +33,13 @@ HubSpot ended Q1 with 299,458 customers and bundles Breeze across paid tiers wit
 
 ## Recent Strategic Moves
 
-- HubSpot's Q1 2026 results (May 7) show Breeze agents gaining real traction: total credit consumption grew 67% quarter over quarter, led by Customer Agent at 53% of credits consumed, Prospecting Agent at 17%, and Data Agent at 16%. So what for us: Breeze is monetizing in the SMB/mid-market base: treat it as a live competitor, not a marketing demo. ([fool.com](https://www.fool.com/earnings/call-transcripts/2026/05/07/hubspot-hubs-q1-2026-earnings-transcript/))
+- HubSpot's Q1 2026 results (May 7) show Breeze agents gaining real traction: total credit consumption grew 67% quarter over quarter, led by Customer Agent at 53% of credits consumed, Prospecting Agent at 17% and Data Agent at 16%. So what for us: Breeze is monetizing in the SMB/mid-market base: treat it as a live competitor, not a marketing demo. ([fool.com](https://www.fool.com/earnings/call-transcripts/2026/05/07/hubspot-hubs-q1-2026-earnings-transcript/))
 - HubSpot launched outcome-based pricing for Breeze agents (effective April 14, 2026), with CCO Jon Dick framing it as removing the buyer's risk: "You pay when it works, full stop." So what for us: this is HubSpot's sharpest competitive weapon against Agentforce's consumption model and will surface in every contested deal. Reps must pre-empt it with a predictable, capped Agentforce cost story. ([cmswire.com](https://www.cmswire.com/customer-experience/hubspot-shifts-breeze-ai-agents-to-pay-per-result-pricing/))
 
 ## Positioning and Differentiation
 
-- Agentforce is positioned on enterprise depth and governance: a dedicated trust layer on every transaction, Data Cloud grounding, and one of the largest agent-engineering investments in the market. The Futurum Group notes "Salesforce has over 450 people working on agent AI," framing replication of that governance stack as out of reach for HubSpot's segment. ([venturebeat.com](https://venturebeat.com/technology/while-everyone-talks-about-an-ai-bubble-salesforce-quietly-added-6-000))
-- HubSpot positions Breeze as proven, easy, and bundled: it reports Breeze Customer Agent "resolves 65% of conversations and cuts resolution time by 39% across more than 8,000 activations." The pitch is real product-market fit for front-line support without a platform project, the simplicity story Salesforce must respect when selling into lean teams. ([cmswire.com](https://www.cmswire.com/customer-experience/hubspot-shifts-breeze-ai-agents-to-pay-per-result-pricing/))
+- Agentforce is positioned on enterprise depth and governance: a dedicated trust layer on every transaction, Data Cloud grounding and one of the largest agent-engineering investments in the market. The Futurum Group notes "Salesforce has over 450 people working on agent AI," framing replication of that governance stack as out of reach for HubSpot's segment. ([venturebeat.com](https://venturebeat.com/technology/while-everyone-talks-about-an-ai-bubble-salesforce-quietly-added-6-000))
+- HubSpot positions Breeze as proven, easy and bundled: it reports Breeze Customer Agent "resolves 65% of conversations and cuts resolution time by 39% across more than 8,000 activations." The pitch is real product-market fit for front-line support without a platform project, the simplicity story Salesforce must respect when selling into lean teams. ([cmswire.com](https://www.cmswire.com/customer-experience/hubspot-shifts-breeze-ai-agents-to-pay-per-result-pricing/))
 
 ## Pricing and Packaging
 
@@ -107,7 +107,7 @@ Analysts warn Agentforce's hidden complexity means "what was initially perceived
 
 **"You've now run two rounds of Salesforce layoffs in 2026, both touching Agentforce. Is this product safe to buy?"**
 
-Acknowledge both rounds directly. The February 2026 round included some Agentforce staff. The June 2026 round cut roles connected to Agentforce, MuleSoft, and Marketing Cloud, with 86 California positions disclosed (63 in technology and product, 21 in general administration, 2 in sales and distribution); Washington state and international impact is undisclosed. Affected California employees remain on payroll through August 7, 2026.
+Acknowledge both rounds directly. The February 2026 round included some Agentforce staff. The June 2026 round cut roles connected to Agentforce, MuleSoft and Marketing Cloud, with 86 California positions disclosed (63 in technology and product, 21 in general administration, 2 in sales and distribution); Washington state and international impact is undisclosed. Affected California employees remain on payroll through August 7, 2026.
 
 The critical grounded fact for this deal: a person familiar with the June cuts confirmed Salesforce's core Agentforce teams were not affected. It came from someone inside the company and was reported by Business Insider.
 
