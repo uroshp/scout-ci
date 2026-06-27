@@ -1,7 +1,7 @@
 [
   {
     "subject_key": "google-cloud vs aws | ai-infra-growth | q1-2026",
-    "claim": "**Inference economics decide the AI bill, and our owned silicon wins there.**\n\nTPU 8i serves close to twice the volume at the same cost, Blackstone just put $5B behind TPU capacity over Nvidia, and AWS rents its frontier models on largely sold-out Trainium.\n\n**Soundbite:** \"Inference is your real AI bill. Price your token volume on Gemini Flash and see the gap.\"\n\n**So what:** Get the deal scored on cost per token at scale, which is where we win.",
+    "claim": "**On inference, the bulk of your AI spend, Google's own chips cost less than AWS.**\n\nThe TPU 8i serves close to twice the volume per dollar, and Blackstone just committed $5B to TPU capacity. AWS has no frontier model of its own and rents from Anthropic and OpenAI on largely sold-out Trainium.\n\n**Soundbite:** \"Google owns the chip and the model, so each token costs less. Price your real volume on Gemini Flash and put it next to Bedrock.\"\n\n**So what:** Score the deal on cost per token at the buyer's real scale, where Google's owned silicon is cheaper.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
