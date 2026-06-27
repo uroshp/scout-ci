@@ -212,16 +212,21 @@ def render_strategic_shift(meta: dict, lead: dict) -> tuple[str, str]:
     subject = f"Scout: STRATEGIC SHIFT proposed — {card}"
     st = lead.get("stress_test") or {}
     out = [f"A material change may have shifted the LEAD argument for {card}.",
-           "The card is UNCHANGED — this is the single most strategic point to open with now, for "
-           "your approval.", "", rule, "",
-           "PROPOSED LEAD:", _block(lead.get("thesis")), "",
-           "SOUNDBITE:", _block(lead.get("soundbite")), "",
-           f"WHY THIS NOW (impact x freshness): {_flat(lead.get('why_most_strategic'))}", "",
-           f"FRESHNESS: {_flat(lead.get('freshness_note'))}", "",
-           "STRESS TEST:",
-           f"  Strongest counter: {_flat(st.get('strongest_counter'))}",
-           f"  Survives: {st.get('survives')} — {_flat(st.get('how'))}", "",
-           f"REPLACES: {_flat(lead.get('supersedes'))}", "", rule, "",
+           "The card is UNCHANGED — this is the proposed new Today's-angle lead, for your approval.",
+           "", rule, "",
+           "PROPOSED LEAD (rep-facing, this is what goes on the card):",
+           f"  {_flat(lead.get('headline'))}",
+           f"  {_flat(lead.get('proof'))}",
+           f"  Say:  {_flat(lead.get('soundbite'))}",
+           f"  Move: {_flat(lead.get('move'))}",
+           "", rule, "",
+           "WHY (for you, not shown to the rep):",
+           f"  Most strategic: {_flat(lead.get('why_most_strategic'))}",
+           f"  Freshness: {_flat(lead.get('freshness_note'))}",
+           f"  Stress test: counter — {_flat(st.get('strongest_counter'))}",
+           f"               survives={st.get('survives')} — {_flat(st.get('how'))}",
+           f"  Replaces: {_flat(lead.get('supersedes'))}",
+           "", rule, "",
            f'To apply, tell Claude: "apply the strategic lead on {card}".',
            "— Scout (strategic pass, Opus; awaiting your approval)"]
     return subject, "\n".join(out)

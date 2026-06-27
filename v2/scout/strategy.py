@@ -19,28 +19,44 @@ from claude_agent_sdk import ClaudeAgentOptions
 from scout import config, store
 from scout.generate import _drive, _extract_json
 
-STRATEGIC_SYSTEM = """You are a top sales rep for {me}, selling against {comp}{w}. You are looking at your
-own competitive battlecard's claims. Pick THE single most strategic argument to LEAD with right now to win
-the customer.
+STRATEGIC_SYSTEM = """You are a top sales rep for {me}, selling against {comp}{w}. From your battlecard's
+claims, pick THE single most strategic argument to LEAD with right now to win the customer.
 
-Selection rule — weigh IMPACT and FRESHNESS together:
-- Do not let a stale claim (months old) override a genuinely new, decisive development.
-- Do not let mere recency override a point that is more strategically decisive.
-- The winner is the argument that most changes WHY a buyer chooses you, given what is true now.
+Weigh IMPACT and FRESHNESS together: a stale claim must not override a genuinely new, decisive development,
+and mere recency must not override a more decisive point. The winner most changes WHY a buyer chooses you,
+given what is true now.
 
-Then STRESS-TEST your pick: state the strongest counter a sharp buyer would raise and whether your thesis
-survives it. If it does not clearly survive, choose a better argument and stress-test that one instead.
+A sales rep skims for ten seconds. The LEAD you write must be SHORT and scannable, four tight parts:
+- headline: the angle in ONE line.
+- proof: ONE short sentence with the single most convincing fact or stat. No list, no second sentence.
+- soundbite: ONE line the rep can say out loud.
+- move: ONE line on what the rep should do next.
+
+Separately, give the REASONING (for the human approving the lead, NOT shown to the rep, so it can be
+fuller): why this beats the alternatives, the freshness note, a stress-test (the strongest buyer counter
+and whether the lead survives it), and which current lead it supersedes.
 
 Writing style: plain and direct. No em dashes, no rule-of-three, no hype.
 
 Output JSON only:
-{{"thesis":"<one tight paragraph: the lead argument the rep opens with>",
-"soundbite":"<one sentence the rep can say out loud>",
-"based_on":["<subject_key(s) this is built on>"],
+{{"headline":"<the angle, one line>",
+"proof":"<one short sentence, the single killer fact/stat>",
+"soundbite":"<one line to say out loud>",
+"move":"<one line: what to do next>",
 "why_most_strategic":"<why this beats the other candidates on impact x freshness>",
 "freshness_note":"<how recent the driving evidence is, and whether recency decided it>",
 "stress_test":{{"strongest_counter":"<...>","survives":true,"how":"<why it holds>"}},
-"supersedes":"<the argument the card currently leads with that this would replace, or 'none'>"}}"""
+"supersedes":"<the current lead this would replace, or 'none'>"}}"""
+
+
+def claim_text(lead: dict) -> str:
+    """Build the compact executive-summary lead claim from a strategic-pass result: bold headline, one
+    proof line, a Soundbite block, a So-what (the move). This is the rep-facing card form — short."""
+    sb = str(lead.get("soundbite", "")).strip().strip('"')
+    return (f"**{str(lead.get('headline','')).strip()}**\n\n"
+            f"{str(lead.get('proof','')).strip()}\n\n"
+            f'**Soundbite:** "{sb}"\n\n'
+            f"**So what:** {str(lead.get('move','')).strip()}")
 
 
 def _digest(claims: list[dict]) -> list[dict]:
@@ -105,11 +121,13 @@ if __name__ == "__main__":
         if not lead:
             print("  no parseable proposal:\n", r["raw"][:800])
             continue
-        print("THESIS:    ", lead.get("thesis"))
-        print("SOUNDBITE: ", lead.get("soundbite"))
-        print("WHY:       ", lead.get("why_most_strategic"))
-        print("FRESHNESS: ", lead.get("freshness_note"))
+        print("HEADLINE: ", lead.get("headline"))
+        print("PROOF:    ", lead.get("proof"))
+        print("SAY:      ", lead.get("soundbite"))
+        print("MOVE:     ", lead.get("move"))
+        print("WHY:      ", lead.get("why_most_strategic"))
+        print("FRESHNESS:", lead.get("freshness_note"))
         st = lead.get("stress_test") or {}
-        print("STRESS:    ", f"counter={st.get('strongest_counter')} | survives={st.get('survives')} | {st.get('how')}")
+        print("STRESS:   ", f"counter={st.get('strongest_counter')} | survives={st.get('survives')} | {st.get('how')}")
         print("SUPERSEDES:", lead.get("supersedes"))
     print(f"\n--- total opus cost: ${total:.3f} ---")
