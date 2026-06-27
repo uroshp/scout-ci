@@ -1,13 +1,13 @@
 [
   {
     "subject_key": "microsoft-teams vs slack | overall-position | current",
-    "claim": "**Teams still owns the enterprise default, but the ground is shifting under it.**\n\nBy the last public count Teams holds about 37% of the team-collaboration market and roughly 320M monthly active users, versus Slack's ~13% and ~65M, a 5x scale lead rooted in Microsoft 365 distribution. The contest now is less about installed base and more about who owns the AI layer and whether regulators force that distribution open.\n\n**So what:** Lead with the installed-base and M365-integration story, but don't assume the bundle alone closes deals anymore. Be ready for the AI and antitrust conversations.",
+    "claim": "**Slack spent June assembling an agent stack from other vendors. Teams ships one you already govern.**\n\nSlack's June moves look like AI momentum but read as fragmentation: the Slackbot MCP client went GA over 20-plus third-party apps on June 17, Claude went native in Slack channels on June 23, and Salesforce paid $3.6B for Fin on June 15 to bolt on a support agent. That is an agent stack the customer must license and secure vendor by vendor, on a workspace whose parent already blocks Slack data from leaving for outside AI. Microsoft 365 Copilot is one agent, already at 20 million paid seats, grounded in the Graph data and Entra identity the customer already governs, inside the app people open every morning.\n\n**So what:** Put the question as which AI surface the buyer can turn on today and govern under one boundary they already control, versus a multi-vendor stack they assemble and secure on top of Salesforce. Concede outside agents are reachable through Copilot connectors, but under one identity and compliance perimeter.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 0,
-    "source_url": "https://www.uctoday.com/unified-communications/microsoft-teams-slack-bundling-antitrust-lawsuit/",
-    "source_tier": "reputable_secondary",
+    "source_url": "https://www.salesforce.com/news/press-releases/2026/06/15/salesforce-fin/",
+    "source_tier": "primary",
     "evidence_excerpt": "Microsoft Teams holds approximately 37 percent of the global team collaboration market, with around 320 million monthly active users, according to the last official count. Slack holds roughly 13 percent market share, with approximately 65 million monthly users, despite having created much of the enterprise messaging category that Teams later entered.",
     "as_of": "2026-04-29",
     "confidence": "medium",
@@ -19,7 +19,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "updated_on": "2026-06-27"
   },
   {
     "subject_key": "salesforce-slack | parent-stability-risk | current",
