@@ -779,7 +779,7 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
         if send:
             meta = store.load_meta(slug) or {}
             if res["alerts"]:
-                emailed = notify.send_digest(meta.get("competitor"), res["alerts"], dry_run=email_dry_run)
+                emailed = notify.send_digest(meta, res["alerts"], dry_run=email_dry_run)
             # REVIEW/LIVE: email each judge-confirmed propagation proposal awaiting approval. In
             # review the card is untouched (human approves in-session); in live it's already applied.
             prop = res.get("propagation")
