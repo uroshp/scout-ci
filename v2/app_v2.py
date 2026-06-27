@@ -836,6 +836,25 @@ def main():
         # Tighten the vertical rhythm between masthead, the control row, and the brief.
         '[data-testid="stVerticalBlock"]{gap:.3rem!important;}'
         '[data-testid="stHorizontalBlock"]{margin-bottom:0!important;}'
+        # ── STREAMLIT-ONLY title-block fork (restore the pre-.ai look) ───────────────────────
+        # The shared #scout-page mockup CSS leans on a ZERO-specificity reset
+        # (:where(#scout-page) *{margin:0;padding:0}) so its own box paddings win. On the
+        # standalone .ai page nothing competes. But Streamlit's stylesheet puts real-specificity
+        # padding on markdown h1/hr that beats that reset and leaks into the title block, and the
+        # Jun-23 ".ai top-tightening" (.wrap.tw 20->6, +.rt h1{margin:0}) then made it worse here.
+        # Pin the title spacing to its pre-.ai (Jun-20) values: tight title line, Researched +2px,
+        # Focus +10px, the focus box's 20px breathing room, and ~16px above the whole block so the
+        # title is not glued to the control bar. Scoped under section[data-testid="stMain"] so it
+        # (a) outranks the shared #scout-page overrides and (b) only ever applies on Streamlit —
+        # render_page (.ai) has no stMain wrapper, so .ai is provably untouched.
+        'section[data-testid="stMain"] #scout-page .wrap.tw{padding-top:16px!important;'
+        'padding-bottom:20px!important;}'
+        'section[data-testid="stMain"] #scout-page .rt h1{margin:0!important;padding:0!important;}'
+        'section[data-testid="stMain"] #scout-page .rt .rt-sub'
+        '{margin-top:2px!important;padding:0!important;}'
+        'section[data-testid="stMain"] #scout-page .rt .rt-focus'
+        '{margin-top:10px!important;padding:0!important;}'
+        'section[data-testid="stMain"] #scout-page .rule{padding:0!important;}'
         # Print / one-page call sheet (⌘P): drop all chrome + prep-only sections, keep the pitch
         # (title + Today's angle + Top 3 plays) and the rebuttals (objections, condensed).
         '@media print{'
@@ -866,26 +885,6 @@ def main():
     # which is what garbled the earlier cuts.
     st.markdown(_FONT_LINKS, unsafe_allow_html=True)
     st.markdown(page.style_block(), unsafe_allow_html=True)
-    # ── STREAMLIT-ONLY title-block fork ──────────────────────────────────────────────────────
-    # The mockup's reset is :where(#scout-page) *{margin:0;padding:0} — ZERO specificity on
-    # purpose, so the mockup's own box paddings still win (page.py _style note). On the standalone
-    # .ai page nothing competes, so the title block sits tight. But Streamlit's stylesheet puts
-    # REAL-specificity padding on markdown h1/hr, which beats that zero-specificity reset, so
-    # Streamlit's spacing leaks into the title block ONLY here: big gaps between the three title
-    # lines and the focus line crowding the rule below it. (Pre-.ai this never happened — Streamlit
-    # rendered the brief under #scout-brief with explicit h1 margins; the .ai launch retrofitted the
-    # shared #scout-page mockup CSS onto Streamlit.) Re-zero just those leaked paddings with real
-    # specificity, loaded AFTER the shared CSS so it wins on any tie, and give the focus box back
-    # its pre-.ai breathing room. This is injected only by app_v2 and is never part of render_page,
-    # so it CANNOT affect the .ai page.
-    st.markdown(
-        '<style>'
-        '#scout-page .rt h1{padding:0!important;}'
-        '#scout-page .rt .rt-sub{padding:0!important;}'
-        '#scout-page .rt .rt-focus{padding:0!important;}'
-        '#scout-page .wrap.tw{padding-bottom:18px!important;}'
-        '#scout-page .rule{padding:0!important;}'
-        '</style>', unsafe_allow_html=True)
     st.markdown(page.masthead_html(), unsafe_allow_html=True)
 
     # Control bar — mode tabs + card dropdown + print as ONE inline flex row (no Streamlit columns,
