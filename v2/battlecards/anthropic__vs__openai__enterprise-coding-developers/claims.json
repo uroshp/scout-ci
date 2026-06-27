@@ -689,7 +689,7 @@
   },
   {
     "subject_key": "battlecard | swe-bench-verified-headline | contested",
-    "claim": "**The headline leaderboard currently reads in OpenAI's favor.**\n\nGPT-5.5 leads SWE-bench Verified at 88.7% to Claude Opus 4.7's 87.6%, a 1.1-point, vendor-self-reported gap that OpenAI reps will quote. It's close enough that it tips on the buyer's own eval, not the leaderboard, so the move is to get them off the public number and onto their codebase.\n\n**Soundbite:** *\"It's 88.7 to 87.6, both self-reported. That's a rounding error. \"It's 88.7 to 87.6, both self-reported. That's a rounding error. The score that counts is how it does on your repo, so let's put both on your hardest open tickets.\"\"*",
+    "claim": "**The headline leaderboard currently reads in OpenAI's favor.**\n\nGPT-5.5 leads SWE-bench Verified at 88.7% to Claude Opus 4.7's 87.6%, a 1.1-point, vendor-self-reported gap that OpenAI reps will quote. It's close enough that it tips on the buyer's own eval, not the leaderboard, so the move is to get them off the public number and onto their codebase.\n\n**Soundbite:** *\"It's 88.7 to 87.6, both self-reported. That's a rounding error. The score that counts is how it does on your repo, so let's put both on your hardest open tickets.\"*",
     "claim_type": "fact",
     "section": "battlecard",
     "zone": "contested",
@@ -712,7 +712,7 @@
   },
   {
     "subject_key": "battlecard | codex-scale-distribution | where_they_win",
-    "claim": "**OpenAI wins on scale and channel, especially in top-down deals.**\n\nCodex passed 5M weekly users, is expanding to non-developers, and ships through a named SI network (Accenture, PwC, Infosys, TCS, and more) plus deep Azure/GitHub integration. In an exec-led, \"one-vendor-for-everything\" enterprise buy routed through an SI, OpenAI is the path of least resistance.\n\n**Soundbite:** *\"\"Top-down on breadth, OpenAI's the easy pick. But the engineers who actually live in the tool rate Claude higher, so get this in front of them.\"\"*",
+    "claim": "**OpenAI wins on scale and channel, especially in top-down deals.**\n\nCodex passed 5M weekly users, is expanding to non-developers and ships through a named SI network (Accenture, PwC, Infosys, TCS and more) plus deep Azure/GitHub integration. In an exec-led, \"one-vendor-for-everything\" enterprise buy routed through an SI, OpenAI is the path of least resistance.\n\n**Soundbite:** *\"Top-down on breadth, OpenAI's the easy pick. But the engineers who actually live in the tool rate Claude higher, so get this in front of them.\"*",
     "claim_type": "fact",
     "section": "battlecard",
     "zone": "where_they_win",

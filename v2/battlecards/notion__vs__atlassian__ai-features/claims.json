@@ -1,7 +1,7 @@
 [
   {
     "subject_key": "notion-vs-atlassian | data-governance-verdict | current",
-    "claim": "**Atlassian's new default-on AI training policy is the sharpest wedge Notion has against Confluence right now.**\n\nAs of April 18, 2026, Atlassian uses Jira and Confluence customer data to train its AI models unless the customer is on the most expensive Enterprise plan, and Free, Standard, and Premium customers cannot fully opt out. GitLab has already launched a competitive campaign around it.\n\n**So what:** In any Confluence-displacement deal, open with data governance. For regulated, security-conscious, or IP-sensitive buyers, \"their internal docs training a vendor's model\" is a deal-breaker Notion can turn into the whole conversation.",
+    "claim": "**Atlassian's new default-on AI training policy is the sharpest wedge Notion has against Confluence right now.**\n\nAs of April 18, 2026, Atlassian uses Jira and Confluence customer data to train its AI models unless the customer is on the most expensive Enterprise plan, and Free, Standard, and Premium customers cannot fully opt out. GitLab has already launched a competitive campaign around it.\n\n**So what:** In any Confluence-displacement deal, open with data governance. For regulated or IP-sensitive buyers, \"their internal docs training a vendor's model\" is a deal-breaker Notion can turn into the whole conversation.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -644,7 +644,7 @@
   },
   {
     "subject_key": "battlecard | engineering-sdlc | where-they-win",
-    "claim": "**Atlassian wins engineering-led, Jira-native organizations. Don't fight there.**\n\nFor teams already running Jira and Bitbucket, Rovo Dev plus Cursor in Jira deliver an AI-native software workflow Notion simply doesn't offer. Notion has no coding agent of its own.\n\n**Soundbite:** *\"If your evaluation is purely about an AI coding agent inside Jira, Atlassian has the better tool today. Where we win is everything around the code: the docs, decisions, and cross-team work that Jira was never meant to hold.\"*",
+    "claim": "**Atlassian wins engineering-led, Jira-native organizations. Don't fight there.**\n\nFor teams already running Jira and Bitbucket, Rovo Dev plus Cursor in Jira deliver an AI-native software workflow Notion simply doesn't offer. Notion has no coding agent of its own.\n\n**Soundbite:** *\"If your evaluation is purely about an AI coding agent inside Jira, Atlassian has the better tool today. Where we win is everything around the code: the docs, decisions and cross-team work Jira was never meant to hold.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_they_win",
@@ -667,7 +667,7 @@
   },
   {
     "subject_key": "battlecard | vendor-scale | where-they-win",
-    "claim": "**Atlassian wins on raw scale and the \"safe public-company\" instinct.**\n\nAt $1.8B in quarterly revenue and 32% growth, Atlassian is a large, public, deeply-entrenched vendor. Risk-averse buyers read that as safety, and incumbency in Jira/Confluence raises switching costs.\n\n**Soundbite:** *\"Atlassian's bigger, no argument. But that bigger company just cut 900 R&D roles and now trains its models on your data by default. Bet on the focused team over the merely large one.\"*",
+    "claim": "**Atlassian wins on raw scale and the \"safe public-company\" instinct.**\n\nAt \\$1.8B in quarterly revenue and 32% growth, Atlassian is a large, deeply entrenched public vendor. Risk-averse buyers read that as safety, and incumbency in Jira/Confluence raises switching costs.\n\n**Soundbite:** *\"Atlassian's bigger, no argument. But that bigger company just cut 900 R&D roles and now trains its models on your data by default. Bet on the focused team over the merely large one.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_they_win",
@@ -713,7 +713,7 @@
   },
   {
     "subject_key": "objection | notion-security-vuln | current",
-    "claim": "**\"I read that Notion AI had a data-exfiltration security hole.\"**\n\nTrue, and worth answering plainly: a researcher disclosed an indirect-prompt-injection vector in late December 2025, and Notion confirmed the fix was in production by January 8, 2026. The underlying risk (agents acting on untrusted content) is industry-wide and applies equally to Atlassian's Rovo; Notion has since added admin controls, logged runs, and permission scoping.\n\n**So what:** Don't dodge it. The vector is patched, the disclosure was handled, and \"every agentic AI faces this; ask Atlassian how they handle it\" levels the field.",
+    "claim": "**\"I read that Notion AI had a data-exfiltration security hole.\"**\n\nTrue, and worth answering plainly: a researcher disclosed an indirect-prompt-injection vector in late December 2025, and Notion confirmed the fix was in production by January 8, 2026. The underlying risk (agents acting on untrusted content) is industry-wide and applies equally to Atlassian's Rovo; Notion has since added admin controls, logged runs and permission scoping.\n\n**So what:** Don't dodge it. The vector is patched, the disclosure was handled, and \"every agentic AI faces this; ask Atlassian how they handle it\" levels the field.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -759,7 +759,7 @@
   },
   {
     "subject_key": "objection | notion-not-for-devs | current",
-    "claim": "**\"Notion isn't really built for developers.\"**\n\nThat was a fair criticism, and Notion's CEO said so himself, then shipped the answer on May 13, 2026: a developer platform with Workers, a CLI, and an External Agent API that makes Claude Code, Cursor, and Codex first-class agents inside Notion.\n\n**So what:** Concede the history, pivot to the platform. For dev-adjacent teams, Notion is now the orchestration layer that connects engineering agents to the rest of the company's work.",
+    "claim": "**\"Notion isn't really built for developers.\"**\n\nThat was a fair criticism, and Notion's CEO said so himself, then shipped the answer on May 13, 2026: a developer platform with Workers, a CLI and an External Agent API that makes Claude Code, Cursor and Codex first-class agents inside Notion.\n\n**So what:** Concede the history, pivot to the platform. For dev-adjacent teams, Notion is now the orchestration layer that connects engineering agents to the rest of the company's work.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -782,7 +782,7 @@
   },
   {
     "subject_key": "objection | notion-vendor-stability | current",
-    "claim": "**\"Is Notion a stable enough vendor to bet on versus a public, $26B Atlassian?\"**\n\nNotion is private but strongly capitalized: a January 2026 tender by GIC, Sequoia, and Index valued it at $11B, more than half its ARR comes from AI customers, and an IPO has been reported as a 2026 possibility. Meanwhile the larger incumbent just cut ~10% of staff.\n\n**So what:** Don't argue raw size; argue trajectory and focus. \"Well-funded, growing on AI, and not in the middle of layoffs\" is a credible counter to the stability objection.",
+    "claim": "**\"Is Notion a stable enough vendor to bet on versus a public, $26B Atlassian?\"**\n\nNotion is private but strongly capitalized: a January 2026 tender by GIC, Sequoia, and Index valued it at $11B, more than half its ARR comes from AI customers, and an IPO has been reported as a 2026 possibility. Meanwhile the larger incumbent just cut ~10% of staff.\n\n**So what:** Don't argue raw size; argue trajectory and focus. \"Well-funded, growing on AI and adding headcount while the incumbent cuts it\" is a credible counter to the stability objection.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -805,7 +805,7 @@
   },
   {
     "subject_key": "objection | notion-db-scale | current",
-    "claim": "**\"Notion slows down on large datasets. Can it really run our data at scale?\"**\n\nBe honest: Notion's databases degrade noticeably past roughly 5,000 records, and it's not the right tool to be a raw database engine for tens of thousands of rows. Position Notion as the knowledge, docs, and agent layer, and use its May 2026 Database Sync to pull large datasets from Postgres, Salesforce, or Zendesk rather than store them natively.\n\n**So what:** Set scope honestly: Notion orchestrates and surfaces the data; pair it with a dedicated system of record for massive structured datasets.",
+    "claim": "**\"Notion slows down on large datasets. Can it really run our data at scale?\"**\n\nBe honest: Notion's databases degrade noticeably past roughly 5,000 records, and it's not the right tool to be a raw database engine for tens of thousands of rows. Position Notion as the knowledge, docs and agent layer, and use its May 2026 Database Sync to pull large datasets from Postgres, Salesforce or Zendesk rather than store them natively.\n\n**So what:** Set scope honestly: Notion orchestrates and surfaces the data; pair it with a dedicated system of record for massive structured datasets.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
