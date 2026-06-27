@@ -2,11 +2,11 @@
 
 ## Executive Summary
 
-**Sovereignty is becoming a structural tailwind for Mistral, not just a talking point.**
+**US frontier AI is now politically gated, and that turns sovereignty from a value into a continuity-of-access risk.**
 
-On June 3 the European Commission's proposed Tech Sovereignty Package put the US Cloud Act at the center of procurement: the draft would bar American providers from the highest sovereignty tier because US law can compel their data wherever it sits. These rules are proposed, not enacted, and still in EU negotiation with final form likely a year or more out, but even as a proposal they already reframe the OpenAI question for regulated and public-sector EU buyers from capability to jurisdiction.
+On June 26 the White House had OpenAI restrict its newest frontier line (Sol, Terra, Luna) to US-government-approved partners, the first time Washington has gated a US frontier model, following the administration forcing Anthropic to cut Fable 5 access. That is a pattern, not a one-off: for any buyer outside the approved circle, OpenAI's actual latest frontier is not purchasable at any price. Mistral ships open weights the customer runs inside its own walls, so access can never be gated or revoked. The EU's proposed Tech Sovereignty Package points the same way, but the US gating has already happened.
 
-**So what:** Lead every sovereign and regulated EU deal with the Cloud Act exposure, make data residency the first qualifying question, and position the EU tier rules as the clear direction of travel rather than settled law. ([cnbc.com](https://www.cnbc.com/2026/06/03/europe-tech-sovereignty-us-tech-reliance.html))
+**So what:** Lead with access risk, not benchmarks. Ask who controls the buyer's vendor roadmap, and show that open weights they run themselves are the only access a government cannot revoke. ([cnn.com](https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house))
 
 **Be honest internally: OpenAI is still the category leader, and that is the real threat.**
 
@@ -130,7 +130,7 @@ Accenture signed a multi-year Mistral deal, but the same SIs partner with OpenAI
 
 On the very hardest tasks the leading closed models still edge us out, and we say so plainly. But OpenAI's newest frontier line, GPT-5.6, is restricted to US-government-approved partners at the White House's request, so a buyer who wants the actual latest OpenAI frontier cannot purchase access today. OpenAI itself has said it does not want this to be the long-term default.
 
-**Soundbite:** *"For the single highest benchmark, the top closed models still win, and we won't pretend otherwise. But OpenAI's newest tier you can't even buy right now, and everything you can deploy you run on your own infrastructure with us."* ([cnn.com](https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house)) ([cnn.com](https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house))
+**Soundbite:** *"For the single highest benchmark, the top closed models still win, and we won't pretend otherwise. But OpenAI's newest tier you can't even buy right now, and everything you can deploy you run on your own infrastructure with us."* ([cnn.com](https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house))
 
 **They have scale and enterprise trust we are still building.**
 
@@ -150,9 +150,9 @@ Enterprise is already more than 40% of OpenAI's business, with a vast installed 
 
 **"Mistral's models aren't as good as GPT-5.5."**
 
-On the hardest multi-file refactors the frontier closed models still lead, and we won't pretend otherwise. But for the bulk of enterprise coding our models clear the bar, and for air-gapped or regulated repositories the honest comparison is Mistral versus no OpenAI deployment at all. And the newer GPT-5.6 isn't a real alternative yet: it's restricted to US-government-approved partners, so for anything a buyer can deploy today, 5.5 is the honest comparison. ([cnn.com](https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house))
+On the hardest multi-file refactors the frontier closed models still lead, and we won't pretend otherwise. But for the bulk of enterprise coding our models clear the bar, and for air-gapped or regulated repositories the honest comparison is Mistral versus no OpenAI deployment at all. And the newer GPT-5.6 isn't a real alternative yet: it's restricted to US-government-approved partners, so for anything a buyer can deploy today, 5.5 is the honest comparison.
 
-**So what:** Move the evaluation to the buyer's real deployment constraints, where our edge is structural. If they raise GPT-5.6, note they can't actually buy it today. ([aizolo.com](https://aizolo.com/blog/mistral-ai-strengths-weaknesses-2026/)) ([aizolo.com](https://aizolo.com/blog/mistral-ai-strengths-weaknesses-2026/))
+**So what:** Move the evaluation to the buyer's real deployment constraints, where our edge is structural. If they raise GPT-5.6, note they can't actually buy it today. ([aizolo.com](https://aizolo.com/blog/mistral-ai-strengths-weaknesses-2026/))
 
 **"Mistral is small. Will you even be around in three years?"**
 
