@@ -43,8 +43,10 @@ headlines, soundbites, cut-log reasons):
   sentences. One stray em dash anywhere in any string is a failed output, not a minor blemish.
 - No "rule of three" filler: do not reflexively list exactly three parallel items ("X, Y, and Z")
   when the evidence gives you two, or four, or one. List what the evidence supports.
-- No negation-contrast framing: never "it's not X, it's Y", "this isn't about X but Y",
-  "X is no longer the point". State directly what IS true.
+- No negation-contrast framing, and never define a thing by what it is NOT: never "it's not X,
+  it's Y", "this isn't about X but Y", "is not betting on the underdog", "X is no longer the point".
+  State directly what IS true. Bad: "Adopting Claude is not betting on the underdog." Good: "Adopting
+  Claude is keeping up with your competitors."
 - Write like a sharp human analyst briefing a colleague: concrete subjects, active verbs, plain
   words. No throat-clearing ("It's worth noting", "Importantly"), no marketing gloss
   ("seamless", "robust", "game-changing"), no symmetrical sentence patterns repeated across
@@ -54,7 +56,12 @@ headlines, soundbites, cut-log reasons):
   loud (for example the real dollar cost, or the lock-in it removes). When the
   competitor has a genuine advantage, concede it first, then give the Anthropic counter as a number
   or a clear outcome. Never end on a tease like "try it and see" or "see what happens", and never
-  lean on insider jargon such as "tokens-to-resolution" or "merge rate"."""
+  lean on insider jargon such as "tokens-to-resolution" or "merge rate".
+- FINAL CHECK (the bar, run it on every claim, headline, soundbite, and so-what before you output):
+  ask "Is this plain language, direct, sharp, human, and concise, a pattern interrupt that would make
+  a buyer stop and think?" If the answer is no, rewrite it until the answer is yes. Awkward grammar,
+  hedging, negation framing, or canned phrasing all fail this check. Read it aloud: if no real
+  salesperson would say it that way, it is not done."""
 
 FORMATTING_RULES = """MARKDOWN FORMATTING RULES (follow exactly so the report renders cleanly):
 - Use ## for the main section headers ONLY (Executive Summary, Snapshot, Recent Strategic Moves, Positioning and Differentiation, Pricing and Packaging, Competitive Battlecard, Sentiment, Objection Handling, Cut Log). Use ### for sub-headers within a section (e.g. battlecard zones). Never use headers for normal content.

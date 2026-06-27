@@ -6,7 +6,7 @@
 
 In June alone Slack bolted on MCP, native Claude, and a \$3.6B Fin acquisition, each its own license and security review; Microsoft 365 Copilot is one agent at 20M seats on the identity and data you already govern.
 
-**Soundbite:** "One AI agent you already govern, not a vendor federation you have to secure yourself."
+**Soundbite:** "Teams is one agent you already govern. Slack is a vendor stack you secure yourself."
 
 **So what:** Make it one governed surface versus a multi-vendor assembly job on top of Salesforce. ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/06/15/salesforce-fin/))
 

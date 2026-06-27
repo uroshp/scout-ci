@@ -18,6 +18,7 @@ from claude_agent_sdk import ClaudeAgentOptions
 
 from scout import config, store
 from scout.generate import _drive, _extract_json
+from scout.prompts import WRITING_STYLE
 
 STRATEGIC_SYSTEM = """You are a top sales rep for {me}, selling against {comp}{w}. From your battlecard's
 claims, pick THE single most strategic argument to LEAD with right now to win the customer.
@@ -36,7 +37,7 @@ Separately, give the REASONING (for the human approving the lead, NOT shown to t
 fuller): why this beats the alternatives, the freshness note, a stress-test (the strongest buyer counter
 and whether the lead survives it), and which current lead it supersedes.
 
-Writing style: plain and direct. No em dashes, no rule-of-three, no hype.
+Every line you write must pass the WRITING STYLE rules given above, especially the FINAL CHECK.
 
 Output JSON only:
 {{"headline":"<the angle, one line>",
@@ -75,7 +76,7 @@ async def _run(meta: dict, claims: list[dict]) -> dict:
     me, comp = meta.get("my_company") or "us", meta.get("competitor") or "the competitor"
     focus = meta.get("focus") or meta.get("focus_area")
     w = f" in {focus}" if focus else ""
-    system = STRATEGIC_SYSTEM.format(me=me, comp=comp, w=w)
+    system = WRITING_STYLE + "\n\n" + STRATEGIC_SYSTEM.format(me=me, comp=comp, w=w)
     user = (f"We are: {me}.   Competitor: {comp}.{(' Focus: ' + focus) if focus else ''}\n\n"
             "BRIEF CLAIMS (with dates so you can weigh freshness):\n"
             + json.dumps(_digest(claims), ensure_ascii=False, indent=2))
