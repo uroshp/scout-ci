@@ -5,6 +5,7 @@ SAFE BY DEFAULT: send_digest is a no-op (returns the rendered payload without se
 unless RESEND_API_KEY + SCOUT_ALERT_TO are configured AND dry_run is False. So dev/test
 runs and unconfigured environments can never email anyone.
 """
+import difflib
 import smtplib
 from email.message import EmailMessage
 
@@ -57,11 +58,22 @@ def _dispatch(subject: str, body: str, dry_run: bool = True) -> dict:
             "subject": subject, "preview": body}
 
 
-def render_digest(competitor: str, alerts: list[dict]) -> tuple[str, str]:
-    """Subject + plain-text body. One material change per block, each with its so-what."""
+def _card_label(meta: dict) -> str:
+    """Name the brief the way the rep thinks of it: 'Mistral vs OpenAI', not just 'OpenAI'. The same
+    competitor (e.g. OpenAI) appears on several cards, so the label must say WHICH card."""
+    me, comp = meta.get("my_company"), meta.get("competitor")
+    return f"{me} vs {comp}" if me else (comp or "this card")
+
+
+def render_digest(meta: dict, alerts: list[dict]) -> tuple[str, str]:
+    """Subject + plain-text body. One material change per block, each with its so-what. Labeled by
+    CARD ('Mistral vs OpenAI'), since a competitor's news can land on more than one brief."""
+    comp = meta.get("competitor") or "the competitor"
+    card = _card_label(meta)
     n = len(alerts)
-    subject = f"Scout: {n} material change{'s' if n != 1 else ''} for {competitor}"
-    lines = [f"{n} material change{'s' if n != 1 else ''} detected for {competitor}.", ""]
+    subject = f"Scout: {n} material change{'s' if n != 1 else ''} on {card}"
+    lines = [f"{n} material change{'s' if n != 1 else ''} detected on the {card} brief "
+             f"(competitor: {comp}).", ""]
     for a in alerts:
         sev = f"[{a['severity'].upper()}] " if a.get("severity") else ""
         lines.append(f"• {sev}{a.get('headline', a.get('subject_key', 'change'))}")
@@ -107,12 +119,12 @@ def send_selfserve_ready(to: str, job_id: str, label: str | None = None) -> dict
         return {"sent": False, "reason": f"send error: {type(e).__name__}"}
 
 
-def send_digest(competitor: str, alerts: list[dict], dry_run: bool = True) -> dict:
+def send_digest(meta: dict, alerts: list[dict], dry_run: bool = True) -> dict:
     """Send ONE digest of the run's material deltas. No-op (dry) unless fully configured.
     Returns a result dict; never raises on a missing-config path."""
     if not alerts:
         return {"sent": False, "reason": "no material changes"}
-    subject, body = render_digest(competitor, alerts)
+    subject, body = render_digest(meta, alerts)
     return _dispatch(subject, body, dry_run=dry_run)
 
 
@@ -124,6 +136,27 @@ def _block(text) -> str:
 
 def _flat(text) -> str:
     return " ".join(str(text or "").split())
+
+
+def _change_summary(old, new) -> str:
+    """A scannable word-level delta of old→new: additions as [+ ...], removals as [- ...], a swap as
+    [- ... → + ...], with long unchanged runs collapsed to 'first … last'. Lets the reader catch what
+    actually changed without re-reading the whole NEW block. Plain-text safe."""
+    o, n = str(old or "").split(), str(new or "").split()
+    if not o:
+        return "(new addition) " + " ".join(n)
+    parts = []
+    for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(a=o, b=n, autojunk=False).get_opcodes():
+        if tag == "equal":
+            run = n[j1:j2]
+            parts.append(" ".join(run) if len(run) <= 6 else f"{run[0]} … {run[-1]}")
+        elif tag == "insert":
+            parts.append("[+ " + " ".join(n[j1:j2]) + "]")
+        elif tag == "delete":
+            parts.append("[- " + " ".join(o[i1:i2]) + "]")
+        else:  # replace
+            parts.append("[- " + " ".join(o[i1:i2]) + " → + " + " ".join(n[j1:j2]) + "]")
+    return " ".join(parts)
 
 
 def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict]) -> tuple[str, str]:
@@ -141,6 +174,10 @@ def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict]) -
         op = str(d.get("operation", "")).upper()
         zone = f" / {d.get('zone')}" if d.get("zone") else ""
         out += ["", f"{op} in {d.get('section', '')}{zone}", f"({d.get('subject_key')})"]
+        # Scannable delta first ([+ added] / [- removed]) so the changed bit jumps out, then the full
+        # WAS/NEW for context — history kept, edit highlighted.
+        if d.get("operation") != "retire" and (d.get("old_text") or d.get("new_text")):
+            out += ["", "WHAT CHANGED:", _block(_change_summary(d.get("old_text"), d.get("new_text")))]
         if d.get("old_text"):
             out += ["", "WAS:", _block(d["old_text"])]
         if d.get("operation") != "retire":
