@@ -30,8 +30,11 @@ given what is true now.
 A sales rep skims for ten seconds. The LEAD you write must be SHORT and scannable, four tight parts:
 - headline: the angle in ONE line.
 - proof: ONE short sentence with the single most convincing fact or stat. No list, no second sentence.
-- soundbite: ONE line the rep can say out loud.
-- move: ONE line on what the rep should do next.
+- soundbite: ONE line the rep can say out loud. It MUST be advice the buyer would actually act on.
+  The value is choice and control; never imply churn, constant switching, or redoing work (a line like
+  "change your model every week" is lazy and would lose the room). Say what the buyer GETS and keeps.
+- move: ONE line on what the rep should do next, a concrete action. Do NOT write "frame it as X versus Y"
+  or any A-versus-B mirror; say the actual thing to do.
 
 Separately, give the REASONING (for the human approving the lead, NOT shown to the rep, so it can be
 fuller): why this beats the alternatives, the freshness note, a stress-test (the strongest buyer counter

@@ -67,11 +67,16 @@ headlines, soundbites, cut-log reasons):
   competitor has a genuine advantage, concede it first, then give the Anthropic counter as a number
   or a clear outcome. Never end on a tease like "try it and see" or "see what happens", and never
   lean on insider jargon such as "tokens-to-resolution" or "merge rate".
+- A soundbite must be advice the buyer would ACTUALLY act on. The value is choice and control, never
+  churn: never imply repeatedly switching, re-tooling, or redoing work. A line like "change your model
+  every week" is lazy and would lose the room; what the buyer wants is to pick the right tool for the
+  task and not be locked in. Say what the buyer gets and keeps.
 - FINAL CHECK (the bar, run it on every claim, headline, soundbite, and so-what before you output):
   ask "Is this plain language, direct, sharp, human, and concise, a pattern interrupt that would make
-  a buyer stop and think?" If the answer is no, rewrite it until the answer is yes. Awkward grammar,
-  hedging, negation framing, or canned phrasing all fail this check. Read it aloud: if no real
-  salesperson would say it that way, it is not done."""
+  a buyer stop and think, AND is it advice a buyer would actually act on?" If the answer is no, rewrite
+  it until the answer is yes. Awkward grammar, hedging, negation framing, canned phrasing, or a line
+  that sounds clever but describes something no real buyer would do all fail this check. Read it aloud:
+  if no real salesperson would say it that way, it is not done."""
 
 FORMATTING_RULES = """MARKDOWN FORMATTING RULES (follow exactly so the report renders cleanly):
 - Use ## for the main section headers ONLY (Executive Summary, Snapshot, Recent Strategic Moves, Positioning and Differentiation, Pricing and Packaging, Competitive Battlecard, Sentiment, Objection Handling, Cut Log). Use ### for sub-headers within a section (e.g. battlecard zones). Never use headers for normal content.

@@ -2,13 +2,13 @@
 
 ## Executive Summary
 
-**Betting your whole stack on one model is the risk.**
+**Pick the best model for each task, and keep the freedom to switch vendors.**
 
-Gemini 3.5 Pro just slipped to July and four senior Gemini and AlphaFold people left in two weeks; Perplexity routes each task to the best of 19 models.
+Gemini 3.5 Pro just slipped to July and Google lost four senior Gemini and AlphaFold researchers in two weeks. Perplexity runs across 19 models including Claude and GPT, so each task goes to the model that handles it best.
 
-**Soundbite:** "Route every task to whichever model is winning that week."
+**Soundbite:** "Use the best model for each task, and switch the moment a better one ships. No vendor lock-in."
 
-**So what:** Frame it as a one-lab bet versus a hedge across all of them. ([techcrunch.com](https://techcrunch.com/2026/06/24/ai-researchers-continue-to-leave-google-deepmind/))
+**So what:** Ask which models their teams rely on today, then show all of them available through Perplexity, so a slip or price hike from any single vendor never stalls their work. ([techcrunch.com](https://techcrunch.com/2026/06/24/ai-researchers-continue-to-leave-google-deepmind/))
 
 **Perplexity is growing fast but small and legally exposed, so go in with the litigation answer already loaded.**
 

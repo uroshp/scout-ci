@@ -6,9 +6,9 @@
 
 In June alone Slack bolted on three separate things (MCP, native Claude, a \$3.6B Fin acquisition), each its own license and security review. Microsoft 365 Copilot is one agent at 20M seats, on the identity and data you already govern.
 
-**Soundbite:** "Teams is one agent you already govern. Slack is a vendor stack you secure yourself."
+**Soundbite:** "Teams is one agent that runs on the identity and data you already control, with nothing new to license or secure."
 
-**So what:** Make it one governed surface versus a multi-vendor assembly job on top of Salesforce. ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/06/15/salesforce-fin/))
+**So what:** Add up what Slack's June additions actually cost the buyer: each one is a separate license and security review, while Teams adds none. ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/06/15/salesforce-fin/))
 
 **Slack's parent is distracted and its top seat is empty.**
 

@@ -1,7 +1,7 @@
 [
   {
     "subject_key": "perplexity-vs-google | competitive-frame | 2026",
-    "claim": "**Betting your whole stack on one model is the risk.**\n\nGemini 3.5 Pro just slipped to July and four senior Gemini and AlphaFold people left in two weeks; Perplexity routes each task to the best of 19 models.\n\n**Soundbite:** \"Route every task to whichever model is winning that week.\"\n\n**So what:** Frame it as a one-lab bet versus a hedge across all of them.",
+    "claim": "**Pick the best model for each task, and keep the freedom to switch vendors.**\n\nGemini 3.5 Pro just slipped to July and Google lost four senior Gemini and AlphaFold researchers in two weeks. Perplexity runs across 19 models including Claude and GPT, so each task goes to the model that handles it best.\n\n**Soundbite:** \"Use the best model for each task, and switch the moment a better one ships. No vendor lock-in.\"\n\n**So what:** Ask which models their teams rely on today, then show all of them available through Perplexity, so a slip or price hike from any single vendor never stalls their work.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
