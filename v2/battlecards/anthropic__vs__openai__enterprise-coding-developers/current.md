@@ -165,7 +165,7 @@ Two confirmed: a global outage on June 2, 2026 tied to capacity constraints (fix
 
 **"Didn't Claude Code get worse, and doesn't Veracode say it writes insecure code?"**
 
-Both have a real basis. Anthropic acknowledged three engineering missteps degraded Claude Code from March–April 2026, and Veracode found Opus 4.7 introduced a vulnerability in 52% of tested tasks vs ~30% for OpenAI's models. The honest answer: all three regressions were fixed by April 20, the figure was for 4.7 during the degraded window, and Opus 4.8 (May 28) is specifically ~4x less likely to ship unflagged flawed code. Ask for current 4.8 data.
+Both have a real basis. Anthropic acknowledged three engineering missteps degraded Claude Code from March to April 2026, and Veracode found Opus 4.7 introduced a vulnerability in 52% of tested tasks vs ~30% for OpenAI's models. The honest answer: all three regressions were fixed by April 20, the figure was for 4.7 during the degraded window, and Opus 4.8 (May 28) is specifically ~4x less likely to ship unflagged flawed code. Ask for current 4.8 data.
 
 **So what:** Concede the 4.7 period, then move to 4.8 and a security eval on the prospect's own code, where the self-verification improvements show up. ([fortune.com](https://fortune.com/2026/04/24/anthropic-engineering-missteps-claude-code-performance-decline-user-backlash/))
 

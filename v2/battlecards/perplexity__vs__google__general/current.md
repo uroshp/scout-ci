@@ -58,7 +58,7 @@ Google AI Mode is free to 1B+ users and Gemini is included in paid Workspace tie
 - At I/O (May 19, 2026) Google restructured consumer AI subscriptions, launching a \$100/month AI Ultra tier and cutting its top Ultra plan from \$250 to \$200, a signal Google was mispriced and is now competing aggressively on AI value, not just distribution. ([blog.google](https://blog.google/products-and-platforms/products/google-one/google-ai-subscriptions/))
 - At Google I/O on May 19, 2026, Google made Gemini 3.5 Flash the default model in AI Mode for everyone globally and shipped 'the biggest upgrade to our Search box in over 25 years,' plus background 24/7 Search Agents, directly adopting Perplexity's answer-and-agent framing at Google's scale. ([blog.google](https://blog.google/products-and-platforms/products/search/search-io-2026/))
 - An Ahrefs study found Google AI Overviews correlate with a 58% drop in click-throughs for top-ranking pages (nearly double the prior year's decline), triggering a Penske Media antitrust suit and an EU competition investigation; a narrative lever for Perplexity in media/publishing verticals. ([thenextweb.com](https://thenextweb.com/news/google-ai-overviews-publisher-links-search-traffic))
-- On February 3, 2026, the DOJ and a coalition of states appealed the search-monopoly remedies ruling, calling the behavioral remedies a 'slap on the wrist for a recidivist monopolist' and seeking stronger structural relief, keeping Google's default-distribution model legally unsettled into 2026–27. ([news.bloomberglaw.com](https://news.bloomberglaw.com/antitrust/google-search-remedy-to-be-appealed-by-state-attorneys-general))
+- On February 3, 2026, the DOJ and a coalition of states appealed the search-monopoly remedies ruling, calling the behavioral remedies a 'slap on the wrist for a recidivist monopolist' and seeking stronger structural relief, keeping Google's default-distribution model legally unsettled into 2026 and 2027. ([news.bloomberglaw.com](https://news.bloomberglaw.com/antitrust/google-search-remedy-to-be-appealed-by-state-attorneys-general))
 
 ## Positioning and Differentiation
 
@@ -103,7 +103,7 @@ Perplexity Enterprise Pro for Government earned FedRAMP prioritization and a GSA
 
 Google launched 24/7 background Search Agents at I/O while Perplexity shipped Computer for Enterprise with 100+ connectors; neither has a decisive deployment lead, so deals turn on integration fit and trust, not on who has 'agents' at all.
 
-**Soundbite:** *"Everyone's demoing agents. The question is whose agents plug into your actual stack and show their sources, and that's where we compete hard."* ([blog.google](https://blog.google/products-and-platforms/products/search/search-io-2026/))
+**Soundbite:** *"Everyone's demoing agents. Ours plug into your actual stack and cite their sources on every answer."* ([blog.google](https://blog.google/products-and-platforms/products/search/search-io-2026/))
 
 **At the Pro tier, price is a wash, so don't let the deal become a price contest.**
 
@@ -123,7 +123,7 @@ AI Mode hit 1B monthly users free inside Search, Chrome and Android in a single 
 
 Gemini 3 Pro topped LMArena at 1501 Elo with PhD-level reasoning scores; Perplexity builds no frontier model of its own. For benchmark-driven technical buyers this is Google's strongest card, so pivot from raw model scores to answer accuracy, citations and the freedom to use Gemini inside Perplexity when it's the best fit.
 
-**Soundbite:** *"Gemini's a great model, so we route to it when it's the right tool for the job. Our job is to pick the best model for each task."* ([blog.google](https://blog.google/products/gemini/gemini-3/))
+**Soundbite:** *"We pick the best model for each task, so you always get the strongest answer without managing any of it."* ([blog.google](https://blog.google/products/gemini/gemini-3/))
 
 **Workspace lock-in is real: Gemini lives inside the Gmail, Docs and Meet that 3B people already use.**
 
@@ -151,7 +151,7 @@ It's a fair question: Google AI Mode is genuinely free to over a billion users. 
 
 That critique was fair early on, and TechCrunch has named it. The honest counter: Perplexity now runs its own AI-optimized web index and Sonar models and no longer depends on others' APIs for search, and the real IP is the orchestration layer that picks the best of 19 models per task in real time. Owning one model is a constraint; orchestrating all of them is the product.
 
-**So what:** Reframe 'wrapper' as 'neutral orchestration', the buyer's hedge against any single lab's roadmap. ([techcrunch.com](https://techcrunch.com/2026/02/27/perplexitys-new-computer-is-another-bet-that-users-need-many-ai-models/))
+**So what:** Answer the 'wrapper' label head on: routing across every major model is the buyer's protection against being tied to one lab's roadmap. ([techcrunch.com](https://techcrunch.com/2026/02/27/perplexitys-new-computer-is-another-bet-that-users-need-many-ai-models/))
 
 **"Nine publishers are suing Perplexity for copyright. What's our exposure if we standardize on it?"**
 

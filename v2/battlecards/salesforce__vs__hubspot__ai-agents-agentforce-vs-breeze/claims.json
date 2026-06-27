@@ -133,7 +133,7 @@
   },
   {
     "subject_key": "hubspot-breeze | adoption | q1-2026",
-    "claim": "HubSpot's Q1 2026 results (May 7) show Breeze agents gaining real traction: total credit consumption grew 67% quarter over quarter, led by Customer Agent at 53% of credits consumed, Prospecting Agent at 17%, and Data Agent at 16%. So what for us: Breeze is monetizing in the SMB/mid-market base: treat it as a live competitor, not a marketing demo.",
+    "claim": "HubSpot's Q1 2026 results (May 7) show Breeze agents gaining real traction: total credit consumption grew 67% quarter over quarter, led by Customer Agent at 53% of credits consumed, Prospecting Agent at 17% and Data Agent at 16%. So what for us: Breeze is monetizing in the SMB/mid-market base: treat it as a live competitor, not a marketing demo.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
@@ -177,7 +177,7 @@
   },
   {
     "subject_key": "agentforce | positioning | enterprise-depth",
-    "claim": "Agentforce is positioned on enterprise depth and governance: a dedicated trust layer on every transaction, Data Cloud grounding, and one of the largest agent-engineering investments in the market. The Futurum Group notes \"Salesforce has over 450 people working on agent AI,\" framing replication of that governance stack as out of reach for HubSpot's segment.",
+    "claim": "Agentforce is positioned on enterprise depth and governance: a dedicated trust layer on every transaction, Data Cloud grounding and one of the largest agent-engineering investments in the market. The Futurum Group notes \"Salesforce has over 450 people working on agent AI,\" framing replication of that governance stack as out of reach for HubSpot's segment.",
     "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
@@ -199,7 +199,7 @@
   },
   {
     "subject_key": "hubspot-breeze | positioning | smb-ease",
-    "claim": "HubSpot positions Breeze as proven, easy, and bundled: it reports Breeze Customer Agent \"resolves 65% of conversations and cuts resolution time by 39% across more than 8,000 activations.\" The pitch is real product-market fit for front-line support without a platform project, the simplicity story Salesforce must respect when selling into lean teams.",
+    "claim": "HubSpot positions Breeze as proven, easy and bundled: it reports Breeze Customer Agent \"resolves 65% of conversations and cuts resolution time by 39% across more than 8,000 activations.\" The pitch is real product-market fit for front-line support without a platform project, the simplicity story Salesforce must respect when selling into lean teams.",
     "claim_type": "fact",
     "section": "positioning",
     "zone": null,
@@ -462,7 +462,7 @@
   },
   {
     "subject_key": "salesforce | layoffs | agentforce-2026",
-    "claim": "**\"You've now run two rounds of Salesforce layoffs in 2026, both touching Agentforce. Is this product safe to buy?\"**\n\nAcknowledge both rounds directly. The February 2026 round included some Agentforce staff. The June 2026 round cut roles connected to Agentforce, MuleSoft, and Marketing Cloud, with 86 California positions disclosed (63 in technology and product, 21 in general administration, 2 in sales and distribution); Washington state and international impact is undisclosed. Affected California employees remain on payroll through August 7, 2026.\n\nThe critical grounded fact for this deal: a person familiar with the June cuts confirmed Salesforce's core Agentforce teams were not affected. It came from someone inside the company and was reported by Business Insider.\n\n**So what:** The buying-decision signal is this: the same core team shipped Agentforce Operations (GA April 29) and drove more than 60% of Q4 Agentforce and Data Cloud bookings from existing customers expanding their deployments. Teams being wound down do not ship GA products and collect expansion revenue from an installed base. The cuts were real; the core product team is intact and shipping.",
+    "claim": "**\"You've now run two rounds of Salesforce layoffs in 2026, both touching Agentforce. Is this product safe to buy?\"**\n\nAcknowledge both rounds directly. The February 2026 round included some Agentforce staff. The June 2026 round cut roles connected to Agentforce, MuleSoft and Marketing Cloud, with 86 California positions disclosed (63 in technology and product, 21 in general administration, 2 in sales and distribution); Washington state and international impact is undisclosed. Affected California employees remain on payroll through August 7, 2026.\n\nThe critical grounded fact for this deal: a person familiar with the June cuts confirmed Salesforce's core Agentforce teams were not affected. It came from someone inside the company and was reported by Business Insider.\n\n**So what:** The buying-decision signal is this: the same core team shipped Agentforce Operations (GA April 29) and drove more than 60% of Q4 Agentforce and Data Cloud bookings from existing customers expanding their deployments. Teams being wound down do not ship GA products and collect expansion revenue from an installed base. The cuts were real; the core product team is intact and shipping.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -546,7 +546,7 @@
   },
   {
     "subject_key": "salesforce | layoffs | agentforce-june-2026-round-2",
-    "claim": "Salesforce ran a second 2026 layoff round in June, reported by Business Insider on June 9, 2026. A California WARN notice disclosed 86 eliminated positions in San Francisco (63 in technology and product, 21 in general administration, 2 in sales and distribution); employees in Washington state and outside the US were also affected, with the total undisclosed. The cuts hit roles connected to Agentforce, MuleSoft, and Marketing Cloud, but a person familiar with the matter said Salesforce's core Agentforce teams were not affected. Affected California employees remain on payroll until August 7, 2026. This follows the February 2026 round of fewer than 1,000 roles, which had included some Agentforce staff.",
+    "claim": "Salesforce ran a second 2026 layoff round in June, reported by Business Insider on June 9, 2026. A California WARN notice disclosed 86 eliminated positions in San Francisco (63 in technology and product, 21 in general administration, 2 in sales and distribution); employees in Washington state and outside the US were also affected, with the total undisclosed. The cuts hit roles connected to Agentforce, MuleSoft and Marketing Cloud, but a person familiar with the matter said Salesforce's core Agentforce teams were not affected. Affected California employees remain on payroll until August 7, 2026. This follows the February 2026 round of fewer than 1,000 roles, which had included some Agentforce staff.",
     "claim_type": "fact",
     "section": "tracked_facts",
     "zone": null,

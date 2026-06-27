@@ -12,7 +12,7 @@ The TPU 8i serves close to twice the volume per dollar, and Blackstone just comm
 
 AWS leans on Anthropic and OpenAI for its frontier models. Google builds its own.
 
-AWS's model story now rests on partners it doesn't control: it expanded its Anthropic position to up to \$25B, and Anthropic committed to spend more than \$100B on AWS over ten years. Bedrock added OpenAI's GPT-5.5 in June. Google, by contrast, owns silicon (TPU), the frontier model (Gemini/DeepMind), the platform, and the distribution channel under one roof.
+AWS's model story now rests on partners it doesn't control: it expanded its Anthropic position to up to \$25B, and Anthropic committed to spend more than \$100B on AWS over ten years. Bedrock added OpenAI's GPT-5.5 in June. Google, by contrast, owns silicon (TPU), the frontier model (Gemini/DeepMind), the platform and the distribution channel under one roof.
 
 **So what:** When procurement asks "who controls the model roadmap?", the AWS answer is Anthropic and OpenAI, companies with their own agendas. On Google Cloud it's Google. Make roadmap control a buying criterion. ([cnbc.com](https://www.cnbc.com/2026/04/20/amazon-invest-up-to-25-billion-in-anthropic-part-of-ai-infrastructure.html))
 
@@ -94,7 +94,7 @@ Both clouds are supply-limited on top-end Nvidia capacity (TSMC CoWoS and HBM bo
 
 **Soundbite:** *"Blackwell is scarce for everyone. We give you TPUs as a second supply line you can actually get."* ([aws.amazon.com](https://aws.amazon.com/blogs/machine-learning/aws-and-nvidia-deepen-strategic-collaboration-to-accelerate-ai-from-pilot-to-production/))
 
-Agent-platform maturity is now a contested fight, not a clean Google win. At AWS Summit New York (June 17, 2026), AWS shipped a production-agent stack on Bedrock AgentCore: the AgentCore harness reached general availability, alongside a managed Knowledge Base for enterprise RAG, native Web Search grounding inside the customer's AWS environment, and agent observability with recommendations and A/B testing. AWS also added AWS WAF AI traffic monetization (letting publishers charge AI bots for content) and previewed two agent-infrastructure services, AWS Context (a company-wide knowledge graph for agents) and AWS Continuum (agentic code-vulnerability security). AWS says tasks run on AgentCore grew 15x in six months. This narrows the production-agent gap reps used to claim over Vertex AI and the Gemini Enterprise Agent platform. ([aws.amazon.com](https://aws.amazon.com/blogs/aws/top-announcements-of-the-aws-summit-in-new-york-2026/))
+Agent-platform maturity is now a contested fight, not a clean Google win. At AWS Summit New York (June 17, 2026), AWS shipped a production-agent stack on Bedrock AgentCore: the AgentCore harness reached general availability, alongside a managed Knowledge Base for enterprise RAG, native Web Search grounding inside the customer's AWS environment and agent observability with recommendations and A/B testing. AWS also added AWS WAF AI traffic monetization (letting publishers charge AI bots for content) and previewed two agent-infrastructure services, AWS Context (a company-wide knowledge graph for agents) and AWS Continuum (agentic code-vulnerability security). AWS says tasks run on AgentCore grew 15x in six months. This narrows the production-agent gap reps used to claim over Vertex AI and the Gemini Enterprise Agent platform. ([aws.amazon.com](https://aws.amazon.com/blogs/aws/top-announcements-of-the-aws-summit-in-new-york-2026/))
 
 ### Where AWS wins
 
@@ -106,20 +106,20 @@ With ~28% market share and revenue nearly double ours, AWS holds the install bas
 
 **If a buyer has standardized on Claude, AWS has the deepest native path.**
 
-Over 100,000 customers run Claude on Bedrock, Trainium handles the majority of Bedrock inference traffic, and the AWS–Anthropic co-engineering (Project Rainier, \$100B commitment) is hard to match at arm's length. Claude is on Vertex too, but the integration depth on Bedrock is real.
+Over 100,000 customers run Claude on Bedrock, Trainium handles the majority of Bedrock inference traffic, and the AWS and Anthropic co-engineering (Project Rainier, \$100B commitment) is hard to match at arm's length. Claude is on Vertex too, but the integration depth on Bedrock is real.
 
 **Soundbite:** *"Claude runs great on Bedrock, and it runs on Vertex too, without Bedrock's quota waits. Same model, your choice of infrastructure."* ([techcrunch.com](https://techcrunch.com/2026/03/22/an-exclusive-tour-of-amazons-trainium-lab-the-chip-thats-won-over-anthropic-openai-even-apple/))
 
 **AWS's service breadth and partner ecosystem are a default-platform advantage.**
 
-Thousands of services, the largest ISV and SI ecosystem, and the broadest compliance coverage make AWS the safe anchor for multi-cloud enterprises. Our \$20B revenue and ~14% share mean proportionally fewer integrations and certifications, a gap the rep should acknowledge and route around.
+Thousands of services, the largest ISV and SI ecosystem and the broadest compliance coverage make AWS the safe anchor for multi-cloud enterprises. Our \$20B revenue and ~14% share mean proportionally fewer integrations and certifications, a gap the rep should acknowledge and route around.
 
 **Soundbite:** *"AWS has more services. On AI/ML, our silicon and economics win, and you keep the rest of your AWS estate."* ([aboutamazon.com](https://www.aboutamazon.com/news/company-news/amazon-ceo-andy-jassy-aws-ai-q1-2026-earnings))
 
 ## Sentiment
 
 - Sentiment: enterprise reviewers report unpredictable Bedrock billing: one PeerSpot reviewer cited ~\$130 in unexpected charges within two weeks without even deploying a model. Recurring theme: cost opacity as teams move past proof-of-concept. ([peerspot.com](https://www.peerspot.com/products/amazon-bedrock-reviews))
-- Sentiment: SageMaker draws consistent complaints about month-end billing shock, a steep learning curve for non-AWS-native teams, and "walled garden" lock-in that penalizes multi-cloud strategies (G2/PeerSpot themes). ([truefoundry.com](https://www.truefoundry.com/blog/amazon-sagemaker-review-features-pricing-pros-and-cons-better-alternative))
+- Sentiment: SageMaker draws consistent complaints about month-end billing shock, a steep learning curve for non-AWS-native teams and "walled garden" lock-in that penalizes multi-cloud strategies (G2/PeerSpot themes). ([truefoundry.com](https://www.truefoundry.com/blog/amazon-sagemaker-review-features-pricing-pros-and-cons-better-alternative))
 - Sentiment: developers describe Trainium's Neuron SDK as painful outside AWS's happy path ("things tend to fall apart immediately" with custom dependencies) and note the conspicuous absence of public customer endorsements beyond Anthropic. A real adoption-friction signal for the Trainium ecosystem. ([news.ycombinator.com](https://news.ycombinator.com/item?id=46125155))
 - Sentiment (the other side): enterprises praise Bedrock for low operational lift and tight IAM/VPC integration within existing AWS security boundaries, a genuine strength for compliance-heavy shops already standardized on AWS. Don't pretend AWS has no fans. ([peerspot.com](https://www.peerspot.com/products/amazon-bedrock-reviews))
 - Sentiment (our own weak spot): Vertex AI / Gemini Enterprise Agent Platform draws complaints about complex multi-dimensional pricing and a steep learning curve for teams not already GCP-native. Reps should expect this and have an onboarding/cost-modeling answer ready. ([tekpon.com](https://tekpon.com/software/google-cloud-vertex-ai/reviews/))
@@ -130,7 +130,7 @@ Thousands of services, the largest ISV and SI ecosystem, and the broadest compli
 
 Own it directly: the June 12, 2025 outage took down 70+ services for hours after an untested global config change, and Google publicly apologized and committed to feature-flagged rollouts and isolation so one fault can't cascade. Every hyperscaler has had a major outage (AWS's us-east-1 included); the question is the fix trajectory, and the market clearly hasn't defected, given 63% Q1 2026 growth.
 
-**So what:** Don't minimize it: acknowledge, point to the concrete process changes, and pivot the reliability conversation to forward architecture, not past incidents. ([cnbc.com](https://www.cnbc.com/2025/06/16/google-cloud-outage-apology.html))
+**So what:** Don't minimize it: acknowledge, point to the concrete process changes and pivot the reliability conversation to forward architecture, not past incidents. ([cnbc.com](https://www.cnbc.com/2025/06/16/google-cloud-outage-apology.html))
 
 **"Google kills products. You just retired Vertex AI. Why bet our ML platform on that?"**
 
@@ -140,7 +140,7 @@ This is grounded and fair to raise. But the April 22, 2026 change is an evolutio
 
 **"Even Pichai says Google Cloud is compute-constrained. We'll be stuck in a queue."**
 
-True, Pichai said it: "We are compute constrained in the near term." Demand is outrunning supply, and Google is spending \$180–190B in 2026 plus standing up the Blackstone TPU venture to close the gap. AWS admits the same constraint, with Trainium sold out. The right move is to secure committed capacity through the account team now, not to assume an equally-constrained AWS is more available.
+True, Pichai said it: "We are compute constrained in the near term." Demand is outrunning supply, and Google is spending \$180 to 190B in 2026 plus standing up the Blackstone TPU venture to close the gap. AWS admits the same constraint, with Trainium sold out. The right move is to secure committed capacity through the account team now, not to assume an equally-constrained AWS is more available.
 
 **So what:** Turn the constraint into proof of demand, and lock in committed capacity now, because AWS is just as supply-limited. ([cnbc.com](https://www.cnbc.com/2026/04/29/alphabet-googl-q1-2026-earnings.html))
 
@@ -152,15 +152,15 @@ Not exclusive: Anthropic itself states Claude is available on all three major cl
 
 **"AWS is the market leader. That's the safe pick."**
 
-Fair on today's numbers: AWS holds ~28% share to Google's 14% (Synergy). But Google Cloud is growing 63% a year to AWS's 28%, led by enterprise AI, so the safe pick three to five years out is the platform winning on AI economics and owning its own model. Over three to five years, the safer bet is the platform winning on AI economics and owning its own model.
+Fair on today's numbers: AWS holds ~28% share to Google's 14% (Synergy). But Google Cloud is growing 63% a year to AWS's 28%, led by enterprise AI, so the safe pick three to five years out is the platform winning on AI economics and owning its own model.
 
-**So what:** Concede the current-share point, then redirect to a 3–5 year trajectory framing where the growth gap and AI differentiation favor Google. ([srgresearch.com](https://www.srgresearch.com/articles/cloud-market-annual-revenue-run-rate-topped-half-a-trillion-dollars-in-q1-as-growth-surge-continues))
+**So what:** Concede the current-share point, then redirect to a 3 to 5 year trajectory framing where the growth gap and AI differentiation favor Google. ([srgresearch.com](https://www.srgresearch.com/articles/cloud-market-annual-revenue-run-rate-topped-half-a-trillion-dollars-in-q1-as-growth-surge-continues))
 
 **"Google Cloud has an active, unresolved network incident in India. That's not a historical footnote. It's happening right now."**
 
-Own the scope completely: a fire at a third-party Delhi facility on June 9 forced an emergency power shutdown that isolated a local Point of Presence. As of the June 23 status update (the most recent available), the incident remains active and unresolved 15 days on. Traffic from Delhi, Chennai, and Mumbai continues to hit intermittent elevated latency and possible packet loss, with no workaround available. Affected services span Hybrid Connectivity, Media CDN, and VPC in asia-south2, with some global impact on those same services. Google's team has now reached the damaged site and is restoring capacity through the week; the next status update is not due until Monday, June 29.
+Own the scope completely: a fire at a third-party Delhi facility on June 9 forced an emergency power shutdown that isolated a local Point of Presence. As of the June 23 status update (the most recent available), the incident remains active and unresolved 15 days on. Traffic from Delhi, Chennai and Mumbai continues to hit intermittent elevated latency and possible packet loss, with no workaround available. Affected services span Hybrid Connectivity, Media CDN, and VPC in asia-south2, with some global impact on those same services. Google's team has now reached the damaged site and is restoring capacity through the week; the next status update is not due until Monday, June 29.
 
-**So what:** Map the buyer's actual workloads against that scope right now in the conversation. Ask which services and regions they are evaluating. If their target deployment does not touch Hybrid Connectivity, Media CDN, or VPC in the affected India regions, this incident has no operational impact on them today. Confirm that explicitly, then redirect to the workload they came in to evaluate. ([status.cloud.google.com](https://status.cloud.google.com/incidents/5fGQt4VbkDnr3Yp8PXPr))
+**So what:** Map the buyer's actual workloads against that scope right now in the conversation. Ask which services and regions they are evaluating. If their target deployment does not touch Hybrid Connectivity, Media CDN or VPC in the affected India regions, this incident has no operational impact on them today. Confirm that explicitly, then redirect to the workload they came in to evaluate. ([status.cloud.google.com](https://status.cloud.google.com/incidents/5fGQt4VbkDnr3Yp8PXPr))
 
 ## Cut Log
 

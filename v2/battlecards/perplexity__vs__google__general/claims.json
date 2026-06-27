@@ -442,7 +442,7 @@
   },
   {
     "subject_key": "google | legal-action | doj-remedies-appeal",
-    "claim": "On February 3, 2026, the DOJ and a coalition of states appealed the search-monopoly remedies ruling, calling the behavioral remedies a 'slap on the wrist for a recidivist monopolist' and seeking stronger structural relief, keeping Google's default-distribution model legally unsettled into 2026–27.",
+    "claim": "On February 3, 2026, the DOJ and a coalition of states appealed the search-monopoly remedies ruling, calling the behavioral remedies a 'slap on the wrist for a recidivist monopolist' and seeking stronger structural relief, keeping Google's default-distribution model legally unsettled into 2026 and 2027.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
@@ -731,7 +731,7 @@
   },
   {
     "subject_key": "perplexity-vs-google | battlecard | agentic-race",
-    "claim": "**The agentic race is genuinely contested: both are shipping autonomous agents right now.**\n\nGoogle launched 24/7 background Search Agents at I/O while Perplexity shipped Computer for Enterprise with 100+ connectors; neither has a decisive deployment lead, so deals turn on integration fit and trust, not on who has 'agents' at all.\n\n**Soundbite:** *\"Everyone's demoing agents. The question is whose agents plug into your actual stack and show their sources, and that's where we compete hard.\"*",
+    "claim": "**The agentic race is genuinely contested: both are shipping autonomous agents right now.**\n\nGoogle launched 24/7 background Search Agents at I/O while Perplexity shipped Computer for Enterprise with 100+ connectors; neither has a decisive deployment lead, so deals turn on integration fit and trust, not on who has 'agents' at all.\n\n**Soundbite:** *\"Everyone's demoing agents. Ours plug into your actual stack and cite their sources on every answer.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
@@ -800,7 +800,7 @@
   },
   {
     "subject_key": "google | battlecard | gemini-benchmark-strength",
-    "claim": "**Gemini 3 is a genuinely top-tier model: concede the benchmark fight and win the trust fight.**\n\nGemini 3 Pro topped LMArena at 1501 Elo with PhD-level reasoning scores; Perplexity builds no frontier model of its own. For benchmark-driven technical buyers this is Google's strongest card, so pivot from raw model scores to answer accuracy, citations and the freedom to use Gemini inside Perplexity when it's the best fit.\n\n**Soundbite:** *\"Gemini's a great model, so we route to it when it's the right tool for the job. Our job is to pick the best model for each task.\"*",
+    "claim": "**Gemini 3 is a genuinely top-tier model: concede the benchmark fight and win the trust fight.**\n\nGemini 3 Pro topped LMArena at 1501 Elo with PhD-level reasoning scores; Perplexity builds no frontier model of its own. For benchmark-driven technical buyers this is Google's strongest card, so pivot from raw model scores to answer accuracy, citations and the freedom to use Gemini inside Perplexity when it's the best fit.\n\n**Soundbite:** *\"We pick the best model for each task, so you always get the strongest answer without managing any of it.\"*",
     "claim_type": "fact",
     "section": "battlecard",
     "zone": "where_they_win",
@@ -979,7 +979,7 @@
   },
   {
     "subject_key": "objection | perplexity-is-a-wrapper",
-    "claim": "**\"Perplexity is just a wrapper on other people's models. Google owns its models and infrastructure.\"**\n\nThat critique was fair early on, and TechCrunch has named it. The honest counter: Perplexity now runs its own AI-optimized web index and Sonar models and no longer depends on others' APIs for search, and the real IP is the orchestration layer that picks the best of 19 models per task in real time. Owning one model is a constraint; orchestrating all of them is the product.\n\n**So what:** Reframe 'wrapper' as 'neutral orchestration', the buyer's hedge against any single lab's roadmap.",
+    "claim": "**\"Perplexity is just a wrapper on other people's models. Google owns its models and infrastructure.\"**\n\nThat critique was fair early on, and TechCrunch has named it. The honest counter: Perplexity now runs its own AI-optimized web index and Sonar models and no longer depends on others' APIs for search, and the real IP is the orchestration layer that picks the best of 19 models per task in real time. Owning one model is a constraint; orchestrating all of them is the product.\n\n**So what:** Answer the 'wrapper' label head on: routing across every major model is the buyer's protection against being tied to one lab's roadmap.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,

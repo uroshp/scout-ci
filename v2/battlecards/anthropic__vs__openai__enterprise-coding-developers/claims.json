@@ -818,7 +818,7 @@
   },
   {
     "subject_key": "objection | claude-code-quality-decline-veracode | current",
-    "claim": "**\"Didn't Claude Code get worse, and doesn't Veracode say it writes insecure code?\"**\n\nBoth have a real basis. Anthropic acknowledged three engineering missteps degraded Claude Code from March–April 2026, and Veracode found Opus 4.7 introduced a vulnerability in 52% of tested tasks vs ~30% for OpenAI's models. The honest answer: all three regressions were fixed by April 20, the figure was for 4.7 during the degraded window, and Opus 4.8 (May 28) is specifically ~4x less likely to ship unflagged flawed code. Ask for current 4.8 data.\n\n**So what:** Concede the 4.7 period, then move to 4.8 and a security eval on the prospect's own code, where the self-verification improvements show up.",
+    "claim": "**\"Didn't Claude Code get worse, and doesn't Veracode say it writes insecure code?\"**\n\nBoth have a real basis. Anthropic acknowledged three engineering missteps degraded Claude Code from March to April 2026, and Veracode found Opus 4.7 introduced a vulnerability in 52% of tested tasks vs ~30% for OpenAI's models. The honest answer: all three regressions were fixed by April 20, the figure was for 4.7 during the degraded window, and Opus 4.8 (May 28) is specifically ~4x less likely to ship unflagged flawed code. Ask for current 4.8 data.\n\n**So what:** Concede the 4.7 period, then move to 4.8 and a security eval on the prospect's own code, where the self-verification improvements show up.",
     "claim_type": "fact",
     "section": "objection_handling",
     "zone": null,

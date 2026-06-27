@@ -90,7 +90,7 @@
   },
   {
     "subject_key": "mistral | sovereign-self-host-edge | current",
-    "claim": "**Mistral's structural edge is ownership: the model runs inside the customer's walls.**\n\nBNP Paribas runs Mistral models on-premises to meet strict security requirements, cutting incomplete KYC files from 80% to 10%. That is a deployment shape OpenAI does not offer for frontier models, so where data cannot leave the building the comparison is Mistral versus nothing.\n\n**So what:** Disqualify OpenAI early in air-gapped, defense, and regulated-data deals by making on-prem deployment a hard requirement.",
+    "claim": "**Mistral's structural edge is ownership: the model runs inside the customer's walls.**\n\nBNP Paribas runs Mistral models on-premises to meet strict security requirements, cutting incomplete KYC files from 80% to 10%. That is a deployment shape OpenAI does not offer for frontier models, so where data cannot leave the building the comparison is Mistral versus nothing.\n\n**So what:** Disqualify OpenAI early in air-gapped, defense and regulated-data deals by making on-prem deployment a hard requirement.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -984,7 +984,7 @@
   },
   {
     "subject_key": "openai | objection-safe-default | current",
-    "claim": "**\"Isn't OpenAI the safe default everyone already uses?\"**\n\nDefault is doing less work than it used to. When OpenAI retired GPT-4o, roughly 800,000 active users were disrupted with little notice, and that kind of deprecation churn lands on whoever built workflows on a named model. With open weights, you decide when a model version changes.\n\n**So what:** Reframe 'safe' as 'who controls your migration timeline,' where a closed, frequently-deprecated API is the riskier bet.",
+    "claim": "**\"Isn't OpenAI the safe default everyone already uses?\"**\n\nWhat makes a model safe is that it fits your requirements: it runs inside your walls and you control it. A popular one-size-fits-all default gives you neither. When OpenAI retired GPT-4o, roughly 800,000 active users were disrupted with little notice, and that kind of deprecation churn lands on whoever built workflows on a named model. With open weights, you decide when a model version changes.\n\n**So what:** Make the buyer see who controls their upgrade timeline: OpenAI retires models on its own schedule and forces a re-test and re-deploy each time, while open weights let them keep the version they validated for as long as they want.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -1053,7 +1053,7 @@
   },
   {
     "subject_key": "openai | gpt-5.5-cyber",
-    "claim": "On June 22 OpenAI shipped the full version of GPT-5.5-Cyber, a model that finds vulnerabilities and generates patches, kept restricted to vetted defenders because of its offensive-leaning skills. OpenAI paired it with an updated Codex Security plugin that runs the full discovery-to-patch pipeline, and a 'Patch the Planet' initiative that fixes open-source projects including Python, Go, and cURL. OpenAI also named cyber partnerships with several governments, including France, Germany, the EU agency ENISA, and the UK, and said GPT-5.5-Cyber leads CyberGym at 85.6%, ahead of Anthropic's Mythos 5 at 83.8%.",
+    "claim": "On June 22 OpenAI shipped the full version of GPT-5.5-Cyber, a model that finds vulnerabilities and generates patches, kept restricted to vetted defenders because of its offensive-leaning skills. OpenAI paired it with an updated Codex Security plugin that runs the full discovery-to-patch pipeline, and a 'Patch the Planet' initiative that fixes open-source projects including Python, Go and cURL. OpenAI also named cyber partnerships with several governments, including France, Germany, the EU agency ENISA and the UK, and said GPT-5.5-Cyber leads CyberGym at 85.6%, ahead of Anthropic's Mythos 5 at 83.8%.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
