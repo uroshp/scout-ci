@@ -2,11 +2,11 @@
 
 ## Executive Summary
 
-**Teams still owns the enterprise default, but the ground is shifting under it.**
+**Slack spent June assembling an agent stack from other vendors. Teams ships one you already govern.**
 
-By the last public count Teams holds about 37% of the team-collaboration market and roughly 320M monthly active users, versus Slack's ~13% and ~65M, a 5x scale lead rooted in Microsoft 365 distribution. The contest now is less about installed base and more about who owns the AI layer and whether regulators force that distribution open.
+Slack's June moves look like AI momentum but read as fragmentation: the Slackbot MCP client went GA over 20-plus third-party apps on June 17, Claude went native in Slack channels on June 23, and Salesforce paid \$3.6B for Fin on June 15 to bolt on a support agent. That is an agent stack the customer must license and secure vendor by vendor, on a workspace whose parent already blocks Slack data from leaving for outside AI. Microsoft 365 Copilot is one agent, already at 20 million paid seats, grounded in the Graph data and Entra identity the customer already governs, inside the app people open every morning.
 
-**So what:** Lead with the installed-base and M365-integration story, but don't assume the bundle alone closes deals anymore. Be ready for the AI and antitrust conversations. ([uctoday.com](https://www.uctoday.com/unified-communications/microsoft-teams-slack-bundling-antitrust-lawsuit/))
+**So what:** Put the question as which AI surface the buyer can turn on today and govern under one boundary they already control, versus a multi-vendor stack they assemble and secure on top of Salesforce. Concede outside agents are reachable through Copilot connectors, but under one identity and compliance perimeter. ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/06/15/salesforce-fin/))
 
 **Slack's parent is distracted and its top seat is empty.**
 

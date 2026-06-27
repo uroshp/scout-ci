@@ -2,13 +2,13 @@
 
 ## Executive Summary
 
-**Anthropic now leads the enterprise-AI race it used to trail, and coding is the engine.**
+**Anthropic now leads the enterprise-AI race on independent data, and coding is the engine.**
 
-As of April 2026, Ramp's expense data (50,000+ companies) shows 34.4% of businesses paying for Anthropic versus 32.3% for OpenAI, the first time Anthropic has held the top spot, after climbing from ~9% a year earlier. Its \$47B revenue run-rate and \$965B valuation now both exceed OpenAI's, and Claude Code is the stated driver.
+Independent corporate-card data from Ramp across 50,000-plus companies puts Anthropic ahead of OpenAI in paid business adoption (34.4% vs 32.3%) for the first time. Anthropic's revenue run-rate and valuation both now exceed OpenAI's, and it is Anthropic, not OpenAI, that names Claude Code as the driver. The newest June facts sharpen this rather than blunt it: OpenAI is leaning toward delaying its IPO to 2027 after an audited \$38.5B net loss, while Anthropic filed its S-1 first. The buyer is not taking a risk on a challenger; they are choosing the vendor independent spend and the public markets now rank at the top, with coding as the engine.
 
-**So what:** Lead enterprise-coding deals with third-party proof: "Anthropic is the #1 AI vendor by verified business-customer count, per Ramp" is sourced and hard to wave away. ([techcrunch.com](https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-customers-than-openai-according-to-ramp-data/))
+**So what:** Open by killing the 'OpenAI is the safe default' reflex, because most other objections are downstream of it, then route the decision to the engineers who live in the tool and a paid pilot on the buyer's own repo. Do not lead with the GPT-5.6 government-gating point here: Anthropic just had Fable 5 and Mythos 5 disabled, so it invites mutual destruction. ([techcrunch.com](https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-users-than-openai/))
 
-**The single most actionable opening right now is the GitHub Copilot billing revolt.**
+**A strong secondary play on cost: the GitHub Copilot billing revolt.**
 
 Copilot switched to token-based billing on June 1, 2026; developers report flat-rate bills ballooning (one cited \$29/mo heading to ~\$750/mo) and are publicly threatening to move work to Anthropic. This is OpenAI's distribution channel generating churn at exactly the moment of price shock.
 

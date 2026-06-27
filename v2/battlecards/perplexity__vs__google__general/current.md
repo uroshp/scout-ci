@@ -2,11 +2,11 @@
 
 ## Executive Summary
 
-**Google absorbed the AI-search threat, so stop selling Perplexity as the "Google killer" and sell it as the enterprise orchestration layer.**
+**Betting your stack on one model is the risk, and the last two weeks prove it.**
 
-Google's AI Mode passed 1 billion monthly users one year after launch and Q1 2026 Search revenue grew 19% to \$60.4B with queries at an all-time high: AI made Google's core business bigger, not smaller. Perplexity's consumer web traffic has been roughly flat over the same window. The real contest has moved to agentic, multi-model enterprise workflows, where Perplexity (\$500M ARR, tripled in 2026) is purpose-built and Google is least entrenched.
+Google wants enterprises to standardize on one model, Gemini, but the frontier keeps moving and no single lab stays on top for long. Gemini 3.5 Pro just slipped its June launch to July, and four senior people behind Gemini and AlphaFold left inside a fortnight, three of them to Anthropic. Perplexity is the neutral layer that routes each task to the best of 19 models, so when Anthropic or OpenAI pulls ahead the buyer gets it automatically, with no re-platforming and no waiting on one vendor's roadmap, plus accredited, source-cited workflows a regulated buyer can defend.
 
-**So what:** Lead enterprise deals on vendor-neutral multi-model orchestration and cited research, not on head-to-head consumer search where Google's distribution is overwhelming. ([blog.google](https://blog.google/products-and-platforms/products/search/search-io-2026/))
+**So what:** Frame the choice as betting the stack on one lab versus hedging across all of them, right when that bet just got more dangerous. The talent moved to Anthropic and OpenAI, which proves the point rather than undercutting it: no one can predict which lab leads in twelve months, and neutrality is the insurance. ([techcrunch.com](https://techcrunch.com/2026/06/24/ai-researchers-continue-to-leave-google-deepmind/))
 
 **Perplexity is growing fast but small and legally exposed, so go in with the litigation answer already loaded.**
 

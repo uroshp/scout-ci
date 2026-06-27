@@ -2,11 +2,11 @@
 
 ## Executive Summary
 
-**Google Cloud is winning the AI-infrastructure growth race, by roughly 2x.**
+**Inference economics decide the AI bill now, and that is where our owned silicon opens a real gap.**
 
-In Q1 2026 Google Cloud grew 63% year-over-year to \$20.03B, while AWS grew 28% to \$37.6B. AWS is still 1.9x larger in absolute revenue, but that's the lagging indicator; the growth gap is the leading one, and it's driven by enterprise AI demand on both sides.
+The 8th-gen TPU 8i is purpose-built for inference and serves close to twice the volume at the same cost, and the edge is structural rather than a promotion: Google owns the model and the chip together, while AWS rents its frontier models from Anthropic and OpenAI and runs them on Trainium that is largely sold out. The proof is not just Google's own numbers. Blackstone committed \$5B to sell TPU capacity as a service, an outside investor betting billions on TPU price-performance over Nvidia.
 
-**So what:** In multi-year infra decisions, lead with trajectory, not incumbency. Frame it as "you're buying where AI compute is going, not where it was." Don't let a rep get anchored on AWS's larger base. ([cnbc.com](https://www.cnbc.com/2026/04/29/alphabet-googl-q1-2026-earnings.html))
+**So what:** Move the deal from who is bigger to who is cheaper per token at scale, which is what actually decides a multi-year infra commitment. Ask what share of the customer's AI spend is inference, then model Gemini Flash token economics against their own volume. ([blog.google](https://blog.google/innovation-and-ai/infrastructure-and-cloud/))
 
 **AWS has no first-party frontier model: it rents its AI soul from Anthropic and OpenAI. Google owns the whole stack.**
 

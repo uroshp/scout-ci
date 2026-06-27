@@ -1,13 +1,13 @@
 [
   {
     "subject_key": "perplexity-vs-google | competitive-frame | 2026",
-    "claim": "**Google absorbed the AI-search threat, so stop selling Perplexity as the \"Google killer\" and sell it as the enterprise orchestration layer.**\n\nGoogle's AI Mode passed 1 billion monthly users one year after launch and Q1 2026 Search revenue grew 19% to $60.4B with queries at an all-time high: AI made Google's core business bigger, not smaller. Perplexity's consumer web traffic has been roughly flat over the same window. The real contest has moved to agentic, multi-model enterprise workflows, where Perplexity ($500M ARR, tripled in 2026) is purpose-built and Google is least entrenched.\n\n**So what:** Lead enterprise deals on vendor-neutral multi-model orchestration and cited research, not on head-to-head consumer search where Google's distribution is overwhelming.",
+    "claim": "**Betting your stack on one model is the risk, and the last two weeks prove it.**\n\nGoogle wants enterprises to standardize on one model, Gemini, but the frontier keeps moving and no single lab stays on top for long. Gemini 3.5 Pro just slipped its June launch to July, and four senior people behind Gemini and AlphaFold left inside a fortnight, three of them to Anthropic. Perplexity is the neutral layer that routes each task to the best of 19 models, so when Anthropic or OpenAI pulls ahead the buyer gets it automatically, with no re-platforming and no waiting on one vendor's roadmap, plus accredited, source-cited workflows a regulated buyer can defend.\n\n**So what:** Frame the choice as betting the stack on one lab versus hedging across all of them, right when that bet just got more dangerous. The talent moved to Anthropic and OpenAI, which proves the point rather than undercutting it: no one can predict which lab leads in twelve months, and neutrality is the insurance.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 0,
-    "source_url": "https://blog.google/products-and-platforms/products/search/search-io-2026/",
-    "source_tier": "primary",
+    "source_url": "https://techcrunch.com/2026/06/24/ai-researchers-continue-to-leave-google-deepmind/",
+    "source_tier": "reputable_secondary",
     "evidence_excerpt": "Just one year after its debut, AI Mode has surpassed one billion monthly users, with queries more than doubling every quarter since launch.",
     "as_of": "2026-05-19",
     "confidence": "high",
@@ -19,7 +19,8 @@
       "method": "substring",
       "fetched_at": "2026-06-06",
       "detail": null
-    }
+    },
+    "updated_on": "2026-06-27"
   },
   {
     "subject_key": "perplexity | legal-exposure | 2026",
