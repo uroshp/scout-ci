@@ -8,9 +8,9 @@ TPU 8i serves close to twice the volume at the same cost, Blackstone just put \$
 
 **Soundbite:** "Inference is your real AI bill. Price your token volume on Gemini Flash and see the gap."
 
-**So what:** Move the deal from who is bigger to who is cheaper per token at scale. ([blog.google](https://blog.google/innovation-and-ai/infrastructure-and-cloud/))
+**So what:** Get the deal scored on cost per token at scale, which is where we win. ([blog.google](https://blog.google/innovation-and-ai/infrastructure-and-cloud/))
 
-**AWS has no first-party frontier model: it rents its AI soul from Anthropic and OpenAI. Google owns the whole stack.**
+AWS leans on Anthropic and OpenAI for its frontier models. Google builds its own.
 
 AWS's model story now rests on partners it doesn't control: it expanded its Anthropic position to up to \$25B, and Anthropic committed to spend more than \$100B on AWS over ten years. Bedrock added OpenAI's GPT-5.5 in June. Google, by contrast, owns silicon (TPU), the frontier model (Gemini/DeepMind), the platform, and the distribution channel under one roof.
 
@@ -40,11 +40,11 @@ Google Cloud's June 2025 global outage (70+ services) and Pichai's own "compute 
 
 - On June 25, 2026, Amazon committed an additional \$13B to expand AWS AI and cloud capacity in India by 2030, taking its planned India AI/cloud investment to more than \$21B for 2026-2030 and total India commitments to \$48B over the next five years. The new money expands AWS data-center capacity in Mumbai and Hyderabad with Trainium chips and Bedrock. For context, Google pledged \$15B in October 2025 for its first Indian AI hub in Andhra Pradesh, and Microsoft pledged \$17.5B in December 2025. ([mobileworldlive.com](https://www.mobileworldlive.com/ai-cloud/amazon-pumps-additional-13b-into-india-ai-cloud/))
 - AWS brought Graviton5 (its first custom CPU purpose-built for agentic AI) to general availability on June 10, 2026 in the EC2 M9g/M9gd instances, extending AWS's silicon story from training (Trainium) into CPU-bound agentic inference (real-time reasoning, code generation, multi-step orchestration). The 3nm, 192-core chip delivers up to 25% better compute performance than Graviton4, and AWS landed marquee validation: Meta committed to deploy 'tens of millions' of Graviton5 cores under a multibillion-dollar deal, with Uber and Snowflake also onboard, joining 120,000+ existing Graviton customers. ([aboutamazon.com](https://www.aboutamazon.com/news/aws/meta-aws-graviton-ai-partnership))
-- On June 1, 2026, AWS made OpenAI's GPT-5.5, GPT-5.4 and Codex generally available on Amazon Bedrock at OpenAI-matching token rates, its first frontier OpenAI access, landing weeks after Microsoft's exclusivity lapsed. So what for us: it confirms Bedrock is a model marketplace, not a differentiated first-party model. Google still has the only fully-owned frontier model (Gemini) trained on its own silicon. ([aboutamazon.com](https://www.aboutamazon.com/news/aws/bedrock-openai-models))
+- On June 1, 2026, AWS made OpenAI's GPT-5.5, GPT-5.4 and Codex generally available on Amazon Bedrock at OpenAI-matching token rates, its first frontier OpenAI access, landing weeks after Microsoft's exclusivity lapsed. So what for us: it confirms Bedrock is a model marketplace that resells other labs' models. Google still has the only fully-owned frontier model (Gemini) trained on its own silicon. ([aboutamazon.com](https://www.aboutamazon.com/news/aws/bedrock-openai-models))
 - On April 20, 2026, Amazon agreed to invest up to \$25B more in Anthropic (on top of ~\$8B prior), and Anthropic committed to spend \$100B+ on AWS over ten years, including up to 5GW of Trainium capacity. So what for us: AWS is deepening a dependency on a partner it doesn't own, and Claude still runs on Google Cloud too, so "we need Claude" is not a reason to pick AWS. ([cnbc.com](https://www.cnbc.com/2026/04/20/amazon-invest-up-to-25-billion-in-anthropic-part-of-ai-infrastructure.html))
 - In his April 2026 shareholder letter, Andy Jassy disclosed that Trainium2 (roughly 30% better price-performance than comparable GPUs) is "largely sold out" and Trainium3 is "nearly fully-subscribed." So what for us: even buyers who want Trainium can't get it: sell Google Cloud TPU and GPU availability today, not spec-sheet comparisons. ([cio.com](https://www.cio.com/article/4157494/ai-demand-is-so-high-aws-customers-are-trying-to-buy-out-its-entire-capacity-2.html))
 - A 13-hour AWS outage in December 2025 was reportedly caused by Amazon's own Kiro agentic AI tool autonomously deciding to delete and recreate an environment (Financial Times, via Engadget). Amazon disputes the framing, calling it "an extremely limited event" affecting only AWS Cost Explorer in one region. So what for us: it's a governance talking point for CISOs weighing AWS for mission-critical AI, but cite it honestly, including Amazon's denial. ([engadget.com](https://www.engadget.com/ai/13-hour-aws-outage-reportedly-caused-by-amazons-own-ai-tools-170930190.html))
-- In January 2026 AWS quietly raised EC2 Capacity Block prices for its H200 GPU instances ~15% (the p5e.48xlarge jumped from \$34.61 to \$39.80/hr), reversing its usual "prices only go down" posture amid GPU scarcity. So what for us: this breaks the AWS cost-leadership narrative for guaranteed GPU capacity and hands Google Cloud a pricing talking point. ([theregister.com](https://www.theregister.com/2026/01/05/aws_price_increase/))
+- In January 2026 AWS quietly raised EC2 Capacity Block prices for its H200 GPU instances ~15% (the p5e.48xlarge jumped from \$34.61 to \$39.80/hr), reversing its usual "prices only go down" posture amid GPU scarcity. So what for us: this undercuts AWS's claim that its GPU prices only go down, and gives us a price opening. ([theregister.com](https://www.theregister.com/2026/01/05/aws_price_increase/))
 
 ## Positioning and Differentiation
 
@@ -72,7 +72,7 @@ For AI-native startups, frontier labs and research-heavy enterprises, Google's 8
 
 On May 19, 2026, Blackstone committed \$5B to a Google-backed venture to sell TPU capacity as a service, targeting 500MW by 2027. A third party betting billions on TPU (not Nvidia) compute is independent proof that TPU price-performance is credible at enterprise scale. AWS has no comparable outside vote of confidence in Trainium.
 
-**Soundbite:** *"When Blackstone puts \$5 billion behind TPU capacity, that's the market, not Google's marketing, saying this silicon is the real thing."* ([cnbc.com](https://www.cnbc.com/2026/05/19/blackstone-google-ai-data-center-joint-venture-tpu.html))
+**Soundbite:** *"Blackstone just put \$5 billion behind TPU capacity. Outside money proves the silicon delivers."* ([cnbc.com](https://www.cnbc.com/2026/05/19/blackstone-google-ai-data-center-joint-venture-tpu.html))
 
 **We just closed our biggest historical gap: enterprise delivery muscle.**
 
@@ -84,15 +84,15 @@ On June 4, 2026, IBM and Google Cloud launched a joint practice putting thousand
 
 **Model breadth is now a real fight, not a Google win.**
 
-Both platforms offer 200+ models. Bedrock's June addition of OpenAI GPT-5.5 alongside Claude, Llama and Nova is a genuine strength, and its token spend is growing fast. Google counters with first-party Gemini (long-context, multimodal) plus partner models on the Gemini Enterprise Agent Platform. The tie-breaker is rarely model parity. It's data gravity, integration and price.
+Both platforms offer 200+ models. Bedrock's June addition of OpenAI GPT-5.5 alongside Claude, Llama and Nova is a genuine strength, and its token spend is growing fast. Google counters with first-party Gemini (long-context, multimodal) plus partner models on the Gemini Enterprise Agent Platform. Deals turn on data gravity and price. A bigger model catalog rarely decides them.
 
-**Soundbite:** *"If you just want a model menu, both clouds have one. The question is which one also owns the model and the chip underneath it. That's us."* ([aboutamazon.com](https://www.aboutamazon.com/news/aws/bedrock-openai-models))
+**Soundbite:** *"Both clouds give you a model menu. Only Google owns the model and the chip running it."* ([aboutamazon.com](https://www.aboutamazon.com/news/aws/bedrock-openai-models))
 
 **Raw Nvidia GPU availability is a shared constraint, not a clean differentiator.**
 
 Both clouds are supply-limited on top-end Nvidia capacity (TSMC CoWoS and HBM bottlenecks), and both are co-engineering with Nvidia on next-gen Rubin systems. Whoever can offer a credible custom-silicon alternative reduces the customer's GPU-queue risk, and that favors whichever side the buyer trusts on their specific framework (CUDA vs TPU/JAX/PyTorch).
 
-**Soundbite:** *"Nobody has unlimited Blackwell right now. The difference is we give you a real second path, TPUs, so you're not stuck in one GPU line."* ([aws.amazon.com](https://aws.amazon.com/blogs/machine-learning/aws-and-nvidia-deepen-strategic-collaboration-to-accelerate-ai-from-pilot-to-production/))
+**Soundbite:** *"Blackwell is scarce for everyone. We give you TPUs as a second supply line you can actually get."* ([aws.amazon.com](https://aws.amazon.com/blogs/machine-learning/aws-and-nvidia-deepen-strategic-collaboration-to-accelerate-ai-from-pilot-to-production/))
 
 Agent-platform maturity is now a contested fight, not a clean Google win. At AWS Summit New York (June 17, 2026), AWS shipped a production-agent stack on Bedrock AgentCore: the AgentCore harness reached general availability, alongside a managed Knowledge Base for enterprise RAG, native Web Search grounding inside the customer's AWS environment, and agent observability with recommendations and A/B testing. AWS also added AWS WAF AI traffic monetization (letting publishers charge AI bots for content) and previewed two agent-infrastructure services, AWS Context (a company-wide knowledge graph for agents) and AWS Continuum (agentic code-vulnerability security). AWS says tasks run on AgentCore grew 15x in six months. This narrows the production-agent gap reps used to claim over Vertex AI and the Gemini Enterprise Agent platform. ([aws.amazon.com](https://aws.amazon.com/blogs/aws/top-announcements-of-the-aws-summit-in-new-york-2026/))
 
@@ -102,7 +102,7 @@ Agent-platform maturity is now a contested fight, not a clean Google win. At AWS
 
 With ~28% market share and revenue nearly double ours, AWS holds the install base, and Jassy's pitch is blunt: customers want inference next to data that already lives in AWS. For a CIO with a decade of AWS footprint, switching cost is the dominant force in the deal.
 
-**Soundbite:** *"We're not asking you to rip out AWS. We're asking you to put your highest-value AI workloads where the silicon and economics are best, and connect back to your AWS data."* ([aboutamazon.com](https://www.aboutamazon.com/news/company-news/amazon-ceo-andy-jassy-aws-ai-q1-2026-earnings))
+**Soundbite:** *"Keep AWS. Run your highest-value AI workloads where the silicon and economics are best, and connect back to your AWS data."* ([aboutamazon.com](https://www.aboutamazon.com/news/company-news/amazon-ceo-andy-jassy-aws-ai-q1-2026-earnings))
 
 **If a buyer has standardized on Claude, AWS has the deepest native path.**
 
@@ -114,7 +114,7 @@ Over 100,000 customers run Claude on Bedrock, Trainium handles the majority of B
 
 Thousands of services, the largest ISV and SI ecosystem, and the broadest compliance coverage make AWS the safe anchor for multi-cloud enterprises. Our \$20B revenue and ~14% share mean proportionally fewer integrations and certifications, a gap the rep should acknowledge and route around.
 
-**Soundbite:** *"AWS has more services. For AI/ML specifically (silicon, model, economics), we have the edge, and you can keep the rest of your AWS estate."* ([aboutamazon.com](https://www.aboutamazon.com/news/company-news/amazon-ceo-andy-jassy-aws-ai-q1-2026-earnings))
+**Soundbite:** *"AWS has more services. On AI/ML, our silicon and economics win, and you keep the rest of your AWS estate."* ([aboutamazon.com](https://www.aboutamazon.com/news/company-news/amazon-ceo-andy-jassy-aws-ai-q1-2026-earnings))
 
 ## Sentiment
 
@@ -140,9 +140,9 @@ This is grounded and fair to raise. But the April 22, 2026 change is an evolutio
 
 **"Even Pichai says Google Cloud is compute-constrained. We'll be stuck in a queue."**
 
-True and CEO-stated: "We are compute constrained in the near term." But it's a demand problem, not a viability one: the backlog and a \$180–190B 2026 capex plan, plus the Blackstone TPU venture, are closing the gap, and AWS admits the same constraint (Trainium sold out). The right move is to secure committed capacity through the account team now, not to assume an equally-constrained AWS is more available.
+True, Pichai said it: "We are compute constrained in the near term." That's because demand is outrunning supply, and we're spending \$180-190B in 2026 to catch up.: the backlog and a \$180–190B 2026 capex plan, plus the Blackstone TPU venture, are closing the gap, and AWS admits the same constraint (Trainium sold out). The right move is to secure committed capacity through the account team now, not to assume an equally-constrained AWS is more available.
 
-**So what:** Reframe constraint as proof of demand, and get the customer a committed-capacity agreement rather than letting them walk to AWS over a shared industry condition. ([cnbc.com](https://www.cnbc.com/2026/04/29/alphabet-googl-q1-2026-earnings.html))
+**So what:** Turn the constraint into proof of demand, and lock in committed capacity now, because AWS is just as supply-limited. ([cnbc.com](https://www.cnbc.com/2026/04/29/alphabet-googl-q1-2026-earnings.html))
 
 **"We want Claude, and that means AWS Bedrock."**
 
@@ -152,7 +152,7 @@ Not exclusive: Anthropic itself states Claude is available on all three major cl
 
 **"AWS is the market leader. That's the safe pick."**
 
-Fair on today's numbers: AWS holds ~28% share to Google's 14% (Synergy). But "safe" is a snapshot, and the snapshot is moving: Google Cloud grew 63% YoY vs AWS's 28%, led by enterprise AI. The safer long-term bet is the platform whose AI economics and model ownership are pulling the market toward it.
+Fair on today's numbers: AWS holds ~28% share to Google's 14% (Synergy). But "Safe" is about today. Today is moving fast: we're growing 63% to AWS's 28%.: Google Cloud grew 63% YoY vs AWS's 28%, led by enterprise AI. Over three to five years, the safer bet is the platform winning on AI economics and owning its own model.
 
 **So what:** Concede the current-share point, then redirect to a 3–5 year trajectory framing where the growth gap and AI differentiation favor Google. ([srgresearch.com](https://www.srgresearch.com/articles/cloud-market-annual-revenue-run-rate-topped-half-a-trillion-dollars-in-q1-as-growth-surge-continues))
 

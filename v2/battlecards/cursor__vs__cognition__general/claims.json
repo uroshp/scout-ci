@@ -1,7 +1,7 @@
 [
   {
     "subject_key": "cognition | competitive-position | current",
-    "claim": "**Cognition has graduated from viral demo to a scaled competitor: sell against it that way.**\n\nIn the last two weeks Cognition raised over $1B at a $26B valuation (May 27) and reports a $492M revenue run-rate, up roughly 13x in a year, with named customers including Goldman Sachs, Mercedes-Benz, and the U.S. Army. Devin now shows up in real enterprise evaluations.\n\n**So what:** Retire any 'Devin is a toy that fails most tasks' talk track. It's stale and makes us look uninformed. Win on proven scale and reliability, not by pretending they're small.",
+    "claim": "**Cognition has graduated from viral demo to a scaled competitor: sell against it that way.**\n\nIn the last two weeks Cognition raised over $1B at a $26B valuation (May 27) and reports a $492M revenue run-rate, up roughly 13x in a year, with named customers including Goldman Sachs, Mercedes-Benz, and the U.S. Army. Devin now shows up in real enterprise evaluations.\n\n**So what:** Retire any 'Devin is a toy that fails most tasks' talk track. It's stale and makes us look uninformed. Win on proven scale and reliability.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -23,7 +23,7 @@
   },
   {
     "subject_key": "cursor-vs-cognition | revenue-scale-comparison | current",
-    "claim": "**On the numbers that decide deals, Cursor is still well ahead.**\n\nCursor crossed roughly $2B ARR by February 2026 (about 4x Cognition's $492M run-rate) and sits in more than half the Fortune 500. Cognition's $26B price is a higher revenue multiple than Cursor's: investors are paying for a catch-up bet, not a proven lead.\n\n**So what:** Anchor enterprise conversations on installed base and revenue durability. The agent-first hype is real; the proven, at-scale platform is ours.",
+    "claim": "**On the numbers that decide deals, Cursor is still well ahead.**\n\nCursor crossed roughly $2B ARR by February 2026 (about 4x Cognition's $492M run-rate) and sits in more than half the Fortune 500. Cognition's $26B price is a higher revenue multiple than Cursor's: investors are paying for a catch-up bet, not a proven lead.\n\n**So what:** Anchor enterprise conversations on installed base and revenue durability. Agent-first is getting the hype, but the platform running in production at scale is Cursor.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -45,7 +45,7 @@
   },
   {
     "subject_key": "devin | reliability-limitation | current",
-    "claim": "**Devin's reliability ceiling is our sharpest wedge, and Cognition admits it.**\n\nIn its own 2025 performance review Cognition concedes Devin 'can't independently tackle an ambiguous coding project end-to-end' and degrades when requirements change mid-task. Merge rates around 67% mean roughly one in three autonomous runs still doesn't ship.\n\n**So what:** Steer evaluations toward ambiguous, iterative, architecture-heavy work where human-in-the-loop wins. Use Cognition's own words: it's the most credible source there is.",
+    "claim": "**Devin's reliability ceiling is our sharpest wedge, and Cognition admits it.**\n\nIn its own 2025 performance review Cognition concedes Devin 'can't independently tackle an ambiguous coding project end-to-end' and degrades when requirements change mid-task. Merge rates around 67% mean roughly one in three autonomous runs still doesn't ship.\n\n**So what:** Steer evaluations toward ambiguous, iterative, architecture-heavy work where human-in-the-loop wins. Use Cognition's own words against them.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -67,7 +67,7 @@
   },
   {
     "subject_key": "cursor | adverse-objections-readiness | current",
-    "claim": "**Our two biggest vulnerabilities are billing trust and the SpaceX overhang. Have answers ready.**\n\nBuyers remember Cursor's 2025 pricing blow-ups (the CEO apologized publicly) and they've read that SpaceX holds a $60B option to acquire us, exercisable later in 2026. Both are real and both will come up.\n\n**So what:** Don't dodge. Arm reps with honest, prepared responses: the spend controls we shipped, and the fact that we operate independently today with change-of-control protections available in the contract.",
+    "claim": "**Our two biggest vulnerabilities are billing trust and the SpaceX overhang. Have answers ready.**\n\nBuyers remember Cursor's 2025 pricing blow-ups (the CEO apologized publicly) and they've read that SpaceX holds a $60B option to acquire us, exercisable later in 2026. Both are real and both will come up.\n\n**So what:** Don't dodge either one. Reps should name the new spend controls, and say Cursor operates independently today with change-of-control protection written into the contract.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -507,7 +507,7 @@
   },
   {
     "subject_key": "devin | battlecard-strength | autonomous-delegation",
-    "claim": "**Devin wins the 'fleet of async agents' use case.**\n\nWhen the buyer wants to assign well-scoped tickets and review PRs later (migrations, vulnerability fixes, batch maintenance), Devin's sandboxed-VM, run-to-PR model is purpose-built for it, and Cognition has published ROI like Mercedes-Benz compressing an eight-month modernization to eight days. Our background agents are newer and narrower here.\n\n**Soundbite:** *\"If the goal is a parallel fleet doing well-scoped maintenance overnight, Devin is genuinely strong there, so let's scope where that fits and where you still need engineers driving.\"*",
+    "claim": "**Devin wins the 'fleet of async agents' use case.**\n\nWhen the buyer wants to assign well-scoped tickets and review PRs later (migrations, vulnerability fixes, batch maintenance), Devin's sandboxed-VM, run-to-PR model is purpose-built for it, and Cognition has published ROI like Mercedes-Benz compressing an eight-month modernization to eight days. Our background agents are newer and narrower here.\n\n**Soundbite:** *\"If you want a fleet of agents knocking out scoped maintenance overnight, Devin is genuinely good at that. Let's map which of your work fits that and which still needs an engineer driving.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_they_win",
@@ -553,7 +553,7 @@
   },
   {
     "subject_key": "cursor-vs-cognition | battlecard-contested | developer-adoption",
-    "claim": "**Daily developer mindshare is ours, but the lead has stopped widening.**\n\nJetBrains' early-2026 survey of 10,000+ developers shows Cursor used at work by 18%, now tied with Claude Code, and notes Cursor's growth 'has slowed down.' Devin-style async agents aren't yet a primary tool for most. It's our ground to defend, not to take for granted.\n\n**Soundbite:** *\"More developers reach for Cursor every day than any agent, but we earn that seat daily, so let your engineers trial both and tell you which they live in.\"*",
+    "claim": "**Daily developer mindshare is ours, but the lead has stopped widening.**\n\nJetBrains' early-2026 survey of 10,000+ developers shows Cursor used at work by 18%, now tied with Claude Code, with growth that 'has slowed down.' Devin-style async agents are still niche for most teams. We have to keep earning this ground.\n\n**Soundbite:** *\"More developers open Cursor every day than any agent. Run both side by side for a sprint and see which one your engineers actually keep open.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
@@ -576,7 +576,7 @@
   },
   {
     "subject_key": "cursor-vs-cognition | battlecard-contested | enterprise-overlap",
-    "claim": "**The 'Cursor for devs, Devin for enterprise' line no longer holds. We're now in the same room.**\n\nSome enterprises run both (Cursor for senior architectural work, Devin for a parallel maintenance fleet), so deals increasingly hinge on governance, predictability, and which workflow the team actually lives in.\n\n**Soundbite:** *\"Plenty of teams run both. The real question is which tool owns the work your senior engineers do every day, and that's where we're strongest.\"*",
+    "claim": "**\"Cursor for devs, Devin for enterprise\" is outdated. We compete for the same enterprise deals now.**\n\nSome enterprises run both (Cursor for senior architectural work, Devin for a parallel maintenance fleet), so deals increasingly hinge on governance, predictability, and which workflow the team actually lives in.\n\n**Soundbite:** *\"Plenty of teams run both. The real question is which tool owns the work your senior engineers do every day, and that's where we're strongest.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
@@ -733,7 +733,7 @@
   },
   {
     "subject_key": "objection | devin-autonomy | competitor-strength",
-    "claim": "**\"Devin actually ships PRs autonomously while my team sleeps. Cursor just autocompletes.\"**\n\nIt's true Devin runs end-to-end to a PR, and Cognition says 89% of its own code is now committed by Devin. But Cursor also runs long autonomous background and cloud agents. The real difference is oversight granularity, and Cognition itself warns Devin struggles on ambiguous, changing work. We keep the engineer in the loop where the stakes are highest.\n\n**So what:** Reframe from 'autonomy vs autocomplete' to 'where do you want human judgment', then let the prospect trial both on their own ambiguous tickets.",
+    "claim": "**\"Devin actually ships PRs autonomously while my team sleeps. Cursor just autocompletes.\"**\n\nIt's true Devin runs end-to-end to a PR, and Cognition says 89% of its own code is now committed by Devin. But Cursor also runs long autonomous background and cloud agents. The real difference is oversight granularity, and Cognition itself warns Devin struggles on ambiguous, changing work. We keep the engineer in the loop where the stakes are highest.\n\n**So what:** Move the conversation from 'autonomy vs autocomplete' to 'where do you want a human checking the work.' Then put both tools on their own messy tickets.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -779,7 +779,7 @@
   },
   {
     "subject_key": "objection | cursor-pricing-trust | cursor-adverse",
-    "claim": "**\"I've seen the Cursor pricing blow-ups. How do I know our budget won't explode?\"**\n\nFair: the 2025 rollout was botched and our CEO apologized publicly. Since then we've restructured the tiers with explicit spend limits, usage visibility, and pooled enterprise billing with admin controls. For budget certainty, sign an enterprise contract with a capped monthly pool rather than per-seat usage-based plans.\n\n**So what:** Acknowledge the history honestly, then show the specific controls: defensiveness loses this one, transparency wins it.",
+    "claim": "**\"I've seen the Cursor pricing blow-ups. How do I know our budget won't explode?\"**\n\nFair: the 2025 rollout was botched and our CEO apologized publicly. Since then we've restructured the tiers with explicit spend limits, usage visibility, and pooled enterprise billing with admin controls. For budget certainty, sign an enterprise contract with a capped monthly pool rather than per-seat usage-based plans.\n\n**So what:** Own the history, then walk through the specific spend controls. Getting defensive is what loses this deal.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,

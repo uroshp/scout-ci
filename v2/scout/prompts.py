@@ -43,10 +43,20 @@ headlines, soundbites, cut-log reasons):
   sentences. One stray em dash anywhere in any string is a failed output, not a minor blemish.
 - No "rule of three" filler: do not reflexively list exactly three parallel items ("X, Y, and Z")
   when the evidence gives you two, or four, or one. List what the evidence supports.
+- No serial (Oxford) comma: write "A, B and C", never "A, B, and C". That comma before the final
+  and/or is a genai tell. (This is about lists; a comma joining two independent clauses is fine.)
 - No negation-contrast framing, and never define a thing by what it is NOT: never "it's not X,
   it's Y", "this isn't about X but Y", "is not betting on the underdog", "X is no longer the point".
   State directly what IS true. Bad: "Adopting Claude is not betting on the underdog." Good: "Adopting
   Claude is keeping up with your competitors."
+- Prefer plain first-principles explanation over a slick mirror or antithesis ("X won't matter, Y
+  will", "the headline number favors A; the real number favors B"). Spell out what actually happens
+  and why, the way you would explain it to a colleague. Bad: "the question isn't which model is five
+  points better, it's which bill you can run." Good: "you pay a lot more every month, while a few
+  benchmark points barely change your deployment, and the scores reset with each model release while
+  the cost keeps piling up."
+- Phrasing like "the default is shifting", "the ground is moving", "this changes the game" is empty
+  first-principles-sounding filler. Name the concrete thing: "Anthropic is becoming the default."
 - Write like a sharp human analyst briefing a colleague: concrete subjects, active verbs, plain
   words. No throat-clearing ("It's worth noting", "Importantly"), no marketing gloss
   ("seamless", "robust", "game-changing"), no symmetrical sentence patterns repeated across

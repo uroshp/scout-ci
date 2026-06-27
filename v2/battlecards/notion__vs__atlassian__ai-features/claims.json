@@ -621,7 +621,7 @@
   },
   {
     "subject_key": "battlecard | ai-pricing-credits | contested",
-    "claim": "**AI pricing is a wash on the surface (both meter agents), so win it on transparency, not on \"free.\"**\n\nNotion's Custom Agents use credits ($10/1,000) and Atlassian's Rovo uses a credit pool with overage billing coming. Don't claim Notion AI is free; claim it's predictable, because core Notion AI is unmetered while Rovo's thin Standard allowance runs out in two or three chats.\n\n**Soundbite:** *\"Both of us charge for heavy agent automation. The difference is your everyday AI (search, drafting, meeting notes) is metered on Rovo Standard and unlimited on Notion.\"*",
+    "claim": "**AI pricing is a wash on the surface (both meter agents), so win it on transparency, not on \"free.\"**\n\nNotion's Custom Agents use credits ($10/1,000) and Atlassian's Rovo uses a credit pool with overage billing coming. Don't claim Notion AI is free; claim it's predictable, because core Notion AI is unmetered while Rovo's thin Standard allowance runs out in two or three chats.\n\n\"Both of us charge for heavy agent automation. The difference: your everyday AI runs out fast on Rovo Standard and stays unlimited on Notion.\"",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
@@ -667,7 +667,7 @@
   },
   {
     "subject_key": "battlecard | vendor-scale | where-they-win",
-    "claim": "**Atlassian wins on raw scale and the \"safe public-company\" instinct.**\n\nAt $1.8B in quarterly revenue and 32% growth, Atlassian is a large, public, deeply-entrenched vendor. Risk-averse buyers read that as safety, and incumbency in Jira/Confluence raises switching costs.\n\n**Soundbite:** *\"Atlassian's bigger, no argument. But size cut 900 R&D roles this spring, and bet your data on training their models. Bigger isn't the same as the better bet for your team.\"*",
+    "claim": "**Atlassian wins on raw scale and the \"safe public-company\" instinct.**\n\nAt $1.8B in quarterly revenue and 32% growth, Atlassian is a large, public, deeply-entrenched vendor. Risk-averse buyers read that as safety, and incumbency in Jira/Confluence raises switching costs.\n\n**Soundbite:** *\"Atlassian's bigger, no argument. But that bigger company just cut 900 R&D roles and now trains its models on your data by default. Bet on the focused team over the merely large one.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_they_win",

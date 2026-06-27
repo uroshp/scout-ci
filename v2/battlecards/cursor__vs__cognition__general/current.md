@@ -6,25 +6,25 @@
 
 In the last two weeks Cognition raised over \$1B at a \$26B valuation (May 27) and reports a \$492M revenue run-rate, up roughly 13x in a year, with named customers including Goldman Sachs, Mercedes-Benz, and the U.S. Army. Devin now shows up in real enterprise evaluations.
 
-**So what:** Retire any 'Devin is a toy that fails most tasks' talk track. It's stale and makes us look uninformed. Win on proven scale and reliability, not by pretending they're small. ([techcrunch.com](https://techcrunch.com/2026/05/27/ai-coding-startup-cognition-raises-1b-at-25b-pre-money-valuation/))
+**So what:** Retire any 'Devin is a toy that fails most tasks' talk track. It's stale and makes us look uninformed. Win on proven scale and reliability. ([techcrunch.com](https://techcrunch.com/2026/05/27/ai-coding-startup-cognition-raises-1b-at-25b-pre-money-valuation/))
 
 **On the numbers that decide deals, Cursor is still well ahead.**
 
 Cursor crossed roughly \$2B ARR by February 2026 (about 4x Cognition's \$492M run-rate) and sits in more than half the Fortune 500. Cognition's \$26B price is a higher revenue multiple than Cursor's: investors are paying for a catch-up bet, not a proven lead.
 
-**So what:** Anchor enterprise conversations on installed base and revenue durability. The agent-first hype is real; the proven, at-scale platform is ours. ([thenextweb.com](https://thenextweb.com/news/spacex-cursor-60-billion-acquisition))
+**So what:** Anchor enterprise conversations on installed base and revenue durability. Agent-first is getting the hype, but the platform running in production at scale is Cursor. ([thenextweb.com](https://thenextweb.com/news/spacex-cursor-60-billion-acquisition))
 
 **Devin's reliability ceiling is our sharpest wedge, and Cognition admits it.**
 
 In its own 2025 performance review Cognition concedes Devin 'can't independently tackle an ambiguous coding project end-to-end' and degrades when requirements change mid-task. Merge rates around 67% mean roughly one in three autonomous runs still doesn't ship.
 
-**So what:** Steer evaluations toward ambiguous, iterative, architecture-heavy work where human-in-the-loop wins. Use Cognition's own words: it's the most credible source there is. ([cognition.ai](https://cognition.ai/blog/devin-annual-performance-review-2025))
+**So what:** Steer evaluations toward ambiguous, iterative, architecture-heavy work where human-in-the-loop wins. Use Cognition's own words against them. ([cognition.ai](https://cognition.ai/blog/devin-annual-performance-review-2025))
 
 **Our two biggest vulnerabilities are billing trust and the SpaceX overhang. Have answers ready.**
 
 Buyers remember Cursor's 2025 pricing blow-ups (the CEO apologized publicly) and they've read that SpaceX holds a \$60B option to acquire us, exercisable later in 2026. Both are real and both will come up.
 
-**So what:** Don't dodge. Arm reps with honest, prepared responses: the spend controls we shipped, and the fact that we operate independently today with change-of-control protections available in the contract. ([cnbc.com](https://www.cnbc.com/2026/04/21/spacex-says-it-can-buy-cursor-later-this-year-for-60-billion-or-pay-10-billion-for-our-work-together.html))
+**So what:** Don't dodge either one. Reps should name the new spend controls, and say Cursor operates independently today with change-of-control protection written into the contract. ([cnbc.com](https://www.cnbc.com/2026/04/21/spacex-says-it-can-buy-cursor-later-this-year-for-60-billion-or-pay-10-billion-for-our-work-together.html))
 
 **The Windsurf-to-Devin-Desktop forced migration is a live churn window: work it now.**
 
@@ -82,11 +82,11 @@ Cursor's ~\$2B ARR (Feb 2026) is about 4x Cognition's \$492M run-rate, and Curso
 
 **Daily developer mindshare is ours, but the lead has stopped widening.**
 
-JetBrains' early-2026 survey of 10,000+ developers shows Cursor used at work by 18%, now tied with Claude Code, and notes Cursor's growth 'has slowed down.' Devin-style async agents aren't yet a primary tool for most. It's our ground to defend, not to take for granted.
+JetBrains' early-2026 survey of 10,000+ developers shows Cursor used at work by 18%, now tied with Claude Code, with growth that 'has slowed down.' Devin-style async agents are still niche for most teams. We have to keep earning this ground.
 
-**Soundbite:** *"More developers reach for Cursor every day than any agent, but we earn that seat daily, so let your engineers trial both and tell you which they live in."* ([blog.jetbrains.com](https://blog.jetbrains.com/research/2026/04/which-ai-coding-tools-do-developers-actually-use-at-work/))
+**Soundbite:** *"More developers open Cursor every day than any agent. Run both side by side for a sprint and see which one your engineers actually keep open."* ([blog.jetbrains.com](https://blog.jetbrains.com/research/2026/04/which-ai-coding-tools-do-developers-actually-use-at-work/))
 
-**The 'Cursor for devs, Devin for enterprise' line no longer holds. We're now in the same room.**
+**"Cursor for devs, Devin for enterprise" is outdated. We compete for the same enterprise deals now.**
 
 Some enterprises run both (Cursor for senior architectural work, Devin for a parallel maintenance fleet), so deals increasingly hinge on governance, predictability, and which workflow the team actually lives in.
 
@@ -98,7 +98,7 @@ Some enterprises run both (Cursor for senior architectural work, Devin for a par
 
 When the buyer wants to assign well-scoped tickets and review PRs later (migrations, vulnerability fixes, batch maintenance), Devin's sandboxed-VM, run-to-PR model is purpose-built for it, and Cognition has published ROI like Mercedes-Benz compressing an eight-month modernization to eight days. Our background agents are newer and narrower here.
 
-**Soundbite:** *"If the goal is a parallel fleet doing well-scoped maintenance overnight, Devin is genuinely strong there, so let's scope where that fits and where you still need engineers driving."* ([cognition.ai](https://cognition.ai/blog/series-d))
+**Soundbite:** *"If you want a fleet of agents knocking out scoped maintenance overnight, Devin is genuinely good at that. Let's map which of your work fits that and which still needs an engineer driving."* ([cognition.ai](https://cognition.ai/blog/series-d))
 
 **Devin has marquee regulated and government references we can't fully match.**
 
@@ -119,7 +119,7 @@ Cognition names Goldman Sachs, Citi, Mercedes-Benz, Santander, the U.S. Army and
 
 It's true Devin runs end-to-end to a PR, and Cognition says 89% of its own code is now committed by Devin. But Cursor also runs long autonomous background and cloud agents. The real difference is oversight granularity, and Cognition itself warns Devin struggles on ambiguous, changing work. We keep the engineer in the loop where the stakes are highest.
 
-**So what:** Reframe from 'autonomy vs autocomplete' to 'where do you want human judgment', then let the prospect trial both on their own ambiguous tickets. ([cognition.ai](https://cognition.ai/blog/series-d))
+**So what:** Move the conversation from 'autonomy vs autocomplete' to 'where do you want a human checking the work.' Then put both tools on their own messy tickets. ([cognition.ai](https://cognition.ai/blog/series-d))
 
 **"Cognition just raised \$1B at \$26B. They have all the momentum."**
 
@@ -131,7 +131,7 @@ Real, and they're well-funded. But Cursor's ~\$2B ARR is about 4x their run-rate
 
 Fair: the 2025 rollout was botched and our CEO apologized publicly. Since then we've restructured the tiers with explicit spend limits, usage visibility, and pooled enterprise billing with admin controls. For budget certainty, sign an enterprise contract with a capped monthly pool rather than per-seat usage-based plans.
 
-**So what:** Acknowledge the history honestly, then show the specific controls: defensiveness loses this one, transparency wins it. ([techcrunch.com](https://techcrunch.com/2025/07/07/cursor-apologizes-for-unclear-pricing-changes-that-upset-users/))
+**So what:** Own the history, then walk through the specific spend controls. Getting defensive is what loses this deal. ([techcrunch.com](https://techcrunch.com/2025/07/07/cursor-apologizes-for-unclear-pricing-changes-that-upset-users/))
 
 **"If SpaceX buys Cursor, who am I actually contracting with in a year?"**
 

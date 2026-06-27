@@ -98,7 +98,7 @@ Notion's May 13 developer platform and Atlassian's May 6 Teamwork Graph opening 
 
 Notion's Custom Agents use credits (\$10/1,000) and Atlassian's Rovo uses a credit pool with overage billing coming. Don't claim Notion AI is free; claim it's predictable, because core Notion AI is unmetered while Rovo's thin Standard allowance runs out in two or three chats.
 
-**Soundbite:** *"Both of us charge for heavy agent automation. The difference is your everyday AI (search, drafting, meeting notes) is metered on Rovo Standard and unlimited on Notion."* ([support.atlassian.com](https://support.atlassian.com/rovo/docs/rovo-usage-limits/))
+"Both of us charge for heavy agent automation. The difference: your everyday AI runs out fast on Rovo Standard and stays unlimited on Notion." ([support.atlassian.com](https://support.atlassian.com/rovo/docs/rovo-usage-limits/))
 
 ### Where Atlassian wins
 
@@ -112,7 +112,7 @@ For teams already running Jira and Bitbucket, Rovo Dev plus Cursor in Jira deliv
 
 At \$1.8B in quarterly revenue and 32% growth, Atlassian is a large, public, deeply-entrenched vendor. Risk-averse buyers read that as safety, and incumbency in Jira/Confluence raises switching costs.
 
-**Soundbite:** *"Atlassian's bigger, no argument. But size cut 900 R&D roles this spring, and bet your data on training their models. Bigger isn't the same as the better bet for your team."* ([atlassian.com](https://www.atlassian.com/blog/company-news/shareholder-letter-q3fy26))
+**Soundbite:** *"Atlassian's bigger, no argument. But that bigger company just cut 900 R&D roles and now trains its models on your data by default. Bet on the focused team over the merely large one."* ([atlassian.com](https://www.atlassian.com/blog/company-news/shareholder-letter-q3fy26))
 
 ## Sentiment
 

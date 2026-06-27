@@ -26,11 +26,11 @@ JetBrains' January 2026 survey of 10,000+ professional developers put Claude Cod
 
 In the last quarter alone, Microsoft canceled Claude Code licenses across a major division, Uber capped engineer token spend and questioned ROI, Claude suffered a capacity-driven global outage the day after its IPO filing, and the company is mid-way through its third billing change of the year. These are documented, not rumors.
 
-**So what:** Pre-empt them. A rep who raises Microsoft and Uber first, with an honest answer, keeps control of the deal; a rep who gets surprised by them loses it. ([windowscentral.com](https://www.windowscentral.com/microsoft/microsoft-cancels-claude-code-licenses-shifting-developers-to-github-copilot-cli-a-move-likely-driven-by-financial-motives))
+**So what:** Pre-empt them. Raise Microsoft and Uber yourself, with a straight answer ready. If the buyer brings them up first, you're on the back foot. ([windowscentral.com](https://www.windowscentral.com/microsoft/microsoft-cancels-claude-code-licenses-shifting-developers-to-github-copilot-cli-a-move-likely-driven-by-financial-motives))
 
 **Benchmarks are a split decision, so fight on the harder one.**
 
-OpenAI's GPT-5.5 narrowly leads the now-saturated SWE-bench Verified (88.7% vs Claude Opus 4.7's 87.6%, both vendor-self-reported), but Claude Opus 4.7 leads the harder, contamination-resistant SWE-bench Pro at 64.3% versus GPT-5.4's 59.1%. The headline number favors OpenAI; the realistic-task number favors Claude.
+OpenAI's GPT-5.5 narrowly leads the now-saturated SWE-bench Verified (88.7% vs Claude Opus 4.7's 87.6%, both vendor-self-reported), but Claude Opus 4.7 leads the harder, contamination-resistant SWE-bench Pro at 64.3% versus GPT-5.4's 59.1%. OpenAI wins the saturated leaderboard by a point. Claude wins the harder, real-task benchmark by five.
 
 **So what:** When a prospect cites GPT-5.5's leaderboard win, move the conversation to SWE-bench Pro and real-world agentic tasks, where Claude's edge actually shows. ([marc0.dev](https://www.marc0.dev/en/leaderboard))
 
@@ -91,7 +91,7 @@ JetBrains' January 2026 survey of 10,000+ professional developers gives Claude C
 
 Ramp's expense index across 50,000+ companies shows 34.4% paying for Anthropic vs 32.3% for OpenAI as of spring 2026, the first time Anthropic has led. It's drawn from actual corporate card spend rather than a vendor survey, which makes it hard for an OpenAI rep to dismiss. Best deployed against the "OpenAI is the safe default" reflex.
 
-**Soundbite:** *"Measured by who businesses actually pay, per Ramp's card data across 50,000 companies, Anthropic just passed OpenAI as the #1 AI vendor. The default is shifting."* ([techcrunch.com](https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-customers-than-openai-according-to-ramp-data/))
+**Soundbite:** *"Anthropic just passed OpenAI as the #1 AI vendor in business spend, based on Ramp's corporate-card data across 50,000 companies. Anthropic is becoming the default."* ([techcrunch.com](https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-customers-than-openai-according-to-ramp-data/))
 
 **On the hardest, least-gameable coding benchmark, Claude leads.**
 
@@ -111,7 +111,7 @@ The real objection to autonomous coding is unreviewed, unsafe output. Opus 4.8 i
 
 GPT-5.5 leads SWE-bench Verified at 88.7% to Claude Opus 4.7's 87.6%, a 1.1-point, vendor-self-reported gap that OpenAI reps will quote. It's close enough that it tips on the buyer's own eval, not the leaderboard, so the move is to get them off the public number and onto their codebase.
 
-**Soundbite:** *"It's 88.7 to 87.6, both self-reported. That's a rounding error. Run it on your own repo for a week; that's the only benchmark that pays your bills."* ([marc0.dev](https://www.marc0.dev/en/leaderboard))
+**Soundbite:** *"It's 88.7 to 87.6, both self-reported. That's a rounding error. "It's 88.7 to 87.6, both self-reported. That's a rounding error. The score that counts is how it does on your repo, so let's put both on your hardest open tickets.""* ([marc0.dev](https://www.marc0.dev/en/leaderboard))
 
 **On raw token price, OpenAI's workhorse tiers undercut.**
 
@@ -131,7 +131,7 @@ Beyond code, GPT-5.x bundles native image generation, voice I/O, web search, and
 
 Codex passed 5M weekly users, is expanding to non-developers, and ships through a named SI network (Accenture, PwC, Infosys, TCS, and more) plus deep Azure/GitHub integration. In an exec-led, "one-vendor-for-everything" enterprise buy routed through an SI, OpenAI is the path of least resistance.
 
-**Soundbite:** *"If the decision is being made top-down for breadth, OpenAI looks easy. If it's being made by the engineers who'll use it daily, that's our ground. Get to them."* ([constellationr.com](https://www.constellationr.com/insights/news/openai-touts-broadening-codex-usage-5-million-weekly-active-users))
+**Soundbite:** *""Top-down on breadth, OpenAI's the easy pick. But the engineers who actually live in the tool rate Claude higher, so get this in front of them.""* ([constellationr.com](https://www.constellationr.com/insights/news/openai-touts-broadening-codex-usage-5-million-weekly-active-users))
 
 **OpenAI is often already in the building.**
 
@@ -155,7 +155,7 @@ It's true: Microsoft is canceling Claude Code licenses in its Experiences + Devi
 
 Real story: Uber's COO said it couldn't yet tie Claude Code spend to shipped features, exhausted its 2026 budget by April, and capped engineers at \$1,500/month. The root cause was ungoverned, leaderboard-driven adoption with no spend controls: a procurement failure. Anthropic's new per-user credit model and task budgets in Opus 4.7/4.8 give admins the hard ceilings Uber lacked.
 
-**So what:** Buy it with governance from day one (seat-level budgets, usage caps, and a defined ROI metric) and you capture the productivity without the bill shock Uber walked into. ([fortune.com](https://fortune.com/2026/05/26/uber-coo-ai-spending-tokens-claude-code/))
+**So what:** Set seat-level budgets and a clear ROI metric before rollout, and you get the productivity without Uber's bill shock. ([fortune.com](https://fortune.com/2026/05/26/uber-coo-ai-spending-tokens-claude-code/))
 
 **"Claude has had multiple outages this month. Can it handle our production load?"**
 
