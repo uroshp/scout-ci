@@ -408,11 +408,19 @@ def _freshness(rows: list) -> str:
 
 
 def _briefing(claims: list) -> str:
-    moves = [c for c in claims if c.get("section") == "recent_moves"]
-    pri = [c for c in moves if re.search(r"billing|pricing|price|metered",
-                                         (c.get("subject_key", "") + c.get("claim", "")), re.I)]
-    pool = pri or moves
-    angle = max(pool, key=lambda c: (c.get("as_of") or "", -c.get("order", 0))) if pool else None
+    # Today's angle = the brief's STRATEGIC LEAD (the executive summary's first claim), the single
+    # most consequential opener, set by the strategic pass. The executive_summary section itself is
+    # hidden to avoid a redundant summary, so this is where that lead actually surfaces to the rep.
+    # Fall back to the freshest recent move only when a card has no executive-summary lead.
+    exec_leads = sorted((c for c in claims if c.get("section") == "executive_summary"),
+                        key=lambda c: c.get("order", 0))
+    angle = exec_leads[0] if exec_leads else None
+    if angle is None:
+        moves = [c for c in claims if c.get("section") == "recent_moves"]
+        pri = [c for c in moves if re.search(r"billing|pricing|price|metered",
+                                             (c.get("subject_key", "") + c.get("claim", "")), re.I)]
+        pool = pri or moves
+        angle = max(pool, key=lambda c: (c.get("as_of") or "", -c.get("order", 0))) if pool else None
     angle_html = ""
     if angle:
         p = _parse_claim(angle)

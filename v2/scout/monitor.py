@@ -799,6 +799,11 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
                     res["cost"] = (res.get("cost") or 0.0) + (sres.get("cost_usd") or 0.0)
                     if sres.get("lead"):
                         strat_emailed = notify.send_strategic_shift(meta, sres["lead"], dry_run=email_dry_run)
+                        sent = (strat_emailed or {}).get("sent")
+                        print(f"[strategy] FIRED {slug} | supersedes={sres['lead'].get('supersedes','?')!r} "
+                              f"| emailed={sent} | cost=${sres.get('cost_usd', 0):.3f}")
+                    else:
+                        print(f"[strategy] ran {slug} but no lead parsed (cost=${sres.get('cost_usd', 0):.3f})")
                 except Exception as e:
                     print(f"[strategy] skipped ({type(e).__name__}: {e})", file=sys.stderr)
         cost = res["cost"]
