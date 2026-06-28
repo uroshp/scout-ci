@@ -89,11 +89,11 @@ Both platforms offer 200+ models. Bedrock's June addition of OpenAI GPT-5.5 alon
 
 **Soundbite:** *"Both clouds give you a model menu. Only Google owns the model and the chip running it."* ([aboutamazon.com](https://www.aboutamazon.com/news/aws/bedrock-openai-models))
 
-**Raw Nvidia GPU availability is a shared constraint, not a clean differentiator.**
+**Raw Nvidia GPU availability is a shared constraint, and reserved AWS capacity is getting expensive fast.**
 
-Both clouds are supply-limited on top-end Nvidia capacity (TSMC CoWoS and HBM bottlenecks), and both are co-engineering with Nvidia on next-gen Rubin systems. Whoever can offer a credible custom-silicon alternative reduces the customer's GPU-queue risk, and that favors whichever side the buyer trusts on their specific framework (CUDA vs TPU/JAX/PyTorch).
+Both clouds are supply-limited on top-end Nvidia capacity (TSMC CoWoS and HBM bottlenecks), and both are co-engineering with Nvidia on next-gen Rubin systems. AWS is raising Capacity Block reservation prices a second time in six months: effective July 1, 2026, the per-accelerator hourly rate for reserved P6-B300 hits \$14.04, P5e at \$5.97 and P5 at \$5.191, up roughly 20% from the prior set. A buyer committing to reserved Nvidia capacity on AWS now pays a rising premium for that scarcity. TPU compute gives a buyer a second supply line that reduces both GPU-queue risk and the cost exposure that comes with repeated reservation-price hikes.
 
-**Soundbite:** *"Blackwell is scarce for everyone. We give you TPUs as a second supply line you can actually get."* ([aws.amazon.com](https://aws.amazon.com/blogs/machine-learning/aws-and-nvidia-deepen-strategic-collaboration-to-accelerate-ai-from-pilot-to-production/))
+**Soundbite:** *"Blackwell is scarce for everyone. AWS just raised reserved GPU prices 20% in six months. TPUs give you the compute at a predictable rate, on capacity you can actually get."* ([aws.amazon.com](https://aws.amazon.com/ec2/capacityblocks/pricing/))
 
 Agent-platform maturity is now a contested fight, not a clean Google win. At AWS Summit New York (June 17, 2026), AWS shipped a production-agent stack on Bedrock AgentCore: the AgentCore harness reached general availability, alongside a managed Knowledge Base for enterprise RAG, native Web Search grounding inside the customer's AWS environment and agent observability with recommendations and A/B testing. AWS also added AWS WAF AI traffic monetization (letting publishers charge AI bots for content) and previewed two agent-infrastructure services, AWS Context (a company-wide knowledge graph for agents) and AWS Continuum (agentic code-vulnerability security). AWS says tasks run on AgentCore grew 15x in six months. This narrows the production-agent gap reps used to claim over Vertex AI and the Gemini Enterprise Agent platform. ([aws.amazon.com](https://aws.amazon.com/blogs/aws/top-announcements-of-the-aws-summit-in-new-york-2026/))
 
