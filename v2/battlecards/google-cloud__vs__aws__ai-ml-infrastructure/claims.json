@@ -534,26 +534,18 @@
   },
   {
     "subject_key": "battlecard | contested | nvidia-gpu-availability",
-    "claim": "**Raw Nvidia GPU availability is a shared constraint, not a clean differentiator.**\n\nBoth clouds are supply-limited on top-end Nvidia capacity (TSMC CoWoS and HBM bottlenecks), and both are co-engineering with Nvidia on next-gen Rubin systems. Whoever can offer a credible custom-silicon alternative reduces the customer's GPU-queue risk, and that favors whichever side the buyer trusts on their specific framework (CUDA vs TPU/JAX/PyTorch).\n\n**Soundbite:** *\"Blackwell is scarce for everyone. We give you TPUs as a second supply line you can actually get.\"*",
+    "claim": "**Raw Nvidia GPU availability is a shared constraint, and reserved AWS capacity is getting expensive fast.**\n\nBoth clouds are supply-limited on top-end Nvidia capacity (TSMC CoWoS and HBM bottlenecks), and both are co-engineering with Nvidia on next-gen Rubin systems. AWS is raising Capacity Block reservation prices a second time in six months: effective July 1, 2026, the per-accelerator hourly rate for reserved P6-B300 hits $14.04, P5e at $5.97 and P5 at $5.191, up roughly 20% from the prior set. A buyer committing to reserved Nvidia capacity on AWS now pays a rising premium for that scarcity. TPU compute gives a buyer a second supply line that reduces both GPU-queue risk and the cost exposure that comes with repeated reservation-price hikes.\n\n**Soundbite:** *\"Blackwell is scarce for everyone. AWS just raised reserved GPU prices 20% in six months. TPUs give you the compute at a predictable rate, on capacity you can actually get.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
     "order": 1,
-    "source_url": "https://aws.amazon.com/blogs/machine-learning/aws-and-nvidia-deepen-strategic-collaboration-to-accelerate-ai-from-pilot-to-production/",
-    "source_tier": "primary",
-    "evidence_excerpt": "AWS offers the broadest collection of NVIDIA GPU-based instances of any cloud provider",
-    "as_of": "2026-03-16",
+    "as_of": "2026-06-26",
     "confidence": "medium",
     "id": "c_00a0bf6dd457",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
-    "persona": "technical_evaluator"
+    "persona": "technical_evaluator",
+    "derived_from": "c_d810a5c63b1d",
+    "updated_on": "2026-06-28"
   },
   {
     "subject_key": "battlecard | lose | aws-incumbency-data-gravity",
