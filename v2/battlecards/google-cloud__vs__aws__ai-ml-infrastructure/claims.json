@@ -986,5 +986,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "aws | list-price | capacity-block-gpu-hike-2026-06",
+    "claim": "AWS is raising EC2 Capacity Block reservation prices for its top Nvidia GPU instances about 20% effective July 1, 2026, its second guaranteed-GPU price hike in six months after January's roughly 15% H200 increase. Per-accelerator hourly reservation rates rise to $5.191 for P5, $5.97 for P5e and $14.04 for the Blackwell P6-B300, on the scarce reserved-capacity product enterprises buy for large training runs.",
+    "claim_type": "fact",
+    "section": "pricing",
+    "zone": null,
+    "order": 20,
+    "source_url": "https://aws.amazon.com/ec2/capacityblocks/pricing/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Effective July 1, 2026, hourly rates per accelerator will be: P6-B300 at $14.04",
+    "as_of": "2026-06-26",
+    "confidence": "high",
+    "id": "c_d810a5c63b1d",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-28",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://finance.yahoo.com/technology/ai/articles/aws-raising-gpu-instance-prices-134420295.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
