@@ -544,7 +544,8 @@ def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
     return records
 
 
-def log_decisions(slug: str, records: list, source: str = "monitor", facts: list = None) -> list:
+def log_decisions(slug: str, records: list, source: str = "monitor", facts: list = None,
+                  cost: dict = None) -> list:
     """Persist the propagation decision log to the PRIVATE data store, mirroring shadow.capture's
     non-disruption contract: wrapped so it can only ever WARN, never raise into the live monitor
     path. Returns the records regardless, so a caller or test can inspect them even when no backend
@@ -558,7 +559,7 @@ def log_decisions(slug: str, records: list, source: str = "monitor", facts: list
         stamp = now.strftime("%Y%m%dT%H%M%S")
         payload = {"schema_version": SCHEMA_VERSION, "slug": slug, "source": source,
                    "run_ts": now.isoformat(timespec="seconds"), "decisions": records,
-                   "facts": facts or []}
+                   "facts": facts or [], "cost_usd": cost or {}}
         selfserve.write_data(
             f"{PROP_DIR}/{slug}/{stamp}.json",
             json.dumps(payload, indent=2, default=str, ensure_ascii=False),
@@ -595,8 +596,9 @@ def propagate(meta: dict, facts: list[dict], claims: list[dict],
     confirmed = [ops[i] for i in range(len(ops))
                  if not floor_results[i] and (verdicts.get(i) or {}).get("verdict") == "confirm"]
 
+    cost_usd = {"propose": proposed.get("cost_usd"), "judge": judged.get("cost_usd")}
     if persist and slug:
-        log_decisions(slug, records, source=source, facts=facts)
+        log_decisions(slug, records, source=source, facts=facts, cost=cost_usd)
 
     return {
         "ops": ops,
@@ -606,7 +608,7 @@ def propagate(meta: dict, facts: list[dict], claims: list[dict],
         "verdicts": verdicts,
         "confirmed": confirmed,
         "decisions": records,
-        "cost_usd": {"propose": proposed.get("cost_usd"), "judge": judged.get("cost_usd")},
+        "cost_usd": cost_usd,
     }
 
 

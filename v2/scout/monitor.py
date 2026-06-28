@@ -29,7 +29,7 @@ from datetime import datetime, timedelta
 
 from claude_agent_sdk import ClaudeAgentOptions
 
-from scout import config, shadow, store, strengths
+from scout import config, selfserve, shadow, store, strengths
 from scout.fetch_tool import FETCH_SERVER, FETCH_TOOL_NAME, reset_log
 from scout.generate import _drive, _extract_json, _build_retry_payload, _run_retry
 from scout.propagate import propagate, apply_ops
@@ -730,6 +730,42 @@ def _is_due(meta: dict, now: datetime | None = None) -> bool:
     return now >= last + timedelta(hours=cadence_hours)
 
 
+COST_DIR = "costs"   # per-run cost records in the PRIVATE store, mirroring the propagation log layout
+
+
+def _run_total(cost: dict) -> float:
+    """Sum a per-card phase-cost dict (triage/materiality/my_company/propagation/strategy),
+    tolerating None values and missing phases."""
+    return round(sum(v or 0 for v in (cost or {}).values()), 6)
+
+
+def _persist_run_cost(started, rows: list, write: bool) -> None:
+    """Persist ONE cost record per monitor run to the private store, for later review of spend.
+    One file per run (costs/<stamp>.json), like the propagation decision logs. Carries the full
+    per-card phase breakdown plus a run total. Best-effort: only writes in live (write) runs so
+    local/dry runs never pollute the ledger, and never raises into the monitor path."""
+    if not write or not rows:
+        return
+    try:
+        stamp = started.strftime("%Y%m%dT%H%M%S")
+        doc = {
+            "schema_version": 1,
+            "run_ts": started.isoformat(timespec="seconds"),
+            "mode": config.PROPAGATE_MODE,
+            "run_total_usd": round(sum(r.get("total") or 0 for r in rows), 4),
+            "cards": rows,
+        }
+        selfserve.write_data(
+            f"{COST_DIR}/{stamp}.json",
+            json.dumps(doc, indent=2, default=str, ensure_ascii=False),
+            f"costs: monitor run {stamp} (${doc['run_total_usd']}, {len(rows)} cards)",
+        )
+        print(f"[cost] run {stamp}: ${doc['run_total_usd']} across {len(rows)} card(s) "
+              f"-> {COST_DIR}/{stamp}.json")
+    except Exception as e:   # the cost ledger must never break a live monitor run
+        print(f"[cost] ledger write skipped ({type(e).__name__}: {e})", file=sys.stderr)
+
+
 def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
             force: bool = False) -> list[dict]:
     """Cron entrypoint: check every DUE battlecard, write per policy, email digests.
@@ -746,7 +782,9 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
     from scout.display import list_battlecards
     from scout import notify
 
+    run_started = datetime.now()
     summary = []
+    cost_rows = []
     for slug in list_battlecards():
         meta = store.load_meta(slug) or {}
         # Showcase cards can opt out of monitoring (e.g. the Batman vs Superman
@@ -796,7 +834,7 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
                 try:
                     from scout import strategy
                     sres = strategy.strategic_lead(meta, store.load_claims(slug))
-                    res["cost"] = (res.get("cost") or 0.0) + (sres.get("cost_usd") or 0.0)
+                    res["cost"]["strategy"] = (res["cost"].get("strategy") or 0) + (sres.get("cost_usd") or 0.0)
                     if sres.get("lead"):
                         strat_emailed = notify.send_strategic_shift(meta, sres["lead"], dry_run=email_dry_run)
                         sent = (strat_emailed or {}).get("sent")
@@ -810,20 +848,29 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
         summary.append({
             "slug": slug, "no_change": res["no_change"], "material": len(res["material"]),
             "alerts": len(res["alerts"]),
-            "cost_usd": round((cost.get("triage") or 0) + (cost.get("materiality") or 0), 4),
+            "cost_usd": _run_total(cost),   # ALL phases (triage+materiality+my_company+propagation+strategy)
             "emailed": emailed, "propagation_emailed": prop_emailed,
         })
+        cost_rows.append({
+            "slug": slug, "no_change": res["no_change"], "material": len(res["material"]),
+            "alerts": len(res["alerts"]),
+            "phases": {k: round(v, 6) for k, v in (cost or {}).items() if v is not None},
+            "total": _run_total(cost),
+        })
+    _persist_run_cost(run_started, cost_rows, write)
     return summary
 
 
 def _print_check(res):
     cost = res["cost"]
-    total = (cost.get("triage") or 0) + (cost.get("materiality") or 0)
+    total = _run_total(cost)
     print(f"\n=== monitor.check({res['slug']}) since {res['since']} ===")
     print(f"no_change={res['no_change']}  candidates={res['candidates']}  "
           f"substantial={res.get('substantial', 0)}  escalated={res.get('substantial', 0) > 0}  "
           f"material={len(res['material'])}")
-    print(f"cost: triage=${cost.get('triage')}  materiality=${cost.get('materiality')}  TOTAL=${total:.4f}")
+    print(f"cost: triage=${cost.get('triage')}  materiality=${cost.get('materiality')}  "
+          f"my_company=${cost.get('my_company')}  propagation=${cost.get('propagation')}  "
+          f"TOTAL=${total:.4f}")
     for m in res["material"]:
         a = m["alert"]
         print(f"  MATERIAL {m['subject_key']}: {a.get('old_value')} -> {a.get('new_value')}  | {a.get('so_what','')[:80]}")
