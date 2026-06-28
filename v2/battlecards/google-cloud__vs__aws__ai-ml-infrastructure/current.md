@@ -57,6 +57,7 @@ Google Cloud's June 2025 global outage (70+ services) and Pichai's own "compute 
 
 - Unlike AWS, Google Cloud applies automatic sustained-use discounts to eligible attached GPUs as monthly usage rises (no upfront commitment required), on top of optional committed-use discounts. This is a structural flexibility advantage for variable AI workloads. ([cloud.google.com](https://cloud.google.com/compute/gpus-pricing))
 - Google is pressing a token-cost advantage: it says enterprises running ~1 trillion tokens/day on Google Cloud could save \$1B+ annually by shifting ~80% of workloads to Gemini 3.5 Flash (and a mix of frontier models), economics enabled by TPU inference. AWS has no first-party model offering comparable price/performance leverage. So what: token-budget exhaustion is a live enterprise pain point to quantify in a TCO model. ([venturebeat.com](https://venturebeat.com/technology/google-says-gemini-3-5-flash-can-slash-enterprise-ai-costs-by-more-than-1-billion-a-year))
+- AWS is raising EC2 Capacity Block reservation prices for its top Nvidia GPU instances about 20% effective July 1, 2026, its second guaranteed-GPU price hike in six months after January's roughly 15% H200 increase. Per-accelerator hourly reservation rates rise to \$5.191 for P5, \$5.97 for P5e and \$14.04 for the Blackwell P6-B300, on the scarce reserved-capacity product enterprises buy for large training runs. ([aws.amazon.com](https://aws.amazon.com/ec2/capacityblocks/pricing/))
 
 ## Competitive Battlecard
 

@@ -767,14 +767,14 @@
   },
   {
     "subject_key": "supergirl | box-office-tracking",
-    "claim": "Supergirl opened to roughly $40M domestically on June 26, 2026, at the low end of its tracking (Variety had pegged $47M to $50M) and behind the second weekend of Toy Story 5, with critics at 57% on Rotten Tomatoes. The DCU's second film since the reset did not carry Superman's opening momentum forward.",
+    "claim": "Supergirl (2026) confirmed a soft $40M domestic opening on June 26, the low end of tracking and below 2023's The Flash ($55M), on a reported $170M to $186M production budget. It drew a B- CinemaScore, under the A- Superman earned a year earlier, plus 57% on Rotten Tomatoes and a 52% PostTrak definite-recommend. It stands as the DCU's first box-office stumble under James Gunn, denting the momentum story the competitor leans on.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 2,
+    "order": 10,
     "source_url": "https://deadline.com/2026/06/box-office-supergirl-toy-story-5-1236968254/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Supergirl right now is coming in at the low end with $40M at 3,602 after having her superpowers depleted by critics at 57% on Rotten Tomatoes.",
+    "evidence_excerpt": "Supergirl right now is coming in at the low end with $40M at 3,602",
     "as_of": "2026-06-27",
     "confidence": "high",
     "id": "c_3241e22881cf",
@@ -783,12 +783,54 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-27",
+      "fetched_at": "2026-06-28",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://variety.com/2026/film/box-office/box-office-supergirl-previews-1236790790/",
+        "source_url": "https://comicbook.com/movies/news/supergirl-box-office-opening-weekend-officially-lower-than-the-flash/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://screenrant.com/supergirl-2026-box-office-opening-weekend-domestic-chart-report/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "warner bros discovery | paramount-acquisition",
+    "claim": "Superman's studio is changing hands. On June 12, 2026 the U.S. Justice Department cleared Paramount Skydance's roughly $111B takeover of Warner Bros. Discovery with no divestitures or concessions, and David Ellison's team is pushing to close by September 30. That puts James Gunn's DC Studios under a new owner targeting more than $6B in cost savings, with state attorneys general plus EU and UK regulators still reviewing. Both Batman and Superman live under Warner Bros, so the upheaval is shared, but it lands hardest on the Gunn-run DCU the competitor leans on for its roadmap.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 6,
+    "source_url": "https://deadline.com/2026/06/paramount-warner-bros-merger-approved-doj-1236955152/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "The Department of Justice has approved Paramount's pending $110 billion purchase of Warner Bros Discovery.",
+    "as_of": "2026-06-12",
+    "confidence": "high",
+    "id": "c_48b429aa19c5",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "fuzzy",
+      "fetched_at": "2026-06-28",
+      "detail": "partial_ratio 0.991"
+    },
+    "corroboration": [
+      {
+        "source_url": "https://variety.com/2026/tv/news/doj-approves-paramount-warner-bros-discovery-merger-1236780234/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.npr.org/2026/04/23/nx-s1-5793628/warner-bros-discovery-paramount-skydance-merger",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
