@@ -15,25 +15,38 @@ def _at(s):
 
 
 class AnchoredDueGate(unittest.TestCase):
-    """_is_due must release a card once per 7am/1pm window and never drift (anchored, not
-    relative-elapsed). Assumes the default anchors 11:00/17:00 UTC."""
+    """_is_due must release a card once per daily 7am window and never drift (anchored, not
+    relative-elapsed). Assumes the default single anchor 11:00 UTC and Sunday skip."""
 
     def setUp(self):
-        self.assertEqual(config.MONITOR_ANCHORS_UTC, ["11:00", "17:00"])
+        self.assertEqual(config.MONITOR_ANCHORS_UTC, ["11:00"])
+        self.assertIn(6, config.MONITOR_SKIP_WEEKDAYS)   # Sunday skipped by default
 
     def test_due_only_after_an_unserved_anchor(self):
-        meta = {"last_checked": "2026-06-05T18:33:00"}                      # served the 1pm window
-        self.assertFalse(monitor._is_due(meta, now=_at("2026-06-05T19:00:00")))  # same window
-        self.assertTrue(monitor._is_due(meta, now=_at("2026-06-06T11:05:00")))   # next morning anchor
+        meta = {"last_checked": "2026-06-05T11:33:00"}                      # served Friday's anchor
+        self.assertFalse(monitor._is_due(meta, now=_at("2026-06-05T19:00:00")))  # same day
+        self.assertTrue(monitor._is_due(meta, now=_at("2026-06-06T11:05:00")))   # next morning (Sat)
 
     def test_no_timestamp_is_due(self):
-        self.assertTrue(monitor._is_due({}, now=_at("2026-06-05T09:00:00")))
+        self.assertTrue(monitor._is_due({}, now=_at("2026-06-05T09:00:00")))   # Friday
 
     def test_latest_passed_anchor_rolls_to_yesterday_before_first(self):
         self.assertEqual(
             monitor._latest_passed_anchor(_at("2026-06-05T10:00:00")),
-            _at("2026-06-04T17:00:00"),
+            _at("2026-06-04T11:00:00"),                  # single anchor → yesterday's 11:00
         )
+
+    def test_sunday_is_skipped(self):
+        meta = {"last_checked": "2026-06-25T11:00:00"}                      # checked days ago
+        self.assertFalse(monitor._is_due(meta, now=_at("2026-06-28T11:05:00")))  # 06-28 is Sunday
+        self.assertTrue(monitor._is_due(meta, now=_at("2026-06-29T11:05:00")))   # Monday picks it up
+
+    def test_weekly_cadence_holds_then_releases(self):
+        meta = {"last_checked": "2026-06-25T11:00:00", "cadence_days": 7}   # Thu 06-25
+        # Within the week: past the anchor but not enough days elapsed -> not due.
+        self.assertFalse(monitor._is_due(meta, now=_at("2026-06-29T11:05:00")))  # Mon, 4 days
+        # A full 7 days later -> due.
+        self.assertTrue(monitor._is_due(meta, now=_at("2026-07-02T11:05:00")))   # Thu, 7 days
 
 
 class NextCheckDisplay(unittest.TestCase):
@@ -47,6 +60,15 @@ class NextCheckDisplay(unittest.TestCase):
     def test_unmonitored_has_no_next_check(self):
         cp = display.checkpoints({"last_checked": "2026-06-05T18:33:00", "monitored": False})
         self.assertIsNone(cp["next_check"])
+
+    def test_next_check_skips_sunday(self):
+        cp = display.checkpoints({"last_checked": "2026-06-27T11:00:00", "monitored": True})  # Sat
+        self.assertEqual(cp["next_check"], "2026-06-29T11:00:00")                              # -> Mon
+
+    def test_next_check_honors_weekly_cadence(self):
+        cp = display.checkpoints({"last_checked": "2026-06-25T11:00:00", "monitored": True,
+                                  "cadence_days": 7})                                          # Thu
+        self.assertEqual(cp["next_check"], "2026-07-02T11:00:00")                              # +7 days
 
 
 class SpendGate(unittest.TestCase):

@@ -23,9 +23,9 @@
 name: monitor
 
 on:
-  workflow_dispatch:               # PRIMARY — triggered by Cloud Scheduler at 7am/1pm ET
+  workflow_dispatch:               # PRIMARY — triggered by Cloud Scheduler at 7am ET, Mon–Sat
   schedule:
-    - cron: "0 23 * * *"           # BACKSTOP ONLY (best-effort): catches a window Cloud Scheduler missed; gate no-ops it otherwise
+    - cron: "0 23 * * 1-6"         # BACKSTOP ONLY (best-effort): catches a missed weekday window; gate no-ops it otherwise. Skips Sunday (Mon–Sat), matching the engine's weekend skip
 
 concurrency:
   group: scout-monitor

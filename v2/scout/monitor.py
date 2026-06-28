@@ -716,6 +716,10 @@ def _is_due(meta: dict, now: datetime | None = None) -> bool:
     Legacy fallback: with anchors disabled (MONITOR_ANCHORS_UTC empty), reverts to the
     per-competitor relative cadence gate (due when cadence_hours have elapsed)."""
     now = now or datetime.now()
+    # Weekend skip: no card is due on a skipped weekday (default Sunday). Loses no coverage —
+    # the next run scans since last_checked — only timing. force=True (run_all) bypasses this.
+    if now.weekday() in config.MONITOR_SKIP_WEEKDAYS:
+        return False
     raw = meta.get("last_checked") or meta.get("baseline_date")
     if not raw:
         return True
@@ -725,7 +729,13 @@ def _is_due(meta: dict, now: datetime | None = None) -> bool:
         return True
     anchor = _latest_passed_anchor(now)
     if anchor is not None:
-        return last < anchor
+        if last >= anchor:
+            return False                              # already served the latest anchor
+        cadence_days = meta.get("cadence_days") or 1
+        if cadence_days <= 1:
+            return True                               # daily (default): due at the first unserved anchor
+        # Slower per-card cadence (e.g. Batman weekly): also require enough whole days elapsed.
+        return (anchor.date() - last.date()).days >= cadence_days
     cadence_hours = meta.get("cadence_hours") or config.DEFAULT_CADENCE_HOURS
     return now >= last + timedelta(hours=cadence_hours)
 

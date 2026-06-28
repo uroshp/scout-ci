@@ -59,13 +59,23 @@ create_or_update() {
 }
 
 echo "Wiring Cloud Scheduler -> ${URI}"
-create_or_update scout-monitor-morning "0 7 * * *"    # 7:00 AM ET — morning brief
-create_or_update scout-monitor-midday  "0 13 * * *"   # 1:00 PM ET — midday news check
+# ONE daily run (2026-06-28). The 1pm pass was dropped: across weeks of history the 2nd run mostly
+# repeated the 1st and, being retrieval-variance, sometimes regressed it (see MONITOR_ANCHORS_UTC).
+# DOW 1-6 = Mon–Sat: no rep follows a card on the weekend, and Monday's run scans since last_checked
+# so nothing is missed. The engine's due-gate also skips Sunday (config.MONITOR_SKIP_WEEKDAYS), so
+# this is belt-and-suspenders.
+create_or_update scout-monitor-morning "0 7 * * 1-6"   # 7:00 AM ET, Mon–Sat — daily brief
+
+# The old midday job is retired. Deleting is destructive, so we only WARN + print the command.
+if gcloud scheduler jobs describe scout-monitor-midday --location="$GCP_REGION" >/dev/null 2>&1; then
+  echo "  ⚠ scout-monitor-midday still exists (retired). Delete it once with:"
+  echo "      gcloud scheduler jobs delete scout-monitor-midday --location=$GCP_REGION"
+fi
 
 echo
 echo "Done. Jobs:"
 gcloud scheduler jobs list --location="$GCP_REGION" --filter="name~scout-monitor"
 echo
 echo "Test a fire now (does NOT wait for the schedule):"
-echo "  gcloud scheduler jobs run scout-monitor-midday --location=$GCP_REGION"
+echo "  gcloud scheduler jobs run scout-monitor-morning --location=$GCP_REGION"
 echo "Then watch: gh run list --workflow=$WORKFLOW --limit 3"
