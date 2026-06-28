@@ -4,7 +4,7 @@
   "competitor": "Superman",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-06-28T11:06:06",
+  "last_checked": "2026-06-28T17:05:54",
   "cadence_hours": 72,
   "alerted_fingerprints": [
     "f_52241deb54a8",
@@ -17,5 +17,7 @@
     "f_fa1b86568f87",
     "f_5934d91311c0"
   ],
-  "monitored": true
+  "monitored": true,
+  "unresolved_since": "2026-06-28",
+  "unresolved_attempts": 1
 }
