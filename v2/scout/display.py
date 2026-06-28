@@ -75,11 +75,12 @@ def list_battlecards() -> list[str]:
 
 
 # --- 1. last-checked / next-check --------------------------------------------
-def _next_anchor_after(dt: datetime) -> datetime | None:
-    """Earliest daily monitoring anchor (config.MONITOR_ANCHORS_UTC = 7am + 1pm ET, wall-clock
-    UTC) strictly after `dt`, or None if anchors are disabled. Mirrors the engine's
-    window-anchored due-gate (monitor._is_due) so the viewer's 'next check' shows when the card
-    will ACTUALLY be re-checked — not a relative cadence guess that drifts off the real schedule."""
+def _next_anchor_after(dt: datetime, cadence_days: int = 1) -> datetime | None:
+    """Earliest monitoring anchor (config.MONITOR_ANCHORS_UTC, wall-clock UTC) STRICTLY after `dt`
+    on which the card will ACTUALLY be re-checked, mirroring the engine's due-gate (monitor._is_due)
+    so the viewer's countdown matches reality and never drifts. Skips MONITOR_SKIP_WEEKDAYS (the
+    weekend), and for a slower per-card cadence (cadence_days>1, e.g. Batman weekly) requires enough
+    whole days since the last check. None if anchors are disabled."""
     anchors = []
     for a in config.MONITOR_ANCHORS_UTC:
         h, m = a.split(":")
@@ -87,12 +88,17 @@ def _next_anchor_after(dt: datetime) -> datetime | None:
     if not anchors:
         return None
     anchors.sort()
-    for day_offset in (0, 1):                      # today's anchors, then tomorrow's
+    for day_offset in range(0, 9 + cadence_days):   # clear the cadence gap + a skipped weekend
         base = dt + timedelta(days=day_offset)
         for h, m in anchors:
             cand = base.replace(hour=h, minute=m, second=0, microsecond=0)
-            if cand > dt:
-                return cand
+            if cand <= dt:
+                continue
+            if cand.weekday() in config.MONITOR_SKIP_WEEKDAYS:
+                continue
+            if cadence_days > 1 and (cand.date() - dt.date()).days < cadence_days:
+                continue
+            return cand
     return None
 
 
@@ -103,11 +109,12 @@ def checkpoints(meta: dict) -> dict:
     no next_check (they are never re-checked). Legacy fallback when anchors are disabled:
     last_checked + cadence_hours."""
     cadence_hours = meta.get("cadence_hours") or config.DEFAULT_CADENCE_HOURS
+    cadence_days = meta.get("cadence_days") or 1
     last_raw = meta.get("last_checked") or meta.get("baseline_date")
     last_dt = _parse_ts(last_raw)
     next_iso = None
     if last_dt is not None and meta.get("monitored") is not False:
-        nxt = _next_anchor_after(last_dt)          # anchored schedule (current model)
+        nxt = _next_anchor_after(last_dt, cadence_days)   # anchored schedule, per-card cadence + weekend skip
         if nxt is None:                            # anchors disabled → legacy relative cadence
             nxt = last_dt + timedelta(hours=cadence_hours)
         next_iso = nxt.isoformat(timespec="seconds")

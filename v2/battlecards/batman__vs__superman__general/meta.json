@@ -6,6 +6,7 @@
   "baseline_date": "2026-06-05",
   "last_checked": "2026-06-28T17:05:54",
   "cadence_hours": 72,
+  "cadence_days": 7,
   "alerted_fingerprints": [
     "f_52241deb54a8",
     "f_52c2ac0db058",

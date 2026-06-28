@@ -141,13 +141,23 @@ MONITOR_MAX_UNRESOLVED_RETRIES = int(os.environ.get("SCOUT_MONITOR_MAX_UNRESOLVE
 # times). The Actions cron BURSTS across each window so a late or dropped GitHub
 # fire can't blow the slot; the anchor gate still permits only one check/window.
 #
-# Launch window = 7am + 1pm US Eastern. June is EDT (UTC-4) → "11:00,17:00".
-# DST: on 2026-11-01 the US falls back to EST (UTC-5) → change to "12:00,18:00".
-# To pare down later, drop an anchor (e.g. just "11:00" for once-daily).
-# Set empty ("") to fall back to the legacy per-card cadence_hours relative gate.
+# Daily run window = 7am US Eastern. June is EDT (UTC-4) → "11:00". (Was twice daily
+# "11:00,17:00"; the 1pm pass was dropped 2026-06-28 — across weeks of history the 2nd run mostly
+# repeated the 1st, and being retrieval-variance it sometimes REGRESSED it; since review shows only
+# the latest run, a worse 2nd run could hide the 1st's catch.) DST: on 2026-11-01 the US falls back
+# to EST (UTC-5) → change to "12:00". Set empty ("") to fall back to the legacy cadence_hours gate.
 MONITOR_ANCHORS_UTC = [
-    a.strip() for a in os.environ.get("SCOUT_MONITOR_ANCHORS_UTC", "11:00,17:00").split(",") if a.strip()
+    a.strip() for a in os.environ.get("SCOUT_MONITOR_ANCHORS_UTC", "11:00").split(",") if a.strip()
 ]
+
+# Weekday skip (Mon=0 .. Sun=6): days the monitor does NOT run — no rep follows a battlecard on the
+# weekend. Default Sunday (6). The next run picks up everything since last_checked, so a skipped day
+# loses no COVERAGE, only timing (Monday catches Sat+Sun; Saturday catches Friday). The 11:00 UTC
+# anchor is still the same weekday in ET/PT, so a UTC weekday check matches the rep's local day.
+# Set "" to run every day. `force=True` (manual runs) bypasses this.
+MONITOR_SKIP_WEEKDAYS = {
+    int(d) for d in os.environ.get("SCOUT_MONITOR_SKIP_WEEKDAYS", "6").split(",") if d.strip()
+}
 
 
 # --- Email alerts (§5) -------------------------------------------------------
