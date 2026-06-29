@@ -37,7 +37,8 @@ jobs:
         continue-on-error: true       # a challenger hiccup must not block the report on existing data
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          CHALLENGER_MODEL: ${{ secrets.CHALLENGER_MODEL }}
+          # CHALLENGER_MODEL intentionally not set — config defaults to Sonnet (an empty secret would
+          # override the default with "" and break the model id).
           SELFSERVE_GH_TOKEN: ${{ secrets.SELFSERVE_GH_TOKEN }}
           SELFSERVE_REPO: ${{ secrets.SELFSERVE_REPO }}
         run: python scripts/run_challenger.py --run --write --limit 25
