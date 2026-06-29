@@ -1,0 +1,53 @@
+name: scout-eval-checkin
+
+# 14-DAY EVAL CHECK-IN for the v3.5 takeover judges (verification challenger + authorship judge).
+# Runs on the 1st and 15th (~14 days apart): a BOUNDED challenger refresh over new shadow captures,
+# then the check-in report (metrics + trend vs the prior check-in + the pre-registered go/no-go
+# verdict), emailed to the owner and snapshotted to the private store. See docs/eval-exit-criteria.md.
+# NOT the consequentiality filter — that is a separate, faster track.
+#
+# Cost: the challenger refresh is capped by --limit (~$2-3 worst case); on a 14-day cadence that is a
+# few dollars a month. The report itself is free (reads stored results + labels).
+
+on:
+  workflow_dispatch: {}              # manual check-in any time
+  schedule:
+    - cron: "0 13 1,15 * *"          # 1st + 15th, 13:00 UTC — best-effort, ~14 days apart
+
+concurrency:
+  group: scout-eval-checkin
+  cancel-in-progress: false
+
+permissions:
+  contents: read                     # writes go to the PRIVATE store via API, not this repo
+
+jobs:
+  eval-checkin:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: v2
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -q -r requirements.txt
+      - name: Refresh the verification challenger over new shadow captures (bounded)
+        continue-on-error: true       # a challenger hiccup must not block the report on existing data
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CHALLENGER_MODEL: ${{ secrets.CHALLENGER_MODEL }}
+          SELFSERVE_GH_TOKEN: ${{ secrets.SELFSERVE_GH_TOKEN }}
+          SELFSERVE_REPO: ${{ secrets.SELFSERVE_REPO }}
+        run: python scripts/run_challenger.py --run --write --limit 25
+      - name: Check-in report (metrics + trend + verdict) -> email + snapshot
+        env:
+          SELFSERVE_GH_TOKEN: ${{ secrets.SELFSERVE_GH_TOKEN }}
+          SELFSERVE_REPO: ${{ secrets.SELFSERVE_REPO }}
+          SCOUT_GMAIL_USER: ${{ secrets.SCOUT_GMAIL_USER }}
+          SCOUT_GMAIL_APP_PASSWORD: ${{ secrets.SCOUT_GMAIL_APP_PASSWORD }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SCOUT_ALERT_TO: ${{ secrets.SCOUT_ALERT_TO }}
+          SCOUT_ALERT_FROM: ${{ secrets.SCOUT_ALERT_FROM }}
+        run: python scripts/eval_checkin.py --snapshot --email
