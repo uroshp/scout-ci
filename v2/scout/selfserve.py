@@ -83,6 +83,8 @@ def _gh_list(path: str, include_dirs: bool = False) -> list[str]:
         return []
     r.raise_for_status()
     data = r.json()
+    if not isinstance(data, list):     # a FILE path returns a single object, not a dir listing
+        return []
     return [e["name"] for e in data
             if e.get("type") == "file" or (include_dirs and e.get("type") == "dir")]
 

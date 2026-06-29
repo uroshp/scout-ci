@@ -28,7 +28,7 @@ def load_results() -> list:
     """Every persisted challenger result, across all cards (shadow_eval/<slug>/*.json)."""
     out = []
     for slug in selfserve.list_data(challenger.SHADOW_EVAL_DIR, include_dirs=True):
-        if slug.endswith(".json"):
+        if "." in slug:                 # skip root-level files (e.g. challenger_labels.jsonl); slugs are dirs
             continue
         for fn in selfserve.list_data(f"{challenger.SHADOW_EVAL_DIR}/{slug}"):
             if not fn.endswith(".json"):

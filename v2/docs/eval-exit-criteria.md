@@ -1,9 +1,16 @@
 # Exit criteria: when a model judge may take over from the code
 
-> Decided with Uroš 2026-06-28. Governs BOTH model judges Scout validates before trusting them to act:
-> the **verification challenger** (does the evidence SUPPORT a claim — the v3.5 support layer on top of
-> the code grounder) and the **consequentiality filter** (does a change matter enough to publish/spend
-> on). Written to be defensible to an expert, not just convenient.
+> Decided with Uroš 2026-06-28. Governs the **v3.5 shadow-eval judges** — the model judges that may
+> TAKE OVER a deterministic step: the **verification challenger** (does the evidence SUPPORT a claim,
+> the support layer on top of the code grounder) and the **authorship judge** (propose→judge on
+> propagation). These are slow, high-bar "can a model replace the code" studies, evaluated on a 14-day
+> check-in cadence.
+>
+> **The consequentiality filter is NOT on this track** (Uroš, 2026-06-28). It is ADDITIVE — the code
+> never decided what's worth publishing — so it isn't *taking over* anything, and it fixes a present
+> operational problem (a monitor run that surfaced a sub-optimal call). It gets a SEPARATE, faster
+> validation (short spot-check → gate), not this weeks-long takeover bar. See the last section.
+> Written to be defensible to an expert, not just convenient.
 
 ## The decision, in one line
 
@@ -65,14 +72,30 @@ Supporting practices an expert would also expect, which complete the picture:
 6. **Sample sufficiency:** enough adjudicated cases, especially in the rare stratum, that the per-slice
    numbers aren't noise. (This is why time matters: the niche cases trickle in.)
 
-## Applies to both judges
+## Applies to the two v3.5 judges (this track)
 
 - **Verification challenger:** incumbent = code grounder; bar = non-inferior on presence + superior on
-  support (the contamination class), disagreement precision vs human, per-slice κ, sustained.
-- **Consequentiality filter:** incumbent = "propagate everything act-grade" (today's behavior); bar =
-  never suppresses a change that turns out consequential (the costly error), disagreement precision vs
-  our own adjudication of consequential-vs-routine, sustained over check-ins. Same shadow → gate →
-  (eventually) trusted path.
+  support (the contamination class), disagreement precision vs human, per-slice κ, sustained over the
+  14-day check-ins.
+- **Authorship judge:** incumbent = the human approve/reject on propagation; bar = judge-right vs human
+  adjudication, net-positive, no systematic lean, over a sufficient sample. (Already at its 23/20
+  starting checkpoint; the longitudinal bar above is the real promotion test.)
+
+The 14-day eval runner (`scripts/eval_checkin.py` + `.github/workflows/eval-checkin.yml`) reports both
+on this cadence: current metrics, the trend vs the prior check-in, and the pre-registered verdict.
+
+## Separate, faster track: the consequentiality filter
+
+The filter is NOT a code-takeover decision, so it does NOT wait on the bar above. It is additive and
+addresses a present pain, so:
+- **Shorter validation:** a few days of shadow verdicts, spot-checked by us (consequential vs routine,
+  was it right?), not weeks of longitudinal κ.
+- **Lower stakes, reversible:** flipping `SCOUT_CONSEQUENTIAL_FILTER=gate` is one config change; the
+  costly error (suppressing something that turns out consequential) is caught by the same spot-check
+  and is reversible (the fact is still on the card; only the push/spend was withheld).
+- **Promotion = "is it making the calls we'd make,"** judged on a short spot-check, then gate. We can
+  always tighten later. It rides its own cheap capture (`shadow.filter_capture` → `filter/`), separate
+  from the v3.5 stores by design.
 
 ## Honest scope note
 
