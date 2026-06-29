@@ -97,6 +97,15 @@ PROPAGATE_MODE = os.environ.get("SCOUT_PROPAGATE_MODE", "off").strip().lower()
 # so quiet runs cost nothing. On by default; set SCOUT_STRATEGIC_PASS=0 to disable.
 STRATEGIC_PASS = os.environ.get("SCOUT_STRATEGIC_PASS", "1").strip().lower() not in ("0", "false", "off", "")
 
+# Consequentiality filter (scout/strategy.py, the gate): on an ACT-grade change, the strategic pass
+# also judges whether the change is CONSEQUENTIAL (changes the rep's play / thesis -> earns the
+# expensive rewrite + push) or routine (a fact patch that keeps the card current without changing the
+# argument). SHADOW-FIRST, per docs/consequential-filter-spec.md:
+#   "shadow" (default) -> run + LOG the verdict, change NOTHING (validate over weeks before trusting);
+#   "gate"             -> actually gate propagation on the verdict (only after the shadow phase is clean);
+#   "off"              -> don't capture the verdict at all.
+CONSEQUENTIAL_FILTER = os.environ.get("SCOUT_CONSEQUENTIAL_FILTER", "shadow").strip().lower()
+
 # --- Grounding (claim-object.md §4) -------------------------------------------
 # Provisional fuzzy threshold (0..1) — to be TUNED from real fetched pages at the
 # #7 measurement step, watching the 0.80-0.92 band for true claims being cut.

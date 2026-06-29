@@ -845,6 +845,17 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
                     from scout import strategy
                     sres = strategy.strategic_lead(meta, store.load_claims(slug))
                     res["cost"]["strategy"] = (res["cost"].get("strategy") or 0) + (sres.get("cost_usd") or 0.0)
+                    # CONSEQUENTIALITY FILTER (shadow-first, docs/consequential-filter-spec.md): the
+                    # strategic pass now also returns a consequential/routine verdict. Log it for the
+                    # longitudinal eval. This capture is DOWNSTREAM of the grounding shadow.capture in
+                    # check() (Fold A: never alter what the v3.5 grounding eval sees). In "shadow" mode
+                    # (default) it changes NOTHING — we validate the verdict over weeks before it gates.
+                    if config.CONSEQUENTIAL_FILTER != "off":
+                        shadow.filter_capture(
+                            slug, run_ts=res.get("last_checked"), verdict=sres.get("lead") or {},
+                            act_subject_keys=[m["subject_key"] for m in res.get("material", [])],
+                            competitor=meta.get("competitor"), my_company=meta.get("my_company"),
+                            mode=config.CONSEQUENTIAL_FILTER)
                     if sres.get("lead"):
                         strat_emailed = notify.send_strategic_shift(meta, sres["lead"], dry_run=email_dry_run)
                         sent = (strat_emailed or {}).get("sent")
