@@ -25,7 +25,10 @@ from scout import config, selfserve
 
 SCHEMA_VERSION = 1
 SHADOW_DIR = "shadow"
-FILTER_DIR = "filter"   # consequentiality-filter verdicts (the gate's decisions), for longitudinal eval
+FILTER_DIR = "filter"       # consequentiality-filter verdicts (the gate's decisions), for longitudinal eval
+DISMISSAL_DIR = "dismissals" # what a run SURFACED but did NOT alert on (triage candidates + materiality
+                             # immaterial verdicts + own-company signals) — the dismissal stream the
+                             # eval's "never drop anything important" bar needs auditable
 
 
 def _ground_rows(grounding):
@@ -151,3 +154,41 @@ def filter_capture(slug, *, run_ts, verdict, act_subject_keys,
         )
     except Exception as e:  # NEVER let filter capture break a production run
         print(f"[shadow] filter_capture skipped ({type(e).__name__}: {e})", file=sys.stderr)
+
+
+def dismissal_capture(slug, *, run_ts, candidates, immaterial, became_material, alerts,
+                      my_substantial, competitor=None, my_company=None):
+    """Record what a run SURFACED but did NOT alert on: the triage candidates (each with whether it
+    was substantial), the materiality judge's IMMATERIAL verdicts (signal + why_not — investigated
+    and cut, with reasons), and the own-company signals that escalated, alongside what DID survive
+    for contrast. This is the dismissal stream — where a silent miss ("dropped something important")
+    would hide; grounding kept/cut in shadow/ only covers survivors-of-materiality, so dismissals
+    were previously unauditable. No-op unless SHADOW_EVAL_ENABLED, and skipped on a truly quiet run
+    (nothing surfaced) so we don't write empty shells. GUARANTEED never to raise (live write path)."""
+    if not config.SHADOW_EVAL_ENABLED:
+        return
+    if not (candidates or immaterial or my_substantial):
+        return
+    try:
+        now = datetime.now()
+        record = {
+            "schema_version": SCHEMA_VERSION, "slug": slug,
+            "run_ts": run_ts or now.isoformat(timespec="seconds"),
+            "competitor": competitor, "my_company": my_company,
+            "surfaced": [{"about": c.get("about"), "substantial": c.get("substantial"),
+                          "signal": c.get("signal"), "why_new": c.get("why_new"),
+                          "source_hint": c.get("source_hint")} for c in (candidates or [])],
+            "materiality_immaterial": immaterial or [],     # [{signal, why_not}] — cut, with reasons
+            "became_material": became_material or [],         # subject_keys that survived (contrast)
+            "alerts": alerts or [],
+            "my_company_substantial": [{"signal": c.get("signal"), "why_new": c.get("why_new"),
+                                        "source_hint": c.get("source_hint")} for c in (my_substantial or [])],
+        }
+        stamp = now.strftime("%Y%m%dT%H%M%S")
+        selfserve.write_data(
+            f"{DISMISSAL_DIR}/{slug}/{stamp}.json",
+            json.dumps(record, indent=2, default=str, ensure_ascii=False),
+            f"dismissals: {slug} {stamp} (surfaced {len(record['surfaced'])})",
+        )
+    except Exception as e:  # NEVER let dismissal capture break a production run
+        print(f"[shadow] dismissal_capture skipped ({type(e).__name__}: {e})", file=sys.stderr)
