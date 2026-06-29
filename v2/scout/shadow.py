@@ -25,6 +25,7 @@ from scout import config, selfserve
 
 SCHEMA_VERSION = 1
 SHADOW_DIR = "shadow"
+FILTER_DIR = "filter"   # consequentiality-filter verdicts (the gate's decisions), for longitudinal eval
 
 
 def _ground_rows(grounding):
@@ -114,3 +115,39 @@ def capture(slug, source, *, kept, cut, grounding,
         )
     except Exception as e:  # NEVER let shadow capture break a production run
         print(f"[shadow] capture skipped ({type(e).__name__}: {e})", file=sys.stderr)
+
+
+def filter_capture(slug, *, run_ts, verdict, act_subject_keys,
+                   competitor=None, my_company=None, mode=None):
+    """Record one run's CONSEQUENTIALITY-FILTER decision (the strategic/consequential gate) for
+    longitudinal eval. Separate dir from grounding capture, by design: the v3.5 champion/challenger
+    eval studies the claim keep/cut in shadow/; THIS records a different judge (does the change
+    matter enough to act on), and it is captured DOWNSTREAM of grounding so it can never alter what
+    the grounding eval sees (docs/consequential-filter-spec.md, Fold A). No-op unless
+    SHADOW_EVAL_ENABLED. GUARANTEED never to raise — the caller sits in the live write path."""
+    if not config.SHADOW_EVAL_ENABLED:
+        return
+    try:
+        v = verdict if isinstance(verdict, dict) else {}
+        now = datetime.now()
+        record = {
+            "schema_version": SCHEMA_VERSION,
+            "slug": slug,
+            "run_ts": run_ts or now.isoformat(timespec="seconds"),
+            "mode": mode,
+            "competitor": competitor,
+            "my_company": my_company,
+            "consequential": bool(v["consequential"]) if "consequential" in v else None,
+            "consequence_rationale": v.get("consequence_rationale"),
+            "lead_headline": v.get("headline"),
+            "act_subject_keys": act_subject_keys or [],
+        }
+        stamp = now.strftime("%Y%m%dT%H%M%S")
+        path = f"{FILTER_DIR}/{slug}/{stamp}.json"
+        selfserve.write_data(
+            path,
+            json.dumps(record, indent=2, default=str, ensure_ascii=False),
+            f"filter: verdict {slug} {stamp} (consequential={record['consequential']})",
+        )
+    except Exception as e:  # NEVER let filter capture break a production run
+        print(f"[shadow] filter_capture skipped ({type(e).__name__}: {e})", file=sys.stderr)
