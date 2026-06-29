@@ -489,7 +489,7 @@ def _competitor_arm(slug, meta, since, substantial, claims, result):
             continue
         seen_ids.add(c["id"])
         material_grounded.append((c, alert_by_id[c["id"]]))
-    return material_grounded, grounded
+    return material_grounded, grounded, (mdata.get("immaterial") or [])
 
 
 def check(slug: str, write: bool = False, since_override: str | None = None) -> dict:
@@ -557,9 +557,9 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     # COMPETITOR ARM: Opus materiality -> multi-source grounding -> bounded retry. Runs only when
     # competitor signals are substantial; otherwise the my_company arm is why we escalated.
     if substantial:
-        material_grounded, grounded = _competitor_arm(slug, meta, since, substantial, claims, result)
+        material_grounded, grounded, immaterial = _competitor_arm(slug, meta, since, substantial, claims, result)
     else:
-        material_grounded, grounded = [], {"kept": [], "cut": [], "results": []}
+        material_grounded, grounded, immaterial = [], {"kept": [], "cut": [], "results": []}, []
     new_claims, new_alerts = _apply_updates(
         claims, material_grounded, meta.get("alerted_fingerprints", []))
     result["material"] = [
@@ -627,6 +627,14 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
         shadow.capture(slug, "monitor", kept=grounded["kept"], cut=grounded["cut"],
                        grounding=grounded, competitor=meta.get("competitor"),
                        my_company=meta.get("my_company"), focus=meta.get("focus"))
+        # DISMISSAL CAPTURE: what this run surfaced but did NOT alert on (triage candidates +
+        # materiality immaterial verdicts + own-company signals), so the dismissals are auditable —
+        # the silent-miss surface the eval's "never drop anything important" bar cares about.
+        shadow.dismissal_capture(
+            slug, run_ts=checked_at, candidates=candidates, immaterial=immaterial,
+            became_material=[c["subject_key"] for c, _ in material_grounded],
+            alerts=new_alerts, my_substantial=my_substantial,
+            competitor=meta.get("competitor"), my_company=meta.get("my_company"))
 
     if write and new_alerts:
         meta["last_checked"] = checked_at
