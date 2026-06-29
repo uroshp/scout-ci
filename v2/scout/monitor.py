@@ -879,6 +879,11 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
             "total": _run_total(cost),
         })
     _persist_run_cost(run_started, cost_rows, write)
+    # CONSEQ. TRACK: once enough shadow verdicts have accumulated, email a one-time "ready to review"
+    # spot-check digest (so the owner knows when to evaluate the filter for production). Best-effort.
+    if send:
+        from scout import conseq
+        conseq.maybe_notify_ready(send=not email_dry_run)
     return summary
 
 
