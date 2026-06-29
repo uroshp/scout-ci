@@ -105,6 +105,9 @@ STRATEGIC_PASS = os.environ.get("SCOUT_STRATEGIC_PASS", "1").strip().lower() not
 #   "gate"             -> actually gate propagation on the verdict (only after the shadow phase is clean);
 #   "off"              -> don't capture the verdict at all.
 CONSEQUENTIAL_FILTER = os.environ.get("SCOUT_CONSEQUENTIAL_FILTER", "shadow").strip().lower()
+# Conseq. track spot-check: how many shadow verdicts to accumulate before the monitor emails a
+# one-time "ready to review" digest (then you spot-check consequential-vs-routine and decide gate).
+CONSEQ_REVIEW_MIN = int(os.environ.get("SCOUT_CONSEQ_REVIEW_MIN", "8"))
 
 # --- Grounding (claim-object.md §4) -------------------------------------------
 # Provisional fuzzy threshold (0..1) — to be TUNED from real fetched pages at the
