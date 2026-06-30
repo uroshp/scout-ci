@@ -712,26 +712,18 @@
   },
   {
     "subject_key": "battlecard | codex-scale-distribution | where_they_win",
-    "claim": "**OpenAI wins on scale and channel, especially in top-down deals.**\n\nCodex passed 5M weekly users, is expanding to non-developers and ships through a named SI network (Accenture, PwC, Infosys, TCS and more) plus deep Azure/GitHub integration. In an exec-led, \"one-vendor-for-everything\" enterprise buy routed through an SI, OpenAI is the path of least resistance.\n\n**Soundbite:** *\"Top-down on breadth, OpenAI's the easy pick. But the engineers who actually live in the tool rate Claude higher, so get this in front of them.\"*",
-    "claim_type": "fact",
+    "claim": "**OpenAI wins on scale and channel, especially in top-down deals.**\n\nCodex passed 5M weekly users, is expanding to non-developers and ships through a named SI network (Accenture, PwC, Infosys, TCS and more) plus native GitHub Copilot integration. Claude is now generally available in Microsoft Azure Foundry (GA June 29, 2026) with Azure-native billing for EA customers, which narrows OpenAI's prior Azure deployment advantage. The remaining channel strengths are the SI network and GitHub's native Microsoft ownership: in an exec-led, \"one-vendor-for-everything\" enterprise buy routed through an SI where GitHub is already in the contract, OpenAI is still the path of least resistance.\n\n**Soundbite:** *\"Top-down on breadth through an SI, OpenAI's the easy pick. But Claude is now on the Azure EA bill, and the engineers who actually live in the tool rate Claude higher, so get this in front of them.\"*",
+    "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_they_win",
     "order": 0,
-    "source_url": "https://www.constellationr.com/insights/news/openai-touts-broadening-codex-usage-5-million-weekly-active-users",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "OpenAI said Codex has more than 5 million weekly active users with knowledge workers representing 20% of users and growing rapidly",
-    "as_of": "2026-06-02",
+    "as_of": "2026-06-29",
     "confidence": "high",
     "id": "c_987856624481",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-04",
-      "detail": null
-    },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "derived_from": "c_c2dc5e470ea5",
+    "updated_on": "2026-06-30"
   },
   {
     "subject_key": "openai-copilot | sentiment-billing-defection | current",
@@ -1416,5 +1408,50 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "anthropic | azure-foundry-distribution | 2026-06",
+    "claim": "Anthropic made Claude generally available in Microsoft Foundry, hosted on Azure, on June 29, 2026. Claude Opus 4.8 and Claude Haiku 4.5 ship through the Messages API on NVIDIA Blackwell Ultra systems, with Azure-native identity, billing and governance and a choice of Global or US data zone. Anthropic operates the inference. For customers on a Microsoft Enterprise Agreement, Claude usage appears as a single line on the Azure bill and draws down their Azure commitment.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://claude.com/blog/claude-in-microsoft-foundry",
+    "source_tier": "primary",
+    "evidence_excerpt": "Starting today, Claude models are generally available in Microsoft Foundry, hosted on Azure.",
+    "as_of": "2026-06-29",
+    "confidence": "high",
+    "id": "c_c2dc5e470ea5",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-30",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://azure.microsoft.com/en-us/blog/claude-in-microsoft-foundry-is-now-generally-available/",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_bc366e80d315",
+    "subject_key": "battlecard | azure-foundry-ga | where_we_win",
+    "claim": "**Claude is now in Microsoft Azure Foundry, on an EA customer's existing Azure commitment.**\n\nAs of June 29, 2026, Claude Opus 4.8 and Haiku 4.5 are generally available in Microsoft Foundry, hosted on Azure. Anthropic operates the inference. For enterprises on a Microsoft Enterprise Agreement, Claude usage draws down the existing Azure commitment and appears as a single line on the Azure bill, with Azure-native identity, billing and governance plus a choice of Global or US data zone. A buyer who has already committed Azure budget can deploy Claude without a separate procurement event.\n\n**Soundbite:** *\"Your Azure commitment is already paid for. Add Claude through Foundry and it shows up on that same bill. Anthropic runs the inference, no separate contract to sign.\"*",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 4,
+    "as_of": "2026-06-29",
+    "updated_on": "2026-06-30",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_c2dc5e470ea5",
+    "persona": "economic_buyer"
   }
 ]

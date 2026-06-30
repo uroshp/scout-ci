@@ -105,6 +105,12 @@ The real objection to autonomous coding is unreviewed, unsafe output. Opus 4.8 i
 
 **Soundbite:** *"The risk with agents is silent errors. Opus 4.8 is four times less likely to ship faulty code without flagging it. It tells you when something's wrong."* ([siliconangle.com](https://siliconangle.com/2026/05/28/anthropic-launches-claude-opus-4-8-raises-65b-new-funding/))
 
+**Claude is now in Microsoft Azure Foundry, on an EA customer's existing Azure commitment.**
+
+As of June 29, 2026, Claude Opus 4.8 and Haiku 4.5 are generally available in Microsoft Foundry, hosted on Azure. Anthropic operates the inference. For enterprises on a Microsoft Enterprise Agreement, Claude usage draws down the existing Azure commitment and appears as a single line on the Azure bill, with Azure-native identity, billing and governance plus a choice of Global or US data zone. A buyer who has already committed Azure budget can deploy Claude without a separate procurement event.
+
+**Soundbite:** *"Your Azure commitment is already paid for. Add Claude through Foundry and it shows up on that same bill. Anthropic runs the inference, no separate contract to sign."* ([claude.com](https://claude.com/blog/claude-in-microsoft-foundry))
+
 ### Where it's a fight
 
 **The headline leaderboard currently reads in OpenAI's favor.**
@@ -129,9 +135,9 @@ Beyond code, GPT-5.x bundles native image generation, voice I/O, web search, and
 
 **OpenAI wins on scale and channel, especially in top-down deals.**
 
-Codex passed 5M weekly users, is expanding to non-developers and ships through a named SI network (Accenture, PwC, Infosys, TCS and more) plus deep Azure/GitHub integration. In an exec-led, "one-vendor-for-everything" enterprise buy routed through an SI, OpenAI is the path of least resistance.
+Codex passed 5M weekly users, is expanding to non-developers and ships through a named SI network (Accenture, PwC, Infosys, TCS and more) plus native GitHub Copilot integration. Claude is now generally available in Microsoft Azure Foundry (GA June 29, 2026) with Azure-native billing for EA customers, which narrows OpenAI's prior Azure deployment advantage. The remaining channel strengths are the SI network and GitHub's native Microsoft ownership: in an exec-led, "one-vendor-for-everything" enterprise buy routed through an SI where GitHub is already in the contract, OpenAI is still the path of least resistance.
 
-**Soundbite:** *"Top-down on breadth, OpenAI's the easy pick. But the engineers who actually live in the tool rate Claude higher, so get this in front of them."* ([constellationr.com](https://www.constellationr.com/insights/news/openai-touts-broadening-codex-usage-5-million-weekly-active-users))
+**Soundbite:** *"Top-down on breadth through an SI, OpenAI's the easy pick. But Claude is now on the Azure EA bill, and the engineers who actually live in the tool rate Claude higher, so get this in front of them."* ([claude.com](https://claude.com/blog/claude-in-microsoft-foundry))
 
 **OpenAI is often already in the building.**
 
