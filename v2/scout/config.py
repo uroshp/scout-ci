@@ -57,10 +57,16 @@ GEN_MAX_BUDGET_USD = float(os.environ.get("SCOUT_GEN_MAX_BUDGET_USD", "10.0"))
 TRIAGE_MAX_TURNS = int(os.environ.get("SCOUT_TRIAGE_MAX_TURNS", "8"))
 TRIAGE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_TRIAGE_MAX_BUDGET_USD", "0.50"))
 TRIAGE_MAX_SEARCHES = int(os.environ.get("SCOUT_TRIAGE_MAX_SEARCHES", "5"))
-# Propose pass (propagation step 3): tools-off Sonnet drafting over already-grounded facts, so it
-# is short and cheap. Tight caps keep it bounded; it never searches or fetches.
+# Surface router (propagation step 3a, scout/route.py): tools-off Opus deciding which brief surfaces
+# an act-grade change reshapes, across all sections. One judgment call per change-set; it reasons over
+# the facts + the card, never searches. Absorbs the old separate strategic-lead pass, so it is
+# cost-neutral against it (Opus, similar budget). Kept a touch higher than propose (a full-card read).
+ROUTE_MAX_TURNS = int(os.environ.get("SCOUT_ROUTE_MAX_TURNS", "6"))
+ROUTE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_ROUTE_MAX_BUDGET_USD", "0.90"))
+# Propose/author pass (propagation step 3b): tools-off Sonnet drafting prose for the router's ops over
+# already-grounded facts, so it is short and cheap. Tight caps keep it bounded; never searches/fetches.
 PROPOSE_MAX_TURNS = int(os.environ.get("SCOUT_PROPOSE_MAX_TURNS", "6"))
-PROPOSE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_PROPOSE_MAX_BUDGET_USD", "0.50"))
+PROPOSE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_PROPOSE_MAX_BUDGET_USD", "0.60"))
 # Judge pass (propagation step 4): tools-off Opus adversarially confirming/rejecting the proposer's
 # ops against the same grounded facts. Also short — it reasons, never searches — but on the pricier
 # model, so it keeps its own (slightly higher) ceiling than propose.

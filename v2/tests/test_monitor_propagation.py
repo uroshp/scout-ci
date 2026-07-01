@@ -72,10 +72,13 @@ class MyCompanyArm(unittest.TestCase):
     def test_my_only_window_escalates_in_shadow_without_mutating_card(self):
         seen = {}
 
-        def fake_propagate(meta, act_facts, new_claims, **k):
-            seen["act_facts"] = act_facts
-            return {"ops": [], "no_change": ["noted, no rep-facing change"], "floor_results": [],
-                    "verdicts": {}, "confirmed": [], "decisions": [], "cost_usd": {"propose": 0.1, "judge": 0.1}}
+        def fake_propagate(meta, facts_with_alerts, strength_facts, claims, **k):
+            seen["facts_with_alerts"] = facts_with_alerts
+            seen["strength_facts"] = strength_facts
+            return {"ops": [], "surface_ops": [], "no_surface": ["noted, no rep-facing change"],
+                    "no_change": ["noted, no rep-facing change"], "run_verdict": {}, "floor_results": [],
+                    "verdicts": {}, "confirmed": [], "decisions": [],
+                    "cost_usd": {"route": 0.1, "author": 0.05, "judge": 0.1}}
 
         res, wb = self._run("shadow", [{"about": "my_company", "substantial": True,
                                         "signal": "Fable 5 paused", "valence": "back_foot"}], fake_propagate)
@@ -83,14 +86,17 @@ class MyCompanyArm(unittest.TestCase):
         self.assertEqual(res["my_substantial"], 1)
         self.assertIn("my_company_facts", res)
         self.assertIn("propagation", res)
-        # Propagation saw the grounded my_company act-fact (the trigger) ...
-        ids = [f["id"] for f in seen["act_facts"]]
-        self.assertIn(MY_FACT["id"], ids)
-        # ... PLUS deterministic standing-strength pivot fuel re-grounded from the where_we_win play.
-        strength_facts = [f for f in seen["act_facts"] if f.get("standing_strength")]
-        self.assertTrue(strength_facts, "the where_we_win play should re-ground into a strength fact")
-        self.assertNotIn(MY_FACT["id"], [f["id"] for f in strength_facts])   # the trigger is not a strength
-        self.assertEqual(res["propagation"]["strengths"], len(strength_facts))
+        # The router saw the grounded my_company act-fact (the trigger) as a {fact, alert} pair — the
+        # alert carries the materiality so_what the router is seeded with.
+        trigger_ids = [p["fact"]["id"] for p in seen["facts_with_alerts"]]
+        self.assertIn(MY_FACT["id"], trigger_ids)
+        self.assertTrue(all(p.get("alert") for p in seen["facts_with_alerts"]))
+        # ... PLUS deterministic standing-strength pivot fuel re-grounded from the where_we_win play,
+        # passed SEPARATELY (pivot evidence, never a routing trigger).
+        self.assertTrue(seen["strength_facts"], "the where_we_win play should re-ground into a strength fact")
+        self.assertTrue(all(f.get("standing_strength") for f in seen["strength_facts"]))
+        self.assertNotIn(MY_FACT["id"], [f["id"] for f in seen["strength_facts"]])   # trigger is not a strength
+        self.assertEqual(res["propagation"]["strengths"], len(seen["strength_facts"]))
         # SHADOW: the card written is the ORIGINAL claims (no tracked_fact persisted, no objection).
         written_claims = wb.call_args.args[1]
         self.assertEqual([c["id"] for c in written_claims], [PLAY["id"]])

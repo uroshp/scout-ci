@@ -122,6 +122,11 @@ Then, for EACH surfaced candidate, set "substantial":
   - false — incremental or routine: a minor feature, a blog/opinion post, a restated known fact, a
             rumor without a source, sentiment churn, or anything whose importance is marginal.
 
+PRICING / PACKAGING is high-value and easy to miss among announcements: a new list price, a new or
+retired tier, a discount, a usage-limit or rate change, a billing-model shift. Actively check for it on
+BOTH sides — a pricing move on either party changes what a rep says on cost, and a card can carry a
+pricing section that never updates if the scan skips it.
+
 ESCALATION RULE (this governs cost): the expensive judge runs ONLY if at least one candidate is
 "substantial": true. A quiet window — nothing new, or only minor/routine items — is the COMMON,
 correct, CHEAP outcome: report what you found and the pipeline stops here. Reserve
@@ -435,6 +440,34 @@ def _is_act(alert: dict) -> bool:
     return str(alert.get("severity", "")).strip().lower() == "act"
 
 
+def _retire_feed_alerts(confirmed_ops: list, applied: list) -> list:
+    """Build alert records for APPLIED retire ops so the left updates panel shows the removal (the
+    router's feed_note), never a silent disappearance — the user's explicit ask ("even if it's in the
+    updates section on the left"). Only ops that actually landed are surfaced."""
+    applied_retire_sks = {a.get("subject_key") for a in applied if a.get("operation") == "retire"}
+    now = datetime.now()
+    out = []
+    for op in confirmed_ops:
+        if op.get("operation") != "retire":
+            continue
+        sk = op.get("subject_key") or op.get("target_subject_key")
+        if sk not in applied_retire_sks:
+            continue
+        note = op.get("feed_note") or op.get("retired_reason") or "a play or objection was removed"
+        out.append({
+            "date": now.date().isoformat(),
+            "detected_at": now.isoformat(timespec="seconds"),
+            "subject_key": sk,
+            "old_value": "on the card", "new_value": "removed",
+            "headline": note,
+            "so_what": note,
+            "severity": "act",
+            "source_url": None,
+            "fingerprint": _fingerprint(str(sk), "retired:" + str(note)),
+        })
+    return out
+
+
 def _competitor_arm(slug, meta, since, substantial, claims, result):
     """Competitor materiality (Opus) -> tier-ranked MULTI-SOURCE grounding -> bounded feedback
     retry -> material_grounded. Logic is UNCHANGED from the pre-my_company flow; extracted verbatim
@@ -587,39 +620,48 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
 
     result["alerts"] = new_alerts
 
-    # PROPAGATION (spec §17): an ACT-grade grounded fact reshapes the rep-facing prose — the step
-    # that makes the card *living*. Runs AFTER facts are patched into new_claims (so a propagated
-    # play/objection can derive_from a fact now on the card), on act-grade survivors from BOTH arms.
-    # config.PROPAGATE_MODE: off -> skip; shadow -> propose->judge + LOG decisions, no card change;
-    # live -> also apply judge-confirmed add/revise/retire. watch-grade never reaches here.
-    act_facts = ([c for c, a in material_grounded if _is_act(a)]
-                 + [f for f, a in my_grounded if _is_act(a)])
-    if config.PROPAGATE_MODE in ("shadow", "review", "live") and act_facts:
+    # PROPAGATION (spec §17): an ACT-grade grounded change reshapes the rep-facing prose across EVERY
+    # affected surface — the step that makes the card *living*. route (Opus, seeded with the materiality
+    # verdict) -> author (Sonnet) -> floor -> judge, on act-grade survivors from BOTH arms. Runs AFTER
+    # facts are patched into new_claims (so a reshaped play/objection can derive_from a fact now on the
+    # card). off -> skip; shadow -> log only; review -> log + email proposals; live -> also apply.
+    act_pairs = ([{"fact": c, "alert": a} for c, a in material_grounded if _is_act(a)]
+                 + [{"fact": f, "alert": a} for f, a in my_grounded if _is_act(a)])
+    if config.PROPAGATE_MODE in ("shadow", "review", "live") and act_pairs:
         try:
             today = checked_at[:10]
-            # PIVOT FUEL: grounded my_company STANDING strengths added to the facts pool so a back-foot
-            # rebuttal has admissible footing for its pivot (the catch-22 fix; decision-log §12,
-            # docs/my-company-search-and-outage-spec.md). v1 is deterministic (re-grounds existing
-            # claims) — no spend. These are excluded from derivable triggers inside propagate().
+            # PIVOT FUEL: grounded my_company STANDING strengths, so a back-foot rebuttal has admissible
+            # footing for its pivot (the catch-22 fix; decision-log §12). Deterministic re-grounding, no
+            # spend. Passed separately from the change facts: pivot evidence, never a routing trigger.
             strength_facts = strengths.get(slug, meta, new_claims)
-            pool = act_facts + strength_facts
-            prop = propagate(meta, pool, new_claims, slug=slug, source="monitor", persist=write)
+            prop = propagate(meta, act_pairs, strength_facts, new_claims, slug=slug,
+                             source="monitor", persist=write)
             result["propagation"] = {
-                "mode": config.PROPAGATE_MODE, "act_facts": len(act_facts),
+                "mode": config.PROPAGATE_MODE, "act_facts": len(act_pairs),
                 "strengths": len(strength_facts),
-                "ops": len(prop["ops"]), "confirmed": len(prop["confirmed"]),
+                "surface_ops": len(prop["surface_ops"]), "ops": len(prop["ops"]),
+                "confirmed": len(prop["confirmed"]), "no_surface": prop["no_surface"],
                 "no_change": prop["no_change"], "decisions": prop["decisions"],
+                "run_verdict": prop.get("run_verdict") or {},
                 "cost": prop["cost_usd"], "applied": []}
             result["cost"]["propagation"] = sum(v or 0 for v in prop["cost_usd"].values())
-            # SHADOW-FIRST: only "live" mutates the card. "shadow" has captured the decisions above.
+            # SHADOW-FIRST: only "live" mutates the card. "shadow"/"review" leave it untouched.
             if write and config.PROPAGATE_MODE == "live" and prop["confirmed"]:
-                ap = apply_ops(new_claims, prop["confirmed"], pool, slug, today)
+                change_facts = [p["fact"] for p in act_pairs]
+                ap = apply_ops(new_claims, prop["confirmed"], change_facts + strength_facts, slug, today)
                 new_claims = ap["claims"]
                 result["propagation"]["applied"] = ap["applied"]
                 result["propagation"]["skipped"] = ap["skipped"]
-        except Exception as e:  # NON-DISRUPTION: propagation failure must not drop the monitor update
-            print(f"[monitor] propagation skipped ({type(e).__name__}: {e})", file=sys.stderr)
+                result["propagation"]["held"] = ap.get("held", [])
+                # SURFACE RETIREMENTS in the updates feed: an applied retire writes its feed_note as an
+                # alert so the left panel shows the removal, never a silent disappearance.
+                new_alerts.extend(_retire_feed_alerts(prop["confirmed"], ap["applied"]))
+        except Exception as e:  # NON-DISRUPTION: propagation failure must not drop the monitor update...
+            print(f"[monitor] propagation FAILED ({type(e).__name__}: {e})", file=sys.stderr)
             result["propagation_error"] = f"{type(e).__name__}: {e}"
+            # ...but it must NOT be silent: surface it loudly so a stale card can't look clean (the 7/1
+            # miss). run_all folds pipeline_health into the digest email.
+            result["pipeline_health"] = f"propagation FAILED on {slug}: {type(e).__name__}: {e}"
 
     # Shadow-eval observer (v3.5): on a real escalated check, record the champion grounding
     # decisions for offline challenger scoring. No-op unless SCOUT_SHADOW_EVAL=1; never raises.
@@ -831,7 +873,7 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
                 # non-zero when any card errored, so the Actions run still notifies.
                 summary.append({"slug": slug, "error": f"{type(e).__name__}: {e}"})
                 continue
-        emailed = prop_emailed = strat_emailed = None
+        emailed = prop_emailed = None
         if send:
             meta = store.load_meta(slug) or {}
             if res["alerts"]:
@@ -844,35 +886,28 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
                 if confirmed:
                     prop_emailed = notify.send_propagation_proposals(
                         slug, meta, confirmed, dry_run=email_dry_run)
-            # STRATEGIC PASS (strategy layer): on an ACT-grade change, re-pick the brief's single most
-            # strategic lead and email it for approval. Reuses the Opus judge; fires ONLY on ACT alerts
-            # (and only in review/live) so quiet runs cost nothing. Best-effort — never breaks the run.
-            if (config.STRATEGIC_PASS and config.PROPAGATE_MODE in ("review", "live")
-                    and any(_is_act(a) for a in res.get("alerts", []))):
+            # CONSEQUENTIALITY FILTER (shadow eval, docs/consequential-filter-spec.md): the router now
+            # emits the consequential/routine run_verdict the old strategic pass used to (that pass is
+            # ABSORBED into the router — the lead is just the executive_summary surface). Log the verdict
+            # for the longitudinal eval. DOWNSTREAM of the grounding shadow.capture in check() (Fold A:
+            # never alter what the v3.5 grounding eval sees). "shadow" mode changes NOTHING — the verdict
+            # is validated over weeks before it can gate. No-op unless SHADOW_EVAL_ENABLED.
+            if prop and config.CONSEQUENTIAL_FILTER != "off":
+                rv = prop.get("run_verdict") or {}
+                if rv:
+                    shadow.filter_capture(
+                        slug, run_ts=res.get("last_checked"), verdict=rv,
+                        act_subject_keys=[m["subject_key"] for m in res.get("material", [])],
+                        competitor=meta.get("competitor"), my_company=meta.get("my_company"),
+                        mode=config.CONSEQUENTIAL_FILTER)
+            # LOUD ON FAILURE: a swallowed propagation crash must never leave a stale card looking clean
+            # (the 7/1 miss). Surface pipeline_health to the owner so a broken reshape is never invisible.
+            if res.get("pipeline_health"):
                 try:
-                    from scout import strategy
-                    sres = strategy.strategic_lead(meta, store.load_claims(slug))
-                    res["cost"]["strategy"] = (res["cost"].get("strategy") or 0) + (sres.get("cost_usd") or 0.0)
-                    # CONSEQUENTIALITY FILTER (shadow-first, docs/consequential-filter-spec.md): the
-                    # strategic pass now also returns a consequential/routine verdict. Log it for the
-                    # longitudinal eval. This capture is DOWNSTREAM of the grounding shadow.capture in
-                    # check() (Fold A: never alter what the v3.5 grounding eval sees). In "shadow" mode
-                    # (default) it changes NOTHING — we validate the verdict over weeks before it gates.
-                    if config.CONSEQUENTIAL_FILTER != "off":
-                        shadow.filter_capture(
-                            slug, run_ts=res.get("last_checked"), verdict=sres.get("lead") or {},
-                            act_subject_keys=[m["subject_key"] for m in res.get("material", [])],
-                            competitor=meta.get("competitor"), my_company=meta.get("my_company"),
-                            mode=config.CONSEQUENTIAL_FILTER)
-                    if sres.get("lead"):
-                        strat_emailed = notify.send_strategic_shift(meta, sres["lead"], dry_run=email_dry_run)
-                        sent = (strat_emailed or {}).get("sent")
-                        print(f"[strategy] FIRED {slug} | supersedes={sres['lead'].get('supersedes','?')!r} "
-                              f"| emailed={sent} | cost=${sres.get('cost_usd', 0):.3f}")
-                    else:
-                        print(f"[strategy] ran {slug} but no lead parsed (cost=${sres.get('cost_usd', 0):.3f})")
+                    notify._dispatch(f"Scout: pipeline health — {slug}", res["pipeline_health"],
+                                     dry_run=email_dry_run)
                 except Exception as e:
-                    print(f"[strategy] skipped ({type(e).__name__}: {e})", file=sys.stderr)
+                    print(f"[monitor] pipeline-health alert skipped ({type(e).__name__}: {e})", file=sys.stderr)
         cost = res["cost"]
         summary.append({
             "slug": slug, "no_change": res["no_change"], "material": len(res["material"]),

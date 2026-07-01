@@ -173,7 +173,8 @@ def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict]) -
     for d in decisions:
         op = str(d.get("operation", "")).upper()
         zone = f" / {d.get('zone')}" if d.get("zone") else ""
-        out += ["", f"{op} in {d.get('section', '')}{zone}", f"({d.get('subject_key')})"]
+        kind = f"  [{d.get('change_kind')}]" if d.get("change_kind") else ""
+        out += ["", f"{op} in {d.get('section', '')}{zone}{kind}", f"({d.get('subject_key')})"]
         # Scannable delta first ([+ added] / [- removed]) so the changed bit jumps out, then the full
         # WAS/NEW for context — history kept, edit highlighted.
         if d.get("operation") != "retire" and (d.get("old_text") or d.get("new_text")):
@@ -182,6 +183,10 @@ def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict]) -
             out += ["", "WAS:", _block(d["old_text"])]
         if d.get("operation") != "retire":
             out += ["", "NEW:", _block(d.get("new_text"))]
+        # The one-line note the LEFT updates panel will show — especially load-bearing for a RETIRE,
+        # so a removal is explained, never a silent disappearance.
+        if d.get("feed_note"):
+            out += ["", f"Updates-feed note: {_flat(d['feed_note'])}"]
         if d.get("judge_reason"):
             out += ["", f"Judge: {_flat(d['judge_reason'])}"]
         if d.get("trigger_source_url"):

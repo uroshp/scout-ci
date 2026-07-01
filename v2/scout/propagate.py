@@ -26,14 +26,26 @@ from claude_agent_sdk import ClaudeAgentOptions
 from scout import config, selfserve
 from scout.generate import _drive, _extract_json
 from scout.prompts import WRITING_STYLE
+from scout.route import route, ROUTABLE_SECTIONS, CHANGE_KINDS
 from scout.schema import ZONES, claim_id, normalize_subject_key, validation_errors
 
+# change_kind -> the ONLY operation that kind may carry (the resilience contract, enforced by the
+# floor). A router op is rejected if its change_kind and operation disagree; kinds absent from this
+# map (or a legacy op with no change_kind) skip the check, so direct apply/test paths are unaffected.
+_KIND_OP = {
+    "new": "add", "update": "revise", "partial_invalidation": "revise",
+    "reconcile_beat": "revise", "supersede_lead": "revise",
+    "full_invalidation": "retire", "neutralize": "retire",
+}
 
-_PROPOSE_SYSTEM = """You are the PROPOSE pass of a living competitive battlecard's PROPAGATION step.
-You are handed one or more GROUNDED, deal-grade (act-severity) facts about the competitor or about
-our own company (my_company), plus the card's CURRENT plays (battlecard) and objections
-(objection_handling). Draft the rep-facing prose changes those facts LICENSE, and only those, as a
-list of add / revise / retire operations.
+
+_AUTHOR_SYSTEM = """You are the AUTHOR pass of a living competitive battlecard's PROPAGATION step. The
+ROUTING is already decided by an upstream router: you are handed a WORKLIST of routed ops, each naming
+its section, its operation (add|revise), its change_kind, the target claim's CURRENT text (for a
+revise), and the grounded fact it derives from, plus the pool of grounded facts. WRITE the rep-facing
+prose for each op, and ONLY that. Do NOT re-route, do NOT change the section/operation/target/valence,
+do NOT invent new ops, and do NOT author retires (a retire removes a claim and needs no prose). The
+sections below tell you HOW each surface is shaped; the worklist tells you WHICH to write.
 
 THE RULE ABOVE ALL OTHERS, FACTS ONLY. Work strictly from the grounded fact(s) given. Reason only
 about DIRECT, near-certain consequences of what the source already STATES. Never infer, speculate,
@@ -92,12 +104,19 @@ claim renders as one unbroken blob and is REJECTED — this is not optional):
 - An OBJECTION (objection_handling) claim is written as: a bold question line (**"..."**), then the
   rebuttal body, then a final block that begins literally with **So what:** stating the rep's concrete
   move in one or two sentences. The move you were told to hand the rep above GOES in the So-what block.
-- A PLAY (battlecard) claim is written as: a bold one-line headline, then the body, then a final block
-  that begins literally with **Soundbite:** giving one rep-ready sentence.
-Every add/revise you emit must end with its **So what:** (objection) or **Soundbite:** (play) block —
+- A PLAY (battlecard win/lose zone) claim is written as: a bold one-line headline, then the body, then a
+  final block that begins literally with **Soundbite:** giving one rep-ready sentence. A CONTESTED
+  battlecard entry is a neutral framing: no Soundbite, no persona.
+- THE LEAD (executive_summary, change_kind supersede_lead) is written as: a bold one-line headline, ONE
+  short proof sentence, then a **Soundbite:** "one line to say out loud", then a final **So what:** block
+  with the rep's concrete move. Keep it short and scannable — a rep skims it in ten seconds.
+- POSITIONING, PRICING, SNAPSHOT, SENTIMENT claims are tight plain prose (one or two sentences), NO
+  required block and NO persona. State what is TRUE NOW; for a pricing op, name the exact number or tier
+  the fact states. Do not force a So-what or Soundbite where the section does not use one.
+Every objection, win/lose play, and lead you emit must end with its **So what:** or **Soundbite:** block —
 when you revise in place, keep that block. A claim without it will be rejected and re-asked. Every
-add/revise must ALSO carry a `persona` — the single best-fit buyer (an enum value, NEVER null) who
-raises the objection or that the play targets; it renders the per-claim buyer badge.
+objection and win/lose play must ALSO carry a `persona` — the single best-fit buyer (an enum value,
+NEVER null) who raises the objection or that the play targets; it renders the per-claim buyer badge.
 
 OPERATIONS (pick the lightest that is true; identity is the SUBJECT, not the text):
 - add — the fact creates a genuinely new play or objection not already tracked.
@@ -134,24 +153,13 @@ rewrite that string to remove it with clean punctuation (period, comma, colon, o
 returning. Do not emit the JSON until every claim string passes this check. A single em dash is a
 failed output.
 
-Return ONLY a single fenced ```json block:
-{"ops": [
-  {"operation": "add|revise|retire",
-   "section": "objection_handling|battlecard",
-   "zone": "where_we_win|contested|where_they_win|null (battlecard only; null for objection_handling)",
-   "valence": "front_foot|back_foot",
-   "target_subject_key": "<EXACT subject_key of the existing play/objection for revise|retire; null for add>",
-   "subject_key": "<resulting claim subject_key: NEW (entity|attribute|qualifier) for add; SAME as target for revise|retire>",
-   "claim": "<the rep-facing prose to show (play + soundbite, or objection + rebuttal); null for retire>",
-   "claim_type": "interpretation",
-   "persona": "<eng_led|technical_evaluator|economic_buyer|security_regulated|exec_top_down|null>",
-   "derived_from": "<id of the grounded fact this descends from>",
-   "retired_reason": "<retire only: 'neutralized: ...' | 'invalidated: ...'; else null>",
-   "rationale": "<one line: the op and the rep decision it changes, following DIRECTLY from the grounded fact>"}
- ],
- "no_change": ["<one line per fact that licenses no rep-facing change, and why>"]}
-If no fact licenses a change, return "ops": [] with your reasons in "no_change". That is the common,
-correct outcome."""
+Return ONLY a single fenced ```json block, ONE entry per add/revise op in the worklist (omit retires):
+{"authored": [
+  {"op_index": <int — the op's index in the worklist you were given>,
+   "claim": "<the rep-facing prose for that op, in its section's required format>",
+   "persona": "<eng_led|technical_evaluator|economic_buyer|security_regulated|exec_top_down|null — required for an objection or a win/lose play, null elsewhere>"}
+]}
+Write exactly one entry per add/revise op, keyed by its op_index. Author nothing for a retire."""
 
 
 def _facts_digest(facts: list[dict]) -> list[dict]:
@@ -186,7 +194,7 @@ def _targets_digest(claims: list[dict]) -> list[dict]:
     what made the proposer rewrite from scratch and erase still-true content."""
     out = []
     for c in claims:
-        if c.get("section") not in ("battlecard", "objection_handling"):
+        if c.get("section") not in ROUTABLE_SECTIONS:
             continue
         if str(c.get("status", "active")) != "active":
             continue
@@ -195,39 +203,101 @@ def _targets_digest(claims: list[dict]) -> list[dict]:
     return out
 
 
-async def _run_propose(meta: dict, facts: list[dict], claims: list[dict]) -> dict:
+def _author_worklist(surface_ops: list[dict], active_by_sk: dict) -> list[dict]:
+    """The add/revise routed ops the author must write prose for, each tagged with its worklist index
+    and the target claim's CURRENT full text (so a reconcile/partial-invalidation revise folds the new
+    beat in without erasing still-true prior content). Retires are excluded — they need no prose."""
+    work = []
+    for i, op in enumerate(surface_ops):
+        if op.get("operation") not in ("add", "revise"):
+            continue
+        tgt = op.get("target_subject_key")
+        current = active_by_sk.get(normalize_subject_key(str(tgt))) if tgt else None
+        work.append({
+            "op_index": i,
+            "section": op.get("section"),
+            "zone": op.get("zone"),
+            "operation": op.get("operation"),
+            "change_kind": op.get("change_kind"),
+            "valence": op.get("valence"),
+            "target_subject_key": tgt,
+            "current_text": (current.get("claim") if isinstance(current, dict) else None),
+            "derived_from": op.get("derived_from"),
+            "persona_hint": op.get("persona"),
+            "why": op.get("why"),
+        })
+    return work
+
+
+def _finalize_op(op: dict, authored: dict | None) -> dict:
+    """Merge the router's routing decision (authoritative) with the author's prose into the op shape
+    the floor/judge/apply consume. Retire ops carry claim=None and a floor-shaped retired_reason
+    derived from their change_kind; add/revise ops take the authored prose + persona."""
+    operation = op.get("operation")
+    out = {
+        "operation": operation,
+        "section": op.get("section"),
+        "zone": op.get("zone"),
+        "valence": op.get("valence"),
+        "change_kind": op.get("change_kind"),
+        "target_subject_key": op.get("target_subject_key"),
+        "subject_key": op.get("subject_key"),
+        "claim_type": "interpretation",
+        "derived_from": op.get("derived_from"),
+        "feed_note": op.get("feed_note"),
+        "persona": op.get("persona"),
+    }
+    if operation == "retire":
+        out["claim"] = None
+        note = (op.get("feed_note") or op.get("why") or "the anchoring fact changed").strip()
+        prefix = "neutralized" if op.get("change_kind") == "neutralize" else "invalidated"
+        out["retired_reason"] = op.get("retired_reason") or f"{prefix}: {note}"
+    else:
+        a = authored or {}
+        out["claim"] = a.get("claim")
+        if a.get("persona"):
+            out["persona"] = a["persona"]
+    return out
+
+
+async def _run_author(meta: dict, surface_ops: list[dict], facts: list[dict], active_by_sk: dict) -> dict:
     comp, me = meta.get("competitor"), meta.get("my_company")
     user = (f"Competitor: {comp}" + (f"   We are: {me}" if me else "") + "\n\n"
-            "GROUNDED ACT-GRADE FACTS (draft only what these license; derived_from = each fact's id):\n"
+            "GROUNDED FACTS (the ONLY admissible evidence; each op's derived_from points into these):\n"
             + json.dumps(_facts_digest(facts), ensure_ascii=False, indent=2)
-            + "\n\nCURRENT PLAYS + OBJECTIONS (what you may revise or retire; reuse the EXACT subject_key):\n"
-            + json.dumps(_targets_digest(claims), ensure_ascii=False, indent=2))
+            + "\n\nWORKLIST — write the prose for each op; key your output by op_index:\n"
+            + json.dumps(_author_worklist(surface_ops, active_by_sk), ensure_ascii=False, indent=2))
     options = ClaudeAgentOptions(
-        model=config.SUBAGENT_MODEL,                      # propose on Sonnet (spec §17)
+        model=config.SUBAGENT_MODEL,                      # author prose on Sonnet (routing was Opus)
         system_prompt={"type": "preset", "preset": "claude_code",
-                       "append": _PROPOSE_SYSTEM + "\n\n" + WRITING_STYLE},
+                       "append": _AUTHOR_SYSTEM + "\n\n" + WRITING_STYLE},
         mcp_servers={},
-        allowed_tools=[],                                 # TOOLS-OFF: reason only from the given facts
+        allowed_tools=[],                                 # TOOLS-OFF: write only from the given facts
         disallowed_tools=["WebSearch", "WebFetch"],
         permission_mode="bypassPermissions",
         max_turns=config.PROPOSE_MAX_TURNS,
         max_budget_usd=config.PROPOSE_MAX_BUDGET_USD,
     )
-    return await _drive(user, options, "propose")
+    return await _drive(user, options, "author")
 
 
-def propose(meta: dict, facts: list[dict], claims: list[dict]) -> dict:
-    """Run the propose pass over grounded act-grade facts. Returns
-    {'ops': [...], 'no_change': [...], 'cost_usd': float}. Light structural guard only here; the
-    deterministic FLOOR + Opus judge land in step 4 (nothing applies to a card until then)."""
-    res = asyncio.run(_run_propose(meta, facts, claims))
+def author(meta: dict, surface_ops: list[dict], facts: list[dict], claims: list[dict]) -> dict:
+    """Author the rep-facing prose for the router's add/revise ops. Returns {'ops': [...], 'cost_usd'}
+    where ops are the ROUTER ops (routing authoritative) with prose merged in; retires pass through
+    with claim=None. The deterministic FLOOR + adversarial Opus judge gate them next (nothing applies
+    to a card until then)."""
+    add_revise = [op for op in surface_ops if op.get("operation") in ("add", "revise")]
+    if not add_revise:                                    # only retires -> no authoring call needed
+        return {"ops": [_finalize_op(op, None) for op in surface_ops], "cost_usd": None}
+    active_by_sk = _active_targets(claims)
+    res = asyncio.run(_run_author(meta, surface_ops, facts, active_by_sk))
     try:
-        data = _extract_json(res["text"])
+        authored = {a.get("op_index"): a for a in (_extract_json(res["text"]).get("authored") or [])
+                    if isinstance(a, dict) and isinstance(a.get("op_index"), int)}
     except Exception:
-        data = {"ops": [], "no_change": []}
-    ops = [o for o in (data.get("ops") or [])
-           if isinstance(o, dict) and o.get("operation") in ("add", "revise", "retire")]
-    return {"ops": ops, "no_change": data.get("no_change") or [], "cost_usd": res.get("cost_usd")}
+        authored = {}
+    return {"ops": [_finalize_op(op, authored.get(i)) for i, op in enumerate(surface_ops)],
+            "cost_usd": res.get("cost_usd")}
 
 
 # === Step 4: the deterministic FLOOR + the adversarial JUDGE + the decision log ================
@@ -255,7 +325,7 @@ def _active_targets(claims: list[dict]) -> dict:
     not actually on the live card (blast radius must be REAL, not invented)."""
     out = {}
     for c in claims:
-        if c.get("section") not in ("battlecard", "objection_handling"):
+        if c.get("section") not in ROUTABLE_SECTIONS:
             continue
         if str(c.get("status", "active")) != "active":
             continue
@@ -282,13 +352,24 @@ def floor_check(op: dict, surviving_fact_ids: set, active_by_sk: dict) -> list:
     v = []
 
     section = op.get("section")
-    if section not in ("battlecard", "objection_handling"):
-        v.append(f"section {section!r} not in (battlecard, objection_handling)")
+    if section not in ROUTABLE_SECTIONS:
+        v.append(f"section {section!r} not in {ROUTABLE_SECTIONS}")
     zone = op.get("zone")
     if section == "battlecard" and zone not in ZONES:
         v.append(f"battlecard op needs zone in {ZONES}, got {zone!r}")
-    if section == "objection_handling" and zone is not None:
-        v.append(f"objection_handling op must have zone=null, got {zone!r}")
+    if section != "battlecard" and zone is not None:
+        v.append(f"{section} op must have zone=null, got {zone!r}")
+
+    # change_kind must agree with the operation it carries (the resilience contract). Tolerant: an op
+    # with no change_kind (a legacy/direct-apply op, e.g. review.apply or a unit test) skips this.
+    ck = op.get("change_kind")
+    if ck is not None:
+        if ck not in CHANGE_KINDS:
+            v.append(f"unknown change_kind {ck!r}")
+        elif _KIND_OP.get(ck) != operation:
+            v.append(f"change_kind {ck!r} requires operation {_KIND_OP.get(ck)!r}, got {operation!r}")
+        elif ck == "supersede_lead" and section != "executive_summary":
+            v.append("change_kind 'supersede_lead' is executive_summary only")
 
     # No model-minted facts — propagation only ever authors interpretations.
     if op.get("claim_type") != "interpretation":
@@ -335,7 +416,8 @@ def floor_check(op: dict, surviving_fact_ids: set, active_by_sk: dict) -> list:
 _JUDGE_SYSTEM = """You are the JUDGE pass of a living competitive battlecard's PROPAGATION step: the
 independent adversarial check on the PROPOSE pass. This is Scout's generate-then-verify discipline
 applied one layer up, to AUTHORSHIP. A proposer drafted add / revise / retire edits to the rep-facing
-prose (plays + objections) from grounded facts. Confirm or reject EACH, and DEFAULT TO REJECT when not
+prose (any rep-facing section: the lead, plays, objections, positioning, pricing, snapshot, sentiment)
+from grounded facts. Confirm or reject EACH, and DEFAULT TO REJECT when not
 convinced. Rejecting every op and returning no rep-facing change is a correct, common outcome — most
 deal-grade facts still move no specific play or objection.
 
@@ -529,12 +611,15 @@ def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
             "trigger_claim_id": df,
             "trigger_source_url": fact.get("source_url"),
             "operation": op.get("operation"),
+            "change_kind": op.get("change_kind"),         # the routed taxonomy label
             "section": op.get("section"),
             "zone": op.get("zone"),
             "valence": op.get("valence"),
             "subject_key": op.get("subject_key"),
+            "target_subject_key": op.get("target_subject_key"),
             "old_text": (old.get("claim") if isinstance(old, dict) else None),
             "new_text": op.get("claim"),                  # null on retire
+            "feed_note": op.get("feed_note"),             # the "what changed" line the updates panel shows
             "derived_from": df,
             "judge_verdict": verdict,                     # confirm | reject | floor_reject
             "judge_reason": reason,
@@ -570,39 +655,57 @@ def log_decisions(slug: str, records: list, source: str = "monitor", facts: list
     return records
 
 
-def propagate(meta: dict, facts: list[dict], claims: list[dict],
-              slug: str = None, source: str = "monitor", persist: bool = True) -> dict:
-    """Run the full propagation control flow over already-grounded act-grade facts:
-        propose (Sonnet) -> deterministic FLOOR -> judge (Opus, adversarial) -> decision log.
-    Returns the proposed ops, their floor results, the judge verdicts, the CONFIRMED ops (floor-
-    passed AND judge-confirmed — the only ones an apply step would touch), the decision records, and
-    cost. APPLIES NOTHING: this ships in shadow first (capture, don't mutate) — apply + the retire-
-    cascade are step 5. `persist=False` skips the decision-log write (offline verification)."""
-    surviving_fact_ids = _trigger_fact_ids(facts)        # strengths excluded: pivot fuel, never a trigger
-    facts_by_id = {f.get("id"): f for f in facts if f.get("id")}
+def propagate(meta: dict, facts_with_alerts: list[dict], strength_facts: list[dict],
+              claims: list[dict], slug: str = None, source: str = "monitor",
+              persist: bool = True) -> dict:
+    """Full propagation control flow, everything UPSTREAM of human approval:
+        route (Opus, all sections, SEEDED with the materiality verdict) -> author (Sonnet) ->
+        deterministic FLOOR -> judge (Opus, adversarial) -> decision log.
+
+    `facts_with_alerts` is a list of {"fact": <grounded act-fact claim>, "alert": <the materiality
+    alert carrying its so_what verdict>} — the router's routing seed. `strength_facts` are grounded
+    my_company STANDING strengths (pivot fuel for a back-foot rebuttal): admissible evidence, NEVER a
+    routing trigger. Returns the authored ops, floor results, judge verdicts, the CONFIRMED ops (floor-
+    passed AND judge-confirmed — the only ones an apply step would touch), the router's surface_ops +
+    no_surface, the decision records, and per-pass cost. APPLIES NOTHING: apply is downstream (live) or
+    human-approved (review). `persist=False` skips the decision-log write (offline verification)."""
+    strength_facts = strength_facts or []
+    change_facts = [fa.get("fact") for fa in facts_with_alerts if fa.get("fact")]
+    author_facts = change_facts + strength_facts
+    facts_by_id = {f.get("id"): f for f in author_facts if f.get("id")}
+    surviving_fact_ids = _trigger_fact_ids(author_facts)  # strengths excluded: pivot fuel, never a trigger
     active_by_sk = _active_targets(claims)
 
-    proposed = propose(meta, facts, claims)
-    ops = proposed["ops"]
+    # step 3a: ROUTE — which surfaces each change reshapes, across all sections (absorbs strategic_lead)
+    routed = route(meta, facts_with_alerts, claims)
+    surface_ops = routed["surface_ops"]
 
-    # FLOOR every op first (model-free). Only the survivors cost an Opus judge call.
+    # step 3b: AUTHOR — write the prose for each add/revise routed op (retires carry no prose)
+    authored = author(meta, surface_ops, author_facts, claims)
+    ops = authored["ops"]
+
+    # step 4: FLOOR (model-free) first; only the survivors cost an Opus judge call.
     floor_results = [floor_check(o, surviving_fact_ids, active_by_sk) for o in ops]
     indexed_survivors = [(i, ops[i]) for i in range(len(ops)) if not floor_results[i]]
 
-    judged = judge(meta, facts, claims, indexed_survivors)
+    judged = judge(meta, author_facts, claims, indexed_survivors)
     verdicts = judged["verdicts"]
 
     records = _decision_records(ops, floor_results, verdicts, facts_by_id, active_by_sk)
     confirmed = [ops[i] for i in range(len(ops))
                  if not floor_results[i] and (verdicts.get(i) or {}).get("verdict") == "confirm"]
 
-    cost_usd = {"propose": proposed.get("cost_usd"), "judge": judged.get("cost_usd")}
+    cost_usd = {"route": routed.get("cost_usd"), "author": authored.get("cost_usd"),
+                "judge": judged.get("cost_usd")}
     if persist and slug:
-        log_decisions(slug, records, source=source, facts=facts, cost=cost_usd)
+        log_decisions(slug, records, source=source, facts=author_facts, cost=cost_usd)
 
     return {
         "ops": ops,
-        "no_change": proposed["no_change"],
+        "surface_ops": surface_ops,
+        "no_surface": routed["no_surface"],
+        "run_verdict": routed.get("run_verdict") or {},  # shadow-eval consequentiality signal (was strategic_lead)
+        "no_change": routed["no_surface"],               # back-compat alias for the monitor summary
         "floor_results": floor_results,
         "floor_rejected": [ops[i] for i in range(len(ops)) if floor_results[i]],
         "verdicts": verdicts,
@@ -651,15 +754,32 @@ _OWN_SOURCE_FIELDS = ("source_url", "source_tier", "evidence_excerpt", "groundin
                       "anchor_substitution", "corroboration")
 
 
+def _no_drop(slug: str, claim: dict, op: dict):
+    """The no-drop guarantee (reformat.py) at APPLY time: a judge-CONFIRMED op must never be silently
+    dropped for a formatting reason. Returns a publishable claim (already valid, or render-repaired) or
+    None if the claim had to be HELD — durably stored in pending_publish + flagged to the human, owed to
+    the card, never cut. Model-free unless a repair is actually needed (valid claims short-circuit)."""
+    if not validation_errors(claim):
+        return claim
+    from scout import reformat                             # lazy: avoids any import-time cycle
+    status, fixed = reformat.repair_or_hold(slug, claim)   # repairs a missing So-what/Soundbite/persona, else holds
+    if status in ("ok", "repaired") and not validation_errors(fixed):
+        return fixed
+    if status != "held":                                   # a residual (schema) error repair can't fix -> hold it too
+        reformat.hold(slug, fixed, f"apply: unrepairable {validation_errors(fixed)[:2]}")
+    return None
+
+
 def apply_ops(claims: list[dict], confirmed_ops: list[dict], facts: list[dict],
               slug: str, today: str) -> dict:
     """Apply judge-CONFIRMED ops to a copy of `claims`, deterministically. Returns
-    {'claims': new_list, 'applied': [...], 'skipped': [...]}. Each produced/edited claim is
-    re-validated; a malformed result is SKIPPED (logged), never written — apply can only ever
-    add sound claims or leave the card unchanged."""
+    {'claims': new_list, 'applied': [...], 'skipped': [...], 'held': [...]}. A confirmed op whose claim
+    fails the render gate is NEVER silently dropped: it is repaired in place, or HELD + flagged (no-drop
+    guarantee). `skipped` is reserved for a revise/retire whose target is no longer active (already
+    changed) — an ordering fact, not a content loss."""
     out = [dict(c) for c in claims]                       # shallow-copy each claim; never mutate input
     facts_by_id = {f.get("id"): f for f in facts if f.get("id")}
-    applied, skipped = [], []
+    applied, skipped, held = [], [], []
 
     for op in confirmed_ops:
         operation = op.get("operation")
@@ -685,12 +805,13 @@ def apply_ops(claims: list[dict], confirmed_ops: list[dict], facts: list[dict],
             }
             if op.get("persona"):
                 new["persona"] = op["persona"]
-            errs = validation_errors(new)
-            if errs:
-                skipped.append({"op": op, "reason": f"invalid add: {errs[:2]}"})
+            publishable = _no_drop(slug, new, op)          # repair render format, or HOLD — never drop
+            if publishable is None:
+                held.append({"op": op, "reason": "held pending publish (render format unrepairable)"})
                 continue
-            out.append(new)
-            applied.append({"operation": "add", "id": new["id"], "subject_key": sk})
+            out.append(publishable)
+            applied.append({"operation": "add", "id": publishable["id"],
+                            "subject_key": publishable["subject_key"]})
 
         elif operation in ("revise", "retire"):
             tgt = _find_active(out, op.get("target_subject_key"))
@@ -711,15 +832,17 @@ def apply_ops(claims: list[dict], confirmed_ops: list[dict], facts: list[dict],
                 tgt["retired_on"] = today
                 tgt["retired_reason"] = op.get("retired_reason")
                 tgt["derived_from"] = df                   # the killing fact
-            errs = validation_errors(tgt)
-            if errs:                                       # roll back this one claim; never write invalid
+            publishable = _no_drop(slug, tgt, op)          # repair render format, or HOLD — never drop
+            if publishable is None:                        # held: roll this claim back, it is owed to the card
                 tgt.clear(); tgt.update(before)
-                skipped.append({"op": op, "reason": f"invalid {operation}: {errs[:2]}"})
+                held.append({"op": op, "reason": "held pending publish (render format unrepairable)"})
                 continue
+            if publishable is not tgt:                     # a repair produced a new dict -> write it back in place
+                tgt.clear(); tgt.update(publishable)
             applied.append({"operation": operation, "id": tgt["id"],
                             "subject_key": tgt["subject_key"]})
 
-    return {"claims": out, "applied": applied, "skipped": skipped}
+    return {"claims": out, "applied": applied, "skipped": skipped, "held": held}
 
 
 def retire_cascade(claims: list[dict], falsified_fact_ids, today: str) -> dict:
