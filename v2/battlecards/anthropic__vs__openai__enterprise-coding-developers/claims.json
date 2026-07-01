@@ -1375,15 +1375,15 @@
   },
   {
     "subject_key": "anthropic | mythos-5-government-partial-lift",
-    "claim": "On June 26, 2026 the US Commerce Department sent Anthropic a letter partially lifting its June 12 export block on Claude Mythos 5, permitting release to roughly 100 trusted US companies and federal agencies. Commerce Secretary Howard Lutnick wrote that appropriate safeguards are in place to permit certain trusted partners to access Mythos 5, and the arrangement drops the license requirement for the entities named in the letter's Annex A, their foreign national employees and Anthropic's foreign national employees. The letter does not change the restrictions on Fable 5, which stays blocked. Anthropic said Mythos 5 can be redeployed to a small group of cyber defenders and infrastructure providers.",
+    "claim": "On June 30, 2026 the US Department of Commerce fully lifted its June 12 export controls on Claude Fable 5 and Mythos 5, ending an 18-day standoff with the Trump administration that had forced Anthropic to cut off all foreign-national access. Anthropic began restoring access the next day: Fable 5 returns to global users on Claude.ai and Claude Code and comes back to AWS, Google Cloud and Microsoft Foundry as soon as possible, while Mythos 5 access keeps expanding to government-approved partners under the Glasswing program. Commerce Secretary Howard Lutnick said the government worked with Anthropic to approve Fable 5 and ensure alignment across the US Government.",
     "claim_type": "fact",
-    "section": "tracked_facts",
+    "section": "recent_moves",
     "zone": null,
-    "order": 1,
-    "source_url": "https://www.semafor.com/article/06/27/2026/us-releases-powerful-anthropic-model-mythos-to-some-us-companies",
+    "order": 2,
+    "source_url": "https://www.cnbc.com/2026/06/30/anthropic-says-trump-admin-has-lifted-export-controls-on-claude-fable-5-and-mythos-5.html",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "The US government Friday lifted its block on Anthropic's powerful Claude Mythos 5 AI model, allowing the company to release it to more than 100 US institutions",
-    "as_of": "2026-06-27",
+    "evidence_excerpt": "the U.S. Department of Commerce has lifted export controls on its Claude Fable 5 and Mythos 5 models",
+    "as_of": "2026-06-30",
     "confidence": "high",
     "id": "c_385402239ee0",
     "verified": true,
@@ -1391,18 +1391,12 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-28",
+      "fetched_at": "2026-07-01",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://www.cnbc.com/2026/06/26/us-government-anthropic-claude-mythos5-ai.html",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false
-      },
-      {
-        "source_url": "https://fortune.com/2026/06/27/anthropic-mythos-5-ai-model-us-commerce-department-clearance-fable/",
+        "source_url": "https://www.cnn.com/2026/06/30/tech/anthropic-export-control-ban-lifted-white-house",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
