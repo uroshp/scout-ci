@@ -21,8 +21,9 @@ REPO_SUBDIR = "v2"
 # --- Models (defaults verified against Anthropic docs, June 2026) -------------
 # Orchestrator: judgment — planning, materiality, synthesis, consistency.
 ORCHESTRATOR_MODEL = os.environ.get("ORCHESTRATOR_MODEL", "claude-opus-4-8")
-# Subagents: legwork — research + verification, parallelized.
-SUBAGENT_MODEL = os.environ.get("SUBAGENT_MODEL", "claude-sonnet-4-6")
+# Subagents: legwork — research + verification, parallelized. Sonnet 5 (2026-06-30): same standard
+# price as Sonnet 4.6 ($3/$15, intro $2/$10 through Aug 31), materially stronger — a free upgrade.
+SUBAGENT_MODEL = os.environ.get("SUBAGENT_MODEL", "claude-sonnet-5")
 # Triage gate: cheap "is there anything here at all?" check (§6). Runs on EVERY check, so
 # it uses Haiku — the cheapest model — to keep the no-news floor low (lever A).
 FAST_MODEL = os.environ.get("FAST_MODEL", "claude-haiku-4-5-20251001")
@@ -76,7 +77,11 @@ JUDGE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_JUDGE_MAX_BUDGET_USD", "0.75"
 # Opus is the production AUTHORSHIP judge (ORCHESTRATOR_MODEL), so keeping the challenger BELOW it
 # (Sonnet) means a proven win is a real cost saving and the challenger isn't grading its own family's
 # production pipeline. Reserve Opus as a targeted tie-breaker on the hardest band, run by hand.
-CHALLENGER_MODEL = os.environ.get("CHALLENGER_MODEL", SUBAGENT_MODEL)   # default Sonnet
+# PINNED to Sonnet 4.6, NOT SUBAGENT_MODEL: the challenger is mid-evaluation (v3.5 longitudinal study),
+# so its model must not move — changing it would break the running comparison against the accumulated
+# data. Decoupled from SUBAGENT_MODEL on 2026-06-30 when that moved to Sonnet 5. Revisit once the
+# current eval concludes.
+CHALLENGER_MODEL = os.environ.get("CHALLENGER_MODEL", "claude-sonnet-4-6")
 CHALLENGER_MAX_TURNS = int(os.environ.get("SCOUT_CHALLENGER_MAX_TURNS", "4"))
 CHALLENGER_MAX_BUDGET_USD = float(os.environ.get("SCOUT_CHALLENGER_MAX_BUDGET_USD", "0.50"))
 # Propagation mode (step 5) — the shadow-first ladder for the AUTHORSHIP judge (spec §17):
