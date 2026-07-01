@@ -1,7 +1,7 @@
 [
   {
     "subject_key": "openai | eu-sovereignty-exposure | current",
-    "claim": "**A government can switch US frontier-model access on and off, and just did.**\n\nOpenAI's new GPT-5.6 is still limited to government-approved partners, and the US gated Anthropic's Fable 5 for 18 days before fully reversing it on June 30. Access to a US frontier model is a political decision the buyer does not control, while Mistral's open weights run inside your walls and cannot be pulled.\n\n**Soundbite:** \"No government can revoke open weights you already run.\"\n\n**So what:** Ask who controls the buyer's access to their frontier model, then use the GPT-5.6 gating and the 18-day Anthropic on-off as live proof it is not them.",
+    "claim": "**US frontier AI is now politically gated, so sovereignty is a continuity-of-access risk.**\n\nOn June 26 the White House restricted OpenAI's newest models to government-approved partners, after the administration forced Anthropic to cut Fable 5 access; Mistral's open weights run inside your walls.\n\n**Soundbite:** \"No government can revoke open weights you already run.\"\n\n**So what:** Lead with who controls access to the model, then ask who owns the buyer's vendor roadmap.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -9,7 +9,7 @@
     "source_url": "https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house",
     "source_tier": "reputable_secondary",
     "evidence_excerpt": "White House had OpenAI restrict GPT-5.6 (Sol, Terra, Luna) to US-government-approved partners, June 26 2026.",
-    "as_of": "2026-06-30",
+    "as_of": "2026-06-26",
     "confidence": "high",
     "id": "c_04a0b6492522",
     "verified": true,
@@ -20,7 +20,7 @@
       "fetched_at": "2026-06-17",
       "detail": null
     },
-    "updated_on": "2026-07-01"
+    "updated_on": "2026-06-27"
   },
   {
     "subject_key": "openai | scale-leadership | current",
