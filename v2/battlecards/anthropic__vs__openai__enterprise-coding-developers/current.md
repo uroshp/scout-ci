@@ -2,13 +2,13 @@
 
 ## Executive Summary
 
-**Anthropic now leads the enterprise-AI race, and coding is the engine.**
+**Claude now deploys inside the Azure tenancy the buyer already owns, on the commitment they already signed.**
 
-Independent Ramp data across 50,000-plus companies puts Anthropic ahead of OpenAI in paid business adoption for the first time, 34.4% to 32.3%, while OpenAI delays its IPO after a \$38.5B loss.
+As of June 29, 2026, Claude Opus 4.8 is GA in Microsoft Foundry, so a Microsoft EA customer's Claude usage draws down their existing Azure commitment and lands as a single line on the Azure bill.
 
-**Soundbite:** "Anthropic now leads in business deployments. Adopting Claude is keeping up with your competitors."
+**Soundbite:** "Run Claude in the Azure tenant you already have, on your existing Microsoft commitment, with your own identity, governance and data-residency controls, and it shows up as one line on the Azure bill you already pay."
 
-**So what:** Kill the "OpenAI is the safe default" reflex, then get to the engineers and a pilot on their own repo. ([techcrunch.com](https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-users-than-openai/))
+**So what:** Bring the platform and procurement lead onto the next call and scope an Azure Foundry pilot on the customer's own repo, billed against their existing EA, then let the engineers run it on a hard multi-step ticket. ([techcrunch.com](https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-users-than-openai/))
 
 **A strong secondary play on cost: the GitHub Copilot billing revolt.**
 
@@ -190,21 +190,15 @@ Fair: the June 15 Agent-SDK credit split is Anthropic's third billing change in 
 
 **"The government forced Anthropic to disable two of its models overnight for every customer. How do we know the same won't happen to what we're building on?"**
 
-Real and ongoing: the June 12 export-control directive suspended Fable 5 and Mythos 5 globally. Senate testimony widened the stated government concern beyond the initial jailbreak incident to Mythos-class autonomous offensive capability. On June 19, President Trump told Axios he no longer views Anthropic as a national security threat, called their response to the Commerce Department order "very responsible," and confirmed that Anthropic technical staff met with administration officials and that he met CEO Dario Amodei at the G7. Trump said he would not shut Anthropic down, though he did not rule out Defense Production Act powers.
+It happened, and it was fully reversed in 18 days. On June 12 the government restricted Fable 5 and Mythos 5 for foreign nationals; on June 30 Commerce fully lifted the order and Anthropic restored access. The two models you would actually build on, Sonnet 4.6 and Opus 4.8, were never under the directive and stayed available the entire time.
 
-On June 26, the Commerce Department partially lifted the restriction on Mythos 5. Commerce Secretary Lutnick determined "appropriate safeguards are in place to permit certain trusted partners to access the Claude Mythos 5 Model," and a license is no longer required for more than 100 US institutions named in the letter's Annex A, along with their foreign national employees and Anthropic's own foreign national employees. Anthropic described the restored access as going to a small group of cyber defenders and infrastructure providers. Fable 5 remains restricted; Anthropic says talks to restore it for general use are continuing.
-
-Government-driven model restrictions have also reached OpenAI: on June 25, the White House asked OpenAI to limit GPT-5.6 to government-approved accounts before release, the first time the US government has preemptively restricted an American AI company's model before launch.
-
-On build risk: Claude Sonnet 4.6 and Opus 4.8 were never under the directive and have stayed fully available throughout.
-
-**So what:** Propose standardizing the customer's production stack on Sonnet 4.6 or Opus 4.8 as the fully-clear, always-available baseline. Mythos 5 access has been restored specifically for cyber defenders and infrastructure providers named in Annex A; for most enterprise buyers, those two models are the right foundation to build on. If government access risk is their core concern, the record now shows OpenAI's newest model is itself restricted to government-approved accounts before launch. ([cnbc.com](https://www.cnbc.com/2026/06/30/anthropic-says-trump-admin-has-lifted-export-controls-on-claude-fable-5-and-mythos-5.html))
+**So what:** Point to the 18-day resolution as proof the system self-corrected, then standardize on Sonnet 4.6 or Opus 4.8, which were never affected. If access risk is their real concern, OpenAI's own GPT-5.6 launched restricted to government-approved accounts. ([cnbc.com](https://www.cnbc.com/2026/06/30/anthropic-says-trump-admin-has-lifted-export-controls-on-claude-fable-5-and-mythos-5.html))
 
 **"International buyers are moving to Mistral and Cohere because of the export ban. Is Anthropic losing ground internationally?"**
 
-Real: France's government announced Mistral for its civil service, and Cohere reported a surge of inbound interest after the June 12 export directive restricted Mythos and Fable for foreign nationals. The June 12 directive is a model-access compliance constraint on two specific models. Claude Opus 4.7 leads SWE-bench Pro at 64.3% and holds the highest developer loyalty score (CSAT 91, NPS 54) in the JetBrains survey. Offer to benchmark the buyer's specific coding workload head-to-head against the alternative they are evaluating.
+The export ban that drove those moves lasted 18 days and was fully lifted on June 30, so the pressure is off. The France and Cohere moves came during that restriction, which has now ended. On the merits Claude holds the highest developer loyalty in the JetBrains survey (CSAT 91, NPS 54).
 
-**So what:** Offer to benchmark the buyer's specific coding workload head-to-head against the alternative they are evaluating. ([finance.yahoo.com](https://finance.yahoo.com/technology/ai/articles/trump-anthropic-crackdown-sets-off-104657502.html))
+**So what:** Note the ban was fully reversed in 18 days, then offer to benchmark the buyer's real coding workload against whatever they are evaluating. ([finance.yahoo.com](https://finance.yahoo.com/technology/ai/articles/trump-anthropic-crackdown-sets-off-104657502.html))
 
 ## Cut Log
 
