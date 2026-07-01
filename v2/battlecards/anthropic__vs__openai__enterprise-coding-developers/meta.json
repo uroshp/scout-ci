@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise coding/developers",
   "baseline_date": "2026-06-04",
-  "last_checked": "2026-07-01T11:00:34",
+  "last_checked": "2026-06-30T11:00:34",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_e5e52edeb211",
@@ -16,8 +16,9 @@
     "f_324500f089b2",
     "f_50023795cd9e",
     "f_e389019442de",
-    "f_90f1ae462421",
-    "f_d6954d21ac86"
+    "f_90f1ae462421"
   ],
-  "monitored": true
+  "monitored": true,
+  "unresolved_since": "2026-06-27",
+  "unresolved_attempts": 1
 }

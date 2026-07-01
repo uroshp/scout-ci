@@ -2,13 +2,13 @@
 
 ## Executive Summary
 
-**Claude now deploys inside the Azure tenancy the buyer already owns, on the commitment they already signed.**
+**Anthropic now leads the enterprise-AI race, and coding is the engine.**
 
-As of June 29, 2026, Claude Opus 4.8 is GA in Microsoft Foundry, so a Microsoft EA customer's Claude usage draws down their existing Azure commitment and lands as a single line on the Azure bill.
+Independent Ramp data across 50,000-plus companies puts Anthropic ahead of OpenAI in paid business adoption for the first time, 34.4% to 32.3%, while OpenAI delays its IPO after a \$38.5B loss.
 
-**Soundbite:** "Run Claude in the Azure tenant you already have, on your existing Microsoft commitment, with your own identity, governance and data-residency controls, and it shows up as one line on the Azure bill you already pay."
+**Soundbite:** "Anthropic now leads in business deployments. Adopting Claude is keeping up with your competitors."
 
-**So what:** Bring the platform and procurement lead onto the next call and scope an Azure Foundry pilot on the customer's own repo, billed against their existing EA, then let the engineers run it on a hard multi-step ticket. ([techcrunch.com](https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-users-than-openai/))
+**So what:** Kill the "OpenAI is the safe default" reflex, then get to the engineers and a pilot on their own repo. ([techcrunch.com](https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-users-than-openai/))
 
 **A strong secondary play on cost: the GitHub Copilot billing revolt.**
 
@@ -46,7 +46,6 @@ OpenAI's GPT-5.5 narrowly leads the now-saturated SWE-bench Verified (88.7% vs C
 
 ## Recent Strategic Moves
 
-- On June 30, 2026 the US Department of Commerce fully lifted its June 12 export controls on Claude Fable 5 and Mythos 5, ending an 18-day standoff with the Trump administration that had forced Anthropic to cut off all foreign-national access. Anthropic began restoring access the next day: Fable 5 returns to global users on Claude.ai and Claude Code and comes back to AWS, Google Cloud and Microsoft Foundry as soon as possible, while Mythos 5 access keeps expanding to government-approved partners under the Glasswing program. Commerce Secretary Howard Lutnick said the government worked with Anthropic to approve Fable 5 and ensure alignment across the US Government. ([cnbc.com](https://www.cnbc.com/2026/06/30/anthropic-says-trump-admin-has-lifted-export-controls-on-claude-fable-5-and-mythos-5.html))
 - As of June 25-26, 2026, OpenAI is leaning toward delaying its IPO to 2027 rather than listing in late 2026, per a New York Times report later echoed by Bloomberg. Advisers gave Sam Altman two options: wait until 2027 to reach a \$1 trillion valuation, or accept a lower valuation for a faster listing. Altman rejected cutting the trillion-dollar target. The hesitation follows tech-sector volatility, a weak post-IPO trade in SpaceX shares, and OpenAI's audited \$38.5B net loss for last year. Anthropic, which filed confidentially first, is reportedly weighing a listing as soon as October 2026. ([finance.yahoo.com](https://finance.yahoo.com/markets/stocks/articles/openai-may-delay-blockbuster-ipo-211919988.html))
 - OpenAI launched GPT-5.6 on June 26, 2026 as a three-tier series (Sol flagship, Terra mid-range, Luna low-cost), but is complying with a US government request to limit the initial rollout to roughly 20 individually approved partners, with general availability promised in the coming weeks. Sol API pricing is \$5 input / \$30 output per 1M tokens; Luna is \$1 / \$6; Terra is positioned at about 2x lower cost than GPT-5.5. It is the first time a US AI company has shipped a frontier model under a government-managed access list, two weeks after the same administration forced Anthropic's Fable 5 and Mythos 5 offline. ([cnbc.com](https://www.cnbc.com/2026/06/26/openai-limits-new-ai-models-to-trusted-partners-request-us-government.html))
 - On June 24, 2026, OpenAI and Broadcom unveiled Jalapeño, OpenAI's first custom inference chip: an ASIC designed for OpenAI's LLM serving and built with Broadcom (on TSMC). Early reports put it at roughly 50% lower cost per inference token than current GPUs. The chip is still in testing (OpenAI is running GPT-5.3-Codex-Spark on it in a test environment), with data-center rollout planned by the end of 2026. It targets OpenAI's inference unit economics and its dependence on Nvidia; heavy training is expected to stay on Nvidia hardware. ([venturebeat.com](https://venturebeat.com/infrastructure/openai-unveils-first-custom-ai-inference-chip-jalapeno-with-broadcom-and-its-development-was-sped-up-with-openais-own-models))
@@ -190,15 +189,21 @@ Fair: the June 15 Agent-SDK credit split is Anthropic's third billing change in 
 
 **"The government forced Anthropic to disable two of its models overnight for every customer. How do we know the same won't happen to what we're building on?"**
 
-It happened, and it was fully reversed in 18 days. On June 12 the government restricted Fable 5 and Mythos 5 for foreign nationals; on June 30 Commerce fully lifted the order and Anthropic restored access. The two models you would actually build on, Sonnet 4.6 and Opus 4.8, were never under the directive and stayed available the entire time.
+Real and ongoing: the June 12 export-control directive suspended Fable 5 and Mythos 5 globally. Senate testimony widened the stated government concern beyond the initial jailbreak incident to Mythos-class autonomous offensive capability. On June 19, President Trump told Axios he no longer views Anthropic as a national security threat, called their response to the Commerce Department order "very responsible," and confirmed that Anthropic technical staff met with administration officials and that he met CEO Dario Amodei at the G7. Trump said he would not shut Anthropic down, though he did not rule out Defense Production Act powers.
 
-**So what:** Point to the 18-day resolution as proof the system self-corrected, then standardize on Sonnet 4.6 or Opus 4.8, which were never affected. If access risk is their real concern, OpenAI's own GPT-5.6 launched restricted to government-approved accounts. ([cnbc.com](https://www.cnbc.com/2026/06/30/anthropic-says-trump-admin-has-lifted-export-controls-on-claude-fable-5-and-mythos-5.html))
+On June 26, the Commerce Department partially lifted the restriction on Mythos 5. Commerce Secretary Lutnick determined "appropriate safeguards are in place to permit certain trusted partners to access the Claude Mythos 5 Model," and a license is no longer required for more than 100 US institutions named in the letter's Annex A, along with their foreign national employees and Anthropic's own foreign national employees. Anthropic described the restored access as going to a small group of cyber defenders and infrastructure providers. Fable 5 remains restricted; Anthropic says talks to restore it for general use are continuing.
+
+Government-driven model restrictions have also reached OpenAI: on June 25, the White House asked OpenAI to limit GPT-5.6 to government-approved accounts before release, the first time the US government has preemptively restricted an American AI company's model before launch.
+
+On build risk: Claude Sonnet 4.6 and Opus 4.8 were never under the directive and have stayed fully available throughout.
+
+**So what:** Propose standardizing the customer's production stack on Sonnet 4.6 or Opus 4.8 as the fully-clear, always-available baseline. Mythos 5 access has been restored specifically for cyber defenders and infrastructure providers named in Annex A; for most enterprise buyers, those two models are the right foundation to build on. If government access risk is their core concern, the record now shows OpenAI's newest model is itself restricted to government-approved accounts before launch. ([semafor.com](https://www.semafor.com/article/06/27/2026/us-releases-powerful-anthropic-model-mythos-to-some-us-companies))
 
 **"International buyers are moving to Mistral and Cohere because of the export ban. Is Anthropic losing ground internationally?"**
 
-The export ban that drove those moves lasted 18 days and was fully lifted on June 30, so the pressure is off. The France and Cohere moves came during that restriction, which has now ended. On the merits Claude holds the highest developer loyalty in the JetBrains survey (CSAT 91, NPS 54).
+Real: France's government announced Mistral for its civil service, and Cohere reported a surge of inbound interest after the June 12 export directive restricted Mythos and Fable for foreign nationals. The June 12 directive is a model-access compliance constraint on two specific models. Claude Opus 4.7 leads SWE-bench Pro at 64.3% and holds the highest developer loyalty score (CSAT 91, NPS 54) in the JetBrains survey. Offer to benchmark the buyer's specific coding workload head-to-head against the alternative they are evaluating.
 
-**So what:** Note the ban was fully reversed in 18 days, then offer to benchmark the buyer's real coding workload against whatever they are evaluating. ([finance.yahoo.com](https://finance.yahoo.com/technology/ai/articles/trump-anthropic-crackdown-sets-off-104657502.html))
+**So what:** Offer to benchmark the buyer's specific coding workload head-to-head against the alternative they are evaluating. ([finance.yahoo.com](https://finance.yahoo.com/technology/ai/articles/trump-anthropic-crackdown-sets-off-104657502.html))
 
 ## Cut Log
 

@@ -69,12 +69,6 @@ Agentforce Operations went GA on April 29, taking agents into finance, supply ch
 
 **Soundbite:** *"Breeze can answer a support ticket. Agentforce can run the back-office process end to end: Operations is live today across finance and supply chain."* ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-operations-announcement/))
 
-**Agentforce Commerce now puts your catalog inside ChatGPT, Google and Gemini, and every order still lands back on Salesforce.**
-
-Shopper Agent, Buyer Agent and Merchant Agent went generally available June 24, 2026, Salesforce's largest Agentforce Commerce release to date. Native ChatGPT integration goes GA in July 2026, syncing the product catalog straight from Business Manager with no third-party tools required. Google Search (including AI Mode) and the Gemini app follow in summer 2026. Through all of it, the brand stays merchant of record and the order settles back on the Salesforce platform.
-
-**Soundbite:** "Your catalog goes live where shoppers already are: ChatGPT this month, Google and Gemini this summer, and every one of those orders still comes back to your Salesforce platform with you as merchant of record."
-
 ### Where it's a fight
 
 **On front-line support resolution, Breeze is genuinely competitive.**

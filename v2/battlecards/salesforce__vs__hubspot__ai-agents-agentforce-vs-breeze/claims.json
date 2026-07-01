@@ -604,50 +604,5 @@
         "grounded": false
       }
     ]
-  },
-  {
-    "subject_key": "agentforce | product-expansion | agentic-commerce",
-    "claim": "Salesforce announced its largest Agentforce Commerce release on June 24, 2026: Shopper Agent, Buyer Agent and Merchant Agent are generally available now, native ChatGPT integration is set to go GA in July 2026 (product catalogs sync directly from Business Manager with no third-party tools), and Google Search including AI Mode plus the Gemini app follow in summer 2026. The brand stays the merchant of record and orders land back on the Salesforce platform.",
-    "claim_type": "fact",
-    "section": "tracked_facts",
-    "zone": null,
-    "order": 10,
-    "source_url": "https://www.salesforce.com/news/stories/agentforce-commerce-announcement/",
-    "source_tier": "primary",
-    "evidence_excerpt": "your product catalog connects directly to ChatGPT, synced straight from Business Manager",
-    "as_of": "2026-06-24",
-    "confidence": "high",
-    "id": "c_9190ce5db52d",
-    "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-07-01",
-      "detail": null
-    },
-    "corroboration": [
-      {
-        "source_url": "https://www.cxtoday.com/crm/salesforce-agentforce-commerce-generally-available/",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false
-      }
-    ]
-  },
-  {
-    "id": "c_9190ce5db52d",
-    "subject_key": "agentforce | product-expansion | agentic-commerce",
-    "claim": "**Agentforce Commerce now puts your catalog inside ChatGPT, Google and Gemini, and every order still lands back on Salesforce.**\n\nShopper Agent, Buyer Agent and Merchant Agent went generally available June 24, 2026, Salesforce's largest Agentforce Commerce release to date. Native ChatGPT integration goes GA in July 2026, syncing the product catalog straight from Business Manager with no third-party tools required. Google Search (including AI Mode) and the Gemini app follow in summer 2026. Through all of it, the brand stays merchant of record and the order settles back on the Salesforce platform.\n\n**Soundbite:** \"Your catalog goes live where shoppers already are: ChatGPT this month, Google and Gemini this summer, and every one of those orders still comes back to your Salesforce platform with you as merchant of record.\"",
-    "claim_type": "interpretation",
-    "section": "battlecard",
-    "zone": "where_we_win",
-    "order": 3,
-    "as_of": "2026-06-24",
-    "updated_on": "2026-07-01",
-    "verified": true,
-    "confidence": "medium",
-    "derived_from": "c_9190ce5db52d",
-    "persona": "eng_led"
   }
 ]
