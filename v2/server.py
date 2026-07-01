@@ -263,6 +263,16 @@ _UTM_KEYS = ("utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_conten
 
 
 @app.after_request
+def _noindex(resp):
+    """Keep the whole site OUT of search engines (2026-07-01, Uroš's call): a portfolio viewer with
+    high-traffic AI keywords has no business ranking. X-Robots-Tag on EVERY response (HTML, print
+    sheets, JSON, assets) is the mechanism Google/Bing honor for de-indexing already-indexed pages
+    on their next crawl."""
+    resp.headers["X-Robots-Tag"] = "noindex, nofollow"
+    return resp
+
+
+@app.after_request
 def _server_visit(resp):
     try:
         if (request.method != "GET" or request.path == "/healthcheck"
@@ -295,6 +305,14 @@ def _server_visit(resp):
 @app.get("/healthcheck")
 def healthcheck():
     return "ok", 200
+
+
+@app.get("/robots.txt")
+def robots():
+    # Deliberately PERMISSIVE, counterintuitively: to DROP already-indexed pages, crawlers must be
+    # able to fetch them and see the X-Robots-Tag noindex header above. A "Disallow: /" here would
+    # block the crawl, hide the noindex, and leave stale entries in the index indefinitely.
+    return Response("User-agent: *\nAllow: /\n", mimetype="text/plain")
 
 
 @app.get("/favicon.ico")
