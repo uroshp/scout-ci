@@ -4,10 +4,8 @@
   "competitor": "Cognition",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-06-30T11:08:51",
+  "last_checked": "2026-07-01T11:06:56",
   "cadence_hours": 23,
   "alerted_fingerprints": [],
-  "monitored": true,
-  "unresolved_since": "2026-06-29",
-  "unresolved_attempts": 1
+  "monitored": true
 }
