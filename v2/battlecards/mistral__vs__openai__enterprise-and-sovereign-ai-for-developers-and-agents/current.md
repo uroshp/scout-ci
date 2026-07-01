@@ -2,13 +2,13 @@
 
 ## Executive Summary
 
-**US frontier AI is now politically gated, so sovereignty is a continuity-of-access risk.**
+**A government can switch US frontier-model access on and off, and just did.**
 
-On June 26 the White House restricted OpenAI's newest models to government-approved partners, after the administration forced Anthropic to cut Fable 5 access; Mistral's open weights run inside your walls.
+OpenAI's new GPT-5.6 is still limited to government-approved partners, and the US gated Anthropic's Fable 5 for 18 days before fully reversing it on June 30. Access to a US frontier model is a political decision the buyer does not control, while Mistral's open weights run inside your walls and cannot be pulled.
 
 **Soundbite:** "No government can revoke open weights you already run."
 
-**So what:** Lead with who controls access to the model, then ask who owns the buyer's vendor roadmap. ([cnn.com](https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house))
+**So what:** Ask who controls the buyer's access to their frontier model, then use the GPT-5.6 gating and the 18-day Anthropic on-off as live proof it is not them. ([cnn.com](https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house))
 
 **Be honest internally: OpenAI is still the category leader, and that is the real threat.**
 
