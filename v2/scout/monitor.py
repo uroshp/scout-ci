@@ -78,6 +78,64 @@ def _since_date(s: str | None) -> str | None:
     return s[:10] if s else s
 
 
+def _is_mine(c: dict, me: str | None) -> bool:
+    """A candidate is my_company-side when triage tags it with the literal 'my_company' OR with
+    the company's actual name — the 2026-07-01 runs tagged the same Anthropic story both ways,
+    and the name-tagged one silently routed through the competitor arm."""
+    about = str(c.get("about", "")).strip().lower()
+    return about == "my_company" or bool(me) and about == str(me).strip().lower()
+
+
+def _escalation_floor(candidates: list[dict], claims: list[dict]) -> None:
+    """Deterministic substantial floor (the 2026-07-01 Fable-lift miss): a surfaced candidate that
+    names a TRACKED subject already passed triage's already-captured filter — it reports a
+    DIFFERENT value/status for a subject on the card. Whether that flip is material is the Opus
+    judge's call, never the cheap triage grade's (control-vs-model: the subject match is checkable
+    in code, so code forces the escalation; the model keeps the materiality judgment)."""
+    tracked = {str(c.get("subject_key")) for c in claims}
+    for c in candidates:
+        if not c.get("substantial") and str(c.get("subject_key") or "") in tracked:
+            c["substantial"] = True
+            c["escalated_by"] = "tracked_subject_floor"
+
+
+def _clear_window(meta: dict) -> None:
+    meta.pop("unresolved_since", None)
+    meta.pop("unresolved_attempts", None)
+    meta.pop("unresolved_subjects", None)
+
+
+def _hold_window(meta: dict, since: str | None, result: dict) -> None:
+    """Keep the detection window open for another scan, bounded by
+    MONITOR_MAX_UNRESOLVED_RETRIES; at the bound, abandon LOUDLY (surfaced in the run result) —
+    a held miss may go unfixed, but it must never go unnoticed."""
+    attempts = (meta.get("unresolved_attempts") or 0) + 1
+    if attempts < config.MONITOR_MAX_UNRESOLVED_RETRIES:
+        meta["unresolved_since"] = since
+        meta["unresolved_attempts"] = attempts
+        result["unresolved_held"] = {"since": since, "attempt": attempts}
+    else:
+        result["abandoned_window"] = {
+            "since": since, "subjects": meta.get("unresolved_subjects") or []}
+        _clear_window(meta)
+
+
+def _resolve_or_hold(meta: dict, new_alerts: list[dict], result: dict) -> None:
+    """WINDOW-CLOSE FIX (the 2026-07-01 permanent miss): an alert resolves a held window ONLY when
+    it matches a subject the window was held FOR. An unrelated catch (the Copilot alert) must not
+    erase a pending act-grade miss (the Fable lift) — unmatched and legacy windows (no stored
+    subjects, so nothing can match) stay open, bounded as ever."""
+    held = meta.get("unresolved_since")
+    if not held:
+        return
+    held_subjects = set(meta.get("unresolved_subjects") or [])
+    if held_subjects & {str(a.get("subject_key")) for a in new_alerts}:
+        _clear_window(meta)
+        result["unresolved_resolved"] = {"since": held}
+    else:
+        _hold_window(meta, held, result)
+
+
 # --- Stage 1: cheap triage gate ----------------------------------------------
 _TRIAGE_SYSTEM = f"""You are a monitoring TRIAGE GATE for a living competitive-intelligence
 battlecard. You run on EVERY check and most windows are quiet, so you must be CHEAP and decisive.
@@ -89,6 +147,11 @@ Do AT MOST {config.TRIAGE_MAX_SEARCHES} date-scoped WebSearches, then DECIDE —
 searching. Scan BOTH sides when a my_company is given: the COMPETITOR's recent news AND your own
 company's (my_company's) recent news, splitting the limited searches across the two (favor the
 competitor, but never skip my_company). With no my_company given, scan the competitor only.
+When scanning my_company, spend one of its searches on the company's OWN newsroom / official
+announcements ("<my_company> announces", or site:<their official domain>) — an official
+primary-source announcement is exactly the my_company story a generic news query misses
+(the 2026-07-01 Fable-lift miss: the lift was on the company's own site and every major outlet,
+but the one generic search returned only an aggregator).
 Material categories:
 {MATERIAL_CATEGORIES}.
 
@@ -119,6 +182,10 @@ Then, for EACH surfaced candidate, set "substantial":
             packaging / usage-limit change, a major product launch or discontinuation, a security
             incident, legal action, layoffs, a partnership shift, or a customer loss / churn /
             defection — a real change worth a human's attention, with a date and a credible source.
+            A STATUS FLIP on a tracked subject (restricted → lifted, gated → generally available,
+            launched → discontinued, beta → GA) is ALWAYS substantial — INCLUDING when it "merely
+            executes" or "implements" a change a tracked claim already signaled as planned, partial,
+            or ongoing. The execution of a signaled change IS the news, never a restatement.
   - false — incremental or routine: a minor feature, a blog/opinion post, a restated known fact, a
             rumor without a source, sentiment churn, or anything whose importance is marginal.
 
@@ -135,7 +202,7 @@ safe" — a missed minor item is simply re-checked next day. Keep the routine ch
 
 Return ONLY a single fenced ```json block:
 {{"has_candidates": <bool>, "candidates": [
-  {{"signal": "<one line, INCLUDING the development's date>", "subject_key": "<matching tracked subject_key, or NEW>",
+  {{"signal": "<one line, INCLUDING the development's date>", "subject_key": "<matching tracked subject_key, or NEW — NEVER omit this field; use NEW only when no tracked subject fits>",
     "about": "<competitor | my_company — whose development this is>",
     "valence": "<front_foot = good for us / bad for them | back_foot = bad for us / good for them>",
     "substantial": <bool>,
@@ -546,6 +613,9 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     except Exception:
         tdata = {"has_candidates": False, "candidates": []}
     candidates = tdata.get("candidates", []) if tdata.get("has_candidates") else []
+    # Deterministic escalation floor: a candidate on a TRACKED subject escalates regardless of the
+    # cheap triage grade (the 2026-07-01 Fable-lift miss — triage graded a status flip "minor").
+    _escalation_floor(candidates, claims)
     # Strict gate: escalate to the expensive Opus judge ONLY when triage flagged a genuinely
     # SUBSTANTIAL development. Minor/routine candidates are surfaced for the record but do NOT
     # trigger the full pipeline — that's what keeps most checks cheap, triage-only.
@@ -555,11 +625,10 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     # how to write competitor-derived claims). The propose/judge propagation steps (spec §17) will
     # route my_company signals into objections/plays; until they land, this gate guarantees
     # dual-scope detection changes NOTHING that reaches a card.
-    def _is_mine(c):
-        return str(c.get("about", "")).strip().lower() == "my_company"
-    comp_candidates = [c for c in candidates if not _is_mine(c)]
+    me = meta.get("my_company")
+    comp_candidates = [c for c in candidates if not _is_mine(c, me)]
     substantial = [c for c in comp_candidates if c.get("substantial") is True]
-    my_company_signals = [c for c in candidates if _is_mine(c)]
+    my_company_signals = [c for c in candidates if _is_mine(c, me)]
 
     my_substantial = [c for c in my_company_signals if c.get("substantial") is True]
     # The my_company arm is PART of propagation (spec §17): it runs only when propagation is enabled.
@@ -579,11 +648,13 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
 
     if not substantial and not do_my:
         # Quiet / minor-only window (neither arm has act-able work): triage-only, cheap. Advance
-        # last_checked and stop. Clear any held detection window — nothing substantial remains.
+        # last_checked and stop. A held detection window is NOT cleared by one empty re-scan
+        # (retrieval variance: the Fable lift was found 1-of-4 runs on the same window) — it stays
+        # open, bounded, and abandons loudly at the retry bound.
         if write:
             meta["last_checked"] = checked_at
-            meta.pop("unresolved_since", None)
-            meta.pop("unresolved_attempts", None)
+            if meta.get("unresolved_since"):
+                _hold_window(meta, meta["unresolved_since"], result)
             store.write_baseline(slug, claims, meta, _current_md(slug))
         return result
 
@@ -680,8 +751,9 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
 
     if write and new_alerts:
         meta["last_checked"] = checked_at
-        meta.pop("unresolved_since", None)  # window resolved — we captured a material change
-        meta.pop("unresolved_attempts", None)
+        # A landed alert resolves the held window ONLY if it matches a held subject — an unrelated
+        # catch keeps the window open (the 7/1 miss: Copilot's alert erased the Fable window).
+        _resolve_or_hold(meta, new_alerts, result)
         meta.setdefault("alerted_fingerprints", []).extend(a["fingerprint"] for a in new_alerts)
         # Regenerating the body from claims drops the Cut Log (it lives only in the
         # markdown, never in the claim store) — carry the existing one forward.
@@ -693,22 +765,21 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
         current_md = format_report(clean_output(body))
         store.write_baseline(slug, new_claims, meta, current_md)
         _append_alerts(slug, new_alerts)
-    elif write and substantial:
-        # COMPETITOR substantial development detected, but NOTHING survived grounding+retry. Do NOT
+    elif write and (substantial or (do_my and not my_grounded)):
+        # SUBSTANTIAL development detected on EITHER arm, but nothing landed (competitor: nothing
+        # survived grounding+retry; my_company: the arm escalated and grounded nothing). Do NOT
         # lose it: always advance last_checked (keeps the due-gate honest / no same-window storm),
         # but HOLD the detection window open at `since` so the next check re-attempts it — bounded,
         # so a genuinely ungroundable item can't make us re-escalate the Opus judge forever.
+        # Record WHICH subjects the window is held for, so only a matching later alert resolves it.
         meta["last_checked"] = checked_at
-        attempts = (meta.get("unresolved_attempts") or 0) + 1
-        if attempts < config.MONITOR_MAX_UNRESOLVED_RETRIES:
-            meta["unresolved_since"] = since
-            meta["unresolved_attempts"] = attempts
-            result["unresolved_held"] = {"since": since, "attempt": attempts}
-        else:
-            # Bound hit: give up re-scanning, but SURFACE the abandonment (never silent).
-            meta.pop("unresolved_since", None)
-            meta.pop("unresolved_attempts", None)
-            result["abandoned_substantial"] = [c.get("signal") for c in substantial]
+        failed = substantial + (my_substantial if (do_my and not my_grounded) else [])
+        subs = {str(c.get("subject_key")) for c in failed if c.get("subject_key")}
+        meta["unresolved_subjects"] = sorted(set(meta.get("unresolved_subjects") or []) | subs)
+        _hold_window(meta, since, result)
+        if "abandoned_window" in result:
+            # Bound hit: gave up re-scanning, but SURFACE the abandonment (never silent).
+            result["abandoned_substantial"] = [c.get("signal") for c in failed]
         store.write_baseline(slug, claims, meta, _current_md(slug))
     elif write:
         # Escalated for the my_company arm only (SHADOW grounds + proposes but writes no card change,
