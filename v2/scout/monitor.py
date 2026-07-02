@@ -745,6 +745,7 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
                 "confirmed": len(prop["confirmed"]), "no_surface": prop["no_surface"],
                 "no_change": prop["no_change"], "decisions": prop["decisions"],
                 "run_verdict": prop.get("run_verdict") or {},
+                "gated": prop.get("gated"),               # "routine" = the conseq gate deferred this set
                 "cost": prop["cost_usd"], "applied": []}
             result["cost"]["propagation"] = sum(v or 0 for v in prop["cost_usd"].values())
             # JUDGE UNAVAILABLE is never silent: the drafts ride the proposals email (run_all), and
@@ -998,8 +999,26 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
         emailed = prop_emailed = None
         if send:
             meta = store.load_meta(slug) or {}
+            # Consequentiality-gate audit line (a deferral is never silent): rides the digest when
+            # one goes out; a routine set with no alerts gets its own one-liner below.
+            prop0 = res.get("propagation") or {}
+            gated_n = sum(1 for d in prop0.get("decisions", [])
+                          if d.get("judge_verdict") == "gated_routine")
+            deferred_note = (f"Routine run: {gated_n} routed update(s) deferred by the "
+                             f"consequentiality gate (each is in the decision log)."
+                             if prop0.get("gated") == "routine" and gated_n else None)
             if res["alerts"]:
-                emailed = notify.send_digest(meta, res["alerts"], dry_run=email_dry_run)
+                emailed = notify.send_digest(meta, res["alerts"], dry_run=email_dry_run,
+                                             deferred_note=deferred_note)
+            elif deferred_note:
+                try:
+                    notify._dispatch(f"Scout: routine run — {gated_n} update(s) deferred — "
+                                     f"{meta.get('my_company') or ''} vs "
+                                     f"{meta.get('competitor') or slug}".strip(),
+                                     deferred_note, dry_run=email_dry_run)
+                except Exception as e:
+                    print(f"[monitor] deferred-note alert skipped ({type(e).__name__}: {e})",
+                          file=sys.stderr)
             # REVIEW/LIVE: email each judge-confirmed propagation proposal awaiting approval. In
             # review the card is untouched (human approves in-session); in live it's already applied.
             # Rewrite-EXHAUSTED failures ride the same email — an act-grade edit that died in

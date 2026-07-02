@@ -65,9 +65,11 @@ def _card_label(meta: dict) -> str:
     return f"{me} vs {comp}" if me else (comp or "this card")
 
 
-def render_digest(meta: dict, alerts: list[dict]) -> tuple[str, str]:
+def render_digest(meta: dict, alerts: list[dict], deferred_note: str | None = None) -> tuple[str, str]:
     """Subject + plain-text body. One material change per block, each with its so-what. Labeled by
-    CARD ('Mistral vs OpenAI'), since a competitor's news can land on more than one brief."""
+    CARD ('Mistral vs OpenAI'), since a competitor's news can land on more than one brief.
+    `deferred_note` is the consequentiality gate's audit line (a routine run deferred N routed
+    updates) — a deferral is never silent."""
     comp = meta.get("competitor") or "the competitor"
     card = _card_label(meta)
     n = len(alerts)
@@ -85,6 +87,8 @@ def render_digest(meta: dict, alerts: list[dict]) -> tuple[str, str]:
         if a.get("source_url"):
             lines.append(f"    Source: {a['source_url']}")
         lines.append("")
+    if deferred_note:
+        lines += [deferred_note, ""]
     lines.append("— Scout (every claim verified against its source)")
     return subject, "\n".join(lines)
 
@@ -119,12 +123,13 @@ def send_selfserve_ready(to: str, job_id: str, label: str | None = None) -> dict
         return {"sent": False, "reason": f"send error: {type(e).__name__}"}
 
 
-def send_digest(meta: dict, alerts: list[dict], dry_run: bool = True) -> dict:
+def send_digest(meta: dict, alerts: list[dict], dry_run: bool = True,
+                deferred_note: str | None = None) -> dict:
     """Send ONE digest of the run's material deltas. No-op (dry) unless fully configured.
     Returns a result dict; never raises on a missing-config path."""
     if not alerts:
         return {"sent": False, "reason": "no material changes"}
-    subject, body = render_digest(meta, alerts)
+    subject, body = render_digest(meta, alerts, deferred_note=deferred_note)
     return _dispatch(subject, body, dry_run=dry_run)
 
 

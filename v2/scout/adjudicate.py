@@ -126,7 +126,8 @@ def digest() -> dict:
     return {
         "captured": len(deltas),
         "by_verdict": {v: sum(1 for d in deltas if d.get("judge_verdict") == v)
-                       for v in ("confirm", "reject", "floor_reject", "judge_unavailable")},
+                       for v in ("confirm", "reject", "floor_reject", "judge_unavailable",
+                                 "gated_routine")},   # gated = the conseq gate's deferrals, not judgments
         "fail_closed": fail_closed,                       # judge hiccups, excluded from the gate; re-run
         "judge_unavailable": unavailable,                 # outage drafts, excluded; manual review
         "fallback_judged": sum(1 for d in deltas if _is_fallback(d)),  # real verdicts, off the gate

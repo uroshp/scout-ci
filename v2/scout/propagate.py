@@ -835,7 +835,7 @@ def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
             "new_text": op.get("claim"),                  # null on retire
             "feed_note": op.get("feed_note"),             # the "what changed" line the updates panel shows
             "derived_from": df,
-            "judge_verdict": verdict,                     # confirm | reject | floor_reject | judge_unavailable
+            "judge_verdict": verdict,                     # confirm | reject | floor_reject | judge_unavailable | gated_routine
             "judge_reason": reason,
             "judged_by": judged_by,                       # model id; "fallback:<id>" = email-gate only
             "floor_violations": violations,
@@ -902,6 +902,29 @@ def propagate(meta: dict, facts_with_alerts: list[dict], strength_facts: list[di
     # step 3a: ROUTE — which surfaces each change reshapes, across all sections (absorbs strategic_lead)
     routed = route(meta, facts_with_alerts, claims)
     surface_ops = routed["surface_ops"]
+
+    # CONSEQUENTIALITY GATE (docs/consequential-filter-spec.md): the router's own run_verdict
+    # decides whether this change-set earns the paid authoring stages. shadow (default) changes
+    # nothing; gate mode + an EXPLICIT consequential=False stops here — facts and alerts already
+    # landed upstream (the card stays current), and the routed reshaping is DEFERRED: recorded
+    # per-op in the decision log (verdict "gated_routine"), surfaced by the caller's digest note,
+    # never silent. FAIL-OPEN: a missing/empty verdict counts as consequential (the router's own
+    # when-unsure bias) — the gate can only ever skip work the router explicitly called routine.
+    rv = routed.get("run_verdict") or {}
+    if config.CONSEQUENTIAL_FILTER == "gate" and surface_ops and rv.get("consequential") is False:
+        gated_ops = [_finalize_op(op, None) for op in surface_ops]
+        gated_verdicts = {i: {"verdict": "gated_routine", "rewritable": False, "judged_by": None,
+                              "reason": rv.get("consequence_rationale") or "routine run"}
+                          for i in range(len(gated_ops))}
+        records = _decision_records(gated_ops, [[] for _ in gated_ops], gated_verdicts,
+                                    facts_by_id, active_by_sk)
+        cost_usd = {"route": routed.get("cost_usd")}
+        if persist and slug:
+            log_decisions(slug, records, source=source, facts=author_facts, cost=cost_usd)
+        return {"ops": [], "surface_ops": surface_ops, "no_surface": routed["no_surface"],
+                "run_verdict": rv, "no_change": routed["no_surface"], "floor_results": [],
+                "floor_rejected": [], "verdicts": gated_verdicts, "confirmed": [],
+                "decisions": records, "cost_usd": cost_usd, "gated": "routine"}
 
     # step 3b: AUTHOR — write the prose for each add/revise routed op (retires carry no prose)
     authored = author(meta, surface_ops, author_facts, claims)
