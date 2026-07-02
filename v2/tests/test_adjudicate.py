@@ -78,7 +78,7 @@ class Adjudicate(unittest.TestCase):
         d = adjudicate.digest()
         self.assertEqual(d["captured"], 3)
         self.assertEqual(d["by_verdict"], {"confirm": 1, "reject": 1, "floor_reject": 1,
-                                           "judge_unavailable": 0})
+                                           "judge_unavailable": 0, "gated_routine": 0})
         # 2 judge deltas (confirm + reject) pending; the floor_reject is NOT queued.
         self.assertEqual(len(d["pending"]), 2)
         self.assertNotIn("z|obj|current", [p["subject_key"] for p in d["pending"]])

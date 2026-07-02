@@ -126,12 +126,16 @@ PROPAGATE_MODE = os.environ.get("SCOUT_PROPAGATE_MODE", "off").strip().lower()
 # so quiet runs cost nothing. On by default; set SCOUT_STRATEGIC_PASS=0 to disable.
 STRATEGIC_PASS = os.environ.get("SCOUT_STRATEGIC_PASS", "1").strip().lower() not in ("0", "false", "off", "")
 
-# Consequentiality filter (scout/strategy.py, the gate): on an ACT-grade change, the strategic pass
-# also judges whether the change is CONSEQUENTIAL (changes the rep's play / thesis -> earns the
-# expensive rewrite + push) or routine (a fact patch that keeps the card current without changing the
-# argument). SHADOW-FIRST, per docs/consequential-filter-spec.md:
-#   "shadow" (default) -> run + LOG the verdict, change NOTHING (validate over weeks before trusting);
-#   "gate"             -> actually gate propagation on the verdict (only after the shadow phase is clean);
+# Consequentiality filter (the router's run_verdict; docs/consequential-filter-spec.md): on an
+# ACT-grade change, the router also judges whether the change-set is CONSEQUENTIAL (changes the
+# rep's play / thesis -> earns the expensive authoring stages) or routine (a fact patch that keeps
+# the card current without changing the argument). SHADOW-FIRST:
+#   "shadow" (default) -> run + LOG the verdict, change NOTHING (validate before trusting);
+#   "gate"             -> BUILT 2026-07-02 (propagate.py, right after route()): an explicit
+#                         routine verdict defers the author/judge/rewrite stages — ops recorded as
+#                         "gated_routine" in the decision log + a digest audit line; fail-OPEN on a
+#                         missing verdict. The production flip is ONE env line in monitor.yml
+#                         (SCOUT_CONSEQUENTIAL_FILTER: "gate"), after the shadow spot-checks clean;
 #   "off"              -> don't capture the verdict at all.
 CONSEQUENTIAL_FILTER = os.environ.get("SCOUT_CONSEQUENTIAL_FILTER", "shadow").strip().lower()
 # Conseq. track spot-check: how many shadow verdicts to accumulate before the monitor emails a

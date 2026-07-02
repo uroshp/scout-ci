@@ -147,6 +147,11 @@ DAILY RUN, one card  (monitor.check / run_card)
    gate), log its verdict per card per run via `filter_capture`. NO gating yet. Spot-check a week.
 2. **Gate.** Flip `SCOUT_CONSEQUENTIAL_FILTER=gate`: non-consequential → fact-patch path;
    consequential → propagation. Watch the cost ledger before/after.
+   *Piping SHIPPED 2026-07-02 (dormant):* the branch sits in `propagate()` right after `route()` —
+   an explicit routine verdict skips author/judge/rewrite, records every routed op as
+   `gated_routine` in the decision log, and a digest audit line ("N routed updates deferred")
+   makes the deferral visible; fail-open on a missing/empty verdict. The flip is one env line in
+   monitor.yml. Shadow evaluation continues; decision checkpoint Friday 2026-07-10.
 3. **Thorough retrieval.** Add best-of-N in the consequential branch (`SCOUT_RETRIEVAL_N`).
 4. **Filter eval.** Adjudication surface for filter decisions; kappa once labels exist.
 
