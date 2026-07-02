@@ -214,6 +214,8 @@ def change_feed(slug: str, limit: int = 25) -> list[dict]:
             label = "Battlecard regenerated"
         elif subj.startswith("content(card):"):       # an approved propagation edit to this card
             label = subj.split(":", 1)[1].strip().capitalize().replace(" — ", ": ")
+        elif subj.startswith("content") and ":" in subj:  # human-approved content commits
+            label = subj.split(":", 1)[1].strip().capitalize().replace(" — ", ": ")
         elif r["email"] in _AGENT_AUTHORS:
             label = subj
         else:
@@ -221,6 +223,39 @@ def change_feed(slug: str, limit: int = 25) -> list[dict]:
         events.append({"hash": r["hash"], "date": r["date"], "epoch": r["epoch"],
                        "subject": label})
     return events
+
+
+def _iso_ts(s):
+    try:
+        return datetime.fromisoformat(s) if s else None
+    except (ValueError, TypeError):
+        return None
+
+
+def last_update_ts(slug: str) -> datetime:
+    """When a card's CONTENT last changed: the most recent of (a) any material-change/feed alert,
+    (b) any claim's updated_on (an approved propagation edit — 2026-07-02: these were invisible to
+    ordering), (c) the baseline date. Deliberately NOT last_checked (uniform refresh cadence can't
+    tell which card changed). Canonical implementation — server.py uses it directly; app_v2.py
+    keeps an identical INLINE copy on purpose (its docstring: new cross-module attributes can hit
+    Streamlit Cloud's stale-module cache; keep the two in sync)."""
+    times = [t for a in load_alerts(slug)
+             if (t := _iso_ts(a.get("detected_at") or a.get("date")))]
+    times += [t for c in store.load_claims(slug) if (t := _iso_ts(c.get("updated_on")))]
+    base = _iso_ts((store.load_meta(slug) or {}).get("baseline_date"))
+    if base:
+        times.append(base)
+    return max(times) if times else datetime.min
+
+
+def ordered_cards(pinned_slug: str | None = None, pinned_position: int = 3) -> list:
+    """Dropdown order: most-recently-UPDATED card first (content-change time, not refresh), with an
+    optional showcase card pinned to a fixed slot regardless of its age."""
+    slugs = list_battlecards()
+    rest = sorted((s for s in slugs if s != pinned_slug), key=last_update_ts, reverse=True)
+    if pinned_slug and pinned_slug in slugs:
+        rest.insert(min(pinned_position, len(rest)), pinned_slug)
+    return rest
 
 
 # --- 3. agent-activity line --------------------------------------------------
