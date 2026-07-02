@@ -10,11 +10,11 @@ Independent Ramp data across 50,000-plus companies puts Anthropic ahead of OpenA
 
 **So what:** Kill the "OpenAI is the safe default" reflex, then get to the engineers and a pilot on their own repo. ([techcrunch.com](https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-users-than-openai/))
 
-**A strong secondary play on cost: the GitHub Copilot billing revolt.**
+**A strong secondary play on cost: the GitHub Copilot billing backlash is now backed by real invoices.**
 
-Copilot switched to token-based billing on June 1, 2026; developers report flat-rate bills ballooning (one cited \$29/mo heading to ~\$750/mo) and are publicly threatening to move work to Anthropic. This is OpenAI's distribution channel generating churn at exactly the moment of price shock.
+Copilot switched to token-based billing on June 1, 2026, and its first full billing cycle closed June 30, 2026. The invoices confirmed what developers feared: agentic users report bills 10x to 50x their old flat rate, one developer's roughly \$29 plan projecting to nearly \$750 a month, another's \$50 to about \$3,000. GitHub has confirmed intense agentic users will pay more and hasn't reversed course. This is OpenAI's own distribution channel generating churn at the exact moment the price shock became a real bill.
 
-**So what:** Run a targeted TCO play against the Copilot base this quarter: predictable Claude pricing versus a meter that just surprised their developers. ([techcrunch.com](https://techcrunch.com/2026/05/30/what-a-joke-github-copilots-new-token-based-billing-spurs-consternation-among-devs/))
+**So what:** Run a targeted TCO play against the Copilot base this quarter: Claude Code's flat pricing (Pro \$20, Max \$100/\$200) against a meter that just sent some developers' bills up 10x to 50x. ([github.com](https://github.com/orgs/community/discussions/192948))
 
 **Claude's durable moat is that developers actually prefer it.**
 
@@ -46,6 +46,7 @@ OpenAI's GPT-5.5 narrowly leads the now-saturated SWE-bench Verified (88.7% vs C
 
 ## Recent Strategic Moves
 
+- GitHub Copilot's first full token-billing cycle closed on June 30, 2026, and the invoices confirmed the damage developers feared. On Reddit, X and GitHub's own forum, agentic users report costs 10x to 50x their old flat rate: one developer's roughly \$29 plan projected to nearly \$750 a month, another's \$50 to about \$3,000. GitHub concedes intense agentic users will pay more and has not reversed course. That turns the flat-rate contrast with Claude Code (Pro \$20, Max 5x/20x at \$100/\$200) into a confirmed cost argument rather than a projection. ([github.com](https://github.com/orgs/community/discussions/192948))
 - As of June 25-26, 2026, OpenAI is leaning toward delaying its IPO to 2027 rather than listing in late 2026, per a New York Times report later echoed by Bloomberg. Advisers gave Sam Altman two options: wait until 2027 to reach a \$1 trillion valuation, or accept a lower valuation for a faster listing. Altman rejected cutting the trillion-dollar target. The hesitation follows tech-sector volatility, a weak post-IPO trade in SpaceX shares, and OpenAI's audited \$38.5B net loss for last year. Anthropic, which filed confidentially first, is reportedly weighing a listing as soon as October 2026. ([finance.yahoo.com](https://finance.yahoo.com/markets/stocks/articles/openai-may-delay-blockbuster-ipo-211919988.html))
 - OpenAI launched GPT-5.6 on June 26, 2026 as a three-tier series (Sol flagship, Terra mid-range, Luna low-cost), but is complying with a US government request to limit the initial rollout to roughly 20 individually approved partners, with general availability promised in the coming weeks. Sol API pricing is \$5 input / \$30 output per 1M tokens; Luna is \$1 / \$6; Terra is positioned at about 2x lower cost than GPT-5.5. It is the first time a US AI company has shipped a frontier model under a government-managed access list, two weeks after the same administration forced Anthropic's Fable 5 and Mythos 5 offline. ([cnbc.com](https://www.cnbc.com/2026/06/26/openai-limits-new-ai-models-to-trusted-partners-request-us-government.html))
 - On June 24, 2026, OpenAI and Broadcom unveiled Jalapeño, OpenAI's first custom inference chip: an ASIC designed for OpenAI's LLM serving and built with Broadcom (on TSMC). Early reports put it at roughly 50% lower cost per inference token than current GPUs. The chip is still in testing (OpenAI is running GPT-5.3-Codex-Spark on it in a test environment), with data-center rollout planned by the end of 2026. It targets OpenAI's inference unit economics and its dependence on Nvidia; heavy training is expected to stay on Nvidia hardware. ([venturebeat.com](https://venturebeat.com/infrastructure/openai-unveils-first-custom-ai-inference-chip-jalapeno-with-broadcom-and-its-development-was-sped-up-with-openais-own-models))
@@ -147,7 +148,7 @@ With over 7 million ChatGPT enterprise workplace seats deployed and 92% of the F
 
 ## Sentiment
 
-- Developer sentiment toward the Microsoft/OpenAI coding stack soured sharply after Copilot's June 1 metered-billing switch. Communities described it as moving from a "predictable subscription" to a "stressful meter," with users openly saying they'll route work to Anthropic. This is sentiment, but it's a live defection signal worth catching in real time. ([theregister.com](https://www.theregister.com/ai-and-ml/2026/06/02/github-copilot-users-threaten-exit-as-metered-billing-kicks-in/5249826))
+- Developer sentiment toward the Microsoft/OpenAI coding stack has hardened from souring talk into confirmed damage. After Copilot's June 1 metered-billing switch, communities described a shift from a predictable subscription to a stressful meter. The first full billing cycle closed June 30, 2026 and confirmed the fear: agentic users report bills 10x to 50x their prior flat rate. That's a live defection signal now backed by real invoices, not just threats to move work to Anthropic. ([github.com](https://github.com/orgs/community/discussions/192948))
 
 ## Objection Handling
 
