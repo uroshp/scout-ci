@@ -67,25 +67,17 @@
   },
   {
     "subject_key": "cursor | adverse-objections-readiness | current",
-    "claim": "**Our two biggest vulnerabilities are billing trust and the SpaceX overhang. Have answers ready.**\n\nBuyers remember Cursor's 2025 pricing blow-ups (the CEO apologized publicly) and they've read that SpaceX holds a $60B option to acquire us, exercisable later in 2026. Both are real and both will come up.\n\n**So what:** Don't dodge either one. Reps should name the new spend controls, and say Cursor operates independently today with change-of-control protection written into the contract.",
+    "claim": "**Our two biggest vulnerabilities are billing trust and the SpaceX overhang. Have answers ready.**\n\nBuyers remember Cursor's 2025 pricing blow-ups (the CEO apologized publicly) and they've read that SpaceX holds a $60B option to acquire us, exercisable later in 2026. Both are real and both will come up.\n\n**So what:** Don't dodge either one. On billing, name the specifics: split usage pools for first-party and third-party spend, a real-time dashboard and dollar-threshold alerts over Slack or email. On SpaceX, say Cursor operates independently today with change-of-control protection written into the contract.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 3,
-    "source_url": "https://www.cnbc.com/2026/04/21/spacex-says-it-can-buy-cursor-later-this-year-for-60-billion-or-pay-10-billion-for-our-work-together.html",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "SpaceX said it's struck a deal with artificial intelligence startup Cursor, obtaining the right to acquire the company for $60 billion later this year, or to pay $10 billion for work they are doing together.",
-    "as_of": "2026-04-21",
+    "as_of": "2026-07-01",
     "confidence": "high",
     "id": "c_64207118572d",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_8a5372ca0015",
+    "updated_on": "2026-07-02"
   },
   {
     "subject_key": "devin-desktop | windsurf-migration-opening | current",
@@ -463,25 +455,17 @@
   },
   {
     "subject_key": "cursor | pricing-model | teams-2026",
-    "claim": "Cursor's June 2026 Teams pricing splits into Standard ($32/seat/mo annual) and Premium ($96/seat/mo annual, 5x usage), with no flat team base fee, undercutting Cognition's $80 base + per-seat Teams structure for smaller teams.",
-    "claim_type": "fact",
+    "claim": "Cursor's Teams pricing keeps Standard at $32/seat/mo annual ($40 monthly) and Premium at $96/seat/mo annual ($120 monthly, 5x the usage at 3x the cost), and now splits every seat into two usage pools, one for first-party Composer and Auto models, one for third-party API calls, with a real-time dashboard split by pool and dollar-threshold spend alerts over Slack or email. There's still no flat team base fee, undercutting Cognition's $80 base plus per-seat Teams structure for smaller teams.",
+    "claim_type": "interpretation",
     "section": "pricing",
     "zone": null,
     "order": 1,
-    "source_url": "https://cursor.com/blog/teams-pricing-june-2026",
-    "source_tier": "primary",
-    "evidence_excerpt": "$32 per seat per month for annual plans; $40 per seat per month for monthly plans.",
-    "as_of": "2026-06-01",
+    "as_of": "2026-07-01",
     "confidence": "high",
     "id": "c_8a5372ca0015",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_8a5372ca0015",
+    "updated_on": "2026-07-02"
   },
   {
     "subject_key": "cursor | pricing-model | individual-2026",
@@ -779,26 +763,18 @@
   },
   {
     "subject_key": "objection | cursor-pricing-trust | cursor-adverse",
-    "claim": "**\"I've seen the Cursor pricing blow-ups. How do I know our budget won't explode?\"**\n\nFair: the 2025 rollout was botched and our CEO apologized publicly. Since then we've restructured the tiers with explicit spend limits, usage visibility, and pooled enterprise billing with admin controls. For budget certainty, sign an enterprise contract with a capped monthly pool rather than per-seat usage-based plans.\n\n**So what:** Own the history, then walk through the specific spend controls. Getting defensive is what loses this deal.",
+    "claim": "**\"I've seen the Cursor pricing blow-ups. How do I know our budget won't explode?\"**\n\nFair: the 2025 rollout was botched and our CEO apologized publicly. Since then we've rebuilt Teams pricing around spend predictability. Every seat now carries separate usage pools for first-party models and third-party API calls, admins get a real-time dashboard split by pool and spend alerts fire on dollar thresholds over Slack or email. For budget certainty, sign an enterprise contract with a capped monthly pool rather than per-seat usage-based plans.\n\n**So what:** Own the history, then walk through the specific pools, dashboard and dollar alerts. Getting defensive is what loses this deal.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 2,
-    "source_url": "https://techcrunch.com/2025/07/07/cursor-apologizes-for-unclear-pricing-changes-that-upset-users/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "We recognize that we didn't handle this pricing rollout well and we're sorry.",
-    "as_of": "2025-07-07",
+    "as_of": "2026-07-01",
     "confidence": "high",
     "id": "c_b9d95fd1f71c",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "fuzzy",
-      "fetched_at": "2026-06-05",
-      "detail": "partial_ratio 0.987"
-    },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "derived_from": "c_8a5372ca0015",
+    "updated_on": "2026-07-02"
   },
   {
     "subject_key": "objection | cursor-spacex-ownership | cursor-adverse",
@@ -905,5 +881,20 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "id": "c_a8b7804db9a3",
+    "subject_key": "cursor | battlecard-strength | spend-predictability",
+    "claim": "**You see the spend before the invoice does.**\n\nCursor's Teams pricing gives every seat two separate included-usage pools, one for first-party Composer and Auto models and one for third-party API usage, so admins can tell exactly where the money goes. A real-time dashboard splits usage by pool, and rebuilt spend alerts fire on dollar thresholds over Slack or email, so budget owners set their own ceilings and get warned well before a bill lands.\n\n**Soundbite:** You'll know exactly what you're spending and on what, and set your own dollar alerts, before the invoice ever shows up.",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 2,
+    "as_of": "2026-07-01",
+    "updated_on": "2026-07-02",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_8a5372ca0015",
+    "persona": "economic_buyer"
   }
 ]

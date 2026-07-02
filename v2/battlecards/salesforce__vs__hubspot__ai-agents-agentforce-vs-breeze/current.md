@@ -2,11 +2,13 @@
 
 ## Executive Summary
 
-**HubSpot's "pay only when it works" pricing is the live threat: answer it with a one-page Agentforce cost model.**
+**Agentforce now has its own pay-only-when-it-resolves pricing, so meet HubSpot's pitch with ours, not a defense.**
 
-On April 14 HubSpot moved Breeze Customer Agent to \$0.50 per *resolved* conversation and Prospecting Agent to \$1 per qualified lead, pitching it as "you pay when it works, full stop." Against Agentforce's consumption model (which practitioners openly call a "blank cheque"), that lands hard in price-sensitive mid-market rooms.
+Salesforce launched Agentforce Help Agent, generally available July 2026, charging \$2 for every issue the agent resolves autonomously start to finish, with nothing charged if the customer asks for a human or walks away unhappy, grounded on Salesforce's own help site handling 4.3 million inquiries at a 70 percent resolution rate.
 
-**So what:** Every rep needs a one-page Agentforce TCO model and a cost-capped pilot ready before the pricing question is asked, or the deal drifts to HubSpot on perceived risk alone. ([martech.org](https://martech.org/hubspot-moves-to-outcome-based-pricing-for-some-breeze-ai-agents/))
+**Soundbite:** "We only charge you when the agent finishes the job start to finish, same principle HubSpot pitches, and ours is proven on 4.3 million real support tickets."
+
+**So what:** Every rep now leads with Help Agent's pay-per-resolution pricing against HubSpot's offer, then justifies the \$2 versus \$0.50 gap with Agentforce's governance and platform breadth instead of dodging the price question. ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-help-agent-announcement/))
 
 **\$1.2B ARR is hard proof enterprise buyers can put on the table. HubSpot can't match the number.**
 
@@ -44,7 +46,7 @@ HubSpot ended Q1 with 299,458 customers and bundles Breeze across paid tiers wit
 ## Pricing and Packaging
 
 - HubSpot Breeze's current model is outcome-based: \$0.50 per resolved conversation for Customer Agent (down from \$1.00 per conversation regardless of outcome) and \$1 per qualified lead for Prospecting Agent, both with a 28-day free trial, but requiring a Pro or Enterprise subscription to access. It is intuitive and de-risked, which is exactly its competitive pull in mid-market. ([martech.org](https://martech.org/hubspot-moves-to-outcome-based-pricing-for-some-breeze-ai-agents/))
-- Agentforce pricing is consumption-based and widely seen as opaque: early \$2-per-conversation pricing gave way to Flex Credits (\$0.10/action), and practitioners say buyers want caps: "nobody wants to hand out a blank cheque." The all-in cost is also understated because full functionality depends on separately licensed Data Cloud. This unpredictability is the objection HubSpot exploits. ([salesforceben.com](https://www.salesforceben.com/where-are-we-really-at-with-agentforce-adoption/))
+- Agentforce pricing now spans two models: the core platform still runs on consumption based Flex Credits at \$0.10 per action, opaque to many buyers and dependent on separately licensed Data Cloud for full functionality, while the new Help Agent charges \$2 per autonomously resolved issue, pre purchased in packets of at least 1,000, a genuine outcome based option that sits four times above HubSpot's \$0.50 per resolved conversation. ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-help-agent-announcement/))
 - HubSpot's model has its own trap a Salesforce rep can raise: "Unused credits expire at the end of each usage period and do not roll over to the next month," and exceeding a credit allowance can auto-upgrade the account to a higher tier for the remainder of the contract. For uneven usage, the "simple" model can cost more than expected. ([knowledge.hubspot.com](https://knowledge.hubspot.com/account-management/understand-hubspot-credits-and-billing))
 
 ## Competitive Battlecard
@@ -127,9 +129,9 @@ It's a fair point, and Salesforce said it openly: on the Help-site launch "we ac
 
 **"My team feels nickel-and-dimed. Every Agentforce upgrade seems to cost more."**
 
-This is real and reps should not dismiss it: in the Einstein-to-Agentforce transition customers found "they're being pushed to upgrade at additional cost to get back functionality they had before." Meet it with a transparent, capped cost model and a Flex-Credits walkthrough so there are no surprises, and contrast with HubSpot, whose credits expire monthly and can auto-upgrade your tier.
+This is real and reps should not dismiss it: in the Einstein-to-Agentforce transition customers found "they're being pushed to upgrade at additional cost to get back functionality they had before." Meet it with a transparent, capped cost model and a Flex-Credits walkthrough so there are no surprises, and contrast with HubSpot, whose credits expire monthly and can auto-upgrade your tier. For buyers who want zero exposure, point to Agentforce Help Agent: it charges \$2 only when it resolves an issue autonomously start to finish, nothing if the customer asks for a human or walks away unhappy, proven on the 4.3 million inquiries Salesforce handles on its own help site at a 70 percent resolution rate.
 
-**So what:** The antidote to pricing-fatigue is radical pricing clarity in the room; bring the cost model, don't improvise it. ([salesforceben.com](https://www.salesforceben.com/why-salesforce-professionals-are-feeling-lost-in-2026/))
+**So what:** Bring both options into the room: the capped Flex-Credits model for existing deployments, and Help Agent's pay-per-resolution pricing for buyers who want to pay only on success. ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-help-agent-announcement/))
 
 ## Cut Log
 
