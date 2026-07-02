@@ -438,6 +438,24 @@ def _u(usage, key):
     return getattr(usage, key, 0) or 0
 
 
+# Run-level token totals by role, accumulated across every _drive call since the last reset —
+# snapshotted into the monitor's per-run cost ledger so cache behavior and per-phase input weight
+# are measurable over time (2026-07-02 cost pass). Additive observation only.
+ROLE_TOTALS: dict = {}
+
+
+def reset_role_totals() -> None:
+    ROLE_TOTALS.clear()
+
+
+def _merge_role_totals(by_role: dict) -> None:
+    for role, d in by_role.items():
+        t = ROLE_TOTALS.setdefault(role, {"input": 0, "output": 0, "cache_read": 0,
+                                          "cache_creation": 0, "messages": 0})
+        for k in t:
+            t[k] += d.get(k, 0)
+
+
 async def _drive(prompt: str, options, top_role: str) -> dict:
     """Run a query loop and capture per-agent token usage (orchestrator vs each
     subagent), cache hits, cost, and wall/api time — the Phase-1 instrumentation."""
@@ -481,6 +499,7 @@ async def _drive(prompt: str, options, top_role: str) -> dict:
               f"Error: {type(e).__name__}: {e}", file=sys.stderr, flush=True)
         raise
 
+    _merge_role_totals(by_role)
     return {
         "text": final_text or last_text,
         "cost_usd": getattr(result, "total_cost_usd", None),

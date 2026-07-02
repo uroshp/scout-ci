@@ -194,19 +194,32 @@ def _trigger_fact_ids(facts: list[dict]) -> set:
     return {f.get("id") for f in facts if f.get("id") and not f.get("standing_strength")}
 
 
-def _targets_digest(claims: list[dict]) -> list[dict]:
-    """The ACTIVE plays + objections propose may revise or retire (reuse the EXACT subject_key). The
-    claim text is sent IN FULL (never truncated): to reconcile a fast-moving follow-up into a layered
-    claim, propose AND judge must see every prior beat the claim already encodes — a clipped view is
-    what made the proposer rewrite from scratch and erase still-true content."""
+def _targets_digest(claims: list[dict], full_for: set | None = None) -> list[dict]:
+    """The ACTIVE plays + objections propose may revise or retire (reuse the EXACT subject_key).
+
+    full_for=None (the author path): every claim's text IN FULL — to reconcile a follow-up into a
+    layered claim the writer must see every prior beat (a clipped view is what made the proposer
+    rewrite from scratch and erase still-true content).
+
+    full_for=<targeted subject_keys> (the judge path, 2026-07-02 cost pass): full text ONLY for the
+    claims the batch's ops actually touch (old_text comparison, blast-radius, reconcile checks are
+    against targets); every other claim is a compact row — enough for the one check that needs
+    non-targets (an add duplicating an existing play/objection) at a fraction of the Opus input."""
+    full_keys = ({normalize_subject_key(str(k)) for k in full_for if k}
+                 if full_for is not None else None)
     out = []
     for c in claims:
         if c.get("section") not in ROUTABLE_SECTIONS:
             continue
         if str(c.get("status", "active")) != "active":
             continue
+        text = str(c.get("claim", ""))
+        if (full_keys is not None
+                and normalize_subject_key(str(c.get("subject_key"))) not in full_keys
+                and len(text) > 150):
+            text = text[:150] + " …[truncated — not a target of this batch]"
         out.append({"subject_key": c.get("subject_key"), "section": c.get("section"),
-                    "zone": c.get("zone"), "claim": str(c.get("claim", ""))})
+                    "zone": c.get("zone"), "claim": text})
     return out
 
 
@@ -276,8 +289,9 @@ async def _run_author(meta: dict, surface_ops: list[dict], facts: list[dict], ac
             + json.dumps(_author_worklist(surface_ops, active_by_sk), ensure_ascii=False, indent=2))
     options = ClaudeAgentOptions(
         model=config.SUBAGENT_MODEL,                      # author prose on Sonnet (routing was Opus)
-        system_prompt={"type": "preset", "preset": "claude_code",
-                       "append": _AUTHOR_SYSTEM + "\n\n" + WRITING_STYLE},
+        # Plain-string system (2026-07-02 cost pass): tools are OFF, so the ~10-15K-token
+        # claude_code preset was pure input overhead on every call. Same for judge/rewrite/route.
+        system_prompt=_AUTHOR_SYSTEM + "\n\n" + WRITING_STYLE,
         mcp_servers={},
         allowed_tools=[],                                 # TOOLS-OFF: write only from the given facts
         disallowed_tools=["WebSearch", "WebFetch"],
@@ -540,17 +554,22 @@ def _judge_ops_digest(indexed_ops: list) -> list:
 async def _run_judge(meta: dict, facts: list[dict], claims: list[dict], indexed_ops: list,
                      model: str | None = None) -> dict:
     comp, me = meta.get("competitor"), meta.get("my_company")
+    # Full prose only for the claims this batch's ops touch; compact rows for the rest (the judge
+    # needs non-targets only for the duplicate-add check). See _targets_digest.
+    targeted = {k for _, o in indexed_ops
+                for k in (o.get("target_subject_key"), o.get("subject_key")) if k}
     user = (f"Competitor: {comp}" + (f"   We are: {me}" if me else "") + "\n\n"
             "GROUNDED FACTS (the ONLY admissible evidence; judge every op strictly against these):\n"
             + json.dumps(_facts_digest(facts), ensure_ascii=False, indent=2)
-            + "\n\nCURRENT ACTIVE PLAYS + OBJECTIONS (the prose as it stands; the old_text a revise/"
-              "retire would change):\n"
-            + json.dumps(_targets_digest(claims), ensure_ascii=False, indent=2)
+            + "\n\nCURRENT ACTIVE PLAYS + OBJECTIONS (full prose for the ops' targets — the old_text "
+              "a revise/retire would change; other claims truncated, enough to catch a duplicate "
+              "add):\n"
+            + json.dumps(_targets_digest(claims, full_for=targeted), ensure_ascii=False, indent=2)
             + "\n\nPROPOSED OPS TO JUDGE (confirm or reject each by op_index):\n"
             + json.dumps(_judge_ops_digest(indexed_ops), ensure_ascii=False, indent=2))
     options = ClaudeAgentOptions(
         model=model or config.ORCHESTRATOR_MODEL,         # judge on Opus; fallback overrides (outage)
-        system_prompt={"type": "preset", "preset": "claude_code", "append": _JUDGE_SYSTEM},
+        system_prompt=_JUDGE_SYSTEM,                      # tools-off: no preset (cost pass 2026-07-02)
         mcp_servers={},
         allowed_tools=[],                                 # TOOLS-OFF: judge only the given facts
         disallowed_tools=["WebSearch", "WebFetch"],
@@ -694,8 +713,7 @@ async def _run_rewrite(meta: dict, worklist: list, facts: list) -> dict:
             + json.dumps(worklist, ensure_ascii=False, indent=2))
     options = ClaudeAgentOptions(
         model=config.PROPAGATE_REWRITE_MODEL,             # upgraded writer: pay Opus only on failure
-        system_prompt={"type": "preset", "preset": "claude_code",
-                       "append": _AUTHOR_SYSTEM + "\n\n" + _REWRITE_ADDENDUM + "\n\n" + WRITING_STYLE},
+        system_prompt=_AUTHOR_SYSTEM + "\n\n" + _REWRITE_ADDENDUM + "\n\n" + WRITING_STYLE,
         mcp_servers={},
         allowed_tools=[],                                 # TOOLS-OFF: same constraint as the author
         disallowed_tools=["WebSearch", "WebFetch"],

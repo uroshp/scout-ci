@@ -212,14 +212,22 @@ If nothing passes the filters, return has_candidates=false and an empty list —
 correct, cheap outcome on a quiet window."""
 
 
-async def _run_triage(meta, since, claims):
+async def _run_triage(meta, since, claims, my_since=None):
     comp, me = meta.get("competitor"), meta.get("my_company")
     scope = (f"Scan BOTH sides and tag each candidate's 'about': the competitor {comp} AND your own "
              f"company {me}." if me else f"Scan the competitor {comp}.")
+    # The own-side cutoff is the LAST SUCCESSFUL CHECK (~24h in normal daily operation; wider only
+    # after a skipped day) — never a held competitor re-scan window, so an old own-co story can't
+    # be re-surfaced and re-grounded day after day (the John Jumper double-grounding, 2026-07-02).
+    my_cut = (f"\nCUTOFF (my_company): {my_since} — the last check, normally about 24 hours ago. "
+              f"Surface ONLY own-company developments dated on/after {my_since}; anything older was "
+              f"already scanned by a prior run." if me and my_since else "")
     user = (f"Competitor: {comp}" + (f" (we are {me})" if me else "") +
             f"\n{scope}"
-            f"\nCUTOFF DATE: {since}. Surface ONLY developments dated on/after {since} that are NOT "
-            f"already reflected in the tracked subjects below (apply both strict filters).\n\n"
+            f"\nCUTOFF (competitor): {since}. Surface ONLY competitor developments dated on/after "
+            f"{since} that are NOT already reflected in the tracked subjects below (apply both "
+            f"strict filters)."
+            + my_cut + "\n\n"
             f"TRACKED SUBJECTS (subject_key — current value already known):\n"
             + _tracked_digest(claims))
     options = ClaudeAgentOptions(
@@ -451,7 +459,10 @@ async def _run_my_facts(meta, since, candidates, claims):
             "TRACKED SUBJECTS (subject_key — current value):\n" + _tracked_digest(claims) +
             "\n\nCANDIDATE OWN-SIDE SIGNALS FROM TRIAGE:\n" + json.dumps(candidates, ensure_ascii=False))
     options = ClaudeAgentOptions(
-        model=config.ORCHESTRATOR_MODEL,
+        # Sourcing work (search/fetch/verbatim excerpts), not judgment: SUBAGENT tier (2026-07-02
+        # cost pass). Grounding verification stays deterministic; the Opus router/judge still gate
+        # everything downstream, and a human approves in review mode.
+        model=config.SUBAGENT_MODEL,
         system_prompt={"type": "preset", "preset": "claude_code",
                        "append": _MY_FACTS_SYSTEM + "\n\n" + WRITING_STYLE},
         mcp_servers={"scoutfetch": FETCH_SERVER},
@@ -459,7 +470,7 @@ async def _run_my_facts(meta, since, candidates, claims):
         disallowed_tools=["WebFetch"],
         permission_mode="bypassPermissions",
         max_turns=config.MAX_TURNS,
-        max_budget_usd=config.MAX_BUDGET_USD,
+        max_budget_usd=config.MY_FACTS_MAX_BUDGET_USD,
     )
     return await _drive(user, options, "my_facts")
 
@@ -618,11 +629,16 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     # due-gate, so this never causes same-window re-escalation storms.
     since = _since_date(since_override or meta.get("unresolved_since")
                         or meta.get("last_checked") or meta.get("baseline_date"))
+    # OWN-SIDE cutoff: the last successful check (~24h in normal daily ops; wider only after a
+    # skipped day) — deliberately NOT the held unresolved_since window, which exists for COMPETITOR
+    # grounding retries. Keeps the my_company arm from re-scanning (and re-grounding) old own-co
+    # stories every day a window stays open (2026-07-02 cost pass; Uroš's design).
+    my_since = _since_date(since_override or meta.get("last_checked") or meta.get("baseline_date"))
     checked_at = datetime.now().isoformat(timespec="seconds")  # full timestamp, not just a date
     reset_log()
 
     # Stage 1: triage (cheap)
-    triage = asyncio.run(_run_triage(meta, since, claims))
+    triage = asyncio.run(_run_triage(meta, since, claims, my_since=my_since))
     try:
         tdata = _extract_json(triage["text"])
     except Exception:
@@ -690,7 +706,7 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     my_grounded = []
     if do_my:
         try:
-            myf = _my_company_facts(slug, meta, since, my_substantial, claims)
+            myf = _my_company_facts(slug, meta, my_since, my_substantial, claims)
             result["cost"]["my_company"] = myf["cost"]
             my_grounded = myf["grounded"]
             result["my_company_facts"] = [
@@ -908,12 +924,16 @@ def _persist_run_cost(started, rows: list, write: bool) -> None:
         return
     try:
         stamp = started.strftime("%Y%m%dT%H%M%S")
+        from scout import generate
         doc = {
             "schema_version": 1,
             "run_ts": started.isoformat(timespec="seconds"),
             "mode": config.PROPAGATE_MODE,
             "run_total_usd": round(sum(r.get("total") or 0 for r in rows), 4),
             "cards": rows,
+            # Run-level token totals per role (input/output/cache_read/cache_creation/messages):
+            # makes cache behavior and per-phase input weight measurable across runs.
+            "by_role": dict(generate.ROLE_TOTALS),
         }
         selfserve.write_data(
             f"{COST_DIR}/{stamp}.json",
@@ -942,6 +962,8 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
     from scout.display import list_battlecards
     from scout import notify
 
+    from scout import generate
+    generate.reset_role_totals()      # run-level token accumulator for the cost ledger
     run_started = datetime.now()
     summary = []
     cost_rows = []

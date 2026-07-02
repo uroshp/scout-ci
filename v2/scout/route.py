@@ -198,8 +198,9 @@ async def _run_route(meta: dict, facts_with_alerts: list[dict], claims: list[dic
             + json.dumps(_card_digest(claims), ensure_ascii=False, indent=2))
     options = ClaudeAgentOptions(
         model=config.ORCHESTRATOR_MODEL,                  # routing is judgment -> Opus (absorbs strategic_lead)
-        system_prompt={"type": "preset", "preset": "claude_code",
-                       "append": _ROUTE_SYSTEM + "\n\n" + WRITING_STYLE},
+        # Plain-string system: tools are OFF, so the claude_code preset was pure input overhead
+        # (2026-07-02 cost pass — same change on author/judge/rewrite).
+        system_prompt=_ROUTE_SYSTEM + "\n\n" + WRITING_STYLE,
         mcp_servers={},
         allowed_tools=[],                                 # TOOLS-OFF: route only from the given facts + card
         disallowed_tools=["WebSearch", "WebFetch"],
