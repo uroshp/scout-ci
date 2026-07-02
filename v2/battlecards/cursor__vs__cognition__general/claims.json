@@ -845,5 +845,35 @@
       }
     ],
     "updated_on": "2026-06-16"
+  },
+  {
+    "subject_key": "cognition | devin-fusion | launch",
+    "claim": "**Cognition shipped Devin Fusion, a multi-model harness it says cuts cost 35% while holding frontier performance: prep the cost rebuttal.** On June 29, 2026 Cognition released Devin Fusion in preview, a 'sidekick' setup that runs a cheaper model in parallel with a frontier model and delegates execution to it while the frontier model plans and reviews. Cognition claims a 35% cost cut (41% with its Fable 5 model) on its own FrontierCode benchmark while matching frontier quality. It is preview-only and the numbers are company-stated on a Cognition-built benchmark, so treat the figure as unverified.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 6,
+    "source_url": "https://cognition.com/blog/devin-fusion",
+    "source_tier": "primary",
+    "evidence_excerpt": "our Devin Fusion multi-model harness gives a 35% cost improvement on FrontierCode relative to frontier models like GPT-5.5 and Opus 4.8",
+    "as_of": "2026-06-29",
+    "confidence": "high",
+    "id": "c_1e4cc2a80ad4",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-02",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://x.com/cognition/status/2071624568465490170",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
