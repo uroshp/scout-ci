@@ -1,25 +1,17 @@
 [
   {
     "subject_key": "salesforce | exec-summary | pricing-threat",
-    "claim": "**HubSpot's \"pay only when it works\" pricing is the live threat: answer it with a one-page Agentforce cost model.**\n\nOn April 14 HubSpot moved Breeze Customer Agent to $0.50 per *resolved* conversation and Prospecting Agent to $1 per qualified lead, pitching it as \"you pay when it works, full stop.\" Against Agentforce's consumption model (which practitioners openly call a \"blank cheque\"), that lands hard in price-sensitive mid-market rooms.\n\n**So what:** Every rep needs a one-page Agentforce TCO model and a cost-capped pilot ready before the pricing question is asked, or the deal drifts to HubSpot on perceived risk alone.",
+    "claim": "**Agentforce now has its own pay-only-when-it-resolves pricing, so meet HubSpot's pitch with ours, not a defense.**\n\nSalesforce launched Agentforce Help Agent, generally available July 2026, charging $2 for every issue the agent resolves autonomously start to finish, with nothing charged if the customer asks for a human or walks away unhappy, grounded on Salesforce's own help site handling 4.3 million inquiries at a 70 percent resolution rate.\n\n**Soundbite:** \"We only charge you when the agent finishes the job start to finish, same principle HubSpot pitches, and ours is proven on 4.3 million real support tickets.\"\n\n**So what:** Every rep now leads with Help Agent's pay-per-resolution pricing against HubSpot's offer, then justifies the $2 versus $0.50 gap with Agentforce's governance and platform breadth instead of dodging the price question.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 0,
-    "source_url": "https://martech.org/hubspot-moves-to-outcome-based-pricing-for-some-breeze-ai-agents/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "moving from $1.00 per conversation to $0.50 per resolved conversation",
-    "as_of": "2026-04-02",
+    "as_of": "2026-06-25",
     "confidence": "high",
     "id": "c_23fd30f167a2",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_705648ed06e4",
+    "updated_on": "2026-07-02"
   },
   {
     "subject_key": "salesforce | exec-summary | enterprise-traction",
@@ -243,25 +235,17 @@
   },
   {
     "subject_key": "agentforce | pricing-model | current",
-    "claim": "Agentforce pricing is consumption-based and widely seen as opaque: early $2-per-conversation pricing gave way to Flex Credits ($0.10/action), and practitioners say buyers want caps: \"nobody wants to hand out a blank cheque.\" The all-in cost is also understated because full functionality depends on separately licensed Data Cloud. This unpredictability is the objection HubSpot exploits.",
+    "claim": "Agentforce pricing now spans two models: the core platform still runs on consumption based Flex Credits at $0.10 per action, opaque to many buyers and dependent on separately licensed Data Cloud for full functionality, while the new Help Agent charges $2 per autonomously resolved issue, pre purchased in packets of at least 1,000, a genuine outcome based option that sits four times above HubSpot's $0.50 per resolved conversation.",
     "claim_type": "interpretation",
     "section": "pricing",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.salesforceben.com/where-are-we-really-at-with-agentforce-adoption/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "nobody wants to hand out a blank cheque – they want caps and predictable ROI",
-    "as_of": "2025-12-17",
+    "as_of": "2026-06-25",
     "confidence": "medium",
     "id": "c_e0963f716cfb",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_705648ed06e4",
+    "updated_on": "2026-07-02"
   },
   {
     "subject_key": "hubspot-breeze | credit-expiry | current",
@@ -523,26 +507,18 @@
   },
   {
     "subject_key": "salesforce | pricing-fatigue | einstein-transition",
-    "claim": "**\"My team feels nickel-and-dimed. Every Agentforce upgrade seems to cost more.\"**\n\nThis is real and reps should not dismiss it: in the Einstein-to-Agentforce transition customers found \"they're being pushed to upgrade at additional cost to get back functionality they had before.\" Meet it with a transparent, capped cost model and a Flex-Credits walkthrough so there are no surprises, and contrast with HubSpot, whose credits expire monthly and can auto-upgrade your tier.\n\n**So what:** The antidote to pricing-fatigue is radical pricing clarity in the room; bring the cost model, don't improvise it.",
+    "claim": "**\"My team feels nickel-and-dimed. Every Agentforce upgrade seems to cost more.\"**\n\nThis is real and reps should not dismiss it: in the Einstein-to-Agentforce transition customers found \"they're being pushed to upgrade at additional cost to get back functionality they had before.\" Meet it with a transparent, capped cost model and a Flex-Credits walkthrough so there are no surprises, and contrast with HubSpot, whose credits expire monthly and can auto-upgrade your tier. For buyers who want zero exposure, point to Agentforce Help Agent: it charges $2 only when it resolves an issue autonomously start to finish, nothing if the customer asks for a human or walks away unhappy, proven on the 4.3 million inquiries Salesforce handles on its own help site at a 70 percent resolution rate.\n\n**So what:** Bring both options into the room: the capped Flex-Credits model for existing deployments, and Help Agent's pay-per-resolution pricing for buyers who want to pay only on success.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 3,
-    "source_url": "https://www.salesforceben.com/why-salesforce-professionals-are-feeling-lost-in-2026/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "they're being pushed to upgrade at additional cost to get back functionality they had before",
-    "as_of": "2026-05-11",
+    "as_of": "2026-06-25",
     "confidence": "high",
     "id": "c_f7e3e26fd607",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "derived_from": "c_705648ed06e4",
+    "updated_on": "2026-07-02"
   },
   {
     "subject_key": "salesforce | layoffs | agentforce-june-2026-round-2",
@@ -599,6 +575,42 @@
     "corroboration": [
       {
         "source_url": "https://techcrunch.com/2026/06/15/salesforce-acquires-ai-customer-service-platform-fin-for-3-6b/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "agentforce-help-agent | launch | pay-per-resolution",
+    "claim": "Salesforce launched Agentforce Help Agent, a prepackaged autonomous customer service agent that deploys in minutes across voice, web, portal and messaging, announced June 25, 2026 and generally available July 2026. It is Salesforce's first offering with pay-per-resolution pricing: the customer is charged only when the agent autonomously resolves an issue start to finish, with no charge if the customer asks for a human or walks away unhappy. CIO reports the price is $2 per successful resolution, pre-purchased in packets with a minimum of 1,000. This moves Salesforce from consumption-based Flex Credits and seat licensing to an outcome-based model. Salesforce grounds it on its own help.salesforce.com deployment, which handled 4.3 million inquiries and resolved 70 percent of them.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 0,
+    "source_url": "https://www.salesforce.com/news/stories/agentforce-help-agent-announcement/",
+    "source_tier": "primary",
+    "evidence_excerpt": "With pay-per-resolution pricing, you are charged when Help Agent resolves an issue autonomously, start to finish.",
+    "as_of": "2026-06-25",
+    "confidence": "high",
+    "id": "c_705648ed06e4",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-02",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.cio.com/article/4189183/salesforce-unveils-ai-help-agent-with-pay-per-resolution-pricing.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.salesforceben.com/huge-agentforce-pricing-shift-salesforce-introduces-pay-per-resolution/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false

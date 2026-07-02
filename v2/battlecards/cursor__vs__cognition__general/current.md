@@ -24,7 +24,7 @@ In its own 2025 performance review Cognition concedes Devin 'can't independently
 
 Buyers remember Cursor's 2025 pricing blow-ups (the CEO apologized publicly) and they've read that SpaceX holds a \$60B option to acquire us, exercisable later in 2026. Both are real and both will come up.
 
-**So what:** Don't dodge either one. Reps should name the new spend controls, and say Cursor operates independently today with change-of-control protection written into the contract. ([cnbc.com](https://www.cnbc.com/2026/04/21/spacex-says-it-can-buy-cursor-later-this-year-for-60-billion-or-pay-10-billion-for-our-work-together.html))
+**So what:** Don't dodge either one. On billing, name the specifics: split usage pools for first-party and third-party spend, a real-time dashboard and dollar-threshold alerts over Slack or email. On SpaceX, say Cursor operates independently today with change-of-control protection written into the contract.
 
 **The Windsurf-to-Devin-Desktop forced migration is a live churn window: work it now.**
 
@@ -61,7 +61,7 @@ On June 2 Cognition retired the Windsurf brand, relaunched it as Devin Desktop, 
 ## Pricing and Packaging
 
 - Devin's self-serve pricing (post-April 2026): Free; Pro \$20/mo; Max \$200/mo; and Teams at usage-based pricing with an \$80/month minimum, plus custom Enterprise. The \$80 base plus per-seat cost makes small-team adoption structurally pricier than Cursor's per-seat Teams plan. ([cognition.ai](https://cognition.ai/blog/new-self-serve-plans-for-devin))
-- Cursor's June 2026 Teams pricing splits into Standard (\$32/seat/mo annual) and Premium (\$96/seat/mo annual, 5x usage), with no flat team base fee, undercutting Cognition's \$80 base + per-seat Teams structure for smaller teams. ([cursor.com](https://cursor.com/blog/teams-pricing-june-2026))
+- Cursor's Teams pricing keeps Standard at \$32/seat/mo annual (\$40 monthly) and Premium at \$96/seat/mo annual (\$120 monthly, 5x the usage at 3x the cost), and now splits every seat into two usage pools, one for first-party Composer and Auto models, one for third-party API calls, with a real-time dashboard split by pool and dollar-threshold spend alerts over Slack or email. There's still no flat team base fee, undercutting Cognition's \$80 base plus per-seat Teams structure for smaller teams.
 - Cursor's individual tiers run Hobby (free), Pro \$20/mo, and Ultra \$200/mo (20x Pro usage), matching Devin's \$20 entry and \$200 power tier on headline price while keeping the engineer in the loop. ([cursor.com](https://cursor.com/blog/new-tier))
 
 ## Competitive Battlecard
@@ -79,6 +79,12 @@ Their own 2025 review admits Devin 'can't independently tackle an ambiguous codi
 Cursor's ~\$2B ARR (Feb 2026) is about 4x Cognition's \$492M run-rate, and Cursor sits in more than half the Fortune 500, a switching-cost moat Devin has to overcome account by account.
 
 **Soundbite:** *"More than half the Fortune 500 already build on Cursor. We're the standard your engineers already know, not the experiment in your stack."* ([thenextweb.com](https://thenextweb.com/news/spacex-cursor-60-billion-acquisition))
+
+**You see the spend before the invoice does.**
+
+Cursor's Teams pricing gives every seat two separate included-usage pools, one for first-party Composer and Auto models and one for third-party API usage, so admins can tell exactly where the money goes. A real-time dashboard splits usage by pool, and rebuilt spend alerts fire on dollar thresholds over Slack or email, so budget owners set their own ceilings and get warned well before a bill lands.
+
+**Soundbite:** You'll know exactly what you're spending and on what, and set your own dollar alerts, before the invoice ever shows up.
 
 ### Where it's a fight
 
@@ -131,9 +137,9 @@ Real, and they're well-funded. But Cursor's ~\$2B ARR is about 4x their run-rate
 
 **"I've seen the Cursor pricing blow-ups. How do I know our budget won't explode?"**
 
-Fair: the 2025 rollout was botched and our CEO apologized publicly. Since then we've restructured the tiers with explicit spend limits, usage visibility, and pooled enterprise billing with admin controls. For budget certainty, sign an enterprise contract with a capped monthly pool rather than per-seat usage-based plans.
+Fair: the 2025 rollout was botched and our CEO apologized publicly. Since then we've rebuilt Teams pricing around spend predictability. Every seat now carries separate usage pools for first-party models and third-party API calls, admins get a real-time dashboard split by pool and spend alerts fire on dollar thresholds over Slack or email. For budget certainty, sign an enterprise contract with a capped monthly pool rather than per-seat usage-based plans.
 
-**So what:** Own the history, then walk through the specific spend controls. Getting defensive is what loses this deal. ([techcrunch.com](https://techcrunch.com/2025/07/07/cursor-apologizes-for-unclear-pricing-changes-that-upset-users/))
+**So what:** Own the history, then walk through the specific pools, dashboard and dollar alerts. Getting defensive is what loses this deal.
 
 **"If SpaceX buys Cursor, who am I actually contracting with in a year?"**
 
