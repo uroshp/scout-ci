@@ -109,8 +109,16 @@ def digest() -> dict:
     deltas = load_deltas()
     labels = load_labels()
     fail_closed = [d for d in deltas if _is_fail_closed(d)]
+    # judge_unavailable = the judge (and its fallback) never ruled — an infra event, not a judgment:
+    # excluded from the gate like a fail-close; listed for manual review / next-run re-judge.
+    unavailable = [d for d in deltas if d.get("judge_verdict") == "judge_unavailable"]
+    def _is_fallback(d):
+        return str(d.get("judged_by") or "").startswith("fallback:")
+    # A FALLBACK-model verdict is a real judgment but not the OPUS judge's — it must not score the
+    # promotion gate (a Sonnet stand-in would pollute "can the Opus judge be trusted").
     judged = [d for d in deltas
-              if d.get("judge_verdict") in _JUDGE_VERDICTS and not _is_fail_closed(d)]
+              if d.get("judge_verdict") in _JUDGE_VERDICTS and not _is_fail_closed(d)
+              and not _is_fallback(d)]
     pending = [d for d in judged if d["delta_id"] not in labels]
     adjudicated = [d for d in judged if d["delta_id"] in labels]
     right = sum(1 for d in adjudicated if labels[d["delta_id"]]["human_verdict"] == "agree")
@@ -118,8 +126,10 @@ def digest() -> dict:
     return {
         "captured": len(deltas),
         "by_verdict": {v: sum(1 for d in deltas if d.get("judge_verdict") == v)
-                       for v in ("confirm", "reject", "floor_reject")},
+                       for v in ("confirm", "reject", "floor_reject", "judge_unavailable")},
         "fail_closed": fail_closed,                       # judge hiccups, excluded from the gate; re-run
+        "judge_unavailable": unavailable,                 # outage drafts, excluded; manual review
+        "fallback_judged": sum(1 for d in deltas if _is_fallback(d)),  # real verdicts, off the gate
         "adjudicated": len(adjudicated), "judge_right": right, "judge_wrong": wrong,
         "pending": pending,
         "gate": {"target": AUTHORSHIP_GATE, "progress": len(adjudicated),
@@ -136,12 +146,16 @@ def _print_digest() -> None:
     print(f"adjudicated: {d['adjudicated']}   judge right {d['judge_right']} / wrong {d['judge_wrong']}")
     print(f"promotion gate: {g['progress']}/{g['target']} adjudicated  net_positive={g['net_positive']}  "
           f"READY={g['ready']}")
-    fc = d.get("fail_closed") or []
+    fc = (d.get("fail_closed") or []) + (d.get("judge_unavailable") or [])
     if fc:
-        print(f"\njudge fail-closes EXCLUDED from the gate ({len(fc)} — need a re-run, not a label):")
+        print(f"\njudge fail-closes / outages EXCLUDED from the gate ({len(fc)} — need a re-run or "
+              f"manual review, not a label):")
         for x in fc:
             print(f"  [{x['delta_id']}] {x['slug']}  {str(x.get('operation','?')).upper()} "
-                  f"{x.get('section','')}  ({x.get('trigger_source_url')})")
+                  f"{x.get('section','')}  judge={x.get('judge_verdict')}  "
+                  f"({x.get('trigger_source_url')})")
+    if d.get("fallback_judged"):
+        print(f"\nfallback-judged verdicts (real, but excluded from the Opus gate): {d['fallback_judged']}")
     print(f"\npending ({len(d['pending'])}):")
     for x in d["pending"]:
         print(f"  [{x['delta_id']}] {x['slug']}  {str(x.get('operation','?')).upper()} "

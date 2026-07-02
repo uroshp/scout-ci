@@ -37,10 +37,16 @@ def _latest_log(slug: str) -> dict | None:
 
 def pending(slug: str) -> dict:
     """Judge-confirmed proposals from the latest logged run awaiting approval, plus the grounding
-    facts needed to apply them. {run_ts, confirmed: [...], facts: [...]}."""
+    facts needed to apply them. `unjudged` are drafts the judge never ruled on (judge_unavailable —
+    an outage took out the primary AND fallback judge): applying one requires the explicit
+    allow_unjudged flag, because the human doing so IS the judge.
+    {run_ts, confirmed: [...], unjudged: [...], facts: [...]}."""
     payload = _latest_log(slug) or {}
-    confirmed = [d for d in payload.get("decisions", []) if d.get("judge_verdict") == "confirm"]
-    return {"run_ts": payload.get("run_ts"), "confirmed": confirmed, "facts": payload.get("facts", [])}
+    decisions = payload.get("decisions", [])
+    confirmed = [d for d in decisions if d.get("judge_verdict") == "confirm"]
+    unjudged = [d for d in decisions if d.get("judge_verdict") == "judge_unavailable"]
+    return {"run_ts": payload.get("run_ts"), "confirmed": confirmed, "unjudged": unjudged,
+            "facts": payload.get("facts", [])}
 
 
 def _title(meta: dict) -> str:
@@ -168,12 +174,16 @@ def reject(slug: str, subject_keys, note: str = "") -> int:
     return _log_human_verdict(slug, ops, "disagree", note or "human declined the proposal")
 
 
-def approve(slug: str, subject_keys=None, write: bool = True) -> dict:
+def approve(slug: str, subject_keys=None, write: bool = True, allow_unjudged: bool = False) -> dict:
     """Convenience: read the latest logged proposals and apply them (optionally only the ops whose
     subject_key is in `subject_keys`). Needs store access to read the log; otherwise call apply()
-    with ops/facts lifted from the email."""
+    with ops/facts lifted from the email.
+
+    allow_unjudged=True also applies judge_unavailable drafts (the judge never ruled — outage): the
+    human approving IS the judge then. No agree/disagree adjudication label is written for those
+    (there is no judge decision to grade; _log_human_verdict's confirm/reject filter enforces it)."""
     p = pending(slug)
-    ops = p["confirmed"]
+    ops = p["confirmed"] + (p["unjudged"] if allow_unjudged else [])
     if subject_keys is not None:
         wanted = {str(s) for s in subject_keys}
         ops = [o for o in ops if str(o.get("subject_key")) in wanted]

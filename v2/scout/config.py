@@ -72,6 +72,13 @@ PROPOSE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_PROPOSE_MAX_BUDGET_USD", "0
 # model, so it keeps its own (slightly higher) ceiling than propose.
 JUDGE_MAX_TURNS = int(os.environ.get("SCOUT_JUDGE_MAX_TURNS", "6"))
 JUDGE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_JUDGE_MAX_BUDGET_USD", "0.75"))
+# Judge fallback (2026-07-01 Opus-4.8 outage): when the primary judge returns unparseable output
+# twice, retry ONCE on this model — a DIFFERENT family/tier than ORCHESTRATOR_MODEL so one provider
+# incident can't take out both. Deliberately NOT CHALLENGER_MODEL (that pin serves the shadow eval
+# and must not move with ops concerns). Empty string disables the fallback. A fallback verdict
+# gates the proposals EMAIL only — it never auto-applies to a card and never scores the Opus
+# judge's promotion gate (adjudicate excludes it).
+JUDGE_FALLBACK_MODEL = os.environ.get("SCOUT_JUDGE_FALLBACK_MODEL", "claude-sonnet-4-6")
 # Rewrite loop (2026-07-01 Sonnet-5 silent drop): a judge-rejected op whose defect is PROSE-ONLY
 # (judge marks it "rewritable") gets ONE guided rewrite — the judge's reason fed back as the fix
 # list — then a blind re-judge. The rewrite escalates to the Opus tier ("upgrade the writer on
