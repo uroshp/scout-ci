@@ -53,7 +53,7 @@ On June 2 Cognition retired the Windsurf brand, relaunched it as Devin Desktop, 
 
 ## Positioning and Differentiation
 
-- Cognition's core positioning against IDE tools like Cursor is cloud-agent vs local-agent: it argues a local agent's 'ceiling is your attention' and stops when you close your laptop, while Devin runs in its own infrastructure and works while you're away (the company's own claim). ([cognition.ai](https://cognition.ai/blog/devin-in-windsurf))
+- Cognition still positions itself as cloud-agent vs local-agent, arguing a local agent's 'ceiling is your attention' and stops when you close your laptop. That line no longer holds against Cursor: since June 29, 2026 Cursor's iOS app lets developers launch always-on cloud agents and steer local Remote Control agents from their phone, then review diffs and merge PRs on the go. ([cursor.com](https://cursor.com/blog/ios-mobile-app))
 - Cognition brands Devin as 'the first AI software engineer' and frames cloud agents as the fastest-growing way to build software (the company's own claim). ([cognition.ai](https://cognition.ai/blog/series-d))
 - Cognition positions itself as an independent, model-agnostic 'agent lab' that routes tasks across all major foundation models, an implicit contrast with Cursor's model dependence and the pending SpaceX/xAI tie-up (the company's own claim). ([cognition.ai](https://cognition.ai/blog/series-d))
 - Industry analysis frames the AI-coding market as a split bet: IDE-first (keep the engineer in the loop: Cursor) vs agent-first (delegate whole tasks to an autonomous agent: Devin). Useful framing because it lets a Cursor rep define the axis of the comparison on our terms. ([techtimes.com](https://www.techtimes.com/articles/317354/20260529/ai-coding-agents-cognitions-26b-raise-bets-agent-first-architecture-beats-ide-tools.htm))
@@ -125,9 +125,9 @@ Cognition names Goldman Sachs, Citi, Mercedes-Benz, Santander, the U.S. Army and
 
 **"Devin actually ships PRs autonomously while my team sleeps. Cursor just autocompletes."**
 
-It's true Devin runs end-to-end to a PR, and Cognition says 89% of its own code is now committed by Devin. But Cursor also runs long autonomous background and cloud agents. The real difference is oversight granularity, and Cognition itself warns Devin struggles on ambiguous, changing work. We keep the engineer in the loop where the stakes are highest.
+Devin runs end-to-end to a PR, and Cognition says 89% of its own code is now committed by Devin. But Cursor runs long autonomous background and cloud agents too, and since June 29, 2026 you can launch one from the Cursor iOS app, close your laptop, and come back to review the diff and merge the PR from your phone. The real difference is oversight granularity: Cognition's own review admits Devin struggles on ambiguous, changing work, and Cursor keeps an engineer checking the work at every step, not only at PR time.
 
-**So what:** Move the conversation from 'autonomy vs autocomplete' to 'where do you want a human checking the work.' Then put both tools on their own messy tickets. ([cognition.ai](https://cognition.ai/blog/series-d))
+**So what:** Open the Cursor iOS app on the call and show an always-on agent running. Move the conversation from 'autonomy vs autocomplete' to 'where do you want a human checking the work,' then put both tools on their own messy tickets. ([cursor.com](https://cursor.com/blog/ios-mobile-app))
 
 **"Cognition just raised \$1B at \$26B. They have all the momentum."**
 
