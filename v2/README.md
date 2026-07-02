@@ -59,7 +59,8 @@ v2/
 
 ## Automation (GitHub Actions, defined at the repo root, run inside `v2/`)
 
-- **`monitor.yml`** — daily cron; runs `python -m scout.monitor`, commits `last_checked` bumps every
+- **`monitor.yml`** — daily run (Cloud Scheduler fires a `workflow_dispatch` at 7am ET Mon–Sat; no
+  GitHub `schedule:` cron); runs `python -m scout.monitor`, commits `last_checked` bumps every
   run and content changes only on a material change. Inert until merged to the default branch.
 - **`selfserve.yml`** — triggered by a `workflow_dispatch` the app POSTs on submit; runs
   `scripts/run_selfserve.py`, which reads the request from / writes the private card to the

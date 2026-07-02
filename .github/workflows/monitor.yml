@@ -2,10 +2,13 @@
 #
 # TRIGGER: Google Cloud Scheduler (uptime SLA, timezone-aware) fires workflow_dispatch at
 # exactly 7:00 AM + 1:00 PM America/New_York — provisioned by v2/scripts/setup_cloud_scheduler.sh.
-# We moved OFF GitHub's `schedule:` cron as the primary because it is best-effort and unreliable
-# (observed 2026-06-05: the 07:00 ET fire ran 09:46, and the 13:00 ET fire was dropped entirely).
-# workflow_dispatch is on-demand and starts within seconds. The lone `schedule:` below is a
-# BACKSTOP ONLY, in case Cloud Scheduler ever fails — the anchored gate makes it a no-op otherwise.
+# We moved OFF GitHub's `schedule:` cron entirely because it is best-effort and unreliable
+# (observed 2026-06-05: the 07:00 ET fire ran 09:46, and the 13:00 ET fire was dropped entirely;
+# observed 2026-07-01: the 23:00 UTC backstop fired 73 min late and, after a store reset, became
+# an unplanned full evening run). workflow_dispatch is on-demand and starts within seconds.
+# NO backstop by owner decision (2026-07-01): if Cloud Scheduler ever misses a day, that window
+# is skipped silently — the next morning's run scans since last_checked, so no coverage is lost,
+# only timing.
 #
 # FRESHNESS (the promise): a morning + midday refresh, the same way every day. The due-gate is
 # WINDOW-ANCHORED (scout.monitor._is_due vs config.MONITOR_ANCHORS_UTC = "11:00,17:00"): a card is
@@ -23,9 +26,7 @@
 name: monitor
 
 on:
-  workflow_dispatch:               # PRIMARY — triggered by Cloud Scheduler at 7am ET, Mon–Sat
-  schedule:
-    - cron: "0 23 * * 1-6"         # BACKSTOP ONLY (best-effort): catches a missed weekday window; gate no-ops it otherwise. Skips Sunday (Mon–Sat), matching the engine's weekend skip
+  workflow_dispatch:               # ONLY trigger — Cloud Scheduler at 7am ET, Mon–Sat
 
 concurrency:
   group: scout-monitor
