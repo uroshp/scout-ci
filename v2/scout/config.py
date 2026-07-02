@@ -161,8 +161,9 @@ MONITOR_MAX_UNRESOLVED_RETRIES = int(os.environ.get("SCOUT_MONITOR_MAX_UNRESOLVE
 # since the most recent anchor that has already passed; that makes checks land in
 # the morning + midday windows and NEVER drift (a relative last_checked+cadence
 # gate slides later on every check — the bug that scattered updates across random
-# times). The Actions cron BURSTS across each window so a late or dropped GitHub
-# fire can't blow the slot; the anchor gate still permits only one check/window.
+# times). The trigger is a Cloud Scheduler workflow_dispatch (no GitHub `schedule:`
+# cron as of 2026-07-01); the anchor gate still permits only one check/window, so
+# any extra manual dispatch in a served window is a cheap no-op.
 #
 # Daily run window = 7am US Eastern. June is EDT (UTC-4) → "11:00". (Was twice daily
 # "11:00,17:00"; the 1pm pass was dropped 2026-06-28 — across weeks of history the 2nd run mostly

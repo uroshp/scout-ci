@@ -831,12 +831,12 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
     """Cron entrypoint: check every DUE battlecard, write per policy, email digests.
 
     Due-gate (_is_due): by default a card is only checked when it hasn't been checked
-    since the most recent passed anchor (7am + 1pm ET), so the burst cron lands one
-    check in the morning window and one at midday without drift. `force=True` ignores
-    the gate (manual runs).
+    since the most recent passed anchor (7am ET, Mon–Sat), so the Cloud Scheduler
+    dispatch lands one check per day without drift. `force=True` ignores the gate
+    (manual runs).
 
     Side-effects gated for safety: write=False computes without mutating the store; email
-    is dry unless email_dry_run=False AND creds are configured. The Actions cron runs live
+    is dry unless email_dry_run=False AND creds are configured. The Actions run is live
     (SCOUT_MONITOR_LIVE=1); git commit/push is done by the workflow, not here.
     """
     from scout.display import list_battlecards
