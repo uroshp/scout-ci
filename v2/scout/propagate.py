@@ -118,6 +118,13 @@ when you revise in place, keep that block. A claim without it will be rejected a
 objection and win/lose play must ALSO carry a `persona` — the single best-fit buyer (an enum value,
 NEVER null) who raises the objection or that the play targets; it renders the per-claim buyer badge.
 
+SUPERSESSION — CONDENSE RESOLVED HISTORY (the reader is a rep with 30 seconds): when the new beat
+RESOLVES earlier beats a claim carries (a saga that ended, an interim ruling now superseded), lead
+with the CURRENT state and compress the resolved history to AT MOST one sentence of arc. Preserving
+still-true content means preserving the facts that still matter — NOT retaining every prior beat
+verbatim; a reconcile that just appends is as wrong as one that erases. Keep an objection or play
+body under ~120 words; anything over the render cap (~170) is rejected outright.
+
 OPERATIONS (pick the lightest that is true; identity is the SUBJECT, not the text):
 - add — the fact creates a genuinely new play or objection not already tracked.
 - revise — the fact NARROWS but does not kill a still-winning play (update its wording to the
@@ -464,6 +471,11 @@ REJECT an op if ANY of these holds:
   (The pivot's strength must be grounded — in a trigger fact OR a provided standing-strength my_company
   fact; a standing-strength-grounded pivot IS grounded and passes. Reject only if the rebuttal INVENTS a
   capability no admissible fact supports, or speculates about when the constraint lifts.)
+- BLOATED / BURIED ANSWER: the op is rightly routed and factually grounded, but the prose buries the
+  rep-usable answer under accreted history — e.g. a body over ~150 words, or paragraph-per-news-beat
+  accretion where the CURRENT state should lead and resolved history should be one sentence of arc.
+  Preserving still-true content does NOT mean retaining every prior beat verbatim: a compressed
+  supersession is the CORRECT reconcile; verbatim accretion is a defect. (This defect is rewritable.)
 - SELF-INCRIMINATING / NOT-REP-OWNABLE: a back-foot rebuttal that DOES pivot to a concrete move, but
   the move weakens the rep instead of the objection. HOLLOW REBUTTAL kills rebuttals that say nothing;
   this kills rebuttals that say something self-defeating. Reject if the answer: (a) coaches the BUYER to
@@ -480,16 +492,18 @@ exactly that scope, routed by the correct valence, as the lightest true operatio
 objection, "lightest true" still REQUIRES a grounded pivot — an honest constraint plus a real next move.
 RECONCILING A FOLLOW-UP is a CORRECT, expected revise: when a new beat updates a claim that already
 encodes earlier beats, the right op folds the new beat in while PRESERVING the still-true prior content
-and the required block — confirm that. What you reject on blast-radius is the opposite: a revise that
-ERASES still-true prior content or rewrites the claim from scratch (e.g. a reversal that deletes the
-earlier event instead of reconciling with it).
+and the required block — confirm that. PRESERVING means keeping the facts that still matter, not
+retaining every beat verbatim: when the new beat RESOLVES earlier ones, the correct reconcile leads
+with the current state and compresses the resolved history to a sentence. What you reject on
+blast-radius is the opposite: a revise that ERASES still-true prior content or rewrites the claim from
+scratch (e.g. a reversal that deletes the earlier event instead of reconciling with it).
 
 REWRITABLE: on a REJECT, also set "rewritable". Set true ONLY when the op is RIGHTLY ROUTED —
 correct section, operation, valence, and target, at a scope the fact licenses — and the defect lives
 in the PROSE alone, such that a rewrite guided by your reason could pass: an invented number,
 mechanism, or reason; erased still-true prior content or a rewrite-from-scratch (that flavor of
 blast-radius IS rewritable — the routing is right, the prose is wrong); a dropped required
-**So what:** / **Soundbite:** block; a hollow or self-incriminating rebuttal. Set false when the op
+**So what:** / **Soundbite:** block; a bloated/buried answer; a hollow or self-incriminating rebuttal. Set false when the op
 should not exist at all: wrong valence, wrong operation, an invented objection or play, a weak
 retire, or blast-radius because the fact does not license touching that claim. A retire carries no
 prose: rewritable is always false for a retire. When rewritable is true, your reason must name

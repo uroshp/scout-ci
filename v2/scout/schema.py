@@ -4,6 +4,7 @@ The JSON Schema embedded here is the runtime source of truth; the doc is the hum
 spec. Keep them in sync. `claim_id` / `normalize_subject_key` implement §3 verbatim.
 """
 import hashlib
+import os
 import re
 
 from jsonschema import Draft202012Validator
@@ -40,6 +41,11 @@ SECTIONS = [
 ANCHOR_SECTION = "tracked_facts"
 ALL_SECTIONS = SECTIONS + [ANCHOR_SECTION]
 ZONES = ["where_we_win", "contested", "where_they_win"]
+
+# Render-contract word cap for block claims (exec summary / objections / battlecard): over this,
+# a claim is a wall no rep reads — condensed by the repair path, rejected at generation. Healthy
+# claims run 95-115 words (2026-07-02 audit); 170 leaves room for a genuinely layered story.
+RENDER_MAX_WORDS = int(os.environ.get("SCOUT_RENDER_MAX_WORDS", "170"))
 SOURCE_TIERS = ["primary", "reputable_secondary", "sentiment_only"]
 # Primary buyer persona a play is aimed at / that tends to raise an objection. Optional, and
 # meaningful ONLY for the rep-facing prose sections (battlecard + objection_handling); null
@@ -220,7 +226,13 @@ def render_structure_errors(claim: dict) -> list[str]:
         buyer badge ('Raised by …' on objections, 'Best for …' on plays); without it the badge silently
         vanishes. (exec summary / contested have no such badge, so persona is not required there.)
     A missing block renders as an unstructured blob; a missing persona drops the badge — both are hard
-    validity errors that trigger a re-ask / re-classify (NOT a drop; see the no-drop repair path)."""
+    validity errors that trigger a re-ask / re-classify (NOT a drop; see the no-drop repair path).
+
+    LENGTH CAP (2026-07-02, the 353-word Fable/Mythos objection): reconciling revises accrete beats
+    until a claim is an unreadable wall. Rendered block claims (exec summary / objections /
+    battlecard) over RENDER_MAX_WORDS are a render-contract error — condensed by the repair path
+    (never dropped), rejected at generation. Healthy claims run 95-115 words; the cap leaves
+    headroom for a genuinely layered story."""
     text = claim.get("claim") or ""
     section, zone = claim.get("section"), claim.get("zone")
     is_play = section == "battlecard" and zone in ("where_we_win", "where_they_win")
@@ -231,6 +243,12 @@ def render_structure_errors(claim: dict) -> list[str]:
         errs.append("battlecard win/lose play: missing required '**Soundbite:**' block")
     if (section == "objection_handling" or is_play) and not claim.get("persona"):
         errs.append(f"{section}: missing required persona (renders the per-claim buyer badge)")
+    if section in ("executive_summary", "objection_handling", "battlecard"):
+        words = len(text.split())
+        if words > RENDER_MAX_WORDS:
+            errs.append(f"{section}: {words} words exceeds the {RENDER_MAX_WORDS}-word render cap "
+                        f"— condense (keep the current state + still-true numbers; collapse "
+                        f"resolved history to one line)")
     return errs
 
 

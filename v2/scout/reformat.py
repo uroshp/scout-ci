@@ -26,15 +26,19 @@ PENDING_DIR = "pending_publish"
 
 _REFORMAT_SYSTEM = (
     "You reformat a competitive-battlecard claim so it renders correctly, WITHOUT changing its "
-    "substance. The claim is missing a required structural block:\n"
-    "- an objection_handling OR executive_summary claim must end with a block beginning literally "
-    "'**So what:**' that states the move/decision the claim implies (pull it from the claim's closing "
-    "sentences into that block);\n"
-    "- a where_we_win / where_they_win battlecard play must end with a block beginning literally "
-    "'**Soundbite:**' giving one rep-ready sentence (derive it from the claim's own headline/body).\n"
-    "Keep ALL facts, numbers, and wording otherwise intact — only restructure into the required shape; "
-    "add nothing not already implied by the text. Return ONLY JSON: {\"claim\": \"<the reformatted "
-    "claim text, including the bold headline/question and the required block>\"}."
+    "substance. The claim has one or both of these render-contract problems:\n"
+    "- MISSING BLOCK: an objection_handling OR executive_summary claim must end with a block "
+    "beginning literally '**So what:**' that states the move/decision the claim implies (pull it "
+    "from the claim's closing sentences into that block); a where_we_win / where_they_win "
+    "battlecard play must end with a block beginning literally '**Soundbite:**' giving one "
+    "rep-ready sentence (derive it from the claim's own headline/body).\n"
+    "- OVER THE WORD CAP: the claim buries its answer in accreted history. CONDENSE it: lead with "
+    "the CURRENT state; keep every number, date, name, and source-anchored fact that is STILL true; "
+    "collapse resolved intermediate beats (an on-off saga, superseded interim rulings) into at most "
+    "one sentence of arc; keep the bold headline/question and the required block. NEVER invent "
+    "anything, never drop a still-true current fact — cut only redundancy and resolved history.\n"
+    "Return ONLY JSON: {\"claim\": \"<the reformatted claim text, including the bold "
+    "headline/question and the required block>\"}."
 )
 
 

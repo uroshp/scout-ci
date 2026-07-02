@@ -701,6 +701,10 @@ def _last_update_ts(slug: str) -> datetime:
             return None
     times = [t for a in display.load_alerts(slug)
              if (t := _ts(a.get("detected_at") or a.get("date")))]
+    # Approved propagation edits stamp claims' updated_on but write no alert until the feed entry
+    # lands — count them too (2026-07-02: updated cards weren't floating up). KEEP IN SYNC with the
+    # canonical display.last_update_ts (duplicated here on purpose — see the docstring above).
+    times += [t for c in store.load_claims(slug) if (t := _ts(c.get("updated_on")))]
     base = _ts((store.load_meta(slug) or {}).get("baseline_date"))
     if base:
         times.append(base)

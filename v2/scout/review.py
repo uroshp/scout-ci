@@ -64,6 +64,8 @@ def _decision_to_op(d: dict) -> dict:
         return d                                          # already apply-shaped (e.g. lifted from email)
     op = {"operation": d.get("operation"), "section": d.get("section"), "zone": d.get("zone"),
           "subject_key": d.get("subject_key"), "derived_from": d.get("derived_from"),
+          "feed_note": d.get("feed_note"),                # the one-line updates-panel entry
+
           "change_kind": d.get("change_kind"), "feed_note": d.get("feed_note"),
           "claim_type": "interpretation"}
     if d.get("operation") in ("revise", "retire"):
@@ -114,7 +116,9 @@ def apply(slug: str, ops: list, facts: list, write: bool = True) -> dict:
         if fid and fid not in by_id and fid in facts_by_id:
             claims = claims + [facts_by_id[fid]]
 
-    today = (pending(slug).get("run_ts") or date.today().isoformat())[:10]
+    # Stamp updated_on with the APPLY date, not the proposal run's date — the "Recently updated"
+    # panel and the last-updated ordering must reflect when the card actually changed.
+    today = date.today().isoformat()
     res = apply_ops(claims, ops, facts or [], slug, today)
     new_claims = res["claims"]
 
@@ -125,15 +129,16 @@ def apply(slug: str, ops: list, facts: list, write: bool = True) -> dict:
         if cut_log:
             body = body.rstrip() + "\n\n" + cut_log
         store.write_baseline(slug, new_claims, meta, format_report(clean_output(body)))
-        # SURFACE RETIREMENTS: an approved retire writes its feed_note to the updates panel so a removal
-        # is explained on the card's left feed, never a silent disappearance (Uroš's explicit ask).
+        # SURFACE EVERY APPLIED OP in the updates panel (2026-07-02: approved revises were invisible
+        # — no feed row, no viewer reorder). Each op's feed_note lands as a feed entry, so a card
+        # change is never silent and the last-updated ordering keys see it.
         try:
             from scout import monitor
-            retire_alerts = monitor._retire_feed_alerts(ops, res["applied"])
-            if retire_alerts:
-                monitor._append_alerts(slug, retire_alerts)
+            feed_alerts = monitor._applied_feed_alerts(ops, res["applied"])
+            if feed_alerts:
+                monitor._append_alerts(slug, feed_alerts)
         except Exception as e:
-            print(f"[review] retire feed-note skipped ({type(e).__name__}: {e})")
+            print(f"[review] feed-note skipped ({type(e).__name__}: {e})")
         # Close the adjudication leak: approving a proposal means the human judged the authorship
         # judge RIGHT to confirm it. Record that 'agree' (this used to be lost — apply wrote the card
         # but never labeled the judge), feeding the §17 promotion gate. Best-effort, never blocks.

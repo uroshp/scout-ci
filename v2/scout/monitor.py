@@ -507,32 +507,47 @@ def _is_act(alert: dict) -> bool:
     return str(alert.get("severity", "")).strip().lower() == "act"
 
 
-def _retire_feed_alerts(confirmed_ops: list, applied: list) -> list:
-    """Build alert records for APPLIED retire ops so the left updates panel shows the removal (the
-    router's feed_note), never a silent disappearance — the user's explicit ask ("even if it's in the
-    updates section on the left"). Only ops that actually landed are surfaced."""
-    applied_retire_sks = {a.get("subject_key") for a in applied if a.get("operation") == "retire"}
-    now = datetime.now()
+def _applied_feed_alerts(confirmed_ops: list, applied: list, operations=("add", "revise", "retire"),
+                         when: datetime | None = None) -> list:
+    """Build alert records for APPLIED propagation ops so the left updates panel (and the viewers'
+    last-updated ordering, which keys on the feed) reflects EVERY change that lands on a card —
+    never a silent edit (2026-07-02: approved revises were invisible: no feed row, no reorder).
+    Only ops that actually landed are surfaced. Every entry carries all six keys the alerts.md
+    writer hard-indexes (date/headline/subject_key/old_value/new_value/so_what)."""
+    _OLD_NEW = {"retire": ("on the card", "removed"),
+                "revise": ("prior version", "updated"),
+                "add": (None, "new")}
+    applied_by_sk = {(a.get("subject_key"), a.get("operation")) for a in applied}
+    now = when or datetime.now()
     out = []
     for op in confirmed_ops:
-        if op.get("operation") != "retire":
+        operation = op.get("operation")
+        if operation not in operations:
             continue
         sk = op.get("subject_key") or op.get("target_subject_key")
-        if sk not in applied_retire_sks:
+        if (sk, operation) not in applied_by_sk:
             continue
-        note = op.get("feed_note") or op.get("retired_reason") or "a play or objection was removed"
+        note = (op.get("feed_note") or op.get("retired_reason")
+                or f"a play or objection was {'removed' if operation == 'retire' else 'updated'}")
+        old_v, new_v = _OLD_NEW[operation]
         out.append({
             "date": now.date().isoformat(),
             "detected_at": now.isoformat(timespec="seconds"),
             "subject_key": sk,
-            "old_value": "on the card", "new_value": "removed",
+            "old_value": old_v, "new_value": new_v,
             "headline": note,
             "so_what": note,
             "severity": "act",
             "source_url": None,
-            "fingerprint": _fingerprint(str(sk), "retired:" + str(note)),
+            "fingerprint": _fingerprint(str(sk), f"applied:{operation}:" + str(note)),
         })
     return out
+
+
+def _retire_feed_alerts(confirmed_ops: list, applied: list) -> list:
+    """Retire-only view of _applied_feed_alerts — the LIVE auto-apply path keeps its original
+    behavior (fact alerts already cover live revises; review-mode approvals surface everything)."""
+    return _applied_feed_alerts(confirmed_ops, applied, operations=("retire",))
 
 
 def _competitor_arm(slug, meta, since, substantial, claims, result):

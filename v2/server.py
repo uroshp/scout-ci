@@ -50,20 +50,11 @@ def _ts(s):
 
 
 def _last_update_ts(slug: str) -> datetime:
-    times = [t for a in display.load_alerts(slug)
-             if (t := _ts(a.get("detected_at") or a.get("date")))]
-    base = _ts((store.load_meta(slug) or {}).get("baseline_date"))
-    if base:
-        times.append(base)
-    return max(times) if times else datetime.min
+    return display.last_update_ts(slug)      # canonical impl (alerts + claims updated_on + baseline)
 
 
 def _ordered_cards() -> list:
-    slugs = display.list_battlecards()
-    rest = sorted((s for s in slugs if s != _PINNED_SLUG), key=_last_update_ts, reverse=True)
-    if _PINNED_SLUG in slugs:
-        rest.insert(min(_PINNED_POSITION, len(rest)), _PINNED_SLUG)
-    return rest
+    return display.ordered_cards(pinned_slug=_PINNED_SLUG, pinned_position=_PINNED_POSITION)
 
 
 def _card_label(slug: str) -> str:
