@@ -1453,41 +1453,5 @@
     "confidence": "medium",
     "derived_from": "c_c2dc5e470ea5",
     "persona": "economic_buyer"
-  },
-  {
-    "subject_key": "github-copilot | billing-backlash",
-    "claim": "GitHub Copilot's first full token-billing cycle closed on June 30, 2026, and the invoices confirmed the damage developers feared. On Reddit, X and GitHub's own forum, agentic users report costs 10x to 50x their old flat rate: one developer's roughly $29 plan projected to nearly $750 a month, another's $50 to about $3,000. GitHub concedes intense agentic users will pay more and has not reversed course. That turns the flat-rate contrast with Claude Code (Pro $20, Max 5x/20x at $100/$200) into a confirmed cost argument rather than a projection.",
-    "claim_type": "fact",
-    "section": "recent_moves",
-    "zone": null,
-    "order": 2,
-    "source_url": "https://github.com/orgs/community/discussions/192948",
-    "source_tier": "primary",
-    "evidence_excerpt": "Users with intense agentic usage will likely see an increase in costs because those features consume more compute.",
-    "as_of": "2026-06-30",
-    "confidence": "high",
-    "id": "c_52b822fdf6ea",
-    "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-07-02",
-      "detail": null
-    },
-    "corroboration": [
-      {
-        "source_url": "https://techcrunch.com/2026/05/30/what-a-joke-github-copilots-new-token-based-billing-spurs-consternation-among-devs/",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false
-      },
-      {
-        "source_url": "https://www.techtimes.com/articles/319340/20260629/github-copilot-billing-shock-confirmed-agentic-users-face-10x-cost-surge.htm",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false
-      }
-    ]
   }
 ]
