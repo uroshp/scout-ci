@@ -951,12 +951,15 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
                 emailed = notify.send_digest(meta, res["alerts"], dry_run=email_dry_run)
             # REVIEW/LIVE: email each judge-confirmed propagation proposal awaiting approval. In
             # review the card is untouched (human approves in-session); in live it's already applied.
+            # Rewrite-EXHAUSTED failures ride the same email — an act-grade edit that died in
+            # authoring must reach the owner even when nothing was confirmed (never a silent drop).
             prop = res.get("propagation")
             if prop and config.PROPAGATE_MODE in ("review", "live"):
                 confirmed = [d for d in prop.get("decisions", []) if d.get("judge_verdict") == "confirm"]
-                if confirmed:
+                exhausted = [d for d in prop.get("decisions", []) if d.get("rewrite_exhausted")]
+                if confirmed or exhausted:
                     prop_emailed = notify.send_propagation_proposals(
-                        slug, meta, confirmed, dry_run=email_dry_run)
+                        slug, meta, confirmed, dry_run=email_dry_run, exhausted=exhausted)
             # CONSEQUENTIALITY FILTER (shadow eval, docs/consequential-filter-spec.md): the router now
             # emits the consequential/routine run_verdict the old strategic pass used to (that pass is
             # ABSORBED into the router — the lead is just the executive_summary surface). Log the verdict

@@ -484,10 +484,22 @@ and the required block — confirm that. What you reject on blast-radius is the 
 ERASES still-true prior content or rewrites the claim from scratch (e.g. a reversal that deletes the
 earlier event instead of reconciling with it).
 
+REWRITABLE: on a REJECT, also set "rewritable". Set true ONLY when the op is RIGHTLY ROUTED —
+correct section, operation, valence, and target, at a scope the fact licenses — and the defect lives
+in the PROSE alone, such that a rewrite guided by your reason could pass: an invented number,
+mechanism, or reason; erased still-true prior content or a rewrite-from-scratch (that flavor of
+blast-radius IS rewritable — the routing is right, the prose is wrong); a dropped required
+**So what:** / **Soundbite:** block; a hollow or self-incriminating rebuttal. Set false when the op
+should not exist at all: wrong valence, wrong operation, an invented objection or play, a weak
+retire, or blast-radius because the fact does not license touching that claim. A retire carries no
+prose: rewritable is always false for a retire. When rewritable is true, your reason must name
+EXACTLY what must change — it is handed verbatim to the rewriter as its only feedback.
+
 Return ONLY a single fenced ```json block:
 {"verdicts": [
   {"op_index": <int — the op's given index>,
    "verdict": "confirm|reject",
+   "rewritable": <bool — per the REWRITABLE rule; false on a confirm or a retire>,
    "reason": "<one line: the specific test it passed, or the specific reason rejected, grounded in the fact>"}
 ]}
 Give EXACTLY one verdict per proposed op. When in doubt, reject."""
@@ -554,6 +566,9 @@ def _parse_verdicts(text: str) -> dict:
         verdicts[oi] = {
             "verdict": "confirm" if str(vd.get("verdict", "")).strip().lower() == "confirm" else "reject",
             "reason": str(vd.get("reason", "")),
+            # Fail-closed like the verdict itself: only a boolean true enters the rewrite loop —
+            # a missing/hedged flag means no loop, i.e. today's drop-on-reject behavior.
+            "rewritable": vd.get("rewritable") is True,
         }
     return verdicts
 
@@ -583,16 +598,154 @@ def judge(meta: dict, facts: list[dict], claims: list[dict], indexed_ops: list) 
     return {"verdicts": verdicts, "cost_usd": cost}
 
 
+# --- Bounded rewrite loop (2026-07-01): a prose-defect reject gets one guided rewrite ------------
+#
+# The judge rejected 2 ops on a real act-grade fact (the Sonnet-5 launch) for AUTHORING defects —
+# an invented number, a rewrite-from-scratch — and the fact vanished silently. The loop: rejects the
+# judge marked "rewritable" are re-authored WITH the judge's reason as the fix list (on the Opus
+# tier — "upgrade the writer on failure"), re-floored, then BLIND re-judged (the re-judge never sees
+# that it is a second attempt — the double-jeopardy guard). Bounded by PROPAGATE_MAX_REWRITES;
+# exhaustion is surfaced loudly by the caller (proposals email), never silent.
+
+_REWRITE_ADDENDUM = """REWRITE MODE. Each worklist item below was ALREADY AUTHORED once and REJECTED by the
+adversarial judge for a prose defect. Each carries `failed_prose` (the rejected text) and
+`judge_reason` (exactly why it failed). Rewrite the prose to CURE that reason and change NOTHING
+ELSE: keep the routing, the structure, the still-true content, the persona, and the required
+**So what:** / **Soundbite:** block. Do not fix what the reason does not name. FACTS ONLY still
+governs absolutely: if the reason says a number, mechanism, or claim is not in the grounded facts,
+REMOVE it — never replace it with another invented one. If the reason says still-true content was
+erased or a required block was dropped, restore it from `current_text` and fold the new beat in
+surgically. If the reason cannot be cured without inventing something the facts do not state,
+return the item with claim "" — an empty claim tells the pipeline you could not fix it honestly.
+Return the same {"authored": [{op_index, claim, persona}]} shape, one entry per worklist item,
+keyed by the given op_index."""
+
+
+def _rewritable_indices(ops: list, floor_results: list, verdicts: dict) -> list:
+    """Original op indices eligible for a rewrite: floor-clean, judge-rejected with rewritable=True,
+    and carrying prose (add/revise only — a retire has nothing to rewrite even if the judge slips)."""
+    return [i for i in range(len(ops))
+            if not floor_results[i]
+            and (verdicts.get(i) or {}).get("verdict") == "reject"
+            and (verdicts.get(i) or {}).get("rewritable") is True
+            and ops[i].get("operation") in ("add", "revise")]
+
+
+def _rewrite_worklist(indices: list, surface_ops: list, ops: list, verdicts: dict,
+                      active_by_sk: dict) -> list:
+    """The rewrite pass's worklist: the ORIGINAL author worklist row for each index (op_index
+    preserved — positional identity across stages is load-bearing), annotated with the failed
+    prose and the judge's reason (the rewriter's only feedback)."""
+    base = {w["op_index"]: w for w in _author_worklist(surface_ops, active_by_sk)}
+    out = []
+    for i in indices:
+        w = dict(base[i])
+        w["failed_prose"] = ops[i].get("claim")
+        w["judge_reason"] = (verdicts.get(i) or {}).get("reason")
+        out.append(w)
+    return out
+
+
+async def _run_rewrite(meta: dict, worklist: list, facts: list) -> dict:
+    comp, me = meta.get("competitor"), meta.get("my_company")
+    user = (f"Competitor: {comp}" + (f"   We are: {me}" if me else "") + "\n\n"
+            "GROUNDED FACTS (the ONLY admissible evidence; each op's derived_from points into these):\n"
+            + json.dumps(_facts_digest(facts), ensure_ascii=False, indent=2)
+            + "\n\nWORKLIST — REWRITE each rejected op to cure its judge_reason; key your output by "
+              "op_index:\n"
+            + json.dumps(worklist, ensure_ascii=False, indent=2))
+    options = ClaudeAgentOptions(
+        model=config.PROPAGATE_REWRITE_MODEL,             # upgraded writer: pay Opus only on failure
+        system_prompt={"type": "preset", "preset": "claude_code",
+                       "append": _AUTHOR_SYSTEM + "\n\n" + _REWRITE_ADDENDUM + "\n\n" + WRITING_STYLE},
+        mcp_servers={},
+        allowed_tools=[],                                 # TOOLS-OFF: same constraint as the author
+        disallowed_tools=["WebSearch", "WebFetch"],
+        permission_mode="bypassPermissions",
+        max_turns=config.PROPOSE_MAX_TURNS,
+        max_budget_usd=config.PROPOSE_MAX_BUDGET_USD,
+    )
+    return await _drive(user, options, "rewrite")
+
+
+def _rewrite_loop(meta: dict, surface_ops: list, ops: list, floor_results: list, verdicts: dict,
+                  author_facts: list, claims: list, active_by_sk: dict,
+                  surviving_fact_ids: set) -> dict:
+    """Bounded rewrite loop: judge feedback -> rewrite -> re-floor -> BLIND re-judge. Mutates ops[i]
+    and verdicts[i] IN PLACE for rewritten indices (positional identity: ops index == judge op_index
+    == decision-record index). Top-level floor_results is NEVER overwritten — a rewrite that flunks
+    the floor terminates as a judge 'reject' with the floor failure logged in its attempt, not as a
+    floor_reject. A crash anywhere degrades to today's behavior (op stays rejected), never raises.
+
+    Returns {"attempts": {op_index: [attempt dicts]}, "cost_author": float, "cost_judge": float}."""
+    attempts, cost_author, cost_judge = {}, 0.0, 0.0
+    try:
+        for _round in range(config.PROPAGATE_MAX_REWRITES):
+            idx = _rewritable_indices(ops, floor_results, verdicts)
+            if not idx:
+                break
+            for i in idx:                                 # seed history with the original attempt
+                if i not in attempts:
+                    v = verdicts.get(i) or {}
+                    attempts[i] = [{"claim": ops[i].get("claim"), "verdict": "reject",
+                                    "reason": v.get("reason"), "rewritable": True}]
+            res = asyncio.run(_run_rewrite(
+                meta, _rewrite_worklist(idx, surface_ops, ops, verdicts, active_by_sk), author_facts))
+            cost_author += res.get("cost_usd") or 0.0
+            try:
+                authored = {a.get("op_index"): a
+                            for a in (_extract_json(res["text"]).get("authored") or [])
+                            if isinstance(a, dict) and isinstance(a.get("op_index"), int)}
+            except Exception:
+                authored = {}
+            rejudge = []
+            for i in idx:
+                if i not in authored:                     # rewriter returned nothing: terminal reject
+                    verdicts[i] = {"verdict": "reject", "rewritable": False,
+                                   "reason": (verdicts.get(i) or {}).get("reason")}
+                    attempts[i].append({"claim": None, "verdict": "reject",
+                                        "reason": "rewriter returned nothing", "rewritable": False})
+                    continue
+                ops[i] = _finalize_op(surface_ops[i], authored[i])
+                fv = floor_check(ops[i], surviving_fact_ids, active_by_sk)
+                if fv:                                    # incl. the honest claim:"" escape hatch
+                    verdicts[i] = {"verdict": "reject", "rewritable": False,
+                                   "reason": "rewrite failed the floor: " + "; ".join(fv)}
+                    attempts[i].append({"claim": ops[i].get("claim"), "verdict": "reject",
+                                        "reason": "floor: " + "; ".join(fv), "rewritable": False,
+                                        "floor_violations": fv})
+                    continue
+                rejudge.append((i, ops[i]))
+            if rejudge:
+                # BLIND: same digest shape as the first pass — no attempt markers, no prior reason.
+                judged = judge(meta, author_facts, claims, rejudge)
+                cost_judge += judged.get("cost_usd") or 0.0
+                for i, op in rejudge:
+                    jv = judged["verdicts"].get(i) or {
+                        "verdict": "reject", "rewritable": False,
+                        "reason": "no verdict returned (fail-closed)"}
+                    verdicts[i] = jv
+                    attempts[i].append({"claim": op.get("claim"), "verdict": jv["verdict"],
+                                        "reason": jv.get("reason"),
+                                        "rewritable": jv.get("rewritable") is True})
+    except Exception as e:  # NON-DISRUPTION: a rewrite crash must degrade, never kill the run
+        print(f"[propagate] rewrite loop skipped ({type(e).__name__}: {e})", file=sys.stderr)
+    return {"attempts": attempts, "cost_author": cost_author, "cost_judge": cost_judge}
+
+
 # --- Decision log (spec §17): audit trail AND authorship-shadow training corpus -----------------
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2      # v2 (2026-07-01): + attempts / rewrite_attempts / rewrite_exhausted
 PROP_DIR = "propagation"
 
 
 def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
-                      facts_by_id: dict, active_by_sk: dict) -> list:
+                      facts_by_id: dict, active_by_sk: dict, rewrite_attempts: dict = None) -> list:
     """One record per PROPOSED op — floor-rejected, judge-rejected, or confirmed. Captures the
     full chain (what fired it, the edit, who decided, why, did it commit) so the log is both an
-    audit trail of every model-authored prose edit and the judge's training corpus."""
+    audit trail of every model-authored prose edit and the judge's training corpus. `rewrite_attempts`
+    (op_index -> attempt history, first entry = the original) marks ops that went through the rewrite
+    loop; a looped op that still isn't confirmed is `rewrite_exhausted` — the caller surfaces those
+    LOUDLY (proposals email), never silently."""
     records = []
     for i, op in enumerate(ops):
         violations = floor_results[i]
@@ -603,6 +756,7 @@ def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
                                            "reason": "no verdict returned (fail-closed)"}
             verdict, reason = jv["verdict"], jv["reason"]
             committed = verdict == "confirm"
+        att = (rewrite_attempts or {}).get(i) or []
         df = op.get("derived_from")
         fact = facts_by_id.get(df) or {}
         tgt = op.get("target_subject_key")
@@ -625,6 +779,9 @@ def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
             "judge_reason": reason,
             "floor_violations": violations,
             "committed": committed,
+            "attempts": att,                              # rewrite history ([] = never looped)
+            "rewrite_attempts": max(0, len(att) - 1),     # rounds actually spent
+            "rewrite_exhausted": bool(att) and verdict != "confirm",
         })
     return records
 
@@ -691,12 +848,21 @@ def propagate(meta: dict, facts_with_alerts: list[dict], strength_facts: list[di
     judged = judge(meta, author_facts, claims, indexed_survivors)
     verdicts = judged["verdicts"]
 
-    records = _decision_records(ops, floor_results, verdicts, facts_by_id, active_by_sk)
+    # step 4b: REWRITE LOOP — a prose-defect reject gets one guided rewrite + blind re-judge (2026-07-01
+    # Sonnet-5 silent drop). Mutates ops/verdicts in place; exhausted rejects surface via the records.
+    rw = {"attempts": {}, "cost_author": 0.0, "cost_judge": 0.0}
+    if config.PROPAGATE_MAX_REWRITES > 0:
+        rw = _rewrite_loop(meta, surface_ops, ops, floor_results, verdicts,
+                           author_facts, claims, active_by_sk, surviving_fact_ids)
+
+    records = _decision_records(ops, floor_results, verdicts, facts_by_id, active_by_sk,
+                                rewrite_attempts=rw["attempts"])
     confirmed = [ops[i] for i in range(len(ops))
                  if not floor_results[i] and (verdicts.get(i) or {}).get("verdict") == "confirm"]
 
     cost_usd = {"route": routed.get("cost_usd"), "author": authored.get("cost_usd"),
-                "judge": judged.get("cost_usd")}
+                "judge": judged.get("cost_usd"),
+                "rewrite_author": rw["cost_author"] or None, "rewrite_judge": rw["cost_judge"] or None}
     if persist and slug:
         log_decisions(slug, records, source=source, facts=author_facts, cost=cost_usd)
 

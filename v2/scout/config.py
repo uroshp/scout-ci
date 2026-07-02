@@ -72,6 +72,13 @@ PROPOSE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_PROPOSE_MAX_BUDGET_USD", "0
 # model, so it keeps its own (slightly higher) ceiling than propose.
 JUDGE_MAX_TURNS = int(os.environ.get("SCOUT_JUDGE_MAX_TURNS", "6"))
 JUDGE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_JUDGE_MAX_BUDGET_USD", "0.75"))
+# Rewrite loop (2026-07-01 Sonnet-5 silent drop): a judge-rejected op whose defect is PROSE-ONLY
+# (judge marks it "rewritable") gets ONE guided rewrite — the judge's reason fed back as the fix
+# list — then a blind re-judge. The rewrite escalates to the Opus tier ("upgrade the writer on
+# failure"); bound exhausted -> the failure surfaces LOUDLY in the proposals email, never silent.
+# 0 disables the loop entirely (restores drop-on-reject). Reuses the PROPOSE/JUDGE caps per call.
+PROPAGATE_MAX_REWRITES = int(os.environ.get("SCOUT_PROPAGATE_MAX_REWRITES", "1"))
+PROPAGATE_REWRITE_MODEL = os.environ.get("SCOUT_PROPAGATE_REWRITE_MODEL", ORCHESTRATOR_MODEL)
 
 # --- Shadow-eval challenger (v3.5; docs/vnext-roadmap.md §v3.5, decision-log §11) -------------
 # The verification-judge CHALLENGER: a tools-off model that re-judges captured champion decisions

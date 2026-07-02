@@ -159,17 +159,29 @@ def _change_summary(old, new) -> str:
     return " ".join(parts)
 
 
-def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict]) -> tuple[str, str]:
+def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict],
+                                 exhausted: list[dict] = None) -> tuple[str, str]:
     """Subject + body for the REVIEW-mode approval email: each judge-confirmed proposal with where
     (card + section), what (op), how it looks (the FULL old→new prose, never truncated), and the
-    judge's reasoning, spaced for reading. The card is untouched; these await the human's approval."""
+    judge's reasoning, spaced for reading. The card is untouched; these await the human's approval.
+
+    `exhausted` are rewrite-loop failures on ACT-GRADE facts (judge rejected, rewrite rejected
+    again): the card was NOT changed and nothing else will surface them — this email is the loud
+    signal (2026-07-01: two Sonnet-5 pricing ops died silently in the decision log)."""
+    exhausted = exhausted or []
     me, comp = meta.get("my_company"), meta.get("competitor")
     card = f"{me} vs {comp}" if me else (comp or slug)
     n = len(decisions)
     rule = "─" * 48
-    subject = f"Scout: {n} proposed card update{'s' if n != 1 else ''} awaiting approval — {card}"
-    out = [f"Propagation proposed {n} rep-facing change{'s' if n != 1 else ''} for {card}.",
-           "The card is UNCHANGED — these need your approval before they go live.", "", rule]
+    subject = (f"Scout: {n} proposed card update{'s' if n != 1 else ''} awaiting approval"
+               + (f" (+{len(exhausted)} authoring-failed)" if exhausted else "") + f" — {card}")
+    if decisions:
+        out = [f"Propagation proposed {n} rep-facing change{'s' if n != 1 else ''} for {card}.",
+               "The card is UNCHANGED — these need your approval before they go live.", "", rule]
+    else:
+        out = [f"Propagation confirmed no changes for {card}, but "
+               f"{len(exhausted)} op(s) on a material fact FAILED authoring — details below.",
+               "", rule]
     for d in decisions:
         op = str(d.get("operation", "")).upper()
         zone = f" / {d.get('zone')}" if d.get("zone") else ""
@@ -192,19 +204,43 @@ def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict]) -
         if d.get("trigger_source_url"):
             out += ["", f"From: {d['trigger_source_url']}"]
         out += ["", rule]
-    out += ["",
-            f'To apply, tell Claude in a session — e.g. "approve the '
-            f'{decisions[0].get("section", "objection")} update on {card}".',
-            "— Scout (proposed by the authorship judge; awaiting your approval)"]
+    for d in exhausted:
+        op = str(d.get("operation", "")).upper()
+        zone = f" / {d.get('zone')}" if d.get("zone") else ""
+        kind = f"  [{d.get('change_kind')}]" if d.get("change_kind") else ""
+        att = d.get("attempts") or []
+        out += ["", "✗ AUTHORING FAILED — NOT applied, needs your eyes",
+                f"{op} in {d.get('section', '')}{zone}{kind}", f"({d.get('subject_key')})"]
+        if d.get("trigger_source_url"):
+            out += [f"Fact: {d['trigger_source_url']}"]
+        out += ["", f"The judge rejected {len(att)} attempt(s) to write this change:"]
+        for k, a in enumerate(att):
+            label = f"attempt {k + 1}" + (" (rewrite)" if k else "")
+            out += [f"  {label}: {_flat(a.get('reason') or '(no reason recorded)')}"]
+        last_prose = next((a.get("claim") for a in reversed(att) if a.get("claim")), None)
+        if last_prose:
+            out += ["", "LAST ATTEMPT PROSE:", _block(last_prose)]
+        out += ["", "The card was NOT changed. If this fact matters, edit the card manually "
+                    "or re-run.", "", rule]
+    if decisions:
+        out += ["",
+                f'To apply, tell Claude in a session — e.g. "approve the '
+                f'{decisions[0].get("section", "objection")} update on {card}".',
+                "— Scout (proposed by the authorship judge; awaiting your approval)"]
+    else:
+        out += ["", "— Scout (nothing to approve; the failures above need a human decision)"]
     return subject, "\n".join(out)
 
 
-def send_propagation_proposals(slug: str, meta: dict, decisions: list[dict], dry_run: bool = True) -> dict:
-    """Email the run's judge-confirmed propagation proposals (REVIEW mode). No-op (dry) unless fully
-    configured; never raises on a missing-config path."""
-    if not decisions:
+def send_propagation_proposals(slug: str, meta: dict, decisions: list[dict], dry_run: bool = True,
+                               exhausted: list[dict] = None) -> dict:
+    """Email the run's judge-confirmed propagation proposals (REVIEW mode), plus any rewrite-loop
+    EXHAUSTED failures (which must reach the owner even when nothing was confirmed — a dropped
+    material edit is never silent). No-op (dry) unless fully configured; never raises on a
+    missing-config path."""
+    if not decisions and not exhausted:
         return {"sent": False, "reason": "no proposals"}
-    subject, body = render_propagation_proposals(slug, meta, decisions)
+    subject, body = render_propagation_proposals(slug, meta, decisions, exhausted=exhausted)
     return _dispatch(subject, body, dry_run=dry_run)
 
 
