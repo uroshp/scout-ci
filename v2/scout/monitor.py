@@ -716,10 +716,24 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
                 "run_verdict": prop.get("run_verdict") or {},
                 "cost": prop["cost_usd"], "applied": []}
             result["cost"]["propagation"] = sum(v or 0 for v in prop["cost_usd"].values())
+            # JUDGE UNAVAILABLE is never silent: the drafts ride the proposals email (run_all), and
+            # the run summary carries pipeline_health so a stale card can't look clean.
+            unjudged_n = sum(1 for d in prop.get("decisions", [])
+                             if d.get("judge_verdict") == "judge_unavailable")
+            if unjudged_n:
+                result["pipeline_health"] = (
+                    f"judge unavailable on {slug}: {unjudged_n} drafted op(s) unverified — "
+                    f"see the proposals email; approve manually with allow_unjudged if they hold up")
             # SHADOW-FIRST: only "live" mutates the card. "shadow"/"review" leave it untouched.
             if write and config.PROPAGATE_MODE == "live" and prop["confirmed"]:
                 change_facts = [p["fact"] for p in act_pairs]
-                ap = apply_ops(new_claims, prop["confirmed"], change_facts + strength_facts, slug, today)
+                # A FALLBACK-judged confirm gates the email only — it never writes the card
+                # unattended (the fallback is a weaker model standing in during an outage).
+                fb_keys = {(d.get("subject_key"), d.get("operation")) for d in prop["decisions"]
+                           if str(d.get("judged_by") or "").startswith("fallback:")}
+                auto_ops = [o for o in prop["confirmed"]
+                            if (o.get("subject_key"), o.get("operation")) not in fb_keys]
+                ap = apply_ops(new_claims, auto_ops, change_facts + strength_facts, slug, today)
                 new_claims = ap["claims"]
                 result["propagation"]["applied"] = ap["applied"]
                 result["propagation"]["skipped"] = ap["skipped"]
@@ -955,11 +969,14 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
             # authoring must reach the owner even when nothing was confirmed (never a silent drop).
             prop = res.get("propagation")
             if prop and config.PROPAGATE_MODE in ("review", "live"):
-                confirmed = [d for d in prop.get("decisions", []) if d.get("judge_verdict") == "confirm"]
-                exhausted = [d for d in prop.get("decisions", []) if d.get("rewrite_exhausted")]
-                if confirmed or exhausted:
+                decisions = prop.get("decisions", [])
+                confirmed = [d for d in decisions if d.get("judge_verdict") == "confirm"]
+                exhausted = [d for d in decisions if d.get("rewrite_exhausted")]
+                unjudged = [d for d in decisions if d.get("judge_verdict") == "judge_unavailable"]
+                if confirmed or exhausted or unjudged:
                     prop_emailed = notify.send_propagation_proposals(
-                        slug, meta, confirmed, dry_run=email_dry_run, exhausted=exhausted)
+                        slug, meta, confirmed, dry_run=email_dry_run, exhausted=exhausted,
+                        unjudged=unjudged)
             # CONSEQUENTIALITY FILTER (shadow eval, docs/consequential-filter-spec.md): the router now
             # emits the consequential/routine run_verdict the old strategic pass used to (that pass is
             # ABSORBED into the router — the lead is just the executive_summary surface). Log the verdict

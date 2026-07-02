@@ -523,7 +523,8 @@ def _judge_ops_digest(indexed_ops: list) -> list:
     } for i, o in indexed_ops]
 
 
-async def _run_judge(meta: dict, facts: list[dict], claims: list[dict], indexed_ops: list) -> dict:
+async def _run_judge(meta: dict, facts: list[dict], claims: list[dict], indexed_ops: list,
+                     model: str | None = None) -> dict:
     comp, me = meta.get("competitor"), meta.get("my_company")
     user = (f"Competitor: {comp}" + (f"   We are: {me}" if me else "") + "\n\n"
             "GROUNDED FACTS (the ONLY admissible evidence; judge every op strictly against these):\n"
@@ -534,7 +535,7 @@ async def _run_judge(meta: dict, facts: list[dict], claims: list[dict], indexed_
             + "\n\nPROPOSED OPS TO JUDGE (confirm or reject each by op_index):\n"
             + json.dumps(_judge_ops_digest(indexed_ops), ensure_ascii=False, indent=2))
     options = ClaudeAgentOptions(
-        model=config.ORCHESTRATOR_MODEL,                  # judge on Opus (spec §17)
+        model=model or config.ORCHESTRATOR_MODEL,         # judge on Opus; fallback overrides (outage)
         system_prompt={"type": "preset", "preset": "claude_code", "append": _JUDGE_SYSTEM},
         mcp_servers={},
         allowed_tools=[],                                 # TOOLS-OFF: judge only the given facts
@@ -576,26 +577,49 @@ def _parse_verdicts(text: str) -> dict:
 def judge(meta: dict, facts: list[dict], claims: list[dict], indexed_ops: list) -> dict:
     """Adversarial Opus pass over the floor-surviving ops. `indexed_ops` is a list of (op_index, op)
     pairs (op_index = position in the ORIGINAL proposed list). Returns
-    {'verdicts': {op_index: {'verdict','reason'}}, 'cost_usd'}.
+    {'verdicts': {op_index: {'verdict','reason','rewritable','judged_by'}}, 'cost_usd',
+    'raw_failures': [{'model','text'}]}.
 
-    FAIL-CLOSED: anything but a clean 'confirm' normalizes to 'reject', and an op the judge omits a
-    verdict for is treated as rejected downstream — a judge hiccup can only DROP an edit, never wave
-    one onto a card (mirrors monitor's severity normalization)."""
+    FAIL-CLOSED per op: anything but a clean 'confirm' normalizes to 'reject', and an op the judge
+    omits from an otherwise healthy batch is treated as rejected downstream — a judge hiccup can
+    only DROP an edit, never wave one onto a card (mirrors monitor's severity normalization).
+
+    BULLETPROOF per batch (the 2026-07-01 Opus outage: two unparseable responses silently killed 4
+    material drafts): an empty parse retries once on the primary judge, then ONCE on
+    JUDGE_FALLBACK_MODEL — a different model family, so one provider incident can't take out both.
+    Every unparseable response is captured (truncated) into raw_failures so the failure is
+    diagnosable. If ALL calls fail, ops come back 'judge_unavailable' — NOT 'reject': the drafts
+    ride the proposals email for explicit human judgment instead of dying silently. A fallback
+    verdict is tagged judged_by='fallback:<model>' (email-gating only; never auto-applies)."""
     if not indexed_ops:
-        return {"verdicts": {}, "cost_usd": 0.0}
-    res = asyncio.run(_run_judge(meta, facts, claims, indexed_ops))
-    verdicts = _parse_verdicts(res["text"])
-    cost = res.get("cost_usd") or 0.0
-    # ROBUSTNESS: an unparseable/empty judge response fail-closes EVERY op at once — silently dropping
-    # a whole batch of material edits (the bug that lost the Trump + Salesforce updates: a 3-op response
-    # came back malformed). A real all-reject returns verdicts, so empty == a parse hiccup, not a
-    # decision. Retry the judge ONCE before defaulting the batch to reject. Bounded to one extra call;
-    # fires only on the empty case, so a normal run costs nothing extra.
-    if not verdicts:
-        res2 = asyncio.run(_run_judge(meta, facts, claims, indexed_ops))
-        verdicts = _parse_verdicts(res2["text"])
-        cost += res2.get("cost_usd") or 0.0
-    return {"verdicts": verdicts, "cost_usd": cost}
+        return {"verdicts": {}, "cost_usd": 0.0, "raw_failures": []}
+    plan = [config.ORCHESTRATOR_MODEL, config.ORCHESTRATOR_MODEL]
+    if config.JUDGE_FALLBACK_MODEL:
+        plan.append(config.JUDGE_FALLBACK_MODEL)
+    cost, raw_failures, verdicts, used = 0.0, [], {}, None
+    for model in plan:
+        res = asyncio.run(_run_judge(meta, facts, claims, indexed_ops, model=model))
+        cost += res.get("cost_usd") or 0.0
+        verdicts = _parse_verdicts(res["text"])
+        if verdicts:
+            used = model
+            break
+        raw_failures.append({"model": model, "text": str(res.get("text") or "")[:4000]})
+    if verdicts:
+        tag = used if used == config.ORCHESTRATOR_MODEL else f"fallback:{used}"
+        for v in verdicts.values():
+            v["judged_by"] = tag
+    else:
+        # Judge UNAVAILABLE: a distinct verdict, deliberately NOT 'reject' and NOT worded
+        # "fail-closed" (adjudicate keys on that string for per-op hiccups). Downstream needs no
+        # special-casing: not 'reject' -> the rewrite loop skips it; not 'confirm' -> it can never
+        # commit; monitor/notify surface it loudly for manual approval.
+        verdicts = {i: {"verdict": "judge_unavailable", "rewritable": False, "judged_by": None,
+                        "reason": "judge returned no parseable verdicts after retries and the "
+                                  "fallback model (likely a model outage) — the drafted op is "
+                                  "preserved for human review"}
+                    for i, _ in indexed_ops}
+    return {"verdicts": verdicts, "cost_usd": cost, "raw_failures": raw_failures}
 
 
 # --- Bounded rewrite loop (2026-07-01): a prose-defect reject gets one guided rewrite ------------
@@ -677,8 +701,9 @@ def _rewrite_loop(meta: dict, surface_ops: list, ops: list, floor_results: list,
     the floor terminates as a judge 'reject' with the floor failure logged in its attempt, not as a
     floor_reject. A crash anywhere degrades to today's behavior (op stays rejected), never raises.
 
-    Returns {"attempts": {op_index: [attempt dicts]}, "cost_author": float, "cost_judge": float}."""
-    attempts, cost_author, cost_judge = {}, 0.0, 0.0
+    Returns {"attempts": {op_index: [attempt dicts]}, "cost_author": float, "cost_judge": float,
+    "raw_failures": [unparseable judge responses, for the decision log]}."""
+    attempts, cost_author, cost_judge, raw_failures = {}, 0.0, 0.0, []
     try:
         for _round in range(config.PROPAGATE_MAX_REWRITES):
             idx = _rewritable_indices(ops, floor_results, verdicts)
@@ -720,6 +745,7 @@ def _rewrite_loop(meta: dict, surface_ops: list, ops: list, floor_results: list,
                 # BLIND: same digest shape as the first pass — no attempt markers, no prior reason.
                 judged = judge(meta, author_facts, claims, rejudge)
                 cost_judge += judged.get("cost_usd") or 0.0
+                raw_failures.extend(judged.get("raw_failures") or [])
                 for i, op in rejudge:
                     jv = judged["verdicts"].get(i) or {
                         "verdict": "reject", "rewritable": False,
@@ -730,12 +756,13 @@ def _rewrite_loop(meta: dict, surface_ops: list, ops: list, floor_results: list,
                                         "rewritable": jv.get("rewritable") is True})
     except Exception as e:  # NON-DISRUPTION: a rewrite crash must degrade, never kill the run
         print(f"[propagate] rewrite loop skipped ({type(e).__name__}: {e})", file=sys.stderr)
-    return {"attempts": attempts, "cost_author": cost_author, "cost_judge": cost_judge}
+    return {"attempts": attempts, "cost_author": cost_author, "cost_judge": cost_judge,
+            "raw_failures": raw_failures}
 
 
 # --- Decision log (spec §17): audit trail AND authorship-shadow training corpus -----------------
-SCHEMA_VERSION = 2      # v2 (2026-07-01): + attempts / rewrite_attempts / rewrite_exhausted
-PROP_DIR = "propagation"
+SCHEMA_VERSION = 3      # v2: + attempts/rewrite_attempts/rewrite_exhausted; v3 (2026-07-01): +
+PROP_DIR = "propagation"  # judged_by + judge_unavailable verdicts + judge_raw_failures payload
 
 
 def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
@@ -750,11 +777,12 @@ def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
     for i, op in enumerate(ops):
         violations = floor_results[i]
         if violations:                                    # floored before the judge ever saw it
-            verdict, reason, committed = "floor_reject", "; ".join(violations), False
+            verdict, reason, committed, judged_by = "floor_reject", "; ".join(violations), False, None
         else:
             jv = judge_verdicts.get(i) or {"verdict": "reject",
                                            "reason": "no verdict returned (fail-closed)"}
             verdict, reason = jv["verdict"], jv["reason"]
+            judged_by = jv.get("judged_by")
             committed = verdict == "confirm"
         att = (rewrite_attempts or {}).get(i) or []
         df = op.get("derived_from")
@@ -775,19 +803,22 @@ def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
             "new_text": op.get("claim"),                  # null on retire
             "feed_note": op.get("feed_note"),             # the "what changed" line the updates panel shows
             "derived_from": df,
-            "judge_verdict": verdict,                     # confirm | reject | floor_reject
+            "judge_verdict": verdict,                     # confirm | reject | floor_reject | judge_unavailable
             "judge_reason": reason,
+            "judged_by": judged_by,                       # model id; "fallback:<id>" = email-gate only
             "floor_violations": violations,
             "committed": committed,
             "attempts": att,                              # rewrite history ([] = never looped)
             "rewrite_attempts": max(0, len(att) - 1),     # rounds actually spent
-            "rewrite_exhausted": bool(att) and verdict != "confirm",
+            # Disjoint from judge_unavailable: an unjudged op presents as UNVERIFIED (the judge never
+            # ruled), not as "rejected N times" — each op lands in exactly one email section.
+            "rewrite_exhausted": bool(att) and verdict not in ("confirm", "judge_unavailable"),
         })
     return records
 
 
 def log_decisions(slug: str, records: list, source: str = "monitor", facts: list = None,
-                  cost: dict = None) -> list:
+                  cost: dict = None, judge_raw_failures: list = None) -> list:
     """Persist the propagation decision log to the PRIVATE data store, mirroring shadow.capture's
     non-disruption contract: wrapped so it can only ever WARN, never raise into the live monitor
     path. Returns the records regardless, so a caller or test can inspect them even when no backend
@@ -801,7 +832,10 @@ def log_decisions(slug: str, records: list, source: str = "monitor", facts: list
         stamp = now.strftime("%Y%m%dT%H%M%S")
         payload = {"schema_version": SCHEMA_VERSION, "slug": slug, "source": source,
                    "run_ts": now.isoformat(timespec="seconds"), "decisions": records,
-                   "facts": facts or [], "cost_usd": cost or {}}
+                   "facts": facts or [], "cost_usd": cost or {},
+                   # Truncated raw judge responses that failed to parse — the diagnosis trail the
+                   # 2026-07-01 outage lacked (the text was discarded; the failure was unexplainable).
+                   "judge_raw_failures": judge_raw_failures or []}
         selfserve.write_data(
             f"{PROP_DIR}/{slug}/{stamp}.json",
             json.dumps(payload, indent=2, default=str, ensure_ascii=False),
@@ -847,13 +881,15 @@ def propagate(meta: dict, facts_with_alerts: list[dict], strength_facts: list[di
 
     judged = judge(meta, author_facts, claims, indexed_survivors)
     verdicts = judged["verdicts"]
+    raw_failures = list(judged.get("raw_failures") or [])
 
     # step 4b: REWRITE LOOP — a prose-defect reject gets one guided rewrite + blind re-judge (2026-07-01
     # Sonnet-5 silent drop). Mutates ops/verdicts in place; exhausted rejects surface via the records.
-    rw = {"attempts": {}, "cost_author": 0.0, "cost_judge": 0.0}
+    rw = {"attempts": {}, "cost_author": 0.0, "cost_judge": 0.0, "raw_failures": []}
     if config.PROPAGATE_MAX_REWRITES > 0:
         rw = _rewrite_loop(meta, surface_ops, ops, floor_results, verdicts,
                            author_facts, claims, active_by_sk, surviving_fact_ids)
+    raw_failures += rw.get("raw_failures") or []
 
     records = _decision_records(ops, floor_results, verdicts, facts_by_id, active_by_sk,
                                 rewrite_attempts=rw["attempts"])
@@ -864,7 +900,8 @@ def propagate(meta: dict, facts_with_alerts: list[dict], strength_facts: list[di
                 "judge": judged.get("cost_usd"),
                 "rewrite_author": rw["cost_author"] or None, "rewrite_judge": rw["cost_judge"] or None}
     if persist and slug:
-        log_decisions(slug, records, source=source, facts=author_facts, cost=cost_usd)
+        log_decisions(slug, records, source=source, facts=author_facts, cost=cost_usd,
+                      judge_raw_failures=raw_failures)
 
     return {
         "ops": ops,

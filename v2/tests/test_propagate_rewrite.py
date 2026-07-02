@@ -113,7 +113,7 @@ class RewriteLoop(unittest.TestCase):
     def test_rewrite_confirm_flows_to_confirmed_with_final_prose(self):
         judge_calls = []
 
-        async def judge_fake(meta, facts, claims, indexed_ops):
+        async def judge_fake(meta, facts, claims, indexed_ops, model=None):
             judge_calls.append(indexed_ops)
             verdict = (_verdict("reject", "invented number: 'a fifth of the cost'", rewritable=True)
                        if len(judge_calls) == 1 else _verdict("confirm", "cured"))
@@ -167,7 +167,7 @@ class RewriteLoop(unittest.TestCase):
     def test_honest_empty_claim_is_terminal_reject_without_rejudge(self):
         judge_calls = []
 
-        async def judge_fake(meta, facts, claims, indexed_ops):
+        async def judge_fake(meta, facts, claims, indexed_ops, model=None):
             judge_calls.append(indexed_ops)
             return {"text": "```json\n"
                     + json.dumps(_verdict("reject", "invented", rewritable=True)) + "\n```",
@@ -233,7 +233,7 @@ class DecisionRecordShape(unittest.TestCase):
         self.assertTrue(recs[0]["committed"])
 
     def test_schema_version_bumped(self):
-        self.assertEqual(propagate.SCHEMA_VERSION, 2)
+        self.assertEqual(propagate.SCHEMA_VERSION, 3)
 
 
 class ExhaustedEmail(unittest.TestCase):
