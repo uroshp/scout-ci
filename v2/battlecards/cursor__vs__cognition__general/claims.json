@@ -345,25 +345,17 @@
   },
   {
     "subject_key": "cognition | positioning | cloud-agent-vs-local",
-    "claim": "Cognition's core positioning against IDE tools like Cursor is cloud-agent vs local-agent: it argues a local agent's 'ceiling is your attention' and stops when you close your laptop, while Devin runs in its own infrastructure and works while you're away (the company's own claim).",
-    "claim_type": "fact",
+    "claim": "Cognition still positions itself as cloud-agent vs local-agent, arguing a local agent's 'ceiling is your attention' and stops when you close your laptop. That line no longer holds against Cursor: since June 29, 2026 Cursor's iOS app lets developers launch always-on cloud agents and steer local Remote Control agents from their phone, then review diffs and merge PRs on the go.",
+    "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
     "order": 0,
-    "source_url": "https://cognition.ai/blog/devin-in-windsurf",
-    "source_tier": "primary",
-    "evidence_excerpt": "The ceiling on a local agent is your attention. Devin is a cloud agent.",
-    "as_of": "2026-04-15",
+    "as_of": "2026-06-29",
     "confidence": "high",
     "id": "c_79e0bf384fd0",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_1d28b915a2d5",
+    "updated_on": "2026-07-02"
   },
   {
     "subject_key": "cognition | positioning | first-ai-software-engineer",
@@ -717,26 +709,18 @@
   },
   {
     "subject_key": "objection | devin-autonomy | competitor-strength",
-    "claim": "**\"Devin actually ships PRs autonomously while my team sleeps. Cursor just autocompletes.\"**\n\nIt's true Devin runs end-to-end to a PR, and Cognition says 89% of its own code is now committed by Devin. But Cursor also runs long autonomous background and cloud agents. The real difference is oversight granularity, and Cognition itself warns Devin struggles on ambiguous, changing work. We keep the engineer in the loop where the stakes are highest.\n\n**So what:** Move the conversation from 'autonomy vs autocomplete' to 'where do you want a human checking the work.' Then put both tools on their own messy tickets.",
+    "claim": "**\"Devin actually ships PRs autonomously while my team sleeps. Cursor just autocompletes.\"**\n\nDevin runs end-to-end to a PR, and Cognition says 89% of its own code is now committed by Devin. But Cursor runs long autonomous background and cloud agents too, and since June 29, 2026 you can launch one from the Cursor iOS app, close your laptop, and come back to review the diff and merge the PR from your phone. The real difference is oversight granularity: Cognition's own review admits Devin struggles on ambiguous, changing work, and Cursor keeps an engineer checking the work at every step, not only at PR time.\n\n**So what:** Open the Cursor iOS app on the call and show an always-on agent running. Move the conversation from 'autonomy vs autocomplete' to 'where do you want a human checking the work,' then put both tools on their own messy tickets.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 0,
-    "source_url": "https://cognition.ai/blog/series-d",
-    "source_tier": "primary",
-    "evidence_excerpt": "at Cognition, 89% of code committed by our engineers is committed by Devin (and the rest by local agents in Windsurf).",
-    "as_of": "2026-05-27",
+    "as_of": "2026-06-29",
     "confidence": "high",
     "id": "c_025a6e459b30",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
-    "persona": "technical_evaluator"
+    "persona": "technical_evaluator",
+    "derived_from": "c_1d28b915a2d5",
+    "updated_on": "2026-07-02"
   },
   {
     "subject_key": "objection | cognition-momentum | competitor-strength",
@@ -896,5 +880,35 @@
     "confidence": "medium",
     "derived_from": "c_8a5372ca0015",
     "persona": "economic_buyer"
+  },
+  {
+    "subject_key": "cursor | product-launch | ios",
+    "claim": "On June 29, 2026 Cursor launched a native iOS app in public beta on all paid plans, letting developers launch always-on cloud agents from their phone, direct local agents running on their computer via Remote Control, and review artifacts, inspect diffs and merge PRs from mobile.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 45,
+    "source_url": "https://cursor.com/blog/ios-mobile-app",
+    "source_tier": "primary",
+    "evidence_excerpt": "With Cursor for iOS, you can launch always-on agents in the cloud, or control agents running on your computer from your phone.",
+    "as_of": "2026-06-29",
+    "confidence": "high",
+    "id": "c_1d28b915a2d5",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-02",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://cursor.com/changelog/ios-mobile-app",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

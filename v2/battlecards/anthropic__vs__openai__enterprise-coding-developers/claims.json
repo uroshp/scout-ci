@@ -531,25 +531,17 @@
   },
   {
     "subject_key": "anthropic | api-list-price | current",
-    "claim": "Claude API list pricing (per 1M tokens, as of June 2026): Opus 4.8 at $5 input / $25 output; Sonnet 4.6 at $3 / $15; Haiku 4.5 at $1 / $5. Sonnet is a credible mid-tier for sustained agentic coding at one-fifth of Opus output cost.",
-    "claim_type": "fact",
+    "claim": "Claude API list pricing (per 1M tokens, as of July 2026): Opus 4.8 at $5 input / $25 output; Sonnet 5 at introductory pricing of $2 / $10 through August 31, 2026, rising to $3 / $15 after; Sonnet 4.6 at $3 / $15; Haiku 4.5 at $1 / $5. Sonnet 5 is now the credible mid-tier for sustained agentic coding, with agentic performance Anthropic says is close to Opus 4.8.",
+    "claim_type": "interpretation",
     "section": "pricing",
     "zone": null,
     "order": 0,
-    "source_url": "https://platform.claude.com/docs/en/about-claude/pricing",
-    "source_tier": "primary",
-    "evidence_excerpt": "Claude Sonnet 4.6 $3 / MTok $3.75 / MTok $6 / MTok $0.30 / MTok $15 / MTok",
-    "as_of": "2026-06-04",
+    "as_of": "2026-06-30",
     "confidence": "high",
     "id": "c_cafe96c8ef40",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-04",
-      "detail": null
-    }
+    "derived_from": "c_2bce627512c8",
+    "updated_on": "2026-07-02"
   },
   {
     "subject_key": "claude-code-vs-codex | subscription-price | current",
@@ -977,16 +969,16 @@
   {
     "id": "c_6728a60059ae",
     "subject_key": "objection | model-govt-disable-fable-mythos | current",
-    "claim": "**\"The government forced Anthropic to disable two of its models overnight for every customer. How do we know the same won't happen to what we're building on?\"**\n\nReal and ongoing: the June 12 export-control directive suspended Fable 5 and Mythos 5 globally. Senate testimony widened the stated government concern beyond the initial jailbreak incident to Mythos-class autonomous offensive capability. On June 19, President Trump told Axios he no longer views Anthropic as a national security threat, called their response to the Commerce Department order \"very responsible,\" and confirmed that Anthropic technical staff met with administration officials and that he met CEO Dario Amodei at the G7. Trump said he would not shut Anthropic down, though he did not rule out Defense Production Act powers.\n\nOn June 26, the Commerce Department partially lifted the restriction on Mythos 5. Commerce Secretary Lutnick determined \"appropriate safeguards are in place to permit certain trusted partners to access the Claude Mythos 5 Model,\" and a license is no longer required for more than 100 US institutions named in the letter's Annex A, along with their foreign national employees and Anthropic's own foreign national employees. Anthropic described the restored access as going to a small group of cyber defenders and infrastructure providers. Fable 5 remains restricted; Anthropic says talks to restore it for general use are continuing.\n\nGovernment-driven model restrictions have also reached OpenAI: on June 25, the White House asked OpenAI to limit GPT-5.6 to government-approved accounts before release, the first time the US government has preemptively restricted an American AI company's model before launch.\n\nOn build risk: Claude Sonnet 4.6 and Opus 4.8 were never under the directive and have stayed fully available throughout.\n\n**So what:** Propose standardizing the customer's production stack on Sonnet 4.6 or Opus 4.8 as the fully-clear, always-available baseline. Mythos 5 access has been restored specifically for cyber defenders and infrastructure providers named in Annex A; for most enterprise buyers, those two models are the right foundation to build on. If government access risk is their core concern, the record now shows OpenAI's newest model is itself restricted to government-approved accounts before launch.",
+    "claim": "**\"The government forced Anthropic to disable two of its models overnight for every customer. How do we know the same won't happen to what we're building on?\"**\n\nReal, and the export controls have now been lifted: the June 12 directive suspended Fable 5 and Mythos 5 globally. Senate testimony widened the stated government concern beyond the initial jailbreak incident to Mythos-class autonomous offensive capability. On June 19, President Trump told Axios he no longer views Anthropic as a national security threat, called their response to the Commerce Department order \"very responsible,\" and confirmed that Anthropic technical staff met with administration officials and that he met CEO Dario Amodei at the G7. Trump said he would not shut Anthropic down, though he did not rule out Defense Production Act powers.\n\nOn June 26, the Commerce Department partially lifted the restriction on Mythos 5, determining \"appropriate safeguards are in place to permit certain trusted partners to access the Claude Mythos 5 Model,\" and removing the license requirement for more than 100 named US institutions and their foreign national employees. On June 30, Commerce lifted the remaining export controls on both models. Fable 5 returned to global users on the Claude Platform, Claude.ai, Claude Code and Claude Cowork starting July 1, included for up to 50% of weekly usage limits through July 7 on Pro, Max, Team and select Enterprise plans, then available via usage credits. Anthropic also restored Mythos 5 for the set of US organizations approved on June 26, and says it will re-enable Fable 5 on AWS, Google Cloud and Microsoft Foundry as soon as possible.\n\nGovernment-driven model restrictions have also reached OpenAI: on June 25, the White House asked OpenAI to limit GPT-5.6 to government-approved accounts before release, the first time the US government has preemptively restricted an American AI company's model before launch.\n\nOn build risk: Claude Sonnet 4.6 and Opus 4.8 were never under the directive and have stayed fully available throughout.\n\n**So what:** Commerce lifted the controls on June 30. Fable 5 is back for global users on the Claude Platform, Claude.ai, Claude Code and Claude Cowork, and Mythos 5 is restored for the approved US organizations. Re-enablement on AWS, Google Cloud and Microsoft Foundry is still pending, so for customers on those clouds, anchor the production stack on Sonnet 4.6 or Opus 4.8, the two models that stayed available throughout. If government access risk is still their core concern, note that OpenAI's newest model is itself restricted to government-approved accounts before launch.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 6,
-    "as_of": "2026-06-27",
+    "as_of": "2026-06-30",
     "verified": true,
     "confidence": "medium",
-    "derived_from": "c_385402239ee0",
-    "updated_on": "2026-06-28",
+    "derived_from": "c_737554eeb37c",
+    "updated_on": "2026-07-02",
     "persona": "security_regulated"
   },
   {
@@ -1054,16 +1046,16 @@
   {
     "id": "c_d77edb839591",
     "subject_key": "objection | export-ban-international-defection | current",
-    "claim": "**\"International buyers are moving to Mistral and Cohere because of the export ban. Is Anthropic losing ground internationally?\"**\n\nReal: France's government announced Mistral for its civil service, and Cohere reported a surge of inbound interest after the June 12 export directive restricted Mythos and Fable for foreign nationals. The June 12 directive is a model-access compliance constraint on two specific models. Claude Opus 4.7 leads SWE-bench Pro at 64.3% and holds the highest developer loyalty score (CSAT 91, NPS 54) in the JetBrains survey. Offer to benchmark the buyer's specific coding workload head-to-head against the alternative they are evaluating.\n\n**So what:** Offer to benchmark the buyer's specific coding workload head-to-head against the alternative they are evaluating.",
+    "claim": "**\"International buyers are moving to Mistral and Cohere because of the export ban. Is Anthropic losing ground internationally?\"**\n\nReal, but the underlying driver is now resolved: France's government announced Mistral for its civil service, and Cohere reported a surge of inbound interest after the June 12 export directive restricted Mythos and Fable for foreign nationals. On June 30, the Commerce Department lifted those export controls entirely. Fable 5 returned to global users on the Claude Platform, Claude.ai, Claude Code and Claude Cowork starting July 1, included for up to 50% of weekly usage limits through July 7 on Pro, Max, Team and select Enterprise plans, then available via usage credits, and Mythos 5 was restored for the approved set of US organizations. Claude Opus 4.7 leads SWE-bench Pro at 64.3% and holds the highest developer loyalty score (CSAT 91, NPS 54) in the JetBrains survey.\n\n**So what:** Offer to benchmark the buyer's specific coding workload head-to-head against the alternative they are evaluating.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 7,
-    "as_of": "2026-06-16",
+    "as_of": "2026-06-30",
     "verified": true,
     "confidence": "medium",
-    "derived_from": "c_425c1ee73775",
-    "updated_on": "2026-06-17",
+    "derived_from": "c_737554eeb37c",
+    "updated_on": "2026-07-02",
     "persona": "exec_top_down"
   },
   {
@@ -1246,26 +1238,18 @@
   },
   {
     "subject_key": "battlecard | token-price-undercut | contested",
-    "claim": "**On raw token price, OpenAI's workhorse tiers undercut.**\n\nOpenAI's mid-tier models run cheaper per token than Claude's flagship: GPT-5.4 at $2.50/$15.00 per million against Claude Opus 4.8 at $5.00/$25.00, and pricing trackers call OpenAI cheaper across most comparable tiers in 2026. The leveler is caching and batch. With ~90% prompt-cache discounts on both sides, effective cost on cache-heavy coding runs close to parity. So the comparison that matters is total cost once you count the re-runs and the engineer time behind them.\n\n**Soundbite:** *\"Their per-token rate looks lower on paper. Turn on caching and most of that gap closes, and the real spend is re-running the model when the code comes back broken. Claude gets more right the first time, so you pay for fewer of those re-runs and your engineers lose less time babysitting them. Totaled up, your real bill comes in lower with us, even with their cheaper sticker.\"*",
-    "claim_type": "fact",
+    "claim": "**On token price, the picture is now mixed.**\n\nOpenAI's mid-tier still beats Claude's flagship on raw per-token price: GPT-5.4 at $2.50/$15.00 per million against Claude Opus 4.8 at $5.00/$25.00, and pricing trackers have called OpenAI cheaper across most comparable tiers in 2026. But Claude Sonnet 5 now lists at $2/$10 through August 31, 2026 (then $3/$15), undercutting GPT-5.4 on both input and output while Anthropic says its agentic performance sits close to Opus 4.8. Caching narrows the rest of the gap: with roughly 90% prompt-cache discounts on both sides, effective cost on cache-heavy coding runs close to parity. So the comparison that matters is total cost once you count the re-runs and the engineer time behind them.\n\n**Soundbite:** *\"Their mid-tier still prices under our flagship Opus. But our new Sonnet 5 lands at $2 in and $10 out, under GPT-5.4 on both, with quality Anthropic puts close to Opus. Turn on caching and the rest of the gap closes, so on a real coding run you pay less with us for work that comes back right the first time and fewer re-runs behind it.\"*",
+    "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
     "order": 1,
-    "source_url": "https://www.finout.io/blog/openai-vs-anthropic-api-pricing-comparison",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "At standard rates, OpenAI is cheaper across most comparable tiers in 2026",
-    "as_of": "2026-06-24",
+    "as_of": "2026-06-30",
     "confidence": "high",
     "id": "c_46eee6ef2add",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-23",
-      "detail": null
-    },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "derived_from": "c_2bce627512c8",
+    "updated_on": "2026-07-02"
   },
   {
     "subject_key": "battlecard | platform-breadth-lockin | contested",
@@ -1453,5 +1437,35 @@
     "confidence": "medium",
     "derived_from": "c_c2dc5e470ea5",
     "persona": "economic_buyer"
+  },
+  {
+    "subject_key": "anthropic | sonnet-5-launch",
+    "claim": "Anthropic released Claude Sonnet 5 on June 30, 2026, making it the default model for Free and Pro plans and available to Max, Team and Enterprise users, in Claude Code and on the Claude Platform. Anthropic says its agentic performance (reasoning, tool use, coding, knowledge work) is close to Opus 4.8 at lower cost. It launched at introductory pricing of $2 per million input tokens and $10 per million output tokens through August 31, 2026, moving to $3 / $15 after that.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.anthropic.com/news/claude-sonnet-5",
+    "source_tier": "primary",
+    "evidence_excerpt": "an introductory price of $2 per million input tokens and $10 per million output tokens through August 31, 2026.",
+    "as_of": "2026-06-30",
+    "confidence": "high",
+    "id": "c_2bce627512c8",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-02",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/06/30/anthropic-launches-claude-sonnet-5-as-a-cheaper-way-to-run-agents/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
