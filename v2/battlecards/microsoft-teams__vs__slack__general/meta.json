@@ -4,7 +4,7 @@
   "competitor": "Slack",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-06-30T11:12:52",
+  "last_checked": "2026-07-02T00:35:07",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7e46a6f50a55",
@@ -12,5 +12,7 @@
     "f_588527f7f835",
     "f_be583ae25eb6"
   ],
-  "monitored": true
+  "monitored": true,
+  "unresolved_since": "2026-06-30",
+  "unresolved_attempts": 1
 }
