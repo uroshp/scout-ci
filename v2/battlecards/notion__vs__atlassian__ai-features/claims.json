@@ -891,5 +891,41 @@
       "fetched_at": "2026-06-06",
       "detail": "partial_ratio 0.998"
     }
+  },
+  {
+    "subject_key": "atlassian | executive-departures",
+    "claim": "Atlassian's CFO seat is now filled. James Chuong, LinkedIn's finance chief for nearly five years (he helped scale it to more than 1 billion members and $18B in revenue), became Atlassian CFO effective March 30, 2026, ahead of Joe Binz's June 30, 2026 retirement that was announced October 31, 2025. Chuong is a proven public-company operator who spent 13 years at LinkedIn plus investment-banking stints at J.P. Morgan, Citigroup and Bank of America. His arrival closes the finance-leadership gap, though the CTO change and the ~1,600-job restructuring still stand.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 3,
+    "source_url": "https://www.nasdaq.com/press-release/atlassian-appoints-james-chuong-chief-financial-officer-2026-02-18",
+    "source_tier": "primary",
+    "evidence_excerpt": "today announced the appointment of James Chuong as Chief Financial Officer (CFO), effective March 30, 2026",
+    "as_of": "2026-03-30",
+    "confidence": "high",
+    "id": "c_125b295083bf",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-02",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.cfodive.com/news/linkedin-cfo-jumps-atlassian-compensation/812758/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.accountingtimes.com.au/profession/atlassian-welcomes-former-linkedin-exec-as-cfo",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

@@ -875,5 +875,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "cognition | security-swarm | launch",
+    "claim": "On July 1, 2026 Cognition launched Devin Security Swarm, an autonomous product that finds, validates and remediates code vulnerabilities, available to enterprise customers globally on day one. Cognition's own benchmark of 50 real-world GitHub Security Advisories says Devin caught 36 (72% recall) at 30% lower cost per finding than the next most accurate tool, and its product page ranks Cursor's security scanning last at 26% recall. This is a Cognition-run benchmark in a category adjacent to core coding, and the product ships with no customer references yet.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 10,
+    "source_url": "https://www.prnewswire.com/news-releases/cognition-launches-devin-security-swarm-to-tackle-the-vulnerability-backlog-302814800.html",
+    "source_tier": "primary",
+    "evidence_excerpt": "On a benchmark of 50 real-world vulnerabilities tied to published GitHub Security Advisories across 14 languages, Devin Security Swarm found 36.",
+    "as_of": "2026-07-01",
+    "confidence": "high",
+    "id": "c_9d5e22e06d04",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-02",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://devin.ai/security/",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

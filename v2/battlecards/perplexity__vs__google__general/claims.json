@@ -1235,5 +1235,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "google | legal-action | klarna-pricerunner-damages",
+    "claim": "On July 1, 2026 the Patent and Market Court in Stockholm ordered Google to pay about $1.97 billion in damages plus accrued interest to Klarna's PriceRunner for illegally favoring its own comparison shopping service for years, the largest competition damages award in Swedish history. The case is a follow-on to the European Commission's 2017 Google Shopping decision, and Google says it disagrees with the ruling and is weighing an appeal, so a final payout could be years away.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.americanbanker.com/payments/news/swedish-court-orders-google-to-pay-klarna-2-billion",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "All told, the judgement amounts to about $1.97 billion.",
+    "as_of": "2026-07-01",
+    "confidence": "high",
+    "id": "c_b4e9b53e93c7",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-02",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.mlex.com/mlex/antitrust/articles/2495980/google-told-to-pay-record-1-5bn-damages-to-klarna-s-pricerunner-by-swedish-court",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
