@@ -150,12 +150,21 @@ class WatermarkHold(unittest.TestCase):
         self.assertNotIn("unresolved_since", state["meta"])
         self.assertNotIn("unresolved_attempts", state["meta"])
 
-    def test_quiet_window_clears_a_held_window(self):
+    def test_quiet_scan_keeps_a_held_window_bounded(self):
+        # CHANGED 2026-07-01 (the Fable-lift miss): one empty re-scan proves nothing under
+        # retrieval variance (1-of-4 catch rate on the same window), so a quiet run now KEEPS
+        # the held window — attempts still increment, so the retry bound governs abandonment.
         state = {"meta": {"last_checked": "2026-06-08T17:00:00", "baseline_date": "2026-06-04",
                           "unresolved_since": "2026-06-08", "unresolved_attempts": 1},
                  "claims": []}
         res = self._check(state, substantial=False)                      # nothing substantial now
         self.assertTrue(res["no_change"])
+        self.assertEqual(state["meta"]["unresolved_since"], "2026-06-08")
+        self.assertEqual(state["meta"]["unresolved_attempts"], 2)
+        self.assertIn("unresolved_held", res)
+        # At the bound, a quiet run abandons LOUDLY, like the substantial-failure path.
+        res = self._check(state, substantial=False)
+        self.assertIn("abandoned_window", res)
         self.assertNotIn("unresolved_since", state["meta"])
         self.assertNotIn("unresolved_attempts", state["meta"])
 
