@@ -183,7 +183,8 @@ class RenderLifecycle(unittest.TestCase):
 class ParseVerdicts(unittest.TestCase):
     def test_coerces_digit_string_op_index(self):
         text = '```json\n{"verdicts":[{"op_index":"0","verdict":"confirm","reason":"ok"}]}\n```'
-        self.assertEqual(_parse_verdicts(text), {0: {"verdict": "confirm", "reason": "ok"}})
+        self.assertEqual(_parse_verdicts(text),
+                         {0: {"verdict": "confirm", "reason": "ok", "rewritable": False}})
 
     def test_empty_on_unparseable(self):
         # the fail-close signal the judge() retry keys off — a parse hiccup, not a decision
