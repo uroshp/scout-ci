@@ -86,6 +86,10 @@ JUDGE_FALLBACK_MODEL = os.environ.get("SCOUT_JUDGE_FALLBACK_MODEL", "claude-sonn
 # 0 disables the loop entirely (restores drop-on-reject). Reuses the PROPOSE/JUDGE caps per call.
 PROPAGATE_MAX_REWRITES = int(os.environ.get("SCOUT_PROPAGATE_MAX_REWRITES", "1"))
 PROPAGATE_REWRITE_MODEL = os.environ.get("SCOUT_PROPAGATE_REWRITE_MODEL", ORCHESTRATOR_MODEL)
+# my_company fact-sourcing budget (2026-07-02 cost pass): the own-side arm runs on SUBAGENT_MODEL
+# (sourcing work — search/fetch/excerpts; judgment stays with the Opus router/judge downstream and
+# grounding verification is deterministic), with its own cap instead of riding the $3 materiality one.
+MY_FACTS_MAX_BUDGET_USD = float(os.environ.get("SCOUT_MY_FACTS_MAX_BUDGET_USD", "1.50"))
 
 # --- Shadow-eval challenger (v3.5; docs/vnext-roadmap.md §v3.5, decision-log §11) -------------
 # The verification-judge CHALLENGER: a tools-off model that re-judges captured champion decisions
