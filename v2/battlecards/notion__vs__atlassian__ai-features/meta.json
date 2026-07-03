@@ -4,13 +4,11 @@
   "competitor": "Atlassian",
   "focus": "AI features",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-07-02T11:26:21",
+  "last_checked": "2026-07-03T11:21:50",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_af44b318b691",
     "f_a2f34096794d"
   ],
-  "monitored": true,
-  "unresolved_since": "2026-06-30",
-  "unresolved_attempts": 2
+  "monitored": true
 }
