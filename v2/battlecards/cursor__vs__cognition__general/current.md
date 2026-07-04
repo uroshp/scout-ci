@@ -20,11 +20,11 @@ In its own 2025 performance review Cognition concedes Devin 'can't independently
 
 **So what:** Steer evaluations toward ambiguous, iterative, architecture-heavy work where human-in-the-loop wins. Use Cognition's own words against them. ([cognition.ai](https://cognition.ai/blog/devin-annual-performance-review-2025))
 
-**Our two biggest vulnerabilities are billing trust and the SpaceX overhang. Have answers ready.**
+**Our three biggest vulnerabilities now are billing trust, the SpaceX overhang and the DuneSlide RCE disclosure. Have answers ready.**
 
-Buyers remember Cursor's 2025 pricing blow-ups (the CEO apologized publicly) and they've read that SpaceX holds a \$60B option to acquire us, exercisable later in 2026. Both are real and both will come up.
+Buyers remember Cursor's 2025 pricing blow-ups (the CEO apologized publicly) and they've read that SpaceX holds a \$60B option to acquire us, exercisable later in 2026. Add to that: Cato Networks disclosed two critical RCE flaws in Cursor, DuneSlide (CVE-2026-50548 and CVE-2026-50549), reported publicly July 1. All three will come up.
 
-**So what:** Don't dodge either one. On billing, name the specifics: split usage pools for first-party and third-party spend, a real-time dashboard and dollar-threshold alerts over Slack or email. On SpaceX, say Cursor operates independently today with change-of-control protection written into the contract.
+**So what:** Don't dodge any of them. On billing, name the specifics: split usage pools for first-party and third-party spend, a real-time dashboard and dollar-threshold alerts over Slack or email. On SpaceX, say Cursor operates independently today with change-of-control protection written into the contract. On DuneSlide, move the account to Cursor 3.0 or later now, both CVEs are already patched there with no known active exploitation. ([catonetworks.com](https://www.catonetworks.com/blog/duneslide-two-critical-rce-vulnerabilities/))
 
 **The Windsurf-to-Devin-Desktop forced migration is a live churn window: work it now.**
 
@@ -146,6 +146,12 @@ Fair: the 2025 rollout was botched and our CEO apologized publicly. Since then w
 The deal is now signed: SpaceX and Anysphere executed a definitive merger agreement on June 16, 2026, with close targeted for Q3 2026 pending regulatory approval. Until regulators clear it, Anysphere operates independently and contracts execute with Anysphere today. Cursor's current capabilities, ~\$2B ARR, and Fortune 500 deployment footprint are what this decision rests on.
 
 **So what:** Standardize on Cursor now under current Anysphere terms; the ownership change cannot take legal effect before regulators approve it. ([cnbc.com](https://www.cnbc.com/2026/06/16/spacex-spcx-cursor-acquisition-ipo.html))
+
+**"Didn't DuneSlide leave Cursor's sandbox wide open?"**
+
+Cato Networks disclosed two critical RCE flaws in Cursor, DuneSlide (CVE-2026-50548 and CVE-2026-50549), both rated 9.8 CVSS. A zero-click prompt injection delivered through an MCP server request or a poisoned web result could escape the terminal sandbox and reach full RCE on the developer's machine and any connected SaaS workspace, no click needed from the user. Every version before 3.0 was exposed. Both are already patched in Cursor 3.0, released April 2, 2026, and neither source reports any active exploitation.
+
+**So what:** Move the account to Cursor 3.0 or later now. Both CVEs are closed there and there is no known active exploitation. ([catonetworks.com](https://www.catonetworks.com/blog/duneslide-two-critical-rce-vulnerabilities/))
 
 ## Cut Log
 

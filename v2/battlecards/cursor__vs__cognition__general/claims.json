@@ -67,7 +67,7 @@
   },
   {
     "subject_key": "cursor | adverse-objections-readiness | current",
-    "claim": "**Our two biggest vulnerabilities are billing trust and the SpaceX overhang. Have answers ready.**\n\nBuyers remember Cursor's 2025 pricing blow-ups (the CEO apologized publicly) and they've read that SpaceX holds a $60B option to acquire us, exercisable later in 2026. Both are real and both will come up.\n\n**So what:** Don't dodge either one. On billing, name the specifics: split usage pools for first-party and third-party spend, a real-time dashboard and dollar-threshold alerts over Slack or email. On SpaceX, say Cursor operates independently today with change-of-control protection written into the contract.",
+    "claim": "**Our three biggest vulnerabilities now are billing trust, the SpaceX overhang and the DuneSlide RCE disclosure. Have answers ready.**\n\nBuyers remember Cursor's 2025 pricing blow-ups (the CEO apologized publicly) and they've read that SpaceX holds a $60B option to acquire us, exercisable later in 2026. Add to that: Cato Networks disclosed two critical RCE flaws in Cursor, DuneSlide (CVE-2026-50548 and CVE-2026-50549), reported publicly July 1. All three will come up.\n\n**So what:** Don't dodge any of them. On billing, name the specifics: split usage pools for first-party and third-party spend, a real-time dashboard and dollar-threshold alerts over Slack or email. On SpaceX, say Cursor operates independently today with change-of-control protection written into the contract. On DuneSlide, move the account to Cursor 3.0 or later now, both CVEs are already patched there with no known active exploitation.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
@@ -76,8 +76,8 @@
     "confidence": "high",
     "id": "c_64207118572d",
     "verified": true,
-    "derived_from": "c_8a5372ca0015",
-    "updated_on": "2026-07-02"
+    "derived_from": "c_f98e507258b4",
+    "updated_on": "2026-07-04"
   },
   {
     "subject_key": "devin-desktop | windsurf-migration-opening | current",
@@ -910,5 +910,50 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "cursor | security-incident | duneslide-rce",
+    "claim": "Cato AI Labs disclosed two critical remote code execution vulnerabilities in Cursor IDE, named DuneSlide (CVE-2026-50548 and CVE-2026-50549), both rated 9.8 CVSS. Zero-click prompt injection delivered through an MCP server request or a poisoned web result could escape Cursor's terminal sandbox and reach full RCE on the developer's machine and any connected SaaS workspaces, with no click or approval needed from the user. Both flaws were already patched in Cursor 3.0, released April 2, 2026; every version before 3.0 was affected. Cato reported the bugs to Cursor on February 19, 2026; Cursor rejected them on February 23 saying its threat model did not cover MCP misuse, then reopened and fixed both after Cato escalated on February 26. CVE IDs were assigned June 5, 2026 and the research went public July 1, 2026. Neither source reports any known active exploitation.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 46,
+    "source_url": "https://www.catonetworks.com/blog/duneslide-two-critical-rce-vulnerabilities/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Both RCE vulnerabilities, which we refer to as \"DuneSlide,\" achieved a 9.8 CVSS score",
+    "as_of": "2026-07-01",
+    "confidence": "high",
+    "id": "c_f98e507258b4",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-03",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://thehackernews.com/2026/07/critical-cursor-flaws-could-let-prompt.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_3523c0386157",
+    "subject_key": "cursor | security-objection | duneslide-rce",
+    "claim": "**\"Didn't DuneSlide leave Cursor's sandbox wide open?\"**\n\nCato Networks disclosed two critical RCE flaws in Cursor, DuneSlide (CVE-2026-50548 and CVE-2026-50549), both rated 9.8 CVSS. A zero-click prompt injection delivered through an MCP server request or a poisoned web result could escape the terminal sandbox and reach full RCE on the developer's machine and any connected SaaS workspace, no click needed from the user. Every version before 3.0 was exposed. Both are already patched in Cursor 3.0, released April 2, 2026, and neither source reports any active exploitation.\n\n**So what:** Move the account to Cursor 3.0 or later now. Both CVEs are closed there and there is no known active exploitation.",
+    "claim_type": "interpretation",
+    "section": "objection_handling",
+    "zone": null,
+    "order": 4,
+    "as_of": "2026-07-01",
+    "updated_on": "2026-07-04",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_f98e507258b4",
+    "persona": "security_regulated"
   }
 ]

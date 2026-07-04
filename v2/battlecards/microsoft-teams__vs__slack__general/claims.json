@@ -68,47 +68,31 @@
   },
   {
     "subject_key": "microsoft-365 | regulatory-pricing-exposure | current",
-    "claim": "**Regulation has handed buyers a pricing crowbar on Teams.**\n\nThe EU forced Microsoft to sell Microsoft 365 without Teams and to widen the price gap, and a fresh UK lawsuit filed in April 2026 keeps the bundling question live; one analysis pegs the Teams 'premium' at roughly $513k a year for a 5,000-seat E3 org. Meanwhile a July 2026 M365 list-price increase lands right at renewal time.\n\n**So what:** Expect procurement to ask for Teams-excluded pricing and to cite antitrust. Go in with the value and TCO case (Copilot, meetings, compliance in one suite), not a bundle-or-nothing posture.",
+    "claim": "**Regulation has handed buyers a pricing crowbar on Teams, and Microsoft's July 2026 hike lands right on top of it.**\n\nThe EU forced Microsoft to sell Microsoft 365 without Teams and to widen the price gap, a UK lawsuit filed in April 2026 keeps the bundling question live (one analysis pegs the Teams premium at roughly $513k a year for a 5,000-seat E3 org), and as of July 1, 2026 M365 list prices are up across the board, from Business Basic ($6 to $7) to E5 ($57 to $60).\n\n**Soundbite:** \"You can strip Teams out of the bundle, but the whole suite just got more expensive anyway, so compare total cost, not sticker price.\"\n\n**So what:** Expect procurement to ask for Teams-excluded pricing and to cite antitrust. Go in with the value and TCO case (Copilot, meetings, compliance in one suite), not a bundle-or-nothing posture.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 3,
-    "source_url": "https://www.uctoday.com/unified-communications/microsoft-teams-slack-bundling-antitrust-lawsuit/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "A 5,000-seat organisation on Microsoft 365 E3 is paying a premium of roughly $513,000 annually for Teams, whether or not it is the platform of choice.",
-    "as_of": "2026-04-29",
+    "as_of": "2026-07-01",
     "confidence": "medium",
     "id": "c_323d4de70c58",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "fuzzy",
-      "fetched_at": "2026-06-05",
-      "detail": "partial_ratio 0.993"
-    }
+    "derived_from": "c_bcd7a4e321e3",
+    "updated_on": "2026-07-04"
   },
   {
     "subject_key": "microsoft-teams | product-quality-exposure | current",
-    "claim": "Teams' quality reputation is where you're most exposed.\n\nMicrosoft has publicly admitted Teams' meeting UI is cluttered enough to cause accidental screen-shares, conceded the client's heavy memory use and weathered global outages in late 2025, all things a Slack rep will happily repeat.\n\n**So what:** Raise the 'Teams is clunky and unreliable' objection yourself, and walk through the current build and the SLA before the prospect brings it up.",
+    "claim": "**Teams' meeting-UI complaint now has a shipping fix, though other quality dings still stand.**\n\nMicrosoft's redesigned meeting controls, with a separated Leave button and a two-step share confirmation, reach Targeted Release users in early July 2026 and worldwide availability by early September 2026, while the heavy memory use and the late 2025 outages remain unaddressed.\n\n**Soundbite:** \"The screen-share mix-up Slack keeps citing has a dated fix shipping to everyone by September, so let's talk about what's actually still open.\"\n\n**So what:** Concede the meeting-UI complaint is fixed and dated, then steer the objection to what's still real: the memory footprint and the outage history, so the prospect argues the right point.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 4,
-    "source_url": "https://www.windowslatest.com/2026/05/23/microsoft-admits-teams-ui-is-crowded-and-causes-embarrassing-accidental-screen-shares-confirms-a-fix/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "contributing to mis-clicks between high-impact actions like Share, Leave, and Raise hand, and to accidental shares of unintended content",
-    "as_of": "2026-05-23",
+    "as_of": "2026-07-01",
     "confidence": "high",
     "id": "c_164d0bedafa8",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_3c85afbc882a",
+    "updated_on": "2026-07-04"
   },
   {
     "subject_key": "slack | ownership | current",
@@ -310,25 +294,17 @@
   },
   {
     "subject_key": "microsoft-teams | differentiator | bundling",
-    "claim": "Microsoft Teams ships inside every Microsoft 365 business subscription (from Business Basic at $6/user/month) as an included app, giving it near-frictionless distribution to hundreds of millions of M365 seats. Adopting Slack means standing up and paying for a second tool.",
+    "claim": "Microsoft Teams ships inside every Microsoft 365 business subscription (from Business Basic at $7 per user per month as of July 1, 2026) as an included app, giving it near-frictionless distribution to hundreds of millions of M365 seats. Adopting Slack means standing up and paying for a second tool.",
     "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
     "order": 0,
-    "source_url": "https://www.microsoft.com/en-us/microsoft-teams/compare-microsoft-teams-business-options",
-    "source_tier": "primary",
-    "evidence_excerpt": "Microsoft Teams: Bring everyone together in one place to meet, chat, call, and collaborate.",
-    "as_of": "2026-06-05",
+    "as_of": "2026-07-01",
     "confidence": "high",
     "id": "c_7596f21f1d8a",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_bcd7a4e321e3",
+    "updated_on": "2026-07-04"
   },
   {
     "subject_key": "slack | positioning | agentic-os",
@@ -354,25 +330,17 @@
   },
   {
     "subject_key": "microsoft-teams | list-price | current",
-    "claim": "Microsoft Teams list pricing through June 30, 2026: Teams Essentials $4.00, Microsoft 365 Business Basic $6.00, and Business Standard $12.50 per user/month (annual), with Teams included in the Microsoft 365 suites.",
-    "claim_type": "fact",
+    "claim": "Microsoft Teams list pricing effective July 1, 2026: Teams Essentials stays at $4.00 per user per month, while Microsoft 365 Business Basic rose from $6 to $7, Business Standard from $12.50 to $14, Microsoft 365 E3 from $36 to $39, Microsoft 365 E5 from $57 to $60 and Microsoft 365 F3 from $8 to $10 per user per month, with Teams included in all of these suites.",
+    "claim_type": "interpretation",
     "section": "pricing",
     "zone": null,
     "order": 0,
-    "source_url": "https://www.microsoft.com/en-us/microsoft-teams/compare-microsoft-teams-business-options",
-    "source_tier": "primary",
-    "evidence_excerpt": "Microsoft 365 Business Standard $12.50 user/month, paid yearly (Annual subscription—auto renews)",
-    "as_of": "2026-06-05",
+    "as_of": "2026-07-01",
     "confidence": "high",
     "id": "c_bcd7a4e321e3",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_bcd7a4e321e3",
+    "updated_on": "2026-07-04"
   },
   {
     "subject_key": "slack | list-price | current",
@@ -549,25 +517,17 @@
   },
   {
     "subject_key": "microsoft-teams | sentiment | meeting-ui",
-    "claim": "Sentiment: users complain Teams' meeting controls are cluttered enough to cause accidental screen-shares, a gripe serious enough that Microsoft publicly acknowledged it in May 2026.",
-    "claim_type": "sentiment",
+    "claim": "Sentiment: users complained Teams' meeting controls were cluttered enough to cause accidental screen-shares, a gripe serious enough that Microsoft publicly acknowledged it in May 2026. Microsoft has since shipped the fix: a redesigned toolbar with center-aligned controls, a separated Leave button and a two-step share confirmation, rolling out to Targeted Release users in early July 2026 and reaching worldwide general availability in early September 2026.",
+    "claim_type": "interpretation",
     "section": "sentiment",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.windowslatest.com/2026/05/23/microsoft-admits-teams-ui-is-crowded-and-causes-embarrassing-accidental-screen-shares-confirms-a-fix/",
-    "source_tier": "sentiment_only",
-    "evidence_excerpt": "The meeting controls and share panel have grown crowded",
-    "as_of": "2026-05-23",
+    "as_of": "2026-07-01",
     "confidence": "high",
     "id": "c_3369e010d707",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_3c85afbc882a",
+    "updated_on": "2026-07-04"
   },
   {
     "subject_key": "microsoft-teams | sentiment | channels-usability",
@@ -683,26 +643,18 @@
   },
   {
     "subject_key": "microsoft-365 | objection | price-increase",
-    "claim": "**\"You're raising prices to push Copilot AI we didn't ask for.\"**\n\nIt's true M365 list prices rise on July 1, 2026 (Business Basic $6 to $7, Standard $12.50 to $14), and Microsoft ties the investment to AI. But standalone Teams and Copilot SKUs are excluded from the change, and the suites folded in additional security value.\n\n**So what:** Run a real TCO comparison (M365 with Copilot optional versus Slack plus Office plus Agentforce/Salesforce licensing) and let the buyer add AI when ready instead of being forced into a separate ecosystem.",
+    "claim": "**\"You're raising prices to push Copilot AI we didn't ask for.\"**\n\nAs of July 1, 2026 M365 list prices are up: Business Basic $6 to $7, Business Standard $12.50 to $14, E3 $36 to $39, E5 $57 to $60 and F3 $8 to $10 per user per month, bundled with additions like Defender for Office 365 Plan 1 on E3, expanded Intune and richer Copilot Chat. Standalone Teams and Copilot SKUs are excluded from the change, and the suites folded in real added value, not just an AI tax.\n\n**So what:** Run a real TCO comparison (M365 with Copilot optional versus Slack plus Office plus Agentforce/Salesforce licensing) and let the buyer add AI when ready instead of being forced into a separate ecosystem.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 2,
-    "source_url": "https://www.microsoft.com/en-us/licensing/news/2026-m365-packaging-pricing-updates",
-    "source_tier": "primary",
-    "evidence_excerpt": "Standalone Microsoft Teams and Copilot SKUs are not included in this update.",
-    "as_of": "2026-02-16",
+    "as_of": "2026-07-01",
     "confidence": "high",
     "id": "c_88450716c06d",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "derived_from": "c_bcd7a4e321e3",
+    "updated_on": "2026-07-04"
   },
   {
     "subject_key": "microsoft | objection | security-breach",
@@ -899,5 +851,56 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "microsoft-teams | product-quality-exposure",
+    "claim": "Microsoft's Teams Message Center notice MC1317197 (last updated July 1, 2026) says the meeting toolbar and share panel have grown crowded, causing mis-clicks between Share, Leave and Raise Hand and accidental shares of unintended content, and announces a redesign: center-aligned controls with a separated Leave button and customizable pinning, plus a share panel with live previews and two-step share confirmation. Rollout to Targeted Release users begins early July 2026, with worldwide general availability beginning early September 2026. Microsoft's own June 30, 2026 Teams blog post lists 'Redesigned in-meeting controls' among the month's shipped features.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://techcommunity.microsoft.com/blog/microsoftteamsblog/what%e2%80%99s-new-in-microsoft-teams--june-2026-%e2%80%93-infocomm-edition/4531968",
+    "source_tier": "primary",
+    "evidence_excerpt": "Redesigned in-meeting controls: Customize your meeting controls around how you work, and share with more confidence through an improved experience",
+    "as_of": "2026-07-01",
+    "confidence": "high",
+    "id": "c_3c85afbc882a",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-04",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://mc.merill.net/message/MC1317197",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.uctoday.com/unified-communications/microsoft-teams-admits-its-meeting-controls-are-broken-heres-how-its-fixing-them/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_e9386f83db03",
+    "subject_key": "microsoft-teams | objection | meeting-ui-clutter",
+    "claim": "**\"Isn't Teams' meeting UI cluttered enough to cause accidental screen-shares?\"**\n\nThat was a real complaint, serious enough that Microsoft publicly acknowledged it. The fix is now dated and shipping: center-aligned controls with a separated Leave button and a two-step share confirmation, reaching Targeted Release users in early July 2026 and worldwide general availability in early September 2026.\n\n**So what:** Raise this objection yourself before the prospect does, name the fix and its September general availability date, and turn a Slack talking point into proof that Teams ships fixes on a public timeline.",
+    "claim_type": "interpretation",
+    "section": "objection_handling",
+    "zone": null,
+    "order": 6,
+    "as_of": "2026-07-01",
+    "updated_on": "2026-07-04",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_3c85afbc882a",
+    "persona": "eng_led"
   }
 ]

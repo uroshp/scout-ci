@@ -39,7 +39,7 @@ Notion's Custom Agents moved from free to paid credits on May 4, 2026, and a dat
 - Notion is private and well-capitalized: a January 2026 secondary tender by GIC, Sequoia and Index bought ~\$270M of employee shares at an \$11B valuation, with no new primary capital needed since its 2021 raise. ([notion.com](https://www.notion.com/blog/gic-sequoia-index-purchase-notion-shares))
 - Notion's AI strategy is working financially: the company states more than 50% of its ARR now comes from AI-enabled customers, a share that more than doubled over 2025. ([notion.com](https://www.notion.com/blog/gic-sequoia-index-purchase-notion-shares))
 - Atlassian's AI flagship is Rovo, grounded in its proprietary "Teamwork Graph," which Atlassian says holds over 150 billion connections across its tools, but that graph is built from Jira, Confluence, and Atlassian-ecosystem data. ([atlassian.com](https://www.atlassian.com/blog/company-news/founder-update-team-26))
-- Notion's AI flagship is its agent platform, extended by a May 13, 2026 developer platform that repositions Notion as an orchestration hub coordinating AI work across tools and data sources, not just a note-taker with AI bolted on. ([techcrunch.com](https://techcrunch.com/2026/05/13/notion-just-turned-its-workspace-into-a-hub-for-ai-agents/))
+- Notion's AI flagship is its agent platform. The July 1, 2026 release (3.6) made this concrete: External Agents are now generally available, with Claude and Cursor assignable from a shared team board and mentionable like teammates alongside Notion's own Custom Agents, delivering the orchestration hub the May 13 developer platform announcement had promised.
 
 ## Recent Strategic Moves
 
@@ -57,7 +57,7 @@ Notion's Custom Agents moved from free to paid credits on May 4, 2026, and a dat
 - Atlassian's AI positioning concedes the model layer is commoditized and bets on proprietary context: it argues the real edge is a company's own institutional knowledge, captured in the Teamwork Graph. ([atlassian.com](https://www.atlassian.com/blog/company-news/founder-update-team-26))
 - The Teamwork Graph's 150B connections are impressive but Atlassian-ecosystem-only: Jira tickets, Confluence pages, incidents, code. For a marketing, HR, ops, or design team that never lives in Jira, that graph holds almost none of their actual work, where Notion's single workspace often holds more. ([atlassian.com](https://www.atlassian.com/blog/company-news/founder-update-team-26))
 - Notion positions its AI as a cross-functional "AI team" for the whole company and pitches model-agnosticism as an enterprise governance feature, letting buyers switch the underlying model or provider without losing context. ([notion.com](https://www.notion.com/product/ai))
-- Notion's CEO publicly acknowledged the historical "not for developers" gap and is closing it: the May 2026 developer platform (Workers, CLI, External Agent API) reframes Notion as a place where people and external coding agents collaborate. ([techcrunch.com](https://techcrunch.com/2026/05/13/notion-just-turned-its-workspace-into-a-hub-for-ai-agents/))
+- Notion's CEO publicly acknowledged the historical "not for developers" gap and has now closed it: release 3.6, shipped July 1, 2026, makes External Agents generally available, with Claude and Cursor assignable from a shared team board and mentionable like teammates alongside Notion's own Custom Agents. The May 2026 developer platform announcement is now a shipped product, not a roadmap promise.
 
 ## Pricing and Packaging
 
@@ -89,11 +89,9 @@ Notion lets enterprises pick and switch the underlying model or provider (Claude
 
 ### Where it's a fight
 
-**The "agent orchestration hub" race is genuinely contested: both shipped it within a week of each other.**
+**The "agent orchestration hub" race is genuinely contested, and Notion has now shipped its half.**
 
-Notion's May 13 developer platform and Atlassian's May 6 Teamwork Graph opening (CLI, MCP server) are the same bet from opposite ends: Notion broad and cross-functional first, Atlassian deep and developer-first. Neither has won this; it turns on which agents your teams actually build.
-
-**Soundbite:** *"We both want to be the place your agents live. The question is whether your agents are mostly coding tasks, or everything your business runs on."* ([techcrunch.com](https://techcrunch.com/2026/05/13/notion-just-turned-its-workspace-into-a-hub-for-ai-agents/))
+Notion's May 13 developer platform and Atlassian's May 6 Teamwork Graph opening (CLI, MCP server) were the same bet from opposite ends: Notion broad and cross-functional, Atlassian deep and developer-first. Notion release 3.6, shipped July 1, 2026, made External Agents generally available, with Claude and Cursor assignable from a shared team board and mentionable like teammates alongside Notion's own Custom Agents. Atlassian stays developer-first through Cursor in Jira. Neither has won this: it turns on which agents your teams actually build, and one side now has a live product to point to.
 
 **AI pricing is a wash on the surface (both meter agents), so win it on transparency, not on "free."**
 
@@ -142,9 +140,9 @@ Fair, and be upfront: as of May 4, 2026, Custom Agents bill at \$10 per 1,000 cr
 
 **"Notion isn't really built for developers."**
 
-That was a fair criticism, and Notion's CEO said so himself, then shipped the answer on May 13, 2026: a developer platform with Workers, a CLI and an External Agent API that makes Claude Code, Cursor and Codex first-class agents inside Notion.
+That was a fair criticism, and Notion's CEO said so himself. Notion answered with a developer platform announced May 13, 2026, and has now shipped it: release 3.6 on July 1, 2026 made External Agents generally available, with Claude and Cursor as the first two, assignable from a shared team board and mentionable like teammates alongside Notion's own Custom Agents.
 
-**So what:** Concede the history, pivot to the platform. For dev-adjacent teams, Notion is now the orchestration layer that connects engineering agents to the rest of the company's work. ([techcrunch.com](https://techcrunch.com/2026/05/13/notion-just-turned-its-workspace-into-a-hub-for-ai-agents/))
+**So what:** Concede the history, pivot to the shipped platform. For dev-adjacent teams, Notion now runs Claude and Cursor as live agents on the same board as the rest of the company's work, not a roadmap promise.
 
 **"Is Notion a stable enough vendor to bet on versus a public, \$26B Atlassian?"**
 
