@@ -1155,5 +1155,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "openai | government-stake-proposal",
+    "claim": "OpenAI has proposed handing the US government a 5% stake in the company, worth roughly $42.6 billion at its $852 billion March valuation. Sam Altman pitched it to the Trump administration as part of a broader arrangement where Washington would hold 5% of each leading US AI developer through a sovereign wealth fund vehicle. The FT reports talks are preliminary and any formal action would likely require congressional approval.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 0,
+    "source_url": "https://www.cnbc.com/2026/07/02/openai-proposes-us-government-own-5percent-stake-to-address-political-blowback.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI has proposed handing the U.S. government a 5% stake in the company",
+    "as_of": "2026-07-02",
+    "confidence": "high",
+    "id": "c_27147b164b72",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-04",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/07/02/openai-proposed-donating-5-of-its-equity-to-a-us-sovereign-wealth-fund/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
