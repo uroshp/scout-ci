@@ -22,17 +22,21 @@ Salesforce is openly repositioning Slack from a messaging app into an 'agentic' 
 
 **So what:** Sell Teams as the AI customers already have running, and turn every deal into Copilot vs Agentforce: who covers more ground, and where the data already lives. ([techcrunch.com](https://techcrunch.com/2026/03/31/salesforce-announces-an-ai-heavy-makeover-for-slack-with-30-new-features/))
 
-**Regulation has handed buyers a pricing crowbar on Teams.**
+**Regulation has handed buyers a pricing crowbar on Teams, and Microsoft's July 2026 hike lands right on top of it.**
 
-The EU forced Microsoft to sell Microsoft 365 without Teams and to widen the price gap, and a fresh UK lawsuit filed in April 2026 keeps the bundling question live; one analysis pegs the Teams 'premium' at roughly \$513k a year for a 5,000-seat E3 org. Meanwhile a July 2026 M365 list-price increase lands right at renewal time.
+The EU forced Microsoft to sell Microsoft 365 without Teams and to widen the price gap, a UK lawsuit filed in April 2026 keeps the bundling question live (one analysis pegs the Teams premium at roughly \$513k a year for a 5,000-seat E3 org), and as of July 1, 2026 M365 list prices are up across the board, from Business Basic (\$6 to \$7) to E5 (\$57 to \$60).
 
-**So what:** Expect procurement to ask for Teams-excluded pricing and to cite antitrust. Go in with the value and TCO case (Copilot, meetings, compliance in one suite), not a bundle-or-nothing posture. ([uctoday.com](https://www.uctoday.com/unified-communications/microsoft-teams-slack-bundling-antitrust-lawsuit/))
+**Soundbite:** "You can strip Teams out of the bundle, but the whole suite just got more expensive anyway, so compare total cost, not sticker price."
 
-Teams' quality reputation is where you're most exposed.
+**So what:** Expect procurement to ask for Teams-excluded pricing and to cite antitrust. Go in with the value and TCO case (Copilot, meetings, compliance in one suite), not a bundle-or-nothing posture.
 
-Microsoft has publicly admitted Teams' meeting UI is cluttered enough to cause accidental screen-shares, conceded the client's heavy memory use and weathered global outages in late 2025, all things a Slack rep will happily repeat.
+**Teams' meeting-UI complaint now has a shipping fix, though other quality dings still stand.**
 
-**So what:** Raise the 'Teams is clunky and unreliable' objection yourself, and walk through the current build and the SLA before the prospect brings it up. ([windowslatest.com](https://www.windowslatest.com/2026/05/23/microsoft-admits-teams-ui-is-crowded-and-causes-embarrassing-accidental-screen-shares-confirms-a-fix/))
+Microsoft's redesigned meeting controls, with a separated Leave button and a two-step share confirmation, reach Targeted Release users in early July 2026 and worldwide availability by early September 2026, while the heavy memory use and the late 2025 outages remain unaddressed.
+
+**Soundbite:** "The screen-share mix-up Slack keeps citing has a dated fix shipping to everyone by September, so let's talk about what's actually still open."
+
+**So what:** Concede the meeting-UI complaint is fixed and dated, then steer the objection to what's still real: the memory footprint and the outage history, so the prospect argues the right point. ([techcommunity.microsoft.com](https://techcommunity.microsoft.com/blog/microsoftteamsblog/what%e2%80%99s-new-in-microsoft-teams--june-2026-%e2%80%93-infocomm-edition/4531968))
 
 ## Snapshot
 
@@ -55,12 +59,12 @@ Microsoft has publicly admitted Teams' meeting UI is cluttered enough to cause a
 
 ## Positioning and Differentiation
 
-- Microsoft Teams ships inside every Microsoft 365 business subscription (from Business Basic at \$6/user/month) as an included app, giving it near-frictionless distribution to hundreds of millions of M365 seats. Adopting Slack means standing up and paying for a second tool. ([microsoft.com](https://www.microsoft.com/en-us/microsoft-teams/compare-microsoft-teams-business-options))
+- Microsoft Teams ships inside every Microsoft 365 business subscription (from Business Basic at \$7 per user per month as of July 1, 2026) as an included app, giving it near-frictionless distribution to hundreds of millions of M365 seats. Adopting Slack means standing up and paying for a second tool.
 - Salesforce positions Slack as 'the operating system for work' and Slackbot as the conversational front door to enterprise AI agents: its explicit counter to Microsoft Copilot, and the frame a Teams rep will meet in Salesforce-centric accounts. ([salesforce.com](https://www.salesforce.com/slack/slackbot/agent-orchestration/))
 
 ## Pricing and Packaging
 
-- Microsoft Teams list pricing through June 30, 2026: Teams Essentials \$4.00, Microsoft 365 Business Basic \$6.00, and Business Standard \$12.50 per user/month (annual), with Teams included in the Microsoft 365 suites. ([microsoft.com](https://www.microsoft.com/en-us/microsoft-teams/compare-microsoft-teams-business-options))
+- Microsoft Teams list pricing effective July 1, 2026: Teams Essentials stays at \$4.00 per user per month, while Microsoft 365 Business Basic rose from \$6 to \$7, Business Standard from \$12.50 to \$14, Microsoft 365 E3 from \$36 to \$39, Microsoft 365 E5 from \$57 to \$60 and Microsoft 365 F3 from \$8 to \$10 per user per month, with Teams included in all of these suites.
 - Slack list pricing: Pro \$8.75/user/month billed monthly (or \$7.25 annual), Business+ \$18 monthly (or \$15 annual), Enterprise+ custom; the free tier caps message history at 90 days. The page also currently shows a temporary 50%-off promo on monthly plans. ([slack.com](https://slack.com/pricing))
 - Because the EU settlement forces a price gap between Teams-included and Teams-excluded Microsoft 365, one analysis estimates a 5,000-seat M365 E3 org pays a ~\$513,000/year 'Teams premium', a procurement lever buyers can now pull at renewal to demand Teams-excluded pricing. ([uctoday.com](https://www.uctoday.com/unified-communications/microsoft-teams-slack-bundling-antitrust-lawsuit/))
 
@@ -105,7 +109,7 @@ Slack's marketplace and integration culture run deep (Salesforce touts AI-enable
 ## Sentiment
 
 - Sentiment: Slack is rated #1 for business instant messaging in G2's Winter 2026 report at 4.5/5, edging Teams (~4.4) on day-to-day user satisfaction, a small but persistent gap reflecting Slack's messaging UX. ([learn.g2.com](https://learn.g2.com/slack-pricing))
-- Sentiment: users complain Teams' meeting controls are cluttered enough to cause accidental screen-shares, a gripe serious enough that Microsoft publicly acknowledged it in May 2026. ([windowslatest.com](https://www.windowslatest.com/2026/05/23/microsoft-admits-teams-ui-is-crowded-and-causes-embarrassing-accidental-screen-shares-confirms-a-fix/))
+- Sentiment: users complained Teams' meeting controls were cluttered enough to cause accidental screen-shares, a gripe serious enough that Microsoft publicly acknowledged it in May 2026. Microsoft has since shipped the fix: a redesigned toolbar with center-aligned controls, a separated Leave button and a two-step share confirmation, rolling out to Targeted Release users in early July 2026 and reaching worldwide general availability in early September 2026. ([techcommunity.microsoft.com](https://techcommunity.microsoft.com/blog/microsoftteamsblog/what%e2%80%99s-new-in-microsoft-teams--june-2026-%e2%80%93-infocomm-edition/4531968))
 - Sentiment: users repeatedly find Teams' channels clunky and hard to navigate, with many defaulting to plain chat instead, a recurring confusion about where conversations belong. ([buckleyplanet.com](https://buckleyplanet.com/2025/09/are-microsoft-teams-channels-overrated/))
 - Sentiment: Slack's free-tier 90-day message-history cap is a frequent reviewer frustration, making older conversations hard to retrieve and nudging teams toward paid plans. ([learn.g2.com](https://learn.g2.com/slack-pricing))
 - Sentiment: Slack drew developer-community backlash in September 2025 after threatening to deactivate teen-coding nonprofit Hack Club's 11-year message history unless it paid \$200,000/year; the CEO publicly apologized and reversed course, but the episode dented Slack's developer-friendly image. ([news.ycombinator.com](https://news.ycombinator.com/item?id=45283887))
@@ -126,9 +130,9 @@ Microsoft itself acknowledged the older client could use up to a gigabyte of RAM
 
 **"You're raising prices to push Copilot AI we didn't ask for."**
 
-It's true M365 list prices rise on July 1, 2026 (Business Basic \$6 to \$7, Standard \$12.50 to \$14), and Microsoft ties the investment to AI. But standalone Teams and Copilot SKUs are excluded from the change, and the suites folded in additional security value.
+As of July 1, 2026 M365 list prices are up: Business Basic \$6 to \$7, Business Standard \$12.50 to \$14, E3 \$36 to \$39, E5 \$57 to \$60 and F3 \$8 to \$10 per user per month, bundled with additions like Defender for Office 365 Plan 1 on E3, expanded Intune and richer Copilot Chat. Standalone Teams and Copilot SKUs are excluded from the change, and the suites folded in real added value, not just an AI tax.
 
-**So what:** Run a real TCO comparison (M365 with Copilot optional versus Slack plus Office plus Agentforce/Salesforce licensing) and let the buyer add AI when ready instead of being forced into a separate ecosystem. ([microsoft.com](https://www.microsoft.com/en-us/licensing/news/2026-m365-packaging-pricing-updates))
+**So what:** Run a real TCO comparison (M365 with Copilot optional versus Slack plus Office plus Agentforce/Salesforce licensing) and let the buyer add AI when ready instead of being forced into a separate ecosystem.
 
 **"Can I trust Microsoft on security after Storm-0558 and Midnight Blizzard?"**
 
@@ -147,6 +151,12 @@ Often true, and worth conceding: users rate Slack's search and integration exper
 Acknowledge it: Teams had worldwide disruptions in late 2025 with message delays, tracked openly in the admin center. Microsoft backs M365 with a financially-backed 99.9% uptime SLA and publishes incident reviews.
 
 **So what:** Put the SLA and continuity options (including Teams Phone fallback) on the table, and ask whether the buyer is holding Slack (which has its own outage history) to the same standard. ([cyberpress.org](https://cyberpress.org/worldwide-microsoft-teams-outage-leads-to-message-delivery-delays/))
+
+**"Isn't Teams' meeting UI cluttered enough to cause accidental screen-shares?"**
+
+That was a real complaint, serious enough that Microsoft publicly acknowledged it. The fix is now dated and shipping: center-aligned controls with a separated Leave button and a two-step share confirmation, reaching Targeted Release users in early July 2026 and worldwide general availability in early September 2026.
+
+**So what:** Raise this objection yourself before the prospect does, name the fix and its September general availability date, and turn a Slack talking point into proof that Teams ships fixes on a public timeline. ([techcommunity.microsoft.com](https://techcommunity.microsoft.com/blog/microsoftteamsblog/what%e2%80%99s-new-in-microsoft-teams--june-2026-%e2%80%93-infocomm-edition/4531968))
 
 ## Cut Log
 

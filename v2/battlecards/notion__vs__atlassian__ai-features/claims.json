@@ -221,25 +221,17 @@
   },
   {
     "subject_key": "notion | flagship-ai-product | current",
-    "claim": "Notion's AI flagship is its agent platform, extended by a May 13, 2026 developer platform that repositions Notion as an orchestration hub coordinating AI work across tools and data sources, not just a note-taker with AI bolted on.",
-    "claim_type": "fact",
+    "claim": "Notion's AI flagship is its agent platform. The July 1, 2026 release (3.6) made this concrete: External Agents are now generally available, with Claude and Cursor assignable from a shared team board and mentionable like teammates alongside Notion's own Custom Agents, delivering the orchestration hub the May 13 developer platform announcement had promised.",
+    "claim_type": "interpretation",
     "section": "snapshot",
     "zone": null,
     "order": 5,
-    "source_url": "https://techcrunch.com/2026/05/13/notion-just-turned-its-workspace-into-a-hub-for-ai-agents/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "By building an orchestration layer — a system that coordinates AI work across multiple tools and data sources — Notion is positioning itself as more than a note-taker with AI features and instead as a hub where people and agents can collaborate across tools and databases.",
-    "as_of": "2026-05-13",
+    "as_of": "2026-07-01",
     "confidence": "high",
     "id": "c_bfa9f35ac2e3",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_b04857cc4138",
+    "updated_on": "2026-07-04"
   },
   {
     "subject_key": "atlassian | cursor-jira-integration | 2026-05",
@@ -441,25 +433,17 @@
   },
   {
     "subject_key": "notion | developer-platform-positioning | current",
-    "claim": "Notion's CEO publicly acknowledged the historical \"not for developers\" gap and is closing it: the May 2026 developer platform (Workers, CLI, External Agent API) reframes Notion as a place where people and external coding agents collaborate.",
-    "claim_type": "fact",
+    "claim": "Notion's CEO publicly acknowledged the historical \"not for developers\" gap and has now closed it: release 3.6, shipped July 1, 2026, makes External Agents generally available, with Claude and Cursor assignable from a shared team board and mentionable like teammates alongside Notion's own Custom Agents. The May 2026 developer platform announcement is now a shipped product, not a roadmap promise.",
+    "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
     "order": 3,
-    "source_url": "https://techcrunch.com/2026/05/13/notion-just-turned-its-workspace-into-a-hub-for-ai-agents/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "It's true that, historically, Notion hasn't been the most developer-focused platform.",
-    "as_of": "2026-05-13",
+    "as_of": "2026-07-01",
     "confidence": "high",
     "id": "c_b04857cc4138",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "fuzzy",
-      "fetched_at": "2026-06-05",
-      "detail": "partial_ratio 0.988"
-    }
+    "derived_from": "c_b04857cc4138",
+    "updated_on": "2026-07-04"
   },
   {
     "subject_key": "atlassian | rovo-overage-billing | current",
@@ -598,26 +582,18 @@
   },
   {
     "subject_key": "battlecard | agent-orchestration | contested",
-    "claim": "**The \"agent orchestration hub\" race is genuinely contested: both shipped it within a week of each other.**\n\nNotion's May 13 developer platform and Atlassian's May 6 Teamwork Graph opening (CLI, MCP server) are the same bet from opposite ends: Notion broad and cross-functional first, Atlassian deep and developer-first. Neither has won this; it turns on which agents your teams actually build.\n\n**Soundbite:** *\"We both want to be the place your agents live. The question is whether your agents are mostly coding tasks, or everything your business runs on.\"*",
+    "claim": "**The \"agent orchestration hub\" race is genuinely contested, and Notion has now shipped its half.**\n\nNotion's May 13 developer platform and Atlassian's May 6 Teamwork Graph opening (CLI, MCP server) were the same bet from opposite ends: Notion broad and cross-functional, Atlassian deep and developer-first. Notion release 3.6, shipped July 1, 2026, made External Agents generally available, with Claude and Cursor assignable from a shared team board and mentionable like teammates alongside Notion's own Custom Agents. Atlassian stays developer-first through Cursor in Jira. Neither has won this: it turns on which agents your teams actually build, and one side now has a live product to point to.",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
     "order": 0,
-    "source_url": "https://techcrunch.com/2026/05/13/notion-just-turned-its-workspace-into-a-hub-for-ai-agents/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "By building an orchestration layer — a system that coordinates AI work across multiple tools and data sources — Notion is positioning itself as more than a note-taker with AI features and instead as a hub where people and agents can collaborate across tools and databases.",
-    "as_of": "2026-05-13",
+    "as_of": "2026-07-01",
     "confidence": "high",
     "id": "c_3d60e00b22b8",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
-    "persona": "eng_led"
+    "persona": "eng_led",
+    "derived_from": "c_b04857cc4138",
+    "updated_on": "2026-07-04"
   },
   {
     "subject_key": "battlecard | ai-pricing-credits | contested",
@@ -759,26 +735,18 @@
   },
   {
     "subject_key": "objection | notion-not-for-devs | current",
-    "claim": "**\"Notion isn't really built for developers.\"**\n\nThat was a fair criticism, and Notion's CEO said so himself, then shipped the answer on May 13, 2026: a developer platform with Workers, a CLI and an External Agent API that makes Claude Code, Cursor and Codex first-class agents inside Notion.\n\n**So what:** Concede the history, pivot to the platform. For dev-adjacent teams, Notion is now the orchestration layer that connects engineering agents to the rest of the company's work.",
+    "claim": "**\"Notion isn't really built for developers.\"**\n\nThat was a fair criticism, and Notion's CEO said so himself. Notion answered with a developer platform announced May 13, 2026, and has now shipped it: release 3.6 on July 1, 2026 made External Agents generally available, with Claude and Cursor as the first two, assignable from a shared team board and mentionable like teammates alongside Notion's own Custom Agents.\n\n**So what:** Concede the history, pivot to the shipped platform. For dev-adjacent teams, Notion now runs Claude and Cursor as live agents on the same board as the rest of the company's work, not a roadmap promise.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 3,
-    "source_url": "https://techcrunch.com/2026/05/13/notion-just-turned-its-workspace-into-a-hub-for-ai-agents/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "It's true that, historically, Notion hasn't been the most developer-focused platform.",
-    "as_of": "2026-05-13",
+    "as_of": "2026-07-01",
     "confidence": "high",
     "id": "c_24796c5c7a8f",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "fuzzy",
-      "fetched_at": "2026-06-05",
-      "detail": "partial_ratio 0.988"
-    },
-    "persona": "eng_led"
+    "persona": "eng_led",
+    "derived_from": "c_b04857cc4138",
+    "updated_on": "2026-07-04"
   },
   {
     "subject_key": "objection | notion-vendor-stability | current",
