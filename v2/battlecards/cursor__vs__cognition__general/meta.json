@@ -4,17 +4,11 @@
   "competitor": "Cognition",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-07-04T11:01:39",
+  "last_checked": "2026-07-06T11:07:35",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_b969e4b96a7c",
     "f_9ecf04fa85d6"
   ],
-  "monitored": true,
-  "unresolved_subjects": [
-    "cognition | enterprise-customer | citi",
-    "cognition | pricing-efficiency | sonnet-5-quota"
-  ],
-  "unresolved_since": "2026-07-02",
-  "unresolved_attempts": 2
+  "monitored": true
 }
