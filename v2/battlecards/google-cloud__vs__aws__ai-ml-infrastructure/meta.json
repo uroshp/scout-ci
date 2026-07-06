@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-07-04T11:02:32",
+  "last_checked": "2026-07-06T11:08:19",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -15,5 +15,10 @@
     "f_f26528662a64",
     "f_a5facf9f35dc"
   ],
-  "monitored": true
+  "monitored": true,
+  "unresolved_subjects": [
+    "aws | security-incident | july-2026-mega-outage"
+  ],
+  "unresolved_since": "2026-07-04",
+  "unresolved_attempts": 1
 }

@@ -4,7 +4,7 @@
   "competitor": "Superman",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-06-28T17:05:54",
+  "last_checked": "2026-07-06T11:05:12",
   "cadence_hours": 72,
   "cadence_days": 7,
   "alerted_fingerprints": [
@@ -20,5 +20,8 @@
   ],
   "monitored": true,
   "unresolved_since": "2026-06-28",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2,
+  "unresolved_subjects": [
+    "the batman part ii"
+  ]
 }

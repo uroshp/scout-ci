@@ -902,5 +902,41 @@
     "confidence": "medium",
     "derived_from": "c_3c85afbc882a",
     "persona": "eng_led"
+  },
+  {
+    "subject_key": "slack | product-launch | crm-2026",
+    "claim": "Slack now ships a native lightweight CRM. Launched in spring 2026 and included in the Business+ plan at no extra cost, Slack CRM lets small teams track leads, deals and contacts inside Slack by asking Slackbot, while a Salesforce engine stores the data in the background. On July 1, 2026 Salesforce began rolling it out to small businesses across Asia Pacific markets including Singapore and the Philippines. It extends Slack from a messaging app toward a bundled operating system for work, and hands Salesforce a free CRM on-ramp that upsells into the full platform with no data migration.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 6,
+    "source_url": "https://slack.com/blog/news/slack-crm-small-business",
+    "source_tier": "primary",
+    "evidence_excerpt": "Slack CRM is available now for customers on Slack Business+ at no additional cost.",
+    "as_of": "2026-04-09",
+    "confidence": "high",
+    "id": "c_14b765943ef9",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-06",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.salesforce.com/ap/news/press-releases/2026/07/01/salesforce-brings-agentforce-into-salesforce-suites-and-slack-crm-for-small-businesses-in-singapore/",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.salesforceben.com/salesforce-launches-slack-crm-ending-tab-switching-forever/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
