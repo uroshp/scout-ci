@@ -1486,5 +1486,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "openai | government-equity-proposal | 2026-07",
+    "claim": "On July 2, 2026, OpenAI proposed giving the US government a 5% equity stake, worth roughly $42.6 billion at its $852 billion valuation, as a way to defuse mounting political pressure in Washington. CEO Sam Altman raised it in conceptual talks with the Trump administration as part of a broader plan for Washington to hold 5% of each leading US AI developer through a sovereign-wealth-fund vehicle modeled on the Alaska Permanent Fund. The proposal envisions Anthropic, Google and Meta ceding similar stakes, but a source said the administration and Anthropic have not discussed any government stake, and the plan could require an act of Congress.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 10,
+    "source_url": "https://www.cnbc.com/2026/07/02/openai-proposes-us-government-own-5percent-stake-to-address-political-blowback.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI has proposed handing the U.S. government a 5% stake in the company, the Financial Times reported Thursday",
+    "as_of": "2026-07-02",
+    "confidence": "high",
+    "id": "c_038a36e6f1bf",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-07",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.forbes.com/sites/siladityaray/2026/07/02/openai-reportedly-pitches-granting-us-government-5-stake/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

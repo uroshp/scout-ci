@@ -1128,15 +1128,15 @@
   },
   {
     "subject_key": "openai | model-release-restriction | gpt-5.6-2026",
-    "claim": "OpenAI is releasing its next-generation GPT-5.6 line (Sol, the flagship; Terra, a mid tier; Luna, a low-cost tier) only to a small group of US-government-approved partners, at the White House's request, before any broad availability. It is the first time Washington has gated a US frontier model's release this way, and OpenAI's own blog says it does not want this access process to become the long-term default. The restriction follows the administration forcing Anthropic to cut access to Fable 5 and Mythos 5 for foreign nationals.",
+    "claim": "OpenAI's GPT-5.6 line now has confirmed pricing and is still locked down. Sol lists at $5 per million input and $30 output, Terra at $2.50/$15 and the low-cost Luna at $1/$6. As of July 7 all three remain gated to about 20 government-vetted organizations through the API and Codex. The 30-day federal review window closed July 2 with no general release, and OpenAI says broad availability is still 'coming weeks' away. Luna's $1/$6 list would sit under Mistral Medium 3.5's $1.50/$7.50 the day it ships, so the low-cost tier is a real threat waiting behind a gate.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 1,
+    "order": 8,
     "source_url": "https://techcrunch.com/2026/06/26/openai-limits-gpt-5-6-rollout-after-government-request-says-restrictions-shouldnt-be-the-norm/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "OpenAI is limiting the release of its newest AI models to a “small group of trusted partners” at the behest of the U.S. government, the company said Friday.",
-    "as_of": "2026-06-26",
+    "evidence_excerpt": "Sol costs $5 per million input tokens and $30 per million output tokens; Terra costs half that; and Luna costs $1 and $6, respectively.",
+    "as_of": "2026-07-07",
     "confidence": "high",
     "id": "c_1abc15d96670",
     "verified": true,
@@ -1144,12 +1144,12 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-27",
+      "fetched_at": "2026-07-07",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://www.thenationalnews.com/future/technology/2026/06/27/openai-news-gpt-white-house/",
+        "source_url": "https://venturebeat.com/technology/openai-unveils-gpt-5-6-sol-terra-and-luna-models-but-only-accessible-to-limited-preview-partners-for-now-per-us-gov",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
