@@ -4,7 +4,7 @@
   "competitor": "Google",
   "focus": null,
   "baseline_date": "2026-06-06",
-  "last_checked": "2026-07-06T11:19:04",
+  "last_checked": "2026-07-07T11:21:03",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_9ea436272f2a",
@@ -14,5 +14,10 @@
     "f_3bc88e38b0bd",
     "f_c1a76fdbd00f"
   ],
-  "monitored": true
+  "monitored": true,
+  "unresolved_subjects": [
+    "google | product-delay | gemini-35-pro"
+  ],
+  "unresolved_since": "2026-07-06",
+  "unresolved_attempts": 1
 }
