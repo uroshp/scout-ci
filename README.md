@@ -4,6 +4,8 @@ Give Scout a competitor - and optionally your own company and a focus area — a
 strategic brief (executive summary, battlecard, objection handling, and more). **Every
 factual claim is verified against reputable public sources with a journalistic bar, and anything that can’t be verified is cut and logged**. This verification and restraint alongside judgement about what's material to include is the main product.
 
+🔗 **Live app: [agent-scout.ai](https://agent-scout.ai)** (public, read-only viewer of the living battlecards)
+
 Verification is **deterministic and model-free**: separate code independently re-fetches each
 cited source and confirms the quoted evidence is really there. No model can fake a citation,
 because the code that checks provenance shares nothing with the code that writes the claim. And
