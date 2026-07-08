@@ -1128,15 +1128,15 @@
   },
   {
     "subject_key": "openai | model-release-restriction | gpt-5.6-2026",
-    "claim": "OpenAI's GPT-5.6 line now has confirmed pricing and is still locked down. Sol lists at $5 per million input and $30 output, Terra at $2.50/$15 and the low-cost Luna at $1/$6. As of July 7 all three remain gated to about 20 government-vetted organizations through the API and Codex. The 30-day federal review window closed July 2 with no general release, and OpenAI says broad availability is still 'coming weeks' away. Luna's $1/$6 list would sit under Mistral Medium 3.5's $1.50/$7.50 the day it ships, so the low-cost tier is a real threat waiting behind a gate.",
+    "claim": "OpenAI's GPT-5.6 line is now cleared for open sale. The US Department of Commerce approved a broad public launch of Sol, Terra and Luna after its Center for AI Standards and Innovation ran additional tests, and OpenAI is putting all three on sale to everyone starting July 9, 2026. Sol still lists at $5 per million input tokens and $30 output. The government hold lasted about a month, so the political gate on US frontier models proved temporary rather than a lasting block on access.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 8,
-    "source_url": "https://techcrunch.com/2026/06/26/openai-limits-gpt-5-6-rollout-after-government-request-says-restrictions-shouldnt-be-the-norm/",
+    "order": 6,
+    "source_url": "https://www.cnbc.com/2026/07/08/openai-gets-us-regulatory-approval-for-gpt-5point6-rollout-axios-report.html",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Sol costs $5 per million input tokens and $30 per million output tokens; Terra costs half that; and Luna costs $1 and $6, respectively.",
-    "as_of": "2026-07-07",
+    "evidence_excerpt": "The U.S. Department of Commerce has cleared the way for OpenAI to proceed with a broad release of its advanced GPT-5.6 model",
+    "as_of": "2026-07-08",
     "confidence": "high",
     "id": "c_1abc15d96670",
     "verified": true,
@@ -1144,12 +1144,12 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-07-07",
+      "fetched_at": "2026-07-08",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://venturebeat.com/technology/openai-unveils-gpt-5-6-sol-terra-and-luna-models-but-only-accessible-to-limited-preview-partners-for-now-per-us-gov",
+        "source_url": "https://the-decoder.com/openais-gpt-5-6-launches-thursday-after-a-delay-forced-by-the-u-s-government/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
