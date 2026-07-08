@@ -236,7 +236,7 @@ SELFSERVE_CONTACT = os.environ.get("SCOUT_SELFSERVE_CONTACT", "https://www.linke
 # to SHOW the optional email field; the Action sends iff RESEND_API_KEY + a recipient are present.
 SELFSERVE_EMAIL_ENABLED = os.environ.get("SCOUT_SELFSERVE_EMAIL", "") == "1"
 # Public base URL of the deployed viewer, used to build the result link in the "ready" email.
-SELFSERVE_APP_URL = os.environ.get("SCOUT_SELFSERVE_APP_URL", "https://agent-scout.streamlit.app")
+SELFSERVE_APP_URL = os.environ.get("SCOUT_SELFSERVE_APP_URL", "https://agent-scout.ai")
 
 # --- Author / credit ---------------------------------------------------------
 # Shown in the app footer and used as the self-serve "get in touch" link. When

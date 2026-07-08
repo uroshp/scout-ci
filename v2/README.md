@@ -5,7 +5,7 @@
 > fetch-and-read-the-source grounding tool, and turns each brief into a **living battlecard** that
 > a daily agent keeps current. This is the deployed app.
 
-🔗 **[Live demo](https://agent-scout.streamlit.app)**
+🔗 **[Live demo](https://agent-scout.ai)**
 
 ## What's different from v1
 

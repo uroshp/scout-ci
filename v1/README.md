@@ -12,7 +12,7 @@ Give Scout a competitor — and optionally your own company and a focus area —
 ![Built with Claude](https://img.shields.io/badge/Built%20with-Claude%20API-D97757)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green)
 
-🔗 **[Live demo](https://agent-scout.streamlit.app)** · password in my LinkedIn bio · 📄 sample reports are loaded in the app’s first tab
+🔗 **[Live demo](https://agent-scout.ai)** · password in my LinkedIn bio · 📄 sample reports are loaded in the app’s first tab
 
 > **Contents:** 
 For the user: [What it produces](#what-it-produces) 
