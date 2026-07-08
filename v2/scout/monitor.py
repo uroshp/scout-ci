@@ -926,11 +926,18 @@ def _persist_run_cost(started, rows: list, write: bool) -> None:
     try:
         stamp = started.strftime("%Y%m%dT%H%M%S")
         from scout import generate
+        run_total = round(sum(r.get("total") or 0 for r in rows), 4)
+        # $/claim (schema v2): the run's efficiency headline. Claims per card = direct material
+        # patches + judge-confirmed proposals (see run_all); None when the run shipped nothing —
+        # a quiet day has a cost but no meaningful per-claim rate.
+        run_claims = sum(r.get("claims") or 0 for r in rows)
         doc = {
-            "schema_version": 1,
+            "schema_version": 2,
             "run_ts": started.isoformat(timespec="seconds"),
             "mode": config.PROPAGATE_MODE,
-            "run_total_usd": round(sum(r.get("total") or 0 for r in rows), 4),
+            "run_total_usd": run_total,
+            "run_claims": run_claims,
+            "run_usd_per_claim": round(run_total / run_claims, 4) if run_claims else None,
             "cards": rows,
             # Run-level token totals per role (input/output/cache_read/cache_creation/messages):
             # makes cache behavior and per-phase input weight measurable across runs.
@@ -941,7 +948,9 @@ def _persist_run_cost(started, rows: list, write: bool) -> None:
             json.dumps(doc, indent=2, default=str, ensure_ascii=False),
             f"costs: monitor run {stamp} (${doc['run_total_usd']}, {len(rows)} cards)",
         )
-        print(f"[cost] run {stamp}: ${doc['run_total_usd']} across {len(rows)} card(s) "
+        per_claim = (f", {run_claims} claim(s), ${doc['run_usd_per_claim']}/claim" if run_claims
+                     else ", 0 claims")
+        print(f"[cost] run {stamp}: ${doc['run_total_usd']} across {len(rows)} card(s){per_claim} "
               f"-> {COST_DIR}/{stamp}.json")
     except Exception as e:   # the cost ledger must never break a live monitor run
         print(f"[cost] ledger write skipped ({type(e).__name__}: {e})", file=sys.stderr)
@@ -996,6 +1005,17 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
                 # non-zero when any card errored, so the Actions run still notifies.
                 summary.append({"slug": slug, "error": f"{type(e).__name__}: {e}"})
                 continue
+        # $/claim (2026-07-08, his metric): claims this run = direct material patches + judge-
+        # CONFIRMED proposals (confirmed = produced and sent for approval; a later human decline
+        # doesn't refund the production cost, so confirmed is the honest denominator). Computed
+        # once here and surfaced everywhere the run reports itself: both emails + the cost ledger.
+        _prop_all = res.get("propagation") or {}
+        claims_n = len(res["material"]) + sum(1 for d in _prop_all.get("decisions", [])
+                                              if d.get("judge_verdict") == "confirm")
+        card_cost = _run_total(res["cost"])
+        cost_note = (f"Run cost: ${card_cost:.2f} — {claims_n} claim{'s' if claims_n != 1 else ''}, "
+                     f"${card_cost / claims_n:.2f}/claim" if claims_n
+                     else f"Run cost: ${card_cost:.2f} — no claims shipped")
         emailed = prop_emailed = None
         if send:
             meta = store.load_meta(slug) or {}
@@ -1009,7 +1029,7 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
                              if prop0.get("gated") == "routine" and gated_n else None)
             if res["alerts"]:
                 emailed = notify.send_digest(meta, res["alerts"], dry_run=email_dry_run,
-                                             deferred_note=deferred_note)
+                                             deferred_note=deferred_note, cost_note=cost_note)
             elif deferred_note:
                 try:
                     notify._dispatch(f"Scout: routine run — {gated_n} update(s) deferred — "
@@ -1032,7 +1052,7 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
                 if confirmed or exhausted or unjudged:
                     prop_emailed = notify.send_propagation_proposals(
                         slug, meta, confirmed, dry_run=email_dry_run, exhausted=exhausted,
-                        unjudged=unjudged)
+                        unjudged=unjudged, cost_note=cost_note)
             # CONSEQUENTIALITY FILTER (shadow eval, docs/consequential-filter-spec.md): the router now
             # emits the consequential/routine run_verdict the old strategic pass used to (that pass is
             # ABSORBED into the router — the lead is just the executive_summary surface). Log the verdict
@@ -1065,6 +1085,8 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
         cost_rows.append({
             "slug": slug, "no_change": res["no_change"], "material": len(res["material"]),
             "alerts": len(res["alerts"]),
+            "claims": claims_n,   # direct material patches + judge-confirmed proposals this run
+            "usd_per_claim": round(card_cost / claims_n, 4) if claims_n else None,
             "phases": {k: round(v, 6) for k, v in (cost or {}).items() if v is not None},
             "total": _run_total(cost),
         })

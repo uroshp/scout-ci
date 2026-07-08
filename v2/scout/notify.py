@@ -65,11 +65,13 @@ def _card_label(meta: dict) -> str:
     return f"{me} vs {comp}" if me else (comp or "this card")
 
 
-def render_digest(meta: dict, alerts: list[dict], deferred_note: str | None = None) -> tuple[str, str]:
+def render_digest(meta: dict, alerts: list[dict], deferred_note: str | None = None,
+                  cost_note: str | None = None) -> tuple[str, str]:
     """Subject + plain-text body. One material change per block, each with its so-what. Labeled by
     CARD ('Mistral vs OpenAI'), since a competitor's news can land on more than one brief.
     `deferred_note` is the consequentiality gate's audit line (a routine run deferred N routed
-    updates) — a deferral is never silent."""
+    updates) — a deferral is never silent. `cost_note` is the run's $/claim line (monitor builds
+    it), so spend-per-output is visible where the output lands, not just in the ledger."""
     comp = meta.get("competitor") or "the competitor"
     card = _card_label(meta)
     n = len(alerts)
@@ -89,6 +91,8 @@ def render_digest(meta: dict, alerts: list[dict], deferred_note: str | None = No
         lines.append("")
     if deferred_note:
         lines += [deferred_note, ""]
+    if cost_note:
+        lines += [cost_note, ""]
     lines.append("— Scout (every claim verified against its source)")
     return subject, "\n".join(lines)
 
@@ -124,12 +128,12 @@ def send_selfserve_ready(to: str, job_id: str, label: str | None = None) -> dict
 
 
 def send_digest(meta: dict, alerts: list[dict], dry_run: bool = True,
-                deferred_note: str | None = None) -> dict:
+                deferred_note: str | None = None, cost_note: str | None = None) -> dict:
     """Send ONE digest of the run's material deltas. No-op (dry) unless fully configured.
     Returns a result dict; never raises on a missing-config path."""
     if not alerts:
         return {"sent": False, "reason": "no material changes"}
-    subject, body = render_digest(meta, alerts, deferred_note=deferred_note)
+    subject, body = render_digest(meta, alerts, deferred_note=deferred_note, cost_note=cost_note)
     return _dispatch(subject, body, dry_run=dry_run)
 
 
@@ -166,7 +170,8 @@ def _change_summary(old, new) -> str:
 
 def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict],
                                  exhausted: list[dict] = None,
-                                 unjudged: list[dict] = None) -> tuple[str, str]:
+                                 unjudged: list[dict] = None,
+                                 cost_note: str | None = None) -> tuple[str, str]:
     """Subject + body for the REVIEW-mode approval email: each judge-confirmed proposal with where
     (card + section), what (op), how it looks (the FULL old→new prose, never truncated), and the
     judge's reasoning, spaced for reading. The card is untouched; these await the human's approval.
@@ -250,6 +255,8 @@ def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict],
                 _block(d.get("new_text"))]
         out += ["", "The card was NOT changed. To apply after checking the prose yourself, "
                     "approve it in a session with allow_unjudged.", "", rule]
+    if cost_note:
+        out += ["", cost_note]
     if decisions:
         out += ["",
                 f'To apply, tell Claude in a session — e.g. "approve the '
@@ -261,7 +268,8 @@ def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict],
 
 
 def send_propagation_proposals(slug: str, meta: dict, decisions: list[dict], dry_run: bool = True,
-                               exhausted: list[dict] = None, unjudged: list[dict] = None) -> dict:
+                               exhausted: list[dict] = None, unjudged: list[dict] = None,
+                               cost_note: str | None = None) -> dict:
     """Email the run's judge-confirmed propagation proposals (REVIEW mode), plus any rewrite-loop
     EXHAUSTED failures and any UNJUDGED drafts (judge unavailable) — both must reach the owner even
     when nothing was confirmed: a dropped material edit is never silent. No-op (dry) unless fully
@@ -269,7 +277,7 @@ def send_propagation_proposals(slug: str, meta: dict, decisions: list[dict], dry
     if not decisions and not exhausted and not unjudged:
         return {"sent": False, "reason": "no proposals"}
     subject, body = render_propagation_proposals(slug, meta, decisions, exhausted=exhausted,
-                                                 unjudged=unjudged)
+                                                 unjudged=unjudged, cost_note=cost_note)
     return _dispatch(subject, body, dry_run=dry_run)
 
 
