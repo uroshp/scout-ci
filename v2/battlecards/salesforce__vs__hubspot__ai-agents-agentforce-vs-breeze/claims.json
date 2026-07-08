@@ -646,5 +646,19 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "id": "c_51128f4d7a8c",
+    "subject_key": "hubspot-revenue-hub | positioning | quote-to-cash-expansion",
+    "claim": "HubSpot renamed Commerce Hub to Revenue Hub on June 16, 2026, expanding it into full quote-to-cash: quoting, CPQ, contracts and subscription billing unified with payments on the Smart CRM, putting it head to head with the CPQ and quote-to-cash turf Revenue Cloud used to own alone. Seats run $95 (Professional) and $140 (Enterprise) per user monthly with billing included for now, and HubSpot has not even set its usage pricing model, due only in September 2026.",
+    "claim_type": "interpretation",
+    "section": "positioning",
+    "zone": null,
+    "order": 2,
+    "as_of": "2026-06-16",
+    "updated_on": "2026-07-08",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_5a56f3aa4a33"
   }
 ]

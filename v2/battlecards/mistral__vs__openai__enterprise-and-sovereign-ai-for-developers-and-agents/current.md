@@ -2,13 +2,13 @@
 
 ## Executive Summary
 
-**US frontier AI is now politically gated, so sovereignty is a continuity-of-access risk.**
+**Commerce lifted the GPT-5.6 hold. The Cloud Act exposure it exposed is still open.**
 
-On June 26 the White House restricted OpenAI's newest models to government-approved partners, after the administration forced Anthropic to cut Fable 5 access; Mistral's open weights run inside your walls.
+The US Department of Commerce cleared Sol, Terra and Luna for open public sale starting July 9, 2026, ending a roughly month-long restriction, so the political gate on US frontier models turned out temporary. The European Commission's June proposal would still keep US providers out of the EU's top sovereignty tier, because the Cloud Act lets American authorities compel their data regardless of where it sits.
 
-**Soundbite:** "No government can revoke open weights you already run."
+**Soundbite:** "Washington can lift an access hold in a month. It can't lift the Cloud Act."
 
-**So what:** Lead with who controls access to the model, then ask who owns the buyer's vendor roadmap. ([cnn.com](https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house))
+**So what:** Drop the access-gate argument and lead with the Cloud Act exposure instead. Mistral runs under French jurisdiction with on-prem deployment, built for the sovereignty tier US providers structurally can't reach. ([cnbc.com](https://www.cnbc.com/2026/07/08/openai-gets-us-regulatory-approval-for-gpt-5point6-rollout-axios-report.html))
 
 **Be honest internally: OpenAI is still the category leader, and that is the real threat.**
 
@@ -43,7 +43,7 @@ BNP Paribas runs Mistral models on-premises to meet strict security requirements
 - Mistral's developer and agent stack centers on Devstral 2 (123B) and Devstral Small 2 (24B) open-weight coding models, Codestral for completion, the Mistral Code IDE assistant, and the Vibe agent platform. Devstral 2 reports 72.2% on SWE-bench Verified. ([mistral.ai](https://mistral.ai/news/devstral-2-vibe-cli/))
 - OpenAI closed a record \$122 billion round at an \$852 billion post-money valuation on March 31, 2026, with Amazon, Nvidia and SoftBank as anchor investors. ([cnbc.com](https://www.cnbc.com/2026/03/31/openai-funding-round-ipo.html))
 - OpenAI has raised more than \$180 billion in cumulative funding and is still burning cash, roughly 45 times the capital Mistral has raised. ([cnbc.com](https://www.cnbc.com/2026/06/08/openai-confidentially-files-for-ipo-prepping-wall-street-for-ai-debut.html))
-- OpenAI's current flagship is GPT-5.5, released April 23, 2026 and rolled out to Plus, Pro, Business and Enterprise, powering ChatGPT and the Codex coding agent. ([techcrunch.com](https://techcrunch.com/2026/04/23/openai-chatgpt-gpt-5-5-ai-model-superapp/))
+- OpenAI's current flagship is now the GPT-5.6 line (Sol, Terra and Luna), cleared for open public sale starting July 9, 2026 after a Department of Commerce hold. Sol lists at \$5 per million input tokens and \$30 output. ([cnbc.com](https://www.cnbc.com/2026/07/08/openai-gets-us-regulatory-approval-for-gpt-5point6-rollout-axios-report.html))
 
 ## Recent Strategic Moves
 
@@ -129,11 +129,11 @@ Accenture signed a multi-year Mistral deal, but the same SIs partner with OpenAI
 
 ### Where OpenAI wins
 
-**They hold the top-end frontier lead, but the newest tier you can't simply buy.**
+**They hold the top-end frontier lead, and GPT-5.6 is now on general sale.**
 
-On the very hardest tasks the leading closed models still edge us out, and we say so plainly. But OpenAI's newest frontier line, GPT-5.6, is restricted to US-government-approved partners at the White House's request, so a buyer who wants the actual latest OpenAI frontier cannot purchase access today. OpenAI itself has said it does not want this to be the long-term default.
+On the very hardest tasks the leading closed models still edge us out, and we say so plainly. OpenAI's GPT-5.6 line (Sol, Terra and Luna) is now on general sale to every customer, priced at \$5 per million input tokens and \$30 output for Sol. Whatever OpenAI tier a buyer picks, they get a hosted API only. Every Mistral model they deploy, they run on infrastructure they control.
 
-**Soundbite:** *"For the single highest benchmark, the top closed models still win, and we won't pretend otherwise. But OpenAI's newest tier you can't even buy right now, and everything you can deploy you run on your own infrastructure with us."* ([cnn.com](https://www.cnn.com/2026/06/25/tech/openai-limit-release-white-house))
+**Soundbite:** *"For the single highest benchmark, the top closed models still win, and we won't pretend otherwise. But every Mistral model you deploy, you run on your own infrastructure."* ([cnbc.com](https://www.cnbc.com/2026/07/08/openai-gets-us-regulatory-approval-for-gpt-5point6-rollout-axios-report.html))
 
 **They have scale and enterprise trust we are still building.**
 
@@ -151,11 +151,11 @@ Enterprise is already more than 40% of OpenAI's business, with a vast installed 
 
 ## Objection Handling
 
-**"Mistral's models aren't as good as GPT-5.5."**
+**"Mistral's models aren't as good as GPT-5.5 or GPT-5.6."**
 
-On the hardest multi-file refactors the frontier closed models still lead, and we won't pretend otherwise. But for the bulk of enterprise coding our models clear the bar, and for air-gapped or regulated repositories the honest comparison is Mistral versus no OpenAI deployment at all. And the newer GPT-5.6 isn't a real alternative yet: it's restricted to US-government-approved partners, so for anything a buyer can deploy today, 5.5 is the honest comparison.
+On the hardest multi-file refactors, the frontier closed models still lead, and we won't pretend otherwise. But GPT-5.6 is a hosted API only: OpenAI has no on-prem option for its frontier models, so for air-gapped or regulated repositories the honest comparison is Mistral or no OpenAI deployment at all. Devstral also runs under Apache 2.0 on hardware you already own, so self-hosting drops your cost to your own compute instead of a per-token bill.
 
-**So what:** Move the evaluation to the buyer's real deployment constraints, where our edge is structural. If they raise GPT-5.6, note they can't actually buy it today. ([aizolo.com](https://aizolo.com/blog/mistral-ai-strengths-weaknesses-2026/))
+**So what:** Move the evaluation to the buyer's deployment constraints and running cost, where our edge is structural: private repos with no call home, running on hardware they already own. ([cnbc.com](https://www.cnbc.com/2026/07/08/openai-gets-us-regulatory-approval-for-gpt-5point6-rollout-axios-report.html))
 
 **"Mistral is small. Will you even be around in three years?"**
 
