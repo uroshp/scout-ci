@@ -26,11 +26,11 @@ Rovo is bundled into paid Atlassian plans but capped by thin monthly credits (ju
 
 **So what:** For finance-led evaluations, show the AI cost today and the projected cost twelve months out. Only Notion's Custom Agents are metered, and that's transparent and capped. ([support.atlassian.com](https://support.atlassian.com/rovo/docs/rovo-usage-limits/))
 
-**Two fresh Notion items will come up in deals. Be ready: a security researcher and a pricing change both made news.**
+**Three fresh Notion items will come up in deals. Be ready: a pricing change, a patched vulnerability and a product shutdown all made news.**
 
-Notion's Custom Agents moved from free to paid credits on May 4, 2026, and a data-exfiltration vulnerability in Notion AI was disclosed in late December 2025 (and patched in production by January 8, 2026). A prepared rep neutralizes both; an unprepared one looks evasive.
+Notion's Custom Agents moved from free to paid credits on May 4, 2026, and a data-exfiltration vulnerability in Notion AI was disclosed in late December 2025, patched in production by January 8, 2026. Notion is also shutting down Notion Mail entirely on September 22, 2026, pulling the iOS, desktop and web mail app for every plan and every customer. A prepared rep neutralizes all three; an unprepared one looks evasive.
 
-**So what:** Rehearse the honest answers now (see Objection Handling). The patch is shipped and prompt-injection risk is industry-wide: Rovo carries the same structural exposure. ([promptarmor.com](https://www.promptarmor.com/resources/notion-ai-unpatched-data-exfiltration))
+**So what:** Rehearse the honest answers now (see Objection Handling). The vulnerability is patched, the pricing change is old news by close, and Mail's shutdown retires a bolt-on feature, not the core workspace Rovo has to compete with. ([notion.com](https://www.notion.com/help/notion-mail-inbox-is-going-away-what-to-do-next))
 
 ## Snapshot
 
@@ -155,6 +155,12 @@ Notion is private but strongly capitalized: a January 2026 tender by GIC, Sequoi
 Be honest: Notion's databases degrade noticeably past roughly 5,000 records, and it's not the right tool to be a raw database engine for tens of thousands of rows. Position Notion as the knowledge, docs and agent layer, and use its May 2026 Database Sync to pull large datasets from Postgres, Salesforce or Zendesk rather than store them natively.
 
 **So what:** Set scope honestly: Notion orchestrates and surfaces the data; pair it with a dedicated system of record for massive structured datasets. ([hackceleration.com](https://hackceleration.com/notion-review/))
+
+**"You just shut down Notion Mail for everyone. What stops you from doing that to a workflow we depend on?"**
+
+Notion is retiring Notion Mail entirely on September 22, 2026: the iOS, desktop and web inbox goes away for every plan as Notion shifts email routing into AI agents instead of a standalone app. Mail was a bolt-on product, not the workspace itself. The docs, wiki and database layer the buyer's workflows actually run on is untouched. Notion also lets a customer standardize on that core workspace while keeping model choice: switch the underlying model or provider without losing workspace context, a control Atlassian doesn't offer with Rovo.
+
+**So what:** Anchor the evaluation on the core workspace, not Mail, and offer to set the workspace up today with model choice built in, so the buyer controls the AI layer instead of depending on any single Notion feature. ([notion.com](https://www.notion.com/help/notion-mail-inbox-is-going-away-what-to-do-next))
 
 ## Cut Log
 
