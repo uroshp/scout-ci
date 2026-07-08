@@ -103,5 +103,52 @@ class RoleTotalsLedger(unittest.TestCase):
         self.assertEqual(captured["by_role"]["triage"]["input"], 7)
 
 
+class UsdPerClaim(unittest.TestCase):
+    """$/claim (2026-07-08, schema v2): the run record carries claims + usd_per_claim at both
+    levels, and both emails surface the run's cost_note — spend-per-output is never ledger-only."""
+
+    def _persist(self, rows):
+        captured = {}
+        from datetime import datetime
+        with mock.patch.object(monitor.selfserve, "write_data",
+                               side_effect=lambda p, body, m: captured.update(json.loads(body))):
+            monitor._persist_run_cost(datetime(2026, 7, 8, 11, 0, 0), rows, write=True)
+        return captured
+
+    def test_run_level_usd_per_claim(self):
+        doc = self._persist([{"slug": "a", "total": 3.0, "claims": 2, "phases": {}},
+                             {"slug": "b", "total": 1.5, "claims": 1, "phases": {}}])
+        self.assertEqual(doc["schema_version"], 2)
+        self.assertEqual(doc["run_claims"], 3)
+        self.assertEqual(doc["run_usd_per_claim"], 1.5)
+
+    def test_zero_claims_is_none_not_division_crash(self):
+        doc = self._persist([{"slug": "a", "total": 0.2, "claims": 0, "phases": {}}])
+        self.assertEqual(doc["run_claims"], 0)
+        self.assertIsNone(doc["run_usd_per_claim"])
+
+    def test_rows_missing_claims_key_tolerated(self):
+        # Old-shape rows (pre-metric) must not crash the ledger write.
+        doc = self._persist([{"slug": "a", "total": 1.0, "phases": {}}])
+        self.assertEqual(doc["run_claims"], 0)
+
+    def test_digest_carries_cost_note(self):
+        from scout import notify
+        _, body = notify.render_digest(
+            {"competitor": "OpenAI", "my_company": "Mistral"},
+            [{"headline": "x", "severity": "act"}],
+            cost_note="Run cost: $3.24 — 4 claims, $0.81/claim")
+        self.assertIn("$0.81/claim", body)
+
+    def test_proposals_email_carries_cost_note(self):
+        from scout import notify
+        _, body = notify.render_propagation_proposals(
+            "slug", {"competitor": "OpenAI", "my_company": "Mistral"},
+            [{"operation": "revise", "section": "snapshot", "subject_key": "k",
+              "new_text": "n", "judge_verdict": "confirm"}],
+            cost_note="Run cost: $3.24 — 4 claims, $0.81/claim")
+        self.assertIn("$0.81/claim", body)
+
+
 if __name__ == "__main__":
     unittest.main()
