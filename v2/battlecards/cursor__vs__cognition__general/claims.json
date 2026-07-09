@@ -381,25 +381,17 @@
   },
   {
     "subject_key": "cognition | positioning | model-independence",
-    "claim": "Cognition positions itself as an independent, model-agnostic 'agent lab' that routes tasks across all major foundation models, an implicit contrast with Cursor's model dependence and the pending SpaceX/xAI tie-up (the company's own claim).",
-    "claim_type": "fact",
+    "claim": "Cognition still markets itself as an independent, model-agnostic 'agent lab' that routes tasks across all major foundation models, an implicit contrast with Cursor's model dependence (the company's own claim). But on July 8, 2026 it shipped its own in-house model, SWE-1.7, sold only inside Devin and not offered as an API, adding a proprietary model to the same portfolio it says stays neutral.",
+    "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
     "order": 2,
-    "source_url": "https://cognition.ai/blog/series-d",
-    "source_tier": "primary",
-    "evidence_excerpt": "Cognition is an agent lab. We work closely with all of the foundation model labs",
-    "as_of": "2026-05-27",
+    "as_of": "2026-07-08",
     "confidence": "high",
     "id": "c_23761759b9f4",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_4c5b6baffcfe",
+    "updated_on": "2026-07-09"
   },
   {
     "subject_key": "ai-coding-market | structural-framing | ide-vs-agent",
@@ -985,5 +977,93 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "cursor | product-launch | grok-4-5",
+    "claim": "On July 8, 2026, Cursor released Grok 4.5, trained jointly with SpaceXAI, calling it 'our most intelligent model and the first we've built for more than software engineering,' designed for difficult, long-running tasks across software engineering, data science, finance, legal work and other knowledge work. It is available today in Cursor across desktop, web, iOS, CLI and the SDK, included in individual and team plans with double usage for the first week. The base model is priced at $2 per million input tokens and $6 per million output tokens, with a fast variant at $4 per million input tokens and $18 per million output tokens. Composer 2.5 remains offered alongside it.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://cursor.com/blog/grok-4-5",
+    "source_tier": "primary",
+    "evidence_excerpt": "Today we are releasing Grok 4.5 together with SpaceXAI, our most intelligent model and the first we've built for more than software engineering.",
+    "as_of": "2026-07-09",
+    "confidence": "high",
+    "id": "c_cbdcb32d704d",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "fuzzy",
+      "fetched_at": "2026-07-09",
+      "detail": "partial_ratio 0.993"
+    },
+    "corroboration": [
+      {
+        "source_url": "https://thenextweb.com/news/spacexai-grok-4-5-cursor-opus-class-coding-model",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_5856022ff14a",
+    "subject_key": "objection | cognition-swe17-own-model | competitor-strength",
+    "claim": "**\"Devin's new SWE-1.7 hits frontier quality for $1.97 a task. Why pay more for Cursor?\"**\n\nSWE-1.7 is genuinely cheap and it does beat Cursor's own Composer 2.5 on Cognition's FrontierCode benchmark (42.3% to 25.6%). But it still trails Opus 4.8 and GPT-5.5 on that same benchmark and on Terminal-Bench 2.1, and it only runs inside Devin: it is not sold as an API you can build on elsewhere.\n\n**So what:** Point the buyer to Grok 4.5, which Cursor just shipped at $2 per million input tokens and $6 per million output tokens, available today across desktop, web, iOS, CLI and the SDK. Tell them to standardize on it now instead of a model locked inside one vendor's own product.",
+    "claim_type": "interpretation",
+    "section": "objection_handling",
+    "zone": null,
+    "order": 5,
+    "as_of": "2026-07-08",
+    "updated_on": "2026-07-09",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_4c5b6baffcfe",
+    "persona": "eng_led"
+  },
+  {
+    "id": "c_25273b3871c0",
+    "subject_key": "cursor | model-pricing | grok-4-5",
+    "claim": "On July 8, 2026 Cursor released Grok 4.5, trained jointly with SpaceXAI, priced at $2 per million input tokens and $6 per million output tokens, with a faster variant at $4 per million input tokens and $18 per million output tokens. It is included in individual and team plans today, with double usage for the first week, and Composer 2.5 remains available alongside it.",
+    "claim_type": "interpretation",
+    "section": "pricing",
+    "zone": null,
+    "order": 3,
+    "as_of": "2026-07-09",
+    "updated_on": "2026-07-09",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_cbdcb32d704d"
+  },
+  {
+    "id": "c_9833957094da",
+    "subject_key": "cursor | positioning | beyond-coding-grok",
+    "claim": "Grok 4.5 is the first model Cursor has built for more than software engineering, aimed at long-running work across data science, finance, legal work and other knowledge work in addition to coding. It is live now across desktop, web, iOS, CLI and the SDK, broadening Cursor's pitch from a coding tool to a platform for knowledge work generally.",
+    "claim_type": "interpretation",
+    "section": "positioning",
+    "zone": null,
+    "order": 4,
+    "as_of": "2026-07-09",
+    "updated_on": "2026-07-09",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_cbdcb32d704d"
+  },
+  {
+    "id": "c_42d0ec7b6965",
+    "subject_key": "cursor | battlecard-strength | own-frontier-model",
+    "claim": "**Cursor now ships its own frontier model, priced to beat lock-in.**\n\nGrok 4.5, released July 8, 2026 and trained jointly with SpaceXAI, runs across Cursor's desktop, web, iOS, CLI and SDK, priced at $2 per million input tokens and $6 per million output tokens (a faster variant at $4 input and $18 output), and sits alongside Composer 2.5 rather than replacing it. Devin's answer, SWE-1.7, only runs inside Devin and is not sold as an API, so teams building multi-surface workflows have nowhere to take it.\n\n**Soundbite:** \"Grok 4.5 runs everywhere you build, desktop, CLI and SDK, at $2 and $6 per million tokens, while Devin's model only runs inside Devin.\"",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 3,
+    "as_of": "2026-07-09",
+    "updated_on": "2026-07-09",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_cbdcb32d704d",
+    "persona": "eng_led"
   }
 ]

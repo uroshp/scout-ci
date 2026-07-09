@@ -56,14 +56,16 @@ On June 2 Cognition retired the Windsurf brand, relaunched it as Devin Desktop, 
 
 - Cognition still positions itself as cloud-agent vs local-agent, arguing a local agent's 'ceiling is your attention' and stops when you close your laptop. That line no longer holds against Cursor: since June 29, 2026 Cursor's iOS app lets developers launch always-on cloud agents and steer local Remote Control agents from their phone, then review diffs and merge PRs on the go. ([cursor.com](https://cursor.com/blog/ios-mobile-app))
 - Cognition brands Devin as 'the first AI software engineer' and frames cloud agents as the fastest-growing way to build software (the company's own claim). ([cognition.ai](https://cognition.ai/blog/series-d))
-- Cognition positions itself as an independent, model-agnostic 'agent lab' that routes tasks across all major foundation models, an implicit contrast with Cursor's model dependence and the pending SpaceX/xAI tie-up (the company's own claim). ([cognition.ai](https://cognition.ai/blog/series-d))
+- Cognition still markets itself as an independent, model-agnostic 'agent lab' that routes tasks across all major foundation models, an implicit contrast with Cursor's model dependence (the company's own claim). But on July 8, 2026 it shipped its own in-house model, SWE-1.7, sold only inside Devin and not offered as an API, adding a proprietary model to the same portfolio it says stays neutral. ([cognition.com](https://cognition.com/blog/swe-1-7))
 - Industry analysis frames the AI-coding market as a split bet: IDE-first (keep the engineer in the loop: Cursor) vs agent-first (delegate whole tasks to an autonomous agent: Devin). Useful framing because it lets a Cursor rep define the axis of the comparison on our terms. ([techtimes.com](https://www.techtimes.com/articles/317354/20260529/ai-coding-agents-cognitions-26b-raise-bets-agent-first-architecture-beats-ide-tools.htm))
+- Grok 4.5 is the first model Cursor has built for more than software engineering, aimed at long-running work across data science, finance, legal work and other knowledge work in addition to coding. It is live now across desktop, web, iOS, CLI and the SDK, broadening Cursor's pitch from a coding tool to a platform for knowledge work generally. ([cursor.com](https://cursor.com/blog/grok-4-5))
 
 ## Pricing and Packaging
 
 - Devin's self-serve pricing (post-April 2026): Free; Pro \$20/mo; Max \$200/mo; and Teams at usage-based pricing with an \$80/month minimum, plus custom Enterprise. The \$80 base plus per-seat cost makes small-team adoption structurally pricier than Cursor's per-seat Teams plan. ([cognition.ai](https://cognition.ai/blog/new-self-serve-plans-for-devin))
 - Cursor's Teams pricing keeps Standard at \$32/seat/mo annual (\$40 monthly) and Premium at \$96/seat/mo annual (\$120 monthly, 5x the usage at 3x the cost), and now splits every seat into two usage pools, one for first-party Composer and Auto models, one for third-party API calls, with a real-time dashboard split by pool and dollar-threshold spend alerts over Slack or email. There's still no flat team base fee, undercutting Cognition's \$80 base plus per-seat Teams structure for smaller teams.
 - Cursor's individual tiers run Hobby (free), Pro \$20/mo, and Ultra \$200/mo (20x Pro usage), matching Devin's \$20 entry and \$200 power tier on headline price while keeping the engineer in the loop. ([cursor.com](https://cursor.com/blog/new-tier))
+- On July 8, 2026 Cursor released Grok 4.5, trained jointly with SpaceXAI, priced at \$2 per million input tokens and \$6 per million output tokens, with a faster variant at \$4 per million input tokens and \$18 per million output tokens. It is included in individual and team plans today, with double usage for the first week, and Composer 2.5 remains available alongside it. ([cursor.com](https://cursor.com/blog/grok-4-5))
 
 ## Competitive Battlecard
 
@@ -86,6 +88,12 @@ Cursor's ~\$2B ARR (Feb 2026) is about 4x Cognition's \$492M run-rate, and Curso
 Cursor's Teams pricing gives every seat two separate included-usage pools, one for first-party Composer and Auto models and one for third-party API usage, so admins can tell exactly where the money goes. A real-time dashboard splits usage by pool, and rebuilt spend alerts fire on dollar thresholds over Slack or email, so budget owners set their own ceilings and get warned well before a bill lands.
 
 **Soundbite:** You'll know exactly what you're spending and on what, and set your own dollar alerts, before the invoice ever shows up.
+
+**Cursor now ships its own frontier model, priced to beat lock-in.**
+
+Grok 4.5, released July 8, 2026 and trained jointly with SpaceXAI, runs across Cursor's desktop, web, iOS, CLI and SDK, priced at \$2 per million input tokens and \$6 per million output tokens (a faster variant at \$4 input and \$18 output), and sits alongside Composer 2.5 rather than replacing it. Devin's answer, SWE-1.7, only runs inside Devin and is not sold as an API, so teams building multi-surface workflows have nowhere to take it.
+
+**Soundbite:** "Grok 4.5 runs everywhere you build, desktop, CLI and SDK, at \$2 and \$6 per million tokens, while Devin's model only runs inside Devin." ([cursor.com](https://cursor.com/blog/grok-4-5))
 
 ### Where it's a fight
 
@@ -153,6 +161,12 @@ The deal is now signed: SpaceX and Anysphere executed a definitive merger agreem
 Cato Networks disclosed two critical RCE flaws in Cursor, DuneSlide (CVE-2026-50548 and CVE-2026-50549), both rated 9.8 CVSS. A zero-click prompt injection delivered through an MCP server request or a poisoned web result could escape the terminal sandbox and reach full RCE on the developer's machine and any connected SaaS workspace, no click needed from the user. Every version before 3.0 was exposed. Both are already patched in Cursor 3.0, released April 2, 2026, and neither source reports any active exploitation.
 
 **So what:** Move the account to Cursor 3.0 or later now. Both CVEs are closed there and there is no known active exploitation. ([catonetworks.com](https://www.catonetworks.com/blog/duneslide-two-critical-rce-vulnerabilities/))
+
+**"Devin's new SWE-1.7 hits frontier quality for \$1.97 a task. Why pay more for Cursor?"**
+
+SWE-1.7 is genuinely cheap and it does beat Cursor's own Composer 2.5 on Cognition's FrontierCode benchmark (42.3% to 25.6%). But it still trails Opus 4.8 and GPT-5.5 on that same benchmark and on Terminal-Bench 2.1, and it only runs inside Devin: it is not sold as an API you can build on elsewhere.
+
+**So what:** Point the buyer to Grok 4.5, which Cursor just shipped at \$2 per million input tokens and \$6 per million output tokens, available today across desktop, web, iOS, CLI and the SDK. Tell them to standardize on it now instead of a model locked inside one vendor's own product. ([cognition.com](https://cognition.com/blog/swe-1-7))
 
 ## Cut Log
 
