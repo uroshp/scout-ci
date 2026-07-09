@@ -238,6 +238,17 @@ SELFSERVE_EMAIL_ENABLED = os.environ.get("SCOUT_SELFSERVE_EMAIL", "") == "1"
 # Public base URL of the deployed viewer, used to build the result link in the "ready" email.
 SELFSERVE_APP_URL = os.environ.get("SCOUT_SELFSERVE_APP_URL", "https://agent-scout.ai")
 
+# --- Analytics gate ----------------------------------------------------------
+# Hostnames where the CLIENT GA tag may fire (comma-separated env SCOUT_ANALYTICS_HOSTNAMES).
+# Its OWN config on purpose (2026-07-08 incident): the gtag guard used to derive its hostname
+# from SELFSERVE_APP_URL — a LINK-base setting — so repointing links silently disarmed the tag
+# on whichever surface relied on the default. Both prod surfaces are pinned here; dev/preview
+# hosts (localhost, Codespaces) stay excluded exactly as before.
+ANALYTICS_HOSTNAMES = tuple(
+    h.strip() for h in os.environ.get(
+        "SCOUT_ANALYTICS_HOSTNAMES",
+        "agent-scout.ai,agent-scout.streamlit.app").split(",") if h.strip())
+
 # --- Author / credit ---------------------------------------------------------
 # Shown in the app footer and used as the self-serve "get in touch" link. When
 # AUTHOR_LINKEDIN is set, the app renders "DM me on LinkedIn" → this URL; otherwise
