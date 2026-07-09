@@ -145,13 +145,14 @@ _CTRL_CSS = (
 
 def _ga_head() -> str:
     """The GA tag, straight into <head> — no iframe, no window.parent. Same self-gating as the
-    old Streamlit component: fire only on the prod hostname, honor the scout_me opt-out cookie,
-    and let ?me=1 set it. Empty when no measurement id is configured."""
+    Streamlit component: fire only on the allow-listed prod hostnames (config.ANALYTICS_HOSTNAMES,
+    shared via analytics._hosts_js so the two injectors can't drift — 2026-07-08 incident), honor
+    the scout_me opt-out cookie, and let ?me=1 set it. Empty when no measurement id is configured."""
     mid = config.GA_MEASUREMENT_ID
     if not mid:
         return ""
-    host = urllib.parse.urlparse(config.SELFSERVE_APP_URL).hostname or ""
-    host_guard = (f"if(location.hostname!=='{host}')return;" if host else "")
+    host_guard = (f"if({analytics._hosts_js()}.indexOf(location.hostname)===-1)return;"
+                  if config.ANALYTICS_HOSTNAMES else "")
     js = (
         "(function(){"
         + host_guard +

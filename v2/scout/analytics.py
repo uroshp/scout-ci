@@ -24,6 +24,13 @@ from datetime import datetime, timezone
 from scout import config
 
 
+def _hosts_js() -> str:
+    """The analytics hostname allow-list as a JS array literal, shared by BOTH gtag injectors
+    (the Streamlit component below and server.py's _ga_head) so the guard can never drift
+    between surfaces."""
+    return json.dumps(list(config.ANALYTICS_HOSTNAMES))
+
+
 def ga_component_html(measurement_id: str | None = None) -> str:
     """HTML to hand to st.iframe(..., height=1). Empty string when analytics is disabled
     (no measurement id). The injected script SELF-GATES client-side so GA only fires for real
@@ -34,11 +41,13 @@ def ga_component_html(measurement_id: str | None = None) -> str:
     mid = measurement_id or config.GA_MEASUREMENT_ID
     if not mid:
         return ""
-    host = urllib.parse.urlparse(config.SELFSERVE_APP_URL).hostname or ""
-    # only run on the real prod hostname; if the prod URL is somehow unset, skip the guard rather
-    # than block GA everywhere (an empty host would never match a real hostname).
-    host_guard = (f"try{{if(p.location.hostname!=='{host}')return;}}catch(e){{return;}}"
-                  if host else "")
+    # Only run on the allow-listed PROD hostnames (config.ANALYTICS_HOSTNAMES — its own config,
+    # NOT derived from SELFSERVE_APP_URL: the 2026-07-08 incident showed a link-base repoint can
+    # silently disarm the tag). If the list is somehow empty, skip the guard rather than block GA
+    # everywhere (matches the old unset-URL fallback).
+    host_guard = (f"try{{if({_hosts_js()}.indexOf(p.location.hostname)===-1)return;}}"
+                  "catch(e){return;}"
+                  if config.ANALYTICS_HOSTNAMES else "")
     js = (
         "(function(){"
         "var p=window.parent;if(!p)return;"
