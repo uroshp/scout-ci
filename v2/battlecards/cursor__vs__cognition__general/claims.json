@@ -955,5 +955,35 @@
     "confidence": "medium",
     "derived_from": "c_f98e507258b4",
     "persona": "security_regulated"
+  },
+  {
+    "subject_key": "cognition | swe-1-7-model | launch",
+    "claim": "On July 8, 2026 Cognition launched SWE-1.7, its own coding model that it says reaches frontier-level quality at a fraction of the cost: about $1.97 per task on its FrontierCode benchmark, running at 1000 tokens/sec on Cerebras inside Devin (Web, Desktop and CLI). On third-party benchmarks it trails Opus 4.8 and GPT-5.5 by a few points (42.3% on FrontierCode 1.1 vs 46.5% and 43.0%; 81.5% on Terminal-Bench 2.1) yet beats GPT-5.5 on SWE-Bench Multilingual (77.8% to 76.8%), and it far outscores Cursor's own Composer 2.5 (25.6% on FrontierCode). SWE-1.7 runs only inside Devin and is not sold as an API.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 10,
+    "source_url": "https://cognition.com/blog/swe-1-7",
+    "source_tier": "primary",
+    "evidence_excerpt": "It reaches frontier-level intelligence at a much lower cost, advancing the cost-performance Pareto curve.",
+    "as_of": "2026-07-08",
+    "confidence": "high",
+    "id": "c_4c5b6baffcfe",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-09",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.siliconreport.com/cognition-releases-swe-1-7-a-specialized-coding-model-aimed-at-undercutting-openai-and-ant-77242459",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
