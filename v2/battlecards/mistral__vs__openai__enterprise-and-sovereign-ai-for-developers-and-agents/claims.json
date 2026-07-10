@@ -521,25 +521,17 @@
   },
   {
     "subject_key": "mistral | list-price | medium-3-5",
-    "claim": "Mistral Medium 3.5 lists at $1.50 per million input tokens and $7.50 per million output, roughly 70% below OpenAI GPT-5.5's $5/$30 list. Negotiated enterprise pricing is not public on either side.",
-    "claim_type": "fact",
+    "claim": "Mistral Medium 3.5 lists at $1.50 per million input tokens and $7.50 per million output. OpenAI's GPT-5.6 line launched July 9, 2026 and replaced GPT-5.5, with the comparable mid tier, Terra, priced at $2.50 input and $15 output, so Mistral's advantage is now about 40% on input and 50% on output rather than the prior 70%. Negotiated enterprise pricing is not public on either side.",
+    "claim_type": "interpretation",
     "section": "pricing",
     "zone": null,
     "order": 0,
-    "source_url": "https://mistral.ai/news/vibe-remote-agents-mistral-medium-3-5/",
-    "source_tier": "primary",
-    "evidence_excerpt": "priced at $1.5 per million input tokens and $7.5 per million output tokens",
-    "as_of": "2026-05-22",
+    "as_of": "2026-07-09",
     "confidence": "high",
     "id": "c_990bfa975fa6",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-17",
-      "detail": null
-    }
+    "derived_from": "c_a5c54281605e",
+    "updated_on": "2026-07-10"
   },
   {
     "subject_key": "mistral | pricing-model | open-weight-self-host",
@@ -1026,16 +1018,16 @@
   {
     "id": "c_cc3a85867bab",
     "subject_key": "mistral | battlecard-vibe-agent | where-we-win",
-    "claim": "**Vibe puts work automation and coding under one agent and one license.**\n\nWork Mode runs long-running multi-step tasks across Google Workspace, Outlook, SharePoint, Slack and GitHub after a plan sign-off. Code Mode launches remote coding agents in isolated sandboxes, ships reviewable pull requests, runs sessions in parallel and keeps sessions alive while the machine is off. A VS Code extension brings the coding agent across the whole project. Pricing: Free, Pro at $14.99 per month, Team at $24.99 per user per month, Enterprise.\n\n**Soundbite:** Vibe is the only tool that covers both work automation and coding agents under a single plan starting at $14.99 a month.",
+    "claim": "**Vibe still bundles work automation and coding under one license, and OpenAI's answer stays cloud only.**\n\nWork Mode runs long-running multi-step tasks across Google Workspace, Outlook, SharePoint, Slack and GitHub after a plan sign-off. Code Mode launches remote coding agents in isolated sandboxes, ships reviewable pull requests, runs sessions in parallel and keeps sessions alive while the machine is off, with a VS Code extension across the whole project. OpenAI's ChatGPT Work now folds chat, work automation and Codex coding into one subscription too, so the single-license bundle is matched, but it stays cloud-hosted, so Mistral's self-host and sovereignty edge holds. Pricing: Free, Pro at $14.99 a month, Team at $24.99 per user a month, Enterprise.\n\n**Soundbite:** Vibe gives your team work automation and a coding agent in one license you can also run on your own infrastructure, starting at $14.99 a month.",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_we_win",
     "order": 4,
-    "as_of": "2026-05-28",
+    "as_of": "2026-07-09",
     "verified": true,
     "confidence": "medium",
-    "derived_from": "c_e6d04a91ca10",
-    "updated_on": "2026-06-19",
+    "derived_from": "c_2fe7de2c130d",
+    "updated_on": "2026-07-10",
     "persona": "economic_buyer"
   },
   {
