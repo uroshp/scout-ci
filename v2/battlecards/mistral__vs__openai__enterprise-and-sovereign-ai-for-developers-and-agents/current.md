@@ -66,7 +66,7 @@ BNP Paribas runs Mistral models on-premises to meet strict security requirements
 
 ## Pricing and Packaging
 
-- Mistral Medium 3.5 lists at \$1.50 per million input tokens and \$7.50 per million output, roughly 70% below OpenAI GPT-5.5's \$5/\$30 list. Negotiated enterprise pricing is not public on either side. ([mistral.ai](https://mistral.ai/news/vibe-remote-agents-mistral-medium-3-5/))
+- Mistral Medium 3.5 lists at \$1.50 per million input tokens and \$7.50 per million output. OpenAI's GPT-5.6 line launched July 9, 2026 and replaced GPT-5.5, with the comparable mid tier, Terra, priced at \$2.50 input and \$15 output, so Mistral's advantage is now about 40% on input and 50% on output rather than the prior 70%. Negotiated enterprise pricing is not public on either side. ([marktechpost.com](https://www.marktechpost.com/2026/07/09/openai-releases-gpt-5-6-a-three-tier-model-family-with-programmatic-tool-calling/))
 - OpenAI executed the price cut it was weighing. GPT-5.6 launched July 9, 2026 with three tiers priced per million tokens: Sol at \$5 input and \$30 output, Terra at \$2.50 and \$15, Luna at \$1 and \$6. Terra delivers GPT-5.5-class performance at half the cost, so OpenAI's mid tier now runs \$2.50/\$15 against Mistral Medium 3.5's \$1.50/\$7.50. ([marktechpost.com](https://www.marktechpost.com/2026/07/09/openai-releases-gpt-5-6-a-three-tier-model-family-with-programmatic-tool-calling/))
 - Mistral's open-weight models, including Devstral 2, can be self-hosted at zero per-token cost on the customer's own compute, a structurally different cost model from any OpenAI offering. OpenAI has no open-weight option. ([mistral.ai](https://mistral.ai/pricing/))
 - The 'free' open-weight story has a trap reps should disclose: certain newer models (including Mistral Medium 3.5) use a modified MIT license requiring a commercial license once a company exceeds \$20M monthly revenue. Self-hosting buyers who scale past it face licensing exposure. ([help.mistral.ai](https://help.mistral.ai/en/articles/347393-under-which-license-are-mistral-s-open-models-available))
@@ -101,11 +101,11 @@ Mistral lists Devstral 2 as up to 7x more cost-efficient than Claude on real tas
 
 **Soundbite:** You'll pay significantly more every month, while a few benchmark points barely change your deployment. And benchmarks reset with every new model release, while the cost keeps piling up. ([mistral.ai](https://mistral.ai/news/devstral-2-vibe-cli/))
 
-**Vibe puts work automation and coding under one agent and one license.**
+**Vibe still bundles work automation and coding under one license, and OpenAI's answer stays cloud only.**
 
-Work Mode runs long-running multi-step tasks across Google Workspace, Outlook, SharePoint, Slack and GitHub after a plan sign-off. Code Mode launches remote coding agents in isolated sandboxes, ships reviewable pull requests, runs sessions in parallel and keeps sessions alive while the machine is off. A VS Code extension brings the coding agent across the whole project. Pricing: Free, Pro at \$14.99 per month, Team at \$24.99 per user per month, Enterprise.
+Work Mode runs long-running multi-step tasks across Google Workspace, Outlook, SharePoint, Slack and GitHub after a plan sign-off. Code Mode launches remote coding agents in isolated sandboxes, ships reviewable pull requests, runs sessions in parallel and keeps sessions alive while the machine is off, with a VS Code extension across the whole project. OpenAI's ChatGPT Work now folds chat, work automation and Codex coding into one subscription too, so the single-license bundle is matched, but it stays cloud-hosted, so Mistral's self-host and sovereignty edge holds. Pricing: Free, Pro at \$14.99 a month, Team at \$24.99 per user a month, Enterprise.
 
-**Soundbite:** Vibe is the only tool that covers both work automation and coding agents under a single plan starting at \$14.99 a month. ([mistral.ai](https://mistral.ai/news/vibe-agent/))
+**Soundbite:** Vibe gives your team work automation and a coding agent in one license you can also run on your own infrastructure, starting at \$14.99 a month. ([forbes.com](https://www.forbes.com/sites/madhulika-pathak/2026/07/09/openai-debuts-chatgpt-work-workplace-ai-agent-with-gpt-56/))
 
 **OCR 4 extends Mistral's self-hosted stack into document intelligence.**
 
