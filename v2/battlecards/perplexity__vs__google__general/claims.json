@@ -1265,5 +1265,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "google | legal-action | eu-dma-android-ai-interop",
+    "claim": "A July 8, 2026 EU General Court ruling closed Google's last route to pre-empt two binding DMA decisions due July 27, 2026. One (case DMA.100220, Article 6(7)) forces Google to give rival AI services free and effective interoperability with the Android system features Gemini uses: wake-word invocation, the long-press gesture, on-screen context awareness and neural-processing-unit access. The other (DMA.100209, Article 6(11)) forces Google to share anonymized Search ranking, query and click data with rival search engines and AI chatbot providers on FRAND terms. Compliance begins immediately on issuance; Google can challenge only the content afterward, and non-compliance fines reach up to 10% of Alphabet turnover (over $35 billion).",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.techtimes.com/articles/320011/20260709/eu-court-ruling-gives-google-18-days-open-android-ai-layer-blocks-last-legal-defense.htm",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "services like OpenAI's ChatGPT and Anthropic's Claude may gain legally enforceable rights to the same wake-word invocation system",
+    "as_of": "2026-07-09",
+    "confidence": "high",
+    "id": "c_14df58967be1",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-10",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://thenextweb.com/news/google-eu-android-gemini-rivals-dma",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

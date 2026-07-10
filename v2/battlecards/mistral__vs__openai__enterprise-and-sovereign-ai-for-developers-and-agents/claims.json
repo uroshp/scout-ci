@@ -323,15 +323,15 @@
   },
   {
     "subject_key": "openai | pricing-model | price-cut-consideration-2026",
-    "claim": "OpenAI is weighing sharp cuts to its token pricing to fend off Anthropic, per a June 11 WSJ report. Any enterprise locking in current list rates is negotiating against a falling price.",
+    "claim": "OpenAI executed the price cut it was weighing. GPT-5.6 launched July 9, 2026 with three tiers priced per million tokens: Sol at $5 input and $30 output, Terra at $2.50 and $15, Luna at $1 and $6. Terra delivers GPT-5.5-class performance at half the cost, so OpenAI's mid tier now runs $2.50/$15 against Mistral Medium 3.5's $1.50/$7.50.",
     "claim_type": "fact",
-    "section": "recent_moves",
+    "section": "pricing",
     "zone": null,
-    "order": 3,
-    "source_url": "https://www.cnbc.com/2026/06/11/openai-mulls-slashing-prices-ahead-of-competition-from-anthropic-wsj.html",
+    "order": 1,
+    "source_url": "https://www.marktechpost.com/2026/07/09/openai-releases-gpt-5-6-a-three-tier-model-family-with-programmatic-tool-calling/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "weighing significant cuts to what it charges for tokens, the unit of measurement artificial-intelligence firms use to bill for their products",
-    "as_of": "2026-06-11",
+    "evidence_excerpt": "Sol is $5 input and $30 output. Terra is $2.50 and $15. Luna is $1 and $6.",
+    "as_of": "2026-07-09",
     "confidence": "high",
     "id": "c_a5c54281605e",
     "verified": true,
@@ -339,9 +339,17 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-17",
+      "fetched_at": "2026-07-10",
       "detail": null
-    }
+    },
+    "corroboration": [
+      {
+        "source_url": "https://cryptobriefing.com/openai-gpt-56-pricing-tiers/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "openai | ipo-filing | 2026",
@@ -477,15 +485,15 @@
   },
   {
     "subject_key": "openai | positioning | frontier-superapp",
-    "claim": "OpenAI's bet is frontier capability delivered as a hosted super-app: its founders describe combining ChatGPT, Codex and an AI browser into one unified service for enterprise customers. The strength is breadth and capability; the constraint is that it is cloud-only.",
+    "claim": "OpenAI shipped the super-app on July 9, 2026. ChatGPT Work is one agent, powered by GPT-5.6, that runs multi-step work across a user's connected apps and files and produces finished sheets, slides, docs and web apps. Chat, Work and Codex now live in one desktop app on every plan, so work automation and coding sit under a single ChatGPT subscription. The Atlas browser is being retired on August 9, so the browser piece of the original vision is dropping out. It stays cloud-hosted, so Mistral's self-host and sovereignty edge is untouched.",
     "claim_type": "fact",
     "section": "positioning",
     "zone": null,
-    "order": 3,
-    "source_url": "https://techcrunch.com/2026/04/23/openai-chatgpt-gpt-5-5-ai-model-superapp/",
+    "order": 1,
+    "source_url": "https://www.forbes.com/sites/madhulika-pathak/2026/07/09/openai-debuts-chatgpt-work-workplace-ai-agent-with-gpt-56/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "The co-founders envision combining ChatGPT, Codex, and AI browser into one unified service that can aid enterprise customers.",
-    "as_of": "2026-04-23",
+    "evidence_excerpt": "ChatGPT Work can pull context from users’ connected apps and files to generate websites, reports, spreadsheets, presentations and other documents",
+    "as_of": "2026-07-09",
     "confidence": "high",
     "id": "c_2fe7de2c130d",
     "verified": true,
@@ -493,9 +501,23 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-17",
+      "fetched_at": "2026-07-10",
       "detail": null
-    }
+    },
+    "corroboration": [
+      {
+        "source_url": "https://gagadget.com/en/717976-openai-launches-chatgpt-work-an-ai-agent-for-automating-real-jobs/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.pymnts.com/news/artificial-intelligence/2026/openai-launches-chatgpt-agent-that-executes-complex-workflows/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "mistral | list-price | medium-3-5",
