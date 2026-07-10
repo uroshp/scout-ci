@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise coding/developers",
   "baseline_date": "2026-06-04",
-  "last_checked": "2026-07-09T11:05:37",
+  "last_checked": "2026-07-10T11:00:35",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_e5e52edeb211",
@@ -21,8 +21,9 @@
   ],
   "monitored": true,
   "unresolved_subjects": [
-    "NEW"
+    "NEW",
+    "openai | gpt-5-6-government-restricted-release"
   ],
   "unresolved_since": "2026-07-08",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }
