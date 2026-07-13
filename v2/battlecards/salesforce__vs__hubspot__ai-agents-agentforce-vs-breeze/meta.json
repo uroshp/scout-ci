@@ -4,17 +4,10 @@
   "competitor": "HubSpot",
   "focus": "AI agents (Agentforce vs Breeze)",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-07-11T11:11:51",
+  "last_checked": "2026-07-13T11:12:37",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_50b31fce6350"
   ],
-  "monitored": true,
-  "unresolved_subjects": [
-    "NEW",
-    "agentforce-commerce | ga-launch",
-    "hubspot-breeze | prospecting-agent-ga"
-  ],
-  "unresolved_since": "2026-07-09",
-  "unresolved_attempts": 2
+  "monitored": true
 }
