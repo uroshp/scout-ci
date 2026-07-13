@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-07-11T11:04:42",
+  "last_checked": "2026-07-13T11:05:55",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -20,5 +20,5 @@
     "google-cloud | reliability-incident"
   ],
   "unresolved_since": "2026-07-10",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }
