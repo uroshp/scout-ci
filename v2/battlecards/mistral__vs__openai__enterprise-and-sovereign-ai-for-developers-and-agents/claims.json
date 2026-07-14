@@ -1164,5 +1164,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "openai | usage-limits | shared-pool-cap-lift-2026-07",
+    "claim": "**OpenAI's launch demand overwhelmed its metered usage badly enough that it lifted the caps.** On July 12 OpenAI temporarily removed the 5-hour usage cap on Plus, Pro and Business plans after a 48-hour demand surge. ChatGPT Work and Codex draw on one shared usage pool, so users hit the wall fast. The lift is temporary with no published allowance, so the cap can return. Self-hosted open weights carry no such per-hour cap because the compute is the customer's own.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 0,
+    "source_url": "https://www.bleepingcomputer.com/news/artificial-intelligence/openai-temporarily-relaxes-gpt-56-sol-usage-limits/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Codex and ChatGPT count local messages and cloud-based tasks against a shared usage limit.",
+    "as_of": "2026-07-12",
+    "confidence": "high",
+    "id": "c_cd411c2a58ed",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-14",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.digitaltrends.com/computing/openai-just-took-the-handcuffs-off-your-chatgpt-work-and-codex-usage-limits-at-least-for-now/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
