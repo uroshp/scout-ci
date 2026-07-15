@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise and sovereign AI for developers and agents",
   "baseline_date": "2026-06-17",
-  "last_checked": "2026-07-14T11:09:38",
+  "last_checked": "2026-07-15T11:08:23",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_911e9a6938ba",
@@ -18,5 +18,11 @@
     "f_b48ffac6f678",
     "f_4393c3d067c6"
   ],
-  "monitored": true
+  "monitored": true,
+  "unresolved_subjects": [
+    "mistral | flagship-product | developer-agents",
+    "mistral | flagship-product | mistral-compute"
+  ],
+  "unresolved_since": "2026-07-14",
+  "unresolved_attempts": 1
 }

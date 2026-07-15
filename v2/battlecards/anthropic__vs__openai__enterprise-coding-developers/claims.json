@@ -1552,5 +1552,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "openai | gpt56-usage-limits | 2026-07",
+    "claim": "OpenAI temporarily removed the 5-hour usage cap on Plus, Business and Pro plans for Codex and ChatGPT Work on July 12, 2026, after a 48-hour demand surge following GPT-5.6 Sol's July 9 general release, and reset every user's usage counter. Weekly limits still apply and OpenAI has not said when the 5-hour window returns.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 10,
+    "source_url": "https://www.bleepingcomputer.com/news/artificial-intelligence/openai-temporarily-relaxes-gpt-56-sol-usage-limits/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "On Sunday, OpenAI confirmed that it is temporarily removing the five-hour usage restriction for Plus, Pro, and Business plans, while also resetting current usage for everyone.",
+    "as_of": "2026-07-14",
+    "confidence": "high",
+    "id": "c_85fb5e8a8008",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-15",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.digitaltrends.com/computing/openai-just-took-the-handcuffs-off-your-chatgpt-work-and-codex-usage-limits-at-least-for-now/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
