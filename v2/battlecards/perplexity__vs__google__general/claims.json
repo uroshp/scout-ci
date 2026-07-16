@@ -1025,26 +1025,18 @@
   },
   {
     "subject_key": "objection | comet-security-vulnerabilities",
-    "claim": "**\"I read Perplexity's Comet browser had serious security holes. Can we trust it with our data?\"**\n\nDon't dodge it: security researchers disclosed prompt-injection and data-exfiltration flaws in Comet, and Perplexity initially under-rated one report before patching by February 2026. The honest framing is that indirect prompt injection is an industry-wide agentic-browser problem (Brave and others have flagged the same class), the specific vectors were patched, and Perplexity has since pursued FedRAMP-grade controls for sensitive deployments.\n\n**So what:** Lead with the patch-and-hardening story and the industry-wide context; a CISO trusts a vendor that names the risk over one that pretends it away.",
+    "claim": "**\"I read Perplexity's Comet browser had serious security holes. Can we trust it with our data?\"**\n\nDon't dodge it: security researchers disclosed prompt-injection and data-exfiltration flaws in Comet, and Perplexity initially under-rated one report before patching by February 2026. Since then Perplexity has rebuilt the runtime underneath its agents. SPACE now runs 100% of Computer agent sessions, isolating every task in its own virtual machine with per-session credential isolation, and credentials are injected from outside the sandbox rather than stored inside it. Indirect prompt injection remains an industry-wide agentic-browser problem (Brave and others have flagged the same class), but Perplexity has paired the patched vectors with this hardened isolation model and its FedRAMP-grade controls for sensitive deployments.\n\n**So what:** Point to SPACE's per-session credential isolation on Computer agent sessions as the current architecture, not just a past patch. A CISO trusts a vendor whose isolation model keeps advancing over one still leaning on a fix from months ago.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 3,
-    "source_url": "https://thehackernews.com/2026/03/researchers-trick-perplexitys-comet-ai.html",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Guardio said it was able to make Perplexity's Comet AI browser fall victim to a phishing scam in under four minutes",
-    "as_of": "2026-03-11",
+    "as_of": "2026-07-15",
     "confidence": "high",
     "persona": "security_regulated",
     "id": "c_4cff9f581189",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-06",
-      "detail": null
-    }
+    "derived_from": "c_fbec766f782a",
+    "updated_on": "2026-07-16"
   },
   {
     "subject_key": "objection | perplexity-financial-stability",
@@ -1290,6 +1282,36 @@
     "corroboration": [
       {
         "source_url": "https://thenextweb.com/news/google-eu-android-gemini-rivals-dma",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "perplexity | product | space-sandbox",
+    "claim": "Perplexity launched SPACE (Sandboxed Platform for Agentic Code Execution), a secure sandbox runtime that as of July 15, 2026 powers 100% of Computer agent sessions, replacing its previous sandbox provider. Each task runs inside an isolated virtual machine (SiliconANGLE reports it uses AWS's Firecracker microVM technology) combining pause, resume, session forking and per-session credential isolation, with credentials injected from outside the sandbox rather than stored inside it so long-running agent work can survive restarts. Perplexity reported the switch cut median sandbox creation latency from 185 milliseconds to 60 milliseconds (a 3.1x improvement) and 90th-percentile latency from 447 milliseconds to 89 milliseconds (a 5.0x improvement), with SPACE having already supported millions of sandbox creations and tens of millions of reconnects in its first week live.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://research.perplexity.ai/articles/making-space-secure-and-efficient-runtimes-for-long-running-agents",
+    "source_tier": "primary",
+    "evidence_excerpt": "As of today, 100% of Computer sessions now run on SPACE.",
+    "as_of": "2026-07-15",
+    "confidence": "high",
+    "id": "c_fbec766f782a",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-16",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://siliconangle.com/2026/07/15/perplexity-launches-secure-sandbox-make-ai-agents-secure-powerful/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false

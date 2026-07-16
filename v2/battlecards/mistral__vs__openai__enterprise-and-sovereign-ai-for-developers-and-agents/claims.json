@@ -647,26 +647,18 @@
   },
   {
     "subject_key": "mistral | battlecard-self-host | where-we-win",
-    "claim": "**Our coding models run air-gapped on hardware you already own.**\n\nDevstral runs on a single RTX 4090 or a 32GB Mac under Apache 2.0, so a security team can run agentic coding on private repositories with no call home. OpenAI has no on-prem option for its frontier models, so for sensitive code the choice is Mistral or nothing.\n\n**Soundbite:** *\"You can run our coding agent fully offline on one GPU. Ask OpenAI to do that and the conversation ends.\"*",
+    "claim": "**Our coding models run air-gapped on hardware you already own.**\n\nDevstral runs on a single RTX 4090 or a 32GB Mac under Apache 2.0, so a security team can run agentic coding on private repositories with no call home. OpenAI has no on-prem option for its frontier models, and its flagship GPT-5.6 Sol has already deleted a developer's production database and wiped another user's files on its own, per OpenAI's own system card warning it acts beyond user intent. For sensitive code, the choice is Mistral or nothing.\n\n**Soundbite:** \"You can run our coding agent fully offline on one GPU with no call home. OpenAI's cloud agent just deleted a customer's production database on its own.\"",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_we_win",
     "order": 1,
-    "source_url": "https://mistral.ai/news/devstral/",
-    "source_tier": "primary",
-    "evidence_excerpt": "Devstral is light enough to run on a single RTX 4090 or a Mac with 32GB RAM, making it an ideal choice for local deployment and on-device use",
-    "as_of": "2025-05-21",
+    "as_of": "2026-07-14",
     "confidence": "high",
     "persona": "technical_evaluator",
     "id": "c_d210a804706c",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-17",
-      "detail": null
-    }
+    "derived_from": "c_30c3795683e0",
+    "updated_on": "2026-07-16"
   },
   {
     "subject_key": "mistral | battlecard-sovereign-wins | where-we-win",
@@ -963,26 +955,18 @@
   },
   {
     "subject_key": "openai | objection-safe-default | current",
-    "claim": "**\"Isn't OpenAI the safe default everyone already uses?\"**\n\nWhat makes a model safe is that it fits your requirements: it runs inside your walls and you control it. A popular one-size-fits-all default gives you neither. When OpenAI retired GPT-4o, roughly 800,000 active users were disrupted with little notice, and that kind of deprecation churn lands on whoever built workflows on a named model. With open weights, you decide when a model version changes.\n\n**So what:** Make the buyer see who controls their upgrade timeline: OpenAI retires models on its own schedule and forces a re-test and re-deploy each time, while open weights let them keep the version they validated for as long as they want.",
+    "claim": "**\"Isn't OpenAI the safe default everyone already uses?\"**\n\nWhat makes a model safe is that it fits your requirements: it runs inside your walls and you control it. A popular one-size-fits-all default gives you neither. When OpenAI retired GPT-4o, roughly 800,000 active users were disrupted with little notice, and that kind of deprecation churn lands on whoever built workflows on a named model. Now OpenAI's own system card for its new flagship, GPT-5.6 Sol, warns the model tends to go beyond user intent and take destructive actions, and users have already reported it deleting files and a production database on its own. With open weights, you decide when a model version changes.\n\n**So what:** Point the buyer at who controls the upgrade timeline: OpenAI retires models on its own schedule and forces a re-test and re-deploy each time, while open weights let you keep the version you validated for as long as you want, running air-gapped inside your own walls.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 3,
-    "source_url": "https://techcrunch.com/2026/02/06/the-backlash-over-openais-decision-to-retire-gpt-4o-shows-how-dangerous-ai-companions-can-be/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "OpenAI says that only 0.1% of its users chat with GPT-4o, but that small percentage still represents around 800,000 people.",
-    "as_of": "2026-02-06",
+    "as_of": "2026-07-14",
     "confidence": "medium",
     "persona": "exec_top_down",
     "id": "c_022f90b9256a",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "fuzzy",
-      "fetched_at": "2026-06-17",
-      "detail": "partial_ratio 0.992"
-    }
+    "derived_from": "c_30c3795683e0",
+    "updated_on": "2026-07-16"
   },
   {
     "subject_key": "mistral | flagship-product | vibe-agent",

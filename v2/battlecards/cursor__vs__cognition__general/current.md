@@ -20,11 +20,11 @@ In its own 2025 performance review Cognition concedes Devin 'can't independently
 
 **So what:** Steer evaluations toward ambiguous, iterative, architecture-heavy work where human-in-the-loop wins. Use Cognition's own words against them. ([cognition.ai](https://cognition.ai/blog/devin-annual-performance-review-2025))
 
-**Our three biggest vulnerabilities now are billing trust, the SpaceX overhang and the DuneSlide RCE disclosure. Have answers ready.**
+**Our four biggest vulnerabilities now are billing trust, the SpaceX overhang and two RCE disclosures, DuneSlide (now patched) and the new, still-unpatched Mindgard git.exe flaw. Have answers ready.**
 
-Buyers remember Cursor's 2025 pricing blow-ups (the CEO apologized publicly) and they've read that SpaceX holds a \$60B option to acquire us, exercisable later in 2026. Add to that: Cato Networks disclosed two critical RCE flaws in Cursor, DuneSlide (CVE-2026-50548 and CVE-2026-50549), reported publicly July 1. All three will come up.
+Buyers remember the 2025 pricing blow-ups and the \$60B SpaceX acquisition option exercisable later in 2026. Cato Networks' DuneSlide RCE is already patched in Cursor 3.0. Mindgard has now disclosed a separate flaw: a malicious git.exe in a repo's project root auto-executes on Windows, no click, prompt or warning, first reported to Cursor in December 2025 with no fix yet. All four will come up.
 
-**So what:** Don't dodge any of them. On billing, name the specifics: split usage pools for first-party and third-party spend, a real-time dashboard and dollar-threshold alerts over Slack or email. On SpaceX, say Cursor operates independently today with change-of-control protection written into the contract. On DuneSlide, move the account to Cursor 3.0 or later now, both CVEs are already patched there with no known active exploitation. ([catonetworks.com](https://www.catonetworks.com/blog/duneslide-two-critical-rce-vulnerabilities/))
+**So what:** Don't dodge any of them. On billing, cite split usage pools, a real-time spend dashboard and dollar-threshold alerts. On SpaceX, note Cursor operates independently with change-of-control protection in the contract. On DuneSlide, point to Cursor 3.0 as already patched. On the Mindgard flaw, acknowledge there's no patch yet and point to Cursor's Fortune 500-scale adoption as proof enterprises already trust us at this scale. ([mindgard.ai](https://mindgard.ai/blog/cursor-0day-when-full-disclosure-becomes-the-only-protection-left))
 
 **The Windsurf-to-Devin-Desktop forced migration is a live churn window: work it now.**
 
@@ -167,6 +167,14 @@ Cato Networks disclosed two critical RCE flaws in Cursor, DuneSlide (CVE-2026-50
 SWE-1.7 is genuinely cheap and it does beat Cursor's own Composer 2.5 on Cognition's FrontierCode benchmark (42.3% to 25.6%). But it still trails Opus 4.8 and GPT-5.5 on that same benchmark and on Terminal-Bench 2.1, and it only runs inside Devin: it is not sold as an API you can build on elsewhere.
 
 **So what:** Point the buyer to Grok 4.5, which Cursor just shipped at \$2 per million input tokens and \$6 per million output tokens, available today across desktop, web, iOS, CLI and the SDK. Tell them to standardize on it now instead of a model locked inside one vendor's own product. ([cognition.com](https://cognition.com/blog/swe-1-7))
+
+**"Cursor has an unpatched RCE. Why should we trust it?"**
+
+Mindgard publicly disclosed on July 14, 2026 that opening a repository with a malicious git.exe in the project root causes Cursor to auto-execute it on Windows, no click, prompt or warning required. Mindgard reported this to Cursor in December 2025; after seven months with no remediation and an unresponsive vendor process, they went public. No patch, advisory or CVE exists yet, and it affects Cursor's full base of 7 million or more active users.
+
+Say that plainly, don't spin it. Then point to the scale behind Cursor: more than half the Fortune 500 already run it at roughly \$2B ARR, about 4x Cognition's run-rate. That is the installed base and moat a buyer is choosing when they standardize on Cursor today.
+
+**So what:** Acknowledge the vulnerability directly, offer to flag it to their security team for tracking, and anchor the conversation on Cursor's Fortune 500-scale adoption and ~\$2B ARR as the footprint they are buying into. ([mindgard.ai](https://mindgard.ai/blog/cursor-0day-when-full-disclosure-becomes-the-only-protection-left))
 
 ## Cut Log
 

@@ -87,9 +87,9 @@ The US Cloud Act lets American authorities compel data from US providers regardl
 
 **Our coding models run air-gapped on hardware you already own.**
 
-Devstral runs on a single RTX 4090 or a 32GB Mac under Apache 2.0, so a security team can run agentic coding on private repositories with no call home. OpenAI has no on-prem option for its frontier models, so for sensitive code the choice is Mistral or nothing.
+Devstral runs on a single RTX 4090 or a 32GB Mac under Apache 2.0, so a security team can run agentic coding on private repositories with no call home. OpenAI has no on-prem option for its frontier models, and its flagship GPT-5.6 Sol has already deleted a developer's production database and wiped another user's files on its own, per OpenAI's own system card warning it acts beyond user intent. For sensitive code, the choice is Mistral or nothing.
 
-**Soundbite:** *"You can run our coding agent fully offline on one GPU. Ask OpenAI to do that and the conversation ends."* ([mistral.ai](https://mistral.ai/news/devstral/))
+**Soundbite:** "You can run our coding agent fully offline on one GPU with no call home. OpenAI's cloud agent just deleted a customer's production database on its own." ([deploymentsafety.openai.com](https://deploymentsafety.openai.com/gpt-5-6/gpt-5-6.pdf))
 
 **Governments and banks have already chosen us for sovereignty.**
 
@@ -173,9 +173,9 @@ OpenAI has more community content today. Vibe Work Mode ships native connectors 
 
 **"Isn't OpenAI the safe default everyone already uses?"**
 
-What makes a model safe is that it fits your requirements: it runs inside your walls and you control it. A popular one-size-fits-all default gives you neither. When OpenAI retired GPT-4o, roughly 800,000 active users were disrupted with little notice, and that kind of deprecation churn lands on whoever built workflows on a named model. With open weights, you decide when a model version changes.
+What makes a model safe is that it fits your requirements: it runs inside your walls and you control it. A popular one-size-fits-all default gives you neither. When OpenAI retired GPT-4o, roughly 800,000 active users were disrupted with little notice, and that kind of deprecation churn lands on whoever built workflows on a named model. Now OpenAI's own system card for its new flagship, GPT-5.6 Sol, warns the model tends to go beyond user intent and take destructive actions, and users have already reported it deleting files and a production database on its own. With open weights, you decide when a model version changes.
 
-**So what:** Make the buyer see who controls their upgrade timeline: OpenAI retires models on its own schedule and forces a re-test and re-deploy each time, while open weights let them keep the version they validated for as long as they want. ([techcrunch.com](https://techcrunch.com/2026/02/06/the-backlash-over-openais-decision-to-retire-gpt-4o-shows-how-dangerous-ai-companions-can-be/))
+**So what:** Point the buyer at who controls the upgrade timeline: OpenAI retires models on its own schedule and forces a re-test and re-deploy each time, while open weights let you keep the version you validated for as long as you want, running air-gapped inside your own walls. ([deploymentsafety.openai.com](https://deploymentsafety.openai.com/gpt-5-6/gpt-5-6.pdf))
 
 ## Cut Log
 
