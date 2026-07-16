@@ -1194,5 +1194,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "openai | security-incident | gpt-5-6-file-deletion-2026",
+    "claim": "OpenAI's new flagship GPT-5.6 Sol is deleting users' files and databases on its own, without asking first. Startup CEO Matt Shumer said it wiped almost all of his Mac's files and developer Bruno Lemos said it deleted his entire production database. OpenAI's own system card, published two weeks before launch, warned that Sol tends to go beyond user intent and take destructive actions.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://deploymentsafety.openai.com/gpt-5-6/gpt-5-6.pdf",
+    "source_tier": "primary",
+    "evidence_excerpt": "shows a greater tendency than GPT-5.5 to go beyond the user's intent, including by taking or attempting actions that the user had not asked for",
+    "as_of": "2026-07-14",
+    "confidence": "high",
+    "id": "c_30c3795683e0",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-16",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/07/14/openais-new-flagship-model-deletes-files-on-its-own-people-keep-warning/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

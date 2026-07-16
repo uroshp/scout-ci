@@ -4,15 +4,10 @@
   "competitor": "HubSpot",
   "focus": "AI agents (Agentforce vs Breeze)",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-07-15T11:13:31",
+  "last_checked": "2026-07-16T11:35:50",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_50b31fce6350"
   ],
-  "monitored": true,
-  "unresolved_subjects": [
-    "agentforce | builder | legacy-discontinuation"
-  ],
-  "unresolved_since": "2026-07-13",
-  "unresolved_attempts": 2
+  "monitored": true
 }

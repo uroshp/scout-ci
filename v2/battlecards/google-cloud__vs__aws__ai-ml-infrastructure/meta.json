@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-07-15T11:04:44",
+  "last_checked": "2026-07-16T11:10:56",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -17,8 +17,9 @@
   ],
   "monitored": true,
   "unresolved_subjects": [
-    "NEW"
+    "NEW",
+    "aws | launch | openai-gpt-5.6-on-bedrock-2026-07"
   ],
   "unresolved_since": "2026-07-14",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }
