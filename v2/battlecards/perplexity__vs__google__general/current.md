@@ -163,9 +163,9 @@ This is real and unresolved: CNN, the NYT, News Corp and six others have active 
 
 **"I read Perplexity's Comet browser had serious security holes. Can we trust it with our data?"**
 
-Don't dodge it: security researchers disclosed prompt-injection and data-exfiltration flaws in Comet, and Perplexity initially under-rated one report before patching by February 2026. The honest framing is that indirect prompt injection is an industry-wide agentic-browser problem (Brave and others have flagged the same class), the specific vectors were patched, and Perplexity has since pursued FedRAMP-grade controls for sensitive deployments.
+Don't dodge it: security researchers disclosed prompt-injection and data-exfiltration flaws in Comet, and Perplexity initially under-rated one report before patching by February 2026. Since then Perplexity has rebuilt the runtime underneath its agents. SPACE now runs 100% of Computer agent sessions, isolating every task in its own virtual machine with per-session credential isolation, and credentials are injected from outside the sandbox rather than stored inside it. Indirect prompt injection remains an industry-wide agentic-browser problem (Brave and others have flagged the same class), but Perplexity has paired the patched vectors with this hardened isolation model and its FedRAMP-grade controls for sensitive deployments.
 
-**So what:** Lead with the patch-and-hardening story and the industry-wide context; a CISO trusts a vendor that names the risk over one that pretends it away. ([thehackernews.com](https://thehackernews.com/2026/03/researchers-trick-perplexitys-comet-ai.html))
+**So what:** Point to SPACE's per-session credential isolation on Computer agent sessions as the current architecture, not just a past patch. A CISO trusts a vendor whose isolation model keeps advancing over one still leaning on a fix from months ago. ([research.perplexity.ai](https://research.perplexity.ai/articles/making-space-secure-and-efficient-runtimes-for-long-running-agents))
 
 **"Is Perplexity stable enough to bet on against a trillion-dollar Google?"**
 

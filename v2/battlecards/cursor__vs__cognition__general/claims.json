@@ -67,17 +67,17 @@
   },
   {
     "subject_key": "cursor | adverse-objections-readiness | current",
-    "claim": "**Our three biggest vulnerabilities now are billing trust, the SpaceX overhang and the DuneSlide RCE disclosure. Have answers ready.**\n\nBuyers remember Cursor's 2025 pricing blow-ups (the CEO apologized publicly) and they've read that SpaceX holds a $60B option to acquire us, exercisable later in 2026. Add to that: Cato Networks disclosed two critical RCE flaws in Cursor, DuneSlide (CVE-2026-50548 and CVE-2026-50549), reported publicly July 1. All three will come up.\n\n**So what:** Don't dodge any of them. On billing, name the specifics: split usage pools for first-party and third-party spend, a real-time dashboard and dollar-threshold alerts over Slack or email. On SpaceX, say Cursor operates independently today with change-of-control protection written into the contract. On DuneSlide, move the account to Cursor 3.0 or later now, both CVEs are already patched there with no known active exploitation.",
+    "claim": "**Our four biggest vulnerabilities now are billing trust, the SpaceX overhang and two RCE disclosures, DuneSlide (now patched) and the new, still-unpatched Mindgard git.exe flaw. Have answers ready.**\n\nBuyers remember the 2025 pricing blow-ups and the $60B SpaceX acquisition option exercisable later in 2026. Cato Networks' DuneSlide RCE is already patched in Cursor 3.0. Mindgard has now disclosed a separate flaw: a malicious git.exe in a repo's project root auto-executes on Windows, no click, prompt or warning, first reported to Cursor in December 2025 with no fix yet. All four will come up.\n\n**So what:** Don't dodge any of them. On billing, cite split usage pools, a real-time spend dashboard and dollar-threshold alerts. On SpaceX, note Cursor operates independently with change-of-control protection in the contract. On DuneSlide, point to Cursor 3.0 as already patched. On the Mindgard flaw, acknowledge there's no patch yet and point to Cursor's Fortune 500-scale adoption as proof enterprises already trust us at this scale.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 3,
-    "as_of": "2026-07-01",
+    "as_of": "2026-07-15",
     "confidence": "high",
     "id": "c_64207118572d",
     "verified": true,
-    "derived_from": "c_f98e507258b4",
-    "updated_on": "2026-07-04"
+    "derived_from": "c_b62dd8b0d71e",
+    "updated_on": "2026-07-16"
   },
   {
     "subject_key": "devin-desktop | windsurf-migration-opening | current",
@@ -1065,5 +1065,50 @@
     "confidence": "medium",
     "derived_from": "c_cbdcb32d704d",
     "persona": "eng_led"
+  },
+  {
+    "subject_key": "cursor | security-incident | mindgard-gitexe-rce",
+    "claim": "Security firm Mindgard publicly disclosed on July 14, 2026 an unpatched Cursor vulnerability where opening a repository containing a malicious git.exe in the project root causes Cursor to auto-execute it on Windows with no click, prompt or warning, resulting in arbitrary code execution. Mindgard reported the flaw to Cursor on December 15, 2025, and after seven months of no remediation and an unresponsive vendor process, went to full public disclosure. As of the disclosure, no patch, security advisory or CVE had been issued, affecting Cursor's user base of 7 million or more active users.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://mindgard.ai/blog/cursor-0day-when-full-disclosure-becomes-the-only-protection-left",
+    "source_tier": "primary",
+    "evidence_excerpt": "if that repository contains a malicious git.exe in the project root, Cursor will execute it automatically.",
+    "as_of": "2026-07-15",
+    "confidence": "high",
+    "id": "c_b62dd8b0d71e",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-16",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://thehackernews.com/2026/07/cursor-flaw-lets-malicious-cloned-repositories-trigger-windows-code-execution.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_10a653d2c194",
+    "subject_key": "cursor | security-objection | mindgard-gitexe-rce",
+    "claim": "**\"Cursor has an unpatched RCE. Why should we trust it?\"**\n\nMindgard publicly disclosed on July 14, 2026 that opening a repository with a malicious git.exe in the project root causes Cursor to auto-execute it on Windows, no click, prompt or warning required. Mindgard reported this to Cursor in December 2025; after seven months with no remediation and an unresponsive vendor process, they went public. No patch, advisory or CVE exists yet, and it affects Cursor's full base of 7 million or more active users.\n\nSay that plainly, don't spin it. Then point to the scale behind Cursor: more than half the Fortune 500 already run it at roughly $2B ARR, about 4x Cognition's run-rate. That is the installed base and moat a buyer is choosing when they standardize on Cursor today.\n\n**So what:** Acknowledge the vulnerability directly, offer to flag it to their security team for tracking, and anchor the conversation on Cursor's Fortune 500-scale adoption and ~$2B ARR as the footprint they are buying into.",
+    "claim_type": "interpretation",
+    "section": "objection_handling",
+    "zone": null,
+    "order": 6,
+    "as_of": "2026-07-15",
+    "updated_on": "2026-07-16",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_b62dd8b0d71e",
+    "persona": "security_regulated"
   }
 ]
