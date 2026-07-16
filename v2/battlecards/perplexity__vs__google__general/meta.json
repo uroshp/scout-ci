@@ -4,7 +4,7 @@
   "competitor": "Google",
   "focus": null,
   "baseline_date": "2026-06-06",
-  "last_checked": "2026-07-15T11:12:30",
+  "last_checked": "2026-07-16T11:28:46",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_9ea436272f2a",
@@ -15,11 +15,5 @@
     "f_c1a76fdbd00f",
     "f_9f1ec20da8f9"
   ],
-  "monitored": true,
-  "unresolved_subjects": [
-    "google | product-delay | gemini-35-pro",
-    "perplexity | product | brain-agent-memory"
-  ],
-  "unresolved_since": "2026-07-13",
-  "unresolved_attempts": 2
+  "monitored": true
 }
