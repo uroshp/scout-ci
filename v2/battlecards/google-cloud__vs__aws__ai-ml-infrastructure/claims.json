@@ -1104,5 +1104,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "aws | product-lifecycle | bedrock-agents-classic-maintenance-2026-07",
+    "claim": "AWS is putting its original Bedrock Agents (its flagship agent product, launched November 2023) into maintenance mode, closed to new customers as of July 30, 2026, with a frozen model catalog and no new features. It is one of roughly 20 services AWS moved to maintenance mode in a single June 30, 2026 announcement, alongside Kendra and Q Business. New AWS agent customers now start on AgentCore, which reached general availability only weeks earlier on June 17, 2026.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 10,
+    "source_url": "https://docs.aws.amazon.com/bedrock/latest/userguide/agents-classic-maintenance-mode.html",
+    "source_tier": "primary",
+    "evidence_excerpt": "Amazon Bedrock Agents (launched November 2023) is now Amazon Bedrock Agents Classic and will no longer be open to new customers starting on July 30, 2026.",
+    "as_of": "2026-07-16",
+    "confidence": "high",
+    "id": "c_5e445f901162",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-17",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://dev.classmethod.jp/en/articles/aws-service-lifecycle-summary-20260630/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

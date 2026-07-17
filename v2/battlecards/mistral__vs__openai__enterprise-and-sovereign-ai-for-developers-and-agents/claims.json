@@ -1208,5 +1208,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "openai | legal-action | nyt-copyright-sanctions-2026",
+    "claim": "OpenAI is fighting a sanctions motion over how it handled user data in the New York Times copyright case. On July 9, 2026 the NYT and the Daily News told a Manhattan federal judge that OpenAI spent two years hiding its ability to search its training corpus and ChatGPT logs, that it had already amassed a database of about 78 million de-identified ChatGPT conversations to internally measure its own infringement, and that it deleted billions of outputs after the suit was filed in violation of a preservation order. The publishers want the court to penalize the company for discovery misconduct.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.aljazeera.com/economy/2026/7/9/nyt-led-group-asks-court-to-sanction-openai-in-us-copyright-dispute",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "The New York Times, the Daily News and other US media outlets are asking a United States federal judge to impose sanctions on OpenAI",
+    "as_of": "2026-07-09",
+    "confidence": "high",
+    "id": "c_0f64eb7ecc84",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-17",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/07/09/new-york-times-says-openai-hid-evidence-in-chatgpt-copyright-trial/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
