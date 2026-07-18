@@ -29,6 +29,27 @@ gcloud services enable run.googleapis.com cloudbuild.googleapis.com \
 ## 2. Secrets  (you run these — paste real values)
 The viewer renders cards with **no** secrets; secrets only enable *Create-your-own* (the GitHub
 data repo + dispatch) and the server-side GA event.
+
+**⚠ TOKEN PERMISSION CHECKLIST — verify BEFORE deploying** (added 2026-07-18 after the dispatch
+outage: the fine-grained PAT lacked Actions:write, every visitor dispatch 403'd silently for
+weeks, and this doc had no verification step). The fine-grained PAT in `scout-gh-token` needs
+BOTH, explicitly granted per repo:
+1. `SELFSERVE_REPO` (the private data repo): **Contents: Read and write**
+2. `uroshp/scout-ci` (the code repo): **Actions: Read and write** — the app POSTs a
+   `workflow_dispatch` to start generation; without this the request queues forever and the
+   visitor sees an endless "Generating…" page.
+
+Verify with the side-effect-free probe (an invalid ref can never trigger a run):
+```
+curl -s -o /dev/null -w '%{http_code}\n' -X POST \
+  -H "Authorization: Bearer $PAT" -H "Accept: application/vnd.github+json" \
+  https://api.github.com/repos/uroshp/scout-ci/actions/workflows/selfserve.yml/dispatches \
+  -d '{"ref":"probe-nonexistent-branch"}'
+# 422 ("No ref found")  = permission OK, ship it.
+# 403 ("Resource not accessible by personal access token") = Actions:write MISSING, fix the PAT first.
+```
+The daily canary on the mini (`~/scout-tools/scout-canary`) runs this probe every morning and
+emails on 403, so a permission regression can never live longer than a day again.
 ```
 ! printf '%s' 'YOUR_GITHUB_PAT'   | gcloud secrets create scout-gh-token   --data-file=-
 ! printf '%s' 'YOUR_GA_MP_SECRET' | gcloud secrets create scout-ga-mp-secret --data-file=-
