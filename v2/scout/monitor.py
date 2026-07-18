@@ -1046,13 +1046,17 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
             prop = res.get("propagation")
             if prop and config.PROPAGATE_MODE in ("review", "live"):
                 decisions = prop.get("decisions", [])
-                confirmed = [d for d in decisions if d.get("judge_verdict") == "confirm"]
+                # held_for_format: judge-confirmed but stopped by the pre-email render gate — rides
+                # the SAME email as a NEEDS-CURING callout (never a silent hold, never a 2nd email).
+                held = [d for d in decisions if d.get("held_for_format")]
+                confirmed = [d for d in decisions if d.get("judge_verdict") == "confirm"
+                             and not d.get("held_for_format")]
                 exhausted = [d for d in decisions if d.get("rewrite_exhausted")]
                 unjudged = [d for d in decisions if d.get("judge_verdict") == "judge_unavailable"]
-                if confirmed or exhausted or unjudged:
+                if confirmed or exhausted or unjudged or held:
                     prop_emailed = notify.send_propagation_proposals(
                         slug, meta, confirmed, dry_run=email_dry_run, exhausted=exhausted,
-                        unjudged=unjudged, cost_note=cost_note)
+                        unjudged=unjudged, held=held, cost_note=cost_note)
             # CONSEQUENTIALITY FILTER (shadow eval, docs/consequential-filter-spec.md): the router now
             # emits the consequential/routine run_verdict the old strategic pass used to (that pass is
             # ABSORBED into the router — the lead is just the executive_summary surface). Log the verdict

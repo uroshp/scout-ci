@@ -75,6 +75,54 @@ class ProposalEmail(unittest.TestCase):
                                                               "subject_key": "a|b|c", "judge_verdict": "confirm"}])
         self.assertFalse(out["sent"])                       # dry_run default -> never emails in tests
 
+    _HELD = {"operation": "revise", "section": "executive_summary", "zone": None,
+             "subject_key": "a|readiness|current", "judge_verdict": "confirm",
+             "held_for_format": True,
+             "hold_reason": "executive_summary: 201 words exceeds the 170-word render cap — "
+                            "condense; auto-repair exhausted",
+             "old_text": "**Old lead.**\n\nOld body.\n\n**So what:** old.",
+             "new_text": "**New lead.**\n\nNew body kept in FULL for the human.\n\n**So what:** cure me."}
+
+    def test_render_held_section_and_footer(self):
+        """A render-gate hold rides the SAME email: counted in the subject, full text + exact
+        reason in the body, and the footer gives the literal publish/cure next actions (7/18:
+        a held op previously rode the email invisibly and was held silently at approve time)."""
+        decisions = [{"operation": "add", "section": "objection_handling", "zone": None,
+                      "subject_key": "a|b|c", "old_text": None,
+                      "new_text": "**\"Q?\"**\n\nThe answer here.\n\n**So what:** pivot.",
+                      "judge_verdict": "confirm", "judge_reason": "grounded"}]
+        subject, body = notify.render_propagation_proposals(SLUG, META, decisions, held=[self._HELD])
+        self.assertIn("(+1 needs curing)", subject)
+        self.assertIn("NEEDS CURING", body)
+        self.assertIn("201 words exceeds the 170-word render cap", body)   # the exact why
+        self.assertIn("New body kept in FULL for the human.", body)        # never truncated
+        self.assertIn("never dropped", body)
+        self.assertIn("pending_publish", body)
+        self.assertIn(f"scout-proposals --approve {SLUG}", body)           # exact publish command
+        self.assertIn('"publish Anthropic vs OpenAI"', body)
+        self.assertIn('"cure the executive_summary update on Anthropic vs OpenAI"', body)
+
+    def test_render_held_only_still_sends(self):
+        """held-only run: no confirmed items, but the email still goes out and says why."""
+        subject, body = notify.render_propagation_proposals(SLUG, META, [], held=[self._HELD])
+        self.assertIn("needs curing", subject)
+        self.assertIn("HELD needing curing", body)
+        out = notify.send_propagation_proposals(SLUG, META, [], held=[self._HELD])
+        self.assertNotEqual(out.get("reason"), "no proposals")   # the guard lets held-only through
+
+    def test_pending_splits_held_from_confirmed(self):
+        """review.pending() must mirror the email: a held_for_format confirm is NOT approvable
+        (approve would re-apply/re-hold it) — it comes back under 'held' instead."""
+        log = {"run_ts": "2026-07-18T11:00:00",
+               "decisions": [{"judge_verdict": "confirm", "subject_key": "a|clean|c"},
+                             {"judge_verdict": "confirm", "subject_key": "a|readiness|current",
+                              "held_for_format": True, "hold_reason": "cap"}],
+               "facts": []}
+        with mock.patch.object(review, "_latest_log", return_value=log):
+            p = review.pending(SLUG)
+        self.assertEqual([d["subject_key"] for d in p["confirmed"]], ["a|clean|c"])
+        self.assertEqual([d["subject_key"] for d in p["held"]], ["a|readiness|current"])
+
 
 class PullContaminated(unittest.TestCase):
     """A mis-grounded/false claim caught after publication is removed from the live card AND recorded

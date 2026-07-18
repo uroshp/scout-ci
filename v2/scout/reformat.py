@@ -143,14 +143,15 @@ def _alert_human(slug: str, item: dict, reason: str) -> None:
 
 
 def repair_or_hold(slug: str, claim: dict, *, reformatter=reformat_claim,
-                   persona_classifier=classify_persona) -> tuple[str, dict]:
+                   persona_classifier=classify_persona, alert: bool = True) -> tuple[str, dict]:
     """The no-drop decision for ONE confirmed claim. Returns (status, claim) where status is:
       'ok'       — already well-formed, publish as-is;
       'repaired' — auto-fixed (a model added the missing So-what/Soundbite block and/or classified the
                    missing persona), substance unchanged, publish the repaired claim;
       'held'     — could not auto-fix; HELD + flagged to the human, NEVER cut/dropped.
     There is no fourth outcome: a confirmed update is published or held, never lost. `reformatter` /
-    `persona_classifier` are injectable for tests."""
+    `persona_classifier` are injectable for tests. `alert=False` skips the standalone hold email —
+    the pre-email render gate uses it because the proposals email itself carries the callout."""
     errs = schema.render_structure_errors(claim)
     if not errs:
         return ("ok", claim)
@@ -165,7 +166,10 @@ def repair_or_hold(slug: str, claim: dict, *, reformatter=reformat_claim,
         new_text = reformatter(fixed.get("claim") or "", fixed.get("section"), fixed.get("zone"))
         if new_text:
             fixed["claim"] = new_text
-    if not schema.render_structure_errors(fixed):          # re-validate — never publish malformed
+    residual = schema.render_structure_errors(fixed)       # re-validate — never publish malformed
+    if not residual:
         return ("repaired", fixed)
-    hold(slug, fixed, "render-structure repair exhausted")
+    # Carry the EXACT violations into the hold reason (e.g. "201 words exceeds the 170-word render
+    # cap") — the proposals email shows this verbatim so the human knows what to cure.
+    hold(slug, fixed, "render-structure repair exhausted: " + "; ".join(residual), alert=alert)
     return ("held", fixed)

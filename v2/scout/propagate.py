@@ -27,7 +27,8 @@ from scout import config, selfserve
 from scout.generate import _drive, _extract_json
 from scout.prompts import WRITING_STYLE
 from scout.route import route, ROUTABLE_SECTIONS, CHANGE_KINDS
-from scout.schema import ZONES, claim_id, normalize_subject_key, validation_errors
+from scout.schema import (ZONES, claim_id, normalize_subject_key, render_structure_errors,
+                          validation_errors)
 
 # change_kind -> the ONLY operation that kind may carry (the resilience contract, enforced by the
 # floor). A router op is rejected if its change_kind and operation disagree; kinds absent from this
@@ -792,9 +793,51 @@ def _rewrite_loop(meta: dict, surface_ops: list, ops: list, floor_results: list,
             "raw_failures": raw_failures}
 
 
+def _render_gate(slug: str, ops: list, floor_results: list, verdicts: dict,
+                 active_by_sk: dict, *, repair=None) -> dict:
+    """PRE-EMAIL render gate (2026-07-18): validate + auto-repair every judge-confirmed add/revise
+    BEFORE the decision log and the proposals email, so the email shows the PUBLISHABLE text and
+    calls out anything HELD. (The incident: a 201-word confirmed op rode the email looking fine,
+    then was silently held at approve time — the gate used to exist only at apply.) Mutates ops in
+    place (positional identity with the decision records, the same contract _rewrite_loop uses).
+    Returns {op_index: {"reason": str}} for ops that could not be repaired — those are already
+    durably HELD in pending_publish by repair_or_hold(alert=False); the email is their loud flag,
+    so no separate hold email. A per-op crash leaves that op untouched (degrades to the old
+    at-apply gating), never breaks the run. `repair` is injectable for tests."""
+    held = {}
+    if repair is None:
+        from scout import reformat                         # lazy: avoids any import-time cycle
+        repair = lambda s, o: reformat.repair_or_hold(s, o, alert=False)
+    for i, op in enumerate(ops):
+        try:
+            if floor_results[i] or (verdicts.get(i) or {}).get("verdict") != "confirm":
+                continue
+            if op.get("operation") not in ("add", "revise"):
+                continue                                   # retires carry no prose to gate
+            # A REVISE missing its persona inherits the badge from the claim it edits — a field the
+            # card already carries; no model call for it (apply keeps the target's persona anyway).
+            tgt = op.get("target_subject_key")
+            if not op.get("persona") and tgt:
+                old = active_by_sk.get(normalize_subject_key(str(tgt)))
+                if isinstance(old, dict) and old.get("persona"):
+                    op["persona"] = old["persona"]
+            if not render_structure_errors(op):
+                continue                                   # clean op: zero cost, no model call
+            status, fixed = repair(slug, op)
+            ops[i] = fixed
+            if status == "held":
+                held[i] = {"reason": "; ".join(render_structure_errors(fixed))
+                                     + "; auto-repair exhausted"}
+        except Exception as e:
+            print(f"[propagate] render gate skipped for op {i} ({type(e).__name__}: {e})",
+                  file=sys.stderr)
+    return held
+
+
 # --- Decision log (spec §17): audit trail AND authorship-shadow training corpus -----------------
-SCHEMA_VERSION = 3      # v2: + attempts/rewrite_attempts/rewrite_exhausted; v3 (2026-07-01): +
+SCHEMA_VERSION = 4      # v2: + attempts/rewrite_attempts/rewrite_exhausted; v3 (2026-07-01): +
 PROP_DIR = "propagation"  # judged_by + judge_unavailable verdicts + judge_raw_failures payload
+                          # v4 (2026-07-18): + persona + held_for_format/hold_reason (pre-email gate)
 
 
 def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
@@ -831,6 +874,8 @@ def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
             "valence": op.get("valence"),
             "subject_key": op.get("subject_key"),
             "target_subject_key": op.get("target_subject_key"),
+            "persona": op.get("persona"),                 # v4: survives into the log so approve-time
+                                                          # apply is model-free (no re-classify)
             "old_text": (old.get("claim") if isinstance(old, dict) else None),
             "new_text": op.get("claim"),                  # null on retire
             "feed_note": op.get("feed_note"),             # the "what changed" line the updates panel shows
@@ -946,10 +991,22 @@ def propagate(meta: dict, facts_with_alerts: list[dict], strength_facts: list[di
                            author_facts, claims, active_by_sk, surviving_fact_ids)
     raw_failures += rw.get("raw_failures") or []
 
+    # step 4c: PRE-EMAIL RENDER GATE — repair/hold confirmed ops BEFORE the log and the email, so
+    # the proposals email shows publishable text and flags holds inline (2026-07-18). Shadow mode
+    # skips it: no new spend, no holds, from a mode that never emails or applies.
+    render_holds = {}
+    if slug and config.PROPAGATE_MODE in ("review", "live"):
+        render_holds = _render_gate(slug, ops, floor_results, verdicts, active_by_sk)
+
     records = _decision_records(ops, floor_results, verdicts, facts_by_id, active_by_sk,
                                 rewrite_attempts=rw["attempts"])
+    for i, info in render_holds.items():
+        records[i]["held_for_format"] = True               # judge-confirmed but NOT publishable yet
+        records[i]["hold_reason"] = info["reason"]
+        records[i]["committed"] = False                    # a held op did not commit
     confirmed = [ops[i] for i in range(len(ops))
-                 if not floor_results[i] and (verdicts.get(i) or {}).get("verdict") == "confirm"]
+                 if not floor_results[i] and (verdicts.get(i) or {}).get("verdict") == "confirm"
+                 and i not in render_holds]
 
     cost_usd = {"route": routed.get("cost_usd"), "author": authored.get("cost_usd"),
                 "judge": judged.get("cost_usd"),
