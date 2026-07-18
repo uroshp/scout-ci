@@ -17,6 +17,11 @@
 #   ANTHROPIC_API_KEY   — generation spend lands here.
 #   SELFSERVE_GH_TOKEN  — token with Contents:R/W on the DATA repo (read requests, write results+state).
 #   SELFSERVE_REPO      — the private data repo, e.g. "uroshp/scout-user-data".
+#
+# NOTE: the APP-side copy of that same token (Cloud Run / Streamlit secrets) ADDITIONALLY needs
+# Actions:R/W on THIS code repo to POST the workflow_dispatch that starts this workflow — without
+# it, requests queue silently forever (the 2026-06/07 outage). Verification probe + checklist:
+# v2/docs/cloud-run-setup.md §2.
 name: selfserve
 
 on:

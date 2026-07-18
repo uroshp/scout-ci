@@ -26,6 +26,7 @@ import json
 import os
 import random
 import re
+import sys
 import time
 from datetime import datetime
 
@@ -216,9 +217,15 @@ def submit(competitor: str, my_company: str | None, focus: str | None,
     _write(f"{REQUESTS_DIR}/{job_id}.json", json.dumps(req, indent=2, ensure_ascii=False),
            f"selfserve: queue request {job_id}")
     # A push to the private DATA repo can't trigger the workflow in the CODE repo, so dispatch it
-    # explicitly. Best-effort: if dispatch fails the request still sits queued (the next run picks
-    # it up), so we record the outcome rather than blow up the submit.
+    # explicitly. Best-effort for the VISITOR (their request is safely queued either way), but a
+    # failed dispatch is an OUTAGE for the owner — the 6/24-7/18 incident ran silent for weeks
+    # because this line failed quietly. Be loud in the server logs; the daily canary alerts on it.
     req["dispatched"] = dispatch_generation()
+    if not req["dispatched"]:
+        print(f"[selfserve] DISPATCH FAILED for {job_id} — the request is queued but generation "
+              f"will NOT start (check the token's Actions:write on "
+              f"{config.SELFSERVE_DISPATCH_REPO}); the visitor sees an endless pending page",
+              file=sys.stderr)
     return req
 
 
@@ -239,8 +246,13 @@ def dispatch_generation() -> bool:
 
 
 def list_pending_jobs() -> list[dict]:
-    """Queued request records with no result yet, oldest first (the filename carries the
-    timestamp). Backend-aware — used by the Action runner against the private data repo."""
+    """QUEUED request records with no result yet, oldest first (the filename carries the
+    timestamp). Backend-aware — used by the Action runner against the private data repo.
+
+    Only status == "queued" is drainable (2026-07-18): a request the owner marked "cancelled"
+    (or anything else) is DEAD and must never be picked up and billed — the incident audit found
+    the runner previously selected every request without a result, ignoring status, so a
+    cancellation was cosmetic and a stale queued request was a standing spend landmine."""
     out = []
     for fname in sorted(_listdir(REQUESTS_DIR)):
         if not fname.endswith(".json"):
@@ -252,9 +264,12 @@ def list_pending_jobs() -> list[dict]:
         if not raw:
             continue
         try:
-            out.append(json.loads(raw))
+            req = json.loads(raw)
         except json.JSONDecodeError:
             continue
+        if req.get("status") != "queued":
+            continue  # cancelled/rejected/unknown: dead, never drained
+        out.append(req)
     return out
 
 
