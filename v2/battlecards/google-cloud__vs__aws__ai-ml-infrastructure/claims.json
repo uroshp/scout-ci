@@ -1134,5 +1134,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "aws | reliability-incident | cost-explorer-billing-bug-2026-07",
+    "claim": "On July 17, 2026, a unit-pricing bug in AWS's billing computation subsystem made Cost Explorer and the Billing Console show wildly inflated estimates (one customer with $0.19 in real charges saw nearly $2.5 billion, others saw figures into the trillions). AWS confirmed the displayed numbers were estimates only: actual usage, invoices and payments were unaffected, and it targeted full corrected data by July 18 noon PT.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 5,
+    "source_url": "https://www.theregister.com/off-prem/2026/07/17/billing-software-error-sends-billion-dollar-aws-estimates/5274521",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "The displayed billing estimates do not reflect actual usage and charges,",
+    "as_of": "2026-07-17",
+    "confidence": "high",
+    "id": "c_73ec803e3998",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-18",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/07/17/amazon-fixing-bug-that-billed-some-aws-customers-billions-of-dollars/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
