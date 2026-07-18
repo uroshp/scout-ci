@@ -522,7 +522,11 @@ async def _preflight():
         model=config.SUBAGENT_MODEL,
         permission_mode="bypassPermissions",
         max_turns=1,
-        max_budget_usd=0.10,
+        # Calibration note (2026-07-18): the trivial turn's REAL cost is ~$0.17 now (CLI system-
+        # prompt overhead grew since June, when it was <$0.10) — the old $0.10 cap tripped on
+        # HEALTHY runs and blocked the first visitor generation. $0.50 keeps the guard cheap-and-
+        # loud (a broken toolchain still fails for cents) with headroom against overhead creep.
+        max_budget_usd=0.50,
         allowed_tools=[],
         disallowed_tools=["WebSearch", "WebFetch", "Agent"],
     )
