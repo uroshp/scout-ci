@@ -233,7 +233,7 @@ class DecisionRecordShape(unittest.TestCase):
         self.assertTrue(recs[0]["committed"])
 
     def test_schema_version_bumped(self):
-        self.assertEqual(propagate.SCHEMA_VERSION, 3)
+        self.assertEqual(propagate.SCHEMA_VERSION, 4)
 
 
 class ExhaustedEmail(unittest.TestCase):
@@ -273,7 +273,7 @@ class ExhaustedEmail(unittest.TestCase):
                       "judge_reason": "ok", "trigger_source_url": None, "feed_note": None}]
         _, body = notify.render_propagation_proposals("slug", self.META, confirmed,
                                                       exhausted=self.EXHAUSTED)
-        self.assertIn("To apply, tell Claude", body)     # approval footer intact alongside failures
+        self.assertIn("To publish, tell Claude", body)   # approval footer intact alongside failures
 
 
 if __name__ == "__main__":

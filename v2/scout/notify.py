@@ -171,6 +171,7 @@ def _change_summary(old, new) -> str:
 def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict],
                                  exhausted: list[dict] = None,
                                  unjudged: list[dict] = None,
+                                 held: list[dict] = None,
                                  cost_note: str | None = None) -> tuple[str, str]:
     """Subject + body for the REVIEW-mode approval email: each judge-confirmed proposal with where
     (card + section), what (op), how it looks (the FULL old→new prose, never truncated), and the
@@ -183,22 +184,29 @@ def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict],
     `unjudged` are drafts the judge NEVER ruled on (judge_unavailable — both the primary and the
     fallback model failed to return verdicts, the 2026-07-01 Opus outage): drafted, unverified,
     unapplied. The human is the judge of last resort — approve with allow_unjudged only after
-    reading the prose."""
-    exhausted, unjudged = exhausted or [], unjudged or []
+    reading the prose.
+
+    `held` are judge-confirmed updates the PRE-EMAIL render gate could not auto-repair (e.g. over
+    the 170-word render cap): durably stored in pending_publish, owed to the card, never dropped —
+    this email is their loud flag (2026-07-18: a held op previously rode the email looking fine and
+    was held silently at approve time)."""
+    exhausted, unjudged, held = exhausted or [], unjudged or [], held or []
     me, comp = meta.get("my_company"), meta.get("competitor")
     card = f"{me} vs {comp}" if me else (comp or slug)
     n = len(decisions)
     rule = "─" * 48
     subject = (f"Scout: {n} proposed card update{'s' if n != 1 else ''} awaiting approval"
                + (f" (+{len(exhausted)} authoring-failed)" if exhausted else "")
-               + (f" (+{len(unjudged)} unverified)" if unjudged else "") + f" — {card}")
+               + (f" (+{len(unjudged)} unverified)" if unjudged else "")
+               + (f" (+{len(held)} needs curing)" if held else "") + f" — {card}")
     if decisions:
         out = [f"Propagation proposed {n} rep-facing change{'s' if n != 1 else ''} for {card}.",
                "The card is UNCHANGED — these need your approval before they go live.", "", rule]
     else:
         bits = ([f"{len(exhausted)} op(s) on a material fact FAILED authoring"] if exhausted else []) \
              + ([f"{len(unjudged)} drafted update(s) could NOT be verified (judge unavailable)"]
-                if unjudged else [])
+                if unjudged else []) \
+             + ([f"{len(held)} judge-confirmed update(s) are HELD needing curing"] if held else [])
         out = [f"Propagation confirmed no changes for {card}, but " + " and ".join(bits)
                + " — details below.", "", rule]
     for d in decisions:
@@ -255,13 +263,33 @@ def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict],
                 _block(d.get("new_text"))]
         out += ["", "The card was NOT changed. To apply after checking the prose yourself, "
                     "approve it in a session with allow_unjudged.", "", rule]
+    for d in held:
+        op = str(d.get("operation", "")).upper()
+        zone = f" / {d.get('zone')}" if d.get("zone") else ""
+        kind = f"  [{d.get('change_kind')}]" if d.get("change_kind") else ""
+        out += ["", "⚠ NEEDS CURING — judge-confirmed but HELD, never dropped",
+                f"{op} in {d.get('section', '')}{zone}{kind}", f"({d.get('subject_key')})"]
+        out += ["", f"Why: {_flat(d.get('hold_reason') or '(no reason recorded)')}"]
+        if d.get("trigger_source_url"):
+            out += [f"Fact: {d['trigger_source_url']}"]
+        if d.get("old_text"):
+            out += ["", "WAS:", _block(d["old_text"])]
+        out += ["", "PROPOSED (full text — cure it before it can publish):",
+                _block(d.get("new_text"))]
+        out += ["", "It is stored in pending_publish and stays owed to the card. Approving the "
+                    "clean items above does not touch it.", "", rule]
     if cost_note:
         out += ["", cost_note]
+    # Exact next actions, one line each — the owner should be able to act from this email alone.
+    actions = []
     if decisions:
-        out += ["",
-                f'To apply, tell Claude in a session — e.g. "approve the '
-                f'{decisions[0].get("section", "objection")} update on {card}".',
-                "— Scout (proposed by the authorship judge; awaiting your approval)"]
+        actions.append(f'To publish, tell Claude: "publish {card}" — or run: '
+                       f"~/scout-tools/scout-proposals --approve {slug}")
+    for d in held:
+        actions.append(f'To fix the held item, tell Claude: '
+                       f'"cure the {d.get("section", "held")} update on {card}"')
+    if actions:
+        out += [""] + actions + ["— Scout (proposed by the authorship judge; awaiting your approval)"]
     else:
         out += ["", "— Scout (nothing to approve; the failures above need a human decision)"]
     return subject, "\n".join(out)
@@ -269,15 +297,15 @@ def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict],
 
 def send_propagation_proposals(slug: str, meta: dict, decisions: list[dict], dry_run: bool = True,
                                exhausted: list[dict] = None, unjudged: list[dict] = None,
-                               cost_note: str | None = None) -> dict:
+                               held: list[dict] = None, cost_note: str | None = None) -> dict:
     """Email the run's judge-confirmed propagation proposals (REVIEW mode), plus any rewrite-loop
-    EXHAUSTED failures and any UNJUDGED drafts (judge unavailable) — both must reach the owner even
-    when nothing was confirmed: a dropped material edit is never silent. No-op (dry) unless fully
-    configured; never raises on a missing-config path."""
-    if not decisions and not exhausted and not unjudged:
+    EXHAUSTED failures, any UNJUDGED drafts (judge unavailable), and any render-gate HELD updates —
+    all must reach the owner even when nothing was confirmed: a dropped material edit is never
+    silent. No-op (dry) unless fully configured; never raises on a missing-config path."""
+    if not decisions and not exhausted and not unjudged and not held:
         return {"sent": False, "reason": "no proposals"}
     subject, body = render_propagation_proposals(slug, meta, decisions, exhausted=exhausted,
-                                                 unjudged=unjudged, cost_note=cost_note)
+                                                 unjudged=unjudged, held=held, cost_note=cost_note)
     return _dispatch(subject, body, dry_run=dry_run)
 
 

@@ -39,14 +39,18 @@ def pending(slug: str) -> dict:
     """Judge-confirmed proposals from the latest logged run awaiting approval, plus the grounding
     facts needed to apply them. `unjudged` are drafts the judge never ruled on (judge_unavailable —
     an outage took out the primary AND fallback judge): applying one requires the explicit
-    allow_unjudged flag, because the human doing so IS the judge.
-    {run_ts, confirmed: [...], unjudged: [...], facts: [...]}."""
+    allow_unjudged flag, because the human doing so IS the judge. `held` are confirmed ops the
+    pre-email render gate could not repair (held_for_format, 2026-07-18) — they live in
+    pending_publish awaiting a cure and are EXCLUDED from confirmed so approve can't re-apply them.
+    {run_ts, confirmed: [...], unjudged: [...], held: [...], facts: [...]}."""
     payload = _latest_log(slug) or {}
     decisions = payload.get("decisions", [])
-    confirmed = [d for d in decisions if d.get("judge_verdict") == "confirm"]
+    confirmed = [d for d in decisions if d.get("judge_verdict") == "confirm"
+                 and not d.get("held_for_format")]
     unjudged = [d for d in decisions if d.get("judge_verdict") == "judge_unavailable"]
+    held = [d for d in decisions if d.get("held_for_format")]
     return {"run_ts": payload.get("run_ts"), "confirmed": confirmed, "unjudged": unjudged,
-            "facts": payload.get("facts", [])}
+            "held": held, "facts": payload.get("facts", [])}
 
 
 def _title(meta: dict) -> str:
