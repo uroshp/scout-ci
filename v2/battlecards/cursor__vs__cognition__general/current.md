@@ -20,7 +20,7 @@ In its own 2025 performance review Cognition concedes Devin 'can't independently
 
 **So what:** Steer evaluations toward ambiguous, iterative, architecture-heavy work where human-in-the-loop wins. Use Cognition's own words against them. ([cognition.ai](https://cognition.ai/blog/devin-annual-performance-review-2025))
 
-**Our four biggest vulnerabilities: billing trust, the SpaceX overhang, and two RCE disclosures, DuneSlide (patched) and the Mindgard git.exe flaw (fixed quietly, no advisory or CVE yet). Have answers ready.**
+**Our four biggest vulnerabilities: billing trust, the SpaceX overhang and two RCE disclosures, DuneSlide (patched) and the Mindgard git.exe flaw (fixed quietly, no advisory or CVE yet). Have answers ready.**
 
 Buyers remember the 2025 pricing blow-ups and the \$60B SpaceX acquisition option exercisable later in 2026. Cato Networks' DuneSlide RCE is patched in Cursor 3.0. Mindgard's July 14, 2026 disclosure: a malicious git.exe in a repo's root auto-executes on Windows, no click or warning, first reported December 2025. Cursor shipped a fix July 13, a day before disclosure, but as of July 17 has no advisory, CVE or named fixed version. All four will come up.
 
