@@ -576,7 +576,7 @@ _OVERRIDES = """
 #scout-page .wrap.tw{padding-bottom:6px;}
 #scout-page .tagline{margin:5px 0 0;}
 #scout-page .rt .rt-sub{margin-top:2px;}
-#scout-page .rt .rt-focus{margin-top:10px;}
+#scout-page .rt .rt-focus{margin-top:5px;margin-bottom:12px;}  /* 2026-07-19: half the air above, double below — the chip hugged the rule under it */
 #scout-page .rt h1{margin:0;}                                      /* kill default h1 margin — pull the title up (#1) */
 #scout-page .rail{position:static;}                                /* rail scrolls with the page, not sticky (#5) */
 #scout-page .panel .phead .ey{color:var(--ink);font-weight:600;}  /* much darker rail-panel titles (#3) */
