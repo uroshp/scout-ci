@@ -443,6 +443,22 @@ def _u(usage, key):
 # are measurable over time (2026-07-02 cost pass). Additive observation only.
 ROLE_TOTALS: dict = {}
 
+# Optional live-progress hook (2026-07-19): generate(on_stage=...) sets this so the self-serve
+# runner can surface REAL pipeline stages to the visitor's progress bar. Fail-soft by contract —
+# a stage-callback failure can NEVER break a paid generation — and None (the default) keeps every
+# other caller (monitor, scripts) byte-identical.
+_ON_STAGE = None
+
+
+def _emit_stage(stage: str) -> None:
+    cb = _ON_STAGE
+    if cb is None:
+        return
+    try:
+        cb(stage)
+    except Exception as e:
+        print(f"[generate] stage hook skipped ({type(e).__name__}: {e})", file=sys.stderr)
+
 
 def reset_role_totals() -> None:
     ROLE_TOTALS.clear()
@@ -477,6 +493,10 @@ async def _drive(prompt: str, options, top_role: str) -> dict:
             if kind == "AssistantMessage":
                 parent = getattr(message, "parent_tool_use_id", None)
                 role = top_role if parent is None else agent_names.get(parent, "subagent")
+                # First sighting of a research/verify subagent = a REAL pipeline stage boundary
+                # for the live progress UI. Fires once per role per drive; fail-soft.
+                if role in ("researcher", "verifier") and role not in by_role:
+                    _emit_stage("researching" if role == "researcher" else "verifying")
                 bump(role, getattr(message, "usage", None))
                 for b in getattr(message, "content", []) or []:
                     bk = type(b).__name__
@@ -577,9 +597,20 @@ def _coverage_report(results, fetch_log):
     }
 
 
-def generate(target, perspective=None, focus=None, write=True, retry=True):
+def generate(target, perspective=None, focus=None, write=True, retry=True, on_stage=None):
     """Run the full generation -> ground -> [retry] -> render -> store pipeline.
-    Returns a result dict with claims, cut log, grounding instrumentation, and markdown."""
+    Returns a result dict with claims, cut log, grounding instrumentation, and markdown.
+    `on_stage` (optional, fail-soft) receives real pipeline stage names for live progress UIs:
+    preflight_ok -> researching -> verifying -> grounding -> rendering."""
+    global _ON_STAGE
+    _ON_STAGE = on_stage
+    try:
+        return _generate_inner(target, perspective, focus, write, retry)
+    finally:
+        _ON_STAGE = None
+
+
+def _generate_inner(target, perspective, focus, write, retry):
     slug = make_slug(target, perspective, focus)
     reset_log()  # clear the fetch-tool coverage log for this run
     # PREFLIGHT: prove the SDK<->CLI handshake works for pennies before committing to the
@@ -593,6 +624,7 @@ def generate(target, perspective=None, focus=None, write=True, retry=True):
             f"most likely a Claude CLI version that no longer matches claude-agent-sdk. Refusing "
             f"to start the ~$10 generation. Re-sync the CLI and SDK, then retry."
         ) from e
+    _emit_stage("preflight_ok")
     run = asyncio.run(_run_orchestrator(target, perspective, focus))
     data = _extract_json(run["text"])
 
@@ -615,6 +647,7 @@ def generate(target, perspective=None, focus=None, write=True, retry=True):
             candidates.append(c)
 
     # GROUND (independent fetch; model-free) — drops absent/unreachable claims.
+    _emit_stage("grounding")
     grounded = ground_claims(candidates)
     kept = _accept_grounded(slug, grounded["kept"], schema_problems)  # no-drop: repair-or-hold, never silently cut
     failed = grounded.get("failed", [])
@@ -659,6 +692,7 @@ def generate(target, perspective=None, focus=None, write=True, retry=True):
     else:
         final_cut = list(grounded["cut"])
 
+    _emit_stage("rendering")
     model_cut = data.get("cut_log")
     if not isinstance(model_cut, list):
         model_cut = []
