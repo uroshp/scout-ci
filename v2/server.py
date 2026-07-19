@@ -201,8 +201,10 @@ def _countdown_js() -> str:
         "</script>")
 
 
-def _control_bar(is_create: bool, slug, cards: list) -> str:
-    """The mode tabs + card dropdown + print link, ported to real routes (no query params)."""
+def _control_bar(is_create: bool, slug, cards: list, right_html: str = "") -> str:
+    """The mode tabs + card dropdown + print link, ported to real routes (no query params).
+    `right_html` overrides the right-aligned slot (the .scout-bar is flex space-between) — the
+    result page puts its Print/Download actions there, on the same row as the tabs."""
     tabs = ('<div class="scout-tabs">'
             f'<a class="{"" if is_create else "on"}" href="/">Living battlecards</a>'
             f'<a class="{"on" if is_create else ""}" href="/create">Create your own</a></div>')
@@ -219,7 +221,17 @@ def _control_bar(is_create: bool, slug, cards: list) -> str:
         left = f'<div class="scout-left">{tabs}{dd}</div>'
         print_btn = (f'<a class="scout-print" href="/print/{slug}" target="_blank" rel="noopener">'
                      '&#128424; Print call sheet</a>')
-    return f'<div class="scout-ctl scout-bar">{left}{print_btn}</div>'
+    right = right_html or print_btn
+    return f'<div class="scout-ctl scout-bar">{left}{right}</div>'
+
+
+def _chrome_with_actions(cards: list, right_html: str) -> str:
+    """Chrome variant for the result page: the action buttons ride the control bar's right slot
+    (same row as the tabs, right-aligned) so the report content starts tight underneath —
+    no floating button block, no dead space (2026-07-19 layout note)."""
+    return (page.masthead_html()
+            + f'<div class="wrap" style="padding:0 0 16px">'
+              f'{_control_bar(True, None, cards, right_html=right_html)}</div>')
 
 
 def _doc(body_inner: str, *, title: str) -> str:
@@ -558,10 +570,13 @@ def result(job_id):
         md = res.get("markdown", "")
         claims = res.get("claims") or []
         meta = _selfserve_meta(job_id, res)
-        actions = (f'<div class="wrap ss-wrap" style="margin-bottom:1rem">'
+        # Actions ride the control bar's RIGHT slot — same row as the tabs, right-aligned —
+        # so the report starts tight underneath (no floating button block, no dead space).
+        actions = (f'<span style="display:inline-flex;gap:10px;align-items:center">'
                    f'<a class="scout-print" href="/result/{job_id}/print" target="_blank" rel="noopener">'
-                   f'&#128424; Print call sheet</a> '
-                   f'<a class="scout-print" href="/result/{job_id}/brief.md">&#11015; Download (Markdown)</a></div>')
+                   f'&#128424; Print call sheet</a>'
+                   f'<a class="scout-print" href="/result/{job_id}/brief.md">&#11015; Download (Markdown)</a></span>')
+        chrome = _chrome_with_actions(cards, actions)
         if claims:
             # briefing=True: the 2-minute payoff after the wait — exec-summary leads + top plays
             # rendered as a start-here digest above the full brief (2026-07-19 UX pass).
@@ -571,7 +586,7 @@ def result(job_id):
                 briefing_tag="the fast read first · fresh off the research run")
         else:
             brief = f'<div class="wrap"><pre style="white-space:pre-wrap">{_html.escape(md)}</pre></div>'
-        return _doc(chrome + actions + brief, title="Your report — Agent Scout")
+        return _doc(chrome + brief, title="Your report — Agent Scout")
     if status == "rejected":
         msg = _html.escape(res.get("message", "The free window is closed."))
         return _doc(chrome + f'<div class="wrap ss-wrap"><p>{msg}</p></div>', title="Agent Scout")
