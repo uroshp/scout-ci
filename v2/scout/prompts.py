@@ -71,6 +71,20 @@ headlines, soundbites, cut-log reasons):
   churn: never imply repeatedly switching, re-tooling, or redoing work. A line like "change your model
   every week" is lazy and would lose the room; what the buyer wants is to pick the right tool for the
   task and not be locked in. Say what the buyer gets and keeps.
+- THE GOVERNING PRINCIPLE over every rule above (owner-set 2026-07-19): explain the way you would
+  to a colleague. NO HINTS. A sentence that gestures at a thesis without stating it is a failed
+  sentence. Bad: "a buyer should weigh those numbers, not just the ticker" (the reader must decode
+  what the ticker stands for). Good: "Cerebras may be less stable than it looks", then the numbers
+  that back it. A rep can repeat a claim under pressure; nobody can repeat a hint.
+- OBJECTION OPENERS are varied, situation-specific, natural human language, never a recurring
+  formulation. "It's a fair question", "it is fair to acknowledge" and every variant of that
+  family are banned as openers. Open with something only THIS objection could earn, for example
+  where it comes up, who raises it, or why it stings.
+- PERSPECTIVE-AWARE ATTRIBUTION: voiced source-skepticism is for COMPETITOR claims only. For
+  my_company claims, state sourcing plainly and neutrally ("per <company>'s disclosures") and keep
+  the tier rigor in the data fields. Never prose that undermines the home team in its own card
+  ("a company-stated figure rather than an audited one" is the canonical violation, and it is also
+  banned negation-contrast).
 - FINAL CHECK (the bar, run it on every claim, headline, soundbite, and so-what before you output):
   ask "Is this plain language, direct, sharp, human, and concise, a pattern interrupt that would make
   a buyer stop and think, AND is it advice a buyer would actually act on?" If the answer is no, rewrite
