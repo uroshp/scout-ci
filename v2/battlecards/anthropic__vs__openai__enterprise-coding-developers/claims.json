@@ -747,7 +747,7 @@
   },
   {
     "subject_key": "objection | uber-cost-roi-cap | current",
-    "claim": "**\"Uber blew through its AI budget on Claude Code and capped spend. How do we avoid that?\"**\n\nReal story: Uber's COO said it couldn't yet tie Claude Code spend to shipped features, exhausted its 2026 budget by April, and capped engineers at $1,500/month. The root cause was ungoverned, leaderboard-driven adoption with no spend controls: a procurement failure. Anthropic's new per-user credit model and task budgets in Opus 4.7/4.8 give admins the hard ceilings Uber lacked.\n\n**So what:** Set seat-level budgets and a clear ROI metric before rollout, and you get the productivity without Uber's bill shock.",
+    "claim": "**\"Uber blew through its AI budget on Claude Code and capped spend. How do we avoid that?\"**\n\nReal story: Uber's COO said it couldn't yet tie Claude Code spend to shipped features, exhausted its 2026 budget by April, and capped engineers at $1,500/month. The root cause was a procurement failure: ungoverned, leaderboard-driven adoption with no spend controls. Anthropic's new per-user credit model and task budgets in Opus 4.7/4.8 give admins the hard ceilings Uber lacked.\n\n**So what:** Set seat-level budgets and a clear ROI metric before rollout, and you get the productivity without Uber's bill shock.",
     "claim_type": "fact",
     "section": "objection_handling",
     "zone": null,
@@ -831,7 +831,7 @@
   },
   {
     "subject_key": "objection | billing-instability | current",
-    "claim": "**\"Anthropic keeps changing its pricing. How do I budget against a moving target?\"**\n\nFair: the June 15 Agent-SDK credit split is Anthropic's third billing change in 2026, and a brief April test even pulled Claude Code from the Pro page before being reversed within a day. The honest framing is that flat-rate subscriptions genuinely couldn't sustain agent compute, and the fix for enterprise is to bill predictably on the Claude Platform API rather than ride subscription tokens that can shift.\n\n**So what:** Put production usage on the pay-as-you-go API with committed-use terms: metered, SLA-backed, and immune to the subscription-tier churn the headlines are about.",
+    "claim": "**\"Anthropic keeps changing its pricing. How do I budget against a moving target?\"**\n\nFinance teams raise this every time a new billing notice lands. The June 15 Agent-SDK credit split is Anthropic's third billing change in 2026, and a brief April test even pulled Claude Code from the Pro page before being reversed within a day. The honest framing is that flat-rate subscriptions genuinely couldn't sustain agent compute, and the fix for enterprise is to bill predictably on the Claude Platform API rather than ride subscription tokens that can shift.\n\n**So what:** Put production usage on the pay-as-you-go API with committed-use terms: metered, SLA-backed, and immune to the subscription-tier churn the headlines are about.",
     "claim_type": "fact",
     "section": "objection_handling",
     "zone": null,
