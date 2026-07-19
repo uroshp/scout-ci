@@ -273,6 +273,46 @@ def list_pending_jobs() -> list[dict]:
     return out
 
 
+def update_request(job_id: str, **fields) -> dict | None:
+    """Merge fields into an existing request record and re-write it (requests are plain JSON
+    files). Used by the runner for attempt counts and by the owner for status flips (cancelled).
+    Returns the merged record, or None if the request doesn't exist / can't be parsed."""
+    raw = _read(f"{REQUESTS_DIR}/{job_id}.json")
+    if not raw:
+        return None
+    try:
+        req = json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+    req.update(fields)
+    _write(f"{REQUESTS_DIR}/{job_id}.json", json.dumps(req, indent=2, ensure_ascii=False),
+           f"selfserve: update request {job_id}")
+    return req
+
+
+PROGRESS_STAGES = ("preflight_ok", "researching", "verifying", "grounding", "rendering")
+
+
+def write_progress(job_id: str, stage: str) -> None:
+    """Best-effort stage marker for the live progress UI (progress.json beside the job's result).
+    NEVER raises: a progress hiccup must not break a paid generation."""
+    try:
+        _write(f"{RESULTS_DIR}/{job_id}/progress.json",
+               json.dumps({"stage": stage, "updated_at": _now()}),
+               f"selfserve: progress {job_id} {stage}")
+    except Exception as e:
+        print(f"[selfserve] progress write skipped ({type(e).__name__}: {e})", file=sys.stderr)
+
+
+def read_progress(job_id: str) -> dict | None:
+    """The job's latest stage marker, or None. Never raises (UI convenience only)."""
+    try:
+        raw = _read(f"{RESULTS_DIR}/{job_id}/progress.json")
+        return json.loads(raw) if raw else None
+    except Exception:
+        return None
+
+
 def save_result(job_id: str, record: dict, markdown: str | None = None,
                 claims: list | None = None) -> None:
     """Persist a finished job under RESULTS_DIR/<job_id>/ (result.json + optional card.md/claims)."""

@@ -15,6 +15,7 @@ Run locally:
 Deploy: see v2/docs/cloud-run-setup.md
 """
 import html as _html
+import json as _json
 import os
 import threading
 import urllib.parse
@@ -140,6 +141,11 @@ _CTRL_CSS = (
     ".ss-bar{height:8px;background:#e7e3d8;border-radius:5px;overflow:hidden;margin:.6rem 0;}"
     ".ss-bar-fill{height:100%;width:0;background:#2f6149;transition:width .9s linear;}"
     ".ss-elapsed{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#908e82;}"
+    # The creating state (2026-07-19): elapsed promoted to just under the title, and the rotating
+    # build quip in italics under the bar.
+    ".ss-elapsed-big{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:21px;"
+    "color:#33312a;margin:0 0 .8rem;}"
+    ".ss-quip{font-size:13.5px;font-style:italic;color:#5f5e54;margin-top:.5rem;min-height:1.3em;}"
 )
 
 
@@ -393,8 +399,68 @@ def _form_html(gate: dict) -> str:
         '</div>'
         '<div id="ss-status" style="display:none"></div>'
         '</div>'
-        f'<script>{_FORM_JS}</script>')
+        f'<script>{_CREATING_LIB}</script><script>{_FORM_JS}</script>')
 
+
+# The CREATING state (2026-07-19 UX pass): one shared JS library used by BOTH the post-submit
+# swap and the revisit /result pending page, so the two renditions of "your card is being built"
+# can never drift. The bar and the rotating build quips key off the REAL pipeline stage
+# (progress.json written by the Action, surfaced via /api/status) with a time-based fallback,
+# and the bar creeps asymptotically within a stage so it never parks at full.
+_CREATING_LIB = ("""
+(function(){
+  var MSG=""" + _json.dumps(page.PROGRESS_MESSAGES) + """;
+  var BUCKET=""" + _json.dumps(page.STAGE_BUCKETS) + """;
+  var ANCHOR=""" + _json.dumps(page.STAGE_ANCHORS) + """;
+  var ORDER=["preflight_ok","researching","verifying","grounding","rendering"];
+  window.scoutStartCreating=function(jobId){
+    var t=document.querySelector('.ss-title'); if(t) t.textContent='Creating your battlecard\\u2026';
+    var cap=document.querySelector('.ss-cap'); if(cap) cap.style.display='none';
+    var form=document.getElementById('ss-form'); if(form) form.style.display='none';
+    var box=document.getElementById('ss-status'); if(!box) return; box.style.display='block';
+    var started=Date.now(); var stage=null; var stageAt=Date.now();
+    box.innerHTML='<div class="ss-elapsed-big" id="ss-elapsed">Elapsed 0m 0s</div>'
+      +'<div class="ss-note"><b>Doing deep research for you: this can take 10\\u201320 minutes.</b> '
+      +'Keep this tab open, or bookmark this URL and come back; your report will be here when it\\u2019s done.</div>'
+      +'<div class="ss-bar"><div class="ss-bar-fill" id="ss-fill"></div></div>'
+      +'<div class="ss-quip" id="ss-quip"></div>';
+    function frac(){
+      var el=(Date.now()-started)/1000;
+      if(!stage) return Math.min(0.95,1-Math.exp(-el/720));
+      var i=ORDER.indexOf(stage); var a=ANCHOR[stage]||0.05;
+      var b=(i>=0&&i<ORDER.length-1)?ANCHOR[ORDER[i+1]]:0.95;
+      var since=(Date.now()-stageAt)/1000;
+      return Math.min(b-0.01, a+(b-a)*(1-Math.exp(-since/360)));
+    }
+    function bucket(){
+      if(stage&&BUCKET[stage]) return BUCKET[stage];
+      var el=(Date.now()-started)/1000;
+      return el<300?'research':(el<540?'draft':(el<960?'verify':'final'));
+    }
+    function tick(){
+      var el=(Date.now()-started)/1000;
+      var f=document.getElementById('ss-fill'); if(f) f.style.width=(frac()*100).toFixed(1)+'%';
+      var e=document.getElementById('ss-elapsed');
+      if(e) e.textContent='Elapsed '+Math.floor(el/60)+'m '+Math.floor(el%60)+'s';
+      var q=document.getElementById('ss-quip');
+      if(q){ var pool=MSG[bucket()]||MSG.research;
+             q.textContent=pool[Math.floor(Date.now()/45000)%pool.length]; }
+    }
+    tick(); setInterval(tick,1000);
+    function poll(){
+      fetch('/api/status/'+encodeURIComponent(jobId)).then(function(r){return r.json();})
+        .then(function(j){
+          if(j.status==='done'){ window.location.href=j.result_url||('/result/'+jobId); return; }
+          if(j.status==='rejected'||j.status==='error'){
+            box.innerHTML='<div class="ss-note">'+(j.message||'Something went wrong.')+'</div>'; return; }
+          if(j.stage&&j.stage!==stage){ stage=j.stage; stageAt=Date.now(); }
+          setTimeout(poll,(j.retry||20)*1000);
+        }).catch(function(){ setTimeout(poll,30000); });
+    }
+    setTimeout(poll,8000);
+  };
+})();
+""")
 
 _FORM_JS = """
 (function(){
@@ -413,30 +479,9 @@ _FORM_JS = """
       .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
       .then(function(o){
         if(!o.ok||o.j.error){ go.disabled=false; show(o.j.error||'Something went wrong.'); return; }
-        startStatus(o.j.job_id);
+        window.scoutStartCreating(o.j.job_id);
       }).catch(function(){ go.disabled=false; show('Network error \\u2014 please try again.'); });
   });
-  function startStatus(jobId){
-    var form=document.getElementById('ss-form'); if(form) form.style.display='none';
-    var box=document.getElementById('ss-status'); box.style.display='block';
-    var started=Date.now(); var EST=600;
-    box.innerHTML='<div class="ss-note"><b>This usually takes 8\\u201310 minutes, sometimes longer \\u2014 perfection takes time!</b> Keep this tab open, or bookmark this URL and come back; your report will be here when it\\u2019s done.</div><div class="ss-bar"><div class="ss-bar-fill" id="ss-fill"></div></div><div class="ss-elapsed" id="ss-elapsed"></div>';
-    function tick(){
-      var el=(Date.now()-started)/1000; var frac=Math.min(el/EST,0.99);
-      var f=document.getElementById('ss-fill'); if(f) f.style.width=(frac*100).toFixed(1)+'%';
-      var e=document.getElementById('ss-elapsed'); if(e) e.textContent='Elapsed '+Math.floor(el/60)+'m '+Math.floor(el%60)+'s';
-    }
-    tick(); setInterval(tick,1000);
-    function poll(){
-      fetch('/api/status/'+encodeURIComponent(jobId)).then(function(r){return r.json();})
-        .then(function(j){
-          if(j.status==='done'){ window.location.href=j.result_url; return; }
-          if(j.status==='rejected'||j.status==='error'){ box.innerHTML='<div class="ss-note">'+(j.message||'Something went wrong.')+'</div>'; return; }
-          setTimeout(poll,(j.retry||20)*1000);
-        }).catch(function(){ setTimeout(poll,30000); });
-    }
-    setTimeout(poll,8000);
-  }
 })();
 """
 
@@ -480,7 +525,11 @@ def api_status(job_id):
         if not known:
             return jsonify(status="error", message="We can't find that report request — the link "
                                                     "may be incomplete or mistyped.")
-        return jsonify(status="pending", retry=20)
+        # `stage` = the runner's real pipeline stage (progress.json), when it exists — the bar and
+        # the build quips key off it. One extra store read per poll (20s cadence); acceptable at
+        # current traffic, revisit if a crowd of waiters ever rate-limits the shared PAT.
+        return jsonify(status="pending", retry=20,
+                       stage=(selfserve.read_progress(job_id) or {}).get("stage"))
     status = res.get("status")
     if status == "done":
         return jsonify(status="done", result_url=url_for("result", job_id=job_id))
@@ -514,34 +563,34 @@ def result(job_id):
                    f'&#128424; Print call sheet</a> '
                    f'<a class="scout-print" href="/result/{job_id}/brief.md">&#11015; Download (Markdown)</a></div>')
         if claims:
-            brief = page.static_brief_html(claims, md, meta=meta)
+            # briefing=True: the 2-minute payoff after the wait — exec-summary leads + top plays
+            # rendered as a start-here digest above the full brief (2026-07-19 UX pass).
+            brief = page.static_brief_html(
+                claims, md, meta=meta, briefing=True,
+                briefing_label="Your 2-minute brief",
+                briefing_tag="the fast read first · fresh off the research run")
         else:
             brief = f'<div class="wrap"><pre style="white-space:pre-wrap">{_html.escape(md)}</pre></div>'
         return _doc(chrome + actions + brief, title="Your report — Agent Scout")
     if status == "rejected":
         msg = _html.escape(res.get("message", "The free window is closed."))
         return _doc(chrome + f'<div class="wrap ss-wrap"><p>{msg}</p></div>', title="Agent Scout")
-    msg = _html.escape(res.get("message", "Something went wrong generating this report."))
+    # Error fall-through: `message` is ALWAYS the runner's human-facing copy — raw internals live
+    # only in the owner-facing detail_internal field, which is never rendered (7/18 incident).
+    msg = _html.escape(res.get("message", "We hit a snag generating this report and it's been "
+                                          "flagged to the owner. Check back in a while."))
     return _doc(chrome + f'<div class="wrap ss-wrap"><p>{msg}</p></div>', title="Agent Scout")
 
 
 def _pending_html(job_id: str) -> str:
+    """Revisit view of a job still generating — the SAME creating state as the post-submit swap
+    (shared _CREATING_LIB), so a bookmarked/return visitor sees an identical experience."""
     return (
-        '<div class="wrap ss-wrap"><div id="ss-status"></div></div>'
-        '<script>(function(){'
-        'var box=document.getElementById("ss-status");var started=Date.now();var EST=600;'
-        'box.innerHTML=\'<div class="ss-note"><b>This usually takes 8\\u201310 minutes, sometimes longer \\u2014 perfection takes time!</b> '
-        'This page will refresh itself when your report is ready.</div>'
-        '<div class="ss-bar"><div class="ss-bar-fill" id="ss-fill"></div></div><div class="ss-elapsed" id="ss-elapsed"></div>\';'
-        'function tick(){var el=(Date.now()-started)/1000;var frac=Math.min(el/EST,0.99);'
-        'var f=document.getElementById("ss-fill");if(f)f.style.width=(frac*100).toFixed(1)+"%";'
-        'var e=document.getElementById("ss-elapsed");if(e)e.textContent="Elapsed "+Math.floor(el/60)+"m "+Math.floor(el%60)+"s";}'
-        'tick();setInterval(tick,1000);'
-        'function poll(){fetch("/api/status/' + job_id + '").then(function(r){return r.json();}).then(function(j){'
-        'if(j.status==="done"){location.reload();return;}'
-        'if(j.status==="rejected"||j.status==="error"){box.innerHTML=\'<div class="ss-note">\'+(j.message||"Something went wrong.")+\'</div>\';return;}'
-        'setTimeout(poll,(j.retry||20)*1000);}).catch(function(){setTimeout(poll,30000);});}'
-        'setTimeout(poll,8000);})();</script>')
+        '<div class="wrap ss-wrap">'
+        '<h2 class="ss-title">Creating your battlecard…</h2>'
+        '<div id="ss-status"></div></div>'
+        f'<script>{_CREATING_LIB}</script>'
+        f'<script>window.scoutStartCreating({_json.dumps(job_id)});</script>')
 
 
 @app.get("/result/<job_id>/brief.md")

@@ -227,6 +227,11 @@ ALERT_EMAIL_FROM = os.environ.get("SCOUT_ALERT_FROM", "Scout <onboarding@resend.
 # cost spike can't blow past the budget even if the counter still shows room.
 SELFSERVE_FREE_LIMIT = int(os.environ.get("SCOUT_SELFSERVE_FREE_LIMIT", "10"))
 SELFSERVE_SPEND_CEILING_USD = float(os.environ.get("SCOUT_SELFSERVE_SPEND_CEILING_USD", "100"))
+# A FAILED generation still bills (subagents already searched before the crash) but produces no
+# ResultMessage, so its exact cost is unknowable in-run. Count this ESTIMATE against the ceiling
+# instead of $0 (the 7/18 incident: a ~$10 failure was invisible to the ledger). Default = the
+# measured mean of a real July run ($13.55, 2026-07-19); explicitly an estimate, tune as measured.
+SELFSERVE_FAILED_RUN_SPEND_EST = float(os.environ.get("SCOUT_FAILED_RUN_SPEND_EST", "14"))
 # Where "DM me for access" should point once the window closes (shown by the app).
 SELFSERVE_CONTACT = os.environ.get("SCOUT_SELFSERVE_CONTACT", "https://www.linkedin.com/in/urospajic")
 # Optional "email me when it's ready" on the self-serve form. OFF by default so the form NEVER

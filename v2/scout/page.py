@@ -23,6 +23,42 @@ from datetime import datetime, timedelta, timezone
 
 from scout import config, display, store
 
+# Rotating build-status copy for the self-serve wait (originally the v1 app's progress lines).
+# ONE shared source (2026-07-19): the Flask viewer serializes these into its progress JS and the
+# Streamlit app imports them, so the two hosts can't drift. Keyed by the REAL pipeline stage when
+# the runner's progress.json is available, by elapsed-time buckets otherwise.
+PROGRESS_MESSAGES = {
+    "research": [
+        "Reading everything the internet says about them so you don't have to...",
+        "Digging through funding announcements and earnings calls...",
+        "Stalking their careers page for hiring tells...",
+        "Lurking in the forums where people say what they really think...",
+    ],
+    "draft": [
+        "Connecting dots a human would need three coffees to connect...",
+        "Figuring out what actually matters and what is just noise...",
+        "Writing the verdict, not the encyclopedia...",
+    ],
+    "verify": [
+        "Catching the AI before it makes things up...",
+        "Fact-checking every claim like a paranoid editor...",
+        "Cutting anything we cannot prove. Sorry, juicy rumors...",
+        "Cross-examining the numbers until they confess...",
+        "Making sure every link actually goes somewhere...",
+    ],
+    "final": [
+        "Polishing. Almost ready to make you look smart in that meeting...",
+    ],
+}
+
+# Which message bucket fits each REAL pipeline stage (progress.json from the Action runner), and
+# the bar anchor (fraction) per stage — the UI creeps within a stage by time so the bar never
+# looks frozen, and never parks at full before the result exists.
+STAGE_BUCKETS = {"preflight_ok": "research", "researching": "research", "verifying": "verify",
+                 "grounding": "verify", "rendering": "final"}
+STAGE_ANCHORS = {"preflight_ok": 0.05, "researching": 0.15, "verifying": 0.60,
+                 "grounding": 0.85, "rendering": 0.92}
+
 # Stored timestamps are naive UTC wall-clock (datetime.now() on the UTC Actions runner — the
 # due-gate in scout.monitor compares against the same clock, so STORAGE must stay UTC). All
 # conversion to Eastern happens here, at display time only.
@@ -407,7 +443,8 @@ def _freshness(rows: list) -> str:
             '</tr></thead><tbody>' + "".join(trs) + "</tbody></table></div></div>")
 
 
-def _briefing(claims: list) -> str:
+def _briefing(claims: list, label: str = "Your Daily Briefing",
+              tag: str = "the 2-min version before your call · refreshed today") -> str:
     # Today's angle = the brief's STRATEGIC LEAD (the executive summary's first claim), the single
     # most consequential opener, set by the strategic pass. The executive_summary section itself is
     # hidden to avoid a redundant summary, so this is where that lead actually surfaces to the rep.
@@ -450,8 +487,8 @@ def _briefing(claims: list) -> str:
                   f'<div class="playbox">{"".join(plays)}</div>') if plays else ""
 
     return ('<div class="briefing" id="brief"><div class="bhead">'
-            '<span class="l"><span class="dot"></span>Your Daily Briefing</span>'
-            '<span class="r">the 2-min version before your call · refreshed today</span></div>'
+            f'<span class="l"><span class="dot"></span>{_html.escape(label)}</span>'
+            f'<span class="r">{_html.escape(tag)}</span></div>'
             f'<div class="bbody">{angle_html}{plays_html}</div></div>')
 
 
@@ -849,16 +886,22 @@ def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retir
 
 
 def static_brief_html(claims: list, md: str, meta: dict | None = None,
-                      briefing: bool = False) -> str:
+                      briefing: bool = False,
+                      briefing_label: str = "Your Daily Briefing",
+                      briefing_tag: str = "the 2-min version before your call · refreshed today"
+                      ) -> str:
     """Render a one-off brief (e.g. a self-serve card) with the SAME look as the live
     viewer's full brief, MINUS the monitoring furniture — no left rail, metric strip,
     countdown, or freshness table, since those need monitoring state a fresh card has
     no. Title renders when `meta` (competitor/my_company/focus) is supplied. Lets the
-    self-serve result share the viewer's exact styling instead of a separate UI."""
+    self-serve result share the viewer's exact styling instead of a separate UI.
+    `briefing=True` opens with the summary box (the exec-summary leads + top plays — the
+    2-minute payoff after a long generation wait); label/tag default to the live viewer's
+    header so the monitored-card path renders byte-identically."""
     active, retired = _prepare_display(claims)
     secs, cut_html, _present = _brief_sections(active, md, retired=retired)
     title = _title_block(meta) if meta else ""
-    brief = _briefing(active) if briefing else ""
+    brief = _briefing(active, label=briefing_label, tag=briefing_tag) if briefing else ""
     inner = (title
              + '<hr class="rule"><div class="maincol">'
              + brief

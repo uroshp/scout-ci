@@ -9,6 +9,7 @@ Run:  streamlit run app_v2.py
 import base64
 import html
 import json
+import math
 import os
 import random
 import re
@@ -30,37 +31,10 @@ except Exception:
 
 from scout import analytics, config, display, page, selfserve, store
 
-# Rotating status copy — ported verbatim from v1 app.py (the "v1 progress messages") so the
-# self-serve wait feels like the rest of Scout. The bar is a timed estimate (the real job runs
-# out-of-band in a GitHub Action), so these are decorative, honest-about-the-wait flavor.
-PROGRESS_MESSAGES = {
-    "research": [
-        "Reading everything the internet says about them so you don't have to...",
-        "Digging through funding announcements and earnings calls...",
-        "Stalking their careers page for hiring tells...",
-        "Lurking in the forums where people say what they really think...",
-    ],
-    "draft": [
-        "Connecting dots a human would need three coffees to connect...",
-        "Figuring out what actually matters and what is just noise...",
-        "Writing the verdict, not the encyclopedia...",
-    ],
-    "verify": [
-        "Catching the AI before it makes things up...",
-        "Fact-checking every claim like a paranoid editor...",
-        "Cutting anything we cannot prove. Sorry, juicy rumors...",
-        "Cross-examining the numbers until they confess...",
-        "Making sure every link actually goes somewhere...",
-    ],
-    "final": [
-        "Polishing. Almost ready to make you look smart in that meeting...",
-    ],
-}
-
-# The estimate the bar fills against (decoupled from the actual job). Measured first
-# live run was ~12 min for a broad "general" card; pace to 10 min so the bar is still
-# climbing near the end rather than sitting maxed-out (which reads as "stuck").
-_SELFSERVE_ESTIMATE_S = 600
+# Rotating build-status copy + stage tables now live in scout.page (2026-07-19) — ONE source
+# shared with the Flask viewer so the two hosts' creating states can't drift. The bar keys off
+# the runner's REAL pipeline stage (progress.json) with an asymptotic time fallback.
+PROGRESS_MESSAGES = page.PROGRESS_MESSAGES
 
 _BRIEF_CSS = """<style>
 #scout-brief { line-height: 1.55; }
@@ -254,18 +228,32 @@ def _slug(text: str) -> str:
     return re.sub(r"[\s_]+", "-", s)
 
 
-def _phase_message(frac: float) -> str:
-    """Pick a rotating status line for where the timed estimate currently sits. Stable per
-    ~20s tick so it doesn't flicker on every 6s poll rerun."""
-    if frac < 0.40:
+def _phase_message(elapsed: float, stage: str | None = None) -> str:
+    """Pick a rotating build line — keyed to the runner's REAL stage when progress.json has one,
+    to elapsed-time buckets otherwise. Stable per ~45s so it doesn't flicker across poll reruns."""
+    if stage and stage in page.STAGE_BUCKETS:
+        pool = PROGRESS_MESSAGES[page.STAGE_BUCKETS[stage]]
+    elif elapsed < 300:
         pool = PROGRESS_MESSAGES["research"]
-    elif frac < 0.70:
+    elif elapsed < 540:
         pool = PROGRESS_MESSAGES["draft"]
-    elif frac < 0.92:
+    elif elapsed < 960:
         pool = PROGRESS_MESSAGES["verify"]
     else:
         pool = PROGRESS_MESSAGES["final"]
-    return pool[int(time.time() // 20) % len(pool)]
+    return pool[int(time.time() // 45) % len(pool)]
+
+
+def _creating_frac(elapsed: float, stage: str | None, since_stage: float) -> float:
+    """Progress-bar fraction: anchored to the real stage (creeping toward the next anchor,
+    never reaching it), or the asymptotic time curve when no stage is known. Never parks full."""
+    if not stage or stage not in page.STAGE_ANCHORS:
+        return min(0.95, 1 - math.exp(-elapsed / 720))
+    order = list(page.STAGE_ANCHORS)          # insertion order == pipeline order
+    a = page.STAGE_ANCHORS[stage]
+    i = order.index(stage)
+    b = page.STAGE_ANCHORS[order[i + 1]] if i + 1 < len(order) else 0.95
+    return min(b - 0.01, a + (b - a) * (1 - math.exp(-since_stage / 360)))
 
 
 def _selfserve_meta(job_id: str, res: dict) -> dict | None:
@@ -322,19 +310,27 @@ def _render_job_status(job_id: str) -> str | None:
             st.session_state[f"job_known_{job_id}"] = True
         started = st.session_state.setdefault(f"job_start_{job_id}", time.time())
         elapsed = time.time() - started
-        frac = min(elapsed / _SELFSERVE_ESTIMATE_S, 0.99)
+        # The runner's REAL pipeline stage (progress.json), best-effort — drives the bar + quips.
+        try:
+            stage = (selfserve.read_progress(job_id) or {}).get("stage")
+        except Exception:
+            stage = st.session_state.get(f"job_stage_{job_id}")
+        if stage != st.session_state.get(f"job_stage_{job_id}"):
+            st.session_state[f"job_stage_{job_id}"] = stage
+            st.session_state[f"job_stage_at_{job_id}"] = time.time()
+        since_stage = time.time() - st.session_state.get(f"job_stage_at_{job_id}", started)
+        st.subheader("Creating your battlecard…")
+        st.markdown(f"#### Elapsed {int(elapsed // 60)}m {int(elapsed % 60)}s")
         if st.session_state.get("selfserve_notify"):
-            wait_note = ("**This usually takes 8–10 minutes, sometimes longer — perfection takes "
-                         "time!** You can close this tab; we'll email you a link the moment it's "
-                         "ready.")
+            wait_note = ("**Doing deep research for you: this can take 10–20 minutes.** You can "
+                         "close this tab; we'll email you a link the moment it's ready.")
         else:
-            wait_note = ("**This usually takes 8–10 minutes, sometimes longer — perfection takes "
-                         "time!** Keep this tab open, or bookmark this URL and come back; your "
-                         "report will be here when it's done.")
+            wait_note = ("**Doing deep research for you: this can take 10–20 minutes.** Keep this "
+                         "tab open, or bookmark this URL and come back; your report will be here "
+                         "when it's done.")
         st.info(wait_note)
-        st.progress(frac)
-        st.markdown("*" + _phase_message(frac) + "*")
-        st.caption(f"Elapsed {int(elapsed // 60)}m {int(elapsed % 60)}s")
+        st.progress(_creating_frac(elapsed, stage, since_stage))
+        st.markdown("*" + _phase_message(elapsed, stage) + "*")
         # 20s, not faster: each poll is a GitHub API read on one shared PAT (5k req/hr),
         # and a launch-day crowd of pending tabs must not rate-limit the whole job view.
         time.sleep(20)
@@ -362,8 +358,13 @@ def _render_job_status(job_id: str) -> str | None:
                                    mime="text/markdown")
             # Render through the SAME engine as the living-battlecard viewer (rich CSS already
             # injected in main()), minus the monitoring furniture — so a self-serve card and a
-            # roster card share one consistent UI.
-            st.markdown(page.static_brief_html(claims, md, meta=meta), unsafe_allow_html=True)
+            # roster card share one consistent UI. briefing=True opens with the 2-minute payoff
+            # (exec-summary leads + top plays) after the long generation wait.
+            st.markdown(page.static_brief_html(
+                claims, md, meta=meta, briefing=True,
+                briefing_label="Your 2-minute brief",
+                briefing_tag="the fast read first · fresh off the research run"),
+                unsafe_allow_html=True)
         else:  # older job with no stored claims — no call sheet, so Markdown export stands alone
             st.download_button("⬇ Download (Markdown)", data=md, use_container_width=True,
                                file_name=f"{res.get('slug') or 'competitive-brief'}.md",
@@ -396,9 +397,9 @@ def _contact_md() -> str:
 
 def _render_selfserve(job_param: str | None) -> None:
     """The 'Create your own' entry point: gate -> form -> async job view. User-generated cards
-    are saved to user_reports/ (private), never the public showcase or the monitor."""
-    st.subheader("Create your own battlecard")
-
+    are saved to user_reports/ (private), never the public showcase or the monitor.
+    The title is per-state (2026-07-19 UX pass): the form says 'Create your own battlecard';
+    a job in flight says 'Creating your battlecard…' (rendered inside the job view)."""
     # A job id (from the URL ?job= or this session) takes you straight to its status/result.
     job_id = job_param or st.session_state.get("selfserve_job")
     if job_id:
@@ -424,10 +425,12 @@ def _render_selfserve(job_param: str | None) -> None:
         st.markdown(f"In the meantime, {_contact_md()}.")
         return
     if not gate["open"]:
+        st.subheader("Create your own battlecard")
         st.warning("The free launch window is full.")
         st.markdown(f"**For access, {_contact_md()}.**")
         return
 
+    st.subheader("Create your own battlecard")
     st.caption(f"**{gate['free_left']} free reports left.** Two companies, optional focus. "
                "We research, verify every claim against its source, then show you the card.")
     competitor = st.text_input("Competitor to research (required)", placeholder="e.g. OpenAI",

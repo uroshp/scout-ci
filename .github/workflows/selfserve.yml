@@ -62,6 +62,14 @@ jobs:
           SCOUT_GEN_MAX_BUDGET_USD: "100"
           SCOUT_SELFSERVE_FREE_LIMIT: "5"
           SCOUT_SELFSERVE_SPEND_CEILING_USD: "500"
+          # Owner alerts on generation FAILURES (2026-07-19: every failure emails the owner with
+          # the raw error; the visitor only ever sees honest human copy). Same secrets monitor.yml
+          # uses; Resend is the fallback when the Gmail creds are absent.
+          SCOUT_GMAIL_USER: ${{ secrets.SCOUT_GMAIL_USER }}
+          SCOUT_GMAIL_APP_PASSWORD: ${{ secrets.SCOUT_GMAIL_APP_PASSWORD }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SCOUT_ALERT_TO: ${{ secrets.SCOUT_ALERT_TO }}
+          SCOUT_ALERT_FROM: ${{ secrets.SCOUT_ALERT_FROM }}
           # Shadow-eval capture (v3.5): a self-serve card is a real paid generation, so record its
           # champion decisions to the PRIVATE data repo too (pure observer — scout/shadow.py).
           SCOUT_SHADOW_EVAL: "1"
