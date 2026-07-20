@@ -836,5 +836,41 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "warner-bros-discovery-paramount-acquisition",
+    "claim": "On July 13, 2026, a coalition of 12 state attorneys general led by California sued in federal court to block Paramount Skydance's roughly $110B takeover of Warner Bros. Discovery, the studio behind Gunn's Superman, and asked the court to halt it with a temporary restraining order or injunction while the case runs. The suit alleges the deal violates Section 7 of the Clayton Act by cutting competition in theatrical film and basic cable. The DOJ cleared the merger in June, but Paramount now cannot close cleanly until this is resolved, and it only expects to close sometime after July 22.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 3,
+    "source_url": "https://oag.ca.gov/news/press-releases/attorney-general-bonta-files-lawsuit-block-110-billion-warner-brosparamount",
+    "source_tier": "primary",
+    "evidence_excerpt": "The coalition has asked Warner Bros. and Paramount not to close the merger until after the judicial process concludes",
+    "as_of": "2026-07-13",
+    "confidence": "high",
+    "id": "c_d56e29441dcb",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-20",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.cnbc.com/2026/07/13/paramount-wbd-merger-lawsuit.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://variety.com/2026/film/news/paramount-warner-bros-merger-states-lawsuit-1236806824/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
