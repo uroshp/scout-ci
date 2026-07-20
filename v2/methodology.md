@@ -31,6 +31,7 @@ The full report is the evidence. The executive summary is the verdict. Lead with
 - Never fabricate a data point that does not exist (e.g. earnings for a private company). State that it does not exist.
 - Flag when a number may be stale or when sources conflict.
 - When sources conflict, use the most reputable source.
+- Every quantitative change carries a measurement window, and the window must match the event the sentence describes. An earnings-day reaction is not a cumulative decline from a peak: “the stock fell as much as 16% the morning after the print” and “the stock is down 20% since its IPO peak” are different facts, and swapping one for the other overstates or understates the event. When sources report different windows, use the number for the window your sentence claims, and name the window in the sentence.
 
 ## Freshness is a dimension of trust
 
