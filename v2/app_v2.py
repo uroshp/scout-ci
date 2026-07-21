@@ -34,6 +34,12 @@ from scout import analytics, config, display, page, selfserve, store
 # Rotating build-status copy + stage tables now live in scout.page (2026-07-19) — ONE source
 # shared with the Flask viewer so the two hosts' creating states can't drift. The bar keys off
 # the runner's REAL pipeline stage (progress.json) with an asymptotic time fallback.
+# HOT-RELOAD GUARD (2026-07-20 prod crash): Streamlit re-runs THIS file on deploy while cached
+# imports can lag a commit behind, so a newly-added page.* attribute can be missing at import
+# time (the 2026-06-18 race, again). Reload the module once if it looks stale.
+if not all(hasattr(page, a) for a in ("PROGRESS_MESSAGES", "STAGE_BUCKETS", "STAGE_ANCHORS")):
+    import importlib
+    page = importlib.reload(page)
 PROGRESS_MESSAGES = page.PROGRESS_MESSAGES
 
 _BRIEF_CSS = """<style>
