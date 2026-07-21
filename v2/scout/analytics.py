@@ -162,11 +162,20 @@ def _ga4_server_event(client_id, ip, ref, card, utm=None):
         # ?card (drives the Pages/path report), and a clean `card` param (register as an event-scoped
         # custom dimension in GA to slice server_visit by battlecard).
         slug = card or "(home)"
-        params = {"session_id": client_id, "engagement_time_msec": "1",
+        # session_id must be a POSITIVE NUMBER (the old hex client_id here was invalid — GA
+        # couldn't form sessions from these events, hence the "missing session_start" warning).
+        # server_visit fires once per session, so a fresh timestamp IS the session id.
+        params = {"session_id": int(time.time()), "engagement_time_msec": "1",
                   "page_location": loc, "page_referrer": ref or "(direct)",
                   "page_title": f"Agent Scout · {slug}", "card": slug}
         params.update(utm)   # also expose utm_* as event params for custom-dimension slicing
-        payload = {"client_id": client_id, "events": [{"name": "server_visit", "params": params}]}
+        payload = {"client_id": client_id, "events": [{"name": "server_visit", "params": params}],
+                   # ip_override: GA geolocates the REAL visitor IP, so server_visit rows carry
+                   # city/country like client events (2026-07-21 — was all "(not set)").
+                   "ip_override": ip,
+                   # Truthful consent state (no ads run, no ad data collected) — also what GA
+                   # wants declared so MP events stop tripping the consent-mode warning.
+                   "consent": {"ad_user_data": "DENIED", "ad_personalization": "DENIED"}}
         url = ("https://www.google-analytics.com/mp/collect"
                f"?measurement_id={urllib.parse.quote(mid)}&api_secret={urllib.parse.quote(secret)}")
         req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"),
