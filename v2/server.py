@@ -619,6 +619,20 @@ def result_md(job_id):
     if not res or res.get("status") != "done":
         abort(404)
     fname = (res.get("slug") or "competitive-brief") + ".md"
+    # Server-side download event (2026-07-21): GA's file_download never fires for .md (not on
+    # its extension list) and blocked browsers fire nothing — but this fetch hits US, so tell
+    # GA directly. Same gating as _server_visit (owner + bot UAs out); never break the download.
+    try:
+        ua = request.headers.get("User-Agent", "")
+        if (request.cookies.get("scout_me") != "1" and not request.args.get("me")
+                and not analytics._is_bot(ua)):
+            cid = request.cookies.get("scout_cid") or uuid.uuid4().hex
+            threading.Thread(target=analytics._ga4_server_event,
+                             args=(cid, analytics._client_ip(dict(request.headers)),
+                                   request.headers.get("Referer", ""), job_id),
+                             kwargs={"event": "brief_download"}, daemon=True).start()
+    except Exception:
+        pass
     return Response(res.get("markdown", ""), mimetype="text/markdown",
                     headers={"Content-Disposition": f'attachment; filename="{fname}"'})
 

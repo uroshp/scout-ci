@@ -141,10 +141,12 @@ def _is_bot(ua):
     return any(b in u for b in _BOT_UA)
 
 
-def _ga4_server_event(client_id, ip, ref, card, utm=None):
-    """Fire a GA4 Measurement Protocol 'server_visit' event (server-side, unblockable). A
-    distinct event name (not page_view) so it never double-counts the client gtag and gives a
-    clean reliable visit metric. No-op without an API secret. Best-effort."""
+def _ga4_server_event(client_id, ip, ref, card, utm=None, event="server_visit"):
+    """Fire a GA4 Measurement Protocol event (server-side, unblockable). Default 'server_visit'
+    — a distinct name (not page_view) so it never double-counts the client gtag and gives a
+    clean reliable visit metric. `event='brief_download'` marks a user-report markdown download
+    (GA's native file_download never fires for .md — not on its extension list). No-op without
+    an API secret. Best-effort."""
     mid, secret = config.GA_MEASUREMENT_ID, config.GA_API_SECRET
     if not (mid and secret):
         return
@@ -169,7 +171,7 @@ def _ga4_server_event(client_id, ip, ref, card, utm=None):
                   "page_location": loc, "page_referrer": ref or "(direct)",
                   "page_title": f"Agent Scout · {slug}", "card": slug}
         params.update(utm)   # also expose utm_* as event params for custom-dimension slicing
-        payload = {"client_id": client_id, "events": [{"name": "server_visit", "params": params}],
+        payload = {"client_id": client_id, "events": [{"name": event, "params": params}],
                    # ip_override: GA geolocates the REAL visitor IP, so server_visit rows carry
                    # city/country like client events (2026-07-21 — was all "(not set)").
                    "ip_override": ip,
