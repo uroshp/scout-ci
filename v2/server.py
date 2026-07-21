@@ -290,8 +290,11 @@ def _server_visit(resp):
             return resp
         if request.cookies.get("scout_me") == "1" or request.args.get("me"):
             return resp                                    # your own marked devices, everywhere
-        if analytics._is_bot(request.headers.get("User-Agent", "")):
+        ua = request.headers.get("User-Agent", "")
+        if analytics._is_bot(ua):
             return resp                                    # crawlers/uptime bots out of the count
+        if analytics.suspicious_query(request.query_string.decode("utf-8", "replace")):
+            return resp                                    # exploit-spray URLs never mint GA users
         cid = request.cookies.get("scout_cid")
         if not cid:                                        # stable per-visitor id (2-year cookie)
             cid = uuid.uuid4().hex
@@ -303,7 +306,8 @@ def _server_visit(resp):
             ref = request.headers.get("Referer", "")
             utm = {k: request.args.get(k) for k in _UTM_KEYS if request.args.get(k)}
             threading.Thread(target=analytics._ga4_server_event,
-                             args=(cid, ip, ref, card, utm), daemon=True).start()
+                             args=(cid, ip, ref, card, utm), kwargs={"ua": ua},
+                             daemon=True).start()
     except Exception:
         pass
     return resp
@@ -630,7 +634,7 @@ def result_md(job_id):
             threading.Thread(target=analytics._ga4_server_event,
                              args=(cid, analytics._client_ip(dict(request.headers)),
                                    request.headers.get("Referer", ""), job_id),
-                             kwargs={"event": "brief_download"}, daemon=True).start()
+                             kwargs={"event": "brief_download", "ua": ua}, daemon=True).start()
     except Exception:
         pass
     return Response(res.get("markdown", ""), mimetype="text/markdown",
