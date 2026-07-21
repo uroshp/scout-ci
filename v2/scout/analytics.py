@@ -234,8 +234,13 @@ def _ga4_server_event(client_id, ip, ref, card, utm=None, event="server_visit", 
             payload["device"] = _device_from_ua(ua)
         url = ("https://www.google-analytics.com/mp/collect"
                f"?measurement_id={urllib.parse.quote(mid)}&api_secret={urllib.parse.quote(secret)}")
+        # Forward the visitor's UA as the request header too (the sGTM pattern): GA's built-in
+        # IAB bot filtering reads the collecting request's User-Agent, not the device object.
+        headers = {"Content-Type": "application/json"}
+        if ua:
+            headers["User-Agent"] = ua
         req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"),
-                                     headers={"Content-Type": "application/json"})
+                                     headers=headers)
         urllib.request.urlopen(req, timeout=4).read()
     except Exception:
         pass
