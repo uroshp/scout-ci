@@ -141,7 +141,59 @@ def _is_bot(ua):
     return any(b in u for b in _BOT_UA)
 
 
-def _ga4_server_event(client_id, ip, ref, card, utm=None, event="server_visit"):
+_SUSPICIOUS_QS = ("../", "..%2f", ".log", ".env", ".php", ".bak", "etc/passwd", "=http")
+
+
+def suspicious_query(qs):
+    """True for query strings that only exploit scanners send (path traversal, config probes,
+    SSRF payloads, kilobyte blobs). Guards server_visit: the 2026-07-20 Laravel barrage hit `/`
+    with ?config=..%2F..%2Fstorage%2Flogs%2Flaravel.log junk 231 times, and each cookie-less
+    request minted a phantom GA 'user'. Deliberately NARROW — unknown-but-clean params (fbclid
+    and friends that chat apps append) must still count, undercounting humans is the worse
+    error."""
+    q = (qs or "").lower()
+    return len(q) > 512 or any(s in q for s in _SUSPICIOUS_QS)
+
+
+def _device_from_ua(ua):
+    """Best-effort GA4 MP `device` object from a raw User-Agent, so server events carry
+    Browser/OS/category dimensions (they were all '(not set)', which also blinded GA's own
+    bot filtering). Crude token matching on purpose: wrong-version beats absent."""
+    u = ua or ""
+    browser, version = "", ""
+    for token, name in (("Edg/", "Edge"), ("OPR/", "Opera"), ("Firefox/", "Firefox"),
+                        ("Chrome/", "Chrome"), ("Version/", "Safari")):
+        i = u.find(token)
+        if i >= 0:
+            browser, version = name, u[i + len(token):].split(" ")[0].split(".")[0]
+            break
+    if "Windows" in u:
+        osname = "Windows"
+    elif "Android" in u:
+        osname = "Android"
+    elif "iPhone" in u or "iPad" in u or "iOS" in u:
+        osname = "iOS"
+    elif "Mac OS X" in u or "Macintosh" in u:
+        osname = "Macintosh"
+    elif "CrOS" in u:
+        osname = "Chrome OS"
+    elif "Linux" in u or "X11" in u:
+        osname = "Linux"
+    else:
+        osname = ""
+    category = "tablet" if "iPad" in u else \
+        "mobile" if ("Mobi" in u or "Android" in u or "iPhone" in u) else "desktop"
+    dev = {"category": category}
+    if browser:
+        dev["browser"] = browser
+        if version:
+            dev["browser_version"] = version
+    if osname:
+        dev["operating_system"] = osname
+    return dev
+
+
+def _ga4_server_event(client_id, ip, ref, card, utm=None, event="server_visit", ua=None):
     """Fire a GA4 Measurement Protocol event (server-side, unblockable). Default 'server_visit'
     — a distinct name (not page_view) so it never double-counts the client gtag and gives a
     clean reliable visit metric. `event='brief_download'` marks a user-report markdown download
@@ -178,6 +230,8 @@ def _ga4_server_event(client_id, ip, ref, card, utm=None, event="server_visit"):
                    # Truthful consent state (no ads run, no ad data collected) — also what GA
                    # wants declared so MP events stop tripping the consent-mode warning.
                    "consent": {"ad_user_data": "DENIED", "ad_personalization": "DENIED"}}
+        if ua:
+            payload["device"] = _device_from_ua(ua)
         url = ("https://www.google-analytics.com/mp/collect"
                f"?measurement_id={urllib.parse.quote(mid)}&api_secret={urllib.parse.quote(secret)}")
         req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"),
@@ -202,7 +256,7 @@ def _log_async(client_id, ip, ref, ua, card, utm=None):
     """GA4 server event + the first-party visit write, off the render thread. geo starts empty
     and capture_city() fills it in from the browser, since Streamlit Cloud strips the real IP."""
     utm = utm or {}
-    _ga4_server_event(client_id, ip, ref, card, utm)
+    _ga4_server_event(client_id, ip, ref, card, utm, ua=ua)
     try:
         rec = {
             "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
