@@ -1,0 +1,43 @@
+# Post-deploy rendered-surface check (2026-07-20, born from the Streamlit hot-reload
+# crash: a push broke the live viewer for ~38h while HTTP checks stayed green).
+#
+# Every push to main redeploys both hosts (Cloud Build -> .ai, Streamlit auto-pull), so
+# every push gets a real-browser probe: headless Chromium loads each host and requires
+# card content to render. Fails loudly + emails the owner if a visitor would see a crash
+# page, a sleep page, or a blank app. The daily mini canary runs the same probe at 08:00 PT.
+name: postdeploy
+on:
+  push:
+    branches: [main]
+    paths:
+      - "v2/**"
+      - ".github/workflows/**"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install probe deps (browser only — not the app stack)
+        run: |
+          pip install --quiet playwright httpx python-dotenv
+          playwright install --with-deps chromium
+      - name: Wait for both hosts to pick up the deploy
+        run: sleep 180
+      - name: Probe rendered surfaces
+        working-directory: v2
+        env:
+          PROBE_EMAIL: "1"
+          SCOUT_GMAIL_USER: ${{ secrets.SCOUT_GMAIL_USER }}
+          SCOUT_GMAIL_APP_PASSWORD: ${{ secrets.SCOUT_GMAIL_APP_PASSWORD }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SCOUT_ALERT_TO: ${{ secrets.SCOUT_ALERT_TO }}
+          SCOUT_ALERT_FROM: ${{ secrets.SCOUT_ALERT_FROM }}
+        run: python scripts/probe_hosts.py
