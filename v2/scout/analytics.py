@@ -128,7 +128,8 @@ def _visitor_ctx(st):
 # occur in a real Chrome/Safari/Firefox UA. (Browser-UA datacenter bots still slip through; that's
 # why human counts read off the CLIENT page_view, which bots don't fire, not server_visit.)
 _BOT_UA = ("headlesschrome", "headless", "playwright", "bot", "spider", "crawl", "slurp",
-           "python-requests", "python/", "curl/", "wget", "lighthouse", "pingdom", "uptime",
+           "python-requests", "python/", "httpx", "scoutprobe", "curl/", "wget", "lighthouse",
+           "pingdom", "uptime",
            "monitor", "scanner", "audit", "checkmark", "okhttp", "ahrefs", "semrush", "dataforseo",
            "facebookexternalhit", "go-http-client", "java/", "node-fetch", "axios", "scrapy")
 

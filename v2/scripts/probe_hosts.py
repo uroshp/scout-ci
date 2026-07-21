@@ -38,6 +38,15 @@ HOSTS = {
 WAIT_TOTAL_S = 90          # Streamlit cold start + websocket render can be slow
 POLL_S = 5
 
+# The probe must be INVISIBLE to analytics (2026-07-20: its first runs registered as a GA
+# "user spike" — gtag executes fine in headless Chromium). Two layers: abort every request
+# to an analytics domain, and carry a self-identifying UA ("headless" + "scoutprobe" both
+# match analytics._BOT_UA, and the access log shows exactly who we are).
+ANALYTICS_HOSTS = ("googletagmanager.com", "google-analytics.com",
+                   "analytics.google.com", "doubleclick.net")
+PROBE_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+            "(KHTML, like Gecko) HeadlessChrome/149.0 Safari/537.36 ScoutProbe/1.0")
+
 
 def _visible_text(page):
     """All rendered text across the page AND its frames — streamlit.app serves the app
@@ -52,7 +61,10 @@ def _visible_text(page):
 
 
 def probe_host(browser, name, url):
-    page = browser.new_page()
+    context = browser.new_context(user_agent=PROBE_UA)
+    context.route("**/*", lambda route: route.abort()
+                  if any(h in route.request.url for h in ANALYTICS_HOSTS) else route.continue_())
+    page = context.new_page()
     try:
         page.goto(url, timeout=60_000)
     except Exception as e:
@@ -70,7 +82,7 @@ def probe_host(browser, name, url):
         return (f"{name}: BROKEN — no card content rendered after {WAIT_TOTAL_S}s "
                 f"(missing \"{CONTENT_MARKER}\"; page text: \"{text[:120]}\")")
     finally:
-        page.close()
+        context.close()
 
 
 def run_probe():
