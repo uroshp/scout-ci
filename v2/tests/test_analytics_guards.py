@@ -55,5 +55,25 @@ class DeviceFromUa(unittest.TestCase):
         self.assertIn("category", analytics._device_from_ua(""))
 
 
+class ServerVisitOnlyOn200(unittest.TestCase):
+    """A 404 (scanner miss) or a redirect must never fire server_visit — only a real page."""
+    UA = DeviceFromUa.MAC_CHROME
+
+    def _fired(self, path):
+        from unittest import mock
+        import server
+        calls = []
+        with mock.patch.object(server.threading, "Thread",
+                               side_effect=lambda **kw: mock.Mock(start=lambda: calls.append(1))):
+            server.app.test_client().get(path, headers={"User-Agent": self.UA})
+        return bool(calls)
+
+    def test_200_fires(self):
+        self.assertTrue(self._fired("/"))
+
+    def test_404_does_not_fire(self):
+        self.assertFalse(self._fired("/wp-login.php"))
+
+
 if __name__ == "__main__":
     unittest.main()

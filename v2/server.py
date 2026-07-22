@@ -286,8 +286,11 @@ def _noindex(resp):
 def _server_visit(resp):
     try:
         if (request.method != "GET" or request.path == "/healthcheck"
+                or resp.status_code != 200
                 or not (resp.content_type or "").startswith("text/html")):
-            return resp
+            return resp                                    # only a real served page is a visit:
+            # 404s were firing too — one phishing-kit scanner minted 8 phantom GA events off
+            # its own misses (2026-07-21); 302s double-counted the http->https hop
         if request.cookies.get("scout_me") == "1" or request.args.get("me"):
             return resp                                    # your own marked devices, everywhere
         ua = request.headers.get("User-Agent", "")
