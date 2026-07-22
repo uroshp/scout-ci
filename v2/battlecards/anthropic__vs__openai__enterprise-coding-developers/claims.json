@@ -1582,5 +1582,56 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "anthropic | copyright-settlement-final-approval",
+    "claim": "A federal judge granted final approval on July 20, 2026 to Anthropic's $1.5 billion settlement of the class-action copyright lawsuit brought by authors and publishers over pirated books used to train Claude, believed to be the largest copyright settlement in US legal history. The deal pays $3,000 per work across an estimated 500,000 works, requires Anthropic to destroy the pirated copies it had stored, and per Anthropic more than 91% of eligible works already have claims filed. The prior judge in the case had separately ruled that training Claude on lawfully acquired text is fair use, but that storing millions of pirated books was not, and that piracy finding is what drove Anthropic to settle rather than go to trial. Some authors opted out of the settlement to pursue separate suits, and the resolution does not bind other pending AI copyright cases against Google, Meta, Midjourney and OpenAI.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://techcrunch.com/2026/07/20/anthropics-landmark-1-5b-copyright-settlement-is-approved/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "A federal judge gave final approval Monday of Anthropic's landmark $1.5 billion settlement of a class action copyright lawsuit, Reuters reported.",
+    "as_of": "2026-07-20",
+    "confidence": "high",
+    "id": "c_36f697fb9d9c",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "fuzzy",
+      "fetched_at": "2026-07-22",
+      "detail": "partial_ratio 0.993"
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.euronews.com/next/2026/07/21/anthropic-to-pay-13bn-in-biggest-copyright-settlement-on-record",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.engadget.com/2219475/judge-approves-anthropic-1-5-billion-settlement-authors/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_142f31e2bda8",
+    "subject_key": "objection | copyright-training-data-ip-risk | current",
+    "claim": "**\"Wasn't Claude trained on pirated books? Isn't that a legal risk for us?\"**\n\nA federal judge gave final approval on July 20, 2026 to Anthropic's $1.5 billion settlement over pirated books used in training, the largest copyright settlement in US legal history. It pays $3,000 per work across an estimated 500,000 works, requires Anthropic to destroy the pirated copies, and over 91% of eligible works already have claims filed. The court's ruling drew a clean line: training Claude on lawfully acquired text is fair use, only storing pirated copies was not, and that's the piece Anthropic paid to close. The case doesn't touch pending suits against Google, Meta, Midjourney or OpenAI.\n\n**So what:** Tell the buyer the exposure is capped and resolved, not open-ended: a fixed payout, destroyed copies and a court finding that training on lawfully acquired text is fair use. That's a closed legal question, not a reason to slow down a Claude deal.",
+    "claim_type": "interpretation",
+    "section": "objection_handling",
+    "zone": null,
+    "order": 8,
+    "as_of": "2026-07-20",
+    "updated_on": "2026-07-22",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_36f697fb9d9c",
+    "persona": "economic_buyer"
   }
 ]

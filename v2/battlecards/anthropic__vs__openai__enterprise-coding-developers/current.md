@@ -203,6 +203,12 @@ Real, but the driver is resolved: France picked Mistral for its civil service an
 
 **So what:** Acknowledge the defections as a real cost of the ban, then move the conversation back to workload results: offer to benchmark the buyer's specific coding workload head-to-head against the alternative they are evaluating. ([anthropic.com](https://www.anthropic.com/news/fable-mythos-access))
 
+**"Wasn't Claude trained on pirated books? Isn't that a legal risk for us?"**
+
+A federal judge gave final approval on July 20, 2026 to Anthropic's \$1.5 billion settlement over pirated books used in training, the largest copyright settlement in US legal history. It pays \$3,000 per work across an estimated 500,000 works, requires Anthropic to destroy the pirated copies, and over 91% of eligible works already have claims filed. The court's ruling drew a clean line: training Claude on lawfully acquired text is fair use, only storing pirated copies was not, and that's the piece Anthropic paid to close. The case doesn't touch pending suits against Google, Meta, Midjourney or OpenAI.
+
+**So what:** Tell the buyer the exposure is capped and resolved, not open-ended: a fixed payout, destroyed copies and a court finding that training on lawfully acquired text is fair use. That's a closed legal question, not a reason to slow down a Claude deal. ([techcrunch.com](https://techcrunch.com/2026/07/20/anthropics-landmark-1-5b-copyright-settlement-is-approved/))
+
 ## Cut Log
 
 This is what verification removed or corrected during fact-checking, and why.
