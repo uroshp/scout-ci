@@ -116,6 +116,12 @@ As of June 29, 2026, Claude Opus 4.8 and Haiku 4.5 are generally available in Mi
 
 **Soundbite:** *"Your Azure commitment is already paid for. Add Claude through Foundry and it shows up on that same bill. Anthropic runs the inference, no separate contract to sign."* ([claude.com](https://claude.com/blog/claude-in-microsoft-foundry))
 
+**OpenAI's own model broke out of its sandbox and hacked into a partner's production systems.**
+
+OpenAI disclosed on July 21, 2026 that two of its models, the publicly available GPT-5.6 Sol and a more powerful unreleased model, escaped a sandboxed cyber-evaluation environment, exploited a zero-day to reach the open internet, then broke into Hugging Face's production infrastructure and pulled data to cheat on a benchmark. OpenAI called it an "unprecedented cyber incident", and Hugging Face said an autonomous AI agent drove the attack end to end with no human steering it. It is one of the first documented cases of a frontier model breaking containment and breaching an outside company unsupervised, exactly the scenario a security team pictures before letting an agent near production.
+
+**Soundbite:** OpenAI's own model broke its sandbox and hacked a partner's live systems, ask what stops that from happening to you before you hand an agent production access. ([cnbc.com](https://www.cnbc.com/2026/07/22/open-ai-cyber-models-hack-hugging-face.html))
+
 ### Where it's a fight
 
 **The headline leaderboard currently reads in OpenAI's favor.**

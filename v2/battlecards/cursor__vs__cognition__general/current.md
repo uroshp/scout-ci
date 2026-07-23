@@ -56,7 +56,7 @@ On June 2 Cognition retired the Windsurf brand, relaunched it as Devin Desktop, 
 
 - Cognition still positions itself as cloud-agent vs local-agent, arguing a local agent's 'ceiling is your attention' and stops when you close your laptop. That line no longer holds against Cursor: since June 29, 2026 Cursor's iOS app lets developers launch always-on cloud agents and steer local Remote Control agents from their phone, then review diffs and merge PRs on the go. ([cursor.com](https://cursor.com/blog/ios-mobile-app))
 - Cognition brands Devin as 'the first AI software engineer' and frames cloud agents as the fastest-growing way to build software (the company's own claim). ([cognition.ai](https://cognition.ai/blog/series-d))
-- Cognition still markets itself as an independent, model-agnostic 'agent lab' that routes tasks across all major foundation models, an implicit contrast with Cursor's model dependence (the company's own claim). But on July 8, 2026 it shipped its own in-house model, SWE-1.7, sold only inside Devin and not offered as an API, adding a proprietary model to the same portfolio it says stays neutral. ([cognition.com](https://cognition.com/blog/swe-1-7))
+- Cognition still markets itself as an independent, model-agnostic 'agent lab' that routes tasks across all major foundation models, an implicit contrast with Cursor's model dependence (the company's own claim). But on July 8, 2026 it shipped its own in-house model, SWE-1.7, sold only inside Devin and not offered as an API, adding a proprietary model to the same portfolio it says stays neutral. Cursor now routes across models too: Cursor Router, launched July 22, 2026, classifies every request and sends it to the best-suited model across desktop, web, iOS, CLI and the SDK, closing the gap Cognition's positioning claimed as its own. ([cursor.com](https://cursor.com/blog/router))
 - Industry analysis frames the AI-coding market as a split bet: IDE-first (keep the engineer in the loop: Cursor) vs agent-first (delegate whole tasks to an autonomous agent: Devin). Useful framing because it lets a Cursor rep define the axis of the comparison on our terms. ([techtimes.com](https://www.techtimes.com/articles/317354/20260529/ai-coding-agents-cognitions-26b-raise-bets-agent-first-architecture-beats-ide-tools.htm))
 - Grok 4.5 is the first model Cursor has built for more than software engineering, aimed at long-running work across data science, finance, legal work and other knowledge work in addition to coding. It is live now across desktop, web, iOS, CLI and the SDK, broadening Cursor's pitch from a coding tool to a platform for knowledge work generally. ([cursor.com](https://cursor.com/blog/grok-4-5))
 
@@ -66,6 +66,7 @@ On June 2 Cognition retired the Windsurf brand, relaunched it as Devin Desktop, 
 - Cursor's Teams pricing keeps Standard at \$32/seat/mo annual (\$40 monthly) and Premium at \$96/seat/mo annual (\$120 monthly, 5x the usage at 3x the cost), and now splits every seat into two usage pools, one for first-party Composer and Auto models, one for third-party API calls, with a real-time dashboard split by pool and dollar-threshold spend alerts over Slack or email. There's still no flat team base fee, undercutting Cognition's \$80 base plus per-seat Teams structure for smaller teams.
 - Cursor's individual tiers run Hobby (free), Pro \$20/mo, and Ultra \$200/mo (20x Pro usage), matching Devin's \$20 entry and \$200 power tier on headline price while keeping the engineer in the loop. ([cursor.com](https://cursor.com/blog/new-tier))
 - On July 8, 2026 Cursor released Grok 4.5, trained jointly with SpaceXAI, priced at \$2 per million input tokens and \$6 per million output tokens, with a faster variant at \$4 per million input tokens and \$18 per million output tokens. It is included in individual and team plans today, with double usage for the first week, and Composer 2.5 remains available alongside it. ([cursor.com](https://cursor.com/blog/grok-4-5))
+- Cursor Router is on by default for Teams plans, and enterprise admins turn it on from the dashboard with per-team controls, mode restrictions and model allow/block lists (Grok 4.5 cannot be excluded from routing). Balance and Intelligence modes bill at the routed model's rate rather than a flat price: Balance runs \$4.63 per commit and Intelligence \$6.76, versus \$7.34 for Opus 4.8 and \$12.69 for Fable 5. ([cursor.com](https://cursor.com/blog/router))
 
 ## Competitive Battlecard
 
@@ -94,6 +95,12 @@ Cursor's Teams pricing gives every seat two separate included-usage pools, one f
 Grok 4.5, released July 8, 2026 and trained jointly with SpaceXAI, runs across Cursor's desktop, web, iOS, CLI and SDK, priced at \$2 per million input tokens and \$6 per million output tokens (a faster variant at \$4 input and \$18 output), and sits alongside Composer 2.5 rather than replacing it. Devin's answer, SWE-1.7, only runs inside Devin and is not sold as an API, so teams building multi-surface workflows have nowhere to take it.
 
 **Soundbite:** "Grok 4.5 runs everywhere you build, desktop, CLI and SDK, at \$2 and \$6 per million tokens, while Devin's model only runs inside Devin." ([cursor.com](https://cursor.com/blog/grok-4-5))
+
+**Cursor Router cuts cost per commit without cutting quality.**
+
+Cursor's per-request classifier picks the right model for each task instead of defaulting to one daily-driver model for everything, and reports frontier-quality performance at 60% lower cost in online A/B tests across millions of live requests. Three high-volume enterprise accounts with thousands of users saved 30-50% on routed requests versus sending everything to Opus 4.8, with no drop in quality. Cost per commit lands at \$4.63 for Balance mode and \$6.76 for Intelligence mode, against \$7.34 for Opus 4.8 and \$12.69 for Fable 5.
+
+**Soundbite:** Ask what they pay per commit today, then show Cursor Router hitting frontier quality for \$4.63 to \$6.76 against \$7.34 for Opus 4.8 and \$12.69 for Fable 5. ([cursor.com](https://cursor.com/blog/router))
 
 ### Where it's a fight
 
@@ -146,9 +153,9 @@ Real, and they're well-funded. But Cursor's ~\$2B ARR is about 4x their run-rate
 
 **"I've seen the Cursor pricing blow-ups. How do I know our budget won't explode?"**
 
-Fair: the 2025 rollout was botched and our CEO apologized publicly. Since then we've rebuilt Teams pricing around spend predictability. Every seat now carries separate usage pools for first-party models and third-party API calls, admins get a real-time dashboard split by pool and spend alerts fire on dollar thresholds over Slack or email. For budget certainty, sign an enterprise contract with a capped monthly pool rather than per-seat usage-based plans.
+Fair: the 2025 rollout was botched and our CEO apologized publicly. Since then we've rebuilt Teams pricing around spend predictability. Every seat now carries separate usage pools for first-party models and third-party API calls, admins get a real-time dashboard split by pool and spend alerts fire on dollar thresholds over Slack or email. For budget certainty, sign an enterprise contract with a capped monthly pool rather than per-seat usage-based plans. Cursor Router now also works to hold spend down directly: it's on by default for Teams plans and reports frontier-quality performance at 60% lower cost in live A/B tests, with early enterprise accounts saving 30-50% on routed requests versus sending everything to Opus 4.8, with no drop in quality.
 
-**So what:** Own the history, then walk through the specific pools, dashboard and dollar alerts. Getting defensive is what loses this deal.
+**So what:** Own the history, then walk through the pools, dashboard, dollar alerts and Cursor Router's on-by-default savings. Getting defensive is what loses this deal. ([cursor.com](https://cursor.com/blog/router))
 
 **"If SpaceX buys Cursor, who am I actually contracting with in a year?"**
 
@@ -164,9 +171,9 @@ Cato Networks disclosed two critical RCE flaws in Cursor, DuneSlide (CVE-2026-50
 
 **"Devin's new SWE-1.7 hits frontier quality for \$1.97 a task. Why pay more for Cursor?"**
 
-SWE-1.7 is genuinely cheap and it does beat Cursor's own Composer 2.5 on Cognition's FrontierCode benchmark (42.3% to 25.6%). But it still trails Opus 4.8 and GPT-5.5 on that same benchmark and on Terminal-Bench 2.1, and it only runs inside Devin: it is not sold as an API you can build on elsewhere.
+SWE-1.7 is genuinely cheap and it does beat Cursor's own Composer 2.5 on Cognition's FrontierCode benchmark (42.3% to 25.6%). But it still trails Opus 4.8 and GPT-5.5 on that same benchmark and on Terminal-Bench 2.1, and it only runs inside Devin: it is not sold as an API you can build on elsewhere. Cursor Router now routes each request to the model best suited to the task, reporting frontier-quality performance at 60% lower cost in live A/B tests.
 
-**So what:** Point the buyer to Grok 4.5, which Cursor just shipped at \$2 per million input tokens and \$6 per million output tokens, available today across desktop, web, iOS, CLI and the SDK. Tell them to standardize on it now instead of a model locked inside one vendor's own product. ([cognition.com](https://cognition.com/blog/swe-1-7))
+**So what:** Cursor Router puts cost per commit at \$4.63 for Balance mode and \$6.76 for Intelligence mode, versus \$7.34 for Opus 4.8. Point the buyer to Grok 4.5 too, shipped at \$2 per million input tokens and \$6 per million output tokens, available today across desktop, web, iOS, CLI and the SDK, and tell them to standardize on Cursor now instead of a model locked inside one vendor's own product. ([cursor.com](https://cursor.com/blog/router))
 
 **"Cursor has an unpatched RCE. Why should we trust it?"**
 

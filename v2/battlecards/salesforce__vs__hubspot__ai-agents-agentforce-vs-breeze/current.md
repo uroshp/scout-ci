@@ -18,9 +18,9 @@ Agentforce ARR hit \$1.2 billion in Q1 FY2027, up 205% year over year, the first
 
 **Salesforce's own bad news is now sales ammunition for HubSpot. Get ahead of it.**
 
-Bank of America reinstated Salesforce at Underperform on May 18, calling Agentforce "directionally correct but having product challenges and limited impact," and February's layoffs hit the Agentforce unit itself. A HubSpot rep will weaponize both.
+Bank of America reinstated Salesforce at Underperform in May, calling Agentforce "directionally correct but having product challenges and limited impact," and February's layoffs hit the Agentforce unit itself. Morgan Stanley added a second downgrade on July 21, cutting Salesforce to Equal-Weight and its price target 35% to \$185, on the view that Agentforce hasn't yet driven an organic growth inflection and monetization is still nascent. A HubSpot rep now has three separate headlines to weaponize.
 
-**So what:** Reps must carry honest, rehearsed answers to the layoff and analyst-skepticism objections; spin loses credibility faster than the facts do. ([cnbc.com](https://www.cnbc.com/2026/05/18/salesforce-has-been-battered-in-2026-bank-of-america-sees-more-losses-ahead.html))
+**So what:** Reps must carry honest, rehearsed answers to the layoff and analyst-skepticism objections; spin loses credibility faster than the facts do. ([cnbc.com](https://www.cnbc.com/2026/07/21/salesforce-ai-push-isnt-enough-to-save-shares-morgan-stanley-says.html))
 
 **HubSpot genuinely wins SMB and mid-market on speed and simplicity. Pick the battlefield accordingly.**
 
@@ -117,11 +117,11 @@ The critical grounded fact for this deal: a person familiar with the June cuts c
 
 **So what:** The buying-decision signal is this: the same core team shipped Agentforce Operations (GA April 29) and drove more than 60% of Q4 Agentforce and Data Cloud bookings from existing customers expanding their deployments. Teams being wound down do not ship GA products and collect expansion revenue from an installed base. The cuts were real; the core product team is intact and shipping. ([dqindia.com](https://www.dqindia.com/news/salesforce-agentforce-arr-layoffs-ai-jobs-12027002))
 
-**"Wall Street says Agentforce has 'limited impact' and your stock is down. Why should I bet my roadmap on it?"**
+**"Wall Street just downgraded Salesforce again. Why should I bet my roadmap on it?"**
 
-Bank of America did reinstate Salesforce at Underperform, viewing Agentforce as "directionally correct but having product challenges and limited impact." That's a call on the stock price. Wall Street's rating of Salesforce shares says nothing about how the product works for your team. The same quarter showed \$1.2B Agentforce ARR with 60%+ of bookings from expanding customers.
+Morgan Stanley cut Salesforce to Equal-Weight on July 21 and slashed its price target 35% to \$185, the second Salesforce downgrade this month, arguing Agentforce hasn't yet driven an inflection in organic growth and that monetization remains nascent. That follows Bank of America's reinstatement at Underperform in May, calling Agentforce "directionally correct but having product challenges and limited impact." Both are calls on the stock price, not verdicts on how the product performs for your team: 40 of the 53 analysts covering Salesforce still rate it buy or strong buy, and the same Agentforce business Morgan Stanley calls nascent is running at a \$3.4 billion annualized revenue rate, with more than 60% of Q4 bookings coming from existing customers expanding their deployment.
 
-**So what:** Separate the equity debate from the deployment decision, and pivot to customer ROI and expansion proof. ([cnbc.com](https://www.cnbc.com/2026/05/18/salesforce-has-been-battered-in-2026-bank-of-america-sees-more-losses-ahead.html))
+**So what:** Separate the equity debate from the deployment decision, and pivot to customer ROI and expansion proof. ([cnbc.com](https://www.cnbc.com/2026/07/21/salesforce-ai-push-isnt-enough-to-save-shares-morgan-stanley-says.html))
 
 **"I heard even Salesforce's own agent hallucinated and got shut down."**
 

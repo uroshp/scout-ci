@@ -381,17 +381,17 @@
   },
   {
     "subject_key": "cognition | positioning | model-independence",
-    "claim": "Cognition still markets itself as an independent, model-agnostic 'agent lab' that routes tasks across all major foundation models, an implicit contrast with Cursor's model dependence (the company's own claim). But on July 8, 2026 it shipped its own in-house model, SWE-1.7, sold only inside Devin and not offered as an API, adding a proprietary model to the same portfolio it says stays neutral.",
+    "claim": "Cognition still markets itself as an independent, model-agnostic 'agent lab' that routes tasks across all major foundation models, an implicit contrast with Cursor's model dependence (the company's own claim). But on July 8, 2026 it shipped its own in-house model, SWE-1.7, sold only inside Devin and not offered as an API, adding a proprietary model to the same portfolio it says stays neutral. Cursor now routes across models too: Cursor Router, launched July 22, 2026, classifies every request and sends it to the best-suited model across desktop, web, iOS, CLI and the SDK, closing the gap Cognition's positioning claimed as its own.",
     "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
     "order": 2,
-    "as_of": "2026-07-08",
+    "as_of": "2026-07-22",
     "confidence": "high",
     "id": "c_23761759b9f4",
     "verified": true,
-    "derived_from": "c_4c5b6baffcfe",
-    "updated_on": "2026-07-09"
+    "derived_from": "c_62a221ba1445",
+    "updated_on": "2026-07-23"
   },
   {
     "subject_key": "ai-coding-market | structural-framing | ide-vs-agent",
@@ -739,18 +739,18 @@
   },
   {
     "subject_key": "objection | cursor-pricing-trust | cursor-adverse",
-    "claim": "**\"I've seen the Cursor pricing blow-ups. How do I know our budget won't explode?\"**\n\nFair: the 2025 rollout was botched and our CEO apologized publicly. Since then we've rebuilt Teams pricing around spend predictability. Every seat now carries separate usage pools for first-party models and third-party API calls, admins get a real-time dashboard split by pool and spend alerts fire on dollar thresholds over Slack or email. For budget certainty, sign an enterprise contract with a capped monthly pool rather than per-seat usage-based plans.\n\n**So what:** Own the history, then walk through the specific pools, dashboard and dollar alerts. Getting defensive is what loses this deal.",
+    "claim": "**\"I've seen the Cursor pricing blow-ups. How do I know our budget won't explode?\"**\n\nFair: the 2025 rollout was botched and our CEO apologized publicly. Since then we've rebuilt Teams pricing around spend predictability. Every seat now carries separate usage pools for first-party models and third-party API calls, admins get a real-time dashboard split by pool and spend alerts fire on dollar thresholds over Slack or email. For budget certainty, sign an enterprise contract with a capped monthly pool rather than per-seat usage-based plans. Cursor Router now also works to hold spend down directly: it's on by default for Teams plans and reports frontier-quality performance at 60% lower cost in live A/B tests, with early enterprise accounts saving 30-50% on routed requests versus sending everything to Opus 4.8, with no drop in quality.\n\n**So what:** Own the history, then walk through the pools, dashboard, dollar alerts and Cursor Router's on-by-default savings. Getting defensive is what loses this deal.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 2,
-    "as_of": "2026-07-01",
+    "as_of": "2026-07-22",
     "confidence": "high",
     "id": "c_b9d95fd1f71c",
     "verified": true,
     "persona": "economic_buyer",
-    "derived_from": "c_8a5372ca0015",
-    "updated_on": "2026-07-02"
+    "derived_from": "c_62a221ba1445",
+    "updated_on": "2026-07-23"
   },
   {
     "subject_key": "objection | cursor-spacex-ownership | cursor-adverse",
@@ -1011,16 +1011,16 @@
   {
     "id": "c_5856022ff14a",
     "subject_key": "objection | cognition-swe17-own-model | competitor-strength",
-    "claim": "**\"Devin's new SWE-1.7 hits frontier quality for $1.97 a task. Why pay more for Cursor?\"**\n\nSWE-1.7 is genuinely cheap and it does beat Cursor's own Composer 2.5 on Cognition's FrontierCode benchmark (42.3% to 25.6%). But it still trails Opus 4.8 and GPT-5.5 on that same benchmark and on Terminal-Bench 2.1, and it only runs inside Devin: it is not sold as an API you can build on elsewhere.\n\n**So what:** Point the buyer to Grok 4.5, which Cursor just shipped at $2 per million input tokens and $6 per million output tokens, available today across desktop, web, iOS, CLI and the SDK. Tell them to standardize on it now instead of a model locked inside one vendor's own product.",
+    "claim": "**\"Devin's new SWE-1.7 hits frontier quality for $1.97 a task. Why pay more for Cursor?\"**\n\nSWE-1.7 is genuinely cheap and it does beat Cursor's own Composer 2.5 on Cognition's FrontierCode benchmark (42.3% to 25.6%). But it still trails Opus 4.8 and GPT-5.5 on that same benchmark and on Terminal-Bench 2.1, and it only runs inside Devin: it is not sold as an API you can build on elsewhere. Cursor Router now routes each request to the model best suited to the task, reporting frontier-quality performance at 60% lower cost in live A/B tests.\n\n**So what:** Cursor Router puts cost per commit at $4.63 for Balance mode and $6.76 for Intelligence mode, versus $7.34 for Opus 4.8. Point the buyer to Grok 4.5 too, shipped at $2 per million input tokens and $6 per million output tokens, available today across desktop, web, iOS, CLI and the SDK, and tell them to standardize on Cursor now instead of a model locked inside one vendor's own product.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 5,
-    "as_of": "2026-07-08",
-    "updated_on": "2026-07-09",
+    "as_of": "2026-07-22",
+    "updated_on": "2026-07-23",
     "verified": true,
     "confidence": "medium",
-    "derived_from": "c_4c5b6baffcfe",
+    "derived_from": "c_62a221ba1445",
     "persona": "eng_led"
   },
   {
@@ -1110,5 +1110,71 @@
     "confidence": "medium",
     "derived_from": "c_b62dd8b0d71e",
     "persona": "security_regulated"
+  },
+  {
+    "subject_key": "cursor | product-launch | router",
+    "claim": "On July 22, 2026 Cursor launched Cursor Router, an intelligent per-request classifier for Teams and Enterprise plans that analyzes each request's query, context, task complexity and domain and routes it to the model best suited to the task, rather than developers defaulting to one daily-driver model for everything. Cursor reports frontier-quality performance at 60% cost savings in online A/B tests across millions of live requests, and three high-volume early-access enterprise accounts with thousands of users saved 30-50% on Auto-routed requests versus routing everything to Opus 4.8, with no decrease in quality. On cost per commit, Cursor reports $4.63 for Balance mode and $6.76 for Intelligence mode, versus $7.34 for Opus 4.8 and $12.69 for Fable 5. Cursor Router ships across desktop, web, iOS, CLI and the Cursor SDK, is on by default for Teams plans, and enterprise admins enable it from the dashboard with per-team controls, mode restrictions and model allow/block lists. Grok 4.5 is a required routing option that cannot be excluded via the block list, and Balance and Intelligence modes bill at the routed model's rate rather than a flat price.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 47,
+    "source_url": "https://cursor.com/blog/router",
+    "source_tier": "primary",
+    "evidence_excerpt": "During our early access period with dozens of enterprises, customers got frontier performance at approximately 30–50% lower cost.",
+    "as_of": "2026-07-22",
+    "confidence": "high",
+    "id": "c_62a221ba1445",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-23",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.cursor.com/changelog",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.marktechpost.com/2026/07/22/cursor-releases-cursor-router-a-request-level-classifier/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_157ca8aebc52",
+    "subject_key": "cursor | pricing-model | router",
+    "claim": "Cursor Router is on by default for Teams plans, and enterprise admins turn it on from the dashboard with per-team controls, mode restrictions and model allow/block lists (Grok 4.5 cannot be excluded from routing). Balance and Intelligence modes bill at the routed model's rate rather than a flat price: Balance runs $4.63 per commit and Intelligence $6.76, versus $7.34 for Opus 4.8 and $12.69 for Fable 5.",
+    "claim_type": "interpretation",
+    "section": "pricing",
+    "zone": null,
+    "order": 4,
+    "as_of": "2026-07-22",
+    "updated_on": "2026-07-23",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_62a221ba1445",
+    "persona": "economic_buyer"
+  },
+  {
+    "id": "c_01cdf73e1215",
+    "subject_key": "cursor | battlecard-strength | router-cost",
+    "claim": "**Cursor Router cuts cost per commit without cutting quality.**\n\nCursor's per-request classifier picks the right model for each task instead of defaulting to one daily-driver model for everything, and reports frontier-quality performance at 60% lower cost in online A/B tests across millions of live requests. Three high-volume enterprise accounts with thousands of users saved 30-50% on routed requests versus sending everything to Opus 4.8, with no drop in quality. Cost per commit lands at $4.63 for Balance mode and $6.76 for Intelligence mode, against $7.34 for Opus 4.8 and $12.69 for Fable 5.\n\n**Soundbite:** Ask what they pay per commit today, then show Cursor Router hitting frontier quality for $4.63 to $6.76 against $7.34 for Opus 4.8 and $12.69 for Fable 5.",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 4,
+    "as_of": "2026-07-22",
+    "updated_on": "2026-07-23",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_62a221ba1445",
+    "persona": "economic_buyer"
   }
 ]
