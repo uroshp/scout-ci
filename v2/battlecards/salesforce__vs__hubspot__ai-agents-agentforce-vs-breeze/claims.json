@@ -37,25 +37,17 @@
   },
   {
     "subject_key": "salesforce | exec-summary | adverse-ammunition",
-    "claim": "**Salesforce's own bad news is now sales ammunition for HubSpot. Get ahead of it.**\n\nBank of America reinstated Salesforce at Underperform on May 18, calling Agentforce \"directionally correct but having product challenges and limited impact,\" and February's layoffs hit the Agentforce unit itself. A HubSpot rep will weaponize both.\n\n**So what:** Reps must carry honest, rehearsed answers to the layoff and analyst-skepticism objections; spin loses credibility faster than the facts do.",
+    "claim": "**Salesforce's own bad news is now sales ammunition for HubSpot. Get ahead of it.**\n\nBank of America reinstated Salesforce at Underperform in May, calling Agentforce \"directionally correct but having product challenges and limited impact,\" and February's layoffs hit the Agentforce unit itself. Morgan Stanley added a second downgrade on July 21, cutting Salesforce to Equal-Weight and its price target 35% to $185, on the view that Agentforce hasn't yet driven an organic growth inflection and monetization is still nascent. A HubSpot rep now has three separate headlines to weaponize.\n\n**So what:** Reps must carry honest, rehearsed answers to the layoff and analyst-skepticism objections; spin loses credibility faster than the facts do.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 2,
-    "source_url": "https://www.cnbc.com/2026/05/18/salesforce-has-been-battered-in-2026-bank-of-america-sees-more-losses-ahead.html",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "view the company's Agentforce as directionally correct but having product challenges and limited impact",
-    "as_of": "2026-05-18",
+    "as_of": "2026-07-21",
     "confidence": "high",
     "id": "c_01ed8870ef4c",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_00f949c099f7",
+    "updated_on": "2026-07-23"
   },
   {
     "subject_key": "salesforce | exec-summary | choose-battlefield",
@@ -461,26 +453,18 @@
   },
   {
     "subject_key": "salesforce | analyst-rating | current",
-    "claim": "**\"Wall Street says Agentforce has 'limited impact' and your stock is down. Why should I bet my roadmap on it?\"**\n\nBank of America did reinstate Salesforce at Underperform, viewing Agentforce as \"directionally correct but having product challenges and limited impact.\" That's a call on the stock price. Wall Street's rating of Salesforce shares says nothing about how the product works for your team. The same quarter showed $1.2B Agentforce ARR with 60%+ of bookings from expanding customers.\n\n**So what:** Separate the equity debate from the deployment decision, and pivot to customer ROI and expansion proof.",
-    "claim_type": "fact",
+    "claim": "**\"Wall Street just downgraded Salesforce again. Why should I bet my roadmap on it?\"**\n\nMorgan Stanley cut Salesforce to Equal-Weight on July 21 and slashed its price target 35% to $185, the second Salesforce downgrade this month, arguing Agentforce hasn't yet driven an inflection in organic growth and that monetization remains nascent. That follows Bank of America's reinstatement at Underperform in May, calling Agentforce \"directionally correct but having product challenges and limited impact.\" Both are calls on the stock price, not verdicts on how the product performs for your team: 40 of the 53 analysts covering Salesforce still rate it buy or strong buy, and the same Agentforce business Morgan Stanley calls nascent is running at a $3.4 billion annualized revenue rate, with more than 60% of Q4 bookings coming from existing customers expanding their deployment.\n\n**So what:** Separate the equity debate from the deployment decision, and pivot to customer ROI and expansion proof.",
+    "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.cnbc.com/2026/05/18/salesforce-has-been-battered-in-2026-bank-of-america-sees-more-losses-ahead.html",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "view the company's Agentforce as directionally correct but having product challenges and limited impact",
-    "as_of": "2026-05-18",
+    "as_of": "2026-07-21",
     "confidence": "high",
     "id": "c_5e9fd07a884d",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "derived_from": "c_00f949c099f7",
+    "updated_on": "2026-07-23"
   },
   {
     "subject_key": "agentforce | reliability | hallucination",
@@ -660,5 +644,35 @@
     "verified": true,
     "confidence": "medium",
     "derived_from": "c_5a56f3aa4a33"
+  },
+  {
+    "subject_key": "salesforce | analyst-rating | morgan-stanley-jul2026",
+    "claim": "Morgan Stanley downgraded Salesforce from Overweight to Equal-Weight on July 21, 2026 and cut its price target 35%, from $287 to $185. Analyst Adam Wood wrote that Agentforce KPIs have not yet driven an inflection in organic growth as legacy portfolio drags persist and that monetization remains nascent, adding that shares are likely to stay range-bound absent a notable growth inflection. Agentforce's $3.4 billion annualized revenue run rate is about 7% of Salesforce's projected $46 billion total revenue for the fiscal year, not yet enough to offset weakness in Commerce and Tableau. It was the second Salesforce ratings downgrade in July 2026. Of the 53 analysts covering Salesforce, 40 still rate it strong buy or buy. CRM shares closed at $170.06 that day, down about 2.2%, and are down roughly 34% year to date.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 31,
+    "source_url": "https://www.cnbc.com/2026/07/21/salesforce-ai-push-isnt-enough-to-save-shares-morgan-stanley-says.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "It also lowered its price target on shares to $185 from $287, suggesting 6% upside from Monday's close.",
+    "as_of": "2026-07-21",
+    "confidence": "high",
+    "id": "c_00f949c099f7",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-23",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://247wallst.com/investing/2026/07/22/morgan-stanley-slashes-salesforce-price-target-by-35/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
