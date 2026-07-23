@@ -1244,36 +1244,6 @@
     ]
   },
   {
-    "subject_key": "mistral | partnership | microsoft-sovereign-cloud-2026",
-    "claim": "Microsoft and Mistral announced an expanded strategic partnership on July 21, 2026, including a multibillion dollar Microsoft commitment tied to Mistral's expanded Europe-based GPU infrastructure. Mistral Medium 3.5 and OCR 4 are now available in Microsoft Foundry, Mistral Medium 3.5 is now in Microsoft Copilot Studio, and Azure Local lets customers run Mistral models in cloud, cloud-connected or fully disconnected environments.",
-    "claim_type": "fact",
-    "section": "tracked_facts",
-    "zone": null,
-    "order": 1,
-    "source_url": "https://www.prnewswire.com/in/news-releases/microsoft-and-mistral-expand-strategic-partnership-to-give-enterprises-and-regulated-industries-frontier-ai-they-can-control-302830228.html",
-    "source_tier": "primary",
-    "evidence_excerpt": "Mistral Medium 3.5 and OCR 4 are now available in Microsoft Foundry, and Mistral Medium 3.5 is now in Microsoft Copilot Studio.",
-    "as_of": "2026-07-21",
-    "confidence": "high",
-    "id": "c_21be6aaf4116",
-    "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-07-22",
-      "detail": null
-    },
-    "corroboration": [
-      {
-        "source_url": "https://www.cio.com/article/4199721/microsoft-doubles-down-on-sovereign-ai-with-expanded-mistral-partnership.html",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false
-      }
-    ]
-  },
-  {
     "id": "c_21be6aaf4116",
     "subject_key": "mistral | partnership | microsoft-sovereign-cloud-2026",
     "claim": "Microsoft expanded its strategic partnership with Mistral on July 21, 2026, including a multibillion dollar commitment tied to Mistral's Europe-based GPU infrastructure. Mistral Medium 3.5 and OCR 4 are now live in Microsoft Foundry, Mistral Medium 3.5 is in Microsoft Copilot Studio, and Azure Local runs Mistral models in cloud, cloud-connected or fully disconnected environments.",
@@ -1287,5 +1257,41 @@
     "confidence": "medium",
     "derived_from": "c_21be6aaf4116",
     "persona": "economic_buyer"
+  },
+  {
+    "subject_key": "openai | product-launch | presence-2026",
+    "claim": "OpenAI launched Presence on July 22, 2026, a governed platform for deploying and managing enterprise AI agents across voice and chat. It packages company policies, guardrails, approved actions, simulations, escalation rules and a Codex-powered improvement loop, delivered high-touch by OpenAI Forward Deployed Engineers and select systems integrators. It is limited general availability, not self-service, carries no disclosed pricing, and runs OpenAI models in OpenAI's cloud (customers may connect third-party models only for guardrails and tools). OpenAI says Presence already runs its own English-language phone support and resolves 75% of inbound issues without a human.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://venturebeat.com/orchestration/openai-unveils-presence-a-new-platform-that-lets-enterprises-launch-and-manage-realtime-voice-agents-and-chatbots",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Presence is available immediately through a limited general availability program.",
+    "as_of": "2026-07-22",
+    "confidence": "high",
+    "id": "c_262f77909fd4",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-23",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.helpnetsecurity.com/2026/07/22/openai-presence-ai-agent-platform/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://siliconangle.com/2026/07/22/openai-introduces-presence-help-enterprises-build-ai-agents/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
