@@ -1678,5 +1678,41 @@
     "confidence": "medium",
     "derived_from": "c_1c8740e64992",
     "persona": "security_regulated"
+  },
+  {
+    "subject_key": "openai-georgia-camellia-datacenter",
+    "claim": "OpenAI announced Project Camellia on July 22, 2026, its first self-designed and self-built data center campus, in Effingham County, Georgia near Savannah. It has committed at least $20 billion, and per compute-strategy VP Sachin Katti the fully built facility will likely cost more than $30 billion, and secured 3.2 gigawatts of power from Georgia Power. The first several hundred megawatts come online in 2028, with buildout continuing through 2032. OpenAI is seeking partners to finance and build the remaining phases.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 15,
+    "source_url": "https://interestingengineering.com/ai-robotics/openai-30-billion-georgia-data-center",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI has secured up to 3.2 gigawatts of electricity from Georgia Power for its planned campus in Effingham County near Savannah.",
+    "as_of": "2026-07-22",
+    "confidence": "high",
+    "id": "c_3ecd274f0c11",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-24",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://finance.yahoo.com/technology/ai/articles/openai-plans-30-billion-ai-191515652.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.techradar.com/pro/openai-is-spending-usd30-billion-on-a-new-mega-3-2-gw-data-center-in-georgia-and-its-trying-really-hard-to-quell-local-opposition",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

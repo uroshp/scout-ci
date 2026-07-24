@@ -354,25 +354,33 @@
   },
   {
     "subject_key": "google | legal-action | eu-dma-fine",
-    "claim": "The European Commission is finalizing its largest-ever DMA fine against Google, a 'high triple-digit million euro' penalty for ranking its own Shopping, Flights and Hotels above rivals, expected before the August recess, per Handelsblatt/Reuters.",
+    "claim": "On July 23, 2026 the European Commission fined Google €890 million ($1 billion) in its first and largest-ever DMA penalty: €460 million for self-preferencing its own shopping, hotels, transport and sports results in Google Search over rivals, and €430 million for blocking Google Play developers from steering users to cheaper channels outside the store. Google has 60 days to end both practices or risk periodic penalties up to 5% of its worldwide turnover, and says it is reviewing the decision and weighing an appeal.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 1,
-    "source_url": "https://www.techtimes.com/articles/317268/20260527/google-dma-fine-breaks-eu-record-search-self-preferencing-ruling-due.htm",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "a penalty in the 'high triple-digit million euro' range that Brussels expects to announce before its August recess, Germany's Handelsblatt reported May 25, confirmed by Reuters",
-    "as_of": "2026-05-27",
-    "confidence": "medium",
+    "order": 4,
+    "source_url": "https://digital-markets-act.ec.europa.eu/commission-fines-google-eur890-million-breaches-digital-markets-act-2026-07-23_en",
+    "source_tier": "primary",
+    "evidence_excerpt": "In this regard, the Commission issued Google a fine of €460 million and a fine of €430 million respectively.",
+    "as_of": "2026-07-23",
+    "confidence": "high",
     "id": "c_c64e1f9a6422",
     "verified": true,
     "grounding": {
       "checked": true,
       "match": true,
-      "method": "fuzzy",
-      "fetched_at": "2026-06-06",
-      "detail": "partial_ratio 0.989"
-    }
+      "method": "substring",
+      "fetched_at": "2026-07-24",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.cnbc.com/2026/07/23/google-1-billion-eu-fine-dma.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "google | launch | ai-mode-io-2026",

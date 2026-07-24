@@ -674,5 +674,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "hubspot-agent-hub | launch | agent-builder-beta",
+    "claim": "HubSpot launched Agent Hub and Agent Builder in public beta on July 23, 2026 for all Professional and Enterprise customers. Agent Hub is a single console showing live status and performance for every active agent, and Agent Builder lets customers build custom agents in plain language on their existing CRM data (deal history, contact records and buying signals) via Breeze Assistant. This moves Breeze past prebuilt agents into custom build and centralized management, with per-agent access controls and credit run limits.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://knowledge.hubspot.com/ai/create-and-customize-agents-in-the-agent-builder",
+    "source_tier": "primary",
+    "evidence_excerpt": "Create custom agents (BETA) that can analyze data, generate outputs, and take actions based on your business processes.",
+    "as_of": "2026-07-23",
+    "confidence": "high",
+    "id": "c_3112117ff2d1",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-24",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.cmswire.com/customer-experience/hubspot-debuts-agent-hub-to-unify-ai-agents/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
