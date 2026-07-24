@@ -183,25 +183,17 @@
   },
   {
     "subject_key": "hubspot-breeze | positioning | smb-ease",
-    "claim": "HubSpot positions Breeze as proven, easy and bundled: it reports Breeze Customer Agent \"resolves 65% of conversations and cuts resolution time by 39% across more than 8,000 activations.\" The pitch is real product-market fit for front-line support without a platform project, the simplicity story Salesforce must respect when selling into lean teams.",
-    "claim_type": "fact",
+    "claim": "HubSpot positions Breeze as proven, easy and bundled: it reports Breeze Customer Agent resolves 65% of conversations and cuts resolution time by 39% across more than 8,000 activations. With Agent Builder and Agent Hub now in public beta, that pitch extends past prebuilt support agents into plain-language custom agents on CRM data plus a central console for status and access controls, all still packaged inside the CRM rather than sold as a separate platform. That is the simplicity story Salesforce must respect when selling into lean teams.",
+    "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.cmswire.com/customer-experience/hubspot-shifts-breeze-ai-agents-to-pay-per-result-pricing/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Breeze Customer Agent resolves 65% of conversations and cuts resolution time by 39% across more than 8,000 activations",
-    "as_of": "2026-04-02",
+    "as_of": "2026-07-23",
     "confidence": "high",
     "id": "c_9cef6bae7fab",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_3112117ff2d1",
+    "updated_on": "2026-07-24"
   },
   {
     "subject_key": "hubspot-breeze | pricing-model | current",
@@ -286,26 +278,18 @@
   },
   {
     "subject_key": "agentforce | differentiator | governance",
-    "claim": "**Enterprise governance is a category HubSpot doesn't play in.**\n\nAgent Fabric gives Agentforce centralized LLM governance, trusted agent identity for high-stakes actions and multi-vendor orchestration across Amazon Bedrock and Microsoft Foundry, a control plane Breeze has no equivalent to. For regulated, multi-cloud enterprises this is a category gap, not a feature gap.\n\n**Soundbite:** *\"When your agents touch money, PII or regulated data, who governs every action? Agentforce runs it through one control plane. Breeze has no answer here.\"*",
+    "claim": "**Enterprise governance is a category HubSpot doesn't play in.**\n\nAgent Hub now gives Breeze a console for live status and per-agent access controls, closing the basic visibility gap. Agent Fabric still gives Agentforce centralized LLM governance, trusted agent identity for high-stakes actions and multi-vendor orchestration across Amazon Bedrock and Microsoft Foundry, none of which Breeze's beta includes. For regulated, multi-cloud enterprises this remains a category gap on governance and identity, not a feature gap.\n\n**Soundbite:** \"When your agents touch money, PII or regulated data, who governs every action and proves identity across vendors? Agentforce runs it through one control plane. Breeze's new console tracks status, it doesn't govern.\"",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_we_win",
     "order": 1,
-    "source_url": "https://www.salesforce.com/news/stories/agent-fabric-control-plane-announcement/",
-    "source_tier": "primary",
-    "evidence_excerpt": "Agent Fabric now brings automated discovery, intuitive authoring, and centralized LLM governance to your entire Agentic Enterprise",
-    "as_of": "2026-04-15",
+    "as_of": "2026-07-23",
     "confidence": "high",
     "id": "c_9489afb88446",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
-    "persona": "security_regulated"
+    "persona": "security_regulated",
+    "derived_from": "c_3112117ff2d1",
+    "updated_on": "2026-07-24"
   },
   {
     "subject_key": "agentforce | flagship-product | operations",
@@ -704,5 +688,20 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "id": "c_73139c459226",
+    "subject_key": "hubspot-agent-builder | objection | custom-agent-parity",
+    "claim": "**\"HubSpot's new Agent Builder lets us build custom agents ourselves now. Why do we need Agentforce?\"**\n\nHubSpot's Agent Builder beta (Professional and Enterprise, July 23) does let customers build custom agents in plain language on CRM data, with Agent Hub as a single console showing status across agents and per-agent access controls. That covers basic build and visibility. It stops there: no trusted agent identity for high-stakes actions, no centralized LLM governance, no orchestration across multiple model vendors, the control plane Agent Fabric already runs for Agentforce across Amazon Bedrock and Microsoft Foundry. Breeze also still only reaches the front office, while Agentforce Operations is GA in finance, supply chain and procurement.\n\n**So what:** Walk the buyer through Agent Fabric's governance control plane and an Agentforce Operations use case in their own back office. That's a concrete gap Agent Builder's beta doesn't close today.",
+    "claim_type": "interpretation",
+    "section": "objection_handling",
+    "zone": null,
+    "order": 4,
+    "as_of": "2026-07-23",
+    "updated_on": "2026-07-24",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_3112117ff2d1",
+    "persona": "technical_evaluator"
   }
 ]
