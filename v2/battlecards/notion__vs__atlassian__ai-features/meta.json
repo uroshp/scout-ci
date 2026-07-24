@@ -4,18 +4,11 @@
   "competitor": "Atlassian",
   "focus": "AI features",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-07-23T11:24:58",
+  "last_checked": "2026-07-24T11:20:51",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_af44b318b691",
     "f_a2f34096794d"
   ],
-  "monitored": true,
-  "unresolved_subjects": [
-    "NEW",
-    "atlassian-security-bulletin-july-2026",
-    "notion-search-outage-july-2026"
-  ],
-  "unresolved_since": "2026-07-21",
-  "unresolved_attempts": 2
+  "monitored": true
 }
