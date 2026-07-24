@@ -43,7 +43,7 @@ HubSpot ended Q1 with 299,458 customers and bundles Breeze across paid tiers wit
 ## Positioning and Differentiation
 
 - Agentforce is positioned on enterprise depth and governance: a dedicated trust layer on every transaction, Data Cloud grounding and one of the largest agent-engineering investments in the market. The Futurum Group notes "Salesforce has over 450 people working on agent AI," framing replication of that governance stack as out of reach for HubSpot's segment. ([venturebeat.com](https://venturebeat.com/technology/while-everyone-talks-about-an-ai-bubble-salesforce-quietly-added-6-000))
-- HubSpot positions Breeze as proven, easy and bundled: it reports Breeze Customer Agent "resolves 65% of conversations and cuts resolution time by 39% across more than 8,000 activations." The pitch is real product-market fit for front-line support without a platform project, the simplicity story Salesforce must respect when selling into lean teams. ([cmswire.com](https://www.cmswire.com/customer-experience/hubspot-shifts-breeze-ai-agents-to-pay-per-result-pricing/))
+- HubSpot positions Breeze as proven, easy and bundled: it reports Breeze Customer Agent resolves 65% of conversations and cuts resolution time by 39% across more than 8,000 activations. With Agent Builder and Agent Hub now in public beta, that pitch extends past prebuilt support agents into plain-language custom agents on CRM data plus a central console for status and access controls, all still packaged inside the CRM rather than sold as a separate platform. That is the simplicity story Salesforce must respect when selling into lean teams. ([knowledge.hubspot.com](https://knowledge.hubspot.com/ai/create-and-customize-agents-in-the-agent-builder))
 - HubSpot renamed Commerce Hub to Revenue Hub on June 16, 2026, expanding it into full quote-to-cash: quoting, CPQ, contracts and subscription billing unified with payments on the Smart CRM, putting it head to head with the CPQ and quote-to-cash turf Revenue Cloud used to own alone. Seats run \$95 (Professional) and \$140 (Enterprise) per user monthly with billing included for now, and HubSpot has not even set its usage pricing model, due only in September 2026. ([hubspot.com](https://www.hubspot.com/company-news/introducing-revenue-hub-quote-to-cash-finally-in-one-place))
 
 ## Pricing and Packaging
@@ -64,9 +64,9 @@ More than 60% of Q4 Agentforce and Data 360 bookings came from existing customer
 
 **Enterprise governance is a category HubSpot doesn't play in.**
 
-Agent Fabric gives Agentforce centralized LLM governance, trusted agent identity for high-stakes actions and multi-vendor orchestration across Amazon Bedrock and Microsoft Foundry, a control plane Breeze has no equivalent to. For regulated, multi-cloud enterprises this is a category gap, not a feature gap.
+Agent Hub now gives Breeze a console for live status and per-agent access controls, closing the basic visibility gap. Agent Fabric still gives Agentforce centralized LLM governance, trusted agent identity for high-stakes actions and multi-vendor orchestration across Amazon Bedrock and Microsoft Foundry, none of which Breeze's beta includes. For regulated, multi-cloud enterprises this remains a category gap on governance and identity, not a feature gap.
 
-**Soundbite:** *"When your agents touch money, PII or regulated data, who governs every action? Agentforce runs it through one control plane. Breeze has no answer here."* ([salesforce.com](https://www.salesforce.com/news/stories/agent-fabric-control-plane-announcement/))
+**Soundbite:** "When your agents touch money, PII or regulated data, who governs every action and proves identity across vendors? Agentforce runs it through one control plane. Breeze's new console tracks status, it doesn't govern." ([knowledge.hubspot.com](https://knowledge.hubspot.com/ai/create-and-customize-agents-in-the-agent-builder))
 
 **Agentforce reaches into the back office; Breeze stays in the front.**
 
@@ -135,6 +135,12 @@ It's a fair point, and Salesforce said it openly: on the Help-site launch "we ac
 This is real and reps should not dismiss it: in the Einstein-to-Agentforce transition customers found "they're being pushed to upgrade at additional cost to get back functionality they had before." Meet it with a transparent, capped cost model and a Flex-Credits walkthrough so there are no surprises, and contrast with HubSpot, whose credits expire monthly and can auto-upgrade your tier. For buyers who want zero exposure, point to Agentforce Help Agent: it charges \$2 only when it resolves an issue autonomously start to finish, nothing if the customer asks for a human or walks away unhappy, proven on the 4.3 million inquiries Salesforce handles on its own help site at a 70 percent resolution rate.
 
 **So what:** Bring both options into the room: the capped Flex-Credits model for existing deployments, and Help Agent's pay-per-resolution pricing for buyers who want to pay only on success. ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-help-agent-announcement/))
+
+**"HubSpot's new Agent Builder lets us build custom agents ourselves now. Why do we need Agentforce?"**
+
+HubSpot's Agent Builder beta (Professional and Enterprise, July 23) does let customers build custom agents in plain language on CRM data, with Agent Hub as a single console showing status across agents and per-agent access controls. That covers basic build and visibility. It stops there: no trusted agent identity for high-stakes actions, no centralized LLM governance, no orchestration across multiple model vendors, the control plane Agent Fabric already runs for Agentforce across Amazon Bedrock and Microsoft Foundry. Breeze also still only reaches the front office, while Agentforce Operations is GA in finance, supply chain and procurement.
+
+**So what:** Walk the buyer through Agent Fabric's governance control plane and an Agentforce Operations use case in their own back office. That's a concrete gap Agent Builder's beta doesn't close today. ([knowledge.hubspot.com](https://knowledge.hubspot.com/ai/create-and-customize-agents-in-the-agent-builder))
 
 ## Cut Log
 
