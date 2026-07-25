@@ -1176,5 +1176,35 @@
     "confidence": "medium",
     "derived_from": "c_62a221ba1445",
     "persona": "economic_buyer"
+  },
+  {
+    "subject_key": "cognition | acquisition | poke",
+    "claim": "Cognition acquired The Interaction Company, maker of the consumer texting agent Poke, in a deal valuing it in the low nine figures, announced July 23, 2026. Cognition plans to fold Poke's personality and orchestration into Devin: co-founder Marvin von Hagen told TechCrunch that Poke could run multiple Devin pull requests at once and give Devin memory that persists across sessions. Poke is a consumer messaging assistant used for travel, scheduling and email, so it does not compete with Cursor's coding product today.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 8,
+    "source_url": "https://cognition.com/blog/interaction",
+    "source_tier": "primary",
+    "evidence_excerpt": "we’re welcoming The Interaction Company of California , the makers of Poke , to Cognition.",
+    "as_of": "2026-07-23",
+    "confidence": "high",
+    "id": "c_80b33f09b669",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-25",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/07/24/why-cognition-bought-poke-ai-personality-is-becoming-a-competitive-advantage/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

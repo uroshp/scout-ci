@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-07-24T11:09:33",
+  "last_checked": "2026-07-25T11:10:40",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -15,7 +15,8 @@
     "f_f26528662a64",
     "f_a5facf9f35dc",
     "f_97962ba8ddd9",
-    "f_bbd0c5df6270"
+    "f_bbd0c5df6270",
+    "f_eecb0e765d6a"
   ],
   "monitored": true
 }

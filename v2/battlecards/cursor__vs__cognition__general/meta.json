@@ -4,17 +4,18 @@
   "competitor": "Cognition",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-07-24T11:06:41",
+  "last_checked": "2026-07-25T11:08:12",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_b969e4b96a7c",
     "f_9ecf04fa85d6",
-    "f_b8b405d09ee1"
+    "f_b8b405d09ee1",
+    "f_fd3e28bb761c"
   ],
   "monitored": true,
   "unresolved_subjects": [
     "cognition | acquisition | poke-interaction"
   ],
   "unresolved_since": "2026-07-23",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }
