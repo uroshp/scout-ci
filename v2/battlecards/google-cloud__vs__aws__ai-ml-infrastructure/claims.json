@@ -1164,5 +1164,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "aws | reliability-incident | us-west-2-outage-2026-07",
+    "claim": "On July 24, 2026, an AWS network routing failure in its US-WEST-2 (Oregon) region cut internet connectivity for roughly an hour, taking Apple Pay, DoorDash, Reddit, Hulu, PlayStation Network and Twitch offline. AWS traced it to networking devices routing traffic from the region to the Seattle Metro and restored all routes by 4:59 AM PDT, with connectivity within the region itself unaffected. It lands a week after the July 17 Cost Explorer billing bug, a second high-visibility AWS reliability stumble inside a month.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 100,
+    "source_url": "https://www.thesixthaxis.com/2026/07/24/the-psn-is-down-all-services-offline/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Between 3:55 AM and 4:15 AM PDT, we experienced connectivity issues that impacted connectivity to the US-WEST-2 Region.",
+    "as_of": "2026-07-24",
+    "confidence": "high",
+    "id": "c_22db36570c00",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-25",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.digit.in/news/general/is-aws-down-playstation-network-reddit-crunchyrollvalorant-and-other-services-are-facing-issues.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
