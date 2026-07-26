@@ -22,16 +22,26 @@ from scout.render import claims_to_markdown, clean_output, extract_cut_log, form
 
 
 def _latest_log(slug: str) -> dict | None:
-    """The most recent propagation decision-log payload for a card (None if none / unreadable)."""
+    """The most recent APPROVABLE propagation decision-log payload for a card (None if none /
+    unreadable). ADVISORY-RUN GUARD (2026-07-25): a log whose source starts with 'manual' is an
+    audit record of an out-of-band pass (e.g. 'manual-supersede-sweep'), NOT an approvable run —
+    the trap: such a log became 'latest' and scout-proposals --approve applied its already-mooted
+    retire instead of the morning run's revises. Advisory logs are skipped here (loudly), so the
+    approve surface always shows the latest PIPELINE run."""
     for fn in reversed(sorted(selfserve.list_data(f"{PROP_DIR}/{slug}"))):
         if not fn.endswith(".json"):
             continue
         raw = selfserve.read_data(f"{PROP_DIR}/{slug}/{fn}")
         if raw:
             try:
-                return json.loads(raw)
+                payload = json.loads(raw)
             except json.JSONDecodeError:
                 continue
+            if str(payload.get("source", "")).startswith("manual"):
+                print(f"[review] skipping advisory log {fn} (source="
+                      f"{payload.get('source')!r} — audit record, not approvable)", file=sys.stderr)
+                continue
+            return payload
     return None
 
 

@@ -123,6 +123,42 @@ class ProposalEmail(unittest.TestCase):
         self.assertEqual([d["subject_key"] for d in p["confirmed"]], ["a|clean|c"])
         self.assertEqual([d["subject_key"] for d in p["held"]], ["a|readiness|current"])
 
+    def test_advisory_manual_log_never_becomes_the_approvable_run(self):
+        """The 2026-07-25 trap: a manual-source audit log (e.g. manual-supersede-sweep) landed as
+        the newest file and --approve applied ITS op instead of the morning run's. _latest_log must
+        skip any source beginning 'manual' and fall through to the latest PIPELINE run."""
+        import json as _json
+        logs = {
+            "propagation/s/20260725T110805.json": {"source": "monitor",
+                "run_ts": "2026-07-25T11:08:05",
+                "decisions": [{"judge_verdict": "confirm", "operation": "revise",
+                               "subject_key": "a|flagship|current"}], "facts": []},
+            "propagation/s/20260725T223426.json": {"source": "manual-supersede-sweep",
+                "run_ts": "2026-07-25T22:34:26",
+                "decisions": [{"judge_verdict": "confirm", "operation": "retire",
+                               "subject_key": "a|flagship|current"}], "facts": []},
+        }
+        with mock.patch.object(review.selfserve, "list_data",
+                               return_value=[k.split("/")[-1] for k in logs]), \
+             mock.patch.object(review.selfserve, "read_data",
+                               side_effect=lambda path: _json.dumps(logs[path])):
+            p = review.pending("s")
+        self.assertEqual(p["run_ts"], "2026-07-25T11:08:05")     # the pipeline run, not the sweep
+        self.assertEqual([d["operation"] for d in p["confirmed"]], ["revise"])
+
+    def test_only_advisory_logs_means_nothing_pending(self):
+        import json as _json
+        log = {"source": "manual-supersede-sweep", "run_ts": "2026-07-25T22:34:26",
+               "decisions": [{"judge_verdict": "confirm", "operation": "retire",
+                              "subject_key": "a|x|c"}], "facts": []}
+        with mock.patch.object(review.selfserve, "list_data",
+                               return_value=["20260725T223426.json"]), \
+             mock.patch.object(review.selfserve, "read_data",
+                               side_effect=lambda path: _json.dumps(log)):
+            p = review.pending("s")
+        self.assertEqual(p["confirmed"], [])
+        self.assertIsNone(p["run_ts"])
+
 
 class PullContaminated(unittest.TestCase):
     """A mis-grounded/false claim caught after publication is removed from the live card AND recorded
