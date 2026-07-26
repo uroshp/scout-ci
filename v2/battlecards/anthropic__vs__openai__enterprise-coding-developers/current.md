@@ -131,11 +131,11 @@ GPT-5.5 leads SWE-bench Verified at 88.7% to Claude Opus 4.7's 87.6%, a 1.1-poin
 
 **Soundbite:** *"It's 88.7 to 87.6, both self-reported. That's a rounding error. The score that counts is how it does on your repo, so let's put both on your hardest open tickets."* ([marc0.dev](https://www.marc0.dev/en/leaderboard))
 
-**On token price, the picture is now mixed.**
+**On token price, the picture stays mixed, but capability per dollar has moved our way.**
 
-OpenAI's mid-tier still beats Claude's flagship on raw per-token price: GPT-5.4 at \$2.50/\$15.00 per million against Claude Opus 4.8 at \$5.00/\$25.00, and pricing trackers have called OpenAI cheaper across most comparable tiers in 2026. But Claude Sonnet 5 now lists at \$2/\$10 through August 31, 2026 (then \$3/\$15), undercutting GPT-5.4 on both input and output while Anthropic says its agentic performance sits close to Opus 4.8. Caching narrows the rest of the gap: with roughly 90% prompt-cache discounts on both sides, effective cost on cache-heavy coding runs close to parity. So the comparison that matters is total cost once you count the re-runs and the engineer time behind them.
+OpenAI's mid-tier beats Claude's flagship on raw per-token price: GPT-5.4 at \$2.50/\$15.00 per million versus Claude Opus 5 at \$5.00/\$25.00, and pricing trackers put OpenAI cheaper across most comparable tiers in 2026. Claude Sonnet 5 lists at \$2/\$10 through August 31, 2026 (then \$3/\$15), undercutting GPT-5.4 on both input and output. At that same \$5/\$25, Opus 5 now scores 43.3% on Frontier-Bench v0.1, up from Opus 4.8's 18.7% and ahead of Fable 5 at 33.7%, per Anthropic's reporting. Caching narrows the gap on both sides.
 
-**Soundbite:** *"Their mid-tier still prices under our flagship Opus. But our new Sonnet 5 lands at \$2 in and \$10 out, under GPT-5.4 on both, with quality Anthropic puts close to Opus. Turn on caching and the rest of the gap closes, so on a real coding run you pay less with us for work that comes back right the first time and fewer re-runs behind it."* ([anthropic.com](https://www.anthropic.com/news/claude-sonnet-5))
+**Soundbite:** *"Their mid-tier prices under our flagship. At the same \$5 in and \$25 out, Opus 5 scores 43.3% on Frontier-Bench, more than double Opus 4.8's 18.7%. If raw price matters more, Sonnet 5 at \$2 and \$10 undercuts GPT-5.4 on both."* ([anthropic.com](https://www.anthropic.com/news/claude-opus-5))
 
 **If the buy is "one AI platform for everything," OpenAI's breadth is a real fight.**
 
