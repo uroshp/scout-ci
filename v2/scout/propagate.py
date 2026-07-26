@@ -28,7 +28,7 @@ from scout.generate import _drive, _extract_json
 from scout.prompts import WRITING_STYLE
 from scout.route import route, ROUTABLE_SECTIONS, CHANGE_KINDS
 from scout.schema import (ZONES, claim_id, normalize_subject_key, render_structure_errors,
-                          validation_errors)
+                          validation_errors, word_cap_errors)
 
 # change_kind -> the ONLY operation that kind may carry (the resilience contract, enforced by the
 # floor). A router op is rejected if its change_kind and operation disagree; kinds absent from this
@@ -491,6 +491,8 @@ REJECT an op if ANY of these holds:
   accretion where the CURRENT state should lead and resolved history should be one sentence of arc.
   Preserving still-true content does NOT mean retaining every prior beat verbatim: a compressed
   supersession is the CORRECT reconcile; verbatim accretion is a defect. (This defect is rewritable.)
+  (The hard 170-word render cap is enforced deterministically downstream — never certify length
+  yourself; judge substance.)
 - SELF-INCRIMINATING / NOT-REP-OWNABLE: a back-foot rebuttal that DOES pivot to a concrete move, but
   the move weakens the rep instead of the objection. HOLLOW REBUTTAL kills rebuttals that say nothing;
   this kills rebuttals that say something self-defeating. Reject if the answer: (a) coaches the BUYER to
@@ -689,6 +691,33 @@ def _rewritable_indices(ops: list, floor_results: list, verdicts: dict) -> list:
             and ops[i].get("operation") in ("add", "revise")]
 
 
+def _demote_overcap_confirms(ops: list, floor_results: list, verdicts: dict) -> dict:
+    """The deterministic LENGTH FLOOR on judge confirms (2026-07-25): the judge certifies substance,
+    code certifies length. A floor-clean, judge-CONFIRMED add/revise whose prose exceeds the render
+    cap (schema.word_cap_errors — the SAME count the render gate enforces) is demoted IN PLACE to a
+    rewritable reject whose reason is the exact cap violation, so the existing rewrite machinery
+    (facts-only rewrite + blind re-judge) cures and re-verifies it. Returns {op_index: {"verdict":
+    <original verdict dict>, "claim": <original text>}} so the caller can RESTORE any op the cure
+    fails on — a confirmed material claim never degrades to an exhausted reject."""
+    demoted = {}
+    for i in range(len(ops)):
+        if floor_results[i] or (verdicts.get(i) or {}).get("verdict") != "confirm":
+            continue
+        if ops[i].get("operation") not in ("add", "revise"):
+            continue
+        cap_errs = word_cap_errors(ops[i])
+        if not cap_errs:
+            continue
+        # Save the WHOLE op (the cure rewrite replaces ops[i] via _finalize_op, so this reference
+        # stays the untouched original) — restore must bring back text AND fields like persona.
+        demoted[i] = {"verdict": dict(verdicts[i]), "op": ops[i]}
+        verdicts[i] = {"verdict": "reject", "rewritable": True,
+                       "judged_by": (verdicts.get(i) or {}).get("judged_by"),
+                       "reason": "judge-confirmed but over the deterministic render cap — condense "
+                                 "ONLY, change nothing else: " + "; ".join(cap_errs)}
+    return demoted
+
+
 def _rewrite_worklist(indices: list, surface_ops: list, ops: list, verdicts: dict,
                       active_by_sk: dict) -> list:
     """The rewrite pass's worklist: the ORIGINAL author worklist row for each index (op_index
@@ -727,19 +756,26 @@ async def _run_rewrite(meta: dict, worklist: list, facts: list) -> dict:
 
 def _rewrite_loop(meta: dict, surface_ops: list, ops: list, floor_results: list, verdicts: dict,
                   author_facts: list, claims: list, active_by_sk: dict,
-                  surviving_fact_ids: set) -> dict:
+                  surviving_fact_ids: set, rounds: int | None = None,
+                  eligible: set | None = None) -> dict:
     """Bounded rewrite loop: judge feedback -> rewrite -> re-floor -> BLIND re-judge. Mutates ops[i]
     and verdicts[i] IN PLACE for rewritten indices (positional identity: ops index == judge op_index
     == decision-record index). Top-level floor_results is NEVER overwritten — a rewrite that flunks
     the floor terminates as a judge 'reject' with the floor failure logged in its attempt, not as a
     floor_reject. A crash anywhere degrades to today's behavior (op stays rejected), never raises.
 
+    `rounds` overrides config.PROPAGATE_MAX_REWRITES (the length-cure pass runs on its OWN budget);
+    `eligible` restricts the loop to those op indices (so cure rounds can't be spent on leftover
+    content rejects that happen to still be marked rewritable). Defaults preserve today's behavior.
+
     Returns {"attempts": {op_index: [attempt dicts]}, "cost_author": float, "cost_judge": float,
     "raw_failures": [unparseable judge responses, for the decision log]}."""
     attempts, cost_author, cost_judge, raw_failures = {}, 0.0, 0.0, []
     try:
-        for _round in range(config.PROPAGATE_MAX_REWRITES):
+        for _round in range(rounds if rounds is not None else config.PROPAGATE_MAX_REWRITES):
             idx = _rewritable_indices(ops, floor_results, verdicts)
+            if eligible is not None:
+                idx = [i for i in idx if i in eligible]
             if not idx:
                 break
             for i in idx:                                 # seed history with the original attempt
@@ -800,14 +836,19 @@ def _render_gate(slug: str, ops: list, floor_results: list, verdicts: dict,
     calls out anything HELD. (The incident: a 201-word confirmed op rode the email looking fine,
     then was silently held at approve time — the gate used to exist only at apply.) Mutates ops in
     place (positional identity with the decision records, the same contract _rewrite_loop uses).
-    Returns {op_index: {"reason": str}} for ops that could not be repaired — those are already
-    durably HELD in pending_publish by repair_or_hold(alert=False); the email is their loud flag,
-    so no separate hold email. A per-op crash leaves that op untouched (degrades to the old
-    at-apply gating), never breaks the run. `repair` is injectable for tests."""
-    held = {}
+
+    Returns {"held": {op_index: {"reason": str}}, "condensed": {op_index: True}, "cost_usd": dict}.
+    Held ops are already durably HELD in pending_publish by repair_or_hold(alert=False); the email
+    is their loud flag, so no separate hold email. "condensed" marks ops whose over-cap prose the
+    gate condensed — each was RE-VERIFIED by the fidelity judge inside repair_or_hold (2026-07-25
+    "re-judge everywhere"; a condense that fails that judge comes back held, so a condensed op here
+    is by construction verified). A per-op crash leaves that op untouched (degrades to the old
+    at-apply gating), never breaks the run. `repair` is injectable for tests (2-tuple returns from
+    legacy injected repairers are tolerated)."""
+    held, condensed, cost_acc = {}, {}, {}
     if repair is None:
         from scout import reformat                         # lazy: avoids any import-time cycle
-        repair = lambda s, o: reformat.repair_or_hold(s, o, alert=False)
+        repair = lambda s, o: reformat.repair_or_hold(s, o, alert=False, cost=cost_acc)
     for i, op in enumerate(ops):
         try:
             if floor_results[i] or (verdicts.get(i) or {}).get("verdict") != "confirm":
@@ -823,25 +864,32 @@ def _render_gate(slug: str, ops: list, floor_results: list, verdicts: dict,
                     op["persona"] = old["persona"]
             if not render_structure_errors(op):
                 continue                                   # clean op: zero cost, no model call
+            had_cap = bool(word_cap_errors(op))
             status, fixed = repair(slug, op)
             ops[i] = fixed
             if status == "held":
                 held[i] = {"reason": "; ".join(render_structure_errors(fixed))
                                      + "; auto-repair exhausted"}
+            elif status == "repaired" and had_cap and fixed.get("claim") != op.get("claim"):
+                condensed[i] = True
         except Exception as e:
             print(f"[propagate] render gate skipped for op {i} ({type(e).__name__}: {e})",
                   file=sys.stderr)
-    return held
+    return {"held": held, "condensed": condensed, "cost_usd": cost_acc}
 
 
 # --- Decision log (spec §17): audit trail AND authorship-shadow training corpus -----------------
-SCHEMA_VERSION = 4      # v2: + attempts/rewrite_attempts/rewrite_exhausted; v3 (2026-07-01): +
+SCHEMA_VERSION = 5      # v2: + attempts/rewrite_attempts/rewrite_exhausted; v3 (2026-07-01): +
 PROP_DIR = "propagation"  # judged_by + judge_unavailable verdicts + judge_raw_failures payload
                           # v4 (2026-07-18): + persona + held_for_format/hold_reason (pre-email gate)
+                          # v5 (2026-07-25): + length_demoted/length_cured/length_cure_attempts +
+                          # condensed_at_gate/gate_rejudge (length-cure loop) + superseded_terms
+                          # (supersede-retire) — all additive
 
 
 def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
-                      facts_by_id: dict, active_by_sk: dict, rewrite_attempts: dict = None) -> list:
+                      facts_by_id: dict, active_by_sk: dict, rewrite_attempts: dict = None,
+                      length_cures: dict = None) -> list:
     """One record per PROPOSED op — floor-rejected, judge-rejected, or confirmed. Captures the
     full chain (what fired it, the edit, who decided, why, did it commit) so the log is both an
     audit trail of every model-authored prose edit and the judge's training corpus. `rewrite_attempts`
@@ -891,6 +939,11 @@ def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
             # ruled), not as "rejected N times" — each op lands in exactly one email section.
             "rewrite_exhausted": bool(att) and verdict not in ("confirm", "judge_unavailable"),
         })
+        lc = (length_cures or {}).get(i)
+        if lc:                                            # v5: the length-cure trail (additive)
+            records[-1]["length_demoted"] = True
+            records[-1]["length_cured"] = bool(lc.get("cured"))
+            records[-1]["length_cure_attempts"] = lc.get("attempts", 0)
     return records
 
 
@@ -991,26 +1044,64 @@ def propagate(meta: dict, facts_with_alerts: list[dict], strength_facts: list[di
                            author_facts, claims, active_by_sk, surviving_fact_ids)
     raw_failures += rw.get("raw_failures") or []
 
+    # step 4b2: DETERMINISTIC LENGTH FLOOR + dedicated cure loop (2026-07-25, the 182-word hold).
+    # The judge certifies substance; code certifies length. A confirmed-but-over-cap op is demoted
+    # to a rewritable reject and cured on its OWN budget (a content rewrite that ate step 4b's
+    # budget can't starve the cure), then BLIND re-judged. Uncured -> RESTORED to its confirmed
+    # state so the render gate condenses-or-holds it — never an exhausted reject.
+    length_cures = {}
+    if config.PROPAGATE_MAX_LENGTH_CURES > 0:
+        demoted = _demote_overcap_confirms(ops, floor_results, verdicts)
+        if demoted:
+            cure = _rewrite_loop(meta, surface_ops, ops, floor_results, verdicts,
+                                 author_facts, claims, active_by_sk, surviving_fact_ids,
+                                 rounds=config.PROPAGATE_MAX_LENGTH_CURES, eligible=set(demoted))
+            raw_failures += cure.get("raw_failures") or []
+            for i, orig in demoted.items():
+                att = (cure["attempts"].get(i) or [])
+                # Cured = the blind re-judge confirmed AND the deterministic cap now passes (a
+                # confirm on still-over-cap prose is possible — the judge rules substance only).
+                cured = ((verdicts.get(i) or {}).get("verdict") == "confirm"
+                         and not word_cap_errors(ops[i]))
+                if not cured:                              # RESTORE: never degrade a confirm
+                    verdicts[i] = orig["verdict"]
+                    ops[i] = orig["op"]
+                length_cures[i] = {"cured": cured, "attempts": max(0, len(att) - 1)}
+                rw["attempts"][i] = (rw["attempts"].get(i) or []) + att
+            length_cures["_cost_author"] = cure["cost_author"]
+            length_cures["_cost_judge"] = cure["cost_judge"]
+
     # step 4c: PRE-EMAIL RENDER GATE — repair/hold confirmed ops BEFORE the log and the email, so
     # the proposals email shows publishable text and flags holds inline (2026-07-18). Shadow mode
-    # skips it: no new spend, no holds, from a mode that never emails or applies.
-    render_holds = {}
+    # skips it: no new spend, no holds, from a mode that never emails or applies. Any over-cap op
+    # the gate condenses was fidelity-re-judged inside repair_or_hold (2026-07-25).
+    gate = {"held": {}, "condensed": {}, "cost_usd": {}}
     if slug and config.PROPAGATE_MODE in ("review", "live"):
-        render_holds = _render_gate(slug, ops, floor_results, verdicts, active_by_sk)
+        gate = _render_gate(slug, ops, floor_results, verdicts, active_by_sk)
+    render_holds = gate["held"]
 
     records = _decision_records(ops, floor_results, verdicts, facts_by_id, active_by_sk,
-                                rewrite_attempts=rw["attempts"])
+                                rewrite_attempts=rw["attempts"],
+                                length_cures={k: v for k, v in length_cures.items()
+                                              if isinstance(k, int)})
     for i, info in render_holds.items():
         records[i]["held_for_format"] = True               # judge-confirmed but NOT publishable yet
         records[i]["hold_reason"] = info["reason"]
         records[i]["committed"] = False                    # a held op did not commit
+    for i in gate["condensed"]:
+        records[i]["condensed_at_gate"] = True             # condensed AND fidelity-judged at the gate
+        records[i]["gate_rejudge"] = "confirm"             # held-on-reject never reaches here
     confirmed = [ops[i] for i in range(len(ops))
                  if not floor_results[i] and (verdicts.get(i) or {}).get("verdict") == "confirm"
                  and i not in render_holds]
 
     cost_usd = {"route": routed.get("cost_usd"), "author": authored.get("cost_usd"),
                 "judge": judged.get("cost_usd"),
-                "rewrite_author": rw["cost_author"] or None, "rewrite_judge": rw["cost_judge"] or None}
+                "rewrite_author": rw["cost_author"] or None, "rewrite_judge": rw["cost_judge"] or None,
+                "length_cure_author": length_cures.get("_cost_author") or None,
+                "length_cure_judge": length_cures.get("_cost_judge") or None,
+                "reformat": gate["cost_usd"].get("reformat") or None,
+                "gate_judge": gate["cost_usd"].get("gate_judge") or None}
     if persist and slug:
         log_decisions(slug, records, source=source, facts=author_facts, cost=cost_usd,
                       judge_raw_failures=raw_failures)

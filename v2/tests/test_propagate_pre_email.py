@@ -29,12 +29,18 @@ def _confirm(n):
     return {i: {"verdict": "confirm"} for i in range(n)}
 
 
+def _gate_held(*args, **kw):
+    """Legacy-shape shim: the gate now returns {held, condensed, cost_usd} (2026-07-25); these
+    unit tests assert on the held map exactly as before."""
+    return _render_gate(*args, **kw)["held"]
+
+
 class RenderGateUnit(unittest.TestCase):
     def test_clean_op_costs_nothing(self):
         def boom(s, o):
             raise AssertionError("repair must not run for a clean op")
         ops = [_op()]
-        held = _render_gate("s", ops, [[]], _confirm(1), {}, repair=boom)
+        held = _gate_held("s", ops, [[]], _confirm(1), {}, repair=boom)
         self.assertEqual(held, {})
         self.assertEqual(ops[0]["claim"], CLEAN_OBJ)
 
@@ -45,20 +51,20 @@ class RenderGateUnit(unittest.TestCase):
                _op(claim=NO_SOWHAT),                      # judge-rejected
                _op(operation="retire", claim=None)]       # retires carry no prose
         verdicts = {1: {"verdict": "reject"}, 2: {"verdict": "confirm"}}
-        held = _render_gate("s", ops, [["floored"], [], []], verdicts, {}, repair=boom)
+        held = _gate_held("s", ops, [["floored"], [], []], verdicts, {}, repair=boom)
         self.assertEqual(held, {})
 
     def test_repaired_op_is_replaced_in_place(self):
         fixed = _op()                                     # valid after "repair"
         ops = [_op(claim=NO_SOWHAT)]
-        held = _render_gate("s", ops, [[]], _confirm(1),
+        held = _gate_held("s", ops, [[]], _confirm(1),
                             {}, repair=lambda s, o: ("repaired", fixed))
         self.assertEqual(held, {})
         self.assertEqual(ops[0]["claim"], CLEAN_OBJ)      # email will show the publishable text
 
     def test_unrepairable_op_is_held_with_the_exact_reason(self):
         ops = [_op(claim=NO_SOWHAT)]
-        held = _render_gate("s", ops, [[]], _confirm(1),
+        held = _gate_held("s", ops, [[]], _confirm(1),
                             {}, repair=lambda s, o: ("held", dict(o)))
         self.assertIn(0, held)
         self.assertIn("So what", held[0]["reason"])       # the residual violation, verbatim class
@@ -73,7 +79,7 @@ class RenderGateUnit(unittest.TestCase):
                   "status": "active", "claim": "old", "persona": "economic_buyer"}
         active = _active_targets([target])
         ops = [_op(operation="revise", persona=None, target_subject_key="a|b|c")]
-        held = _render_gate("s", ops, [[]], _confirm(1), active, repair=boom)
+        held = _gate_held("s", ops, [[]], _confirm(1), active, repair=boom)
         self.assertEqual(held, {})
         self.assertEqual(ops[0]["persona"], "economic_buyer")
 
@@ -81,9 +87,40 @@ class RenderGateUnit(unittest.TestCase):
         def crash(s, o):
             raise RuntimeError("api down")
         ops = [_op(claim=NO_SOWHAT)]
-        held = _render_gate("s", ops, [[]], _confirm(1), {}, repair=crash)
+        held = _gate_held("s", ops, [[]], _confirm(1), {}, repair=crash)
         self.assertEqual(held, {})                        # not held, not lost: apply-time gate remains
         self.assertEqual(ops[0]["claim"], NO_SOWHAT)
+
+
+class RenderGateCondense(unittest.TestCase):
+    """2026-07-25: an over-cap confirmed op the gate's repair condenses (and, inside repair_or_hold,
+    fidelity-re-judges) is marked in the gate's 'condensed' map; a clean or held op is not."""
+
+    def _overcap_op(self):
+        return _op(claim='**"Q?"**\n\n' + ("word " * 180) + "\n\n**So what:** move.")
+
+    def test_condensed_op_is_marked(self):
+        short = _op()                                     # under cap, valid
+        ops = [self._overcap_op()]
+        gate = _render_gate("s", ops, [[]], _confirm(1), {},
+                            repair=lambda s, o: ("repaired", dict(short)))
+        self.assertEqual(gate["held"], {})
+        self.assertEqual(gate["condensed"], {0: True})
+        self.assertEqual(ops[0]["claim"], short["claim"])
+
+    def test_held_overcap_op_is_not_marked_condensed(self):
+        ops = [self._overcap_op()]
+        gate = _render_gate("s", ops, [[]], _confirm(1),
+                            {}, repair=lambda s, o: ("held", dict(o)))
+        self.assertIn(0, gate["held"])
+        self.assertEqual(gate["condensed"], {})
+
+    def test_missing_block_repair_is_not_marked_condensed(self):
+        fixed = _op()
+        ops = [_op(claim=NO_SOWHAT)]                      # under cap: block repair, not a condense
+        gate = _render_gate("s", ops, [[]], _confirm(1),
+                            {}, repair=lambda s, o: ("repaired", dict(fixed)))
+        self.assertEqual(gate["condensed"], {})
 
 
 class RenderGateWiring(unittest.TestCase):
@@ -158,7 +195,7 @@ class ReformatAlertFlag(unittest.TestCase):
                                side_effect=lambda p, t, m: writes.append((p, t))), \
              mock.patch.object(reformat, "_alert_human") as alert:
             status, _ = reformat.repair_or_hold("s", self._held_claim(),
-                                                reformatter=lambda *a: None, alert=False)
+                                                reformatter=lambda *a, **k: None, alert=False)
         self.assertEqual(status, "held")
         alert.assert_not_called()
         self.assertEqual(len(writes), 1)                   # durably held either way
@@ -168,7 +205,7 @@ class ReformatAlertFlag(unittest.TestCase):
     def test_alert_defaults_on_for_every_legacy_caller(self):
         with mock.patch.object(reformat.selfserve, "write_data"), \
              mock.patch.object(reformat, "_alert_human") as alert:
-            reformat.repair_or_hold("s", self._held_claim(), reformatter=lambda *a: None)
+            reformat.repair_or_hold("s", self._held_claim(), reformatter=lambda *a, **k: None)
         alert.assert_called_once()
 
 

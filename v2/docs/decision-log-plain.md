@@ -73,3 +73,18 @@ card; pulling in strengths we haven't documented yet is a follow-up.
 We also made a small judgment call on outages: a routine or single-region cloud blip is noise (it
 happens constantly and doesn't change a deal), so the tool now ignores those and only acts on a big,
 sustained outage.
+
+## 2026-07-25 — Word count can never kill a good claim
+
+We found a quality claim stuck in limbo twice in one week: the fact-checker approved it, but it was a
+few dozen words over the card's length limit, and the repair step only knew how to fix missing
+formatting, not length. So a claim the system itself judged material sat waiting for a human to
+shorten it by hand.
+
+The fix follows the product's dividing line. Counting words is mechanical, so code does it, at the
+moment the approved text exists. Shortening without losing meaning is judgment, so a model does that,
+and a second independent model then compares the short version against the original to confirm every
+number, date and fact survived and nothing new was invented. If that check fails, the claim is held
+for a human as before, but that is now the last resort instead of the first response. The very first
+live run of this check caught a real error: the shortened text had quietly dropped a true statement
+about competitor pricing, and the checker refused it until the statement was restored.

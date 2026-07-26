@@ -228,6 +228,12 @@ def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict],
             out += ["", f"Updates-feed note: {_flat(d['feed_note'])}"]
         if d.get("judge_reason"):
             out += ["", f"Judge: {_flat(d['judge_reason'])}"]
+        # 2026-07-25 length-cure loop: an auto-condensed body is flagged so the owner knows the NEW
+        # text above is a machine condense that a blind judge re-verified — read it with that lens.
+        if d.get("length_cured") or d.get("condensed_at_gate"):
+            out += ["", "Note: auto-condensed to fit the 170-word render cap after judge "
+                        "confirmation; re-verified by a blind judge — the NEW text above is the "
+                        "condensed version."]
         if d.get("trigger_source_url"):
             out += ["", f"From: {d['trigger_source_url']}"]
         out += ["", rule]

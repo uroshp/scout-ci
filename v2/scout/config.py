@@ -86,6 +86,12 @@ JUDGE_FALLBACK_MODEL = os.environ.get("SCOUT_JUDGE_FALLBACK_MODEL", "claude-sonn
 # 0 disables the loop entirely (restores drop-on-reject). Reuses the PROPOSE/JUDGE caps per call.
 PROPAGATE_MAX_REWRITES = int(os.environ.get("SCOUT_PROPAGATE_MAX_REWRITES", "1"))
 PROPAGATE_REWRITE_MODEL = os.environ.get("SCOUT_PROPAGATE_REWRITE_MODEL", ORCHESTRATOR_MODEL)
+# Length-cure loop (2026-07-25, the 182-word hold): a judge-CONFIRMED op over the deterministic
+# 170-word render cap gets its OWN bounded condense -> blind-re-judge budget, separate from
+# PROPAGATE_MAX_REWRITES, so a content rewrite that consumed the rewrite budget (exactly the 7/25
+# case) can't starve the cure. Uncured -> the op is RESTORED to its confirmed state and the render
+# gate condenses-or-holds it (never an exhausted reject). 0 disables (hold-at-gate behavior).
+PROPAGATE_MAX_LENGTH_CURES = int(os.environ.get("SCOUT_PROPAGATE_MAX_LENGTH_CURES", "1"))
 # my_company fact-sourcing budget (2026-07-02 cost pass): the own-side arm runs on SUBAGENT_MODEL
 # (sourcing work — search/fetch/excerpts; judgment stays with the Opus router/judge downstream and
 # grounding verification is deterministic), with its own cap instead of riding the $3 materiality one.

@@ -42,14 +42,19 @@ _REFORMAT_SYSTEM = (
 )
 
 
-async def _run_reformat(claim_text: str, section: str, zone) -> dict:
+async def _run_reformat(claim_text: str, section: str, zone, errors: list | None = None) -> dict:
     from claude_agent_sdk import ClaudeAgentOptions
     from scout.generate import _drive
-    user = (f"section={section} zone={zone}\n\nCLAIM TO REFORMAT (add the missing required block, "
+    from scout.prompts import WRITING_STYLE            # 2026-07-25: a live condense minted an em
+    # dash — every prose-writing call must carry the style contract, the reformatter included.
+    errs = "\n".join(f"- {e}" for e in (errors or [])) or "(recompute from the contract above)"
+    user = (f"section={section} zone={zone}\n\nRENDER-CONTRACT VIOLATIONS (the deterministic gate's "
+            f"exact findings — cure these and nothing else):\n{errs}\n\n"
+            f"CLAIM TO REFORMAT (add the missing required block and/or CONDENSE under the cap, "
             f"substance unchanged):\n\n{claim_text}")
     options = ClaudeAgentOptions(
         model=config.CHALLENGER_MODEL,                 # Sonnet — reliable, cheap for one claim
-        system_prompt=_REFORMAT_SYSTEM,
+        system_prompt=_REFORMAT_SYSTEM + "\n\n" + WRITING_STYLE,
         mcp_servers={}, allowed_tools=[], disallowed_tools=["WebSearch", "WebFetch"],
         permission_mode="bypassPermissions",
         max_turns=2, max_budget_usd=0.25,
@@ -57,13 +62,18 @@ async def _run_reformat(claim_text: str, section: str, zone) -> dict:
     return await _drive(user, options, "reformat")
 
 
-def reformat_claim(claim_text: str, section: str, zone=None, tries: int = 2) -> str | None:
-    """Re-ask a tools-off model to add the missing render block, substance unchanged. Returns the
-    reformatted text ONLY if it passes the render-structure gate, else None (after `tries`)."""
+def reformat_claim(claim_text: str, section: str, zone=None, tries: int = 2,
+                   errors: list | None = None, cost: dict | None = None) -> str | None:
+    """Re-ask a tools-off model to cure the render-contract violations (missing block and/or
+    over-cap condense), substance unchanged. Returns the reformatted text ONLY if it passes the
+    render-structure gate, else None (after `tries`). `errors` = the gate's exact findings (fed to
+    the model verbatim); `cost` = optional accumulator dict (key 'reformat')."""
     from scout.generate import _extract_json
     for _ in range(max(1, tries)):
         try:
-            res = asyncio.run(_run_reformat(claim_text, section, zone))
+            res = asyncio.run(_run_reformat(claim_text, section, zone, errors=errors))
+            if cost is not None:
+                cost["reformat"] = cost.get("reformat", 0.0) + (res.get("cost_usd") or 0.0)
             new = _extract_json(res["text"]).get("claim")
         except Exception as e:
             print(f"[reformat] attempt failed ({type(e).__name__}: {e})", file=sys.stderr)
@@ -72,6 +82,71 @@ def reformat_claim(claim_text: str, section: str, zone=None, tries: int = 2) -> 
                 {"section": section, "zone": zone, "claim": new}):
             return new
     return None
+
+
+# --- Condense fidelity judge (2026-07-25, "re-judge everywhere") --------------------------------
+# A condense CHANGES prose that a judge confirmed, so it must be re-verified before it can publish
+# — at EVERY seam, including this gate/approve/apply backstop (owner decision 7/25: no unverified
+# alteration ever publishes). The lens here is FIDELITY, not grounding: grounding was already
+# certified on the original text, so the only new risk is the condense dropping a still-true fact
+# or inventing one. The ORIGINAL text is therefore the ground truth. Fail-closed: no clean confirm
+# -> the op is HELD (never published), mirroring the pipeline judge's posture.
+
+_CONDENSE_VERIFY_SYSTEM = (
+    "You are a fidelity judge. A competitive-battlecard claim that was ALREADY verified for factual "
+    "grounding has been CONDENSED to fit a word cap. Compare the CONDENSED text against the ORIGINAL "
+    "(the ground truth) and confirm ONLY if all hold:\n"
+    "- every number, date, name, and source-anchored fact still true in the original survives in the "
+    "condensed text (compressing resolved history into a one-line arc is CORRECT, deleting a "
+    "still-true current fact is not);\n"
+    "- nothing was invented: no number, mechanism, entity, or causal reason appears in the condensed "
+    "text that the original does not contain;\n"
+    "- the bold headline/question and any required '**So what:**' / '**Soundbite:**' block survive;\n"
+    "- the meaning and competitive direction of the claim are unchanged.\n"
+    "DEFAULT TO REJECT when not convinced. Return ONLY JSON: "
+    '{"verdict": "confirm|reject", "reason": "<one line>"}'
+)
+
+
+async def _run_condense_verify(original: str, condensed: str, section: str, zone, model: str) -> dict:
+    from claude_agent_sdk import ClaudeAgentOptions
+    from scout.generate import _drive
+    user = (f"section={section} zone={zone}\n\nORIGINAL (ground truth):\n\n{original}\n\n"
+            f"CONDENSED (verify against the original):\n\n{condensed}")
+    options = ClaudeAgentOptions(
+        model=model,                                   # judge tier: Opus, fallback per config
+        system_prompt=_CONDENSE_VERIFY_SYSTEM,
+        mcp_servers={}, allowed_tools=[], disallowed_tools=["WebSearch", "WebFetch"],
+        permission_mode="bypassPermissions",
+        max_turns=config.JUDGE_MAX_TURNS, max_budget_usd=config.JUDGE_MAX_BUDGET_USD,
+    )
+    return await _drive(user, options, "gate_judge")
+
+
+def verify_condense(original: str, condensed: str, section: str = None, zone=None,
+                    cost: dict | None = None) -> tuple[bool, str]:
+    """Machine re-verification of a condense: (True, reason) only on a clean judge confirm.
+    Retries once on the primary judge model, then once on JUDGE_FALLBACK_MODEL (the 7/01-outage
+    pattern); anything else fails CLOSED to (False, ...) so the caller holds, never publishes."""
+    from scout.generate import _extract_json
+    plan = [config.ORCHESTRATOR_MODEL, config.ORCHESTRATOR_MODEL]
+    if config.JUDGE_FALLBACK_MODEL:
+        plan.append(config.JUDGE_FALLBACK_MODEL)
+    for model in plan:
+        try:
+            res = asyncio.run(_run_condense_verify(original, condensed, section, zone, model))
+            if cost is not None:
+                cost["gate_judge"] = cost.get("gate_judge", 0.0) + (res.get("cost_usd") or 0.0)
+            data = _extract_json(res["text"])
+        except Exception as e:
+            print(f"[reformat] condense verify attempt failed ({type(e).__name__}: {e})",
+                  file=sys.stderr)
+            continue
+        verdict = str(data.get("verdict", "")).strip().lower()
+        if verdict in ("confirm", "reject"):
+            return (verdict == "confirm", str(data.get("reason", "")))
+    return (False, "fidelity judge returned no parseable verdict after retries and the fallback "
+                   "model — fail-closed, the condense is not trusted")
 
 
 _PERSONA_TOOL = {
@@ -143,31 +218,49 @@ def _alert_human(slug: str, item: dict, reason: str) -> None:
 
 
 def repair_or_hold(slug: str, claim: dict, *, reformatter=reformat_claim,
-                   persona_classifier=classify_persona, alert: bool = True) -> tuple[str, dict]:
+                   persona_classifier=classify_persona, condense_verifier=verify_condense,
+                   alert: bool = True, cost: dict | None = None) -> tuple[str, dict]:
     """The no-drop decision for ONE confirmed claim. Returns (status, claim) where status is:
       'ok'       — already well-formed, publish as-is;
-      'repaired' — auto-fixed (a model added the missing So-what/Soundbite block and/or classified the
-                   missing persona), substance unchanged, publish the repaired claim;
-      'held'     — could not auto-fix; HELD + flagged to the human, NEVER cut/dropped.
+      'repaired' — auto-fixed (a model added the missing So-what/Soundbite block, classified the
+                   missing persona, and/or CONDENSED an over-cap body), substance unchanged and —
+                   when a condense actually changed the prose — RE-VERIFIED by the fidelity judge
+                   before it may publish (2026-07-25, "re-judge everywhere");
+      'held'     — could not auto-fix, or a condense failed re-verification; HELD + flagged to the
+                   human, NEVER cut/dropped.
     There is no fourth outcome: a confirmed update is published or held, never lost. `reformatter` /
-    `persona_classifier` are injectable for tests. `alert=False` skips the standalone hold email —
-    the pre-email render gate uses it because the proposals email itself carries the callout."""
+    `persona_classifier` / `condense_verifier` are injectable for tests. `alert=False` skips the
+    standalone hold email — the pre-email render gate uses it because the proposals email itself
+    carries the callout. `cost` = optional accumulator ('reformat' / 'gate_judge' keys)."""
     errs = schema.render_structure_errors(claim)
     if not errs:
         return ("ok", claim)
     fixed = dict(claim)
+    original_text = fixed.get("claim") or ""
     # missing persona (the "Raised by"/"Best for" badge) is a FIELD, not prose -> classify + assign.
     if any("persona" in e for e in errs) and not fixed.get("persona"):
         pid = persona_classifier(fixed.get("claim") or "", fixed.get("section"), fixed.get("zone"))
         if pid:
             fixed["persona"] = pid
-    # missing So-what/Soundbite BLOCK is prose -> reformat the claim text.
-    if any(("So what" in e or "Soundbite" in e) for e in errs):
-        new_text = reformatter(fixed.get("claim") or "", fixed.get("section"), fixed.get("zone"))
+    # PROSE defects -> reformat: a missing So-what/Soundbite BLOCK, and/or an over-cap body (the
+    # 7/25 hold: a length-only violation used to get NO repair attempt and went straight to hold).
+    had_cap = bool(schema.word_cap_errors(fixed))
+    if any(("So what" in e or "Soundbite" in e) for e in errs) or had_cap:
+        new_text = reformatter(fixed.get("claim") or "", fixed.get("section"), fixed.get("zone"),
+                               errors=[e for e in errs if "persona" not in e], cost=cost)
         if new_text:
             fixed["claim"] = new_text
     residual = schema.render_structure_errors(fixed)       # re-validate — never publish malformed
     if not residual:
+        # A condense ALTERED judge-confirmed prose -> it must pass the fidelity judge before it can
+        # publish. Missing-block-only repairs keep today's path (the reformat contract restructures
+        # without touching substance and never triggered on length).
+        if had_cap and fixed.get("claim") != original_text:
+            ok, reason = condense_verifier(original_text, fixed.get("claim") or "",
+                                           fixed.get("section"), fixed.get("zone"), cost=cost)
+            if not ok:
+                hold(slug, fixed, f"condense failed re-verification: {reason}", alert=alert)
+                return ("held", fixed)
         return ("repaired", fixed)
     # Carry the EXACT violations into the hold reason (e.g. "201 words exceeds the 170-word render
     # cap") — the proposals email shows this verbatim so the human knows what to cure.
