@@ -1221,18 +1221,18 @@
   },
   {
     "subject_key": "battlecard | token-price-undercut | contested",
-    "claim": "**On token price, the picture is now mixed.**\n\nOpenAI's mid-tier still beats Claude's flagship on raw per-token price: GPT-5.4 at $2.50/$15.00 per million against Claude Opus 4.8 at $5.00/$25.00, and pricing trackers have called OpenAI cheaper across most comparable tiers in 2026. But Claude Sonnet 5 now lists at $2/$10 through August 31, 2026 (then $3/$15), undercutting GPT-5.4 on both input and output while Anthropic says its agentic performance sits close to Opus 4.8. Caching narrows the rest of the gap: with roughly 90% prompt-cache discounts on both sides, effective cost on cache-heavy coding runs close to parity. So the comparison that matters is total cost once you count the re-runs and the engineer time behind them.\n\n**Soundbite:** *\"Their mid-tier still prices under our flagship Opus. But our new Sonnet 5 lands at $2 in and $10 out, under GPT-5.4 on both, with quality Anthropic puts close to Opus. Turn on caching and the rest of the gap closes, so on a real coding run you pay less with us for work that comes back right the first time and fewer re-runs behind it.\"*",
+    "claim": "**On token price, the picture stays mixed, but capability per dollar has moved our way.**\n\nOpenAI's mid-tier beats Claude's flagship on raw per-token price: GPT-5.4 at $2.50/$15.00 per million versus Claude Opus 5 at $5.00/$25.00, and pricing trackers put OpenAI cheaper across most comparable tiers in 2026. Claude Sonnet 5 lists at $2/$10 through August 31, 2026 (then $3/$15), undercutting GPT-5.4 on both input and output. At that same $5/$25, Opus 5 now scores 43.3% on Frontier-Bench v0.1, up from Opus 4.8's 18.7% and ahead of Fable 5 at 33.7%, per Anthropic's reporting. Caching narrows the gap on both sides.\n\n**Soundbite:** *\"Their mid-tier prices under our flagship. At the same $5 in and $25 out, Opus 5 scores 43.3% on Frontier-Bench, more than double Opus 4.8's 18.7%. If raw price matters more, Sonnet 5 at $2 and $10 undercuts GPT-5.4 on both.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
     "order": 1,
-    "as_of": "2026-06-30",
+    "as_of": "2026-07-24",
     "confidence": "high",
     "id": "c_46eee6ef2add",
     "verified": true,
     "persona": "economic_buyer",
-    "derived_from": "c_2bce627512c8",
-    "updated_on": "2026-07-02"
+    "derived_from": "c_6fad97e13a9b",
+    "updated_on": "2026-07-25"
   },
   {
     "subject_key": "battlecard | platform-breadth-lockin | contested",
@@ -1709,6 +1709,36 @@
       },
       {
         "source_url": "https://www.techradar.com/pro/openai-is-spending-usd30-billion-on-a-new-mega-3-2-gw-data-center-in-georgia-and-its-trying-really-hard-to-quell-local-opposition",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "anthropic | flagship-model",
+    "claim": "Anthropic released Claude Opus 5 on July 24, 2026, replacing Opus 4.8 as the current Opus-tier model at the same list price of $5 per million input tokens and $25 per million output tokens. Anthropic says Opus 5 approaches Fable 5's frontier intelligence at half of Fable 5's cost, and it is now the default model on Claude Max and the strongest model on Claude Pro, while Fable 5 remains Anthropic's most intelligent model overall. On Frontier-Bench v0.1, Anthropic reports Opus 5 scores 43.3%, more than double Opus 4.8's 18.7% and ahead of Fable 5's 33.7%, at a lower cost per task.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.anthropic.com/news/claude-opus-5",
+    "source_tier": "primary",
+    "evidence_excerpt": "Claude Opus 5 is available today on all platforms, priced at $5 per million input tokens and $25 per million output tokens (the same as Opus 4.8).",
+    "as_of": "2026-07-24",
+    "confidence": "high",
+    "id": "c_6fad97e13a9b",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-25",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://venturebeat.com/orchestration/anthropic-launches-claude-opus-5-a-cheaper-ai-model-for-coding-agents-and-enterprise-workflows",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
