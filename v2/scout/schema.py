@@ -243,6 +243,18 @@ def render_structure_errors(claim: dict) -> list[str]:
         errs.append("battlecard win/lose play: missing required '**Soundbite:**' block")
     if (section == "objection_handling" or is_play) and not claim.get("persona"):
         errs.append(f"{section}: missing required persona (renders the per-claim buyer badge)")
+    errs.extend(word_cap_errors(claim))
+    return errs
+
+
+def word_cap_errors(claim: dict) -> list[str]:
+    """The word-cap subset of the render contract, public + pure so the propagation length floor
+    (propagate step 4b2) and the condense trigger in the no-drop repair key off the SAME count that
+    ultimately gates render. The count is deliberately naive (len(text.split()), markdown markers
+    included) — one number everywhere, no drift."""
+    text = claim.get("claim") or ""
+    section = claim.get("section")
+    errs = []
     if section in ("executive_summary", "objection_handling", "battlecard"):
         words = len(text.split())
         if words > RENDER_MAX_WORDS:

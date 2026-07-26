@@ -63,5 +63,39 @@ class RenderStructure(unittest.TestCase):
         self.assertTrue(any("So what" in e for e in schema.validation_errors(bad)))
 
 
+class WordCap(unittest.TestCase):
+    """The deterministic 170-word render cap (2026-07-25: first unit coverage — the rule shipped
+    2026-07-02 untested) and its public factor-out word_cap_errors, which the propagation length
+    floor and the condense repair trigger both key off. The two must agree byte-for-byte."""
+
+    def _long(self, n):
+        return "**H**\n\n" + ("w " * (n - 4)) + "\n\n**So what:** m."   # n words total
+
+    def test_over_cap_rejected_with_exact_error(self):
+        text = self._long(schema.RENDER_MAX_WORDS + 1)
+        errs = schema.render_structure_errors(_c("executive_summary", text))
+        self.assertEqual(len(errs), 1)
+        self.assertIn(f"{schema.RENDER_MAX_WORDS + 1} words exceeds the "
+                      f"{schema.RENDER_MAX_WORDS}-word render cap", errs[0])
+
+    def test_at_cap_passes(self):
+        text = self._long(schema.RENDER_MAX_WORDS)
+        self.assertEqual(len(text.split()), schema.RENDER_MAX_WORDS)
+        self.assertEqual(schema.render_structure_errors(_c("executive_summary", text)), [])
+
+    def test_non_capped_sections_exempt(self):
+        long = "w " * (schema.RENDER_MAX_WORDS * 2)
+        for section in ("recent_moves", "pricing", "snapshot", "positioning", "sentiment"):
+            self.assertEqual(schema.word_cap_errors(_c(section, long)), [],
+                             f"{section} carries no cap")
+
+    def test_word_cap_errors_is_the_exact_length_subset(self):
+        over = _c("objection_handling", "w " * (schema.RENDER_MAX_WORDS + 30))  # no marker either
+        full = schema.render_structure_errors(over)
+        cap = schema.word_cap_errors(over)
+        self.assertEqual(len(cap), 1)
+        self.assertEqual([e for e in full if "render cap" in e], cap)
+
+
 if __name__ == "__main__":
     unittest.main()

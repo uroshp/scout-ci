@@ -233,7 +233,7 @@ class DecisionRecordShape(unittest.TestCase):
         self.assertTrue(recs[0]["committed"])
 
     def test_schema_version_bumped(self):
-        self.assertEqual(propagate.SCHEMA_VERSION, 4)
+        self.assertEqual(propagate.SCHEMA_VERSION, 5)
 
 
 class ExhaustedEmail(unittest.TestCase):
@@ -274,6 +274,142 @@ class ExhaustedEmail(unittest.TestCase):
         _, body = notify.render_propagation_proposals("slug", self.META, confirmed,
                                                       exhausted=self.EXHAUSTED)
         self.assertIn("To publish, tell Claude", body)   # approval footer intact alongside failures
+
+
+class LengthCureLoop(unittest.TestCase):
+    """Step 4b2 (2026-07-25, the 182-word hold): the judge certifies substance, code certifies
+    length. A confirmed-but-over-cap op gets a dedicated condense round + blind re-judge; an
+    uncured op is RESTORED to its confirmed state (never an exhausted reject)."""
+
+    LONG = "**Play**\n\n" + ("beat " * 185) + "\n\n**Soundbite:** zinger."
+    SHORT = "**Play**\n\nCurrent state, every number kept.\n\n**Soundbite:** zinger."
+
+    def setUp(self):
+        self._saved = (config.PROPAGATE_MAX_REWRITES, config.PROPAGATE_MAX_LENGTH_CURES)
+        config.PROPAGATE_MAX_REWRITES = 1
+        config.PROPAGATE_MAX_LENGTH_CURES = 1
+
+    def tearDown(self):
+        config.PROPAGATE_MAX_REWRITES, config.PROPAGATE_MAX_LENGTH_CURES = self._saved
+
+    def test_demote_selects_only_confirmed_overcap_prose_ops(self):
+        from scout.propagate import _demote_overcap_confirms
+        long_claim = "w " * 200
+        ops = [{"operation": "revise", "section": "battlecard", "claim": long_claim},   # demote
+               {"operation": "revise", "section": "battlecard", "claim": "short"},      # under cap
+               {"operation": "retire", "section": "battlecard", "claim": None},         # no prose
+               {"operation": "revise", "section": "battlecard", "claim": long_claim},   # rejected
+               {"operation": "revise", "section": "recent_moves", "claim": long_claim}] # exempt
+        verdicts = {0: {"verdict": "confirm", "reason": "ok"},
+                    1: {"verdict": "confirm", "reason": "ok"},
+                    2: {"verdict": "confirm", "reason": "ok"},
+                    3: {"verdict": "reject", "reason": "no"},
+                    4: {"verdict": "confirm", "reason": "ok"}}
+        demoted = _demote_overcap_confirms(ops, [[], [], [], [], []], verdicts)
+        self.assertEqual(set(demoted), {0})
+        self.assertEqual(verdicts[0]["verdict"], "reject")
+        self.assertTrue(verdicts[0]["rewritable"])
+        self.assertIn("render cap", verdicts[0]["reason"])
+        self.assertIn("condense ONLY", verdicts[0]["reason"])
+        self.assertEqual(demoted[0]["verdict"]["verdict"], "confirm")   # restorable
+        self.assertEqual(verdicts[3]["verdict"], "reject")              # untouched
+
+    def test_725_replay_content_rewrite_then_length_cure(self):
+        """The exact 7/25 shape: draft rejected on substance (dropped Soundbite) -> content rewrite
+        confirmed but over-cap -> demoted -> cure round condenses -> blind re-judge confirms.
+        The content rewrite consumed PROPAGATE_MAX_REWRITES; the cure ran on its own budget."""
+        judge_calls, rewrite_calls = [], []
+
+        async def judge_fake(meta, facts, claims, indexed_ops, model=None):
+            judge_calls.append([i for i, _ in indexed_ops])
+            if len(judge_calls) == 1:
+                v = _verdict("reject", "dropped the required Soundbite block", rewritable=True)
+            else:
+                v = _verdict("confirm", "grounded and faithful")
+            return {"text": "```json\n" + json.dumps(v) + "\n```", "cost_usd": 0.0}
+
+        async def rewrite_fake(meta, worklist, facts):
+            rewrite_calls.append(worklist)
+            prose = self.LONG if len(rewrite_calls) == 1 else self.SHORT
+            return {"text": "```json\n" + json.dumps(_authored(prose)) + "\n```", "cost_usd": 0.0}
+
+        with mock.patch.object(propagate, "route", _route_fake([dict(SURFACE_OP)])), \
+             mock.patch.object(propagate, "_run_author", _fake(_authored("draft, no soundbite"))), \
+             mock.patch.object(propagate, "_run_judge", judge_fake), \
+             mock.patch.object(propagate, "_run_rewrite", rewrite_fake):
+            res = _run_propagate()
+
+        self.assertEqual(len(rewrite_calls), 2)          # content round + cure round
+        self.assertEqual(len(judge_calls), 3)            # initial, content re-judge, cure re-judge
+        self.assertEqual(len(res["confirmed"]), 1)
+        final = res["confirmed"][0]["claim"]
+        self.assertEqual(final, self.SHORT)
+        self.assertLessEqual(len(final.split()), 170)
+        # the cure worklist carried the DETERMINISTIC cap reason as the judge feedback
+        self.assertIn("render cap", rewrite_calls[1][0]["judge_reason"])
+        rec = res["decisions"][0]
+        self.assertEqual(rec["judge_verdict"], "confirm")
+        self.assertTrue(rec["length_demoted"])
+        self.assertTrue(rec["length_cured"])
+        self.assertEqual(rec["length_cure_attempts"], 1)
+        self.assertFalse(rec["rewrite_exhausted"])
+
+    def test_cure_failure_restores_the_confirm_never_an_exhausted_reject(self):
+        """Cure returns the honest empty claim -> terminal reject inside the loop -> step 4b2
+        RESTORES the original confirmed op (text and all); the render gate becomes the backstop."""
+        judge_calls = []
+
+        async def judge_fake(meta, facts, claims, indexed_ops, model=None):
+            judge_calls.append(1)
+            return {"text": "```json\n" + json.dumps(_verdict("confirm", "grounded")) + "\n```",
+                    "cost_usd": 0.0}
+
+        with mock.patch.object(propagate, "route", _route_fake([dict(SURFACE_OP)])), \
+             mock.patch.object(propagate, "_run_author", _fake(_authored(self.LONG))), \
+             mock.patch.object(propagate, "_run_judge", judge_fake), \
+             mock.patch.object(propagate, "_run_rewrite", _fake(_authored(""))):
+            res = _run_propagate()
+
+        rec = res["decisions"][0]
+        self.assertEqual(rec["judge_verdict"], "confirm")   # restored, not exhausted
+        self.assertFalse(rec["rewrite_exhausted"])
+        self.assertTrue(rec["length_demoted"])
+        self.assertFalse(rec["length_cured"])
+        self.assertEqual(len(res["confirmed"]), 1)
+        self.assertEqual(res["confirmed"][0]["claim"], self.LONG)   # original text intact
+
+    def test_rejudge_confirm_on_still_overcap_prose_is_not_cured(self):
+        """A blind re-judge may confirm substance on prose still over the cap — code, not the
+        judge, owns length: not cured, original restored."""
+        async def judge_fake(meta, facts, claims, indexed_ops, model=None):
+            return {"text": "```json\n" + json.dumps(_verdict("confirm", "fine")) + "\n```",
+                    "cost_usd": 0.0}
+        still_long = "**Play**\n\n" + ("beat " * 190) + "\n\n**Soundbite:** z."
+        with mock.patch.object(propagate, "route", _route_fake([dict(SURFACE_OP)])), \
+             mock.patch.object(propagate, "_run_author", _fake(_authored(self.LONG))), \
+             mock.patch.object(propagate, "_run_judge", judge_fake), \
+             mock.patch.object(propagate, "_run_rewrite", _fake(_authored(still_long))):
+            res = _run_propagate()
+        rec = res["decisions"][0]
+        self.assertTrue(rec["length_demoted"])
+        self.assertFalse(rec["length_cured"])
+        self.assertEqual(res["confirmed"][0]["claim"], self.LONG)   # restored original
+
+    def test_knob_zero_disables_the_cure(self):
+        config.PROPAGATE_MAX_LENGTH_CURES = 0
+        rewrite = mock.MagicMock()
+        async def judge_fake(meta, facts, claims, indexed_ops, model=None):
+            return {"text": "```json\n" + json.dumps(_verdict("confirm", "ok")) + "\n```",
+                    "cost_usd": 0.0}
+        with mock.patch.object(propagate, "route", _route_fake([dict(SURFACE_OP)])), \
+             mock.patch.object(propagate, "_run_author", _fake(_authored(self.LONG))), \
+             mock.patch.object(propagate, "_run_judge", judge_fake), \
+             mock.patch.object(propagate, "_run_rewrite", rewrite):
+            res = _run_propagate()
+        rewrite.assert_not_called()
+        rec = res["decisions"][0]
+        self.assertNotIn("length_demoted", rec)
+        self.assertEqual(res["confirmed"][0]["claim"], self.LONG)   # today's behavior (gate holds)
 
 
 if __name__ == "__main__":
