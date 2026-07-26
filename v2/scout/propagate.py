@@ -975,7 +975,11 @@ def log_decisions(slug: str, records: list, source: str = "monitor", facts: list
 
     `facts` are the FULL grounded act-fact claim dicts the ops derive from — stored alongside so a
     later out-of-band approval (scout/review.py) can apply a proposal self-contained (it needs the
-    my_company tracked_facts anchor, which shadow/review never persisted to the card)."""
+    my_company tracked_facts anchor, which shadow/review never persisted to the card).
+
+    SOURCE CONVENTION (2026-07-25): a source beginning with 'manual' marks an ADVISORY log — an
+    audit record of an out-of-band pass. review._latest_log skips advisory logs, so they can never
+    become the run scout-proposals lists or --approve applies."""
     try:
         now = datetime.now()
         stamp = now.strftime("%Y%m%dT%H%M%S")
