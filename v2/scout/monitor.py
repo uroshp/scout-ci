@@ -212,6 +212,33 @@ If nothing passes the filters, return has_candidates=false and an empty list —
 correct, cheap outcome on a quiet window."""
 
 
+def _supersede_hunt_targets(claims: list, today=None) -> list[dict]:
+    """The replacement hunt (2026-07-25 supersede-retire): claims retired for citing a superseded
+    identifier, within SUPERSEDE_HUNT_DAYS of retirement. Pure; derived from the claim store every
+    run (no separate queue state) — the hunt starts when a supersede-retire lands and expires by
+    date on its own. Triage gets these as active search targets so the REPLACEMENT value (the new
+    version's benchmark/price/capability) arrives through the normal grounded path."""
+    from datetime import date as _date
+    if isinstance(today, str):
+        today = _date.fromisoformat(today)
+    today = today or _date.today()
+    out = []
+    for c in claims or []:
+        if str(c.get("status", "active")) != "retired":
+            continue
+        reason = str(c.get("retired_reason") or "")
+        if not reason.startswith("superseded:"):
+            continue
+        try:
+            age = (today - _date.fromisoformat(str(c.get("retired_on")))).days
+        except Exception:
+            continue
+        if 0 <= age <= config.SUPERSEDE_HUNT_DAYS:
+            out.append({"subject_key": c.get("subject_key"), "section": c.get("section"),
+                        "retired_reason": reason})
+    return out
+
+
 async def _run_triage(meta, since, claims, my_since=None):
     comp, me = meta.get("competitor"), meta.get("my_company")
     scope = (f"Scan BOTH sides and tag each candidate's 'about': the competitor {comp} AND your own "
@@ -222,6 +249,15 @@ async def _run_triage(meta, since, claims, my_since=None):
     my_cut = (f"\nCUTOFF (my_company): {my_since} — the last check, normally about 24 hours ago. "
               f"Surface ONLY own-company developments dated on/after {my_since}; anything older was "
               f"already scanned by a prior run." if me and my_since else "")
+    hunts = _supersede_hunt_targets(claims)
+    hunt_block = ("\n\nSUPERSEDED SUBJECTS — REPLACEMENT HUNT: these claims were recently retired "
+                  "because they cited a now-superseded product/model/version. Spend part of the "
+                  "search budget actively looking for the CURRENT replacement's value on the same "
+                  "subject (the new version's benchmark result, price, or capability) and surface "
+                  "any dated finding as a candidate — the card is missing this coverage until you "
+                  "do. These hunt targets are EXEMPT from the date cutoffs above (the replacement "
+                  "value may have been published before the cutoff; it is still missing from the "
+                  "card):\n" + json.dumps(hunts, ensure_ascii=False, indent=1)) if hunts else ""
     user = (f"Competitor: {comp}" + (f" (we are {me})" if me else "") +
             f"\n{scope}"
             f"\nCUTOFF (competitor): {since}. Surface ONLY competitor developments dated on/after "
@@ -229,7 +265,7 @@ async def _run_triage(meta, since, claims, my_since=None):
             f"strict filters)."
             + my_cut + "\n\n"
             f"TRACKED SUBJECTS (subject_key — current value already known):\n"
-            + _tracked_digest(claims))
+            + _tracked_digest(claims) + hunt_block)
     options = ClaudeAgentOptions(
         model=config.FAST_MODEL,
         system_prompt={"type": "preset", "preset": "claude_code", "append": _TRIAGE_SYSTEM},

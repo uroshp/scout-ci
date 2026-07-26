@@ -37,6 +37,7 @@ _KIND_OP = {
     "new": "add", "update": "revise", "partial_invalidation": "revise",
     "reconcile_beat": "revise", "supersede_lead": "revise",
     "full_invalidation": "retire", "neutralize": "retire",
+    "supersede_retire": "retire",   # 2026-07-25: code-synthesized sweep candidates (never routed)
 }
 
 
@@ -430,8 +431,10 @@ def floor_check(op: dict, surviving_fact_ids: set, active_by_sk: dict) -> list:
             if has_prose:
                 v.append("retire must have claim=null (the claim leaves the active card for lineage)")
             rr = op.get("retired_reason")
-            if not (isinstance(rr, str) and (rr.startswith("neutralized:") or rr.startswith("invalidated:"))):
-                v.append(f"retire needs retired_reason 'neutralized: ...' | 'invalidated: ...', got {rr!r}")
+            if not (isinstance(rr, str) and (rr.startswith("neutralized:") or rr.startswith("invalidated:")
+                                             or rr.startswith("superseded:"))):
+                v.append(f"retire needs retired_reason 'neutralized: ...' | 'invalidated: ...' | "
+                         f"'superseded: ...', got {rr!r}")
     return v
 
 
@@ -526,6 +529,17 @@ retire, or blast-radius because the fact does not license touching that claim. A
 prose: rewritable is always false for a retire. When rewritable is true, your reason must name
 EXACTLY what must change — it is handed verbatim to the rewriter as its only feedback.
 
+SUPERSEDE-RETIRE CANDIDATES (change_kind "supersede_retire") are SYNTHESIZED BY CODE, not the
+proposer: a deterministic sweep found the target claim still cites an identifier the grounded fact
+SUPERSEDES (the identifier is named in retired_reason). Judge these with the DEAL-MOVING lens — the
+card's unit of value is a claim a rep can use TODAY. CONFIRM the retire when the claim's argument
+rides on the superseded identifier: a benchmark, comparison, or capability statement about a replaced
+model/version/product/price that no buyer will weigh now that the replacement exists. REJECT it when
+the claim's point SURVIVES the replacement and still moves deals today (the identifier is incidental
+to the argument, or the comparison remains operative). The WEAK RETIRE bar above does NOT apply to
+these candidates: the question is not whether the claim is false — it may be perfectly true — but
+whether it still earns its place on the active card. True-but-inert is a correct reason to retire.
+
 Return ONLY a single fenced ```json block:
 {"verdicts": [
   {"op_index": <int — the op's given index>,
@@ -545,6 +559,7 @@ def _judge_ops_digest(indexed_ops: list) -> list:
         "section": o.get("section"),
         "zone": o.get("zone"),
         "valence": o.get("valence"),
+        "change_kind": o.get("change_kind"),   # 2026-07-25: the judge's supersede_retire lens keys on it
         "target_subject_key": o.get("target_subject_key"),
         "subject_key": o.get("subject_key"),
         "claim": o.get("claim"),
@@ -944,11 +959,15 @@ def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
             records[-1]["length_demoted"] = True
             records[-1]["length_cured"] = bool(lc.get("cured"))
             records[-1]["length_cure_attempts"] = lc.get("attempts", 0)
+        if op.get("superseded_term"):                     # v5: the sweep's trigger term (additive)
+            records[-1]["superseded_term"] = op["superseded_term"]
+            records[-1]["retired_reason"] = op.get("retired_reason")
     return records
 
 
 def log_decisions(slug: str, records: list, source: str = "monitor", facts: list = None,
-                  cost: dict = None, judge_raw_failures: list = None) -> list:
+                  cost: dict = None, judge_raw_failures: list = None,
+                  superseded_terms: list = None) -> list:
     """Persist the propagation decision log to the PRIVATE data store, mirroring shadow.capture's
     non-disruption contract: wrapped so it can only ever WARN, never raise into the live monitor
     path. Returns the records regardless, so a caller or test can inspect them even when no backend
@@ -965,7 +984,9 @@ def log_decisions(slug: str, records: list, source: str = "monitor", facts: list
                    "facts": facts or [], "cost_usd": cost or {},
                    # Truncated raw judge responses that failed to parse — the diagnosis trail the
                    # 2026-07-01 outage lacked (the text was discarded; the failure was unexplainable).
-                   "judge_raw_failures": judge_raw_failures or []}
+                   "judge_raw_failures": judge_raw_failures or [],
+                   # v5: the verified superseded identifiers this run swept on ([] on most runs).
+                   "superseded_terms": superseded_terms or []}
         selfserve.write_data(
             f"{PROP_DIR}/{slug}/{stamp}.json",
             json.dumps(payload, indent=2, default=str, ensure_ascii=False),
@@ -1027,6 +1048,24 @@ def propagate(meta: dict, facts_with_alerts: list[dict], strength_facts: list[di
     # step 3b: AUTHOR — write the prose for each add/revise routed op (retires carry no prose)
     authored = author(meta, surface_ops, author_facts, claims)
     ops = authored["ops"]
+
+    # step 3c: SUPERSEDE-RETIRE SWEEP (2026-07-25) — the router NAMED superseded identifiers, code
+    # verifies them against the grounded evidence and sweeps the card; every hit becomes a retire
+    # CANDIDATE appended to this run's op list, so the ordinary floor + judge (deal-moving lens)
+    # decide each one. Review/live only: shadow never spends the extra judge tokens.
+    sup_terms = []
+    if config.SUPERSEDE_SWEEP and config.PROPAGATE_MODE in ("review", "live"):
+        try:
+            sup_terms = verified_superseded_terms(surface_ops, facts_by_id, active_by_sk)
+            if sup_terms:
+                routed_keys = {str(k) for op in surface_ops
+                               for k in (op.get("target_subject_key"), op.get("subject_key")) if k}
+                cands = supersede_candidates(claims, sup_terms, routed_keys)
+                if cands:
+                    surface_ops = surface_ops + cands      # positional identity: ops[i] ~ surface_ops[i]
+                    ops = ops + [dict(c) for c in cands]
+        except Exception as e:  # NON-DISRUPTION: the sweep degrades, never kills the run
+            print(f"[propagate] supersede sweep skipped ({type(e).__name__}: {e})", file=sys.stderr)
 
     # step 4: FLOOR (model-free) first; only the survivors cost an Opus judge call.
     floor_results = [floor_check(o, surviving_fact_ids, active_by_sk) for o in ops]
@@ -1104,10 +1143,11 @@ def propagate(meta: dict, facts_with_alerts: list[dict], strength_facts: list[di
                 "gate_judge": gate["cost_usd"].get("gate_judge") or None}
     if persist and slug:
         log_decisions(slug, records, source=source, facts=author_facts, cost=cost_usd,
-                      judge_raw_failures=raw_failures)
+                      judge_raw_failures=raw_failures, superseded_terms=sup_terms)
 
     return {
         "ops": ops,
+        "superseded_terms": sup_terms,
         "surface_ops": surface_ops,
         "no_surface": routed["no_surface"],
         "run_verdict": routed.get("run_verdict") or {},  # shadow-eval consequentiality signal (was strategic_lead)
@@ -1249,6 +1289,93 @@ def apply_ops(claims: list[dict], confirmed_ops: list[dict], facts: list[dict],
                             "subject_key": tgt["subject_key"]})
 
     return {"claims": out, "applied": applied, "skipped": skipped, "held": held}
+
+
+# === Supersede-retire sweep (2026-07-25): true-but-inert claims leave the active card ===========
+#
+# Owner's philosophy: there is NO "stale" state — a claim either moves deals or it doesn't. When a
+# grounded fact establishes that a named identifier (a model, product, version, price list) is
+# REPLACED, other active claims still citing the OLD identifier have usually stopped moving deals,
+# even though they are still true. The model NAMES the superseded identifiers (route.py emits
+# superseded_terms per op); code VERIFIES the naming against the grounded evidence and SWEEPS the
+# card; the judge decides retire-or-keep PER CLAIM with the deal-moving lens. Retirement reuses the
+# existing lineage-preserving machinery — never a delete, and a rejected candidate changes nothing.
+
+
+def verified_superseded_terms(surface_ops: list, facts_by_id: dict, active_by_sk: dict) -> list[dict]:
+    """The control-vs-model seam: the router NAMED superseded identifiers; this pure helper keeps a
+    term ONLY if it is grounded — literally present (casefold) in the trigger fact's claim text or
+    evidence_excerpt, or in the current text of the claim the op revises. Terms under 3 chars or
+    purely numeric/date-shaped are dropped (too collision-prone to sweep on). Returns
+    [{'term', 'trigger_claim_id'}], deduped casefold."""
+    out, seen = [], set()
+    for op in surface_ops or []:
+        df = op.get("derived_from")
+        fact = facts_by_id.get(df) or {}
+        hay = ((str(fact.get("claim") or "")) + " " + (str(fact.get("evidence_excerpt") or ""))).casefold()
+        tgt = op.get("target_subject_key")
+        cur = active_by_sk.get(normalize_subject_key(str(tgt))) if tgt else None
+        hay_claim = str(cur.get("claim") or "").casefold() if isinstance(cur, dict) else ""
+        for t in (op.get("superseded_terms") or []):
+            if not isinstance(t, str):
+                continue
+            t = t.strip()
+            key = t.casefold()
+            if len(t) < 3 or key in seen:
+                continue
+            if re.fullmatch(r"[\d\W_]+", t):               # purely numeric/date/punctuation
+                continue
+            if key in hay or key in hay_claim:
+                seen.add(key)
+                out.append({"term": t, "trigger_claim_id": df,
+                            "as_of": fact.get("as_of")})   # the supersession date (sweep filter)
+    return out
+
+
+def supersede_candidates(claims: list[dict], terms: list[dict], exclude_subject_keys) -> list[dict]:
+    """Deterministic sweep: synthesize a judge-ready RETIRE candidate for every ACTIVE routable claim
+    whose text cites a verified superseded term — excluding claims this run already routes to
+    (they're being revised/retired anyway) and the trigger facts themselves. Pure; never mutates
+    input; the JUDGE decides each candidate (deal-moving lens), code never retires on its own."""
+    if not terms:
+        return []
+    excl = {normalize_subject_key(str(k)) for k in (exclude_subject_keys or set())}
+    trigger_ids = {t.get("trigger_claim_id") for t in terms}
+    cands = []
+    for c in claims or []:
+        if c.get("section") not in ROUTABLE_SECTIONS:
+            continue
+        if str(c.get("status", "active")) != "active":
+            continue
+        sk = c.get("subject_key")
+        if not sk or c.get("id") in trigger_ids:
+            continue
+        if normalize_subject_key(str(sk)) in excl:
+            continue
+        text = str(c.get("claim") or "").casefold()
+        hit = next((t for t in terms if t["term"].casefold() in text), None)
+        if hit is None:
+            continue
+        # RECONCILED-HISTORY FILTER: a claim touched ON/AFTER the supersession date was written
+        # knowing the news — its mention of the old identifier is deliberate compressed history
+        # ("Opus 5 replaces Opus 4.8"), not staleness. ISO date strings compare lexically.
+        claim_date = str(c.get("updated_on") or c.get("as_of") or "")
+        if hit.get("as_of") and claim_date and claim_date >= str(hit["as_of"]):
+            continue
+        cands.append({
+            "operation": "retire", "section": c.get("section"), "zone": c.get("zone"),
+            "valence": "neutral", "change_kind": "supersede_retire",
+            "target_subject_key": sk, "subject_key": sk,
+            "claim": None, "claim_type": "interpretation",
+            "derived_from": hit["trigger_claim_id"],
+            "superseded_term": hit["term"],
+            "retired_reason": f"superseded: still cites {hit['term']}, replaced per the linked "
+                              f"update ({hit['trigger_claim_id']})",
+            "feed_note": f"Retired a {c.get('section')} claim citing {hit['term']}: the identifier "
+                         f"is superseded and the claim no longer moves deals.",
+            "why": f"active claim still cites superseded identifier {hit['term']!r}",
+        })
+    return cands
 
 
 def retire_cascade(claims: list[dict], falsified_fact_ids, today: str) -> dict:

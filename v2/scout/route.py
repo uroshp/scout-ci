@@ -39,6 +39,9 @@ CHANGE_KINDS = [
     "neutralize",             # a winning play is neutralized to a wash -> retire
     "reconcile_beat",         # the next beat of a story the claim already encodes -> revise, fold in, keep prior beats
     "supersede_lead",         # the change is now the sharpest thing to open with -> revise executive_summary
+    "supersede_retire",       # SYNTHESIZED BY CODE (2026-07-25 sweep), never routed by the model: an
+                              # active claim still cites an identifier a new fact supersedes -> retire,
+                              # judged per-claim with the deal-moving lens
 ]
 
 # Sections the router may route a change INTO. recent_moves + the raw fact record are maintained
@@ -114,6 +117,16 @@ for every retire (full_invalidation / neutralize) so a removal is never silent, 
 export-ban objection: Commerce fully lifted the Fable 5 and Mythos 5 controls on June 30." Optional
 but welcome for adds/revises. Obey the writing style for every note.
 
+superseded_terms (optional, per op): when the fact establishes that a NAMED IDENTIFIER — a product,
+model, version, or title-holder — is REPLACED by a newer one (a new flagship ships, a product is
+renamed, a price list supersedes the old one), list the now-superseded identifier strings on that op,
+e.g. ["Opus 4.8", "Opus 4.7"]. RULES: list ONLY identifiers that literally appear in the grounded
+fact's text or in the claim being revised; sibling/older versions may be listed ONLY if literally
+present there too; never infer or guess identifiers. Code will sweep the card for OTHER active claims
+still citing these terms and propose their retirement to a judge — so list terms only when the
+replacement genuinely makes claims about the old identifier stop mattering in a deal. Omit the field
+(or []) otherwise. Typical on: update, reconcile_beat, supersede_lead, partial/full_invalidation.
+
 RUN VERDICT — separately, judge whether this run's change(s) are CONSEQUENTIAL: do they change what the
 rep DOES or the brief's thesis (consequential), or are they a routine accuracy update that keeps the
 card current without changing the argument (routine)? An OpenAI IPO date, a daily box-office number, or
@@ -133,6 +146,7 @@ Return ONLY a single fenced ```json block:
    "subject_key": "<resulting subject_key: NEW for add; SAME as target for revise|retire>",
    "persona": "<eng_led|technical_evaluator|economic_buyer|security_regulated|exec_top_down|null>",
    "feed_note": "<one-line change-feed note; REQUIRED for retire>",
+   "superseded_terms": ["<optional: identifier strings this fact supersedes, per the rules above>"],
    "why": "<one line: why this surface is affected, following DIRECTLY from the grounded fact>"}
  ],
  "no_surface": [ {"derived_from": "<fact id>", "why": "<why this fact moves no rep-facing prose>"} ],
@@ -229,6 +243,11 @@ def _clean_ops(raw_ops) -> list[dict]:
             o["zone"] = None
         elif o.get("zone") not in ZONES:
             continue
+        # superseded_terms (2026-07-25 supersede-retire): sanitize to a list of non-empty strings;
+        # grounding is verified downstream (propagate.verified_superseded_terms), not here.
+        terms = o.get("superseded_terms")
+        o["superseded_terms"] = [t.strip() for t in terms
+                                 if isinstance(t, str) and t.strip()] if isinstance(terms, list) else []
         ops.append(o)
     return ops
 
