@@ -92,6 +92,14 @@ PROPAGATE_REWRITE_MODEL = os.environ.get("SCOUT_PROPAGATE_REWRITE_MODEL", ORCHES
 # case) can't starve the cure. Uncured -> the op is RESTORED to its confirmed state and the render
 # gate condenses-or-holds it (never an exhausted reject). 0 disables (hold-at-gate behavior).
 PROPAGATE_MAX_LENGTH_CURES = int(os.environ.get("SCOUT_PROPAGATE_MAX_LENGTH_CURES", "1"))
+# Supersede-retire sweep (2026-07-25, owner's no-stale-state philosophy): when a routed fact names
+# superseded identifiers (a new flagship, a replaced product), code sweeps active claims still
+# citing them into judge-decided retire candidates (deal-moving lens; lineage kept). Review/live
+# only. The hunt window keeps triage actively searching for the REPLACEMENT value (e.g. the new
+# model's benchmark) for N days after a supersede-retire, so the fresh claim arrives via the
+# normal grounded path.
+SUPERSEDE_SWEEP = os.environ.get("SCOUT_SUPERSEDE_SWEEP", "1").strip().lower() not in ("0", "false", "off", "")
+SUPERSEDE_HUNT_DAYS = int(os.environ.get("SCOUT_SUPERSEDE_HUNT_DAYS", "14"))
 # my_company fact-sourcing budget (2026-07-02 cost pass): the own-side arm runs on SUBAGENT_MODEL
 # (sourcing work — search/fetch/excerpts; judgment stays with the Opus router/judge downstream and
 # grounding verification is deterministic), with its own cap instead of riding the $3 materiality one.

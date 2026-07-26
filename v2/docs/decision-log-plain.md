@@ -88,3 +88,19 @@ number, date and fact survived and nothing new was invented. If that check fails
 for a human as before, but that is now the last resort instead of the first response. The very first
 live run of this check caught a real error: the shortened text had quietly dropped a true statement
 about competitor pricing, and the checker refused it until the statement was restored.
+
+## 2026-07-25 — When a product is replaced, claims about the old one leave the card
+
+A new model release exposed a gap: the card's snapshot moved to the new flagship, but a leaderboard
+block two sections down still argued from a model two generations old. Nothing was false, it had
+just stopped mattering, and a rep quoting it would sound out of date.
+
+We decided against a "stale" label. A claim either moves deals or it doesn't; a label just tells the
+reader to skip it, which is the same as it not being there, minus the honesty. So now, when a
+verified fact says a named product or model has been replaced, code finds every other claim on the
+card still citing the old name and proposes retiring each one. The fact-checker rules on every
+proposal separately, keeping any claim whose point survives the replacement. Retired claims stay in
+the card's history, and for two weeks the daily monitor actively hunts for the replacement's numbers
+so a fresh claim can take the old one's seat through the normal verification path. Guardrails: the
+model may only name replaced identifiers that literally appear in the verified source, and claims
+edited after the news broke are never swept, since they mention the old name on purpose.
