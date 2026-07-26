@@ -170,25 +170,17 @@
   },
   {
     "subject_key": "anthropic | flagship-model | current",
-    "claim": "Anthropic's current flagship is Claude Opus 4.8 (released May 28, 2026), positioned for agentic coding and ~4x less likely than Opus 4.7 to let flawed code pass without flagging it. Claude Code is its GA developer product.",
-    "claim_type": "fact",
+    "claim": "Anthropic's current flagship is Claude Opus 5 (released July 24, 2026), replacing Opus 4.8 at the same price of $5 per million input tokens and $25 per million output tokens. Anthropic says it approaches Fable 5's frontier intelligence at half the cost and is now the default model on Claude Max and the strongest on Claude Pro, while Fable 5 remains Anthropic's most intelligent model overall. Claude Code is its GA developer product.",
+    "claim_type": "interpretation",
     "section": "snapshot",
     "zone": null,
     "order": 3,
-    "source_url": "https://siliconangle.com/2026/05/28/anthropic-launches-claude-opus-4-8-raises-65b-new-funding/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "it's four times less likely than its predecessor to output faulty code without pointing out the issue",
-    "as_of": "2026-05-28",
+    "as_of": "2026-07-24",
     "confidence": "high",
     "id": "c_705a6f46c8fe",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-04",
-      "detail": null
-    }
+    "derived_from": "c_6fad97e13a9b",
+    "updated_on": "2026-07-25"
   },
   {
     "subject_key": "openai | flagship-model | current",
@@ -522,17 +514,17 @@
   },
   {
     "subject_key": "anthropic | api-list-price | current",
-    "claim": "Claude API list pricing (per 1M tokens, as of July 2026): Opus 4.8 at $5 input / $25 output; Sonnet 5 at introductory pricing of $2 / $10 through August 31, 2026, rising to $3 / $15 after; Sonnet 4.6 at $3 / $15; Haiku 4.5 at $1 / $5. Sonnet 5 is now the credible mid-tier for sustained agentic coding, with agentic performance Anthropic says is close to Opus 4.8.",
+    "claim": "Claude API list pricing (per 1M tokens, as of July 2026): Opus 5 at $5 input / $25 output, replacing Opus 4.8 at the same price; Sonnet 5 at introductory pricing of $2 / $10 through August 31, 2026, rising to $3 / $15 after; Sonnet 4.6 at $3 / $15; Haiku 4.5 at $1 / $5. Sonnet 5 is now the credible mid-tier for sustained agentic coding, with agentic performance Anthropic says is close to Opus 4.8.",
     "claim_type": "interpretation",
     "section": "pricing",
     "zone": null,
     "order": 0,
-    "as_of": "2026-06-30",
+    "as_of": "2026-07-24",
     "confidence": "high",
     "id": "c_cafe96c8ef40",
     "verified": true,
-    "derived_from": "c_2bce627512c8",
-    "updated_on": "2026-07-02"
+    "derived_from": "c_6fad97e13a9b",
+    "updated_on": "2026-07-25"
   },
   {
     "subject_key": "claude-code-vs-codex | subscription-price | current",
