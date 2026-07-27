@@ -839,15 +839,15 @@
   },
   {
     "subject_key": "warner-bros-discovery-paramount-acquisition",
-    "claim": "On July 13, 2026, a coalition of 12 state attorneys general led by California sued in federal court to block Paramount Skydance's roughly $110B takeover of Warner Bros. Discovery, the studio behind Gunn's Superman, and asked the court to halt it with a temporary restraining order or injunction while the case runs. The suit alleges the deal violates Section 7 of the Clayton Act by cutting competition in theatrical film and basic cable. The DOJ cleared the merger in June, but Paramount now cannot close cleanly until this is resolved, and it only expects to close sometime after July 22.",
+    "claim": "The Paramount Skydance takeover of Warner Bros. Discovery, the studio behind Superman, is now frozen. On July 20, 2026 a federal judge granted the 12-state coalition a temporary restraining order barring Paramount from closing, and on July 24 Paramount signed a joint stipulation agreeing not to close until five days after an antitrust trial or June 1, 2027, whichever comes first. No trial date is set, so Superman's parent stays in limbo for months. Paramount also starts paying a ticking fee to WBD shareholders after Sept. 30 (25 cents a share per quarter, worth more than $600M a quarter).",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 3,
-    "source_url": "https://oag.ca.gov/news/press-releases/attorney-general-bonta-files-lawsuit-block-110-billion-warner-brosparamount",
-    "source_tier": "primary",
-    "evidence_excerpt": "The coalition has asked Warner Bros. and Paramount not to close the merger until after the judicial process concludes",
-    "as_of": "2026-07-13",
+    "order": 1,
+    "source_url": "https://variety.com/2026/film/news/paramount-warner-bros-merger-postpone-antitrust-trial-1236820601/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Paramount Skydance has reached an agreement with a coalition of state attorneys general to postpone the Warner Bros. Discovery merger until after an antitrust trial.",
+    "as_of": "2026-07-24",
     "confidence": "high",
     "id": "c_d56e29441dcb",
     "verified": true,
@@ -855,18 +855,18 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-07-20",
+      "fetched_at": "2026-07-27",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://www.cnbc.com/2026/07/13/paramount-wbd-merger-lawsuit.html",
+        "source_url": "https://www.cnbc.com/2026/07/20/paramount-wbd-merger-delay.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
       },
       {
-        "source_url": "https://variety.com/2026/film/news/paramount-warner-bros-merger-states-lawsuit-1236806824/",
+        "source_url": "https://www.nbcnews.com/business/media/judge-puts-temporary-pause-paramount-warner-bros-merger-rcna587804",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
