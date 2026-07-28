@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise and sovereign AI for developers and agents",
   "baseline_date": "2026-06-17",
-  "last_checked": "2026-07-27T11:11:48",
+  "last_checked": "2026-07-28T11:08:26",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_911e9a6938ba",
@@ -24,5 +24,11 @@
     "f_549e2052227b",
     "f_e52a16c39976"
   ],
-  "monitored": true
+  "monitored": true,
+  "unresolved_subjects": [
+    "openai | infrastructure-financing | nvidia-backstop-2026",
+    "openai | product-launch | chatgpt-health-2026"
+  ],
+  "unresolved_since": "2026-07-27",
+  "unresolved_attempts": 1
 }
