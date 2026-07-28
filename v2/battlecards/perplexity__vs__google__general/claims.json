@@ -1317,5 +1317,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "google | legal-action | eu-dma-search-data-sharing",
+    "claim": "On July 16, 2026 the European Commission adopted a binding DMA specification decision under Article 6(11) requiring Google to share anonymised Search ranking, query, click and view data with rival search engines, and it explicitly makes AI chatbots that offer search functionality eligible recipients of that same data. Sharing runs on FRAND cost-recovery pricing and is due to begin January 2027. Eligibility is limited to a genuine EU search engine running at least two consecutive years, or one founded within two years that raised over €50 million and has at least 50,000 monthly EU users. The measure carries no financial penalty; it specifies how Google must comply after regulators found its earlier data-sharing offer, which excluded AI chatbots and stripped out 90 to 100% of unique queries, produced no meaningful uptake.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 5,
+    "source_url": "https://digital-markets-act.ec.europa.eu/commission-provides-guidance-google-ai-interoperability-android-and-sharing-google-search-data-under-2026-07-16_en",
+    "source_tier": "primary",
+    "evidence_excerpt": "AI chatbots offering search functionalities are eligible to receive shared data",
+    "as_of": "2026-07-16",
+    "confidence": "high",
+    "id": "c_0bc7ca8383e5",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-28",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://ppc.land/brussels-forces-google-to-hand-rivals-its-search-data/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
