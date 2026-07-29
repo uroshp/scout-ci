@@ -123,6 +123,21 @@ class ProposalEmail(unittest.TestCase):
         self.assertEqual([d["subject_key"] for d in p["confirmed"]], ["a|clean|c"])
         self.assertEqual([d["subject_key"] for d in p["held"]], ["a|readiness|current"])
 
+    def test_human_declined_excluded_from_confirmed(self):
+        """A confirmed proposal the human declined (human_declined flag) drops out of the
+        approvable list, while the judge's verdict stays 'confirm' for the eval corpus."""
+        log = {"run_ts": "2026-07-29T11:00:00",
+               "decisions": [{"judge_verdict": "confirm", "subject_key": "a|keep|c"},
+                             {"judge_verdict": "confirm", "subject_key": "a|dropped|c",
+                              "human_declined": True,
+                              "declined_reason": "human dropped it"}],
+               "facts": []}
+        with mock.patch.object(review, "_latest_log", return_value=log):
+            p = review.pending(SLUG)
+        self.assertEqual([d["subject_key"] for d in p["confirmed"]], ["a|keep|c"])
+        # judge verdict on the declined record is preserved (corpus integrity)
+        self.assertEqual(log["decisions"][1]["judge_verdict"], "confirm")
+
     def test_advisory_manual_log_never_becomes_the_approvable_run(self):
         """The 2026-07-25 trap: a manual-source audit log (e.g. manual-supersede-sweep) landed as
         the newest file and --approve applied ITS op instead of the morning run's. _latest_log must

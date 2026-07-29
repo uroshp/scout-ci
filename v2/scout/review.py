@@ -55,8 +55,11 @@ def pending(slug: str) -> dict:
     {run_ts, confirmed: [...], unjudged: [...], held: [...], facts: [...]}."""
     payload = _latest_log(slug) or {}
     decisions = payload.get("decisions", [])
+    # human_declined (2026-07-29): a confirmed proposal the human chose NOT to apply. The judge's
+    # verdict stays "confirm" (the eval corpus keeps the real model call untouched); this flag only
+    # removes it from the approvable list so it stops resurfacing. Set in the store by an approver.
     confirmed = [d for d in decisions if d.get("judge_verdict") == "confirm"
-                 and not d.get("held_for_format")]
+                 and not d.get("held_for_format") and not d.get("human_declined")]
     unjudged = [d for d in decisions if d.get("judge_verdict") == "judge_unavailable"]
     held = [d for d in decisions if d.get("held_for_format")]
     return {"run_ts": payload.get("run_ts"), "confirmed": confirmed, "unjudged": unjudged,
