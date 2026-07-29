@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise and sovereign AI for developers and agents",
   "baseline_date": "2026-06-17",
-  "last_checked": "2026-07-28T11:08:26",
+  "last_checked": "2026-07-29T19:07:11",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_911e9a6938ba",
@@ -22,7 +22,8 @@
     "f_ef49dd9aa00d",
     "f_64a89428530f",
     "f_549e2052227b",
-    "f_e52a16c39976"
+    "f_e52a16c39976",
+    "f_b41f7c57d6fb"
   ],
   "monitored": true,
   "unresolved_subjects": [
@@ -30,5 +31,5 @@
     "openai | product-launch | chatgpt-health-2026"
   ],
   "unresolved_since": "2026-07-27",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }

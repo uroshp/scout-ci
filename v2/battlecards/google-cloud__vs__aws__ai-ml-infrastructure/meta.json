@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-07-28T11:06:17",
+  "last_checked": "2026-07-29T19:03:34",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -18,5 +18,10 @@
     "f_bbd0c5df6270",
     "f_eecb0e765d6a"
   ],
-  "monitored": true
+  "monitored": true,
+  "unresolved_subjects": [
+    "aws | reliability-incident | july-29-2026-outage"
+  ],
+  "unresolved_since": "2026-07-28",
+  "unresolved_attempts": 1
 }
