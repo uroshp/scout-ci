@@ -1317,5 +1317,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "openai | product-launch | health-chatgpt-2026",
+    "claim": "**OpenAI now pulls Americans' medical records into its cloud, which sharpens our data-jurisdiction case.** On July 23, 2026 OpenAI launched Health in ChatGPT to all US users over 18, letting them connect Apple Health data and medical records from hospital systems like Epic and Oracle Health. It launched one day after a Florida lawsuit asked a court to halt the product over allegedly near-fatal medical advice. OpenAI says 300 million people use ChatGPT weekly for health questions.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 0,
+    "source_url": "https://techcrunch.com/2026/07/23/openai-makes-chatgpt-health-available-to-all-u-s-users/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI said today it is making ChatGPT Health, a feature that helps users with health-related queries, available to all U.S.-based users over 18 across all plans.",
+    "as_of": "2026-07-23",
+    "confidence": "high",
+    "id": "c_2dac8d288f71",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-29",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://siliconangle.com/2026/07/23/openai-launches-health-chatgpt-day-lawsuit-seeks-block/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
