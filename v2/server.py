@@ -149,16 +149,24 @@ _CTRL_CSS = (
 )
 
 
-def _ga_head() -> str:
+def _ga_head(page_type: str = None) -> str:
     """The GA tag, straight into <head> — no iframe, no window.parent. Same self-gating as the
     Streamlit component: fire only on the allow-listed prod hostnames (config.ANALYTICS_HOSTNAMES,
     shared via analytics._hosts_js so the two injectors can't drift — 2026-07-08 incident), honor
-    the scout_me opt-out cookie, and let ?me=1 set it. Empty when no measurement id is configured."""
+    the scout_me opt-out cookie, and let ?me=1 set it. Empty when no measurement id is configured.
+
+    page_type (2026-07-29) is sent as GA4 content_group so home-vs-card is unambiguous in GA
+    regardless of which card the homepage renders on top that day. The homepage (`/`) serves the
+    most-recently-updated card inline, so its pageTitle drifts daily and cannot distinguish a
+    default landing from a deliberate card view — content_group can. Queryable as the `contentGroup`
+    dimension. Values: home | card | print | create."""
     mid = config.GA_MEASUREMENT_ID
     if not mid:
         return ""
     host_guard = (f"if({analytics._hosts_js()}.indexOf(location.hostname)===-1)return;"
                   if config.ANALYTICS_HOSTNAMES else "")
+    cfg = ("{content_group:'" + page_type + "'}") if page_type else ""
+    config_call = ("gtag('config','" + mid + "'" + ((", " + cfg) if cfg else "") + ");")
     js = (
         "(function(){"
         + host_guard +
@@ -168,7 +176,7 @@ def _ga_head() -> str:
         "s.src='https://www.googletagmanager.com/gtag/js?id=" + mid + "';"
         "document.head.appendChild(s);"
         "window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}"
-        "window.gtag=gtag;gtag('js',new Date());gtag('config','" + mid + "');"
+        "window.gtag=gtag;gtag('js',new Date());" + config_call +
         "})();"
     )
     return "<script>" + js + "</script>"
@@ -234,14 +242,16 @@ def _chrome_with_actions(cards: list, right_html: str) -> str:
               f'{_control_bar(True, None, cards, right_html=right_html)}</div>')
 
 
-def _doc(body_inner: str, *, title: str) -> str:
-    """Wrap inner HTML in a full document: viewport + GA + fonts + the card CSS + control CSS."""
+def _doc(body_inner: str, *, title: str, page_type: str = None) -> str:
+    """Wrap inner HTML in a full document: viewport + GA + fonts + the card CSS + control CSS.
+    page_type flows to the GA content_group (home | card | print | create) so analytics can tell a
+    default homepage landing from a deliberately-selected card (2026-07-29)."""
     return (
         '<!doctype html><html lang="en"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width, initial-scale=1">'
         f'<title>{_html.escape(title)}</title>'
         '<link rel="icon" href="/favicon.ico">'
-        + _ga_head()
+        + _ga_head(page_type)
         + _FONT_LINKS
         + page.style_block()
         + f'<style>{_CTRL_CSS}</style>'
@@ -351,8 +361,11 @@ def index():
     if not cards:
         return _doc(_chrome(False, None, cards)
                     + '<div class="wrap"><p>No battlecards have been generated yet.</p></div>',
-                    title="Agent Scout — Living Battlecards")
-    return _card_page(cards[0], cards)
+                    title="Agent Scout — Living Battlecards", page_type="home")
+    # The homepage serves the most-recently-updated card inline; page_type='home' marks it as a
+    # DEFAULT landing in GA (content_group) so it is never confused with a deliberate card view,
+    # whose route below sends page_type='card'.
+    return _card_page(cards[0], cards, page_type="home")
 
 
 @app.get("/c/<slug>")
@@ -363,12 +376,12 @@ def card(slug):
     return _card_page(slug, cards)
 
 
-def _card_page(slug: str, cards: list) -> str:
+def _card_page(slug: str, cards: list, page_type: str = "card") -> str:
     inner = (_chrome(False, slug, cards)
              + page.title_html(slug)
              + page.content_html(slug)
              + _countdown_js())
-    return _doc(inner, title=f"{_card_label(slug)} — Agent Scout")
+    return _doc(inner, title=f"{_card_label(slug)} — Agent Scout", page_type=page_type)
 
 
 @app.get("/print/<slug>")
@@ -390,13 +403,13 @@ def create():
     except Exception:
         body = ('<div class="wrap ss-wrap"><p>Create-your-own is temporarily unavailable — '
                 'please check back shortly.</p></div>')
-        return _doc(chrome + body, title="Create your own — Agent Scout")
+        return _doc(chrome + body, title="Create your own — Agent Scout", page_type="create")
     if not gate.get("open"):
         body = (f'<div class="wrap ss-wrap"><h2 class="ss-title">Create your own battlecard</h2>'
                 f'<p class="ss-cap">The free launch window is full. '
                 f'For access, <a href="{_html.escape(config.SELFSERVE_CONTACT)}">get in touch</a>.</p></div>')
-        return _doc(chrome + body, title="Create your own — Agent Scout")
-    return _doc(chrome + _form_html(gate), title="Create your own — Agent Scout")
+        return _doc(chrome + body, title="Create your own — Agent Scout", page_type="create")
+    return _doc(chrome + _form_html(gate), title="Create your own — Agent Scout", page_type="create")
 
 
 def _form_html(gate: dict) -> str:
@@ -571,7 +584,7 @@ def result(job_id):
         res = None
     if res is None:
         # Pending (or unknown) — render a poll page that redirects here once the result lands.
-        return _doc(chrome + _pending_html(job_id), title="Generating… — Agent Scout")
+        return _doc(chrome + _pending_html(job_id), title="Generating… — Agent Scout", page_type="create")
     status = res.get("status")
     if status == "done":
         md = res.get("markdown", "")
@@ -593,7 +606,7 @@ def result(job_id):
                 briefing_tag="the fast read first · fresh off the research run")
         else:
             brief = f'<div class="wrap"><pre style="white-space:pre-wrap">{_html.escape(md)}</pre></div>'
-        return _doc(chrome + brief, title="Your report — Agent Scout")
+        return _doc(chrome + brief, title="Your report — Agent Scout", page_type="create")
     if status == "rejected":
         msg = _html.escape(res.get("message", "The free window is closed."))
         return _doc(chrome + f'<div class="wrap ss-wrap"><p>{msg}</p></div>', title="Agent Scout")
