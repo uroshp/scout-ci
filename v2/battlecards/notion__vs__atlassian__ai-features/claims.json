@@ -938,5 +938,27 @@
     "confidence": "medium",
     "derived_from": "c_9e4ec8ceb093",
     "persona": "technical_evaluator"
+  },
+  {
+    "subject_key": "atlassian | trello-mcp-support",
+    "claim": "Atlassian launched Trello MCP, letting external AI assistants including Claude, ChatGPT, Gemini and Cursor create and manage Trello boards, lists, cards and checklists by prompt. Atlassian says nearly half of its MCP users are not on software teams, and Trello has over 100 million signups, so this pushes Atlassian's AI reach into the cross-functional, non-technical work that Notion treats as its home field.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 50,
+    "source_url": "https://www.atlassian.com/blog/trello/connect-trello-to-your-favorite-ai-assistants-with-trello-mcp",
+    "source_tier": "primary",
+    "evidence_excerpt": "Trello now uses MCP (a shared standard that lets AI tools talk to apps like Trello) to connect with assistants like Claude, ChatGPT, Gemini, and Cursor.",
+    "as_of": "2026-07-22",
+    "confidence": "high",
+    "id": "c_7c0fde9934b4",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-30",
+      "detail": null
+    }
   }
 ]
