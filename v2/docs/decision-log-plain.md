@@ -104,3 +104,23 @@ the card's history, and for two weeks the daily monitor actively hunts for the r
 so a fresh claim can take the old one's seat through the normal verification path. Guardrails: the
 model may only name replaced identifiers that literally appear in the verified source, and claims
 edited after the news broke are never swept, since they mention the old name on purpose.
+
+## 2026-07-31 — A claim that would win a deal never gets dropped for a fixable reason
+
+A real objection died this week on a small authoring mistake. When Anthropic disclosed its own
+containment incident (making OpenAI's earlier one a wash), the tool correctly retired the "their
+model broke out" attack and tried to turn it into an objection buyers would now raise about Claude
+too. But the draft leaned on a bad answer — "just run it on Microsoft's cloud" — which doesn't
+actually address a model misbehaving. The fact-checker rightly refused it, but by the time it spelled
+out the honest answer (acknowledge it was a lab test, point to how fast Anthropic caught and
+disclosed it), the one rewrite it was allowed had already been spent chasing the wrong fix. A
+deal-relevant objection ended up addressed nowhere.
+
+The fix changes the fact-checker's first question. Instead of "can the wording be patched?", it now
+asks "would this point actually move a deal or a customer conversation?" If no, it's dropped, as
+before. If yes, it can never be silently dropped — it must be cured. Sometimes that's just better
+wording; sometimes the whole approach is wrong and needs re-thinking while keeping the valuable
+point. The checker also has to spell out the correct approach the first time, not discover it two
+rounds later. The tool now gets up to three tries instead of one, and if a genuinely deal-moving
+point still can't be written honestly, it sends an urgent email so a person can write it by hand.
+Nothing that would help close a deal disappears quietly again.

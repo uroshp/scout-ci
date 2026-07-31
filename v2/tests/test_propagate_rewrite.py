@@ -72,33 +72,39 @@ class ParseRewritable(unittest.TestCase):
         self.assertTrue(self._one(_verdict("reject", "r", rewritable=True))["rewritable"])
 
 
+def _mat(cure="prose"):                       # a material, curable reject verdict (loop-eligible)
+    return {"verdict": "reject", "reason": "r", "material": True, "cure": cure}
+
+
 class RewritableSelection(unittest.TestCase):
     def test_retire_never_rewritable(self):
         ops = [{"operation": "retire", "claim": None}]
-        vs = {0: {"verdict": "reject", "reason": "r", "rewritable": True}}   # judge slipped
-        self.assertEqual(_rewritable_indices(ops, [[]], vs), [])
+        self.assertEqual(_rewritable_indices(ops, [[]], {0: _mat()}), [])   # retire guard, even if material
 
     def test_floor_rejected_never_enters_loop(self):
         ops = [{"operation": "revise", "claim": "x"}]
-        vs = {0: {"verdict": "reject", "reason": "r", "rewritable": True}}
-        self.assertEqual(_rewritable_indices(ops, [["bad structure"]], vs), [])
+        self.assertEqual(_rewritable_indices(ops, [["bad structure"]], {0: _mat()}), [])
 
-    def test_selects_only_rewritable_rejects(self):
+    def test_selects_material_curable_rejects_only(self):
         ops = [{"operation": "revise", "claim": "a"}, {"operation": "add", "claim": "b"},
-               {"operation": "add", "claim": "c"}]
-        vs = {0: {"verdict": "reject", "reason": "r", "rewritable": True},
-              1: {"verdict": "reject", "reason": "r", "rewritable": False},
-              2: {"verdict": "confirm", "reason": "ok", "rewritable": False}}
-        self.assertEqual(_rewritable_indices(ops, [[], [], []], vs), [0])
+               {"operation": "add", "claim": "c"}, {"operation": "add", "claim": "d"},
+               {"operation": "add", "claim": "e"}]
+        vs = {0: _mat("prose"),                                  # material+prose -> in
+              1: _mat("root"),                                   # material+root  -> in
+              2: {"verdict": "reject", "reason": "r", "material": False, "cure": "none"},  # immaterial -> out
+              3: {"verdict": "reject", "reason": "r", "material": True, "cure": "none"},   # cure:none -> out (urgent, not loop)
+              4: {"verdict": "confirm", "reason": "ok", "material": False}}                # confirm -> out
+        self.assertEqual(_rewritable_indices(ops, [[]] * 5, vs), [0, 1])
 
-    def test_worklist_carries_feedback_at_original_index(self):
+    def test_worklist_carries_feedback_and_cure(self):
         ops = [{"operation": "revise", "claim": "the failed prose"}]
-        vs = {0: {"verdict": "reject", "reason": "invented number", "rewritable": True}}
+        vs = {0: {"verdict": "reject", "reason": "wrong pivot", "material": True, "cure": "root"}}
         wl = _rewrite_worklist([0], [SURFACE_OP], ops, vs, ACTIVE)
         self.assertEqual(len(wl), 1)
         self.assertEqual(wl[0]["op_index"], 0)
         self.assertEqual(wl[0]["failed_prose"], "the failed prose")
-        self.assertEqual(wl[0]["judge_reason"], "invented number")
+        self.assertEqual(wl[0]["judge_reason"], "wrong pivot")
+        self.assertEqual(wl[0]["cure"], "root")               # branches the addendum
         self.assertEqual(wl[0]["current_text"], "They lead on the frontier model.")
 
 
@@ -233,7 +239,7 @@ class DecisionRecordShape(unittest.TestCase):
         self.assertTrue(recs[0]["committed"])
 
     def test_schema_version_bumped(self):
-        self.assertEqual(propagate.SCHEMA_VERSION, 5)
+        self.assertEqual(propagate.SCHEMA_VERSION, 6)
 
 
 class ExhaustedEmail(unittest.TestCase):
@@ -410,6 +416,163 @@ class LengthCureLoop(unittest.TestCase):
         rec = res["decisions"][0]
         self.assertNotIn("length_demoted", rec)
         self.assertEqual(res["confirmed"][0]["claim"], self.LONG)   # today's behavior (gate holds)
+
+
+def _mverdict(verdict, reason, material=None, cure=None, i=0):
+    """New-schema verdict payload (materiality-first). Omit material/cure to test legacy back-compat."""
+    v = {"op_index": i, "verdict": verdict, "reason": reason}
+    if material is not None:
+        v["material"] = material
+    if cure is not None:
+        v["cure"] = cure
+    return {"verdicts": [v]}
+
+
+class MaterialityFirstCure(unittest.TestCase):
+    """2026-07-31: the judge answers materiality first, then cure routing. A deal-moving point is
+    never dropped — prose or root cure up to the cap, else urgent. Models the containment incident."""
+
+    def setUp(self):
+        self._saved = config.PROPAGATE_MAX_REWRITES
+        config.PROPAGATE_MAX_REWRITES = 3
+
+    def tearDown(self):
+        config.PROPAGATE_MAX_REWRITES = self._saved
+
+    def test_root_cure_reapproach_confirms(self):
+        """The 7/31 replay: round-1 material+cure:root (judge names the honest approach) -> the
+        rewrite worklist carries cure:'root' -> a grounded re-approach -> re-judge confirm."""
+        judge_calls, worklists = [], []
+
+        async def judge_fake(meta, facts, claims, indexed_ops, model=None):
+            judge_calls.append(indexed_ops)
+            v = (_mverdict("reject", "The point IS material (buyers fear agentic containment). But "
+                           "the Foundry-governance pivot invents a mechanism. Correct approach: "
+                           "acknowledge eval-only scope + the fast containment response.",
+                           material=True, cure="root")
+                 if len(judge_calls) == 1 else _mverdict("confirm", "grounded honest pivot"))
+            return {"text": "```json\n" + json.dumps(v) + "\n```", "cost_usd": 0.0}
+
+        async def rewrite_fake(meta, worklist, facts):
+            worklists.append(worklist)
+            return {"text": "```json\n" + json.dumps(_authored("honest eval-scope pivot")) + "\n```",
+                    "cost_usd": 0.0}
+
+        with mock.patch.object(propagate, "route", _route_fake([dict(SURFACE_OP)])), \
+             mock.patch.object(propagate, "_run_author", _fake(_authored("bad foundry pivot"))), \
+             mock.patch.object(propagate, "_run_judge", judge_fake), \
+             mock.patch.object(propagate, "_run_rewrite", rewrite_fake):
+            res = _run_propagate()
+
+        self.assertEqual(len(res["confirmed"]), 1)
+        self.assertEqual(res["confirmed"][0]["claim"], "honest eval-scope pivot")
+        self.assertEqual(worklists[0][0]["cure"], "root")     # the addendum got the root branch
+        rec = res["decisions"][0]
+        self.assertEqual(rec["judge_verdict"], "confirm")
+        self.assertFalse(rec["material_uncured"])
+
+    def test_immaterial_reject_drops_no_loop_no_urgent(self):
+        rewrite = mock.MagicMock()
+        with mock.patch.object(propagate, "route", _route_fake([dict(SURFACE_OP)])), \
+             mock.patch.object(propagate, "_run_author", _fake(_authored("meh"))), \
+             mock.patch.object(propagate, "_run_judge",
+                               _fake(_mverdict("reject", "not deal-moving", material=False, cure="none"))), \
+             mock.patch.object(propagate, "_run_rewrite", rewrite):
+            res = _run_propagate()
+        rewrite.assert_not_called()                            # immaterial -> no cure loop
+        rec = res["decisions"][0]
+        self.assertEqual(rec["judge_verdict"], "reject")
+        self.assertFalse(rec["material_uncured"])              # not urgent
+        self.assertFalse(rec["rewrite_exhausted"])
+        self.assertEqual(res["confirmed"], [])
+
+    def test_cure_none_is_material_uncured_without_looping(self):
+        rewrite = mock.MagicMock()
+        with mock.patch.object(propagate, "route", _route_fake([dict(SURFACE_OP)])), \
+             mock.patch.object(propagate, "_run_author", _fake(_authored("draft"))), \
+             mock.patch.object(propagate, "_run_judge",
+                               _fake(_mverdict("reject", "material but no grounded expression",
+                                               material=True, cure="none"))), \
+             mock.patch.object(propagate, "_run_rewrite", rewrite):
+            res = _run_propagate()
+        rewrite.assert_not_called()                            # cure:none -> straight to urgent, no loop
+        rec = res["decisions"][0]
+        self.assertTrue(rec["material_uncured"])               # urgent trigger
+        self.assertFalse(rec["rewrite_exhausted"])             # never looped
+        self.assertEqual(rec["material"], True)
+        self.assertEqual(rec["cure"], "none")
+
+    def test_cap_three_retries_then_material_uncured(self):
+        judge_calls = []
+
+        async def judge_fake(meta, facts, claims, indexed_ops, model=None):
+            judge_calls.append(1)
+            return {"text": "```json\n" + json.dumps(
+                _mverdict("reject", "still wrong root", material=True, cure="root")) + "\n```",
+                "cost_usd": 0.0}
+
+        with mock.patch.object(propagate, "route", _route_fake([dict(SURFACE_OP)])), \
+             mock.patch.object(propagate, "_run_author", _fake(_authored("bad"))), \
+             mock.patch.object(propagate, "_run_judge", judge_fake), \
+             mock.patch.object(propagate, "_run_rewrite", _fake(_authored("still bad"))):
+            res = _run_propagate()
+
+        # 1 initial judge + 3 cure-round re-judges = 4 (cap=3)
+        self.assertEqual(len(judge_calls), 4)
+        rec = res["decisions"][0]
+        self.assertTrue(rec["rewrite_exhausted"])
+        self.assertTrue(rec["material_uncured"])               # -> urgent email
+        self.assertEqual(rec["rewrite_attempts"], 3)
+
+    def test_cap_three_cures_on_third_try(self):
+        judge_calls = []
+
+        async def judge_fake(meta, facts, claims, indexed_ops, model=None):
+            judge_calls.append(1)
+            v = (_mverdict("confirm", "cured") if len(judge_calls) == 4
+                 else _mverdict("reject", "root still off", material=True, cure="root"))
+            return {"text": "```json\n" + json.dumps(v) + "\n```", "cost_usd": 0.0}
+
+        with mock.patch.object(propagate, "route", _route_fake([dict(SURFACE_OP)])), \
+             mock.patch.object(propagate, "_run_author", _fake(_authored("bad"))), \
+             mock.patch.object(propagate, "_run_judge", judge_fake), \
+             mock.patch.object(propagate, "_run_rewrite", _fake(_authored("getting there"))):
+            res = _run_propagate()
+
+        self.assertEqual(len(res["confirmed"]), 1)             # cured within the cap
+        rec = res["decisions"][0]
+        self.assertFalse(rec["material_uncured"])
+        self.assertEqual(rec["rewrite_attempts"], 3)
+
+
+class UrgentMaterialEmail(unittest.TestCase):
+    META = {"my_company": "Anthropic", "competitor": "OpenAI"}
+    _U = {"operation": "add", "section": "objection_handling", "subject_key": "obj|x|current",
+          "cure": "none", "rewrite_attempts": 0,
+          "judge_reason": "material point: buyers fear containment; correct approach is eval-only scope",
+          "trigger_source_url": "https://s/x", "attempts": [{"claim": "bad draft prose"}]}
+
+    def test_render_carries_diagnosis_and_last_prose(self):
+        subj, body = notify.render_urgent_material("s", self.META, [dict(self._U)])
+        self.assertIn("URGENT", subj)
+        self.assertIn("undrafted", subj)
+        self.assertIn("JUDGE'S DIAGNOSIS", body)
+        self.assertIn("eval-only scope", body)                # the honest framing surfaces
+        self.assertIn("bad draft prose", body)                # last attempt shown
+        self.assertIn("cure:none", body)
+
+    def test_exhausted_reason_shown(self):
+        u = dict(self._U, cure="root", rewrite_attempts=3)
+        _, body = notify.render_urgent_material("s", self.META, [u])
+        self.assertIn("exhausted after 3", body)
+
+    def test_send_noops_on_empty(self):
+        self.assertEqual(notify.send_urgent_material("s", self.META, []),
+                         {"sent": False, "reason": "no urgent material"})
+
+    def test_send_dry_run_never_raises(self):
+        out = notify.send_urgent_material("s", self.META, [dict(self._U)], dry_run=True)
+        self.assertIn("sent", out)                             # dispatch returned a dict, no raise
 
 
 if __name__ == "__main__":

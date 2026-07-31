@@ -104,6 +104,19 @@ class Adjudicate(unittest.TestCase):
         self.assertEqual(d["judge_right"], 0)
         self.assertFalse(d["gate"]["net_positive"])
 
+    def test_v6_material_cure_fields_do_not_affect_the_corpus(self):
+        """Corpus-integrity (2026-07-31): a v6 record carrying material/cure/material_uncured
+        adjudicates identically — adjudicate reads only judge_verdict etc., never the new fields."""
+        v6 = dict(PAYLOAD, schema_version=6)
+        v6["decisions"] = [dict(d) for d in PAYLOAD["decisions"]]
+        v6["decisions"][1].update(material=True, cure="root", material_uncured=False)  # the reject
+        self.store.files["propagation/a__vs__b__x/20260614T110000.json"] = json.dumps(v6)
+        d = adjudicate.digest()
+        self.assertEqual(d["captured"], 3)                    # unchanged
+        self.assertEqual(d["by_verdict"], {"confirm": 1, "reject": 1, "floor_reject": 1,
+                                           "judge_unavailable": 0, "gated_routine": 0})
+        self.assertEqual(len(d["pending"]), 2)                # the reject is still adjudicatable
+
     def test_delta_id_stable_across_reads(self):
         a = adjudicate.load_deltas()
         b = adjudicate.load_deltas()
