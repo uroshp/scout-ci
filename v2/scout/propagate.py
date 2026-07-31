@@ -518,16 +518,40 @@ with the current state and compresses the resolved history to a sentence. What y
 blast-radius is the opposite: a revise that ERASES still-true prior content or rewrites the claim from
 scratch (e.g. a reversal that deletes the earlier event instead of reconciling with it).
 
-REWRITABLE: on a REJECT, also set "rewritable". Set true ONLY when the op is RIGHTLY ROUTED —
-correct section, operation, valence, and target, at a scope the fact licenses — and the defect lives
-in the PROSE alone, such that a rewrite guided by your reason could pass: an invented number,
-mechanism, or reason; erased still-true prior content or a rewrite-from-scratch (that flavor of
-blast-radius IS rewritable — the routing is right, the prose is wrong); a dropped required
-**So what:** / **Soundbite:** block; a bloated/buried answer; a hollow or self-incriminating rebuttal. Set false when the op
-should not exist at all: wrong valence, wrong operation, an invented objection or play, a weak
-retire, or blast-radius because the fact does not license touching that claim. A retire carries no
-prose: rewritable is always false for a retire. When rewritable is true, your reason must name
-EXACTLY what must change — it is handed verbatim to the rewriter as its only feedback.
+ON EVERY REJECT: MATERIALITY-FIRST, THEN CURE ROUTING. A claim whose point would move a deal must
+NEVER be silently dropped for a fixable reason. So on a reject, answer two things — set "material"
+and "cure":
+
+1. MATERIAL? — is the underlying POINT (not this exact prose) deal-moving: would it change what a
+   rep says or does in a live deal, or how a buyer decides? The triggering fact is already act-grade,
+   but an act-grade fact can spawn an op whose specific point is NOT deal-moving — judge THIS op's
+   point. Set "material": true/false. material=false means the point itself does not earn a place on
+   the card; set "cure":"none" and stop — it is correctly dropped (a common, correct outcome).
+
+2. If material=true, NEVER drop the point — set "cure" to how it must be fixed:
+   - "prose": the op is RIGHTLY ROUTED (correct section, operation, valence, target, scope) and the
+     defect is in the PROSE alone — a guided rewrite of the wording passes. (invented number/erased
+     still-true content/rewrite-from-scratch/dropped **So what:**/**Soundbite:** block/bloated-buried/
+     hollow-or-self-incriminating rebuttal, where the ROUTING is right and only the words are wrong.)
+   - "root": the point is material but the APPROACH/ROOT is wrong — a wrong pivot, framing, or an
+     INVENTED MECHANISM (e.g. "Azure Foundry governance fixes a model-behavior breach" — governance
+     does not address a behavior failure). No phrase-patch fixes this, but the deal-moving point can
+     be PRESERVED and re-expressed on a correct, grounded approach. Set "cure":"root".
+   - "none": the point is material but NO grounded correct expression exists in the given facts (the
+     honest version would require inventing something the facts do not state). Do NOT invent to cure.
+     Set "cure":"none" — it routes to the owner's urgent queue for a human, never onto the card.
+
+FULL DIAGNOSIS, UP FRONT (this is your only feedback to the rewriter). Your "reason" must name the
+COMPLETE fix, not an incremental one. For "cure":"root" the reason MUST state (a) what the material
+POINT is and (b) the CORRECT grounded approach that preserves it. NEVER tell the rewriter to keep a
+wrong pivot and patch a phrase — diagnose the root and name the honest approach in THIS rejection.
+(The 7/31 failure: a first rejection said "keep the Foundry pivot, fix a phrase"; the honest version
+— pivot to eval-only scope + the vendor's fast containment response — only surfaced on the second
+rejection, too late. Name it the first time.)
+
+"rewritable" is DERIVED (material AND cure in {prose,root}) — you may still emit it for readability,
+but code recomputes it as the single source of truth for loop eligibility. A retire carries no prose:
+material=false, cure="none", rewritable false for a retire.
 
 SUPERSEDE-RETIRE CANDIDATES (change_kind "supersede_retire") are SYNTHESIZED BY CODE, not the
 proposer: a deterministic sweep found the target claim still cites an identifier the grounded fact
@@ -544,8 +568,10 @@ Return ONLY a single fenced ```json block:
 {"verdicts": [
   {"op_index": <int — the op's given index>,
    "verdict": "confirm|reject",
-   "rewritable": <bool — per the REWRITABLE rule; false on a confirm or a retire>,
-   "reason": "<one line: the specific test it passed, or the specific reason rejected, grounded in the fact>"}
+   "material": <bool — on a reject: would the underlying POINT move a deal? omit/true on a confirm>,
+   "cure": "prose|root|none — on a material reject, how to fix it (see CURE ROUTING); none on a confirm/immaterial/retire",
+   "rewritable": <bool — derived = material AND cure in {prose,root}; false on a confirm or a retire>,
+   "reason": "<the FULL diagnosis: what passed, or — on a material reject — what the deal-moving point is AND the correct grounded approach>"}
 ]}
 Give EXACTLY one verdict per proposed op. When in doubt, reject."""
 
@@ -599,9 +625,17 @@ async def _run_judge(meta: dict, facts: list[dict], claims: list[dict], indexed_
 
 
 def _parse_verdicts(text: str) -> dict:
-    """op_index -> {verdict, reason} from the judge's JSON. Tolerant: coerces a digit-string op_index
-    to int (models sometimes quote it) so a stylistic slip doesn't drop a real verdict; anything not a
-    clean confirm normalizes to reject. Returns {} when the text has no parseable verdicts."""
+    """op_index -> {verdict, reason, material, cure, rewritable} from the judge's JSON. Tolerant:
+    coerces a digit-string op_index to int (models sometimes quote it) so a stylistic slip doesn't
+    drop a real verdict; anything not a clean confirm normalizes to reject. Returns {} when the text
+    has no parseable verdicts.
+
+    MATERIALITY-FIRST (2026-07-31): on a reject the judge answers 'is the underlying POINT deal-
+    moving?' (`material`) and, if so, HOW to cure it (`cure`: prose | root | none). `rewritable` is
+    now DERIVED (`material and cure in {prose,root}`) — the single source of truth for loop
+    eligibility. Back-compat: a legacy judge response with only `rewritable` (no `material`) maps to
+    material=True, cure='prose' so it behaves exactly as before. Fail-closed everywhere: a missing/
+    garbled flag lands on the conservative side (material=False → drop, no spend)."""
     try:
         data = _extract_json(text)
     except Exception:
@@ -615,12 +649,22 @@ def _parse_verdicts(text: str) -> dict:
             oi = int(oi.strip())
         if not isinstance(oi, int) or isinstance(oi, bool):
             continue
+        verdict = "confirm" if str(vd.get("verdict", "")).strip().lower() == "confirm" else "reject"
+        cure = str(vd.get("cure", "")).strip().lower()
+        if cure not in ("prose", "root", "none"):
+            cure = "none"
+        if "material" in vd:                               # new-schema judge response
+            material = vd.get("material") is True
+        else:                                              # legacy: derive from `rewritable`
+            material = vd.get("rewritable") is True
+            cure = "prose" if material else "none"
         verdicts[oi] = {
-            "verdict": "confirm" if str(vd.get("verdict", "")).strip().lower() == "confirm" else "reject",
+            "verdict": verdict,
             "reason": str(vd.get("reason", "")),
-            # Fail-closed like the verdict itself: only a boolean true enters the rewrite loop —
-            # a missing/hedged flag means no loop, i.e. today's drop-on-reject behavior.
-            "rewritable": vd.get("rewritable") is True,
+            "material": material,
+            "cure": cure,
+            # DERIVED single source of truth for loop eligibility (ignores any judge-emitted value).
+            "rewritable": material and cure in ("prose", "root"),
         }
     return verdicts
 
@@ -665,7 +709,10 @@ def judge(meta: dict, facts: list[dict], claims: list[dict], indexed_ops: list) 
         # "fail-closed" (adjudicate keys on that string for per-op hiccups). Downstream needs no
         # special-casing: not 'reject' -> the rewrite loop skips it; not 'confirm' -> it can never
         # commit; monitor/notify surface it loudly for manual approval.
+        # material=False so an OUTAGE can never trigger the urgent-material alert — the `unjudged`
+        # email owns this path; material_uncured requires a real material=True judge call.
         verdicts = {i: {"verdict": "judge_unavailable", "rewritable": False, "judged_by": None,
+                        "material": False, "cure": "none",
                         "reason": "judge returned no parseable verdicts after retries and the "
                                   "fallback model (likely a model outage) — the drafted op is "
                                   "preserved for human review"}
@@ -683,26 +730,43 @@ def judge(meta: dict, facts: list[dict], claims: list[dict], indexed_ops: list) 
 # exhaustion is surfaced loudly by the caller (proposals email), never silent.
 
 _REWRITE_ADDENDUM = """REWRITE MODE. Each worklist item below was ALREADY AUTHORED once and REJECTED by the
-adversarial judge for a prose defect. Each carries `failed_prose` (the rejected text) and
-`judge_reason` (exactly why it failed). Rewrite the prose to CURE that reason and change NOTHING
-ELSE: keep the routing, the structure, the still-true content, the persona, and the required
-**So what:** / **Soundbite:** block. Do not fix what the reason does not name. FACTS ONLY still
-governs absolutely: if the reason says a number, mechanism, or claim is not in the grounded facts,
-REMOVE it — never replace it with another invented one. If the reason says still-true content was
-erased or a required block was dropped, restore it from `current_text` and fold the new beat in
-surgically. If the reason cannot be cured without inventing something the facts do not state,
-return the item with claim "" — an empty claim tells the pipeline you could not fix it honestly.
-Return the same {"authored": [{op_index, claim, persona}]} shape, one entry per worklist item,
-keyed by the given op_index."""
+adversarial judge. Each carries `failed_prose` (the rejected text), `judge_reason` (the FULL fix the
+judge diagnosed — your only feedback), and `cure` (how to fix it: "prose" or "root").
+
+FIRST re-read and re-verify the WHOLE op against the grounded facts — not only the phrase the reason
+names. Then cure per `cure`:
+
+- cure == "prose": the routing is RIGHT and only the wording is wrong. Cure the reason and change
+  NOTHING ELSE — keep the routing, structure, still-true content, persona, and the required
+  **So what:** / **Soundbite:** block. Restore erased still-true content / a dropped block from
+  `current_text`.
+
+- cure == "root": the deal-moving POINT is sound but the APPROACH is wrong (a wrong pivot, framing,
+  or an invented mechanism). PRESERVE the material point the judge named in `judge_reason`, and
+  RE-APPROACH the root: you MAY change the pivot, framing, mechanism, and structure to the correct
+  grounded approach the judge described. This is NOT a phrase-patch — rethink the op so the root is
+  correct while the point survives.
+
+FACTS ONLY governs absolutely in BOTH modes: use only the grounded facts (trigger or standing-
+strength). If the reason says a number, mechanism, or claim is not in the facts, REMOVE it — never
+replace it with another invented one; and the re-approach itself must be grounded. If the point
+cannot be expressed correctly without inventing something the facts do not state, return the item
+with claim "" — an empty claim tells the pipeline you could not fix it honestly (it routes to the
+owner, never onto the card). Return the same {"authored": [{op_index, claim, persona}]} shape, one
+entry per worklist item, keyed by the given op_index."""
 
 
 def _rewritable_indices(ops: list, floor_results: list, verdicts: dict) -> list:
-    """Original op indices eligible for a rewrite: floor-clean, judge-rejected with rewritable=True,
-    and carrying prose (add/revise only — a retire has nothing to rewrite even if the judge slips)."""
+    """Original op indices eligible for a cure round: floor-clean, judge-rejected, carrying prose
+    (add/revise only — a retire has nothing to rewrite), and the judge deemed the point MATERIAL with
+    a curable path (cure in {prose,root}). Gating on material (not the derived `rewritable`) is the
+    self-documenting form of the 2026-07-31 materiality-first rule: material+cure:none goes to the
+    urgent queue, not the loop; immaterial rejects drop."""
     return [i for i in range(len(ops))
             if not floor_results[i]
             and (verdicts.get(i) or {}).get("verdict") == "reject"
-            and (verdicts.get(i) or {}).get("rewritable") is True
+            and (verdicts.get(i) or {}).get("material") is True
+            and (verdicts.get(i) or {}).get("cure") in ("prose", "root")
             and ops[i].get("operation") in ("add", "revise")]
 
 
@@ -726,7 +790,9 @@ def _demote_overcap_confirms(ops: list, floor_results: list, verdicts: dict) -> 
         # Save the WHOLE op (the cure rewrite replaces ops[i] via _finalize_op, so this reference
         # stays the untouched original) — restore must bring back text AND fields like persona.
         demoted[i] = {"verdict": dict(verdicts[i]), "op": ops[i]}
-        verdicts[i] = {"verdict": "reject", "rewritable": True,
+        # material+cure:prose keeps the demotion loop-eligible under the materiality gate (a
+        # judge-confirmed op is material by definition; the fix is a pure prose condense).
+        verdicts[i] = {"verdict": "reject", "rewritable": True, "material": True, "cure": "prose",
                        "judged_by": (verdicts.get(i) or {}).get("judged_by"),
                        "reason": "judge-confirmed but over the deterministic render cap — condense "
                                  "ONLY, change nothing else: " + "; ".join(cap_errs)}
@@ -744,6 +810,7 @@ def _rewrite_worklist(indices: list, surface_ops: list, ops: list, verdicts: dic
         w = dict(base[i])
         w["failed_prose"] = ops[i].get("claim")
         w["judge_reason"] = (verdicts.get(i) or {}).get("reason")
+        w["cure"] = (verdicts.get(i) or {}).get("cure") or "prose"   # branch the addendum (root vs prose)
         out.append(w)
     return out
 
@@ -809,8 +876,12 @@ def _rewrite_loop(meta: dict, surface_ops: list, ops: list, floor_results: list,
                 authored = {}
             rejudge = []
             for i in idx:
+                # These ops entered the loop as MATERIAL (via _rewritable_indices). A terminal
+                # failure here keeps material=True + cure="none" so it reads as uncured-material
+                # (→ material_uncured → urgent email), never a silent drop of a deal-moving point.
                 if i not in authored:                     # rewriter returned nothing: terminal reject
                     verdicts[i] = {"verdict": "reject", "rewritable": False,
+                                   "material": True, "cure": "none",
                                    "reason": (verdicts.get(i) or {}).get("reason")}
                     attempts[i].append({"claim": None, "verdict": "reject",
                                         "reason": "rewriter returned nothing", "rewritable": False})
@@ -819,6 +890,7 @@ def _rewrite_loop(meta: dict, surface_ops: list, ops: list, floor_results: list,
                 fv = floor_check(ops[i], surviving_fact_ids, active_by_sk)
                 if fv:                                    # incl. the honest claim:"" escape hatch
                     verdicts[i] = {"verdict": "reject", "rewritable": False,
+                                   "material": True, "cure": "none",
                                    "reason": "rewrite failed the floor: " + "; ".join(fv)}
                     attempts[i].append({"claim": ops[i].get("claim"), "verdict": "reject",
                                         "reason": "floor: " + "; ".join(fv), "rewritable": False,
@@ -833,6 +905,7 @@ def _rewrite_loop(meta: dict, surface_ops: list, ops: list, floor_results: list,
                 for i, op in rejudge:
                     jv = judged["verdicts"].get(i) or {
                         "verdict": "reject", "rewritable": False,
+                        "material": True, "cure": "none",     # material op the re-judge dropped -> escalate
                         "reason": "no verdict returned (fail-closed)"}
                     verdicts[i] = jv
                     attempts[i].append({"claim": op.get("claim"), "verdict": jv["verdict"],
@@ -894,12 +967,14 @@ def _render_gate(slug: str, ops: list, floor_results: list, verdicts: dict,
 
 
 # --- Decision log (spec §17): audit trail AND authorship-shadow training corpus -----------------
-SCHEMA_VERSION = 5      # v2: + attempts/rewrite_attempts/rewrite_exhausted; v3 (2026-07-01): +
+SCHEMA_VERSION = 6      # v2: + attempts/rewrite_attempts/rewrite_exhausted; v3 (2026-07-01): +
 PROP_DIR = "propagation"  # judged_by + judge_unavailable verdicts + judge_raw_failures payload
                           # v4 (2026-07-18): + persona + held_for_format/hold_reason (pre-email gate)
                           # v5 (2026-07-25): + length_demoted/length_cured/length_cure_attempts +
                           # condensed_at_gate/gate_rejudge (length-cure loop) + superseded_terms
                           # (supersede-retire) — all additive
+                          # v6 (2026-07-31): + material/cure/material_uncured (materiality-first cure
+                          # routing) — all additive; judge_verdict semantics unchanged
 
 
 def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
@@ -916,6 +991,7 @@ def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
         violations = floor_results[i]
         if violations:                                    # floored before the judge ever saw it
             verdict, reason, committed, judged_by = "floor_reject", "; ".join(violations), False, None
+            jv = {}
         else:
             jv = judge_verdicts.get(i) or {"verdict": "reject",
                                            "reason": "no verdict returned (fail-closed)"}
@@ -953,7 +1029,16 @@ def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
             # Disjoint from judge_unavailable: an unjudged op presents as UNVERIFIED (the judge never
             # ruled), not as "rejected N times" — each op lands in exactly one email section.
             "rewrite_exhausted": bool(att) and verdict not in ("confirm", "judge_unavailable"),
+            # v6 materiality-first (additive; null/false unless the judge ruled on a reject):
+            "material": jv.get("material"),
+            "cure": jv.get("cure"),
         })
+        # material_uncured = a DEAL-MOVING point that never made it onto the card: the urgent-email
+        # trigger. Superset of rewrite_exhausted — it ALSO fires for the no-loop cure:"none" case
+        # (judge says material but no grounded correct expression). judge_verdict semantics unchanged.
+        rec = records[-1]
+        rec["material_uncured"] = bool(rec.get("material")) and rec["judge_verdict"] == "reject" \
+            and not rec["committed"] and (rec.get("cure") == "none" or rec["rewrite_exhausted"])
         lc = (length_cures or {}).get(i)
         if lc:                                            # v5: the length-cure trail (additive)
             records[-1]["length_demoted"] = True

@@ -108,7 +108,7 @@ class UnavailableEndToEnd(unittest.TestCase):
                                side_effect=lambda path, body, msg: captured.update(
                                    json.loads(body))):
             log_decisions("slug", [], judge_raw_failures=[{"model": "m", "text": "t"}])
-        self.assertEqual(captured["schema_version"], 5)
+        self.assertEqual(captured["schema_version"], 6)
         self.assertEqual(captured["judge_raw_failures"], [{"model": "m", "text": "t"}])
 
     def test_records_carry_judged_by(self):

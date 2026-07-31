@@ -79,13 +79,20 @@ JUDGE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_JUDGE_MAX_BUDGET_USD", "0.75"
 # gates the proposals EMAIL only — it never auto-applies to a card and never scores the Opus
 # judge's promotion gate (adjudicate excludes it).
 JUDGE_FALLBACK_MODEL = os.environ.get("SCOUT_JUDGE_FALLBACK_MODEL", "claude-sonnet-4-6")
-# Rewrite loop (2026-07-01 Sonnet-5 silent drop): a judge-rejected op whose defect is PROSE-ONLY
-# (judge marks it "rewritable") gets ONE guided rewrite — the judge's reason fed back as the fix
-# list — then a blind re-judge. The rewrite escalates to the Opus tier ("upgrade the writer on
-# failure"); bound exhausted -> the failure surfaces LOUDLY in the proposals email, never silent.
-# 0 disables the loop entirely (restores drop-on-reject). Reuses the PROPOSE/JUDGE caps per call.
-PROPAGATE_MAX_REWRITES = int(os.environ.get("SCOUT_PROPAGATE_MAX_REWRITES", "1"))
+# Rewrite loop (2026-07-01 Sonnet-5 silent drop; materiality-first cure 2026-07-31): a judge-rejected
+# op the judge deems MATERIAL (its point would move a deal) gets up to N guided cure rounds — the
+# judge's reason fed back — then a blind re-judge each round. A `cure:"prose"` reject fixes wording;
+# a `cure:"root"` reject re-approaches a material point whose pivot/mechanism was wrong (the 7/31
+# containment case). The rewrite escalates to the Opus tier. Exhausted (or `cure:"none"`) -> an
+# URGENT separate email so a deal-moving point is NEVER silently dropped. 0 disables the loop
+# (restores drop-on-reject). Reuses the PROPOSE/JUDGE caps per call. Default 3 (owner-chosen cap).
+PROPAGATE_MAX_REWRITES = int(os.environ.get("SCOUT_PROPAGATE_MAX_REWRITES", "3"))
 PROPAGATE_REWRITE_MODEL = os.environ.get("SCOUT_PROPAGATE_REWRITE_MODEL", ORCHESTRATOR_MODEL)
+# Urgent-material alert (2026-07-31): when a material op can't be cured (exhausted the rewrites, or
+# the judge ruled cure:"none"), send a SEPARATE urgent email (distinct from the proposals email's
+# AUTHORING-FAILED section) so the owner sees a deal-moving point that went undrafted. review/live
+# only (via the monitor gate). Empty/0/false disables.
+PROPAGATE_URGENT_EMAIL = os.environ.get("SCOUT_PROPAGATE_URGENT_EMAIL", "1").strip().lower() not in ("0", "false", "off", "")
 # Length-cure loop (2026-07-25, the 182-word hold): a judge-CONFIRMED op over the deterministic
 # 170-word render cap gets its OWN bounded condense -> blind-re-judge budget, separate from
 # PROPAGATE_MAX_REWRITES, so a content rewrite that consumed the rewrite budget (exactly the 7/25

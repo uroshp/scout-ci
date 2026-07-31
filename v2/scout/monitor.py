@@ -1093,6 +1093,19 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
                     prop_emailed = notify.send_propagation_proposals(
                         slug, meta, confirmed, dry_run=email_dry_run, exhausted=exhausted,
                         unjudged=unjudged, held=held, cost_note=cost_note)
+                # URGENT MATERIAL (2026-07-31): a DEAL-MOVING point that could not be authored
+                # (cure exhausted, or judge ruled material but cure:none) gets a SEPARATE urgent
+                # email so it is never lost. Superset of `exhausted` (also the never-drafted
+                # cure:none case). Belt-and-suspenders: the proposals email keeps its AUTHORING-
+                # FAILED section too. Guarded like the pipeline-health alert below — never breaks
+                # the run.
+                urgent = [d for d in decisions if d.get("material_uncured")]
+                if urgent and config.PROPAGATE_URGENT_EMAIL:
+                    try:
+                        notify.send_urgent_material(slug, meta, urgent, dry_run=email_dry_run)
+                    except Exception as e:
+                        print(f"[monitor] urgent-material alert skipped ({type(e).__name__}: {e})",
+                              file=sys.stderr)
             # CONSEQUENTIALITY FILTER (shadow eval, docs/consequential-filter-spec.md): the router now
             # emits the consequential/routine run_verdict the old strategic pass used to (that pass is
             # ABSORBED into the router — the lead is just the executive_summary surface). Log the verdict

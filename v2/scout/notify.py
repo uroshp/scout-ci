@@ -315,6 +315,55 @@ def send_propagation_proposals(slug: str, meta: dict, decisions: list[dict], dry
     return _dispatch(subject, body, dry_run=dry_run)
 
 
+def render_urgent_material(slug: str, meta: dict, urgent: list[dict]) -> tuple[str, str]:
+    """Subject + body for the URGENT separate alert (2026-07-31): DEAL-MOVING points that could NOT
+    be authored onto the card — either the judge ruled the point material but with no grounded
+    correct expression (`cure:"none"`), or the cure loop exhausted its tries. This is a superset of
+    the proposals email's AUTHORING-FAILED section and carries the `cure:"none"` never-drafted case
+    that section never had. The whole point of the alert is the judge's FINAL reason — it names the
+    material point and (for a root reject) the correct approach the author could not reach — so the
+    owner can author it by hand."""
+    card = _card_label(meta)
+    n = len(urgent)
+    rule = "─" * 48
+    subject = f"Scout: URGENT — {n} material point{'s' if n != 1 else ''} undrafted — {card}"
+    out = [f"{n} deal-moving point{'s' if n != 1 else ''} could NOT be authored onto the {card} "
+           "brief. The card was NOT changed. Each is material (would move a deal) but the honest "
+           "version was not reachable automatically — author it by hand or re-run.", "", rule]
+    for d in urgent:
+        op = str(d.get("operation", "")).upper()
+        zone = f" / {d.get('zone')}" if d.get("zone") else ""
+        kind = f"  [{d.get('change_kind')}]" if d.get("change_kind") else ""
+        why = "no grounded correct expression (cure:none)" if d.get("cure") == "none" \
+            else f"cure exhausted after {d.get('rewrite_attempts', 0)} rewrite(s)"
+        out += ["", "⚠ URGENT — material point undrafted",
+                f"{op} in {d.get('section', '')}{zone}{kind}", f"({d.get('subject_key')})",
+                f"Why undrafted: {why}"]
+        if d.get("trigger_source_url"):
+            out += [f"Fact: {d['trigger_source_url']}"]
+        if d.get("judge_reason"):                          # the honest framing — the point of the alert
+            out += ["", "JUDGE'S DIAGNOSIS (the material point + the correct approach):",
+                    _block(d["judge_reason"])]
+        att = d.get("attempts") or []
+        last_prose = next((a.get("claim") for a in reversed(att) if a.get("claim")), None)
+        if last_prose:
+            out += ["", "LAST ATTEMPT PROSE (rejected):", _block(last_prose)]
+        out += ["", "Author this point on the card by hand (use the judge's diagnosis), or re-run.",
+                "", rule]
+    out += ["", "— Scout (a deal-moving point went undrafted; this needs your hand)"]
+    return subject, "\n".join(out)
+
+
+def send_urgent_material(slug: str, meta: dict, urgent: list[dict], dry_run: bool = True) -> dict:
+    """Send the URGENT undrafted-material alert as a SEPARATE email (distinct from the proposals
+    email). No-op (dry) unless configured; never raises on a missing-config path (inherits
+    _dispatch's contract)."""
+    if not urgent:
+        return {"sent": False, "reason": "no urgent material"}
+    subject, body = render_urgent_material(slug, meta, urgent)
+    return _dispatch(subject, body, dry_run=dry_run)
+
+
 def render_strategic_shift(meta: dict, lead: dict) -> tuple[str, str]:
     """Subject + body for the STRATEGIC-SHIFT email (strategy layer): the single most strategic lead
     the brief should open with now, with the stress-test and the current lead it would replace. A
