@@ -307,15 +307,15 @@
   },
   {
     "subject_key": "openai | pricing-model | price-cut-consideration-2026",
-    "claim": "OpenAI executed the price cut it was weighing. GPT-5.6 launched July 9, 2026 with three tiers priced per million tokens: Sol at $5 input and $30 output, Terra at $2.50 and $15, Luna at $1 and $6. Terra delivers GPT-5.5-class performance at half the cost, so OpenAI's mid tier now runs $2.50/$15 against Mistral Medium 3.5's $1.50/$7.50.",
+    "claim": "OpenAI cut GPT-5.6 prices again just three weeks after launch. On July 30, 2026 it dropped Luna 80% to $0.20 input and $1.20 output per million tokens, and Terra 20% to $2 input and $12 output. Sol's base rate stays at $5/$30, and OpenAI added a premium Sol Fast tier at $10/$60. Luna's combined $1.40 per million tokens now sits in the low-cost inference tier alongside Google and DeepSeek models, so OpenAI's frontier line directly competes on price for high-volume work.",
     "claim_type": "fact",
     "section": "pricing",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.marktechpost.com/2026/07/09/openai-releases-gpt-5-6-a-three-tier-model-family-with-programmatic-tool-calling/",
+    "source_url": "https://www.cnbc.com/2026/07/30/open-ai-price-cut-gpt.html",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Sol is $5 input and $30 output. Terra is $2.50 and $15. Luna is $1 and $6.",
-    "as_of": "2026-07-09",
+    "evidence_excerpt": "It's cutting the cost of Luna by 80% to 20 cents per million input tokens and $1.20 per million output tokens.",
+    "as_of": "2026-07-30",
     "confidence": "high",
     "id": "c_a5c54281605e",
     "verified": true,
@@ -323,12 +323,12 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-07-10",
+      "fetched_at": "2026-07-31",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://cryptobriefing.com/openai-gpt-56-pricing-tiers/",
+        "source_url": "https://venturebeat.com/technology/ai-price-wars-openai-cuts-gpt-5-6-luna-prices-by-80-as-model-competition-shifts-toward-cost",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false

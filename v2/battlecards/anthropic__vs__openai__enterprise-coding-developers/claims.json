@@ -1736,5 +1736,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "battlecard | token-price-undercut",
+    "claim": "**OpenAI cut its low-end tiers 80%, and its coding flagship still costs more than Claude's.** On July 30, 2026 OpenAI dropped GPT-5.6 Luna to $0.20/$1.20 per million tokens (down 80%) and Terra to $2/$12 (down 20%), moving them into the low-cost tier populated by Google and Chinese models. Luna and Terra are OpenAI's throughput models for summarization and routing. On the flagship tier where enterprise coding deals run, Claude Opus 5 at $5/$25 stays cheaper than GPT-5.6 Sol at $5/$30 on output tokens, at comparable performance.",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "contested",
+    "order": 2,
+    "source_url": "https://www.cnbc.com/2026/07/30/open-ai-price-cut-gpt.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "The company said it is reducing the price of Terra by 20% and the cost of Luna by 80%.",
+    "as_of": "2026-07-30",
+    "confidence": "high",
+    "id": "c_40d0d5520bfc",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-31",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://venturebeat.com/technology/ai-price-wars-openai-cuts-gpt-5-6-luna-prices-by-80-as-model-competition-shifts-toward-cost",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
