@@ -143,6 +143,8 @@ Beyond code, GPT-5.x bundles native image generation, voice I/O, web search, and
 
 **Soundbite:** *"Putting your coding and everything else on one vendor is lock-in, and lock-in costs you at renewal. Once they know you can't easily walk, your pricing leverage is gone and you're tied to their roadmap and their uptime. Running Claude alongside what you already have keeps a real second option live, which keeps OpenAI honest on price and gives you somewhere to go if their service or direction slips. You're not putting the whole company's AI on one provider."* ([intuitionlabs.ai](https://intuitionlabs.ai/articles/chatgpt-vs-claude-enterprise-comparison))
 
+**OpenAI cut its low-end tiers 80%, and its coding flagship still costs more than Claude's.** On July 30, 2026 OpenAI dropped GPT-5.6 Luna to \$0.20/\$1.20 per million tokens (down 80%) and Terra to \$2/\$12 (down 20%), moving them into the low-cost tier populated by Google and Chinese models. Luna and Terra are OpenAI's throughput models for summarization and routing. On the flagship tier where enterprise coding deals run, Claude Opus 5 at \$5/\$25 stays cheaper than GPT-5.6 Sol at \$5/\$30 on output tokens, at comparable performance. ([cnbc.com](https://www.cnbc.com/2026/07/30/open-ai-price-cut-gpt.html))
+
 ### Where OpenAI wins
 
 **OpenAI wins on scale and channel, especially in top-down deals.**

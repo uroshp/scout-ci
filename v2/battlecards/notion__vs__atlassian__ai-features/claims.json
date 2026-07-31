@@ -960,5 +960,35 @@
       "fetched_at": "2026-07-30",
       "detail": null
     }
+  },
+  {
+    "subject_key": "atlassian | ai-data-training-policy",
+    "claim": "Atlassian's default-on AI training policy takes effect August 17, 2026, per Atlassian's own trust page. From that date Atlassian uses Jira, Confluence and Jira Service Management metadata and in-app content to train models that improve experiences across all customers. Defaults follow the highest active plan: metadata contribution is always on and cannot be turned off on Free, Standard or Premium, and only Enterprise can opt out of it. This is the same April 18 policy, now with a firm live date and a settings window that closed on May 19.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 20,
+    "source_url": "https://www.atlassian.com/trust/ai/data-contribution",
+    "source_tier": "primary",
+    "evidence_excerpt": "Atlassian is changing how we use customer data on August 17, 2026.",
+    "as_of": "2026-07-31",
+    "confidence": "high",
+    "id": "c_26489ae97591",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-31",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.theregister.com/off-prem/2026/04/18/atlassian-to-train-ai-on-user-data-unless-law-or-cash-say-no/5222760",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
