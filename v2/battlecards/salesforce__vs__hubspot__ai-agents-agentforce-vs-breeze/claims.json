@@ -703,5 +703,35 @@
     "confidence": "medium",
     "derived_from": "c_3112117ff2d1",
     "persona": "technical_evaluator"
+  },
+  {
+    "subject_key": "hubspot | data-enrichment-reversal | opt-out-backlash",
+    "claim": "HubSpot reversed a July 1 terms-of-service change that would have pooled customers' business-card-level contact data (name, job title, company, work email, employer) into a shared enrichment dataset by default, enrolling any customer using enrichment unless they manually turned it off before August 4. After four days of public backlash on LinkedIn, chief product and technology officer Duncan Lennox posted \"We made a mistake\" on July 5 and pulled the change completely, saying any future enrichment using customer data will be fully and transparently opt-in.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.cmswire.com/customer-experience/hubspot-reverses-customer-data-enrichment-plan-after-customer-backlash/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "We made a mistake, and we're reverting those changes completely.",
+    "as_of": "2026-07-06",
+    "confidence": "high",
+    "id": "c_0178606a4abc",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-01",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://ppc.land/hubspot-kills-contact-discovery-terms-after-customer-backlash/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
