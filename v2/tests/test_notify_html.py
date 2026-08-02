@@ -22,10 +22,17 @@ class DiffHtml(unittest.TestCase):
         self.assertIn("font-weight:700", h)
         self.assertIn("5", h)
 
-    def test_delete_is_struck_red(self):
+    def test_delete_is_struck_red_in_parentheses(self):
         h = notify._diff_html("Opus 4.8 at $5", "Opus at $5")
         self.assertIn(_RED, h)
         self.assertIn("line-through", h)
+        self.assertIn("(<span", h)          # removals wrapped in parentheses
+        self.assertIn("</span>)", h)
+
+    def test_unchanged_words_are_plain(self):
+        h = notify._diff_html("Opus 4.8 at $5", "Opus 5 at $5")
+        # 'Opus', 'at', '$5' unchanged -> not inside any colored span
+        self.assertNotIn(f'<span style="{notify._C_ADD}">Opus', h)
 
     def test_replace_shows_old_then_new(self):
         h = notify._diff_html("cost 4.8", "cost 5")
@@ -49,12 +56,29 @@ class ProposalsHtml(unittest.TestCase):
           "old_text": "Opus 4.8 at $5/$25.", "new_text": "Opus 5 at $5/$25, same price.",
           "judge_reason": "clean reconcile", "trigger_source_url": "https://a/x"}]
 
-    def test_hero_diff_and_collapsible_full_text(self):
+    def test_revise_shows_tracked_changes_paragraph(self):
         h = notify.render_propagation_proposals_html("slug", META, self.D)
-        self.assertIn("What changed", h)
-        self.assertIn(_GREEN, h)                    # the addition highlighted
-        self.assertIn("<details", h)                # full new/was tucked away
-        self.assertIn("api-list-price", h)          # subject_key shown
+        self.assertIn("Edited paragraph", h)
+        self.assertIn(_GREEN, h)                     # additions green
+        self.assertIn("line-through", h)             # removals struck
+        self.assertNotIn("<details", h)              # no redundant collapsed full-text block
+        self.assertIn("api-list-price", h)           # subject_key shown
+
+    def test_add_is_shown_plainly_not_all_green(self):
+        add = [{"operation": "add", "section": "battlecard", "zone": "where_we_win",
+                "subject_key": "x | y | z", "old_text": None,
+                "new_text": "A brand new play with several words."}]
+        h = notify.render_propagation_proposals_html("slug", META, add)
+        self.assertIn("New (all content is added)", h)
+        self.assertNotIn(_GREEN, h)                  # an add is NOT rendered as a green diff
+        self.assertIn("A brand new play", h)
+
+    def test_feed_note_and_judge_are_own_readable_blocks(self):
+        d = [dict(self.D[0], feed_note="the feed note text")]
+        h = notify.render_propagation_proposals_html("slug", META, d)
+        self.assertIn('<div style="font-weight:600">Feed note</div>', h)
+        self.assertIn('<div style="font-weight:600">Judge</div>', h)
+        self.assertNotIn("font-size:13px;margin-top:6px\">Feed note:", h)   # not the old tiny-grey inline
 
     def test_exhausted_and_held_are_red_amber_callouts(self):
         h = notify.render_propagation_proposals_html(
