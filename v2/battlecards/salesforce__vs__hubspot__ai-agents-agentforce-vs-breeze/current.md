@@ -75,6 +75,12 @@ Agentforce Operations went GA on April 29, taking agents into finance, supply ch
 
 **Soundbite:** *"Breeze can answer a support ticket. Agentforce can run the back-office process end to end: Operations is live today across finance and supply chain."* ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-operations-announcement/))
 
+**HubSpot defaulted customers into a shared data pool, then had to reverse course.**
+
+HubSpot's July 1 terms change would have pooled customers' business card contact data (name, job title, company, work email, employer) into a shared enrichment dataset for every customer using enrichment, unless they manually opted out by August 4. Four days of public backlash on LinkedIn forced chief product and technology officer Duncan Lennox to call it "a mistake" on July 5 and pull the change completely, promising any future enrichment will be fully opt-in. Raise this with security and data governance buyers deciding who controls their contact data by default.
+
+**Soundbite:** "HubSpot had to walk back a plan that pooled your contact data with other customers by default. Ask any vendor how they handle your data before you sign." ([cmswire.com](https://www.cmswire.com/customer-experience/hubspot-reverses-customer-data-enrichment-plan-after-customer-backlash/))
+
 ### Where it's a fight
 
 **On front-line support resolution, Breeze is genuinely competitive.**

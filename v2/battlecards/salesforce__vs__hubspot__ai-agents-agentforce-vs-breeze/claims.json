@@ -733,5 +733,20 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "id": "c_4ffc26b74d69",
+    "subject_key": "salesforce | data-ownership | hubspot-enrichment-reversal",
+    "claim": "**HubSpot defaulted customers into a shared data pool, then had to reverse course.**\n\nHubSpot's July 1 terms change would have pooled customers' business card contact data (name, job title, company, work email, employer) into a shared enrichment dataset for every customer using enrichment, unless they manually opted out by August 4. Four days of public backlash on LinkedIn forced chief product and technology officer Duncan Lennox to call it \"a mistake\" on July 5 and pull the change completely, promising any future enrichment will be fully opt-in. Raise this with security and data governance buyers deciding who controls their contact data by default.\n\n**Soundbite:** \"HubSpot had to walk back a plan that pooled your contact data with other customers by default. Ask any vendor how they handle your data before you sign.\"",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 3,
+    "as_of": "2026-07-06",
+    "updated_on": "2026-08-02",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_0178606a4abc",
+    "persona": "security_regulated"
   }
 ]
