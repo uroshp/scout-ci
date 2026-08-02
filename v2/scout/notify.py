@@ -19,35 +19,43 @@ RESEND_ENDPOINT = "https://api.resend.com/emails"
 # --- HTML email styling (2026-07-31: the plain-text WHAT-CHANGED diff was unreadable). Inline
 # styles only — email clients (Gmail/Apple Mail) ignore <style> blocks. Additions = bold green on a
 # light-green highlight so a change is impossible to miss; removals = strikethrough red on light red.
-_C_ADD = "color:#1a7f37;background:#e6ffec;font-weight:700;border-radius:3px;padding:0 2px"
-_C_DEL = "color:#b0301c;background:#ffebe9;text-decoration:line-through;border-radius:3px;padding:0 2px"
+_C_ADD = "color:#1a7f37;background:#d7f5dd;font-weight:700;border-radius:3px;padding:0 2px"
+_C_DEL = "color:#b0301c;text-decoration:line-through"
 _C_MUTED = "color:#6a6a6a"
 _C_LINK = "color:#34566b"
-_FONT = "font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.5;color:#1c1d16"
+_FONT = "font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.55;color:#1c1d16"
 
 
 def _esc(s) -> str:
     return _htmlmod.escape(str(s or ""))
 
 
+def _ins(words) -> str:
+    return f'<span style="{_C_ADD}">{_esc(" ".join(words))}</span>'
+
+
+def _del(words) -> str:                     # removals: strikethrough IN PARENTHESES (owner's ask)
+    return f'(<span style="{_C_DEL}">{_esc(" ".join(words))}</span>)'
+
+
 def _diff_html(old, new) -> str:
-    """The scannable hero: NEW text read as a sentence, with removals struck through in red and
-    additions bold green on a highlight — so the reader catches exactly what moved without diffing
-    two blocks by eye. Word-level, HTML-escaped."""
+    """Tracked-changes view of a REVISE: the paragraph read normally, with only the CHANGED words
+    called out — additions bold green, removals struck red in (parentheses), unchanged text plain.
+    Word-level, HTML-escaped. (Adds are NOT diffed — an add is all-new, so it renders plainly; only
+    revises have an old→new to mark.)"""
     o, n = str(old or "").split(), str(new or "").split()
     if not o:
-        return f'<span style="{_C_ADD}">{_esc(new)}</span>'
+        return _ins(n)
     out = []
     for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(a=o, b=n, autojunk=False).get_opcodes():
         if tag == "equal":
-            out.append(_esc(" ".join(n[j1:j2])))
+            out.append(_esc(" ".join(n[j1:j2])))         # unchanged: plain, so changes stand out
         elif tag == "insert":
-            out.append(f'<span style="{_C_ADD}">{_esc(" ".join(n[j1:j2]))}</span>')
+            out.append(_ins(n[j1:j2]))
         elif tag == "delete":
-            out.append(f'<span style="{_C_DEL}">{_esc(" ".join(o[i1:i2]))}</span>')
-        else:  # replace: show the removal then the addition, inline
-            out.append(f'<span style="{_C_DEL}">{_esc(" ".join(o[i1:i2]))}</span> '
-                       f'<span style="{_C_ADD}">{_esc(" ".join(n[j1:j2]))}</span>')
+            out.append(_del(o[i1:i2]))
+        else:  # replace: removed (struck, in parens) then added (green), inline
+            out.append(_del(o[i1:i2]) + " " + _ins(n[j1:j2]))
     return " ".join(out)
 
 
@@ -426,32 +434,33 @@ def render_propagation_proposals_html(slug: str, meta: dict, decisions: list[dic
         lead = (f'<p>No changes confirmed for {_esc(card)}, but items below need your eyes.</p>')
     blocks = []
     for d in decisions:
-        parts = [_hhead(str(d.get("operation", "")).upper(), d.get("section", ""), d.get("zone"),
+        op = d.get("operation")
+        parts = [_hhead(str(op or "").upper(), d.get("section", ""), d.get("zone"),
                         d.get("change_kind"), d.get("subject_key"))]
-        if d.get("operation") != "retire" and (d.get("old_text") or d.get("new_text")):
-            parts.append(f'<div style="font-weight:600;margin:6px 0 2px">What changed</div>'
-                         f'<div style="background:#fbfaf6;border:1px solid #eceadf;border-radius:6px;'
-                         f'padding:10px 12px">{_diff_html(d.get("old_text"), d.get("new_text"))}</div>')
-        if d.get("operation") != "retire":
-            parts.append(f'<details style="margin-top:6px"><summary style="{_C_MUTED};cursor:pointer">'
-                         f'full new / previous text</summary>'
-                         + (f'<div style="font-weight:600;margin:6px 0 2px">New</div>'
-                            + _hblock(d.get("new_text")))
-                         + (f'<div style="font-weight:600;margin:6px 0 2px">Was</div>'
-                            + _hblock(d["old_text"]) if d.get("old_text") else "")
-                         + '</details>')
-        if d.get("feed_note"):
-            parts.append(f'<div style="{_C_MUTED};font-size:13px;margin-top:6px">Feed note: '
-                         f'{_esc(_flat(d["feed_note"]))}</div>')
-        if d.get("judge_reason"):
-            parts.append(f'<div style="{_C_MUTED};font-size:13px;margin-top:4px">Judge: '
-                         f'{_esc(_flat(d["judge_reason"]))}</div>')
+        if op == "revise" and d.get("old_text"):
+            # tracked-changes: the edited paragraph with ONLY the changed words marked
+            parts.append('<div style="font-weight:600;margin:8px 0 3px">Edited paragraph '
+                         '(green = added, (struck) = removed)</div>'
+                         + f'<div style="background:#fbfaf6;border:1px solid #eceadf;border-radius:6px;'
+                         f'padding:12px 14px">{_diff_html(d.get("old_text"), d.get("new_text"))}</div>')
+        elif op == "retire":
+            parts.append('<div style="font-weight:600;margin:8px 0 3px;color:#b0301c">Removed from '
+                         'the card</div>')
+        else:  # add (or a revise with no prior text) — all-new content, shown plainly, not diffed
+            parts.append('<div style="font-weight:600;margin:8px 0 3px">New (all content is added)</div>'
+                         + _hblock(d.get("new_text")))
         if d.get("length_cured") or d.get("condensed_at_gate"):
-            parts.append('<div style="color:#8a6322;font-size:13px;margin-top:4px">Note: '
-                         'auto-condensed to the 170-word cap after confirmation, re-verified by a '
-                         'blind judge.</div>')
+            parts.append('<div style="color:#8a6322;font-size:14px;margin-top:8px">Auto-condensed to '
+                         'the 170-word cap after confirmation, re-verified by a blind judge.</div>')
+        # Feed note and Judge: each its OWN readable block, same body font, labeled — not tiny grey.
+        if d.get("feed_note"):
+            parts.append('<div style="margin-top:12px"><div style="font-weight:600">Feed note</div>'
+                         f'<div style="margin-top:2px">{_esc(_flat(d["feed_note"]))}</div></div>')
+        if d.get("judge_reason"):
+            parts.append('<div style="margin-top:12px"><div style="font-weight:600">Judge</div>'
+                         f'<div style="margin-top:2px">{_esc(_flat(d["judge_reason"]))}</div></div>')
         if d.get("trigger_source_url"):
-            parts.append(f'<div style="font-size:13px;margin-top:4px"><a style="{_C_LINK}" '
+            parts.append(f'<div style="margin-top:12px"><a style="{_C_LINK}" '
                          f'href="{_esc(d["trigger_source_url"])}">source</a></div>')
         blocks.append(_hcard("".join(parts)))
     for d in exhausted:
