@@ -23,25 +23,17 @@
   },
   {
     "subject_key": "competitive-verdict | sequel-gap-exposure | current",
-    "claim": "**Our real exposure is the calendar: Batman Part II doesn't arrive until October 2027.**\n\nSuperman's universe is visibly in motion (Man of Tomorrow began filming in April 2026 for a July 2027 release) while our sequel slipped twice and is set five and a half years after the original. A buyer reads that gap as platform risk.\n\n**So what:** Raise the delay yourself before the buyer does. Frame the wait as Reeves' rule: no script, no shoot, the same gate that made the first film land.",
+    "claim": "**Our real exposure is the calendar: Batman Part II now doesn't arrive until February 2028.**\n\nSuperman's universe is visibly in motion (Man of Tomorrow began filming in April 2026 for a July 2027 release) while our sequel has slipped a third time, from October 2027 to February 18, 2028, landing in the four-day Presidents Day weekend. That's now roughly seven months behind Superman's next release, and a buyer reads the widening gap as platform risk.\n\n**So what:** Raise the delay yourself before the buyer does. Frame the wait as discipline, not stalling: Reeves ships only when the film is ready, the same rule that made the first film land.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 1,
-    "source_url": "https://variety.com/2026/film/news/superman-sequel-man-of-tomorrow-starts-filming-james-gunn-1236726082/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "scheduled to hit theaters on July 9, 2027. It's currently one of two DC adaptations that year, including director Matt Reeves and star Robert Pattinson's",
-    "as_of": "2026-04-20",
+    "as_of": "2026-07-15",
     "confidence": "high",
     "id": "c_08d48d129ca9",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_25e03255e339",
+    "updated_on": "2026-08-03"
   },
   {
     "subject_key": "competitive-verdict | superman-international-weakness | current",
@@ -155,25 +147,17 @@
   },
   {
     "subject_key": "the batman part ii | release-date | current",
-    "claim": "The Batman Part II is scheduled for October 1, 2027 (five and a half years after the original) after the script was completed in late June 2025 and the project endured two release-date delays.",
-    "claim_type": "fact",
+    "claim": "The Batman Part II is now scheduled for February 18, 2028 (nearly six years after the original), after the script was completed in late June 2025 and the project endured three release-date delays. The latest delay moved the film from October 1, 2027 into the four-day Presidents Day weekend, giving director Matt Reeves more time in post-production.",
+    "claim_type": "interpretation",
     "section": "snapshot",
     "zone": null,
     "order": 3,
-    "source_url": "https://variety.com/2025/film/news/the-batman-2-script-done-matt-reeves-1236442972/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "five and a half years after the original made more than $772 million at the global box office.",
-    "as_of": "2025-06-27",
+    "as_of": "2026-07-15",
     "confidence": "high",
     "id": "c_503b87431bde",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_25e03255e339",
+    "updated_on": "2026-08-03"
   },
   {
     "subject_key": "supergirl | box-office-tracking | 2026",
@@ -645,26 +629,18 @@
   },
   {
     "subject_key": "the batman part ii | delay-objection | current",
-    "claim": "**\"Batman can't even ship a sequel. It's been delayed twice and won't arrive until 2027.\"**\n\nIt's true the sequel slipped to October 2027, and Gunn said plainly the only reason was that there wasn't a full script. But that's a quality gate, not a stall: Reeves refuses to shoot without a finished script, the discipline that produced the acclaimed, $772M original, and the completed script is now in production.\n\n**So what:** Explain the delay as a quality gate: Reeves shoots only with a finished script, and Superman's mixed reviews show what rushing produces.",
+    "claim": "**\"Batman can't even ship a sequel. It's been delayed three times and now won't arrive until 2028.\"**\n\nIt's true the sequel has slipped again, from October 2027 to February 18, 2028, its third delay. Gunn said the earlier delays came down to the script not being finished; this one buys Reeves more time in post-production, the same discipline that produced the acclaimed, $772M original.\n\n**So what:** Explain the delay as a quality gate: Reeves only ships when the film is ready, and Superman's mixed reviews show what rushing produces.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 0,
-    "source_url": "https://www.empireonline.com/movies/news/the-batman-part-ii-delayed-at-warner-bros-wont-release-until-late-2027/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "The only reason for the delay is there isn't a full script (those of you who follow me here probably know that already).",
-    "as_of": "2024-12-27",
+    "as_of": "2026-07-15",
     "confidence": "high",
     "id": "c_0bc1ab5163b1",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "derived_from": "c_25e03255e339",
+    "updated_on": "2026-08-03"
   },
   {
     "subject_key": "the batman | dcu-exclusion-objection | current",
@@ -691,26 +667,18 @@
   },
   {
     "subject_key": "the batman | sequel-momentum-gap-objection | current",
-    "claim": "**\"Superman has visible momentum (Man of Tomorrow is filming) and Batman has nothing new until 2027.\"**\n\nFair: there's a real content gap, and the sequel only got a finished script in mid-2025, five and a half years after the original. The honest answer is that the original's $772M proves the wait pays off, and a deliberate timeline is how that quality was achieved.\n\n**So what:** Concede the gap, then pivot to track record: our delayed-but-disciplined model produced the higher-grossing, better-reviewed film, while speed is exactly where Superman drew its sharpest criticism.",
+    "claim": "**\"Superman has visible momentum (Man of Tomorrow is filming) and Batman has nothing new until 2028.\"**\n\nFair, and the gap is wider now. The sequel's release moved again, to February 18, 2028, about seven months behind Man of Tomorrow's planned July 2027 date. The honest answer is that the original's $772M proves the wait pays off, and a deliberate timeline is how that quality was achieved.\n\n**So what:** Concede the gap, then pivot to track record: our delayed-but-disciplined model produced the higher-grossing, better-reviewed film, while speed is exactly where Superman drew its sharpest criticism.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 2,
-    "source_url": "https://variety.com/2025/film/news/the-batman-2-script-done-matt-reeves-1236442972/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "five and a half years after the original made more than $772 million at the global box office.",
-    "as_of": "2025-06-27",
+    "as_of": "2026-07-15",
     "confidence": "high",
     "id": "c_5850718f858c",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "derived_from": "c_25e03255e339",
+    "updated_on": "2026-08-03"
   },
   {
     "subject_key": "batman | talent-commitment-objection | current",
@@ -867,6 +835,42 @@
       },
       {
         "source_url": "https://www.nbcnews.com/business/media/judge-puts-temporary-pause-paramount-warner-bros-merger-rcna587804",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "the batman part ii | release-date",
+    "claim": "Warner Bros. delayed The Batman Part II again, from October 1, 2027 to February 18, 2028, giving director Matt Reeves more time in post-production and moving the film into the four-day Presidents Day weekend.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://deadline.com/2026/07/the-batman-ii-jj-abrams-the-great-beyond-release-date-changes-1236982669/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "sending Matt Reeves’ highly anticipated The Batman Part II, which was on that date, to Feb. 18, 2028.",
+    "as_of": "2026-07-15",
+    "confidence": "high",
+    "id": "c_25e03255e339",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "fuzzy",
+      "fetched_at": "2026-08-03",
+      "detail": "partial_ratio 0.990"
+    },
+    "corroboration": [
+      {
+        "source_url": "https://variety.com/2026/film/news/the-batman-2-release-date-2028-first-footage-pattinson-1236811623/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.hollywoodreporter.com/movies/movie-news/the-batman-part-ii-release-delayed-again-2028-1236649280/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
