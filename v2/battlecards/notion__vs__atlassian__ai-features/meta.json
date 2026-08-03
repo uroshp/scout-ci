@@ -4,7 +4,7 @@
   "competitor": "Atlassian",
   "focus": "AI features",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-08-01T11:08:04",
+  "last_checked": "2026-08-03T11:19:33",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_af44b318b691",
@@ -12,5 +12,10 @@
     "f_014b862a90d1",
     "f_15eb4897095e"
   ],
-  "monitored": true
+  "monitored": true,
+  "unresolved_subjects": [
+    "atlassian | fy2026-earnings"
+  ],
+  "unresolved_since": "2026-08-01",
+  "unresolved_attempts": 1
 }
