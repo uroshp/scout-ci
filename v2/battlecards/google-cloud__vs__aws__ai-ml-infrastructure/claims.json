@@ -1202,5 +1202,27 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "aws | list-price | bedrock-gpt-price-cut-2026-07",
+    "claim": "On August 3, 2026, AWS cut Bedrock on-demand inference prices for OpenAI's GPT-5.6 models, effective July 30: GPT-5.6 Luna dropped 80% to $0.20 per million input tokens and $1.20 per million output tokens, and GPT-5.6 Terra dropped 20%. AWS calls Luna one of the most affordable frontier-class models available.",
+    "claim_type": "fact",
+    "section": "pricing",
+    "zone": null,
+    "order": 4,
+    "source_url": "https://aws.amazon.com/blogs/aws/aws-weekly-roundup-price-reduction-of-gpt-models-in-bedrock-cloudwatch-managed-collectors-for-prometheus-metrics-and-more-august-3-2026/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Effective July 30, on-demand inference prices for GPT‑5.6 Luna are reduced by 80%, while GPT‑5.6 Terra prices are reduced by 20%.",
+    "as_of": "2026-08-03",
+    "confidence": "high",
+    "id": "c_34f71f686923",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-04",
+      "detail": null
+    }
   }
 ]

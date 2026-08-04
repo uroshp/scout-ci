@@ -4,7 +4,7 @@
   "competitor": "Cognition",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-08-03T11:12:32",
+  "last_checked": "2026-08-04T11:02:01",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_b969e4b96a7c",
@@ -17,5 +17,5 @@
     "cognition | pricing-change | sonnet-5-august-2026"
   ],
   "unresolved_since": "2026-08-01",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }
