@@ -2,13 +2,13 @@
 
 ## Executive Summary
 
-**On inference, the bulk of your AI spend, Google's own chips cost less than AWS.**
+**AWS cut its rented model's price, but Google still owns the chip and the model underneath it.**
 
-The TPU 8i serves close to twice the volume per dollar, and Blackstone just committed \$5B to TPU capacity. AWS has no frontier model of its own and rents from Anthropic and OpenAI on largely sold-out Trainium.
+On August 3, 2026, AWS dropped Bedrock on-demand prices for OpenAI's GPT-5.6 Luna 80% to \$0.20 per million input tokens and \$1.20 per million output tokens, closing the raw per-token gap with Gemini Flash, though AWS is still renting that model from OpenAI on largely sold-out Trainium capacity.
 
-**Soundbite:** "Google owns the chip and the model, so each token costs less. Price your real volume on Gemini Flash and put it next to Bedrock."
+**Soundbite:** "AWS can discount a model it rents whenever it wants. Price your real workload volume on Gemini Flash against Bedrock's new rate and compare the total bill on owned infrastructure rather than a single price line."
 
-**So what:** Score the deal on cost per token at the buyer's real scale, where Google's owned silicon is cheaper. ([blog.google](https://blog.google/innovation-and-ai/infrastructure-and-cloud/))
+**So what:** Score the deal on total workload cost on owned silicon, rather than a single per-token price point AWS can cut again tomorrow on a model it doesn't own. ([aws.amazon.com](https://aws.amazon.com/blogs/aws/aws-weekly-roundup-price-reduction-of-gpt-models-in-bedrock-cloudwatch-managed-collectors-for-prometheus-metrics-and-more-august-3-2026/))
 
 AWS leans on Anthropic and OpenAI for its frontier models. Google builds its own.
 
@@ -61,7 +61,7 @@ Google Cloud's June 2025 global outage (70+ services) and Pichai's own "compute 
 ## Pricing and Packaging
 
 - Unlike AWS, Google Cloud applies automatic sustained-use discounts to eligible attached GPUs as monthly usage rises (no upfront commitment required), on top of optional committed-use discounts. This is a structural flexibility advantage for variable AI workloads. ([cloud.google.com](https://cloud.google.com/compute/gpus-pricing))
-- Google is pressing a token-cost advantage: it says enterprises running ~1 trillion tokens/day on Google Cloud could save \$1B+ annually by shifting ~80% of workloads to Gemini 3.5 Flash (and a mix of frontier models), economics enabled by TPU inference. AWS has no first-party model offering comparable price/performance leverage. So what: token-budget exhaustion is a live enterprise pain point to quantify in a TCO model. ([venturebeat.com](https://venturebeat.com/technology/google-says-gemini-3-5-flash-can-slash-enterprise-ai-costs-by-more-than-1-billion-a-year))
+- Google's pitch that shifting about 80% of workloads to Gemini 3.5 Flash could save enterprises \$1B+ annually still holds, but AWS narrowed the raw per-token gap on August 3, 2026 by cutting Bedrock prices for OpenAI's GPT-5.6 Luna 80% to \$0.20 per million input tokens and \$1.20 per million output tokens. That price cut is AWS discounting a model it resells from OpenAI, so the number to compare is full workload cost on owned infrastructure, rather than one AWS-set list price. ([aws.amazon.com](https://aws.amazon.com/blogs/aws/aws-weekly-roundup-price-reduction-of-gpt-models-in-bedrock-cloudwatch-managed-collectors-for-prometheus-metrics-and-more-august-3-2026/))
 - On August 3, 2026, AWS cut Bedrock on-demand inference prices for OpenAI's GPT-5.6 models, effective July 30: GPT-5.6 Luna dropped 80% to \$0.20 per million input tokens and \$1.20 per million output tokens, and GPT-5.6 Terra dropped 20%. AWS calls Luna one of the most affordable frontier-class models available. ([aws.amazon.com](https://aws.amazon.com/blogs/aws/aws-weekly-roundup-price-reduction-of-gpt-models-in-bedrock-cloudwatch-managed-collectors-for-prometheus-metrics-and-more-august-3-2026/))
 - AWS is raising EC2 Capacity Block reservation prices for its top Nvidia GPU instances about 20% effective July 1, 2026, its second guaranteed-GPU price hike in six months after January's roughly 15% H200 increase. Per-accelerator hourly reservation rates rise to \$5.191 for P5, \$5.97 for P5e and \$14.04 for the Blackwell P6-B300, on the scarce reserved-capacity product enterprises buy for large training runs. ([aws.amazon.com](https://aws.amazon.com/ec2/capacityblocks/pricing/))
 

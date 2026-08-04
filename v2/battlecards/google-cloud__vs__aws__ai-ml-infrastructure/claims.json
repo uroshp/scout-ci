@@ -1,26 +1,17 @@
 [
   {
     "subject_key": "google-cloud vs aws | ai-infra-growth | q1-2026",
-    "claim": "**On inference, the bulk of your AI spend, Google's own chips cost less than AWS.**\n\nThe TPU 8i serves close to twice the volume per dollar, and Blackstone just committed $5B to TPU capacity. AWS has no frontier model of its own and rents from Anthropic and OpenAI on largely sold-out Trainium.\n\n**Soundbite:** \"Google owns the chip and the model, so each token costs less. Price your real volume on Gemini Flash and put it next to Bedrock.\"\n\n**So what:** Score the deal on cost per token at the buyer's real scale, where Google's owned silicon is cheaper.",
+    "claim": "**AWS cut its rented model's price, but Google still owns the chip and the model underneath it.**\n\nOn August 3, 2026, AWS dropped Bedrock on-demand prices for OpenAI's GPT-5.6 Luna 80% to $0.20 per million input tokens and $1.20 per million output tokens, closing the raw per-token gap with Gemini Flash, though AWS is still renting that model from OpenAI on largely sold-out Trainium capacity.\n\n**Soundbite:** \"AWS can discount a model it rents whenever it wants. Price your real workload volume on Gemini Flash against Bedrock's new rate and compare the total bill on owned infrastructure rather than a single price line.\"\n\n**So what:** Score the deal on total workload cost on owned silicon, rather than a single per-token price point AWS can cut again tomorrow on a model it doesn't own.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 0,
-    "source_url": "https://blog.google/innovation-and-ai/infrastructure-and-cloud/",
-    "source_tier": "primary",
-    "evidence_excerpt": "Google Cloud beat Wall Street's expectations, recording a 63% increase in revenue from a year ago",
-    "as_of": "2026-05-19",
+    "as_of": "2026-08-03",
     "confidence": "high",
     "id": "c_df2638986581",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
-    "updated_on": "2026-06-27"
+    "updated_on": "2026-08-04",
+    "derived_from": "c_34f71f686923"
   },
   {
     "subject_key": "google-cloud vs aws | vertical-integration-edge | current",
@@ -428,25 +419,17 @@
   },
   {
     "subject_key": "google-cloud | list-price | gemini-flash-token-economics",
-    "claim": "Google is pressing a token-cost advantage: it says enterprises running ~1 trillion tokens/day on Google Cloud could save $1B+ annually by shifting ~80% of workloads to Gemini 3.5 Flash (and a mix of frontier models), economics enabled by TPU inference. AWS has no first-party model offering comparable price/performance leverage. So what: token-budget exhaustion is a live enterprise pain point to quantify in a TCO model.",
+    "claim": "Google's pitch that shifting about 80% of workloads to Gemini 3.5 Flash could save enterprises $1B+ annually still holds, but AWS narrowed the raw per-token gap on August 3, 2026 by cutting Bedrock prices for OpenAI's GPT-5.6 Luna 80% to $0.20 per million input tokens and $1.20 per million output tokens. That price cut is AWS discounting a model it resells from OpenAI, so the number to compare is full workload cost on owned infrastructure, rather than one AWS-set list price.",
     "claim_type": "interpretation",
     "section": "pricing",
     "zone": null,
     "order": 2,
-    "source_url": "https://venturebeat.com/technology/google-says-gemini-3-5-flash-can-slash-enterprise-ai-costs-by-more-than-1-billion-a-year",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "could save more than $1 billion annually by shifting 80 percent of their workloads to a mix of Flash and other frontier models",
-    "as_of": "2026-05-19",
+    "as_of": "2026-08-03",
     "confidence": "medium",
     "id": "c_7e6887a81c34",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_34f71f686923",
+    "updated_on": "2026-08-04"
   },
   {
     "subject_key": "battlecard | win | tpu-silicon-scale",
