@@ -12,9 +12,9 @@ Gemini 3.5 Pro just slipped to July and Google lost four senior Gemini and Alpha
 
 **Perplexity is growing fast but small and legally exposed, so go in with the litigation answer already loaded.**
 
-Revenue tripled in 2026 to roughly \$500M ARR, but nine publishers have active copyright suits (CNN filed May 28), Amazon won a court order against the Comet shopping agent, and a privacy class action is live. Compliance teams in regulated verticals will surface all of this.
+Revenue tripled in 2026 to roughly \$500M ARR, and nine publishers still have active copyright suits (CNN filed May 28) alongside a live privacy class action. The Comet shopping fight with Amazon flipped in Perplexity's favor: the Ninth Circuit vacated the injunction on August 4, 2026, ruling that it's Comet's users, not Perplexity, who access Amazon's servers. Comet can resume shopping on Amazon while Amazon's trademark and state-law claims continue in district court.
 
-**So what:** Pair the momentum story with a straight legal-risk answer: licensing deals are getting signed, and it's an industry-wide risk every AI vendor faces. ([cnn.com](https://www.cnn.com/2026/05/28/media/cnn-sues-perplexity-ai-copyright))
+**So what:** Pair the momentum story with a straight legal-risk answer: Perplexity just won the core access-legality fight on Comet, licensing deals are getting signed and the remaining suits are an industry-wide risk every AI vendor faces. ([news.bloomberglaw.com](https://news.bloomberglaw.com/us-law-week/perplexity-overturns-amazon-ban-on-ai-shopping-bot-on-appeal))
 
 **A judge just barred Google from buying default placement, so the 'Google's too embedded to displace' objection is weaker than it looks.**
 

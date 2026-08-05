@@ -24,25 +24,17 @@
   },
   {
     "subject_key": "perplexity | legal-exposure | 2026",
-    "claim": "**Perplexity is growing fast but small and legally exposed, so go in with the litigation answer already loaded.**\n\nRevenue tripled in 2026 to roughly $500M ARR, but nine publishers have active copyright suits (CNN filed May 28), Amazon won a court order against the Comet shopping agent, and a privacy class action is live. Compliance teams in regulated verticals will surface all of this.\n\n**So what:** Pair the momentum story with a straight legal-risk answer: licensing deals are getting signed, and it's an industry-wide risk every AI vendor faces.",
+    "claim": "**Perplexity is growing fast but small and legally exposed, so go in with the litigation answer already loaded.**\n\nRevenue tripled in 2026 to roughly $500M ARR, and nine publishers still have active copyright suits (CNN filed May 28) alongside a live privacy class action. The Comet shopping fight with Amazon flipped in Perplexity's favor: the Ninth Circuit vacated the injunction on August 4, 2026, ruling that it's Comet's users, not Perplexity, who access Amazon's servers. Comet can resume shopping on Amazon while Amazon's trademark and state-law claims continue in district court.\n\n**So what:** Pair the momentum story with a straight legal-risk answer: Perplexity just won the core access-legality fight on Comet, licensing deals are getting signed and the remaining suits are an industry-wide risk every AI vendor faces.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.cnn.com/2026/05/28/media/cnn-sues-perplexity-ai-copyright",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "CNN's lawsuit stands for the proposition that Perplexity, a company valued at tens of billions of dollars, should not be able to steal from entities that create the original content Perplexity exploits",
-    "as_of": "2026-05-28",
+    "as_of": "2026-08-04",
     "confidence": "high",
     "id": "c_ad25e7c14361",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-06",
-      "detail": null
-    }
+    "derived_from": "c_37cde6f28a51",
+    "updated_on": "2026-08-05"
   },
   {
     "subject_key": "google | distribution-under-legal-attack | 2026",
@@ -1342,6 +1334,42 @@
     "corroboration": [
       {
         "source_url": "https://ppc.land/brussels-forces-google-to-hand-rivals-its-search-data/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "perplexity | legal-action | comet-amazon-injunction",
+    "claim": "The Ninth Circuit Court of Appeals vacated the preliminary injunction that had barred Perplexity's Comet AI browser from accessing Amazon.com to complete shopping tasks, ruling on August 4, 2026 that Amazon is unlikely to succeed on its CFAA claim because it is Comet's users, not Perplexity, who access Amazon's servers. Comet can resume shopping on Amazon while Amazon's trademark and state-law claims continue in district court.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://news.bloomberglaw.com/us-law-week/perplexity-overturns-amazon-ban-on-ai-shopping-bot-on-appeal",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "The injunction was improper because Perplexity’s tool didn’t “access” Amazon computers; instead, it was users who did with the help of the AI agent",
+    "as_of": "2026-08-04",
+    "confidence": "high",
+    "id": "c_37cde6f28a51",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-05",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.engadget.com/2230471/perplexity-has-successfully-overturned-amazon-injunction-on-its-ai-shopping-bot/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.pymnts.com/amazon/2026/appeals-court-overturns-ban-on-perplexity-ai-shopping-agents-on-amazon/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
