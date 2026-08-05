@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-08-04T11:02:48",
+  "last_checked": "2026-08-05T11:04:27",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -20,5 +20,11 @@
     "f_e5b644fec992",
     "f_5a28f7059a24"
   ],
-  "monitored": true
+  "monitored": true,
+  "unresolved_subjects": [
+    "NEW",
+    "aws | positioning | bedrock-model-marketplace"
+  ],
+  "unresolved_since": "2026-08-04",
+  "unresolved_attempts": 1
 }
