@@ -2,11 +2,11 @@
 
 ## Executive Summary
 
-**Atlassian's new default-on AI training policy is the sharpest wedge Notion has against Confluence right now.**
+**Atlassian's default-on AI training policy is now live and enforceable, sharpening Notion's clean wedge against Confluence.**
 
-As of April 18, 2026, Atlassian uses Jira and Confluence customer data to train its AI models unless the customer is on the most expensive Enterprise plan, and Free, Standard and Premium customers cannot fully opt out. GitLab has already launched a competitive campaign around it.
+Atlassian's April 18 policy takes effect August 17, 2026: Jira, Confluence and Jira Service Management metadata and in-app content train Atlassian's models by default. The opt-out window closed May 19, and metadata contribution can never be turned off on Free, Standard or Premium, only Enterprise can opt out. GitLab has already built a competitive campaign around it.
 
-**So what:** In any Confluence-displacement deal, open with data governance. For regulated or IP-sensitive buyers, "their internal docs training a vendor's model" is a deal-breaker Notion can turn into the whole conversation. ([theregister.com](https://www.theregister.com/2026/04/18/atlassians_new_data_collection_policy/))
+**So what:** In any Confluence-displacement deal, open with data governance and use the August 17 date. For regulated or IP-sensitive buyers, a live date with no opt-out below Enterprise turns "their internal docs training a vendor's model" into a deal-breaker with a deadline attached. ([atlassian.com](https://www.atlassian.com/trust/ai/data-contribution))
 
 **Atlassian's AI story is built for engineers; Notion's is built for everyone else, and that split decides most deals.**
 
@@ -77,11 +77,11 @@ Atlassian's AI roadmap centers on the software-development lifecycle: Rovo Dev a
 
 **Soundbite:** *"Atlassian's AI is brilliant if your whole company runs on Jira. If it doesn't, you're buying AI for one department and hoping everyone else catches up."* ([atlassian.com](https://www.atlassian.com/blog/company-news/cursor-in-jira))
 
-**Data governance is a clean, current win.**
+**Data governance is a clean, current win, now with a hard date.**
 
-Atlassian now trains its AI models on Jira and Confluence data by default unless you're on its top Enterprise tier. Notion contractually does not use customer data to train any models. For security, legal, and regulated buyers, that contrast does a lot of the selling.
+From August 17, 2026, Atlassian trains its AI on Jira, Confluence and Jira Service Management metadata and content by default, and Free, Standard and Premium customers can never turn off metadata contribution, only Enterprise can opt out. Notion contractually does not use customer data to train any models. For security, legal and regulated buyers, that contrast does a lot of the selling.
 
-**Soundbite:** *"Ask Atlassian if your Confluence content trains their models. It does, by default. Notion never trains on your content."* ([notion.com](https://www.notion.com/help/notion-ai-security-practices))
+**Soundbite:** "Ask Atlassian if your Jira and Confluence content trains their models after August 17. Unless you're on Enterprise, it does, with no way to turn it off. Notion never trains on your content." ([atlassian.com](https://www.atlassian.com/trust/ai/data-contribution))
 
 **Model choice and no AI lock-in favor Notion with procurement.**
 
