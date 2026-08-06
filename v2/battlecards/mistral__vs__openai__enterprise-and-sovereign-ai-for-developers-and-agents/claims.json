@@ -638,26 +638,18 @@
   },
   {
     "subject_key": "mistral | battlecard-sovereign-wins | where-we-win",
-    "claim": "**Governments and banks have already chosen us for sovereignty.**\n\nFrance's Ministry of Armed Forces deployed Mistral entirely on national infrastructure for full control of critical data, and BNP Paribas, Airbus and Accenture have all signed on. These are reference accounts a regulated buyer immediately recognizes.\n\n**Soundbite:** *\"The French military runs us on their own systems. If it clears their bar for sovereign control, it clears yours.\"*",
-    "claim_type": "fact",
+    "claim": "**Governments and banks have already chosen us for sovereignty.**\n\nFrance's Ministry of Armed Forces deployed Mistral entirely on national infrastructure for full control of critical data, and BNP Paribas, Airbus and Accenture have all signed on. ABN AMRO just joined that list: on August 5, 2026 the Dutch bank signed a strategic partnership with Mistral to jointly build AI applications, explicitly to cut its dependence on non-European technology providers, with an initial focus on cybersecurity and compliance. These are reference accounts a regulated buyer immediately recognizes.\n\n**Soundbite:** *\"The French military runs us on their own systems, and a major Dutch bank just signed on to cut its reliance on non-European providers. If it clears their bar for sovereign control, it clears yours.\"*",
+    "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_we_win",
     "order": 2,
-    "source_url": "https://www.techrepublic.com/article/news-mistral-french-military-ai-deal/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Our solutions will be deployed on France's own infrastructure, ensuring full control over critical data and technologies",
-    "as_of": "2026-01-09",
+    "as_of": "2026-08-05",
     "confidence": "high",
     "persona": "security_regulated",
     "id": "c_3837c194c31b",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-17",
-      "detail": null
-    }
+    "derived_from": "c_074b7e7f0afc",
+    "updated_on": "2026-08-06"
   },
   {
     "subject_key": "mistral | battlecard-cost | where-we-win",
@@ -1372,6 +1364,42 @@
     "corroboration": [
       {
         "source_url": "https://www.techtimes.com/articles/322710/20260802/openais-astra-solves-ten-decade-old-math-problems-machine-checkable-lean-proofs.htm",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "mistral | partnership | abn-amro-2026",
+    "claim": "On August 5, 2026 ABN AMRO signed a strategic partnership with Mistral to jointly develop and deploy AI applications across the bank, its first partnership with a major Dutch bank. ABN AMRO said the deal is explicitly aimed at reducing its dependence on non-European technology providers and that the resulting applications must meet the bank's standards for security, transparency, privacy and regulatory compliance. Trade press reported the initial focus as cybersecurity and compliance solutions.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.abnamro.com/nl/nieuws/abn-amro-en-mistral-gaan-strategisch-partnerschap-aan-om-europese-ai-innovatie-te-versterken",
+    "source_tier": "primary",
+    "evidence_excerpt": "Deze technologie wordt in Europa ontwikkeld en beheerd, waardoor de afhankelijkheid van niet-Europese technologieaanbieders afneemt",
+    "as_of": "2026-08-05",
+    "confidence": "high",
+    "id": "c_074b7e7f0afc",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-06",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.amlintelligence.com/2026/08/abn-amro-signs-ai-partnership-with-mistral-to-cut-reliance-on-non-european-tech/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://amsterdamai.com/news/abn-amro-partners-with-french-ai-company-mistral/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false

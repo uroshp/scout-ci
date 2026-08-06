@@ -180,7 +180,7 @@ Real story: Uber's COO said it couldn't yet tie Claude Code spend to shipped fea
 
 **"Claude has had multiple outages this month. Can it handle our production load?"**
 
-Two confirmed: a global outage on June 2, 2026 tied to capacity constraints (fixed same day), and a second broad outage on June 23 that lasted about 85 minutes and hit all Claude platforms (claude.ai, the API, Claude Console, Claude Code, and Claude Cowork), with over 8,000 US Downdetector reports at peak. That is a documented run of disruptions in June, not a one-off. On June 2, customers running Claude through Google Vertex AI or Amazon Bedrock were unaffected. The \$65B Series H and the SpaceX/Colossus compute deal (300+ MW, which let Anthropic double Claude Code rate limits) are aimed at underlying capacity.
+Three confirmed incidents: a June 2, 2026 capacity-tied outage (fixed same day), an 85-minute June 23 outage across all Claude platforms (8,000+ US Downdetector reports at peak), and an August 5 incident that hit all four model families for about seven hours before resolution. On June 2, customers running Claude through Google Vertex AI or Amazon Bedrock were unaffected. The \$65B Series H and the SpaceX/Colossus compute deal (300+ MW, which let Anthropic double Claude Code rate limits) are aimed at underlying capacity.
 
 **So what:** For production workloads, deploy via Bedrock or Vertex with an enterprise SLA rather than the consumer endpoint; that architecture was insulated from the June 2 outage and is the right tier for any workload that cannot tolerate direct-API disruptions. ([status.claude.com](https://status.claude.com/))
 
