@@ -4,7 +4,7 @@
   "competitor": "Slack",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-08-05T11:08:02",
+  "last_checked": "2026-08-06T11:10:17",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7e46a6f50a55",
@@ -13,5 +13,10 @@
     "f_be583ae25eb6",
     "f_f917e6151896"
   ],
-  "monitored": true
+  "monitored": true,
+  "unresolved_subjects": [
+    "salesforce | agent-acquisition"
+  ],
+  "unresolved_since": "2026-08-05",
+  "unresolved_attempts": 1
 }
