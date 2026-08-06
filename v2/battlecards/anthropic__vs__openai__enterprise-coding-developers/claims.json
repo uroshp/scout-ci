@@ -762,18 +762,18 @@
   },
   {
     "subject_key": "objection | claude-outage-capacity | current",
-    "claim": "**\"Claude has had multiple outages this month. Can it handle our production load?\"**\n\nTwo confirmed: a global outage on June 2, 2026 tied to capacity constraints (fixed same day), and a second broad outage on June 23 that lasted about 85 minutes and hit all Claude platforms (claude.ai, the API, Claude Console, Claude Code, and Claude Cowork), with over 8,000 US Downdetector reports at peak. That is a documented run of disruptions in June, not a one-off. On June 2, customers running Claude through Google Vertex AI or Amazon Bedrock were unaffected. The $65B Series H and the SpaceX/Colossus compute deal (300+ MW, which let Anthropic double Claude Code rate limits) are aimed at underlying capacity.\n\n**So what:** For production workloads, deploy via Bedrock or Vertex with an enterprise SLA rather than the consumer endpoint; that architecture was insulated from the June 2 outage and is the right tier for any workload that cannot tolerate direct-API disruptions.",
+    "claim": "**\"Claude has had multiple outages this month. Can it handle our production load?\"**\n\nThree confirmed incidents: a June 2, 2026 capacity-tied outage (fixed same day), an 85-minute June 23 outage across all Claude platforms (8,000+ US Downdetector reports at peak), and an August 5 incident that hit all four model families for about seven hours before resolution. On June 2, customers running Claude through Google Vertex AI or Amazon Bedrock were unaffected. The $65B Series H and the SpaceX/Colossus compute deal (300+ MW, which let Anthropic double Claude Code rate limits) are aimed at underlying capacity.\n\n**So what:** For production workloads, deploy via Bedrock or Vertex with an enterprise SLA rather than the consumer endpoint; that architecture was insulated from the June 2 outage and is the right tier for any workload that cannot tolerate direct-API disruptions.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 2,
-    "as_of": "2026-06-23",
+    "as_of": "2026-08-05",
     "confidence": "high",
     "id": "c_b7c42bbe9a94",
     "verified": true,
     "persona": "technical_evaluator",
-    "derived_from": "c_a0e9ecf9b47d",
-    "updated_on": "2026-06-23"
+    "derived_from": "c_317dbea2b021",
+    "updated_on": "2026-08-06"
   },
   {
     "subject_key": "objection | claude-code-quality-decline-veracode | current",
@@ -1842,6 +1842,42 @@
       },
       {
         "source_url": "https://www.bleepingcomputer.com/news/artificial-intelligence/openai-teases-astra-its-next-major-ai-model-after-it-solves-10-long-standing-math-problems/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "anthropic | service-outage",
+    "claim": "On August 5, 2026, Claude suffered a broad outage across all four current model families: Mythos 5, Fable 5, Opus 5 and Sonnet 5. Per Anthropic's status page, elevated errors were identified at 07:05 UTC (3:05 AM ET), a fix was deployed and monitoring began at 13:08 UTC, and the multi-model incident was marked resolved at 14:14 UTC, about seven hours end to end. A separate Opus 5 degraded-performance incident was identified at 13:51 UTC and resolved by 14:34 UTC. Downdetector logged a spike in user reports and outlets described the disruption as widespread.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://status.claude.com/",
+    "source_tier": "primary",
+    "evidence_excerpt": "We have identified the cause of elevated errors on requests to Claude Mythos 5, Claude Fable 5, and Claude Opus 5, Claude Sonnet 5 and are working on a fix.",
+    "as_of": "2026-08-05",
+    "confidence": "high",
+    "id": "c_317dbea2b021",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-06",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.androidauthority.com/claude-outage-august-5-2026-3694847/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.benzinga.com/markets/tech/26/08/60943268/is-claude-down-anthropic-says-its-working-on-a-fix-after-users-report-widespread-issues",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false

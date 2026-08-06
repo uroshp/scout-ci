@@ -100,9 +100,9 @@ Devstral runs on a single RTX 4090 or a 32GB Mac under Apache 2.0, so a security
 
 **Governments and banks have already chosen us for sovereignty.**
 
-France's Ministry of Armed Forces deployed Mistral entirely on national infrastructure for full control of critical data, and BNP Paribas, Airbus and Accenture have all signed on. These are reference accounts a regulated buyer immediately recognizes.
+France's Ministry of Armed Forces deployed Mistral entirely on national infrastructure for full control of critical data, and BNP Paribas, Airbus and Accenture have all signed on. ABN AMRO just joined that list: on August 5, 2026 the Dutch bank signed a strategic partnership with Mistral to jointly build AI applications, explicitly to cut its dependence on non-European technology providers, with an initial focus on cybersecurity and compliance. These are reference accounts a regulated buyer immediately recognizes.
 
-**Soundbite:** *"The French military runs us on their own systems. If it clears their bar for sovereign control, it clears yours."* ([techrepublic.com](https://www.techrepublic.com/article/news-mistral-french-military-ai-deal/))
+**Soundbite:** *"The French military runs us on their own systems, and a major Dutch bank just signed on to cut its reliance on non-European providers. If it clears their bar for sovereign control, it clears yours."* ([abnamro.com](https://www.abnamro.com/nl/nieuws/abn-amro-en-mistral-gaan-strategisch-partnerschap-aan-om-europese-ai-innovatie-te-versterken))
 
 **Open weights cut your real monthly bill, the part the sticker price hides.**
 
