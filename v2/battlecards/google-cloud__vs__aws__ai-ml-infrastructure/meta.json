@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-08-06T11:08:49",
+  "last_checked": "2026-08-07T11:12:48",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -18,13 +18,8 @@
     "f_bbd0c5df6270",
     "f_eecb0e765d6a",
     "f_e5b644fec992",
-    "f_5a28f7059a24"
+    "f_5a28f7059a24",
+    "f_7ea8828d0ef9"
   ],
-  "monitored": true,
-  "unresolved_subjects": [
-    "NEW",
-    "aws | positioning | bedrock-model-marketplace"
-  ],
-  "unresolved_since": "2026-08-04",
-  "unresolved_attempts": 2
+  "monitored": true
 }
