@@ -448,25 +448,17 @@
   },
   {
     "subject_key": "claude-code | dynamic-workflows | 2026-05",
-    "claim": "Anthropic's Opus 4.8 launch added Dynamic Workflows and managed agents that orchestrate large parallel subagent runs for codebase-scale migrations. Bun's CEO cited porting ~750,000 lines of Zig to Rust in 11 days with the existing test suite as the bar. The pitch is whole-codebase autonomy.",
-    "claim_type": "fact",
+    "claim": "Anthropic's Opus 4.8 launch added Dynamic Workflows and managed agents that orchestrate large parallel subagent runs for codebase-scale migrations. Bun's CEO cited porting ~750,000 lines of Zig to Rust in 11 days with the existing test suite as the bar. Claude Code 2.1.224 removed the 200-subagent-per-session spawn cap, so a long-running migration session keeps adding agents instead of being refused past 200 (concurrency and depth limits still apply). The pitch is whole-codebase autonomy without an artificial ceiling on how many agents a session can run.",
+    "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
     "order": 1,
-    "source_url": "https://techcrunch.com/2026/05/28/anthropic-releases-opus-4-8-with-new-dynamic-workflow-tool/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "can now carry out codebase-scale migrations across hundreds of thousands of lines of code from kickoff to merge, with the existing test suite as its bar",
-    "as_of": "2026-05-28",
+    "as_of": "2026-08-07",
     "confidence": "high",
     "id": "c_6ae851d6dbb6",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-04",
-      "detail": null
-    }
+    "derived_from": "c_0ed9286a7e90",
+    "updated_on": "2026-08-07"
   },
   {
     "subject_key": "openai-codex | positioning | current",
@@ -1883,5 +1875,50 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "claude-code | feature-release",
+    "claim": "Anthropic shipped Claude Code 2.1.224 on August 7, 2026. The release added self-hosted environments so customers on Team and Enterprise plans can use `claude self-hosted-runner` to run Claude Code web, mobile and desktop sessions on their own machines or containers. It also added cross-session `SendMessage` and `ListAgents` so sessions can message each other across machines, an `archive` plugin source for installing plugins from a zip over HTTPS without git or npm, and it removed the 200-subagent-per-session spawn cap so long-running sessions no longer refuse new agents (concurrency and depth limits still apply).",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md",
+    "source_tier": "primary",
+    "evidence_excerpt": "Added self-hosted environments: `claude self-hosted-runner` turns your own machines or containers into a place Claude Code web, mobile, and",
+    "as_of": "2026-08-07",
+    "confidence": "high",
+    "id": "c_0ed9286a7e90",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-07",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://releasebot.io/updates/anthropic/claude-code",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_48d8cfa189a7",
+    "subject_key": "battlecard | claude-code-self-hosted | where_we_win",
+    "claim": "**Claude Code can now run entirely inside a customer's own infrastructure.**\n\nClaude Code 2.1.224 added self-hosted environments: Team and Enterprise customers can run `claude self-hosted-runner` to host Claude Code web, mobile and desktop sessions on their own machines or containers, rather than routing sessions through Anthropic-hosted infrastructure. For a security or compliance buyer who wants control over where their Claude Code sessions run, that's a concrete deployment option available today, not something to evaluate later.\n\n**Soundbite:** \"With the self-hosted runner on Team or Enterprise, your Claude Code sessions execute on your own machines or containers instead of Anthropic-hosted infrastructure, so you decide where the sessions run.\"",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 6,
+    "as_of": "2026-08-07",
+    "updated_on": "2026-08-07",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_0ed9286a7e90",
+    "persona": "security_regulated"
   }
 ]
