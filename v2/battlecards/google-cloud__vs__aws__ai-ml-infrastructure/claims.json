@@ -1207,5 +1207,35 @@
       "fetched_at": "2026-08-04",
       "detail": null
     }
+  },
+  {
+    "subject_key": "aws | launch | bedrock-web-search-gpt-2026-08",
+    "claim": "AWS added native web grounding to Bedrock, chipping at one of Vertex AI's cleaner edges. On August 4, 2026 AWS made Web Search generally available on Amazon Bedrock for OpenAI models (GPT-5.4, GPT-5.5 and the GPT-5.6 Sol/Terra/Luna variants): a server-side tool that grounds answers in an Amazon-operated web index with zero data egress, turned on by a single parameter in an existing API call at $12 per 1,000 queries. It runs in three US regions (N. Virginia, Ohio, Oregon), covers only OpenAI models on Bedrock (not Claude, Llama, Mistral or Nova) and serves an indexed corpus, with live-web fetch built into the API but not yet enabled. Google's grounding with Google Search still draws on a far larger live index and works across every Gemini model, so the Vertex edge holds for now. What changed is that a buyer who wants grounded answers kept inside their cloud boundary can now get a native version on Bedrock.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://aws.amazon.com/about-aws/whats-new/2026/08/amazon-bedrock-web/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Web Search on Amazon Bedrock is generally available today in US East (N. Virginia), US East (Ohio), and US West (Oregon).",
+    "as_of": "2026-08-04",
+    "confidence": "high",
+    "id": "c_5072eddd5cc9",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-07",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://aws.amazon.com/blogs/machine-learning/introducing-web-search-on-amazon-bedrock-for-foundation-model-grounding/",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

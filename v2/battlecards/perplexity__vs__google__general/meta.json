@@ -4,7 +4,7 @@
   "competitor": "Google",
   "focus": null,
   "baseline_date": "2026-06-06",
-  "last_checked": "2026-08-06T11:20:18",
+  "last_checked": "2026-08-07T11:24:37",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_9ea436272f2a",
@@ -23,5 +23,5 @@
     "google | product-launch | made-by-google-2026"
   ],
   "unresolved_since": "2026-08-05",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }
