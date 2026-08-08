@@ -1503,15 +1503,15 @@
   },
   {
     "subject_key": "openai-apple-trade-secret-suit",
-    "claim": "Apple sued OpenAI on July 10, 2026 in the US District Court for the Northern District of California, alleging OpenAI systematically stole its hardware trade secrets to build a consumer device. The 41-page complaint names OpenAI, io Products and two former Apple staff, and accuses OpenAI Chief Hardware Officer Tang Tan of directing the theft using Apple codenames in recruiting and asking candidates to bring in Apple parts. Apple says over 400 former Apple employees now work at OpenAI and is seeking an injunction to bar OpenAI from using the material. OpenAI says it has no interest in other companies' trade secrets.",
+    "claim": "Apple escalated its trade secret suit against OpenAI on August 4, 2026. In a new court filing Apple said its continued investigation found 11 more former Apple employees, beyond the two already named, who may have been involved in or witnesses to the alleged theft, and it is now seeking a preliminary injunction to stop OpenAI from developing an AI device based on Apple technology. Apple is also requesting expedited discovery from the accused OpenAI employees, OpenAI and its foundation, and io, the Jony Ive device startup OpenAI bought. OpenAI responded publicly that the injunction request is based on false information and unnecessary because it does not have or want Apple's trade secrets.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 5,
-    "source_url": "https://www.nbcnews.com/tech/tech-news/apple-sues-openai-two-former-employees-trade-secrets-theft-rcna385916",
+    "order": 1,
+    "source_url": "https://techcrunch.com/2026/08/04/apple-says-more-ex-employees-may-have-taken-confidential-data-to-openai/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "The lawsuit claims over 400 former Apple employees now work at OpenAI.",
-    "as_of": "2026-07-10",
+    "evidence_excerpt": "The filing marks an escalation in Apple’s legal battle with OpenAI",
+    "as_of": "2026-08-04",
     "confidence": "high",
     "id": "c_ea6d568be5f1",
     "verified": true,
@@ -1519,18 +1519,12 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-07-13",
+      "fetched_at": "2026-08-08",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://fortune.com/2026/07/10/apple-openai-lawsuit-trade-secrets-theft-allegations/",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false
-      },
-      {
-        "source_url": "https://techcrunch.com/2026/07/10/apple-sues-openai-over-alleged-trade-secret-theft/",
+        "source_url": "https://www.engadget.com/2230042/apple-claims-that-even-more-ex-employees-may-have-given-trade-secrets-to-openai/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false

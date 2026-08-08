@@ -974,5 +974,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "atlassian | mcp-tg-adoption",
+    "claim": "Atlassian's agent platform is scaling fast. In its Q4 FY26 shareholder letter (August 6, 2026) Atlassian reported that monthly active users of its MCP server and Teamwork Graph CLI more than doubled during the quarter to surpass 1 million, with overall MCP calls up more than 400% and Jira work items and Confluence pages generated via MCP up nearly 4x. This is real traction in the contested agent-orchestration race. Two caveats matter for Notion: Atlassian tied no disclosed revenue to those users, and the reach still runs through Jira and Confluence, so it lands with engineering teams first.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 20,
+    "source_url": "https://www.atlassian.com/blog/company-news/shareholder-letter-q4fy26",
+    "source_tier": "primary",
+    "evidence_excerpt": "Monthly active users (MAU) of our MCP server and the Teamwork Graph CLI more than doubled during the quarter, to surpass 1 million MAU",
+    "as_of": "2026-08-06",
+    "confidence": "high",
+    "id": "c_ef02d408a508",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-08",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.tradingkey.com/news/earnings/262085237-tradingkey",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
