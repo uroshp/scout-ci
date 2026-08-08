@@ -24,13 +24,13 @@ On March 11, 2026 Atlassian cut ~1,600 people (about 10% of staff), with more th
 
 Rovo is bundled into paid Atlassian plans but capped by thin monthly credits (just 25/user on Standard, where a single Rovo Chat costs 10 credits), and Atlassian has explicitly reserved the right to start billing overages after a 90-day notice. Notion bundles its core AI (Agent, Meeting Notes, Enterprise Search) into Business at \$20/seat with no per-interaction meter.
 
-**So what:** For finance-led evaluations, show the AI cost today and the projected cost twelve months out. Only Notion's Custom Agents are metered, and that's transparent and capped. ([support.atlassian.com](https://support.atlassian.com/rovo/docs/rovo-usage-limits/))
+**So what:** For finance-led evaluations, show the AI cost today and the projected cost twelve months out. Custom Agents are already transparently metered at \$10 per 1,000 credits, and Workers joins that same metering on October 15, 2026, keeping the cost roadmap predictable and capped. ([notion.com](https://www.notion.com/help/understand-pricing-for-workers))
 
-**Three fresh Notion items will come up in deals. Be ready: a pricing change, a patched vulnerability and a product shutdown all made news.**
+**Four fresh Notion items will come up in deals. Be ready: two pricing changes, a patched vulnerability and a product shutdown all made news.**
 
-Notion's Custom Agents moved from free to paid credits on May 4, 2026, and a data-exfiltration vulnerability in Notion AI was disclosed in late December 2025, patched in production by January 8, 2026. Notion is also shutting down Notion Mail entirely on September 22, 2026, pulling the iOS, desktop and web mail app for every plan and every customer. A prepared rep neutralizes all three; an unprepared one looks evasive.
+Notion's Custom Agents moved from free to paid credits on May 4, 2026, and Workers, the automation feature behind Custom Agent tool calls, moves from its free beta to the same credit pricing on October 15, 2026. A data-exfiltration vulnerability in Notion AI was disclosed in late December 2025 and patched by January 8, 2026, and Notion is shutting down Notion Mail entirely on September 22, 2026. A prepared rep neutralizes all four; an unprepared one looks evasive.
 
-**So what:** Rehearse the honest answers now (see Objection Handling). The vulnerability is patched, the pricing change is old news by close, and Mail's shutdown retires a bolt-on feature, not the core workspace Rovo has to compete with. ([notion.com](https://www.notion.com/help/notion-mail-inbox-is-going-away-what-to-do-next))
+**So what:** Rehearse the honest answers now (see Objection Handling). The vulnerability is patched, the Custom Agents change is old news by close, Workers stays free until October 15 so flag the date rather than dodge it, and Mail's shutdown retires a bolt-on feature, not the core workspace Rovo competes with. ([notion.com](https://www.notion.com/help/understand-pricing-for-workers))
 
 ## Snapshot
 
@@ -66,7 +66,7 @@ Notion's Custom Agents moved from free to paid credits on May 4, 2026, and a dat
 
 - Rovo is bundled into paid plans but credit-capped (25 credits/user/month on Standard, where each Rovo Chat or Agent request costs 10 credits and Deep Research costs 100), and Atlassian states it is not yet billing overages but will, after at least 90 days' notice. ([support.atlassian.com](https://support.atlassian.com/rovo/docs/rovo-usage-limits/))
 - Atlassian's AI coding agent, Rovo Dev, is a separate paid SKU (~\$20/developer/month) and notably does not support data residency, a hard disqualifier for regulated buyers (finance, healthcare, government) with sovereignty requirements. ([atlassian.com](https://www.atlassian.com/software/rovo-dev))
-- Notion bundles core AI (Agent, Meeting Notes, Enterprise Search) into its Business plan at \$20/seat with no per-interaction meter; only autonomous Custom Agents consume metered credits, priced transparently at \$10 per 1,000 credits since May 4, 2026. ([notion.com](https://www.notion.com/help/custom-agent-pricing))
+- Notion bundles core AI (Agent, Meeting Notes, Enterprise Search) into its Business plan at \$20/seat with no per-interaction meter. Custom Agents have consumed metered credits at \$10 per 1,000 credits since May 4, 2026, and Workers, the automation feature that syncs data and powers Custom Agent tool calls, is free during its beta but moves to the same credit metering (about \$0.0023 per run) on October 15, 2026. ([notion.com](https://www.notion.com/help/understand-pricing-for-workers))
 
 ## Competitive Battlecard
 
@@ -137,9 +137,9 @@ True, and worth answering plainly: a researcher disclosed an indirect-prompt-inj
 
 **"Notion's Custom Agents used to be free and now you charge credits. What stops costs from spiking?"**
 
-Fair, and be upfront: as of May 4, 2026, Custom Agents bill at \$10 per 1,000 credits, pooled per workspace with a usage dashboard and admin caps, and agents pause rather than overrun your budget. Crucially, only autonomous Custom Agents are metered; everyday Notion AI (Agent, Meeting Notes, Enterprise Search) stays unmetered on Business.
+Fair, and be upfront: as of May 4, 2026, Custom Agents bill at \$10 per 1,000 credits, pooled per workspace with a usage dashboard and admin caps, and agents pause rather than overrun your budget. Workers, the automation feature behind Custom Agent tool calls, stays free through its beta and moves to that same \$10 per 1,000 credit pricing on October 15, 2026. Everyday Notion AI (Agent, Meeting Notes, Enterprise Search) stays unmetered on Business throughout.
 
-**So what:** Position it as controllable and visible, then note Atlassian's Rovo also meters chat/agent credits and has overage billing on the way. Neither vendor gives unlimited autonomous automation for free. ([notion.com](https://www.notion.com/help/custom-agent-pricing))
+**So what:** Position it as controllable and visible, then note Atlassian's Rovo also meters chat/agent credits and has overage billing on the way. Neither vendor gives unlimited autonomous automation for free. ([notion.com](https://www.notion.com/help/understand-pricing-for-workers))
 
 **"Notion isn't really built for developers."**
 
