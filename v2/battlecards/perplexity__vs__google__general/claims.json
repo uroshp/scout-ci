@@ -1375,5 +1375,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "google | legal-action | uk-search-ads",
+    "claim": "On August 5, 2026 the UK Competition Appeal Tribunal certified an opt-out collective action against Google covering roughly 880,000 UK-domiciled advertisers and seeking up to £5 billion (about $6.7 billion). The claim alleges Google abused its dominance across mobile operating systems, app distribution and search advertising (tying Search and Chrome onto Android, paying Apple for default placement, and biasing its Search Ads 360 platform toward Google) to overcharge advertisers. Certification is the procedural gate to a trial on the merits, not a finding that Google broke the law; Google called it 'speculative and opportunistic' and will contest it.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 10,
+    "source_url": "https://ppc.land/google-faces-5bn-uk-advertiser-claim-as-tribunal-certifies-opt-out-case/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Every UK-domiciled business that paid for Google search advertising between 1 January 2011 and 15 April 2025 is now inside the class unless it removes itself.",
+    "as_of": "2026-08-05",
+    "confidence": "high",
+    "id": "c_973d3452b25a",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-08",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.pymnts.com/legal/2026/united-kingdom-tribunal-rejects-google-bid-block-6-billion-dollar-advertiser-class-action/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
