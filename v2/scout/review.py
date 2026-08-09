@@ -17,7 +17,7 @@ import sys
 from datetime import date
 
 from scout import selfserve, store
-from scout.propagate import PROP_DIR, apply_ops
+from scout.propagate import PROP_DIR, apply_ops, promote_lead
 from scout.render import claims_to_markdown, clean_output, extract_cut_log, format_report
 
 
@@ -244,6 +244,38 @@ def pull_contaminated(slug: str, claim_ids, reason: str, write: bool = True) -> 
                              format_report(clean_output(body.rstrip() + "\n\n" + combined)))
     return {"pulled": [{"id": c.get("id"), "subject_key": c.get("subject_key")} for c in pulled],
             "claims": remaining}
+
+
+def set_lead_pin(slug: str, pinned: bool = True, write: bool = True) -> dict:
+    """Human override for the lead election (2026-08-08): PIN freezes a card's 'Today's angle' — the
+    election skips a pinned card — and UNPIN re-enables it. Meta-only: claims + current.md untouched.
+    The CALLER commits + pushes. The enforcement backstop for 'someone decides the bar'."""
+    meta = store.load_meta(slug) or {}
+    meta.setdefault("lead_election", {})["pinned"] = bool(pinned)
+    if write:
+        store.write_baseline(slug, store.load_claims(slug), meta, _current_md(slug))
+    return {"slug": slug, "pinned": bool(pinned)}
+
+
+def force_lead(slug: str, subject_key: str, write: bool = True) -> dict:
+    """Human override: force a specific executive_summary verdict to be 'Today's angle' now (reorder
+    to order 0), bypassing the election. Re-renders + writes the baseline (Cut Log carried forward);
+    the CALLER commits + pushes. No-op if `subject_key` is not an active exec-summary claim."""
+    meta = store.load_meta(slug) or {}
+    claims = store.load_claims(slug)
+    reordered = promote_lead(claims, subject_key)
+    if write:
+        body = claims_to_markdown(reordered, _title(meta),
+                                  my_company=meta.get("my_company"), competitor=meta.get("competitor"))
+        cut_log = extract_cut_log(_current_md(slug))
+        if cut_log:
+            body = body.rstrip() + "\n\n" + cut_log
+        store.write_baseline(slug, reordered, meta, format_report(clean_output(body)))
+    lead = min((c for c in reordered if c.get("section") == "executive_summary"
+                and str(c.get("status", "active")) == "active"),
+               key=lambda c: c.get("order", 0), default=None)
+    return {"slug": slug, "requested": subject_key,
+            "lead": lead.get("subject_key") if lead else None}
 
 
 def _current_md(slug: str) -> str:

@@ -720,6 +720,176 @@ def judge(meta: dict, facts: list[dict], claims: list[dict], indexed_ops: list) 
     return {"verdicts": verdicts, "cost_usd": cost, "raw_failures": raw_failures}
 
 
+# --- Lead election (2026-08-08): decide 'Today's angle' on deal impact, with hysteresis ----------
+#
+# The viewer's lead is the order-0 executive_summary claim, frozen since generation. When a run
+# produces or revises an exec-summary verdict, THIS pass decides whether that fresh verdict is
+# MATERIALLY more deal-moving than the current lead. Deciding "biggest deal impact" is judgment (the
+# model); recency is only the trigger. The model returns a WINNER + a MARGIN; only decisive/clear
+# margins promote (the stability bar). Fail-closed to HOLD on any parse/model failure. See
+# config.LEAD_ELECTION. The apply half is promote_lead() (a pure order rewrite, model-free).
+_ELECTION_SYSTEM = """You decide the LEAD of a competitive battlecard — its "Today's angle", the single
+line a rep opens a live deal with. You are given the CURRENT lead (the incumbent) and one or more FRESH
+challenger verdicts. Choose the ONE verdict that, if the rep could say only one thing THIS QUARTER,
+moves the deal most.
+
+JUDGE ON DEAL IMPACT, NOT NOVELTY OR RECENCY. Which verdict most changes what a buyer decides — a
+pricing or cost exposure, a data / security / legal risk, a capability gap that maps to an active
+evaluation? A fresher verdict does NOT win for being fresher; freshness only earned it a hearing.
+
+THE STABILITY BAR (a working lead is not displaced on a toss-up). Return one margin:
+  "decisive" — the challenger is far more deal-moving; the incumbent is now clearly secondary.
+  "clear"    — the challenger is the stronger opener, not a close call.
+  "marginal" — comparable / close; keep the incumbent (do NOT churn the lead for a marginal gain).
+  "none"     — the incumbent is as strong or stronger; keep it.
+Only "decisive" and "clear" change the lead. When unsure, keep the incumbent (margin "none" or
+"marginal"). If the incumbent is itself the strongest opener, return the incumbent's subject_key.
+
+Return ONLY JSON:
+{"winner_subject_key": "<the subject_key of the strongest opener, incumbent or a challenger>",
+ "margin": "decisive|clear|marginal|none",
+ "rationale": "<one or two sentences: why this opener moves deals most, in the competitor's terms>"}"""
+
+
+def _election_digest(claim: dict, role: str) -> dict:
+    return {"role": role, "subject_key": claim.get("subject_key"), "as_of": claim.get("as_of"),
+            "text": claim.get("claim")}
+
+
+async def _run_election(meta: dict, incumbent: dict, challengers: list[dict]) -> dict:
+    comp, me = meta.get("competitor"), meta.get("my_company")
+    user = (f"Competitor: {comp}" + (f"   We are: {me}" if me else "") + "\n\n"
+            "INCUMBENT (the current lead / Today's angle):\n"
+            + json.dumps(_election_digest(incumbent, "incumbent"), ensure_ascii=False, indent=2)
+            + "\n\nCHALLENGER VERDICT(S) (fresh this run — eligible to take the lead):\n"
+            + json.dumps([_election_digest(c, "challenger") for c in challengers],
+                         ensure_ascii=False, indent=2)
+            + "\n\nPick the single strongest opener and its margin over the incumbent.")
+    options = ClaudeAgentOptions(
+        model=config.LEAD_ELECTION_MODEL,
+        system_prompt=_ELECTION_SYSTEM,
+        mcp_servers={},
+        allowed_tools=[],                                 # TOOLS-OFF: reason only from the given verdicts
+        disallowed_tools=["WebSearch", "WebFetch"],
+        permission_mode="bypassPermissions",
+        max_turns=config.JUDGE_MAX_TURNS,
+        max_budget_usd=config.JUDGE_MAX_BUDGET_USD,
+    )
+    return await _drive(user, options, "lead_election")
+
+
+def _lead_pinned(meta: dict) -> bool:
+    """The human override: a pinned card freezes its angle — the election is skipped entirely."""
+    return bool((meta.get("lead_election") or {}).get("pinned"))
+
+
+def _lead_within_cooldown(meta: dict) -> bool:
+    """True if the last promotion was < LEAD_COOLDOWN_DAYS ago — the anti-churn lock. Within it, only
+    a 'decisive' challenger may displace the lead."""
+    last = (meta.get("lead_election") or {}).get("last_promoted_on")
+    if not last:
+        return False
+    try:
+        d = datetime.strptime(str(last)[:10], "%Y-%m-%d").date()
+    except Exception:
+        return False
+    return (datetime.now().date() - d).days < config.LEAD_COOLDOWN_DAYS
+
+
+def _lead_headline(text: str, limit: int = 80) -> str:
+    """A short rep-facing name for a verdict, for the feed note — its bold headline, else its first
+    line, trimmed."""
+    t = str(text or "").strip()
+    m = re.match(r"\*\*(.+?)\*\*", t)
+    h = m.group(1) if m else t.split("\n", 1)[0]
+    h = re.sub(r"\s+", " ", h).strip().rstrip(".")
+    return (h[: limit - 1].rstrip() + "…") if len(h) > limit else h
+
+
+def _lead_election(meta: dict, claims: list[dict], challenger_keys, *,
+                   within_cooldown: bool = False) -> dict | None:
+    """Run one lead-election judgment. `challenger_keys` are the exec-summary subject_keys touched
+    (added/revised) THIS run — the fresh verdicts eligible to challenge the incumbent. Returns an
+    election dict (always, when there is a real contest) with `promoted` decided by the margin +
+    cooldown bar, or None when there is nothing to decide (no active lead / no distinct challenger).
+    Fail-closed: any parse/model failure lands as margin 'none' -> HOLD. Records `cost_usd`.
+
+    The apply is NOT done here (propagate applies nothing); the caller (monitor) calls promote_lead()
+    on a promote. `within_cooldown` tightens the bar to 'decisive' only (the anti-churn lock)."""
+    es = sorted([c for c in claims if c.get("section") == "executive_summary"
+                 and str(c.get("status", "active")) == "active"],
+                key=lambda c: c.get("order", 0))
+    if not es:
+        return None
+    incumbent = es[0]
+    inc_norm = normalize_subject_key(str(incumbent.get("subject_key")))
+    want = {normalize_subject_key(str(k)) for k in (challenger_keys or [])}
+    challengers = [c for c in es
+                   if normalize_subject_key(str(c.get("subject_key"))) in want
+                   and normalize_subject_key(str(c.get("subject_key"))) != inc_norm]
+    if not challengers:
+        return None                                         # the fresh verdict IS already the lead, or none
+    cost = 0.0
+    winner_key, margin, rationale = incumbent.get("subject_key"), "none", ""
+    try:
+        res = asyncio.run(_run_election(meta, incumbent, challengers))
+        cost = res.get("cost_usd") or 0.0
+        data = _extract_json(res["text"])
+        wk = data.get("winner_subject_key")
+        mg = str(data.get("margin", "")).strip().lower()
+        if mg in ("decisive", "clear", "marginal", "none") and wk:
+            margin = mg
+            rationale = str(data.get("rationale", ""))
+            # only accept a winner_key that is actually the incumbent or a named challenger
+            valid = {inc_norm} | {normalize_subject_key(str(c.get("subject_key"))) for c in challengers}
+            winner_key = wk if normalize_subject_key(str(wk)) in valid else incumbent.get("subject_key")
+    except Exception as e:                                  # fail-closed -> HOLD (no promotion, no raise)
+        print(f"[propagate] lead election failed ({type(e).__name__}: {e})", file=sys.stderr)
+        margin, winner_key = "none", incumbent.get("subject_key")
+    bar = ("decisive",) if within_cooldown else ("decisive", "clear")
+    promoted = (normalize_subject_key(str(winner_key)) != inc_norm and margin in bar)
+    win_norm = normalize_subject_key(str(winner_key))
+    win_claim = next((c for c in challengers
+                      if normalize_subject_key(str(c.get("subject_key"))) == win_norm), incumbent)
+    return {
+        "promoted": promoted,
+        "winner_key": winner_key if promoted else incumbent.get("subject_key"),
+        "incumbent_key": incumbent.get("subject_key"),
+        "challenger_keys": [c.get("subject_key") for c in challengers],
+        "margin": margin,
+        "within_cooldown": within_cooldown,
+        "rationale": rationale,
+        "incumbent_as_of": incumbent.get("as_of"),
+        "winner_as_of": (win_claim.get("as_of") if promoted else incumbent.get("as_of")),
+        "cost_usd": cost,
+    }
+
+
+def _election_record(election: dict) -> dict:
+    """A distinct decision-log entry for a lead election (additive; judge_verdict='lead_election' so
+    adjudicate — which keys on confirm/reject — ignores it). Auditable trail of every angle change."""
+    return {
+        "operation": "promote_lead",
+        "change_kind": "promote_lead",
+        "section": "executive_summary",
+        "subject_key": election.get("winner_key"),
+        "target_subject_key": election.get("incumbent_key"),
+        "judge_verdict": "lead_election",
+        "judge_reason": election.get("rationale"),
+        "judged_by": config.LEAD_ELECTION_MODEL,
+        "committed": bool(election.get("promoted")),
+        "lead_promoted": bool(election.get("promoted")),
+        "lead_margin": election.get("margin"),
+        "lead_within_cooldown": bool(election.get("within_cooldown")),
+        "lead_incumbent_key": election.get("incumbent_key"),
+        "lead_winner_key": election.get("winner_key"),
+        "lead_challenger_keys": election.get("challenger_keys"),
+        "incumbent_as_of": election.get("incumbent_as_of"),
+        "winner_as_of": election.get("winner_as_of"),
+        "feed_note": election.get("feed_note"),
+    }
+
+
 # --- Bounded rewrite loop (2026-07-01): a prose-defect reject gets one guided rewrite ------------
 #
 # The judge rejected 2 ops on a real act-grade fact (the Sonnet-5 launch) for AUTHORING defects —
@@ -967,7 +1137,7 @@ def _render_gate(slug: str, ops: list, floor_results: list, verdicts: dict,
 
 
 # --- Decision log (spec §17): audit trail AND authorship-shadow training corpus -----------------
-SCHEMA_VERSION = 6      # v2: + attempts/rewrite_attempts/rewrite_exhausted; v3 (2026-07-01): +
+SCHEMA_VERSION = 7      # v2: + attempts/rewrite_attempts/rewrite_exhausted; v3 (2026-07-01): +
 PROP_DIR = "propagation"  # judged_by + judge_unavailable verdicts + judge_raw_failures payload
                           # v4 (2026-07-18): + persona + held_for_format/hold_reason (pre-email gate)
                           # v5 (2026-07-25): + length_demoted/length_cured/length_cure_attempts +
@@ -975,6 +1145,8 @@ PROP_DIR = "propagation"  # judged_by + judge_unavailable verdicts + judge_raw_f
                           # (supersede-retire) — all additive
                           # v6 (2026-07-31): + material/cure/material_uncured (materiality-first cure
                           # routing) — all additive; judge_verdict semantics unchanged
+                          # v7 (2026-08-08): + a distinct 'lead_election' decision record (judge_verdict
+                          # 'lead_election', ignored by adjudicate) for angle changes — all additive
 
 
 def _decision_records(ops: list, floor_results: list, judge_verdicts: dict,
@@ -1132,7 +1304,7 @@ def propagate(meta: dict, facts_with_alerts: list[dict], strength_facts: list[di
         return {"ops": [], "surface_ops": surface_ops, "no_surface": routed["no_surface"],
                 "run_verdict": rv, "no_change": routed["no_surface"], "floor_results": [],
                 "floor_rejected": [], "verdicts": gated_verdicts, "confirmed": [],
-                "decisions": records, "cost_usd": cost_usd, "gated": "routine"}
+                "election": None, "decisions": records, "cost_usd": cost_usd, "gated": "routine"}
 
     # step 3b: AUTHOR — write the prose for each add/revise routed op (retires carry no prose)
     authored = author(meta, surface_ops, author_facts, claims)
@@ -1223,13 +1395,45 @@ def propagate(meta: dict, facts_with_alerts: list[dict], strength_facts: list[di
                  if not floor_results[i] and (verdicts.get(i) or {}).get("verdict") == "confirm"
                  and i not in render_holds]
 
+    # step 4d: LEAD ELECTION (2026-08-08) — a confirmed exec-summary verdict this run is a CHALLENGER
+    # for 'Today's angle'. A model judges deal-impact vs the incumbent; only a decisive/clear margin
+    # promotes (within a cooldown, only decisive). AUTO-APPLIES with hysteresis (the apply is
+    # promote_lead(), done by the monitor's write path); this pass only DECIDES. Review/live only, and
+    # skipped on a pinned card. propagate() applies nothing itself, so `election` rides the return.
+    election = None
+    if (config.LEAD_ELECTION and config.PROPAGATE_MODE in ("review", "live")
+            and not _lead_pinned(meta)):
+        exec_revises = [op for op in confirmed
+                        if op.get("section") == "executive_summary"
+                        and op.get("operation") == "revise" and op.get("target_subject_key")]
+        if exec_revises:
+            fresh = {normalize_subject_key(str(op["target_subject_key"])): op.get("claim")
+                     for op in exec_revises}
+            view = [({**c, "claim": fresh[normalize_subject_key(str(c.get("subject_key")))]}
+                     if (c.get("section") == "executive_summary"
+                         and normalize_subject_key(str(c.get("subject_key"))) in fresh) else c)
+                    for c in claims]
+            election = _lead_election(meta, view, [op["target_subject_key"] for op in exec_revises],
+                                      within_cooldown=_lead_within_cooldown(meta))
+            if election and election["promoted"]:
+                win = next((c for c in view if normalize_subject_key(str(c.get("subject_key")))
+                            == normalize_subject_key(str(election["winner_key"]))), None)
+                inc = next((c for c in view if normalize_subject_key(str(c.get("subject_key")))
+                            == normalize_subject_key(str(election["incumbent_key"]))), None)
+                election["feed_note"] = (
+                    f"Today's angle changed: \"{_lead_headline(win.get('claim') if win else '')}\" now "
+                    f"leads, displacing \"{_lead_headline(inc.get('claim') if inc else '')}\"")
+            if election:
+                records = records + [_election_record(election)]
+
     cost_usd = {"route": routed.get("cost_usd"), "author": authored.get("cost_usd"),
                 "judge": judged.get("cost_usd"),
                 "rewrite_author": rw["cost_author"] or None, "rewrite_judge": rw["cost_judge"] or None,
                 "length_cure_author": length_cures.get("_cost_author") or None,
                 "length_cure_judge": length_cures.get("_cost_judge") or None,
                 "reformat": gate["cost_usd"].get("reformat") or None,
-                "gate_judge": gate["cost_usd"].get("gate_judge") or None}
+                "gate_judge": gate["cost_usd"].get("gate_judge") or None,
+                "lead_election": (election or {}).get("cost_usd") or None}
     if persist and slug:
         log_decisions(slug, records, source=source, facts=author_facts, cost=cost_usd,
                       judge_raw_failures=raw_failures, superseded_terms=sup_terms)
@@ -1245,6 +1449,7 @@ def propagate(meta: dict, facts_with_alerts: list[dict], strength_facts: list[di
         "floor_rejected": [ops[i] for i in range(len(ops)) if floor_results[i]],
         "verdicts": verdicts,
         "confirmed": confirmed,
+        "election": election,                            # None, or the auto-apply lead-election decision
         "decisions": records,
         "cost_usd": cost_usd,
     }
@@ -1268,6 +1473,32 @@ def _next_order(claims: list[dict], section: str, zone) -> int:
              if c.get("section") == section and c.get("zone") == zone
              and str(c.get("status", "active")) == "active"]
     return (max(peers) + 1) if peers else 0
+
+
+def promote_lead(claims: list[dict], winner_subject_key) -> list[dict]:
+    """Deterministic order rewrite (the apply half of a lead election): make `winner_subject_key` the
+    executive_summary LEAD (order 0) and renumber the section's remaining ACTIVE claims 1..N by their
+    current order (stable). Returns a NEW list; never mutates the input. Fail-safe no-op (returns the
+    claims unchanged) when the winner is not an active exec-summary claim or is already order 0, so a
+    stale/unknown key can never scramble the section. Text and lineage are untouched — this only moves
+    the sort key that `page._briefing` reads to pick 'Today's angle'."""
+    out = [dict(c) for c in claims]
+    norm = normalize_subject_key(str(winner_subject_key)) if winner_subject_key else None
+    es = [c for c in out if c.get("section") == "executive_summary"
+          and str(c.get("status", "active")) == "active"]
+    if not es or norm is None:
+        return out
+    winner = next((c for c in es
+                   if normalize_subject_key(str(c.get("subject_key"))) == norm), None)
+    if winner is None:
+        return out                                          # unknown/inactive winner -> no change
+    rest = sorted([c for c in es if c is not winner], key=lambda c: c.get("order", 0))
+    ordered = [winner] + rest
+    if all(c.get("order") == i for i, c in enumerate(ordered)):
+        return out                                          # already the lead in this exact order
+    for i, c in enumerate(ordered):
+        c["order"] = i
+    return out
 
 
 def _find_active(claims: list[dict], subject_key) -> dict | None:

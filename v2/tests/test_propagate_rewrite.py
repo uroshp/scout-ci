@@ -239,7 +239,7 @@ class DecisionRecordShape(unittest.TestCase):
         self.assertTrue(recs[0]["committed"])
 
     def test_schema_version_bumped(self):
-        self.assertEqual(propagate.SCHEMA_VERSION, 6)
+        self.assertEqual(propagate.SCHEMA_VERSION, 7)
 
 
 class ExhaustedEmail(unittest.TestCase):

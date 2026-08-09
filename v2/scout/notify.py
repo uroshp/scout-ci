@@ -603,6 +603,62 @@ def send_urgent_material(slug: str, meta: dict, urgent: list[dict], dry_run: boo
     return _dispatch(subject, body, dry_run=dry_run, html=html)
 
 
+def render_lead_election_fyi(slug: str, meta: dict, el: dict) -> tuple[str, str]:
+    """Subject + body for the LEAD-ELECTION FYI (2026-08-08): the card's 'Today's angle' was
+    AUTO-CHANGED this run because a fresher verdict cleared the deal-impact bar. Unlike a proposal,
+    this is already live — the email is the monitoring surface (the owner chose auto-apply + monitor),
+    and it names how to revert (reorder or pin the lead)."""
+    card = _card_label(meta)
+    rule = "─" * 48
+    subject = f"Scout: Today's angle changed (auto-applied) — {card}"
+    out = [f"The LEAD of the {card} brief — its 'Today's angle', the line a rep opens a deal with — "
+           f"was AUTO-CHANGED this run: a fresher verdict cleared the deal-impact bar.",
+           "It is ALREADY LIVE (auto-applied with hysteresis). This is your monitoring FYI — revert "
+           "any time by reordering the card's executive summary, or pin the lead to freeze it.",
+           "", rule, "",
+           f"NEW ANGLE: {_flat(el.get('feed_note') or '')}",
+           f"Margin over the incumbent: {el.get('lead_margin')}"
+           + ("  (within cooldown — a decisive challenger)" if el.get("lead_within_cooldown") else "")]
+    if el.get("judge_reason"):
+        out += ["", "WHY (the election's reasoning):", _block(el["judge_reason"])]
+    out += ["", f"Now leading: {el.get('lead_winner_key')}",
+            f"Displaced (now secondary): {el.get('lead_incumbent_key')}",
+            "", rule, "", "— Scout (angle auto-changed; a monitoring surface, not an approval ask)"]
+    return subject, "\n".join(out)
+
+
+def render_lead_election_fyi_html(slug: str, meta: dict, el: dict) -> str:
+    """Rich HTML twin of render_lead_election_fyi — one accent card, the new angle + why + reversal."""
+    card = _card_label(meta)
+    cd = ("  (within cooldown — a decisive challenger)" if el.get("lead_within_cooldown") else "")
+    lead = (f'<p><strong>Today\'s angle changed</strong> on {_esc(card)} — auto-applied this run '
+            f'because a fresher verdict cleared the deal-impact bar. It is <strong>already live</strong>; '
+            f'this is a monitoring FYI, reversible any time (reorder the executive summary, or pin the lead).</p>')
+    inner = (f'<div style="font-weight:700;{_C_LINK};font-size:15px">New angle</div>'
+             f'<div style="margin:2px 0 8px">{_esc(_flat(el.get("feed_note") or ""))}</div>'
+             f'<div style="{_C_MUTED};font-size:13px">Margin over the incumbent: '
+             f'{_esc(str(el.get("lead_margin")))}{_esc(cd)}</div>'
+             + (f'<div style="font-weight:600;margin:8px 0 2px">Why</div>' + _hblock(el["judge_reason"])
+                if el.get("judge_reason") else "")
+             + f'<div style="{_C_MUTED};font-size:13px;margin-top:8px">Now leading: '
+               f'{_esc(str(el.get("lead_winner_key")))} &nbsp;·&nbsp; displaced: '
+               f'{_esc(str(el.get("lead_incumbent_key")))}</div>')
+    foot = (f'<div style="{_C_MUTED};font-size:12px;margin-top:10px">— Scout (angle auto-changed; a '
+            f'monitoring surface, not an approval ask). Reorder the executive summary or pin the lead to change it.</div>')
+    return _hdoc(lead, _hcard(inner), foot)
+
+
+def send_lead_election_fyi(slug: str, meta: dict, el: dict, dry_run: bool = True) -> dict:
+    """Send the lead-election FYI as a SEPARATE email (rich HTML + text fallback). No-op (dry) unless
+    configured; never raises on a missing-config path (inherits _dispatch's contract). `el` is the
+    lead_election decision record (must be a promotion)."""
+    if not el or not el.get("lead_promoted"):
+        return {"sent": False, "reason": "no promotion"}
+    subject, body = render_lead_election_fyi(slug, meta, el)
+    html = render_lead_election_fyi_html(slug, meta, el)
+    return _dispatch(subject, body, dry_run=dry_run, html=html)
+
+
 def render_strategic_shift(meta: dict, lead: dict) -> tuple[str, str]:
     """Subject + body for the STRATEGIC-SHIFT email (strategy layer): the single most strategic lead
     the brief should open with now, with the stress-test and the current lead it would replace. A

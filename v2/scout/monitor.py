@@ -32,7 +32,7 @@ from claude_agent_sdk import ClaudeAgentOptions
 from scout import config, selfserve, shadow, store, strengths
 from scout.fetch_tool import FETCH_SERVER, FETCH_TOOL_NAME, reset_log
 from scout.generate import _drive, _extract_json, _build_retry_payload, _run_retry
-from scout.propagate import propagate, apply_ops
+from scout.propagate import propagate, apply_ops, promote_lead
 from scout.grounding import CUT_ABSENT, ground_claims, is_excluded_source
 from scout.prompts import WRITING_STYLE
 from scout.render import claims_to_markdown, clean_output, extract_cut_log, format_report
@@ -597,6 +597,26 @@ def _retire_feed_alerts(confirmed_ops: list, applied: list) -> list:
     return _applied_feed_alerts(confirmed_ops, applied, operations=("retire",))
 
 
+def _lead_election_alert(election: dict, when: datetime | None = None) -> dict:
+    """Feed alert for an AUTO-APPLIED lead election (2026-08-08): the 'Today's angle' changed, so the
+    updates panel shows it (never a silent reorder). Carries the six keys the alerts.md writer
+    hard-indexes, like every other feed row."""
+    now = when or datetime.now()
+    sk = election.get("winner_key")
+    note = election.get("feed_note") or "Today's angle changed"
+    return {
+        "date": now.date().isoformat(),
+        "detected_at": now.isoformat(timespec="seconds"),
+        "subject_key": sk,
+        "old_value": "prior angle", "new_value": "now leading",
+        "headline": note,
+        "so_what": election.get("rationale") or note,
+        "severity": "act",
+        "source_url": None,
+        "fingerprint": _fingerprint(str(sk), "lead_election:" + str(election.get("incumbent_key"))),
+    }
+
+
 def _competitor_arm(slug, meta, since, substantial, claims, result):
     """Competitor materiality (Opus) -> tier-ranked MULTI-SOURCE grounding -> bounded feedback
     retry -> material_grounded. Logic is UNCHANGED from the pre-my_company flow; extracted verbatim
@@ -809,6 +829,20 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
                 # SURFACE RETIREMENTS in the updates feed: an applied retire writes its feed_note as an
                 # alert so the left panel shows the removal, never a silent disappearance.
                 new_alerts.extend(_retire_feed_alerts(prop["confirmed"], ap["applied"]))
+            # LEAD ELECTION auto-apply (2026-08-08): a promoted angle reorders the exec-summary lead
+            # in review AND live (owner: auto-apply + monitor, no approval gate; shadow never applies).
+            # The reorder rides the existing write path below (regenerates current.md + writes the
+            # baseline); its feed alert makes the angle change visible in the updates panel, and the
+            # per-card cooldown state on meta enforces the anti-churn lock on future runs.
+            el = prop.get("election")
+            if write and config.PROPAGATE_MODE in ("review", "live") and el and el.get("promoted"):
+                new_claims = promote_lead(new_claims, el["winner_key"])
+                meta.setdefault("lead_election", {}).update(
+                    {"last_promoted_on": today, "lead_subject_key": el["winner_key"]})
+                new_alerts.append(_lead_election_alert(el))
+                result["propagation"]["lead_election"] = {
+                    "promoted": True, "winner_key": el["winner_key"],
+                    "incumbent_key": el["incumbent_key"], "margin": el["margin"]}
         except Exception as e:  # NON-DISRUPTION: propagation failure must not drop the monitor update...
             print(f"[monitor] propagation FAILED ({type(e).__name__}: {e})", file=sys.stderr)
             result["propagation_error"] = f"{type(e).__name__}: {e}"
@@ -1105,6 +1139,17 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
                         notify.send_urgent_material(slug, meta, urgent, dry_run=email_dry_run)
                     except Exception as e:
                         print(f"[monitor] urgent-material alert skipped ({type(e).__name__}: {e})",
+                              file=sys.stderr)
+                # LEAD ELECTION FYI (2026-08-08): an auto-applied angle change is never silent — a
+                # separate FYI email (the owner's "we monitor it" push surface, distinct from the
+                # feed row and the proposals email). Guarded; never breaks the run.
+                el_rec = next((d for d in decisions if d.get("judge_verdict") == "lead_election"
+                               and d.get("lead_promoted")), None)
+                if el_rec and config.LEAD_ELECTION:
+                    try:
+                        notify.send_lead_election_fyi(slug, meta, el_rec, dry_run=email_dry_run)
+                    except Exception as e:
+                        print(f"[monitor] lead-election FYI skipped ({type(e).__name__}: {e})",
                               file=sys.stderr)
             # CONSEQUENTIALITY FILTER (shadow eval, docs/consequential-filter-spec.md): the router now
             # emits the consequential/routine run_verdict the old strategic pass used to (that pass is
