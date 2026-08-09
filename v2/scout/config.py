@@ -122,7 +122,12 @@ SUPERSEDE_HUNT_DAYS = int(os.environ.get("SCOUT_SUPERSEDE_HUNT_DAYS", "14"))
 LEAD_ELECTION = os.environ.get("SCOUT_LEAD_ELECTION", "1").strip().lower() not in ("0", "false", "off", "")
 LEAD_COOLDOWN_DAYS = int(os.environ.get("SCOUT_LEAD_COOLDOWN_DAYS", "14"))
 LEAD_RECENCY_DAYS = int(os.environ.get("SCOUT_LEAD_RECENCY_DAYS", "14"))
-LEAD_ELECTION_MODEL = os.environ.get("SCOUT_LEAD_ELECTION_MODEL", ORCHESTRATOR_MODEL)
+# Sonnet, NOT Opus (2026-08-09 cost pass): the election fires on every run that confirms an
+# exec-summary revise (frequent, not rare), so an Opus call each time is a real recurring bill. The
+# election is a bounded COMPARATIVE judgment (which of a few verdicts opens the deal best) with a
+# strict margin bar + hysteresis + a human pin/override backstop — well within Sonnet 5's range.
+# Override to ORCHESTRATOR_MODEL if the deal-impact calls start looking wrong.
+LEAD_ELECTION_MODEL = os.environ.get("SCOUT_LEAD_ELECTION_MODEL", SUBAGENT_MODEL)
 # my_company fact-sourcing budget (2026-07-02 cost pass): the own-side arm runs on SUBAGENT_MODEL
 # (sourcing work — search/fetch/excerpts; judgment stays with the Opus router/judge downstream and
 # grounding verification is deterministic), with its own cap instead of riding the $3 materiality one.
