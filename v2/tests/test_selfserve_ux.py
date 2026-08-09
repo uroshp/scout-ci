@@ -101,7 +101,11 @@ class BriefingHeader(unittest.TestCase):
     def test_viewer_default_is_untouched(self):
         html_out = page.static_brief_html(self.CLAIMS, "", briefing=True)
         self.assertIn("Your Daily Briefing", html_out)
-        self.assertIn("refreshed today", html_out)
+        # 2026-08-08: the misleading "refreshed today" is gone — the lead is an elected strategic
+        # angle that only moves when a fresher verdict clears the deal-impact bar, so the tag names
+        # the lead's own as_of instead of implying daily freshness.
+        self.assertIn("the 2-min version before your call", html_out)
+        self.assertNotIn("refreshed today", html_out)
 
     def test_no_briefing_by_default(self):
         html_out = page.static_brief_html(self.CLAIMS, "")

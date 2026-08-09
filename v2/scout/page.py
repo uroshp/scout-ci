@@ -444,7 +444,7 @@ def _freshness(rows: list) -> str:
 
 
 def _briefing(claims: list, label: str = "Your Daily Briefing",
-              tag: str = "the 2-min version before your call · refreshed today") -> str:
+              tag: str = "the 2-min version before your call") -> str:
     # Today's angle = the brief's STRATEGIC LEAD (the executive summary's first claim), the single
     # most consequential opener, set by the strategic pass. The executive_summary section itself is
     # hidden to avoid a redundant summary, so this is where that lead actually surfaces to the rep.
@@ -486,9 +486,14 @@ def _briefing(claims: list, label: str = "Your Daily Briefing",
     plays_html = (f'<div class="bsub two" id="brief2">{plays_lbl}</div>'
                   f'<div class="playbox">{"".join(plays)}</div>') if plays else ""
 
+    # Honest freshness (2026-08-08): the tag reflects the LEAD's own as_of, not a blanket "refreshed
+    # today" — the angle is an elected strategic lead that only moves when a fresher verdict clears
+    # the deal-impact bar (see propagate._lead_election), so it can legitimately be days old.
+    asof = _fmt_asof(angle.get("as_of")) if angle else ""     # _fmt_asof already yields "as of <date>"
+    full_tag = f"{tag} · lead {asof}" if asof else tag
     return ('<div class="briefing" id="brief"><div class="bhead">'
             f'<span class="l"><span class="dot"></span>{_html.escape(label)}</span>'
-            f'<span class="r">{_html.escape(tag)}</span></div>'
+            f'<span class="r">{_html.escape(full_tag)}</span></div>'
             f'<div class="bbody">{angle_html}{plays_html}</div></div>')
 
 
@@ -888,7 +893,7 @@ def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retir
 def static_brief_html(claims: list, md: str, meta: dict | None = None,
                       briefing: bool = False,
                       briefing_label: str = "Your Daily Briefing",
-                      briefing_tag: str = "the 2-min version before your call · refreshed today"
+                      briefing_tag: str = "the 2-min version before your call"
                       ) -> str:
     """Render a one-off brief (e.g. a self-serve card) with the SAME look as the live
     viewer's full brief, MINUS the monitoring furniture — no left rail, metric strip,

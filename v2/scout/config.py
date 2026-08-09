@@ -107,6 +107,22 @@ PROPAGATE_MAX_LENGTH_CURES = int(os.environ.get("SCOUT_PROPAGATE_MAX_LENGTH_CURE
 # normal grounded path.
 SUPERSEDE_SWEEP = os.environ.get("SCOUT_SUPERSEDE_SWEEP", "1").strip().lower() not in ("0", "false", "off", "")
 SUPERSEDE_HUNT_DAYS = int(os.environ.get("SCOUT_SUPERSEDE_HUNT_DAYS", "14"))
+# Lead election (2026-08-08, owner's "biggest deal impact, someone decides + enforces" bar): the
+# viewer's "Today's angle" is the executive_summary claim at order 0, historically FROZEN at
+# generation (new verdicts append to the bottom, revises keep their order). When a run produces or
+# revises an exec-summary verdict, a model judgment decides whether that fresh verdict is MATERIALLY
+# more deal-moving than the current lead and, if so, promotes it to order 0. Deal-impact is judgment
+# (model); recency is the trigger (news-driven). AUTO-APPLIES with hysteresis — no approval gate —
+# but every election is recorded + surfaced (feed + email FYI + morning tool) and reversible (order
+# is data; a per-card pin freezes the angle). Review/live only; shadow never applies. Empty/0/false
+# disables. The bar (this IS the enforcement, since there is no human gate at apply):
+#   - margin decisive|clear promotes; marginal|none HOLDS the incumbent (stability default).
+#   - within LEAD_COOLDOWN_DAYS of the last promotion, ONLY a 'decisive' challenger may displace.
+#   - any parse error / no eligible challenger / pinned card -> HOLD (fail-safe = no change).
+LEAD_ELECTION = os.environ.get("SCOUT_LEAD_ELECTION", "1").strip().lower() not in ("0", "false", "off", "")
+LEAD_COOLDOWN_DAYS = int(os.environ.get("SCOUT_LEAD_COOLDOWN_DAYS", "14"))
+LEAD_RECENCY_DAYS = int(os.environ.get("SCOUT_LEAD_RECENCY_DAYS", "14"))
+LEAD_ELECTION_MODEL = os.environ.get("SCOUT_LEAD_ELECTION_MODEL", ORCHESTRATOR_MODEL)
 # my_company fact-sourcing budget (2026-07-02 cost pass): the own-side arm runs on SUBAGENT_MODEL
 # (sourcing work — search/fetch/excerpts; judgment stays with the Opus router/judge downstream and
 # grounding verification is deterministic), with its own cap instead of riding the $3 materiality one.
