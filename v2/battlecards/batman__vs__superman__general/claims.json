@@ -807,15 +807,15 @@
   },
   {
     "subject_key": "warner-bros-discovery-paramount-acquisition",
-    "claim": "The Paramount Skydance takeover of Warner Bros. Discovery, the studio behind Superman, is now frozen. On July 20, 2026 a federal judge granted the 12-state coalition a temporary restraining order barring Paramount from closing, and on July 24 Paramount signed a joint stipulation agreeing not to close until five days after an antitrust trial or June 1, 2027, whichever comes first. No trial date is set, so Superman's parent stays in limbo for months. Paramount also starts paying a ticking fee to WBD shareholders after Sept. 30 (25 cents a share per quarter, worth more than $600M a quarter).",
+    "claim": "Paramount is trying to unfreeze its stalled Warner Bros. Discovery takeover by putting its theatrical promise in writing. On August 9, 2026 it offered AMC and Regal three-year contracts guaranteeing 30 films a year in theaters, with exclusive 45-day windows and financial penalties if it breaks them, a concession meant to defuse the 12-state antitrust suit. The deal stays frozen and the antitrust trial is set for March 2027, so control of Superman's studio is unresolved well into 2027.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
     "order": 1,
-    "source_url": "https://variety.com/2026/film/news/paramount-warner-bros-merger-postpone-antitrust-trial-1236820601/",
+    "source_url": "https://variety.com/2026/film/news/david-ellison-theater-owners-guarantee-30-movies-paramount-warner-bros-merger-1236830791/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Paramount Skydance has reached an agreement with a coalition of state attorneys general to postpone the Warner Bros. Discovery merger until after an antitrust trial.",
-    "as_of": "2026-07-24",
+    "evidence_excerpt": "Ellison is now offering three-year contractually enforceable commitments to the U.S.’s two biggest theater chains, AMC Entertainment and Regal Cinemas",
+    "as_of": "2026-08-09",
     "confidence": "high",
     "id": "c_d56e29441dcb",
     "verified": true,
@@ -823,18 +823,12 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-07-27",
+      "fetched_at": "2026-08-10",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://www.cnbc.com/2026/07/20/paramount-wbd-merger-delay.html",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false
-      },
-      {
-        "source_url": "https://www.nbcnews.com/business/media/judge-puts-temporary-pause-paramount-warner-bros-merger-rcna587804",
+        "source_url": "https://deadline.com/2026/08/paramount-wbd-regal-amc-deals-1237029635/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false

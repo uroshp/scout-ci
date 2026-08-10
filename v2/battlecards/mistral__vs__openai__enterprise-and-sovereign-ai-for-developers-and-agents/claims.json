@@ -1342,15 +1342,15 @@
   },
   {
     "subject_key": "openai | frontier-research | astra-2026",
-    "claim": "OpenAI's next major model, Astra, solved ten open problems in mathematics and theoretical computer science and shipped machine-checkable Lean 4 proofs on GitHub. On August 1, 2026 OpenAI published the results, including the first construction of a non-sofic group (open since Gromov posed it in 1999) and the first improvement to the high-dimensional sphere-packing bound since 1978, for roughly $2,000 in compute at Sol API rates. Astra is unreleased with no announced ship date, so this is a capability signal rather than a product Mistral sells against today. It widens OpenAI's frontier research lead and feeds its category-leader narrative in deals.",
+    "claim": "OpenAI paused internal work on its next flagship model, Astra, on August 7, 2026 after evaluations could not rule out that it reached the 'critical' cybersecurity level in the company's Preparedness Framework, the threshold where a model can find and exploit zero-day vulnerabilities in hardened systems with little or no human help. It is the first OpenAI model to trigger that classification. Deployment now waits on testing by government agencies and independent safety organizations. This reverses Astra's prior status, when OpenAI showcased it solving ten open math and theoretical-computer-science problems with machine-checkable Lean 4 proofs.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 1,
-    "source_url": "https://thenextweb.com/news/openai-astra-model-ten-math-proofs-non-sofic-groups",
+    "order": 5,
+    "source_url": "https://techcrunch.com/2026/08/07/openai-says-it-slowed-astra-model-development-over-security-concerns/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "OpenAI says an internal version of its next major model, called Astra, has produced ten new results in mathematics and theoretical computer science.",
-    "as_of": "2026-08-03",
+    "evidence_excerpt": "pausing internal activities involving Astra that don’t meet these beefed guardrails.",
+    "as_of": "2026-08-07",
     "confidence": "high",
     "id": "c_9991fdcf83d5",
     "verified": true,
@@ -1358,12 +1358,12 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-08-03",
+      "fetched_at": "2026-08-10",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://www.techtimes.com/articles/322710/20260802/openais-astra-solves-ten-decade-old-math-problems-machine-checkable-lean-proofs.htm",
+        "source_url": "https://www.helpnetsecurity.com/2026/08/10/openai-astra-critical-cyber-capabilities/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
