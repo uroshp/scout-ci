@@ -4,7 +4,7 @@
   "competitor": "Cognition",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-08-08T11:03:31",
+  "last_checked": "2026-08-10T11:07:52",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_b969e4b96a7c",
@@ -15,8 +15,10 @@
   "monitored": true,
   "unresolved_subjects": [
     "NEW",
-    "cursor | product-launch | automations"
+    "cursor | model-development | larger-model",
+    "cursor | product-launch | automations",
+    "cursor | revenue-scale-comparison"
   ],
   "unresolved_since": "2026-08-07",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }

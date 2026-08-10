@@ -1800,15 +1800,15 @@
   },
   {
     "subject_key": "openai-astra-math-milestone",
-    "claim": "OpenAI announced on August 1, 2026 that an internal version of its next major model, called Astra, produced ten new results on open problems in mathematics and theoretical computer science (including the first construction of a non-sofic group and a disproof of Connes's rigidity conjecture), each formalized as a machine-checkable Lean proof, for roughly $2,000 in compute at Sol API rates. Astra is unreleased with no launch date, and OpenAI has not said whether it ships as GPT-5.7 or GPT-6. A Fields Medalist, Tim Gowers, had earlier backed a proof from the same model family for publication in the Annals of Mathematics.",
+    "claim": "On August 7, 2026, OpenAI said it paused some internal work on Astra, its next major model, after preliminary evaluations showed it could reach the Critical cybersecurity level in OpenAI's Preparedness Framework: able to find and build zero-day exploits against hardened real-world systems without human help. OpenAI says this is the first model it cannot rule out at that level. Astra is the same model whose internal version claimed ten new math results on August 1. CEO Sam Altman said OpenAI still plans to make Astra generally available and needs 'a little longer to do this safely,' 'but hopefully not too long.' OpenAI is now working with government agencies and select AI safety organizations to test the model before development fully resumes.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 1,
-    "source_url": "https://thenextweb.com/news/openai-astra-model-ten-math-proofs-non-sofic-groups",
+    "order": 10,
+    "source_url": "https://techcrunch.com/2026/08/07/openai-says-it-slowed-astra-model-development-over-security-concerns/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "OpenAI says an internal version of its next major model, called Astra, has produced ten new results in mathematics and theoretical computer science.",
-    "as_of": "2026-08-01",
+    "evidence_excerpt": "OpenAI said Friday it has suspended work on some aspects of its upcoming model Astra after an internal review",
+    "as_of": "2026-08-07",
     "confidence": "high",
     "id": "c_d942b5ed8da2",
     "verified": true,
@@ -1816,18 +1816,12 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-08-03",
+      "fetched_at": "2026-08-10",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://the-decoder.com/openai-announces-its-next-major-model-astra-by-dropping-ten-previously-unsolved-math-solutions/",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false
-      },
-      {
-        "source_url": "https://www.bleepingcomputer.com/news/artificial-intelligence/openai-teases-astra-its-next-major-ai-model-after-it-solves-10-long-standing-math-problems/",
+        "source_url": "https://www.insurancejournal.com/news/national/2026/08/10/880806.htm",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
