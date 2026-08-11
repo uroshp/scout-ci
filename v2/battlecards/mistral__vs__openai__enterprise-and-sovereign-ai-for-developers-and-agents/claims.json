@@ -337,25 +337,33 @@
   },
   {
     "subject_key": "openai | ipo-filing | 2026",
-    "claim": "OpenAI, which confidentially filed its S-1 with the SEC on June 8, 2026, is now weighing a delay of its IPO to 2027, per a New York Times report. Advisers offered management a choice between a faster listing at a lower valuation or waiting until 2027 to target a roughly $1 trillion debut, and Altman called any cut to the trillion-dollar figure a nonstarter. SpaceX's weak post-IPO trading and OpenAI's continuing cash burn made advisers more cautious. Kalshi traders now put 59% odds on an IPO announcement by March 1, 2027. OpenAI has not confirmed any delay.",
-    "claim_type": "interpretation",
+    "claim": "**OpenAI's own $7 billion buyback signals the IPO will wait, and its valuation is flat since March.** On August 10, 2026 OpenAI completed a $7 billion tender offer, buying back employee shares itself instead of bringing in outside investors, at an $852 billion valuation unchanged from its March round. Reporting reads the tender as a sign the public listing will wait, consistent with OpenAI weighing a delay to 2027. Anthropic has meanwhile passed OpenAI in valuation.",
+    "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 2,
-    "source_url": "https://www.cnbc.com/2026/06/26/openai-ipo-timeline-delayed-kalshi-predictions.html",
+    "order": 1,
+    "source_url": "https://finance.yahoo.com/technology/ai/articles/openai-buys-back-7-billion-202608285.html",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "a New York Times report said the company may delay a debut on the public market until next year",
-    "as_of": "2026-06-26",
-    "confidence": "medium",
+    "evidence_excerpt": "The deal valued the startup at $852 billion, the people said, unchanged from its most recent funding round.",
+    "as_of": "2026-08-10",
+    "confidence": "high",
     "id": "c_ad58243f0a8e",
     "verified": true,
     "grounding": {
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-26",
+      "fetched_at": "2026-08-11",
       "detail": null
-    }
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/08/10/openai-reportedly-completed-a-7-billion-employee-tender-offer/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "openai | security-incident | codex-outages-2026-06",
