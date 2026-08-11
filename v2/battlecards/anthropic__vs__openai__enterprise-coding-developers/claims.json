@@ -1908,5 +1908,27 @@
     "confidence": "medium",
     "derived_from": "c_0ed9286a7e90",
     "persona": "security_regulated"
+  },
+  {
+    "subject_key": "openai-astra-research-misconduct",
+    "claim": "Scientific American reported on August 6, 2026 that named mathematicians accused OpenAI of research misconduct over its Astra math results. Steven Miller of Yeshiva University says the sphere-packing proof reuses an argument from his own 2016 paper without credit, and Francesco Fournier-Facio of the University of Cambridge says the soficity 'breakthrough' recombined ideas from existing 2016 and 2019 papers. OpenAI updated its press release after the paper's original claim that the problems had seen no progress in a decade was shown to be inaccurate.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 32,
+    "source_url": "https://www.scientificamerican.com/article/openais-latest-math-breakthroughs-commit-research-misconduct-experts-say/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Two of the most exciting results, the experts say, incorporate preexisting ideas from the recent mathematical literature without properly citing them.",
+    "as_of": "2026-08-06",
+    "confidence": "high",
+    "id": "c_9cb5ed60e795",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-11",
+      "detail": null
+    }
   }
 ]
