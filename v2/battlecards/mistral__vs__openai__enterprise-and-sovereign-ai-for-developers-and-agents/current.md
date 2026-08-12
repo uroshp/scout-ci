@@ -24,9 +24,11 @@ By the end of May, ChatGPT's assistant market share fell to 46.4%, below 50% for
 
 **Mistral's real exposure is scale, and reps should name it before the buyer does.**
 
-Mistral has raised about \$4 billion to date against OpenAI's \$186 billion, and even a successful €20 billion round leaves a resource gap that procurement and risk teams will probe on vendor longevity. Microsoft's July 21, 2026 expanded partnership, including a multibillion dollar commitment tied to Mistral's Europe-based GPU infrastructure, is a concrete answer reps can cite.
+Mistral has raised about \$4 billion to date against OpenAI's \$186 billion, and even a successful €20 billion round leaves a resource gap that procurement and risk teams will probe on vendor longevity.
 
-**So what:** Pre-empt the longevity objection by anchoring on two facts: open weights mean a customer running Mistral on its own infrastructure is not exposed to Mistral's balance sheet, and Microsoft has now backed that infrastructure with a multibillion dollar commitment.
+**Soundbite:** "Our weights are yours to run with or without us, and Microsoft, ASML, CMA CGM, Amadeus and Caisse des Depots are already putting multi-year money behind our infrastructure."
+
+**So what:** Pre-empt the longevity objection by anchoring on three facts: open weights mean a customer running Mistral on its own infrastructure is not exposed to Mistral's balance sheet, Microsoft has backed that infrastructure with a multibillion dollar commitment, and an anchor coalition of enterprises has signed multi-year commitments funding the compute buildout through 2030.
 
 **Mistral's structural edge is ownership: the model runs inside the customer's walls.**
 
@@ -71,7 +73,7 @@ BNP Paribas runs Mistral models on-premises to meet strict security requirements
 - Mistral positions on sovereignty and complete ownership, a framing validated by its partners. Accenture's EMEA CEO said clients want world-class performance with 'the complete ownership that Mistral AI's technology offers enterprises.' This is the company's chosen wedge against US closed-API vendors. ([newsroom.accenture.com](https://newsroom.accenture.com/news/2026/accenture-and-mistral-ai-accelerate-enterprise-reinvention-with-scalable-ai-that-delivers-strategic-autonomy-for-customers))
 - Mistral's core differentiator for developers is deployment control: Mistral Code can run cloud, reserved-capacity or fully air-gapped on-prem, with, in the company's words, every line of code residing inside the customer's enterprise boundary, and Microsoft's Azure Local now extends that same choice through a mainstream cloud partner, running Mistral models in cloud, cloud-connected or fully disconnected environments. OpenAI offers no on-prem option for frontier models.
 - OpenAI shipped the super-app on July 9, 2026. ChatGPT Work is one agent, powered by GPT-5.6, that runs multi-step work across a user's connected apps and files and produces finished sheets, slides, docs and web apps. Chat, Work and Codex now live in one desktop app on every plan, so work automation and coding sit under a single ChatGPT subscription. The Atlas browser is being retired on August 9, so the browser piece of the original vision is dropping out. It stays cloud-hosted, so Mistral's self-host and sovereignty edge is untouched. ([forbes.com](https://www.forbes.com/sites/madhulika-pathak/2026/07/09/openai-debuts-chatgpt-work-workplace-ai-agent-with-gpt-56/))
-- Mistral is building a sovereign compute base: Mistral Compute is a stated €4 billion investment in French and Swedish data centers, targeting 200 MW by 2027 and 1 GW by 2030 (company roadmap figures). It underpins the European data-residency pitch. ([venturebeat.com](https://venturebeat.com/technology/mistral-ai-launches-vibe-expands-into-industrial-ai-and-announces-data-center-push-to-challenge-openai))
+- Mistral Compute has moved from roadmap to shipped product. Regional Endpoints are now generally available, letting customers pin inference to Europe or the US, Priority Tier is in public preview with committed service levels, custom rate limits and an uptime SLA, and an anchor coalition including ASML, CMA CGM, Amadeus and Caisse des Depots has signed multi-year European Compute Unit commitments funding 200 megawatts of European capacity by the end of 2027 and a full gigawatt by the end of 2030.
 
 ## Pricing and Packaging
 
@@ -168,9 +170,9 @@ On the hardest multi-file refactors, the frontier closed models still lead, and 
 
 **"Mistral is small. Will you even be around in three years?"**
 
-Mistral is raising at roughly €20 billion, nearly double its last valuation, with sovereign demand behind it. Microsoft backed that thesis on July 21, 2026 with an expanded partnership that includes a multibillion dollar commitment tied to Mistral's Europe-based GPU infrastructure, and put Mistral Medium 3.5 and OCR 4 into Microsoft Foundry, with Medium 3.5 also in Copilot Studio. More to the point, the Apache 2.0 weights you deploy are yours to keep and run regardless of our roadmap, so your production system never depends on our uptime.
+Mistral is raising at roughly €20 billion, nearly double its last valuation, with sovereign demand behind it. Microsoft backed that thesis in July 2026 with a multibillion dollar commitment tied to Mistral's Europe-based GPU infrastructure and by putting Mistral Medium 3.5 and OCR 4 into Microsoft Foundry. On August 11, 2026 Mistral shipped that infrastructure as product: Regional Endpoints are generally available, Priority Tier is in public preview with a contractual uptime SLA, and an anchor coalition including ASML, CMA CGM, Amadeus and Caisse des Depots signed multi-year commitments underwriting 200 megawatts of capacity by 2027 and a full gigawatt by 2030. More to the point, the Apache 2.0 weights you deploy are yours to keep and run regardless of our roadmap.
 
-**So what:** Open weights convert a vendor-risk objection into a reason to prefer us over a closed API you cannot run yourself, and now you can point to Microsoft's own multibillion dollar bet on Mistral's infrastructure as backing.
+**So what:** Point to Microsoft's multibillion dollar bet and named enterprises now contractually funding the compute buildout, then close on the fact that Apache 2.0 weights mean your production system never depends on our uptime anyway.
 
 **"Your ecosystem is smaller, with fewer integrations and guides."**
 

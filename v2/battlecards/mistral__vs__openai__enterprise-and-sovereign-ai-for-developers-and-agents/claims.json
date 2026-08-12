@@ -59,17 +59,17 @@
   },
   {
     "subject_key": "mistral | scale-gap-risk | current",
-    "claim": "**Mistral's real exposure is scale, and reps should name it before the buyer does.**\n\nMistral has raised about $4 billion to date against OpenAI's $186 billion, and even a successful €20 billion round leaves a resource gap that procurement and risk teams will probe on vendor longevity. Microsoft's July 21, 2026 expanded partnership, including a multibillion dollar commitment tied to Mistral's Europe-based GPU infrastructure, is a concrete answer reps can cite.\n\n**So what:** Pre-empt the longevity objection by anchoring on two facts: open weights mean a customer running Mistral on its own infrastructure is not exposed to Mistral's balance sheet, and Microsoft has now backed that infrastructure with a multibillion dollar commitment.",
+    "claim": "**Mistral's real exposure is scale, and reps should name it before the buyer does.**\n\nMistral has raised about $4 billion to date against OpenAI's $186 billion, and even a successful €20 billion round leaves a resource gap that procurement and risk teams will probe on vendor longevity.\n\n**Soundbite:** \"Our weights are yours to run with or without us, and Microsoft, ASML, CMA CGM, Amadeus and Caisse des Depots are already putting multi-year money behind our infrastructure.\"\n\n**So what:** Pre-empt the longevity objection by anchoring on three facts: open weights mean a customer running Mistral on its own infrastructure is not exposed to Mistral's balance sheet, Microsoft has backed that infrastructure with a multibillion dollar commitment, and an anchor coalition of enterprises has signed multi-year commitments funding the compute buildout through 2030.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 3,
-    "as_of": "2026-07-21",
+    "as_of": "2026-08-11",
     "confidence": "high",
     "id": "c_859f590a2f6b",
     "verified": true,
-    "derived_from": "c_21be6aaf4116",
-    "updated_on": "2026-07-22"
+    "derived_from": "c_c0ee188dba08",
+    "updated_on": "2026-08-12"
   },
   {
     "subject_key": "mistral | sovereign-self-host-edge | current",
@@ -447,25 +447,17 @@
   },
   {
     "subject_key": "mistral | flagship-product | mistral-compute",
-    "claim": "Mistral is building a sovereign compute base: Mistral Compute is a stated €4 billion investment in French and Swedish data centers, targeting 200 MW by 2027 and 1 GW by 2030 (company roadmap figures). It underpins the European data-residency pitch.",
-    "claim_type": "fact",
+    "claim": "Mistral Compute has moved from roadmap to shipped product. Regional Endpoints are now generally available, letting customers pin inference to Europe or the US, Priority Tier is in public preview with committed service levels, custom rate limits and an uptime SLA, and an anchor coalition including ASML, CMA CGM, Amadeus and Caisse des Depots has signed multi-year European Compute Unit commitments funding 200 megawatts of European capacity by the end of 2027 and a full gigawatt by the end of 2030.",
+    "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
     "order": 2,
-    "source_url": "https://venturebeat.com/technology/mistral-ai-launches-vibe-expands-into-industrial-ai-and-announces-data-center-push-to-challenge-openai",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Mistral Compute is a €4 billion ($4.66B USD) investment in data centers in France and Sweden, with a stated roadmap of 200 MW of capacity by 2027 and 1 GW by 2030.",
-    "as_of": "2026-05-28",
+    "as_of": "2026-08-11",
     "confidence": "medium",
     "id": "c_c0ee188dba08",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-17",
-      "detail": null
-    }
+    "derived_from": "c_c0ee188dba08",
+    "updated_on": "2026-08-12"
   },
   {
     "subject_key": "openai | positioning | frontier-superapp",
@@ -893,18 +885,18 @@
   },
   {
     "subject_key": "mistral | objection-scale-longevity | current",
-    "claim": "**\"Mistral is small. Will you even be around in three years?\"**\n\nMistral is raising at roughly €20 billion, nearly double its last valuation, with sovereign demand behind it. Microsoft backed that thesis on July 21, 2026 with an expanded partnership that includes a multibillion dollar commitment tied to Mistral's Europe-based GPU infrastructure, and put Mistral Medium 3.5 and OCR 4 into Microsoft Foundry, with Medium 3.5 also in Copilot Studio. More to the point, the Apache 2.0 weights you deploy are yours to keep and run regardless of our roadmap, so your production system never depends on our uptime.\n\n**So what:** Open weights convert a vendor-risk objection into a reason to prefer us over a closed API you cannot run yourself, and now you can point to Microsoft's own multibillion dollar bet on Mistral's infrastructure as backing.",
+    "claim": "**\"Mistral is small. Will you even be around in three years?\"**\n\nMistral is raising at roughly €20 billion, nearly double its last valuation, with sovereign demand behind it. Microsoft backed that thesis in July 2026 with a multibillion dollar commitment tied to Mistral's Europe-based GPU infrastructure and by putting Mistral Medium 3.5 and OCR 4 into Microsoft Foundry. On August 11, 2026 Mistral shipped that infrastructure as product: Regional Endpoints are generally available, Priority Tier is in public preview with a contractual uptime SLA, and an anchor coalition including ASML, CMA CGM, Amadeus and Caisse des Depots signed multi-year commitments underwriting 200 megawatts of capacity by 2027 and a full gigawatt by 2030. More to the point, the Apache 2.0 weights you deploy are yours to keep and run regardless of our roadmap.\n\n**So what:** Point to Microsoft's multibillion dollar bet and named enterprises now contractually funding the compute buildout, then close on the fact that Apache 2.0 weights mean your production system never depends on our uptime anyway.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 1,
-    "as_of": "2026-07-21",
+    "as_of": "2026-08-11",
     "confidence": "medium",
     "persona": "economic_buyer",
     "id": "c_482f89f830f8",
     "verified": true,
-    "derived_from": "c_21be6aaf4116",
-    "updated_on": "2026-07-22"
+    "derived_from": "c_c0ee188dba08",
+    "updated_on": "2026-08-12"
   },
   {
     "subject_key": "mistral | objection-ecosystem | current",

@@ -67,17 +67,17 @@
   },
   {
     "subject_key": "cursor | adverse-objections-readiness | current",
-    "claim": "**Our four biggest vulnerabilities: billing trust, the SpaceX overhang and two RCE disclosures, DuneSlide (patched) and the Mindgard git.exe flaw (fixed quietly, no advisory or CVE yet). Have answers ready.**\n\nBuyers remember the 2025 pricing blow-ups and the $60B SpaceX acquisition option exercisable later in 2026. Cato Networks' DuneSlide RCE is patched in Cursor 3.0. Mindgard's July 14, 2026 disclosure: a malicious git.exe in a repo's root auto-executes on Windows, no click or warning, first reported December 2025. Cursor shipped a fix July 13, a day before disclosure, but as of July 17 has no advisory, CVE or named fixed version. All four will come up.\n\n**So what:** Don't dodge any. On billing, cite split usage pools, the spend dashboard and dollar-threshold alerts. On SpaceX, note Cursor operates independently with change-of-control contract protection. On DuneSlide, point to Cursor 3.0. On Mindgard, say the fix shipped, be straight that no advisory or CVE exists yet, and anchor on Fortune 500-scale adoption as proof enterprises trust us at this scale.",
+    "claim": "**Our four biggest vulnerabilities: billing trust, the SpaceX overhang and two RCE disclosures, DuneSlide (patched) and the Mindgard git.exe flaw (fixed quietly, no advisory or CVE yet). Have answers ready.**\n\nThe 2025 pricing blow-ups still sting. The $60B SpaceX acquisition is pending close, with reports the Cursor brand will phase out and staff will move into SpaceXAI teams after close. Cato Networks' DuneSlide RCE is patched in Cursor 3.0. Mindgard's July 14, 2026 disclosure: a malicious git.exe in a repo's root auto-executes on Windows, no click or warning. Cursor shipped a fix July 13 but as of July 17 has no advisory, CVE or named fixed version.\n\n**So what:** Answer each directly. On billing, cite split usage pools, the spend dashboard and dollar-threshold alerts. On SpaceX, confirm brand and org changes come after close; today's product, contracts and Fortune 500-scale adoption are Cursor's under Anysphere. On DuneSlide, point to Cursor 3.0. On Mindgard, confirm the fix shipped; no advisory or CVE exists yet; Fortune 500-scale adoption proves enterprise trust.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 0,
-    "as_of": "2026-07-17",
+    "as_of": "2026-08-09",
     "confidence": "high",
     "id": "c_64207118572d",
     "verified": true,
-    "derived_from": "c_b62dd8b0d71e",
-    "updated_on": "2026-07-18"
+    "derived_from": "c_409011b6715d",
+    "updated_on": "2026-08-12"
   },
   {
     "subject_key": "devin-desktop | windsurf-migration-opening | current",
@@ -754,18 +754,18 @@
   },
   {
     "subject_key": "objection | cursor-spacex-ownership | cursor-adverse",
-    "claim": "**\"If SpaceX buys Cursor, who am I actually contracting with in a year?\"**\n\nThe deal is now signed: SpaceX and Anysphere executed a definitive merger agreement on June 16, 2026, with close targeted for Q3 2026 pending regulatory approval. Until regulators clear it, Anysphere operates independently and contracts execute with Anysphere today. Cursor's current capabilities, ~$2B ARR, and Fortune 500 deployment footprint are what this decision rests on.\n\n**So what:** Standardize on Cursor now under current Anysphere terms; the ownership change cannot take legal effect before regulators approve it.",
+    "claim": "**\"If SpaceX buys Cursor, who am I actually contracting with, and will the product I bought even keep its name?\"**\n\nThe deal is still pending regulatory close, targeted for Q3 2026. Internally, Cursor has told staff the brand name will likely phase out over the coming months as the deal nears close, and employees are expected to move into SpaceXAI's teams and reporting lines once it closes. That is a plan for after close, not the product today: the Cursor coding assistant keeps its name for now, and contracts still execute with Anysphere, not SpaceXAI, until regulators approve the deal. What you are buying is Cursor's current capabilities, its roughly $2B ARR and its footprint in more than half the Fortune 500.\n\n**So what:** Standardize on Cursor now under current Anysphere terms. The product and the contract you sign today are Cursor's, not SpaceXAI's, and cannot change before regulators clear the deal.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 3,
-    "as_of": "2026-06-16",
+    "as_of": "2026-08-09",
     "confidence": "high",
     "id": "c_9dc1510b77e3",
     "verified": true,
     "persona": "security_regulated",
-    "derived_from": "c_e5ed555c40d5",
-    "updated_on": "2026-06-16"
+    "derived_from": "c_409011b6715d",
+    "updated_on": "2026-08-12"
   },
   {
     "subject_key": "cursor | spacex-acquisition",
@@ -1201,6 +1201,36 @@
     "corroboration": [
       {
         "source_url": "https://techcrunch.com/2026/07/24/why-cognition-bought-poke-ai-personality-is-becoming-a-competitive-advantage/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "cursor | spacex-integration-plan",
+    "claim": "Cursor told staff at an internal all-hands that the Cursor brand name will likely be phased out over the coming months as SpaceX's $60B acquisition nears close. Existing tools like the Cursor coding assistant keep their name for now, the in-development general-purpose agent code-named Sand could be renamed Grok Bot, and Cursor will not remain a standalone unit: employees are expected to be spread across SpaceXAI's teams and reporting lines shortly after closing.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.pymnts.com/news/artificial-intelligence/2026/cursor-brand-name-may-not-survive-spacex-acquisition/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "the Cursor brand name would likely be phased out in the months to come, sources familiar with the matter said.",
+    "as_of": "2026-08-09",
+    "confidence": "medium",
+    "id": "c_409011b6715d",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-12",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://dealroom.co/news/info-1jfa89-cursor-maps-out-branding-other-changes-as-spacex-acquisition-nears/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false

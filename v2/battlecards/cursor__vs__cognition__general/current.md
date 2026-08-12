@@ -4,9 +4,9 @@
 
 **Our four biggest vulnerabilities: billing trust, the SpaceX overhang and two RCE disclosures, DuneSlide (patched) and the Mindgard git.exe flaw (fixed quietly, no advisory or CVE yet). Have answers ready.**
 
-Buyers remember the 2025 pricing blow-ups and the \$60B SpaceX acquisition option exercisable later in 2026. Cato Networks' DuneSlide RCE is patched in Cursor 3.0. Mindgard's July 14, 2026 disclosure: a malicious git.exe in a repo's root auto-executes on Windows, no click or warning, first reported December 2025. Cursor shipped a fix July 13, a day before disclosure, but as of July 17 has no advisory, CVE or named fixed version. All four will come up.
+The 2025 pricing blow-ups still sting. The \$60B SpaceX acquisition is pending close, with reports the Cursor brand will phase out and staff will move into SpaceXAI teams after close. Cato Networks' DuneSlide RCE is patched in Cursor 3.0. Mindgard's July 14, 2026 disclosure: a malicious git.exe in a repo's root auto-executes on Windows, no click or warning. Cursor shipped a fix July 13 but as of July 17 has no advisory, CVE or named fixed version.
 
-**So what:** Don't dodge any. On billing, cite split usage pools, the spend dashboard and dollar-threshold alerts. On SpaceX, note Cursor operates independently with change-of-control contract protection. On DuneSlide, point to Cursor 3.0. On Mindgard, say the fix shipped, be straight that no advisory or CVE exists yet, and anchor on Fortune 500-scale adoption as proof enterprises trust us at this scale. ([mindgard.ai](https://mindgard.ai/blog/cursor-0day-when-full-disclosure-becomes-the-only-protection-left))
+**So what:** Answer each directly. On billing, cite split usage pools, the spend dashboard and dollar-threshold alerts. On SpaceX, confirm brand and org changes come after close; today's product, contracts and Fortune 500-scale adoption are Cursor's under Anysphere. On DuneSlide, point to Cursor 3.0. On Mindgard, confirm the fix shipped; no advisory or CVE exists yet; Fortune 500-scale adoption proves enterprise trust. ([pymnts.com](https://www.pymnts.com/news/artificial-intelligence/2026/cursor-brand-name-may-not-survive-spacex-acquisition/))
 
 **Cognition has graduated from viral demo to a scaled competitor: sell against it that way.**
 
@@ -158,11 +158,11 @@ Fair: the 2025 rollout was botched and our CEO apologized publicly. Since then w
 
 **So what:** Own the history, then walk through the pools, dashboard, dollar alerts and Cursor Router's on-by-default savings. Getting defensive is what loses this deal. ([cursor.com](https://cursor.com/blog/router))
 
-**"If SpaceX buys Cursor, who am I actually contracting with in a year?"**
+**"If SpaceX buys Cursor, who am I actually contracting with, and will the product I bought even keep its name?"**
 
-The deal is now signed: SpaceX and Anysphere executed a definitive merger agreement on June 16, 2026, with close targeted for Q3 2026 pending regulatory approval. Until regulators clear it, Anysphere operates independently and contracts execute with Anysphere today. Cursor's current capabilities, ~\$2B ARR, and Fortune 500 deployment footprint are what this decision rests on.
+The deal is still pending regulatory close, targeted for Q3 2026. Internally, Cursor has told staff the brand name will likely phase out over the coming months as the deal nears close, and employees are expected to move into SpaceXAI's teams and reporting lines once it closes. That is a plan for after close, not the product today: the Cursor coding assistant keeps its name for now, and contracts still execute with Anysphere, not SpaceXAI, until regulators approve the deal. What you are buying is Cursor's current capabilities, its roughly \$2B ARR and its footprint in more than half the Fortune 500.
 
-**So what:** Standardize on Cursor now under current Anysphere terms; the ownership change cannot take legal effect before regulators approve it. ([cnbc.com](https://www.cnbc.com/2026/06/16/spacex-spcx-cursor-acquisition-ipo.html))
+**So what:** Standardize on Cursor now under current Anysphere terms. The product and the contract you sign today are Cursor's, not SpaceXAI's, and cannot change before regulators clear the deal. ([pymnts.com](https://www.pymnts.com/news/artificial-intelligence/2026/cursor-brand-name-may-not-survive-spacex-acquisition/))
 
 **"Didn't DuneSlide leave Cursor's sandbox wide open?"**
 
