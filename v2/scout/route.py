@@ -38,7 +38,9 @@ CHANGE_KINDS = [
     "full_invalidation",      # a claim is now false -> retire (kept for lineage), feed_note REQUIRED
     "neutralize",             # a winning play is neutralized to a wash -> retire
     "reconcile_beat",         # the next beat of a story the claim already encodes -> revise, fold in, keep prior beats
-    "supersede_lead",         # the change is now the sharpest thing to open with -> revise executive_summary
+    "supersede_lead",         # LEGACY (retired 2026-08-12): NO LONGER in the router prompt — the lead
+                              # election owns which verdict opens the brief. Kept in the taxonomy only so
+                              # a replayed historical decision log still validates (never freshly emitted).
     "supersede_retire",       # SYNTHESIZED BY CODE (2026-07-25 sweep), never routed by the model: an
                               # active claim still cites an identifier a new fact supersedes -> retire,
                               # judged per-claim with the deal-moving lens
@@ -68,9 +70,11 @@ actually change. The verdict is the floor of your coverage, not the ceiling.
 
 COVER EVERY SECTION IT TOUCHES — this is the whole point. A single fact can move the lead AND an
 objection AND a positioning line AND pricing at once. Check each of these and route to ALL that apply:
-- executive_summary — Today's angle, the single argument the brief opens with. Route here
-  (change_kind supersede_lead) ONLY when the change is now the MOST consequential thing to lead with,
-  beating the current lead on impact x freshness. Most changes do not move the lead.
+- executive_summary — the brief's strategic verdicts. Route a change here (as a normal new/update/
+  reconcile_beat/partial_invalidation) when it adds or changes one of these top-line verdicts. Do NOT
+  try to decide WHICH verdict opens the brief ("Today's angle") — a downstream lead election owns that
+  ordering, on deal impact. Your job is the verdict's CONTENT, not its rank. Most changes touch no
+  executive_summary verdict at all.
 - snapshot — the at-a-glance framing lines.
 - positioning — how the two companies are positioned / differentiated.
 - pricing — pricing and packaging. A price move, a new tier, a discount, a pricing-model change routes here.
@@ -97,7 +101,9 @@ change_kind — classify EACH routed op as exactly one (this is the resilience c
 - neutralize           : a winning play is neutralized to a wash. operation=retire. feed_note REQUIRED.
 - reconcile_beat       : the next beat of a story the claim ALREADY encodes (a ban, then a reversal).
                          operation=revise, fold the new beat in and KEEP prior still-true beats.
-- supersede_lead       : executive_summary only. operation=revise. The new most-strategic lead.
+An executive_summary verdict is routed with these SAME change_kinds (new/update/reconcile_beat/
+partial_invalidation) like any other section — there is no special "make this the lead" kind; the
+lead election ranks the verdicts downstream.
 
 OPERATIONS: add (new, target_subject_key null, mint a fresh subject_key), revise (touch an existing
 claim IN PLACE, reuse its EXACT subject_key), retire (a claim leaves the active card for the lineage
@@ -125,7 +131,7 @@ fact's text or in the claim being revised; sibling/older versions may be listed 
 present there too; never infer or guess identifiers. Code will sweep the card for OTHER active claims
 still citing these terms and propose their retirement to a judge — so list terms only when the
 replacement genuinely makes claims about the old identifier stop mattering in a deal. Omit the field
-(or []) otherwise. Typical on: update, reconcile_beat, supersede_lead, partial/full_invalidation.
+(or []) otherwise. Typical on: update, reconcile_beat, partial/full_invalidation.
 
 RUN VERDICT — separately, judge whether this run's change(s) are CONSEQUENTIAL: do they change what the
 rep DOES or the brief's thesis (consequential), or are they a routine accuracy update that keeps the
@@ -140,7 +146,7 @@ Return ONLY a single fenced ```json block:
    "section": "executive_summary|snapshot|positioning|pricing|battlecard|sentiment|objection_handling",
    "zone": "where_we_win|contested|where_they_win|null (battlecard only; null elsewhere)",
    "operation": "add|revise|retire",
-   "change_kind": "new|update|partial_invalidation|full_invalidation|neutralize|reconcile_beat|supersede_lead",
+   "change_kind": "new|update|partial_invalidation|full_invalidation|neutralize|reconcile_beat",
    "valence": "front_foot|back_foot|neutral",
    "target_subject_key": "<EXACT subject_key of the claim for revise|retire; null for add>",
    "subject_key": "<resulting subject_key: NEW for add; SAME as target for revise|retire>",

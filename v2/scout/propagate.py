@@ -35,7 +35,10 @@ from scout.schema import (ZONES, claim_id, normalize_subject_key, render_structu
 # map (or a legacy op with no change_kind) skip the check, so direct apply/test paths are unaffected.
 _KIND_OP = {
     "new": "add", "update": "revise", "partial_invalidation": "revise",
-    "reconcile_beat": "revise", "supersede_lead": "revise",
+    "reconcile_beat": "revise",
+    "supersede_lead": "revise",     # LEGACY (retired 2026-08-12): the router no longer emits it — the
+                                    # lead election owns which verdict leads; kept only so a replayed
+                                    # historical decision log still floor-validates.
     "full_invalidation": "retire", "neutralize": "retire",
     "supersede_retire": "retire",   # 2026-07-25: code-synthesized sweep candidates (never routed)
 }
@@ -109,9 +112,10 @@ claim renders as one unbroken blob and is REJECTED — this is not optional):
 - A PLAY (battlecard win/lose zone) claim is written as: a bold one-line headline, then the body, then a
   final block that begins literally with **Soundbite:** giving one rep-ready sentence. A CONTESTED
   battlecard entry is a neutral framing: no Soundbite, no persona.
-- THE LEAD (executive_summary, change_kind supersede_lead) is written as: a bold one-line headline, ONE
-  short proof sentence, then a **Soundbite:** "one line to say out loud", then a final **So what:** block
-  with the rep's concrete move. Keep it short and scannable — a rep skims it in ten seconds.
+- AN EXECUTIVE_SUMMARY VERDICT (a top-line strategic verdict; one may become "Today's angle", but that
+  ranking is decided downstream, not here) is written as: a bold one-line headline, ONE short proof
+  sentence, then a **Soundbite:** "one line to say out loud", then a final **So what:** block with the
+  rep's concrete move. Keep it short and scannable — a rep skims it in ten seconds.
 - POSITIONING, PRICING, SNAPSHOT, SENTIMENT claims are tight plain prose (one or two sentences), NO
   required block and NO persona. State what is TRUE NOW; for a pricing op, name the exact number or tier
   the fact states. Do not force a So-what or Soundbite where the section does not use one.
@@ -392,7 +396,7 @@ def floor_check(op: dict, surviving_fact_ids: set, active_by_sk: dict) -> list:
         elif _KIND_OP.get(ck) != operation:
             v.append(f"change_kind {ck!r} requires operation {_KIND_OP.get(ck)!r}, got {operation!r}")
         elif ck == "supersede_lead" and section != "executive_summary":
-            v.append("change_kind 'supersede_lead' is executive_summary only")
+            v.append("change_kind 'supersede_lead' is executive_summary only")  # legacy: not emitted since 2026-08-12
 
     # No model-minted facts — propagation only ever authors interpretations.
     if op.get("claim_type") != "interpretation":
