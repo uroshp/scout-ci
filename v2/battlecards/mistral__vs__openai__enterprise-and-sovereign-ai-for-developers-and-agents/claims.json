@@ -976,15 +976,15 @@
   },
   {
     "subject_key": "openai | gpt-5.5-cyber",
-    "claim": "On June 22 OpenAI shipped the full version of GPT-5.5-Cyber, a model that finds vulnerabilities and generates patches, kept restricted to vetted defenders because of its offensive-leaning skills. OpenAI paired it with an updated Codex Security plugin that runs the full discovery-to-patch pipeline, and a 'Patch the Planet' initiative that fixes open-source projects including Python, Go and cURL. OpenAI also named cyber partnerships with several governments, including France, Germany, the EU agency ENISA and the UK, and said GPT-5.5-Cyber leads CyberGym at 85.6%, ahead of Anthropic's Mythos 5 at 83.8%.",
+    "claim": "On August 10, 2026 OpenAI launched GPT-5.6-Cyber, a purpose-trained offensive-security model built on GPT-5.6 Sol for finding zero-days and building exploit chains. It is available only through a new Daybreak Red access tier to vetted partners (Accenture, IBM, CrowdStrike and Cloudflare among them named in reporting). OpenAI says it completes 95% of exploit-development, privilege-escalation and authentication-bypass prompts, against 1.5% for GPT-5.6 Sol and 57.3% for the earlier GPT-5.5-Cyber, and used it to find a high-severity zero-day in Chrome's V8 engine. This supersedes the June 22, 2026 GPT-5.5-Cyber as OpenAI's restricted cyber model.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 8,
-    "source_url": "https://the-decoder.com/openai-says-new-gpt-5-5-cyber-outperforms-anthropics-mythos-on-cybersecurity-benchmark/",
+    "order": 1,
+    "source_url": "https://www.securityweek.com/openai-unveils-new-cybersecurity-model-gpt-5-6-cyber/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "the GPT-5.5-Cyber cybersecurity model is now fully available after leaving its preview phase.",
-    "as_of": "2026-06-22",
+    "evidence_excerpt": "OpenAI on Monday announced a new cybersecurity-focused AI model named GPT-5.6-Cyber, as well as the expansion of its Daybreak Cyber Partner program.",
+    "as_of": "2026-08-11",
     "confidence": "high",
     "id": "c_d15096f5fdb1",
     "verified": true,
@@ -992,12 +992,12 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-24",
+      "fetched_at": "2026-08-13",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://www.infosecurity-magazine.com/news/openai-daybreak-gpt-5-5-cyber/",
+        "source_url": "https://techcrunch.com/2026/08/10/as-ai-led-attacks-multiply-openai-launches-a-new-cyber-model/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
