@@ -1930,5 +1930,35 @@
       "fetched_at": "2026-08-11",
       "detail": null
     }
+  },
+  {
+    "subject_key": "openai-executive-shakeup",
+    "claim": "OpenAI lost two senior executives in days ahead of its IPO. Longtime COO Brad Lightcap announced on August 11, 2026 he is leaving to start something new, and on August 13 OpenAI said Chief Revenue Officer Denise Dresser is departing after eight months, replaced by former Wiz president Dali Rajic. Dresser had brought the enterprise sales expertise OpenAI hired to take on Anthropic and had absorbed many of Lightcap's duties in April. Product and business chief Fidji Simo stepped down last month, and three other executives left in April.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 5,
+    "source_url": "https://www.cnbc.com/2026/08/13/openai-denise-dresser-executive-exits.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "her exit poses a particular conundrum for OpenAI, in large part because she brought the company enterprise expertise that it sorely needed to take on its chief rival, Anthropic .",
+    "as_of": "2026-08-13",
+    "confidence": "high",
+    "id": "c_d160c8ef2c4a",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-14",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/08/11/brad-lightcap-openais-longtime-coo-is-leaving-to-start-something-new/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

@@ -1405,5 +1405,41 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "openai | monetization-ads-aug-2026",
+    "claim": "OpenAI is now running ads inside ChatGPT to help cover its spending. On August 11, 2026 it expanded the ads test to the UK, Mexico, Brazil, Japan and South Korea, after starting in the US in February 2026. Ads appear only on the Free and Go tiers. The Plus, Pro, Business, Enterprise and Education tiers stay ad-free, and OpenAI says advertisers get no access to chats, chat history or personal details and receive only aggregate metrics.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 62,
+    "source_url": "https://www.cnbc.com/2026/01/16/open-ai-chatgpt-ads-us.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI said its Plus, Pro and Enterprise subscriptions will not include ads, but it plans to start testing them with adult free users in the U.S.",
+    "as_of": "2026-08-11",
+    "confidence": "high",
+    "id": "c_977cb592532c",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-14",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.mmm-online.com/news/openai-kicks-off-test-phase-for-chatgpt-ads/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.ghacks.net/2026/08/13/openai-expands-chatgpt-ads-test-to-uk-mexico-brazil-japan-and-south-korea/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-08-13T11:07:53",
+  "last_checked": "2026-08-14T11:08:26",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -27,5 +27,5 @@
     "battlecard | contested | agent-platform-maturity"
   ],
   "unresolved_since": "2026-08-12",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }

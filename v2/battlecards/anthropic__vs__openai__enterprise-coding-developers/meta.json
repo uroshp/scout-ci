@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise coding/developers",
   "baseline_date": "2026-06-04",
-  "last_checked": "2026-08-13T11:00:37",
+  "last_checked": "2026-08-14T11:00:33",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_e5e52edeb211",
@@ -27,7 +27,8 @@
     "f_4462e2e9197a",
     "f_6c9dd3a14736",
     "f_b5d08e50ea09",
-    "f_97cc16a3c92b"
+    "f_97cc16a3c92b",
+    "f_273b63934500"
   ],
   "monitored": true,
   "unresolved_subjects": [
@@ -36,5 +37,5 @@
     "openai-astra-math-milestone"
   ],
   "unresolved_since": "2026-08-11",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }
