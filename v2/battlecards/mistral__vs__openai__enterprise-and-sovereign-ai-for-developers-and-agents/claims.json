@@ -1441,5 +1441,95 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "openai | revenue-run-rate",
+    "claim": "OpenAI's annualized revenue run rate has crossed about $40 billion, roughly double its ~$20 billion pace at the end of 2025, per a Bloomberg report. President Greg Brockman told staff the monthly run rate grew more than 20% in July alone. Growth is spread across ChatGPT subscriptions, the Codex coding agent, enterprise ChatGPT Work and a nascent ads business. For scale, Anthropic reported a $47 billion run rate in May, though accounting differences make the two hard to compare directly.",
+    "claim_type": "fact",
+    "section": "snapshot",
+    "zone": null,
+    "order": 5,
+    "source_url": "https://finance.yahoo.com/technology/ai/articles/openai-revenue-run-rate-tops-224009196.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI's annualized revenue run rate has surpassed $40 billion, roughly doubling its pace from late 2025",
+    "as_of": "2026-08-14",
+    "confidence": "high",
+    "id": "c_ecdff914ebfa",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-15",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://investinglive.com/stocks/openai-s-annualized-revenue-run-rate-has-surpassed-40-billion-says-a-bloomberg-report/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "openai | product-launch | ultrafast-tier",
+    "claim": "On August 13, 2026 OpenAI previewed Ultrafast, an API service tier that runs GPT-5.6 Sol on Cerebras wafer-scale hardware at up to 750 output tokens per second, about 14x its standard speed of roughly 53 tokens per second. The model's intelligence and context window are unchanged, only the token speed. Ultrafast is invite-only in the OpenAI API with no published price and no general-availability date, and it is cloud-only, tied to Cerebras capacity OpenAI says will expand through 2026. All speed figures are vendor-stated, not independently benchmarked.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 2,
+    "source_url": "https://the-decoder.com/gpt-5-6-sol-goes-14x-faster-as-openai-launches-ultrafast-mode-powered-by-cerebras/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI is launching a preview of its new \"Ultrafast\" mode, which delivers up to 750 output tokens per second from its flagship model, GPT-5.6 Sol.",
+    "as_of": "2026-08-14",
+    "confidence": "high",
+    "id": "c_0d4fe407f94c",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-15",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.techtimes.com/articles/324514/20260814/gpt-56-sol-now-runs-real-time-speed-openais-ultrafast-preview-offers-no-price-date.htm",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "openai | executive-change | cro",
+    "claim": "OpenAI replaced Chief Revenue Officer Denise Dresser after about nine months, naming former Wiz president and COO Dali Rajic to lead enterprise sales. Rajic is the second CRO in under a year. Her exit lands amid a cluster of senior departures in the same stretch: eight-year veteran COO Brad Lightcap left to 'start something new' and AGI-deployment CEO Fidji Simo stepped down for medical reasons, all as OpenAI moves toward the IPO it filed for confidentially in June 2026.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 3,
+    "source_url": "https://techcrunch.com/2026/08/13/openai-hires-new-cro-as-executive-shake-up-continues/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI has replaced chief revenue officer Denise Dresser after just nine months on the job",
+    "as_of": "2026-08-14",
+    "confidence": "high",
+    "id": "c_d690851cd11d",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-15",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.ibtimes.com/openai-loses-second-senior-executive-this-week-revenue-chief-denise-dresser-leaving-3806396",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
