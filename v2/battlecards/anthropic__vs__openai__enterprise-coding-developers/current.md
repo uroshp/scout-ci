@@ -81,7 +81,7 @@ OpenAI's GPT-5.5 narrowly leads the now-saturated SWE-bench Verified (88.7% vs C
 
 ## Pricing and Packaging
 
-- Claude API list pricing (per 1M tokens, as of July 2026): Opus 5 at \$5 input / \$25 output, replacing Opus 4.8 at the same price; Sonnet 5 at introductory pricing of \$2 / \$10 through August 31, 2026, rising to \$3 / \$15 after; Sonnet 4.6 at \$3 / \$15; Haiku 4.5 at \$1 / \$5. Sonnet 5 is now the credible mid-tier for sustained agentic coding, with agentic performance Anthropic says is close to Opus 4.8. ([anthropic.com](https://www.anthropic.com/news/claude-opus-5))
+- Claude API list pricing (per 1M tokens, as of August 2026): Opus 5 at \$5 input / \$25 output, replacing Opus 4.8 at the same price; Sonnet 5 at \$2 / \$10, now the permanent rate after Anthropic canceled the previously scheduled increase to \$3 / \$15; Sonnet 4.6 at \$3 / \$15; Haiku 4.5 at \$1 / \$5. Sonnet 5 is now the credible mid-tier for sustained agentic coding, with agentic performance Anthropic says is close to Opus 4.8. ([platform.claude.com](https://platform.claude.com/docs/en/about-claude/pricing))
 - OpenAI API list pricing (per 1M tokens, as of June 2026): GPT-5.5 at \$5 input / \$30 output; the dedicated gpt-5.3-codex at \$1.75 / \$14. On raw token price the Codex model undercuts Claude Opus, a real cost argument OpenAI will make on high-volume coding workloads. ([developers.openai.com](https://developers.openai.com/api/docs/pricing))
 - Developer subscription tiers are at parity: Claude Pro (\$20/mo, includes Claude Code) vs Codex Plus (\$20/mo); Claude Max 5x/20x at \$100/\$200 vs Codex Pro 5x/20x at \$100/\$200. Seat price is a wash; the fight is on quality, predictability, and usage limits. ([claude.com](https://claude.com/pricing))
 - Effective June 15, 2026, Anthropic moves programmatic usage (Agent SDK, `claude -p`, GitHub Actions) off subscription pools onto a separate per-user monthly credit pool (\$20 Pro / \$100 Max 5x / \$200 Max 20x) billed at API rates, no rollover; Standard Enterprise seats get no credit. It's the third billing change of the year and a live disruption for CI/CD-heavy teams. ([techtimes.com](http://www.techtimes.com/articles/317625/20260602/anthropic-ends-subscription-subsidy-agents-june-15-credit-pool-replaces-flat-rate-access.htm))
@@ -142,9 +142,9 @@ GPT-5.5 leads SWE-bench Verified at 88.7% to Claude Opus 4.7's 87.6%, a 1.1-poin
 
 **On token price, the picture stays mixed, but capability per dollar has moved our way.**
 
-OpenAI's mid-tier beats Claude's flagship on raw per-token price: GPT-5.4 at \$2.50/\$15.00 per million versus Claude Opus 5 at \$5.00/\$25.00, and pricing trackers put OpenAI cheaper across most comparable tiers in 2026. Claude Sonnet 5 lists at \$2/\$10 through August 31, 2026 (then \$3/\$15), undercutting GPT-5.4 on both input and output. At that same \$5/\$25, Opus 5 now scores 43.3% on Frontier-Bench v0.1, up from Opus 4.8's 18.7% and ahead of Fable 5 at 33.7%, per Anthropic's reporting. Caching narrows the gap on both sides.
+OpenAI's mid-tier beats Claude's flagship on raw per-token price: GPT-5.4 at \$2.50/\$15.00 per million versus Claude Opus 5 at \$5.00/\$25.00, and pricing trackers put OpenAI cheaper across most comparable tiers in 2026. Claude Sonnet 5 lists at a permanent \$2/\$10, undercutting GPT-5.4 on both input and output after Anthropic canceled a planned increase to \$3/\$15. At that same \$5/\$25, Opus 5 now scores 43.3% on Frontier-Bench v0.1, up from Opus 4.8's 18.7% and ahead of Fable 5 at 33.7%, per Anthropic's reporting. Caching narrows the gap on both sides.
 
-**Soundbite:** *"Their mid-tier prices under our flagship. At the same \$5 in and \$25 out, Opus 5 scores 43.3% on Frontier-Bench, more than double Opus 4.8's 18.7%. If raw price matters more, Sonnet 5 at \$2 and \$10 undercuts GPT-5.4 on both."* ([anthropic.com](https://www.anthropic.com/news/claude-opus-5))
+**Soundbite:** *"Their mid-tier prices under our flagship. At the same \$5 in and \$25 out, Opus 5 scores 43.3% on Frontier-Bench, more than double Opus 4.8's 18.7%. If raw price matters more, Sonnet 5 at a permanent \$2 and \$10 undercuts GPT-5.4 on both."* ([platform.claude.com](https://platform.claude.com/docs/en/about-claude/pricing))
 
 **If the buy is "one AI platform for everything," OpenAI's breadth is a real fight.**
 
@@ -206,9 +206,9 @@ Real and serious for gov-adjacent buyers: in February 2026 the administration or
 
 **"Anthropic keeps changing its pricing. How do I budget against a moving target?"**
 
-Finance teams raise this every time a new billing notice lands. The June 15 Agent-SDK credit split is Anthropic's third billing change in 2026, and a brief April test even pulled Claude Code from the Pro page before being reversed within a day. The honest framing is that flat-rate subscriptions genuinely couldn't sustain agent compute, and the fix for enterprise is to bill predictably on the Claude Platform API rather than ride subscription tokens that can shift.
+Finance teams raise this every time a new billing notice lands. The June 15 Agent-SDK credit split was Anthropic's third billing change in 2026, and a brief April test even pulled Claude Code from the Pro page before being reversed within a day. The latest move cuts the other way: Anthropic canceled the September 1 increase to Sonnet 5's rate and confirmed \$2/\$10 per million tokens as the permanent price. The honest framing is that flat-rate subscriptions genuinely couldn't sustain agent compute, and the fix for enterprise is to bill predictably on the Claude Platform API rather than ride subscription tokens that can shift.
 
-**So what:** Put production usage on the pay-as-you-go API with committed-use terms: metered, SLA-backed, and immune to the subscription-tier churn the headlines are about. ([techtimes.com](http://www.techtimes.com/articles/317625/20260602/anthropic-ends-subscription-subsidy-agents-june-15-credit-pool-replaces-flat-rate-access.htm))
+**So what:** Put production usage on the pay-as-you-go API with committed-use terms: metered, SLA-backed, and now locked at \$2/\$10 for Sonnet 5 with the planned increase canceled. ([platform.claude.com](https://platform.claude.com/docs/en/about-claude/pricing))
 
 **"The government forced Anthropic to disable two of its models overnight for every customer. How do we know the same won't happen to what we're building on?"**
 

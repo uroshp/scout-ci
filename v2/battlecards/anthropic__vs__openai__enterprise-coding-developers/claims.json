@@ -506,17 +506,17 @@
   },
   {
     "subject_key": "anthropic | api-list-price | current",
-    "claim": "Claude API list pricing (per 1M tokens, as of July 2026): Opus 5 at $5 input / $25 output, replacing Opus 4.8 at the same price; Sonnet 5 at introductory pricing of $2 / $10 through August 31, 2026, rising to $3 / $15 after; Sonnet 4.6 at $3 / $15; Haiku 4.5 at $1 / $5. Sonnet 5 is now the credible mid-tier for sustained agentic coding, with agentic performance Anthropic says is close to Opus 4.8.",
+    "claim": "Claude API list pricing (per 1M tokens, as of August 2026): Opus 5 at $5 input / $25 output, replacing Opus 4.8 at the same price; Sonnet 5 at $2 / $10, now the permanent rate after Anthropic canceled the previously scheduled increase to $3 / $15; Sonnet 4.6 at $3 / $15; Haiku 4.5 at $1 / $5. Sonnet 5 is now the credible mid-tier for sustained agentic coding, with agentic performance Anthropic says is close to Opus 4.8.",
     "claim_type": "interpretation",
     "section": "pricing",
     "zone": null,
     "order": 0,
-    "as_of": "2026-07-24",
+    "as_of": "2026-08-10",
     "confidence": "high",
     "id": "c_cafe96c8ef40",
     "verified": true,
-    "derived_from": "c_6fad97e13a9b",
-    "updated_on": "2026-07-25"
+    "derived_from": "c_c37f5aea2db9",
+    "updated_on": "2026-08-16"
   },
   {
     "subject_key": "claude-code-vs-codex | subscription-price | current",
@@ -815,26 +815,18 @@
   },
   {
     "subject_key": "objection | billing-instability | current",
-    "claim": "**\"Anthropic keeps changing its pricing. How do I budget against a moving target?\"**\n\nFinance teams raise this every time a new billing notice lands. The June 15 Agent-SDK credit split is Anthropic's third billing change in 2026, and a brief April test even pulled Claude Code from the Pro page before being reversed within a day. The honest framing is that flat-rate subscriptions genuinely couldn't sustain agent compute, and the fix for enterprise is to bill predictably on the Claude Platform API rather than ride subscription tokens that can shift.\n\n**So what:** Put production usage on the pay-as-you-go API with committed-use terms: metered, SLA-backed, and immune to the subscription-tier churn the headlines are about.",
-    "claim_type": "fact",
+    "claim": "**\"Anthropic keeps changing its pricing. How do I budget against a moving target?\"**\n\nFinance teams raise this every time a new billing notice lands. The June 15 Agent-SDK credit split was Anthropic's third billing change in 2026, and a brief April test even pulled Claude Code from the Pro page before being reversed within a day. The latest move cuts the other way: Anthropic canceled the September 1 increase to Sonnet 5's rate and confirmed $2/$10 per million tokens as the permanent price. The honest framing is that flat-rate subscriptions genuinely couldn't sustain agent compute, and the fix for enterprise is to bill predictably on the Claude Platform API rather than ride subscription tokens that can shift.\n\n**So what:** Put production usage on the pay-as-you-go API with committed-use terms: metered, SLA-backed, and now locked at $2/$10 for Sonnet 5 with the planned increase canceled.",
+    "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 5,
-    "source_url": "http://www.techtimes.com/articles/317625/20260602/anthropic-ends-subscription-subsidy-agents-june-15-credit-pool-replaces-flat-rate-access.htm",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "the company's third attempt this year to address a structural economics problem",
-    "as_of": "2026-06-02",
+    "as_of": "2026-08-10",
     "confidence": "medium",
     "id": "c_0ba0c8a81841",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-04",
-      "detail": null
-    },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "derived_from": "c_c37f5aea2db9",
+    "updated_on": "2026-08-16"
   },
   {
     "subject_key": "openai | ipo-filing | 2026",
@@ -1205,18 +1197,18 @@
   },
   {
     "subject_key": "battlecard | token-price-undercut | contested",
-    "claim": "**On token price, the picture stays mixed, but capability per dollar has moved our way.**\n\nOpenAI's mid-tier beats Claude's flagship on raw per-token price: GPT-5.4 at $2.50/$15.00 per million versus Claude Opus 5 at $5.00/$25.00, and pricing trackers put OpenAI cheaper across most comparable tiers in 2026. Claude Sonnet 5 lists at $2/$10 through August 31, 2026 (then $3/$15), undercutting GPT-5.4 on both input and output. At that same $5/$25, Opus 5 now scores 43.3% on Frontier-Bench v0.1, up from Opus 4.8's 18.7% and ahead of Fable 5 at 33.7%, per Anthropic's reporting. Caching narrows the gap on both sides.\n\n**Soundbite:** *\"Their mid-tier prices under our flagship. At the same $5 in and $25 out, Opus 5 scores 43.3% on Frontier-Bench, more than double Opus 4.8's 18.7%. If raw price matters more, Sonnet 5 at $2 and $10 undercuts GPT-5.4 on both.\"*",
+    "claim": "**On token price, the picture stays mixed, but capability per dollar has moved our way.**\n\nOpenAI's mid-tier beats Claude's flagship on raw per-token price: GPT-5.4 at $2.50/$15.00 per million versus Claude Opus 5 at $5.00/$25.00, and pricing trackers put OpenAI cheaper across most comparable tiers in 2026. Claude Sonnet 5 lists at a permanent $2/$10, undercutting GPT-5.4 on both input and output after Anthropic canceled a planned increase to $3/$15. At that same $5/$25, Opus 5 now scores 43.3% on Frontier-Bench v0.1, up from Opus 4.8's 18.7% and ahead of Fable 5 at 33.7%, per Anthropic's reporting. Caching narrows the gap on both sides.\n\n**Soundbite:** *\"Their mid-tier prices under our flagship. At the same $5 in and $25 out, Opus 5 scores 43.3% on Frontier-Bench, more than double Opus 4.8's 18.7%. If raw price matters more, Sonnet 5 at a permanent $2 and $10 undercuts GPT-5.4 on both.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
     "order": 1,
-    "as_of": "2026-07-24",
+    "as_of": "2026-08-10",
     "confidence": "high",
     "id": "c_46eee6ef2add",
     "verified": true,
     "persona": "economic_buyer",
-    "derived_from": "c_6fad97e13a9b",
-    "updated_on": "2026-07-25"
+    "derived_from": "c_c37f5aea2db9",
+    "updated_on": "2026-08-16"
   },
   {
     "subject_key": "battlecard | platform-breadth-lockin | contested",
@@ -1955,6 +1947,42 @@
     "corroboration": [
       {
         "source_url": "https://techcrunch.com/2026/08/11/brad-lightcap-openais-longtime-coo-is-leaving-to-start-something-new/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "anthropic | api-list-price",
+    "claim": "Anthropic's official pricing page confirms Claude Sonnet 5's $2 per million input and $10 per million output token rate is now the permanent standard price, canceling a previously scheduled increase to $3/$15 per million tokens set for September 1, 2026. The Stack reported on August 11, 2026 that Anthropic gave no explanation for the move before publication. Broader August 14 coverage linked the decision to OpenAI's own price cuts and growing competition from lower-cost Chinese models like DeepSeek and Moonshot AI, a framing from outside reporting, not a reason Anthropic itself gave.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "source_tier": "primary",
+    "evidence_excerpt": "The previously scheduled increase to $3/$15 per million input/output tokens on September 1, 2026 will not occur.",
+    "as_of": "2026-08-10",
+    "confidence": "high",
+    "id": "c_c37f5aea2db9",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-15",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.thestack.technology/anthropic-follows-openai-with-frontier-model-price-cuts/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://blockonomi.com/openai-and-anthropic-slash-ai-prices-as-chinese-competitors-disrupt-the-market/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false

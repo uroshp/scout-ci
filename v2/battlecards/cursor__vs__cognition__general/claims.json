@@ -1,47 +1,31 @@
 [
   {
     "subject_key": "cognition | competitive-position | current",
-    "claim": "**Cognition has graduated from viral demo to a scaled competitor: sell against it that way.**\n\nIn the last two weeks Cognition raised over $1B at a $26B valuation (May 27) and reports a $492M revenue run-rate, up roughly 13x in a year, with named customers including Goldman Sachs, Mercedes-Benz and the U.S. Army. Devin now shows up in real enterprise evaluations.\n\n**So what:** Retire any 'Devin is a toy that fails most tasks' talk track. It's stale and makes us look uninformed. Win on proven scale and reliability.",
+    "claim": "**Cognition has graduated from viral demo to a scaled competitor: sell against it that way.**\n\nCognition raised over $1B at a $26B valuation and its run-rate has grown to approaching $1 billion, roughly double the $492M it reported in May, with named customers including Goldman Sachs, Mercedes-Benz and the U.S. Army.\n\n**Soundbite:** \"Cognition is real and growing fast, so we sell on proven scale and reliability, not on Devin still being a toy.\"\n\n**So what:** Retire any 'Devin is a toy that fails most tasks' talk track. It's stale and makes us look uninformed. Win on proven scale and reliability.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 1,
-    "source_url": "https://techcrunch.com/2026/05/27/ai-coding-startup-cognition-raises-1b-at-25b-pre-money-valuation/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Cognition, the makers of the autonomous AI software engineer named Devin, has raised more than $1 billion at a $25 billion pre-money valuation ($26 billion post money), the company announced on Wednesday.",
-    "as_of": "2026-05-27",
+    "as_of": "2026-08-12",
     "confidence": "high",
     "id": "c_3df4a15678ea",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_fccda4a0ed37",
+    "updated_on": "2026-08-16"
   },
   {
     "subject_key": "cursor-vs-cognition | revenue-scale-comparison | current",
-    "claim": "**On the numbers that decide deals, Cursor is still well ahead.**\n\nCursor crossed roughly $2B ARR by February 2026 (about 4x Cognition's $492M run-rate) and sits in more than half the Fortune 500. Cognition's $26B price is a higher revenue multiple than Cursor's: investors are paying for a catch-up bet, not a proven lead.\n\n**So what:** Anchor enterprise conversations on installed base and revenue durability. Agent-first is getting the hype, but the platform running in production at scale is Cursor.",
+    "claim": "**Cursor still leads on revenue, though Cognition is closing the gap.**\n\nCursor's roughly $2B ARR is now about 2x Cognition's run-rate, which has grown to approaching $1 billion, down from a 4x gap in May, and Cursor still sits in more than half the Fortune 500.\n\n**Soundbite:** \"We're still twice the scale, in production across more than half the Fortune 500, not funding round math.\"\n\n**So what:** Anchor enterprise conversations on installed base and revenue durability, and drop the old 4x figure. A buyer who has seen the Bloomberg number will catch it.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 2,
-    "source_url": "https://thenextweb.com/news/spacex-cursor-60-billion-acquisition",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "By February 2026 it had crossed $2 billion in annualised recurring revenue, making it the fastest B2B company to scale from zero to $2 billion in roughly three years, by widely cited metrics. More than half of the Fortune 500 now use Cursor.",
-    "as_of": "2026-04-22",
+    "as_of": "2026-08-12",
     "confidence": "medium",
     "id": "c_c1d8ea86b2f5",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_fccda4a0ed37",
+    "updated_on": "2026-08-16"
   },
   {
     "subject_key": "devin | reliability-limitation | current",
@@ -67,17 +51,17 @@
   },
   {
     "subject_key": "cursor | adverse-objections-readiness | current",
-    "claim": "**Our four biggest vulnerabilities: billing trust, the SpaceX overhang and two RCE disclosures, DuneSlide (patched) and the Mindgard git.exe flaw (fixed quietly, no advisory or CVE yet). Have answers ready.**\n\nThe 2025 pricing blow-ups still sting. The $60B SpaceX acquisition is pending close, with reports the Cursor brand will phase out and staff will move into SpaceXAI teams after close. Cato Networks' DuneSlide RCE is patched in Cursor 3.0. Mindgard's July 14, 2026 disclosure: a malicious git.exe in a repo's root auto-executes on Windows, no click or warning. Cursor shipped a fix July 13 but as of July 17 has no advisory, CVE or named fixed version.\n\n**So what:** Answer each directly. On billing, cite split usage pools, the spend dashboard and dollar-threshold alerts. On SpaceX, confirm brand and org changes come after close; today's product, contracts and Fortune 500-scale adoption are Cursor's under Anysphere. On DuneSlide, point to Cursor 3.0. On Mindgard, confirm the fix shipped; no advisory or CVE exists yet; Fortune 500-scale adoption proves enterprise trust.",
+    "claim": "**Our four biggest vulnerabilities: billing trust, the now-closed SpaceX acquisition and two RCE disclosures (DuneSlide, patched; Mindgard's git.exe flaw, fixed quietly with no advisory or CVE yet). Have answers ready.**\n\nThe $60B SpaceX deal became effective August 14, 2026, per Cursor's own announcement. The 2025 pricing blow-ups still sting. DuneSlide RCE is patched in Cursor 3.0. Mindgard's git.exe auto-executes on Windows with no click; Cursor shipped a fix July 13 but has no advisory or CVE yet.\n\n**Soundbite:** \"The SpaceX deal is closed. What you're buying is what ships today: Grok 4.5, Cursor Router and Fortune 500-scale adoption.\"\n\n**So what:** Answer each directly. On billing, cite split usage pools, the spend dashboard and dollar-threshold alerts. On SpaceX, confirm the deal closed August 14 and lead with today's shipping product and Fortune 500-scale adoption. On DuneSlide, point to Cursor 3.0. On Mindgard, confirm the fix shipped with no advisory or CVE yet.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 0,
-    "as_of": "2026-08-09",
+    "as_of": "2026-08-14",
     "confidence": "high",
     "id": "c_64207118572d",
     "verified": true,
-    "derived_from": "c_409011b6715d",
-    "updated_on": "2026-08-12"
+    "derived_from": "c_e5ed555c40d5",
+    "updated_on": "2026-08-16"
   },
   {
     "subject_key": "devin-desktop | windsurf-migration-opening | current",
@@ -147,25 +131,17 @@
   },
   {
     "subject_key": "cognition | revenue-run-rate | current",
-    "claim": "Cognition reports a $492M annualized revenue run-rate (company-stated, unaudited), up roughly 13x from $37M a year earlier; it says enterprise usage has grown more than 10x since January 2026.",
-    "claim_type": "fact",
+    "claim": "Cognition's annualized revenue run-rate is now approaching $1 billion, per Bloomberg's reporting on its funding talks (unaudited, sourced to people familiar), roughly double the $492M it reported in May 2026 (company-stated, unaudited). That $492M was up roughly 13x from $37M a year earlier, and Cognition says enterprise usage has grown more than 10x since January 2026.",
+    "claim_type": "interpretation",
     "section": "snapshot",
     "zone": null,
     "order": 2,
-    "source_url": "https://cognition.ai/blog/series-d",
-    "source_tier": "primary",
-    "evidence_excerpt": "Our enterprise usage has grown >10x since the start of this year, and our run-rate revenue grew to $492M.",
-    "as_of": "2026-05-27",
+    "as_of": "2026-08-12",
     "confidence": "medium",
     "id": "c_d0755abffb11",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_fccda4a0ed37",
+    "updated_on": "2026-08-16"
   },
   {
     "subject_key": "cognition | company-profile | current",
@@ -590,26 +566,18 @@
   },
   {
     "subject_key": "cursor | battlecard-strength | revenue-scale",
-    "claim": "**We bring roughly 4x the revenue and a vastly larger installed base.**\n\nCursor's ~$2B ARR (Feb 2026) is about 4x Cognition's $492M run-rate, and Cursor sits in more than half the Fortune 500, a switching-cost moat Devin has to overcome account by account.\n\n**Soundbite:** *\"More than half the Fortune 500 already build on Cursor. We're the standard your engineers already know, not the experiment in your stack.\"*",
+    "claim": "**We bring roughly 2x the revenue and a vastly larger installed base.**\n\nCursor's ~$2B ARR is about 2x Cognition's run-rate, which has grown to approaching $1 billion, and Cursor still sits in more than half the Fortune 500, a switching-cost moat Devin has to overcome account by account.\n\n**Soundbite:** \"More than half the Fortune 500 already build on Cursor. We're the standard your engineers already know, not the experiment in your stack.\"",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_we_win",
     "order": 1,
-    "source_url": "https://thenextweb.com/news/spacex-cursor-60-billion-acquisition",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "By February 2026 it had crossed $2 billion in annualised recurring revenue, making it the fastest B2B company to scale from zero to $2 billion in roughly three years, by widely cited metrics. More than half of the Fortune 500 now use Cursor.",
-    "as_of": "2026-04-22",
+    "as_of": "2026-08-12",
     "confidence": "medium",
     "id": "c_98547942f143",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "derived_from": "c_fccda4a0ed37",
+    "updated_on": "2026-08-16"
   },
   {
     "subject_key": "devin | sentiment | pricing-opacity",
@@ -716,26 +684,18 @@
   },
   {
     "subject_key": "objection | cognition-momentum | competitor-strength",
-    "claim": "**\"Cognition just raised $1B at $26B. They have all the momentum.\"**\n\nReal, and they're well-funded. But Cursor's ~$2B ARR is about 4x their run-rate, we're in more than half the Fortune 500, and Cognition's high revenue multiple is a bet on catching up, not evidence they have. Capital doesn't close the product-fit gap on your team's daily work.\n\n**So what:** Don't get pulled into a funding contest. Pivot to proven scale and to whose workflow your engineers actually prefer.",
+    "claim": "**\"Cognition just raised $1B at $26B. They have all the momentum.\"**\n\nReal, and they're well-funded, with their run-rate now approaching $1 billion, roughly double what it was in May. But Cursor's roughly $2B ARR is still about 2x that, we're in more than half the Fortune 500, and Cognition's revenue multiple remains a bet on catching up, not evidence they have. Capital doesn't close the product-fit gap on your team's daily work.\n\n**So what:** Don't get pulled into a funding contest. Pivot to proven scale and to whose workflow your engineers actually prefer.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 1,
-    "source_url": "https://techcrunch.com/2026/05/27/ai-coding-startup-cognition-raises-1b-at-25b-pre-money-valuation/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Cognition, the makers of the autonomous AI software engineer named Devin, has raised more than $1 billion at a $25 billion pre-money valuation ($26 billion post money), the company announced on Wednesday.",
-    "as_of": "2026-05-27",
+    "as_of": "2026-08-12",
     "confidence": "high",
     "id": "c_c9bdf372c52d",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "derived_from": "c_fccda4a0ed37",
+    "updated_on": "2026-08-16"
   },
   {
     "subject_key": "objection | cursor-pricing-trust | cursor-adverse",
@@ -754,18 +714,18 @@
   },
   {
     "subject_key": "objection | cursor-spacex-ownership | cursor-adverse",
-    "claim": "**\"If SpaceX buys Cursor, who am I actually contracting with, and will the product I bought even keep its name?\"**\n\nThe deal is still pending regulatory close, targeted for Q3 2026. Internally, Cursor has told staff the brand name will likely phase out over the coming months as the deal nears close, and employees are expected to move into SpaceXAI's teams and reporting lines once it closes. That is a plan for after close, not the product today: the Cursor coding assistant keeps its name for now, and contracts still execute with Anysphere, not SpaceXAI, until regulators approve the deal. What you are buying is Cursor's current capabilities, its roughly $2B ARR and its footprint in more than half the Fortune 500.\n\n**So what:** Standardize on Cursor now under current Anysphere terms. The product and the contract you sign today are Cursor's, not SpaceXAI's, and cannot change before regulators clear the deal.",
+    "claim": "**\"SpaceX just closed its acquisition of Cursor. Who am I contracting with now, and does the product I bought change?\"**\n\nThe deal, first announced June 16, 2026, became effective August 14, 2026: Cursor's own announcement confirms it \"has officially been acquired by SpaceX.\" That closes the question of whether the deal would happen. It does not reset what you get today: Cursor still ships its own frontier model, Grok 4.5, across desktop, web, iOS, CLI and SDK, and Cursor Router still cuts cost per commit 30-50% versus a single daily-driver model, backed by roughly $2B in ARR and adoption across more than half the Fortune 500.\n\n**So what:** Standardize on Cursor's current product now. Grok 4.5 and Cursor Router are shipping and priced today, and that scale and adoption don't reset because ownership changed.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 3,
-    "as_of": "2026-08-09",
+    "as_of": "2026-08-14",
     "confidence": "high",
     "id": "c_9dc1510b77e3",
     "verified": true,
     "persona": "security_regulated",
-    "derived_from": "c_409011b6715d",
-    "updated_on": "2026-08-12"
+    "derived_from": "c_e5ed555c40d5",
+    "updated_on": "2026-08-16"
   },
   {
     "subject_key": "cursor | spacex-acquisition",

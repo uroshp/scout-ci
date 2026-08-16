@@ -906,7 +906,10 @@
     "confidence": "medium",
     "derived_from": "c_11673e19c0ee",
     "updated_on": "2026-06-25",
-    "persona": "security_regulated"
+    "persona": "security_regulated",
+    "status": "retired",
+    "retired_on": "2026-08-16",
+    "retired_reason": "resolved: the June 2026 GCP India network incident concluded; the claim asserted a live, unresolved state that has expired (human-directed staleness retire)"
   },
   {
     "subject_key": "battlecard | contested | agent-platform-maturity",
