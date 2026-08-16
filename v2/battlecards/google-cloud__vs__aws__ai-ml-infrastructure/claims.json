@@ -894,24 +894,6 @@
     "updated_on": "2026-06-16"
   },
   {
-    "id": "c_5b77998bd015",
-    "subject_key": "objection | gcp-india-network-incident-june-2026 | current",
-    "claim": "**\"Google Cloud has an active, unresolved network incident in India. That's not a historical footnote. It's happening right now.\"**\n\nOwn the scope completely: a fire at a third-party Delhi facility on June 9 forced an emergency power shutdown that isolated a local Point of Presence. As of the June 23 status update (the most recent available), the incident remains active and unresolved 15 days on. Traffic from Delhi, Chennai and Mumbai continues to hit intermittent elevated latency and possible packet loss, with no workaround available. Affected services span Hybrid Connectivity, Media CDN, and VPC in asia-south2, with some global impact on those same services. Google's team has now reached the damaged site and is restoring capacity through the week; the next status update is not due until Monday, June 29.\n\n**So what:** Map the buyer's actual workloads against that scope right now in the conversation. Ask which services and regions they are evaluating. If their target deployment does not touch Hybrid Connectivity, Media CDN or VPC in the affected India regions, this incident has no operational impact on them today. Confirm that explicitly, then redirect to the workload they came in to evaluate.",
-    "claim_type": "interpretation",
-    "section": "objection_handling",
-    "zone": null,
-    "order": 6,
-    "as_of": "2026-06-24",
-    "verified": true,
-    "confidence": "medium",
-    "derived_from": "c_11673e19c0ee",
-    "updated_on": "2026-06-25",
-    "persona": "security_regulated",
-    "status": "retired",
-    "retired_on": "2026-08-16",
-    "retired_reason": "resolved: the June 2026 GCP India network incident concluded; the claim asserted a live, unresolved state that has expired (human-directed staleness retire)"
-  },
-  {
     "subject_key": "battlecard | contested | agent-platform-maturity",
     "claim": "Agent-platform maturity is a contested fight. On August 6, 2026, AWS made Bedrock AgentCore runtime instances generally available: AWS-managed EC2 for production agents that can run up to 14 days, with GPU support and several agents collaborating on one host and shared file system. Combined with the production-agent stack AWS shipped at AWS Summit New York (June 17, 2026), AWS now covers long-running, multi-agent and GPU-backed workloads that Vertex AI reps used to pitch as a Google-only strength.",
     "claim_type": "interpretation",
