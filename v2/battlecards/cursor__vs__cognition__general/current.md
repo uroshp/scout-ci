@@ -2,23 +2,29 @@
 
 ## Executive Summary
 
-**Our four biggest vulnerabilities: billing trust, the SpaceX overhang and two RCE disclosures, DuneSlide (patched) and the Mindgard git.exe flaw (fixed quietly, no advisory or CVE yet). Have answers ready.**
+**Our four biggest vulnerabilities: billing trust, the now-closed SpaceX acquisition and two RCE disclosures (DuneSlide, patched; Mindgard's git.exe flaw, fixed quietly with no advisory or CVE yet). Have answers ready.**
 
-The 2025 pricing blow-ups still sting. The \$60B SpaceX acquisition is pending close, with reports the Cursor brand will phase out and staff will move into SpaceXAI teams after close. Cato Networks' DuneSlide RCE is patched in Cursor 3.0. Mindgard's July 14, 2026 disclosure: a malicious git.exe in a repo's root auto-executes on Windows, no click or warning. Cursor shipped a fix July 13 but as of July 17 has no advisory, CVE or named fixed version.
+The \$60B SpaceX deal became effective August 14, 2026, per Cursor's own announcement. The 2025 pricing blow-ups still sting. DuneSlide RCE is patched in Cursor 3.0. Mindgard's git.exe auto-executes on Windows with no click; Cursor shipped a fix July 13 but has no advisory or CVE yet.
 
-**So what:** Answer each directly. On billing, cite split usage pools, the spend dashboard and dollar-threshold alerts. On SpaceX, confirm brand and org changes come after close; today's product, contracts and Fortune 500-scale adoption are Cursor's under Anysphere. On DuneSlide, point to Cursor 3.0. On Mindgard, confirm the fix shipped; no advisory or CVE exists yet; Fortune 500-scale adoption proves enterprise trust. ([pymnts.com](https://www.pymnts.com/news/artificial-intelligence/2026/cursor-brand-name-may-not-survive-spacex-acquisition/))
+**Soundbite:** "The SpaceX deal is closed. What you're buying is what ships today: Grok 4.5, Cursor Router and Fortune 500-scale adoption."
+
+**So what:** Answer each directly. On billing, cite split usage pools, the spend dashboard and dollar-threshold alerts. On SpaceX, confirm the deal closed August 14 and lead with today's shipping product and Fortune 500-scale adoption. On DuneSlide, point to Cursor 3.0. On Mindgard, confirm the fix shipped with no advisory or CVE yet. ([cnbc.com](https://www.cnbc.com/2026/06/16/spacex-spcx-cursor-acquisition-ipo.html))
 
 **Cognition has graduated from viral demo to a scaled competitor: sell against it that way.**
 
-In the last two weeks Cognition raised over \$1B at a \$26B valuation (May 27) and reports a \$492M revenue run-rate, up roughly 13x in a year, with named customers including Goldman Sachs, Mercedes-Benz and the U.S. Army. Devin now shows up in real enterprise evaluations.
+Cognition raised over \$1B at a \$26B valuation and its run-rate has grown to approaching \$1 billion, roughly double the \$492M it reported in May, with named customers including Goldman Sachs, Mercedes-Benz and the U.S. Army.
 
-**So what:** Retire any 'Devin is a toy that fails most tasks' talk track. It's stale and makes us look uninformed. Win on proven scale and reliability. ([techcrunch.com](https://techcrunch.com/2026/05/27/ai-coding-startup-cognition-raises-1b-at-25b-pre-money-valuation/))
+**Soundbite:** "Cognition is real and growing fast, so we sell on proven scale and reliability, not on Devin still being a toy."
 
-**On the numbers that decide deals, Cursor is still well ahead.**
+**So what:** Retire any 'Devin is a toy that fails most tasks' talk track. It's stale and makes us look uninformed. Win on proven scale and reliability. ([finance.yahoo.com](https://finance.yahoo.com/technology/ai/articles/ai-startup-cognition-funding-talks-035336592.html))
 
-Cursor crossed roughly \$2B ARR by February 2026 (about 4x Cognition's \$492M run-rate) and sits in more than half the Fortune 500. Cognition's \$26B price is a higher revenue multiple than Cursor's: investors are paying for a catch-up bet, not a proven lead.
+**Cursor still leads on revenue, though Cognition is closing the gap.**
 
-**So what:** Anchor enterprise conversations on installed base and revenue durability. Agent-first is getting the hype, but the platform running in production at scale is Cursor. ([thenextweb.com](https://thenextweb.com/news/spacex-cursor-60-billion-acquisition))
+Cursor's roughly \$2B ARR is now about 2x Cognition's run-rate, which has grown to approaching \$1 billion, down from a 4x gap in May, and Cursor still sits in more than half the Fortune 500.
+
+**Soundbite:** "We're still twice the scale, in production across more than half the Fortune 500, not funding round math."
+
+**So what:** Anchor enterprise conversations on installed base and revenue durability, and drop the old 4x figure. A buyer who has seen the Bloomberg number will catch it. ([finance.yahoo.com](https://finance.yahoo.com/technology/ai/articles/ai-startup-cognition-funding-talks-035336592.html))
 
 **Devin's reliability ceiling is our sharpest wedge, and Cognition admits it.**
 
@@ -36,7 +42,7 @@ On June 2 Cognition retired the Windsurf brand, relaunched it as Devin Desktop, 
 
 - Cognition raised over \$1B in a Series D at a \$26B post-money valuation (\$25B pre-money), announced May 27, 2026, up from a \$10.2B valuation just eight months earlier. Round led by Lux Capital, General Catalyst and 8VC. ([techcrunch.com](https://techcrunch.com/2026/05/27/ai-coding-startup-cognition-raises-1b-at-25b-pre-money-valuation/))
 - Cognition has now raised more than \$2.5B in total funding to date. ([thenextweb.com](https://thenextweb.com/news/cognition-just-raised-1-billion-at-a-26-billion-valuation-and-90-of-its-own-code-is-written-by-its-ai))
-- Cognition reports a \$492M annualized revenue run-rate (company-stated, unaudited), up roughly 13x from \$37M a year earlier; it says enterprise usage has grown more than 10x since January 2026. ([cognition.ai](https://cognition.ai/blog/series-d))
+- Cognition's annualized revenue run-rate is now approaching \$1 billion, per Bloomberg's reporting on its funding talks (unaudited, sourced to people familiar), roughly double the \$492M it reported in May 2026 (company-stated, unaudited). That \$492M was up roughly 13x from \$37M a year earlier, and Cognition says enterprise usage has grown more than 10x since January 2026. ([finance.yahoo.com](https://finance.yahoo.com/technology/ai/articles/ai-startup-cognition-funding-talks-035336592.html))
 - Cognition's annualized revenue run-rate is now approaching \$1 billion, roughly double the \$492M it reported in May 2026, per Bloomberg's reporting on its new funding talks (unaudited, sourced to people familiar with the matter). Cursor's roughly \$2B ARR still leads, but the gap has narrowed from about 4x to roughly 2x. ([finance.yahoo.com](https://finance.yahoo.com/technology/ai/articles/ai-startup-cognition-funding-talks-035336592.html))
 - Cognition (Cognition Labs) was founded in November 2023 and is headquartered in San Francisco; its founders are CEO Scott Wu, CTO Steven Hao, and CPO Walden Yan. ([research.contrary.com](https://research.contrary.com/company/cognition))
 - Cognition's flagship is Devin, an autonomous cloud-based AI software engineer; as of June 2, 2026 its acquired Windsurf IDE was rebranded 'Devin Desktop,' positioned as a command center for managing local and cloud agents. ([devin.ai](https://devin.ai/blog/windsurf-is-now-devin-desktop/))
@@ -81,11 +87,11 @@ Their own 2025 review admits Devin 'can't independently tackle an ambiguous codi
 
 **Soundbite:** *"For exploratory or changing work, Devin's own performance review says it struggles, and you find out only when the PR lands. With Cursor your engineer is steering the whole way."* ([cognition.ai](https://cognition.ai/blog/devin-annual-performance-review-2025))
 
-**We bring roughly 4x the revenue and a vastly larger installed base.**
+**We bring roughly 2x the revenue and a vastly larger installed base.**
 
-Cursor's ~\$2B ARR (Feb 2026) is about 4x Cognition's \$492M run-rate, and Cursor sits in more than half the Fortune 500, a switching-cost moat Devin has to overcome account by account.
+Cursor's ~\$2B ARR is about 2x Cognition's run-rate, which has grown to approaching \$1 billion, and Cursor still sits in more than half the Fortune 500, a switching-cost moat Devin has to overcome account by account.
 
-**Soundbite:** *"More than half the Fortune 500 already build on Cursor. We're the standard your engineers already know, not the experiment in your stack."* ([thenextweb.com](https://thenextweb.com/news/spacex-cursor-60-billion-acquisition))
+**Soundbite:** "More than half the Fortune 500 already build on Cursor. We're the standard your engineers already know, not the experiment in your stack." ([finance.yahoo.com](https://finance.yahoo.com/technology/ai/articles/ai-startup-cognition-funding-talks-035336592.html))
 
 **You see the spend before the invoice does.**
 
@@ -150,9 +156,9 @@ Devin runs end-to-end to a PR, and Cognition says 89% of its own code is now com
 
 **"Cognition just raised \$1B at \$26B. They have all the momentum."**
 
-Real, and they're well-funded. But Cursor's ~\$2B ARR is about 4x their run-rate, we're in more than half the Fortune 500, and Cognition's high revenue multiple is a bet on catching up, not evidence they have. Capital doesn't close the product-fit gap on your team's daily work.
+Real, and they're well-funded, with their run-rate now approaching \$1 billion, roughly double what it was in May. But Cursor's roughly \$2B ARR is still about 2x that, we're in more than half the Fortune 500, and Cognition's revenue multiple remains a bet on catching up, not evidence they have. Capital doesn't close the product-fit gap on your team's daily work.
 
-**So what:** Don't get pulled into a funding contest. Pivot to proven scale and to whose workflow your engineers actually prefer. ([techcrunch.com](https://techcrunch.com/2026/05/27/ai-coding-startup-cognition-raises-1b-at-25b-pre-money-valuation/))
+**So what:** Don't get pulled into a funding contest. Pivot to proven scale and to whose workflow your engineers actually prefer. ([finance.yahoo.com](https://finance.yahoo.com/technology/ai/articles/ai-startup-cognition-funding-talks-035336592.html))
 
 **"I've seen the Cursor pricing blow-ups. How do I know our budget won't explode?"**
 
@@ -160,11 +166,11 @@ Fair: the 2025 rollout was botched and our CEO apologized publicly. Since then w
 
 **So what:** Own the history, then walk through the pools, dashboard, dollar alerts and Cursor Router's on-by-default savings. Getting defensive is what loses this deal. ([cursor.com](https://cursor.com/blog/router))
 
-**"If SpaceX buys Cursor, who am I actually contracting with, and will the product I bought even keep its name?"**
+**"SpaceX just closed its acquisition of Cursor. Who am I contracting with now, and does the product I bought change?"**
 
-The deal is still pending regulatory close, targeted for Q3 2026. Internally, Cursor has told staff the brand name will likely phase out over the coming months as the deal nears close, and employees are expected to move into SpaceXAI's teams and reporting lines once it closes. That is a plan for after close, not the product today: the Cursor coding assistant keeps its name for now, and contracts still execute with Anysphere, not SpaceXAI, until regulators approve the deal. What you are buying is Cursor's current capabilities, its roughly \$2B ARR and its footprint in more than half the Fortune 500.
+The deal, first announced June 16, 2026, became effective August 14, 2026: Cursor's own announcement confirms it "has officially been acquired by SpaceX." That closes the question of whether the deal would happen. It does not reset what you get today: Cursor still ships its own frontier model, Grok 4.5, across desktop, web, iOS, CLI and SDK, and Cursor Router still cuts cost per commit 30-50% versus a single daily-driver model, backed by roughly \$2B in ARR and adoption across more than half the Fortune 500.
 
-**So what:** Standardize on Cursor now under current Anysphere terms. The product and the contract you sign today are Cursor's, not SpaceXAI's, and cannot change before regulators clear the deal. ([pymnts.com](https://www.pymnts.com/news/artificial-intelligence/2026/cursor-brand-name-may-not-survive-spacex-acquisition/))
+**So what:** Standardize on Cursor's current product now. Grok 4.5 and Cursor Router are shipping and priced today, and that scale and adoption don't reset because ownership changed. ([cnbc.com](https://www.cnbc.com/2026/06/16/spacex-spcx-cursor-acquisition-ipo.html))
 
 **"Didn't DuneSlide leave Cursor's sandbox wide open?"**
 
