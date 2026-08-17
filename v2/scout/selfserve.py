@@ -62,10 +62,35 @@ def _repo_path(path: str) -> str:
     return f"{config.SELFSERVE_DATA_PREFIX}/{path}" if config.SELFSERVE_DATA_PREFIX else path
 
 
+_TRANSIENT_STATUS = {502, 503, 504}       # momentary GitHub API blips, not a real failure
+
+
+def _gh_read(url: str) -> httpx.Response:
+    """A GET on the GitHub API with a small retry on TRANSIENT failures — 502/503/504 and timeout/
+    transport errors. A 504 tripped BOTH the morning approve and the daily canary on 2026-08-17;
+    idempotent reads should ride out a momentary blip, not surface it as a hard error. A genuinely
+    PERSISTENT outage still raises after the retries exhaust (so the canary can still catch a real
+    one). Non-transient statuses (401/403/404/422…) return immediately for the caller to handle."""
+    last = None
+    for attempt in range(4):
+        try:
+            r = httpx.get(url, headers=_headers(), params={"ref": config.SELFSERVE_BRANCH}, timeout=20)
+            if r.status_code not in _TRANSIENT_STATUS:
+                return r
+            last = httpx.HTTPStatusError(f"transient {r.status_code}", request=r.request, response=r)
+        except (httpx.TimeoutException, httpx.TransportError) as e:
+            last = e
+        if attempt < 3:
+            time.sleep(0.6 * (attempt + 1))               # 0.6 / 1.2 / 1.8s backoff
+    if isinstance(last, httpx.HTTPStatusError):
+        last.response.raise_for_status()                  # persistent 5xx: surface it (canary catches)
+    raise last
+
+
 def _gh_get(path: str) -> tuple[str | None, str | None]:
     """Return (text_content, sha) for a repo file, or (None, None) if it 404s."""
     url = f"{_GH_API}/repos/{config.SELFSERVE_REPO}/contents/{_repo_path(path)}"
-    r = httpx.get(url, headers=_headers(), params={"ref": config.SELFSERVE_BRANCH}, timeout=20)
+    r = _gh_read(url)
     if r.status_code == 404:
         return None, None
     r.raise_for_status()
@@ -79,7 +104,7 @@ def _gh_list(path: str, include_dirs: bool = False) -> list[str]:
     SUBDIRECTORIES — needed for stores laid out one-subdir-per-key (shadow/<slug>/, propagation/
     <slug>/): without it a listing of the parent looks empty even when full (it has only subdirs)."""
     url = f"{_GH_API}/repos/{config.SELFSERVE_REPO}/contents/{_repo_path(path)}"
-    r = httpx.get(url, headers=_headers(), params={"ref": config.SELFSERVE_BRANCH}, timeout=20)
+    r = _gh_read(url)                  # transient-retry (2026-08-17: 504 blips tripped canary/approve)
     if r.status_code == 404:
         return []
     r.raise_for_status()
