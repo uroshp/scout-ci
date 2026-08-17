@@ -4,9 +4,11 @@
 
 **Don't walk in unarmed: Anthropic is carrying real scars a buyer will raise.**
 
-In the last quarter alone, Microsoft canceled Claude Code licenses across a major division, Uber capped engineer token spend and questioned ROI, Claude suffered a capacity-driven global outage the day after its IPO filing, and the company is mid-way through its third billing change of the year. These are documented, not rumors.
+Microsoft canceled Claude Code licenses across a major division, Uber capped engineer token spend over ROI, Anthropic's status page logged 14 incidents in two weeks through August 16 (including the widest-scope one that reached the Claude API directly), and the company is mid-way through its third billing change of the year.
 
-**So what:** Pre-empt them. Raise Microsoft and Uber yourself, with a straight answer ready. If the buyer brings them up first, you're on the back foot. ([windowscentral.com](https://www.windowscentral.com/microsoft/microsoft-cancels-claude-code-licenses-shifting-developers-to-github-copilot-cli-a-move-likely-driven-by-financial-motives))
+**Soundbite:** "The August 16 episode hit the widest scope we saw all stretch, every component including the API, and we went from first alert to full resolution in about 36 minutes."
+
+**So what:** Pre-empt them. Raise Microsoft, Uber, the billing changes and the August outage run yourself, with a straight answer ready. If the buyer brings them up first, you're on the back foot. ([status.anthropic.com](https://status.anthropic.com/))
 
 **Anthropic now leads the enterprise-AI race, and coding is the engine.**
 
@@ -188,9 +190,9 @@ Real story: Uber's COO said it couldn't yet tie Claude Code spend to shipped fea
 
 **"Claude has had multiple outages this month. Can it handle our production load?"**
 
-Three confirmed incidents: a June 2, 2026 capacity-tied outage (fixed same day), an 85-minute June 23 outage across all Claude platforms (8,000+ US Downdetector reports at peak), and an August 5 incident that hit all four model families for about seven hours before resolution. On June 2, customers running Claude through Google Vertex AI or Amazon Bedrock were unaffected. The \$65B Series H and the SpaceX/Colossus compute deal (300+ MW, which let Anthropic double Claude Code rate limits) are aimed at underlying capacity.
+Anthropic's status page logged 14 separate incidents between August 3 and August 16, with the August 16 episode widening within half an hour to hit all five components including the Claude API before it resolved the same day. That follows the earlier June and August incidents already known. Anthropic's own 90-day figures show 99.35% to 99.84% uptime across surfaces, with Claude for Government at 100%. Customers running Claude through Bedrock or Vertex were unaffected by the June 2 outage, and the \$65B Series H and SpaceX/Colossus compute deal target the underlying capacity.
 
-**So what:** For production workloads, deploy via Bedrock or Vertex with an enterprise SLA rather than the consumer endpoint; that architecture was insulated from the June 2 outage and is the right tier for any workload that cannot tolerate direct-API disruptions. ([status.claude.com](https://status.claude.com/))
+**So what:** Deploy production workloads via Bedrock or Vertex with an enterprise SLA rather than the consumer endpoint or direct API. That tier was insulated from the June 2 outage, and with the API now hit directly too, it is the right choice for any workload that cannot tolerate disruption. ([status.anthropic.com](https://status.anthropic.com/))
 
 **"Didn't Claude Code get worse, and doesn't Veracode say it writes insecure code?"**
 
