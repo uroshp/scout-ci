@@ -2,6 +2,12 @@
 
 ## Executive Summary
 
+**Don't walk in unarmed: Anthropic is carrying real scars a buyer will raise.**
+
+In the last quarter alone, Microsoft canceled Claude Code licenses across a major division, Uber capped engineer token spend and questioned ROI, Claude suffered a capacity-driven global outage the day after its IPO filing, and the company is mid-way through its third billing change of the year. These are documented, not rumors.
+
+**So what:** Pre-empt them. Raise Microsoft and Uber yourself, with a straight answer ready. If the buyer brings them up first, you're on the back foot. ([windowscentral.com](https://www.windowscentral.com/microsoft/microsoft-cancels-claude-code-licenses-shifting-developers-to-github-copilot-cli-a-move-likely-driven-by-financial-motives))
+
 **Anthropic now leads the enterprise-AI race, and coding is the engine.**
 
 Independent Ramp data across 50,000-plus companies puts Anthropic ahead of OpenAI in paid business adoption for the first time, 34.4% to 32.3%, while OpenAI delays its IPO after a \$38.5B loss.
@@ -22,12 +28,6 @@ JetBrains' January 2026 survey of 10,000+ professional developers put Claude Cod
 
 **So what:** When a deal stalls on "OpenAI is bigger," pivot to the people who'll use it daily: the developers your champion manages already rate Claude Code highest. ([blog.jetbrains.com](https://blog.jetbrains.com/research/2026/04/which-ai-coding-tools-do-developers-actually-use-at-work/))
 
-**Don't walk in unarmed: Anthropic is carrying real scars a buyer will raise.**
-
-In the last quarter alone, Microsoft canceled Claude Code licenses across a major division, Uber capped engineer token spend and questioned ROI, Claude suffered a capacity-driven global outage the day after its IPO filing, and the company is mid-way through its third billing change of the year. These are documented, not rumors.
-
-**So what:** Pre-empt them. Raise Microsoft and Uber yourself, with a straight answer ready. If the buyer brings them up first, you're on the back foot. ([windowscentral.com](https://www.windowscentral.com/microsoft/microsoft-cancels-claude-code-licenses-shifting-developers-to-github-copilot-cli-a-move-likely-driven-by-financial-motives))
-
 **Benchmarks are a split decision, so fight on the harder one.**
 
 OpenAI's GPT-5.5 narrowly leads the now-saturated SWE-bench Verified (88.7% vs Claude Opus 4.7's 87.6%, both vendor-self-reported), but Claude Opus 4.7 leads the harder, contamination-resistant SWE-bench Pro at 64.3% versus GPT-5.4's 59.1%. OpenAI wins the saturated leaderboard by a point. Claude wins the harder, real-task benchmark by five.
@@ -46,7 +46,7 @@ OpenAI's GPT-5.5 narrowly leads the now-saturated SWE-bench Verified (88.7% vs C
 
 ## Recent Strategic Moves
 
-- OpenAI lost two senior executives in days ahead of its IPO. Longtime COO Brad Lightcap announced on August 11, 2026 he is leaving to start something new, and on August 13 OpenAI said Chief Revenue Officer Denise Dresser is departing after eight months, replaced by former Wiz president Dali Rajic. Dresser had brought the enterprise sales expertise OpenAI hired to take on Anthropic and had absorbed many of Lightcap's duties in April. Product and business chief Fidji Simo stepped down last month, and three other executives left in April. ([cnbc.com](https://www.cnbc.com/2026/08/13/openai-denise-dresser-executive-exits.html))
+- OpenAI is rebuilding its top ranks mid-flight ahead of a possible IPO. On August 14, 2026 it replaced Chief Revenue Officer Denise Dresser after nine months, naming former Wiz president and COO Dali Rajic to run global revenue. That follows COO Brad Lightcap's August 11 exit and the recent departure of Fidji Simo, the company's head of product and business, so three of OpenAI's most senior operators have turned over inside about a month while it is trying to scale enterprise sales. ([techcrunch.com](https://techcrunch.com/2026/08/13/openai-hires-new-cro-as-executive-shake-up-continues/))
 - On August 7, 2026, OpenAI said it paused some internal work on Astra, its next major model, after preliminary evaluations showed it could reach the Critical cybersecurity level in OpenAI's Preparedness Framework: able to find and build zero-day exploits against hardened real-world systems without human help. OpenAI says this is the first model it cannot rule out at that level. Astra is the same model whose internal version claimed ten new math results on August 1. CEO Sam Altman said OpenAI still plans to make Astra generally available and needs 'a little longer to do this safely,' 'but hopefully not too long.' OpenAI is now working with government agencies and select AI safety organizations to test the model before development fully resumes. ([techcrunch.com](https://techcrunch.com/2026/08/07/openai-says-it-slowed-astra-model-development-over-security-concerns/))
 - Scientific American reported on August 6, 2026 that named mathematicians accused OpenAI of research misconduct over its Astra math results. Steven Miller of Yeshiva University says the sphere-packing proof reuses an argument from his own 2016 paper without credit, and Francesco Fournier-Facio of the University of Cambridge says the soficity 'breakthrough' recombined ideas from existing 2016 and 2019 papers. OpenAI updated its press release after the paper's original claim that the problems had seen no progress in a decade was shown to be inaccurate. ([scientificamerican.com](https://www.scientificamerican.com/article/openais-latest-math-breakthroughs-commit-research-misconduct-experts-say/))
 - Apple escalated its trade secret suit against OpenAI on August 4, 2026. In a new court filing Apple said its continued investigation found 11 more former Apple employees, beyond the two already named, who may have been involved in or witnesses to the alleged theft, and it is now seeking a preliminary injunction to stop OpenAI from developing an AI device based on Apple technology. Apple is also requesting expedited discovery from the accused OpenAI employees, OpenAI and its foundation, and io, the Jony Ive device startup OpenAI bought. OpenAI responded publicly that the injunction request is based on false information and unnecessary because it does not have or want Apple's trade secrets. ([techcrunch.com](https://techcrunch.com/2026/08/04/apple-says-more-ex-employees-may-have-taken-confidential-data-to-openai/))

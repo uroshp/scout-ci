@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise and sovereign AI for developers and agents",
   "baseline_date": "2026-06-17",
-  "last_checked": "2026-08-15T11:28:18",
+  "last_checked": "2026-08-17T11:19:05",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_911e9a6938ba",
@@ -34,5 +34,10 @@
     "f_1ec765c3c629",
     "f_bba5fc11e5ac"
   ],
-  "monitored": true
+  "monitored": true,
+  "unresolved_subjects": [
+    "openai | frontier-research | astra-2026"
+  ],
+  "unresolved_since": "2026-08-15",
+  "unresolved_attempts": 1
 }

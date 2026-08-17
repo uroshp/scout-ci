@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise coding/developers",
   "baseline_date": "2026-06-04",
-  "last_checked": "2026-08-15T11:00:42",
+  "last_checked": "2026-08-17T11:00:34",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_e5e52edeb211",
@@ -28,14 +28,13 @@
     "f_6c9dd3a14736",
     "f_b5d08e50ea09",
     "f_97cc16a3c92b",
-    "f_273b63934500"
+    "f_273b63934500",
+    "f_9be4d12a5a48",
+    "f_e6a2a1f5f62b"
   ],
   "monitored": true,
-  "unresolved_subjects": [
-    "anthropic-claude-government",
-    "anthropic-riot-infrastructure-partnership",
-    "openai-astra-math-milestone"
-  ],
-  "unresolved_since": "2026-08-11",
-  "unresolved_attempts": 2
+  "lead_election": {
+    "last_promoted_on": "2026-08-17",
+    "lead_subject_key": "anthropic | adverse-exposure | current"
+  }
 }
