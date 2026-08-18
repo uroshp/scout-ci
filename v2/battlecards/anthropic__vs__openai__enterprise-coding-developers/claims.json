@@ -2016,5 +2016,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "openai-nvidia-ohio-datacenter-financing",
+    "claim": "Nvidia agreed to provide up to $105 billion in financing to back a new OpenAI data center in Pike County, Ohio, disclosed in a securities filing on August 17, 2026. Nvidia supplies the compute and becomes the site's exclusive chip provider while SB Energy builds and manages it under a 20-year OpenAI lease, with the first capacity expected online in 2028. Nvidia is also investing $1.5 billion in SB Energy. The size of this vendor-backed credit has drawn circular-financing questions about the AI buildout, which Jensen Huang disputes.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 50,
+    "source_url": "https://www.cnbc.com/2026/08/17/nvidia-financing-open-ai-data-center-ohio.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Nvidia will provide up to $105 billion in financing for a new artificial intelligence data center for OpenAI in Ohio, a securities filing revealed on Monday.",
+    "as_of": "2026-08-17",
+    "confidence": "high",
+    "id": "c_87902ac23b80",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-18",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.scmp.com/tech/big-tech/article/3364341/nvidia-provide-us105-billion-guarantee-openais-ohio-data-centre",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

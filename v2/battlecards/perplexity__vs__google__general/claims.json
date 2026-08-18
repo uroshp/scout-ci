@@ -1405,5 +1405,65 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "google | product-launch | gemini-37-flash",
+    "claim": "On August 13, 2026 Google launched Gemini 3.7 Flash, its workhorse model for coding and agents, just three weeks after Gemini 3.6 Flash, at an introductory price of $0.75 per million input tokens and $3.75 per million output tokens (half the prior model's launch price). Coding and agent benchmarks jumped over 3.6 Flash: DeepSWE v1.1 65.3% vs 49.0% and WebDev Arena Elo 1588 vs 1538.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-3-7-flash/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Today, we’re building on the progress of our widely used Flash series by introducing Gemini 3.7 Flash, our most intelligent workhorse model yet for coding and agents.",
+    "as_of": "2026-08-13",
+    "confidence": "high",
+    "id": "c_6c7479619f0b",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-18",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://9to5google.com/2026/08/13/gemini-3-7-flash-launch/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "google | product-discontinuation | assistant-to-gemini-migration",
+    "claim": "Google is discontinuing the legacy Google Assistant on Android phones, tablets and paired devices (Wear OS watches, headphones, Android Auto projection) starting September 4, 2026, forcibly replacing it with Gemini. Once a device transitions there is no way to switch back, and Google is notifying users by email. Vehicles with Google Built-in keep Assistant for now.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 2,
+    "source_url": "https://www.fonearena.com/blog/488911/google-replace-google-assistant-with-gemini-android-mobile-devices.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Starting September 4, Google will begin removing access to Google Assistant on Android phones and tablets.",
+    "as_of": "2026-08-06",
+    "confidence": "high",
+    "id": "c_c68e23aba7f0",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-18",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://chromeunboxed.com/its-official-gemini-will-completely-replace-the-google-assistant-on-phones-next-month/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
