@@ -168,9 +168,9 @@ Fair: the 2025 rollout was botched and our CEO apologized publicly. Since then w
 
 **"SpaceX just closed its acquisition of Cursor. Who am I contracting with now, and does the product I bought change?"**
 
-The deal, first announced June 16, 2026, became effective August 14, 2026: Cursor's own announcement confirms it "has officially been acquired by SpaceX." That closes the question of whether the deal would happen. It does not reset what you get today: Cursor still ships its own frontier model, Grok 4.5, across desktop, web, iOS, CLI and SDK, and Cursor Router still cuts cost per commit 30-50% versus a single daily-driver model, backed by roughly \$2B in ARR and adoption across more than half the Fortune 500.
+A regulatory filing confirms the deal closed effective August 14, 2026, two months after the June 16 merger agreement: Cursor now operates as part of SpaceX's SpaceXAI unit. Cursor's own announcement says the closing also gives it access to SpaceX's GPU fleet to build stronger, more economical models. That answers who you're contracting with. It does not reset what you get today: Cursor still ships its own frontier model, Grok 4.5, across desktop, web, iOS, CLI and SDK, and Cursor Router still cuts cost per commit 30-50% versus a single daily-driver model, backed by roughly \$2B in ARR and adoption across more than half the Fortune 500.
 
-**So what:** Standardize on Cursor's current product now. Grok 4.5 and Cursor Router are shipping and priced today, and that scale and adoption don't reset because ownership changed. ([cnbc.com](https://www.cnbc.com/2026/06/16/spacex-spcx-cursor-acquisition-ipo.html))
+**So what:** Standardize on Cursor's current product now. Grok 4.5 and Cursor Router are shipping and priced today, and that scale and adoption don't reset because ownership moved to SpaceX's SpaceXAI unit. ([cnbc.com](https://www.cnbc.com/2026/06/16/spacex-spcx-cursor-acquisition-ipo.html))
 
 **"Didn't DuneSlide leave Cursor's sandbox wide open?"**
 
