@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise and sovereign AI for developers and agents",
   "baseline_date": "2026-06-17",
-  "last_checked": "2026-08-19T11:11:26",
+  "last_checked": "2026-08-20T11:12:06",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_911e9a6938ba",
@@ -35,5 +35,11 @@
     "f_bba5fc11e5ac",
     "f_31a341646a0b"
   ],
-  "monitored": true
+  "monitored": true,
+  "unresolved_subjects": [
+    "NEW",
+    "openai | ipo-filing | 2026"
+  ],
+  "unresolved_since": "2026-08-19",
+  "unresolved_attempts": 1
 }
