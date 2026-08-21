@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise coding/developers",
   "baseline_date": "2026-06-04",
-  "last_checked": "2026-08-20T11:00:35",
+  "last_checked": "2026-08-21T11:00:37",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_e5e52edeb211",
@@ -31,18 +31,13 @@
     "f_273b63934500",
     "f_9be4d12a5a48",
     "f_e6a2a1f5f62b",
-    "f_33eb0f9a6034"
+    "f_33eb0f9a6034",
+    "f_6f4fef43b375",
+    "f_4380b5eb9315"
   ],
   "monitored": true,
   "lead_election": {
     "last_promoted_on": "2026-08-17",
     "lead_subject_key": "anthropic | adverse-exposure | current"
-  },
-  "unresolved_subjects": [
-    "openai-financial-deterioration",
-    "openai-model-development-pace",
-    "openai-profitability-crisis-2026"
-  ],
-  "unresolved_since": "2026-08-18",
-  "unresolved_attempts": 2
+  }
 }
