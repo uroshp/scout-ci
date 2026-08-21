@@ -1465,5 +1465,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "google | infrastructure-deal | marvell-tpu-warrant",
+    "claim": "On August 19, 2026 Marvell disclosed in a securities filing that it granted Google a warrant to buy up to 58.97 million Marvell shares at $206.58 each, worth about $12.2 billion if fully exercised, with the shares vesting against Google's custom-chip purchasing targets through fiscal 2033. The warrant would make Google Marvell's fifth-largest investor and broadens Google's custom-TPU supply chain beyond Broadcom, its main chip partner, whose stock fell more than 5% on the news. Analysts framed it as a growing pie for Marvell rather than a displacement of Broadcom, and the wider agreement could bring Marvell roughly $120 billion in revenue through fiscal 2033 if Google hits its targets.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://finance.yahoo.com/technology/articles/marvell-grants-google-12-2-123812695.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Larger rival Broadcom, which had been Google's main custom chip partner so far, fell more than 5%",
+    "as_of": "2026-08-19",
+    "confidence": "high",
+    "id": "c_4247868a80ed",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-21",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.cnbc.com/2026/08/19/marvell-google-ai-chips.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
