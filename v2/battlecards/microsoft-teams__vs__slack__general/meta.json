@@ -4,19 +4,20 @@
   "competitor": "Slack",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-08-21T11:10:33",
+  "last_checked": "2026-08-22T11:08:07",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7e46a6f50a55",
     "f_9877becb6bda",
     "f_588527f7f835",
     "f_be583ae25eb6",
-    "f_f917e6151896"
+    "f_f917e6151896",
+    "f_52768c16bba8"
   ],
   "monitored": true,
   "unresolved_subjects": [
     "NEW"
   ],
   "unresolved_since": "2026-08-20",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }
