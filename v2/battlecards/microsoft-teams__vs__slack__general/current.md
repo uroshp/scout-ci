@@ -4,11 +4,11 @@
 
 **Slack is asking you to assemble an agent stack from other vendors.**
 
-In June alone Slack bolted on three separate things (MCP, native Claude, a \$3.6B Fin acquisition), each its own license and security review. Microsoft 365 Copilot is one agent at 20M seats, on the identity and data you already govern.
+From June's MCP rollout, native Claude and the \$3.6B Fin acquisition through August's Slack Code, every new Slack AI surface is another vendor's agent sold separately, five different coding agents alone. Microsoft 365 Copilot is one agent at 20 million paid seats, on the identity and data you already govern.
 
 **Soundbite:** "Teams is one agent that runs on the identity and data you already control, with nothing new to license or secure."
 
-**So what:** Add up what Slack's June additions actually cost the buyer: each one is a separate license and security review, while Teams adds none. ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/06/15/salesforce-fin/))
+**So what:** Add up what Slack's stack of bolted-on vendors actually costs the buyer: licenses and security reviews for MCP, Claude, Fin and now five separate coding agents, while Teams adds none. ([venturebeat.com](https://venturebeat.com/orchestration/slack-wants-to-drag-ai-coding-out-of-the-terminal-and-into-the-group-chat))
 
 **Slack's parent is distracted and its top seat is empty.**
 
@@ -90,9 +90,9 @@ Teams carries full-scale video (300-participant meetings, webinars to 1,000) plu
 
 **The agent race is genuinely contested. Don't wave it away.**
 
-On June 17, 2026 Slack made Slackbot's MCP client generally available, connecting 20-plus third-party apps (Amplitude, Atlassian, Box, Canva, Docusign, Linear, Miro, Zoom and others) from a single Slackbot conversation. Slack positions this as vendor-neutral orchestration over the customer's existing stack, the same job Teams pitches as an all-in-one suite, but letting customers keep tools they already own rather than replace them. Several integrations (Notion, PagerDuty, Adobe, Tableau Next) and native Block Kit rendering are still coming, so GA today is the routing layer plus a first wave of live apps. For Salesforce-centric teams, Agentforce agents add CRM-aware context on top of this. Microsoft counters with Copilot wired across Teams, Office and Power Platform, with 20 million paid enterprise seats in daily use as of April 2026. Whoever already runs the customer's core systems usually wins the AI on top of them.
+Slack made Slackbot's MCP client generally available in June 2026, vendor-neutral orchestration over 20-plus apps the customer already owns. On August 20, 2026 it opened a second front, Slack Code: dedicated channels where AI coding agents write, review and ship software, live on every Slack plan, though each partner agent (Claude Code, Devin, GitHub Copilot, Vercel, OpenAI) is a separate purchase. For Salesforce-centric teams, Agentforce adds CRM-aware context on top. Microsoft counters with Copilot wired across Teams, Office and Power Platform, 20 million paid enterprise seats in daily use as of April 2026. Whoever already runs the customer's core systems usually wins the AI on top of them.
 
-**Soundbite:** *"Slack just put a real orchestration layer over existing tools, and for Salesforce shops that is a strong story. For M365 shops, Copilot is already running in Teams with 20 million enterprise users and no connector wiring needed."* ([slack.com](https://slack.com/blog/news/slackbots-mcp-client))
+**Soundbite:** *"Slack now spans orchestration and AI coding, and for Salesforce shops that is a strong story. For M365 shops, Copilot is already running in Teams with 20 million enterprise users, no connector wiring and no separate agent to buy per seat."* ([venturebeat.com](https://venturebeat.com/orchestration/slack-wants-to-drag-ai-coding-out-of-the-terminal-and-into-the-group-chat))
 
 ### Where Slack wins
 
@@ -159,6 +159,12 @@ Acknowledge it: Teams had worldwide disruptions in late 2025 with message delays
 That was a real complaint, serious enough that Microsoft publicly acknowledged it. The fix is now dated and shipping: center-aligned controls with a separated Leave button and a two-step share confirmation, reaching Targeted Release users in early July 2026 and worldwide general availability in early September 2026.
 
 **So what:** Raise this objection yourself before the prospect does, name the fix and its September general availability date, and turn a Slack talking point into proof that Teams ships fixes on a public timeline. ([techcommunity.microsoft.com](https://techcommunity.microsoft.com/blog/microsoftteamsblog/what%e2%80%99s-new-in-microsoft-teams--june-2026-%e2%80%93-infocomm-edition/4531968))
+
+**"Why can't we just run our coding agents inside Slack instead of Teams?"**
+
+Slack Code puts dedicated channels around AI coding agents on every Slack plan, but Claude Code, Devin, GitHub Copilot, Vercel and OpenAI's agent are each sold separately from Slack itself. The buyer pays for Slack's channel and audit trail, then pays again for whichever agent they plug into it. Teams already carries an AI agent in daily use: Microsoft 365 Copilot reached 20 million paid enterprise seats by April 2026, running on the identity and data the organization already governs, with no new per-agent purchase layered on top.
+
+**So what:** Ask what the buyer would actually spend once Slack Code's per-agent licenses are added up, then offer to consolidate on the Copilot seats already licensed in Teams instead of stacking a new agent purchase on top of Slack. ([venturebeat.com](https://venturebeat.com/orchestration/slack-wants-to-drag-ai-coding-out-of-the-terminal-and-into-the-group-chat))
 
 ## Cut Log
 
