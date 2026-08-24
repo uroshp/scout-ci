@@ -60,17 +60,17 @@
   },
   {
     "subject_key": "anthropic | adverse-exposure | current",
-    "claim": "**Don't walk in unarmed: Anthropic is carrying real scars a buyer will raise.**\n\nMicrosoft canceled Claude Code licenses across a major division, Uber capped engineer token spend over ROI, Anthropic's status page logged 14 incidents in two weeks through August 16 (including the widest-scope one that reached the Claude API directly), and the company is mid-way through its third billing change of the year.\n\n**Soundbite:** \"The August 16 episode hit the widest scope we saw all stretch, every component including the API, and we went from first alert to full resolution in about 36 minutes.\"\n\n**So what:** Pre-empt them. Raise Microsoft, Uber, the billing changes and the August outage run yourself, with a straight answer ready. If the buyer brings them up first, you're on the back foot.",
+    "claim": "**Don't walk in unarmed: Anthropic is carrying real scars a buyer will raise.**\n\nMicrosoft canceled Claude Code licenses across a major division, Uber capped engineer token spend over ROI, the company is mid-way through its third billing change of the year, and Anthropic's status page has now logged incidents in every week from August 3 through August 24, most recently elevated errors on four Claude models that hit claude.ai, the Claude API, Claude Code and Claude Cowork.\n\n**Soundbite:** \"The August 16 episode hit the widest scope we saw all stretch, every component including the API, and we went from first alert to full resolution in about 36 minutes.\"\n\n**So what:** Pre-empt them. Raise Microsoft, Uber, the billing changes and the extended August outage run yourself, with a straight answer ready. If the buyer brings them up first, you're on the back foot.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 0,
-    "as_of": "2026-08-17",
+    "as_of": "2026-08-24",
     "confidence": "high",
     "id": "c_225ad1700304",
     "verified": true,
     "derived_from": "c_76cca1c80e51",
-    "updated_on": "2026-08-17"
+    "updated_on": "2026-08-24"
   },
   {
     "subject_key": "claude-vs-gpt | coding-benchmark | current",
@@ -746,18 +746,18 @@
   },
   {
     "subject_key": "objection | claude-outage-capacity | current",
-    "claim": "**\"Claude has had multiple outages this month. Can it handle our production load?\"**\n\nAnthropic's status page logged 14 separate incidents between August 3 and August 16, with the August 16 episode widening within half an hour to hit all five components including the Claude API before it resolved the same day. That follows the earlier June and August incidents already known. Anthropic's own 90-day figures show 99.35% to 99.84% uptime across surfaces, with Claude for Government at 100%. Customers running Claude through Bedrock or Vertex were unaffected by the June 2 outage, and the $65B Series H and SpaceX/Colossus compute deal target the underlying capacity.\n\n**So what:** Deploy production workloads via Bedrock or Vertex with an enterprise SLA rather than the consumer endpoint or direct API. That tier was insulated from the June 2 outage, and with the API now hit directly too, it is the right choice for any workload that cannot tolerate disruption.",
+    "claim": "**\"Claude has had multiple outages this month. Can it handle our production load?\"**\n\nAnthropic's status page logged a run of incidents through August: 14 between August 3 and 16, more on August 17 through 20, and a new one on August 24 (elevated errors on Opus 5, Opus 4.8, Mythos 5 and Fable 5, hitting claude.ai, the Claude API, Claude Code and Cowork). Even so, the 90-day figures show 99.35% to 99.84% uptime across surfaces, with Claude for Government at 100%. Customers running Claude through Bedrock or Vertex were unaffected by the June 2 outage, and the $65B Series H and SpaceX/Colossus compute deal target the underlying capacity.\n\n**So what:** Deploy production workloads via Bedrock or Vertex with an enterprise SLA rather than the consumer endpoint or direct API. That tier was insulated from the June 2 outage, and with the API now hit directly too, it is the right choice for any workload that cannot tolerate disruption.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 2,
-    "as_of": "2026-08-17",
+    "as_of": "2026-08-24",
     "confidence": "high",
     "id": "c_b7c42bbe9a94",
     "verified": true,
     "persona": "technical_evaluator",
     "derived_from": "c_76cca1c80e51",
-    "updated_on": "2026-08-17"
+    "updated_on": "2026-08-24"
   },
   {
     "subject_key": "objection | claude-code-quality-decline-veracode | current",
