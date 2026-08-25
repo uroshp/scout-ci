@@ -12,9 +12,11 @@ Gemini 3.5 Pro just slipped to July and Google lost four senior Gemini and Alpha
 
 **Perplexity is growing fast but small and legally exposed, so go in with the litigation answer already loaded.**
 
-Revenue tripled in 2026 to roughly \$500M ARR, and nine publishers still have active copyright suits (CNN filed May 28) alongside a live privacy class action. The Comet shopping fight with Amazon flipped in Perplexity's favor: the Ninth Circuit vacated the injunction on August 4, 2026, ruling that it's Comet's users, not Perplexity, who access Amazon's servers. Comet can resume shopping on Amazon while Amazon's trademark and state-law claims continue in district court.
+Annualized revenue climbed above \$750M by August 2026, up from under \$250M in January (more than triple), while nine publishers still have active copyright suits and a privacy class action runs alongside. The Comet shopping fight with Amazon flipped Perplexity's way: the Ninth Circuit vacated the injunction on August 4, ruling Comet's users, not Perplexity, access Amazon's servers, so Comet can resume shopping there while Amazon's remaining claims continue in district court.
 
-**So what:** Pair the momentum story with a straight legal-risk answer: Perplexity just won the core access-legality fight on Comet, licensing deals are getting signed and the remaining suits are an industry-wide risk every AI vendor faces. ([news.bloomberglaw.com](https://news.bloomberglaw.com/us-law-week/perplexity-overturns-amazon-ban-on-ai-shopping-bot-on-appeal))
+**Soundbite:** "Perplexity's revenue has more than tripled this year and it just won the right to keep Comet shopping on Amazon; the remaining suits are the same copyright fight every AI vendor faces."
+
+**So what:** Pair the momentum story with a straight legal answer: Perplexity won the core access-legality fight on Comet, licensing deals are getting signed and the remaining suits are an industry-wide risk every AI vendor faces.
 
 **A judge just barred Google from buying default placement, so the 'Google's too embedded to displace' objection is weaker than it looks.**
 
@@ -43,7 +45,7 @@ Google AI Mode is free to 1B+ users and Gemini is included in paid Workspace tie
 - Google AI Mode in Search surpassed 1 billion monthly active users as of Google I/O (May 19, 2026), one year after launch, with queries more than doubling every quarter (company-stated). ([blog.google](https://blog.google/products-and-platforms/products/search/search-io-2026/))
 - Google's AI Overviews now reach more than 2.5 billion monthly users as of May 2026 (company-stated, reported by TechCrunch). ([techcrunch.com](https://techcrunch.com/2026/05/19/google-search-as-you-know-it-is-over/))
 - Google's Gemini app reported more than 900 million monthly active users at I/O (May 19, 2026), available in 230+ countries, up from 750M in February 2026 (company-stated). ([techcrunch.com](https://techcrunch.com/2026/05/19/google-updates-its-gemini-app-to-take-on-chatgpt-and-claude-at-io-2026/))
-- Perplexity's CEO stated the company grew revenue 5x from \$100M to \$500M ARR with only 34% headcount growth, and told CNBC on June 3 it tripled annualized revenue in 2026 (company-stated, unaudited; private company). ([businesstoday.in](https://www.businesstoday.in/markets/story/perplexity-had-4-people-and-no-revenue-ceo-aravind-srinivas-on-100m-to-500m-revenue-525681-2026-04-15))
+- Perplexity's annualized revenue topped \$750 million as of August 2026, up from under \$250 million at the start of the year, per a report by The Information; that's roughly 50% above the approximately \$500 million ARR the CEO reported to CNBC in June 2026.
 - Perplexity was last reported valued at \$20 billion (June 2026), trailing far behind Anthropic (~\$1T) and OpenAI (~\$850B), per CNBC. ([cnbc.com](https://www.cnbc.com/2026/06/03/perplexity-ceo-ai-valuations-computer-agentic.html))
 - Perplexity reported more than 100 million monthly active users across its search and agent tools as of April 2026 (company executives, via the Financial Times). ([pymnts.com](https://www.pymnts.com/artificial-intelligence-2/2026/perplexitys-shift-to-ai-agents-boosts-revenue-50/))
 
@@ -174,9 +176,9 @@ Don't dodge it: security researchers disclosed prompt-injection and data-exfiltr
 
 **"Is Perplexity stable enough to bet on against a trillion-dollar Google?"**
 
-It's a legitimate concern: at a \$20B valuation Perplexity is a fraction of Alphabet's ~\$4.5T. But it tripled annualized revenue in 2026 to roughly \$500M ARR, raised ~\$1.5B from SoftBank, Nvidia and others, and counts the bulk of the Fortune 500 as users. The question that matters is whether the product survives and delivers ROI over the buyer's horizon, and the trajectory says yes.
+It's a legitimate concern: at a \$20B valuation Perplexity is a fraction of Alphabet's ~\$4.5T. But annualized revenue climbed past \$750 million by August 2026, up from under \$250 million at the start of the year, and Perplexity has raised roughly \$1.5B from SoftBank, Nvidia and others, with the bulk of the Fortune 500 as users. The question that matters is whether the product survives and delivers ROI over the buyer's horizon, and the trajectory says yes.
 
-**So what:** Answer with the growth and enterprise-adoption proof points, and reframe the stability question to the buyer's actual time horizon. ([cnbc.com](https://www.cnbc.com/2026/06/03/perplexity-ceo-ai-valuations-computer-agentic.html))
+**So what:** Answer with the growth and enterprise-adoption proof points, and reframe the stability question to the buyer's actual time horizon.
 
 **"I heard a lawsuit says Perplexity sends user chats to Google and Meta, even in Incognito."**
 

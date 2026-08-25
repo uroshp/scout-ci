@@ -88,6 +88,12 @@ On June 4, 2026, IBM and Google Cloud launched a joint practice putting thousand
 
 **Soundbite:** *"Worried about delivery depth? You now get IBM's consultants building your agents on Google's stack. That's a combination AWS can't simply match."* ([newsroom.ibm.com](https://newsroom.ibm.com/2026-06-04-ibm-and-google-cloud-announce-strategic-partnership-to-scale-ai-with-human-expertise-and-ai-powered-delivery))
 
+**Verizon runs its enterprise on Gemini Enterprise, not a pilot.**
+
+On August 24, 2026, Verizon and Google Cloud announced a strategic partnership putting Google's full-stack AI, including Gemini Enterprise, across Verizon's customer experience, network operations, marketing and employee workflows. Gemini Enterprise for Customer Experience already handles the majority of Verizon's inbound consumer calls and chats each month. Verizon is also building autonomous network intelligence on Google Cloud and consolidating its legacy data lakes onto Google's Agentic Data Cloud to run it all. This is a named carrier-scale enterprise running production AI across multiple core business functions at once.
+
+**Soundbite:** Verizon already runs the majority of its consumer calls and chats through Gemini Enterprise, that's a Fortune 500 network running its business on us at scale, not a pilot. ([googlecloudpresscorner.com](https://www.googlecloudpresscorner.com/2026-08-24-Google-Cloud-Announces-Strategic-Partnership-with-Verizon-to-Scale-Enterprise-AI))
+
 ### Where it's a fight
 
 **Model breadth is now a real fight, not a Google win.**

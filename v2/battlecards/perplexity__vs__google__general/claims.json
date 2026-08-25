@@ -24,17 +24,17 @@
   },
   {
     "subject_key": "perplexity | legal-exposure | 2026",
-    "claim": "**Perplexity is growing fast but small and legally exposed, so go in with the litigation answer already loaded.**\n\nRevenue tripled in 2026 to roughly $500M ARR, and nine publishers still have active copyright suits (CNN filed May 28) alongside a live privacy class action. The Comet shopping fight with Amazon flipped in Perplexity's favor: the Ninth Circuit vacated the injunction on August 4, 2026, ruling that it's Comet's users, not Perplexity, who access Amazon's servers. Comet can resume shopping on Amazon while Amazon's trademark and state-law claims continue in district court.\n\n**So what:** Pair the momentum story with a straight legal-risk answer: Perplexity just won the core access-legality fight on Comet, licensing deals are getting signed and the remaining suits are an industry-wide risk every AI vendor faces.",
+    "claim": "**Perplexity is growing fast but small and legally exposed, so go in with the litigation answer already loaded.**\n\nAnnualized revenue climbed above $750M by August 2026, up from under $250M in January (more than triple), while nine publishers still have active copyright suits and a privacy class action runs alongside. The Comet shopping fight with Amazon flipped Perplexity's way: the Ninth Circuit vacated the injunction on August 4, ruling Comet's users, not Perplexity, access Amazon's servers, so Comet can resume shopping there while Amazon's remaining claims continue in district court.\n\n**Soundbite:** \"Perplexity's revenue has more than tripled this year and it just won the right to keep Comet shopping on Amazon; the remaining suits are the same copyright fight every AI vendor faces.\"\n\n**So what:** Pair the momentum story with a straight legal answer: Perplexity won the core access-legality fight on Comet, licensing deals are getting signed and the remaining suits are an industry-wide risk every AI vendor faces.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 1,
-    "as_of": "2026-08-04",
+    "as_of": "2026-08-24",
     "confidence": "high",
     "id": "c_ad25e7c14361",
     "verified": true,
-    "derived_from": "c_37cde6f28a51",
-    "updated_on": "2026-08-05"
+    "derived_from": "c_26aaa3eb63dc",
+    "updated_on": "2026-08-25"
   },
   {
     "subject_key": "google | distribution-under-legal-attack | 2026",
@@ -258,25 +258,17 @@
   },
   {
     "subject_key": "perplexity | revenue-run-rate | current",
-    "claim": "Perplexity's CEO stated the company grew revenue 5x from $100M to $500M ARR with only 34% headcount growth, and told CNBC on June 3 it tripled annualized revenue in 2026 (company-stated, unaudited; private company).",
-    "claim_type": "fact",
+    "claim": "Perplexity's annualized revenue topped $750 million as of August 2026, up from under $250 million at the start of the year, per a report by The Information; that's roughly 50% above the approximately $500 million ARR the CEO reported to CNBC in June 2026.",
+    "claim_type": "interpretation",
     "section": "snapshot",
     "zone": null,
     "order": 7,
-    "source_url": "https://www.businesstoday.in/markets/story/perplexity-had-4-people-and-no-revenue-ceo-aravind-srinivas-on-100m-to-500m-revenue-525681-2026-04-15",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "We just 5X'ed revenue from $100M to $500M with only 34% growth in team size.",
-    "as_of": "2026-04-15",
+    "as_of": "2026-08-24",
     "confidence": "medium",
     "id": "c_26aaa3eb63dc",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-06",
-      "detail": null
-    }
+    "derived_from": "c_26aaa3eb63dc",
+    "updated_on": "2026-08-25"
   },
   {
     "subject_key": "perplexity | valuation | current",
@@ -1040,26 +1032,18 @@
   },
   {
     "subject_key": "objection | perplexity-financial-stability",
-    "claim": "**\"Is Perplexity stable enough to bet on against a trillion-dollar Google?\"**\n\nIt's a legitimate concern: at a $20B valuation Perplexity is a fraction of Alphabet's ~$4.5T. But it tripled annualized revenue in 2026 to roughly $500M ARR, raised ~$1.5B from SoftBank, Nvidia and others, and counts the bulk of the Fortune 500 as users. The question that matters is whether the product survives and delivers ROI over the buyer's horizon, and the trajectory says yes.\n\n**So what:** Answer with the growth and enterprise-adoption proof points, and reframe the stability question to the buyer's actual time horizon.",
+    "claim": "**\"Is Perplexity stable enough to bet on against a trillion-dollar Google?\"**\n\nIt's a legitimate concern: at a $20B valuation Perplexity is a fraction of Alphabet's ~$4.5T. But annualized revenue climbed past $750 million by August 2026, up from under $250 million at the start of the year, and Perplexity has raised roughly $1.5B from SoftBank, Nvidia and others, with the bulk of the Fortune 500 as users. The question that matters is whether the product survives and delivers ROI over the buyer's horizon, and the trajectory says yes.\n\n**So what:** Answer with the growth and enterprise-adoption proof points, and reframe the stability question to the buyer's actual time horizon.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 4,
-    "source_url": "https://www.cnbc.com/2026/06/03/perplexity-ceo-ai-valuations-computer-agentic.html",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "This has led Perplexity to triple its annualized revenue since the beginning of the year",
-    "as_of": "2026-06-03",
+    "as_of": "2026-08-24",
     "confidence": "high",
     "persona": "economic_buyer",
     "id": "c_949c69727c83",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-06",
-      "detail": null
-    }
+    "derived_from": "c_26aaa3eb63dc",
+    "updated_on": "2026-08-25"
   },
   {
     "subject_key": "objection | perplexity-privacy-data-sharing",

@@ -4,11 +4,11 @@
 
 **Don't walk in unarmed: Anthropic is carrying real scars a buyer will raise.**
 
-Microsoft canceled Claude Code licenses across a major division, Uber capped engineer token spend over ROI, the company is mid-way through its third billing change of the year, and Anthropic's status page has now logged incidents in every week from August 3 through August 24, most recently elevated errors on four Claude models that hit claude.ai, the Claude API, Claude Code and Claude Cowork.
+Microsoft canceled Claude Code licenses across a major division, Uber capped engineer token spend over ROI, the company is mid-way through its third billing change of the year, and the status page has logged incidents in every week from August 3 through August 24. Third-party tracker IncidentHub now counts 28 status-page disruptions in the past 30 days, most recently an August 24 elevated-error incident on four Claude models. Over that same 90-day stretch, Claude for Government logged 100.0% uptime.
 
 **Soundbite:** "The August 16 episode hit the widest scope we saw all stretch, every component including the API, and we went from first alert to full resolution in about 36 minutes."
 
-**So what:** Pre-empt them. Raise Microsoft, Uber, the billing changes and the extended August outage run yourself, with a straight answer ready. If the buyer brings them up first, you're on the back foot. ([status.anthropic.com](https://status.anthropic.com/))
+**So what:** Pre-empt them. Raise Microsoft, Uber, the billing changes and the 28-incident-in-30-days count yourself, with a straight answer ready. If the buyer brings them up first, you're on the back foot. ([status.anthropic.com](https://status.anthropic.com/))
 
 **Anthropic now leads the enterprise-AI race, and coding is the engine.**
 
@@ -192,7 +192,7 @@ Real story: Uber's COO said it couldn't yet tie Claude Code spend to shipped fea
 
 **"Claude has had multiple outages this month. Can it handle our production load?"**
 
-Anthropic's status page logged a run of incidents through August: 14 between August 3 and 16, more on August 17 through 20, and a new one on August 24 (elevated errors on Opus 5, Opus 4.8, Mythos 5 and Fable 5, hitting claude.ai, the Claude API, Claude Code and Cowork). Even so, the 90-day figures show 99.35% to 99.84% uptime across surfaces, with Claude for Government at 100%. Customers running Claude through Bedrock or Vertex were unaffected by the June 2 outage, and the \$65B Series H and SpaceX/Colossus compute deal target the underlying capacity.
+Anthropic's status page logged a run of August incidents, the latest on August 24 (elevated errors on Opus 5, Opus 4.8, Mythos 5 and Fable 5), and third-party tracker IncidentHub now counts 28 disruptions in the past 30 days. Even so, 90-day uptime across surfaces runs 99.35% to 99.84%, and Claude for Government held 100.0% over that period. Customers on Bedrock or Vertex were unaffected by the June 2 outage, and the \$65B Series H and SpaceX/Colossus compute deal target the underlying capacity.
 
 **So what:** Deploy production workloads via Bedrock or Vertex with an enterprise SLA rather than the consumer endpoint or direct API. That tier was insulated from the June 2 outage, and with the API now hit directly too, it is the right choice for any workload that cannot tolerate disruption. ([status.anthropic.com](https://status.anthropic.com/))
 

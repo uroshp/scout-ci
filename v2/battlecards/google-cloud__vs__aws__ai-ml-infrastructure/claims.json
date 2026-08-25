@@ -1226,5 +1226,50 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "google-cloud | customer-win | verizon-gemini-enterprise-2026-08",
+    "claim": "On August 24, 2026, Google Cloud announced a new strategic partnership with Verizon under which Verizon deploys Google Cloud's full-stack AI, including Gemini Enterprise, to modernize customer experience, unify enterprise data and scale AI across the enterprise. Verizon's contact-center work has evolved into Gemini Enterprise for Customer Experience, which now handles the majority of its inbound consumer calls and chats a month. Verizon is also building an autonomous network intelligence framework with Google Cloud to predict and resolve network anomalies, modernizing its marketing platforms with Google Cloud's data and AI tools, and using Gemini Enterprise for agent orchestration and employee productivity across core business functions. The deployment runs on Google's Agentic Data Cloud, the target of Verizon's multi-year consolidation of legacy data lakes.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.googlecloudpresscorner.com/2026-08-24-Google-Cloud-Announces-Strategic-Partnership-with-Verizon-to-Scale-Enterprise-AI",
+    "source_tier": "primary",
+    "evidence_excerpt": "Google Cloud's Gemini Enterprise will be a pillar in Verizon's enterprise and customer experience modernization",
+    "as_of": "2026-08-24",
+    "confidence": "high",
+    "id": "c_5c941e9845ba",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-25",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.lightreading.com/ai-machine-learning/verizon-taps-into-google-cloud-to-bring-ai-to-the-enterprise",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_28bf85fdf157",
+    "subject_key": "battlecard | win | verizon-gemini-enterprise-reference",
+    "claim": "**Verizon runs its enterprise on Gemini Enterprise, not a pilot.**\n\nOn August 24, 2026, Verizon and Google Cloud announced a strategic partnership putting Google's full-stack AI, including Gemini Enterprise, across Verizon's customer experience, network operations, marketing and employee workflows. Gemini Enterprise for Customer Experience already handles the majority of Verizon's inbound consumer calls and chats each month. Verizon is also building autonomous network intelligence on Google Cloud and consolidating its legacy data lakes onto Google's Agentic Data Cloud to run it all. This is a named carrier-scale enterprise running production AI across multiple core business functions at once.\n\n**Soundbite:** Verizon already runs the majority of its consumer calls and chats through Gemini Enterprise, that's a Fortune 500 network running its business on us at scale, not a pilot.",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 3,
+    "as_of": "2026-08-24",
+    "updated_on": "2026-08-25",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_5c941e9845ba",
+    "persona": "exec_top_down"
   }
 ]
