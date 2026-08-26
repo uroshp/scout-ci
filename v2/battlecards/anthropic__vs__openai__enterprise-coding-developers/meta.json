@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise coding/developers",
   "baseline_date": "2026-06-04",
-  "last_checked": "2026-08-25T11:00:33",
+  "last_checked": "2026-08-26T11:00:30",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_e5e52edeb211",
@@ -39,11 +39,5 @@
   "lead_election": {
     "last_promoted_on": "2026-08-17",
     "lead_subject_key": "anthropic | adverse-exposure | current"
-  },
-  "unresolved_subjects": [
-    "NEW",
-    "openai | api-list-price"
-  ],
-  "unresolved_since": "2026-08-21",
-  "unresolved_attempts": 2
+  }
 }
