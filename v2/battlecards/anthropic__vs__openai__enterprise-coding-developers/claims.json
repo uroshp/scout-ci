@@ -1,26 +1,17 @@
 [
   {
     "subject_key": "anthropic-vs-openai | enterprise-coding-position | current",
-    "claim": "**Anthropic now leads the enterprise-AI race, and coding is the engine.**\n\nIndependent Ramp data across 50,000-plus companies puts Anthropic ahead of OpenAI in paid business adoption for the first time, 34.4% to 32.3%, while OpenAI delays its IPO after a $38.5B loss.\n\n**Soundbite:** \"Anthropic now leads in business deployments. Adopting Claude is keeping up with your competitors.\"\n\n**So what:** Kill the \"OpenAI is the safe default\" reflex, then get to the engineers and a pilot on their own repo.",
+    "claim": "**Anthropic's lead over OpenAI in business adoption is widening.**\n\nRamp's index now shows Anthropic leading business adoption 43.5% to 39.7% in July 2026, a wider gap than the 34.4% to 32.3% margin reported in May, while OpenAI still faces the $38.5B loss that delayed its IPO.\n\n**Soundbite:** \"Anthropic now leads business adoption 43.5% to 39.7%, and the gap is growing every month. Adopting Claude is keeping up with your competitors.\"\n\n**So what:** Kill the \"OpenAI is the safe default\" reflex, then get to the engineers and a pilot on their own repo.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 1,
-    "source_url": "https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-users-than-openai/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "34.4% of participating businesses are paying for Anthropic services, more than any other AI lab, while only 32.3% pay for OpenAI",
-    "as_of": "2026-06-26",
+    "as_of": "2026-08-12",
     "confidence": "high",
     "id": "c_8a795c235228",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-04",
-      "detail": null
-    },
-    "updated_on": "2026-06-27"
+    "updated_on": "2026-08-26",
+    "derived_from": "c_057e7e42f152"
   },
   {
     "subject_key": "github-copilot | billing-backlash | 2026-06",
@@ -579,26 +570,18 @@
   },
   {
     "subject_key": "battlecard | business-customer-lead | where_we_win",
-    "claim": "**Independent spend data now ranks Anthropic the most-adopted AI vendor among businesses.**\n\nRamp's expense index across 50,000+ companies shows 34.4% paying for Anthropic vs 32.3% for OpenAI as of spring 2026, the first time Anthropic has led. It's drawn from actual corporate card spend rather than a vendor survey, which makes it hard for an OpenAI rep to dismiss. Best deployed against the \"OpenAI is the safe default\" reflex.\n\n**Soundbite:** *\"Anthropic just passed OpenAI as the #1 AI vendor in business spend, based on Ramp's corporate-card data across 50,000 companies. Anthropic is becoming the default.\"*",
-    "claim_type": "fact",
+    "claim": "**Independent spend data shows Anthropic's lead over OpenAI widening.**\n\nRamp's July 2026 index across 50,000+ companies shows 43.5% of US businesses paying for Anthropic versus 39.7% for OpenAI, up from 34.4% to 32.3% in May. It's drawn from actual corporate card spend rather than a vendor survey, which makes it hard for an OpenAI rep to dismiss. Ramp's economist notes OpenAI's growth has slowed more than Anthropic's, so the gap is growing, not closing. Best deployed against the \"OpenAI is the safe default\" reflex.\n\n**Soundbite:** *\"Anthropic just widened its lead over OpenAI in business spend to 43.5% versus 39.7%, based on Ramp's corporate card data across 50,000 companies, and OpenAI's growth is slowing faster than Anthropic's. Anthropic is becoming the default.\"*",
+    "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_we_win",
     "order": 1,
-    "source_url": "https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-customers-than-openai-according-to-ramp-data/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "For the first time, Anthropic has more verified business customers than OpenAI",
-    "as_of": "2026-05-13",
+    "as_of": "2026-08-12",
     "confidence": "high",
     "id": "c_0a13065e0820",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-04",
-      "detail": null
-    },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "derived_from": "c_057e7e42f152",
+    "updated_on": "2026-08-26"
   },
   {
     "subject_key": "battlecard | swe-bench-pro-lead | where_we_win",
@@ -671,18 +654,18 @@
   },
   {
     "subject_key": "battlecard | codex-scale-distribution | where_they_win",
-    "claim": "**OpenAI wins on scale and channel, especially in top-down deals.**\n\nCodex passed 5M weekly users, is expanding to non-developers and ships through a named SI network (Accenture, PwC, Infosys, TCS and more) plus native GitHub Copilot integration. Claude is now generally available in Microsoft Azure Foundry (GA June 29, 2026) with Azure-native billing for EA customers, which narrows OpenAI's prior Azure deployment advantage. The remaining channel strengths are the SI network and GitHub's native Microsoft ownership: in an exec-led, \"one-vendor-for-everything\" enterprise buy routed through an SI where GitHub is already in the contract, OpenAI is still the path of least resistance.\n\n**Soundbite:** *\"Top-down on breadth through an SI, OpenAI's the easy pick. But Claude is now on the Azure EA bill, and the engineers who actually live in the tool rate Claude higher, so get this in front of them.\"*",
+    "claim": "**OpenAI wins on scale and channel, especially in top-down deals.**\n\nCodex passed 5M weekly users, is expanding to non-developers and ships through a named SI network (Accenture, PwC, Infosys, TCS and more) plus native GitHub Copilot integration. Claude is now generally available in Microsoft Azure Foundry (GA June 29, 2026) with Azure-native billing for EA customers, which narrows OpenAI's prior Azure deployment advantage. Claude also picked up a top-tier consulting endorsement: Bain is now a 'Global Premier' partner in the Claude Partner Network. The remaining channel strengths are the SI network and GitHub's native Microsoft ownership: in an exec-led, \"one-vendor-for-everything\" enterprise buy routed through an SI where GitHub is already in the contract, OpenAI is still the path of least resistance.\n\n**Soundbite:** *\"Top-down on breadth through an SI, OpenAI's the easy pick. But Claude is now on the Azure EA bill, and the engineers who actually live in the tool rate Claude higher, so get this in front of them.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_they_win",
     "order": 0,
-    "as_of": "2026-06-29",
+    "as_of": "2026-08-25",
     "confidence": "high",
     "id": "c_987856624481",
     "verified": true,
     "persona": "exec_top_down",
-    "derived_from": "c_c2dc5e470ea5",
-    "updated_on": "2026-06-30"
+    "derived_from": "c_dbebd47beb33",
+    "updated_on": "2026-08-26"
   },
   {
     "subject_key": "openai-copilot | sentiment-billing-defection | current",
@@ -2076,5 +2059,72 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "battlecard | business-customer-lead",
+    "claim": "Ramp's AI Index reports Anthropic extended its lead in business AI adoption in July 2026: 43.5% of US businesses paid for Anthropic subscriptions or tokens, up 1.1 percentage points month over month, versus OpenAI at 39.7% (up 0.23 points). Ramp's economist notes OpenAI's growth, and to a lesser extent Anthropic's, has slowed compared to prior months.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 3,
+    "source_url": "https://ramp.com/data/ai-index-august-2026",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "43.5% of U.S. businesses paid for subscriptions or tokens from Anthropic, up 1.1 percentage points month-over-month",
+    "as_of": "2026-08-12",
+    "confidence": "high",
+    "id": "c_057e7e42f152",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-26",
+      "detail": null
+    }
+  },
+  {
+    "subject_key": "anthropic | bain-global-premier-partnership",
+    "claim": "Bain & Company announced a global partnership with Anthropic on August 25, 2026, naming Bain a 'Global Premier' partner in the Claude Partner Network, the program's top tier. The deal builds on Bain's enterprise-wide Claude rollout: more than 7,000 employees were actively using Claude within weeks of the firm-wide deployment and Bain reports 30% to 50% productivity gains on client engagements involving complex legacy codebases.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.bain.com/about/media-center/press-releases/2026/bain-company-announces-partnership-with-anthropic-to-accelerate-clients-enterprise-ai-transformations/",
+    "source_tier": "primary",
+    "evidence_excerpt": "With Bain named as a 'Global Premier' partner in the Claude Partner Network, the firms will extend their work with leading companies worldwide",
+    "as_of": "2026-08-25",
+    "confidence": "high",
+    "id": "c_dbebd47beb33",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-26",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.unite.ai/bain-joins-anthropics-claude-partner-network-at-global-premier-tier/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_24a14ed52638",
+    "subject_key": "battlecard | bain-global-premier-partnership | where_we_win",
+    "claim": "**Bain & Company just became Anthropic's top-tier consulting partner.**\n\nBain is now a 'Global Premier' partner in the Claude Partner Network, the program's top tier, announced August 25, 2026. The deal builds on Bain's firm-wide Claude rollout, where more than 7,000 employees were actively using Claude within weeks of deployment and Bain reports 30% to 50% productivity gains on client engagements involving complex legacy codebases. That is a named, top-tier consulting endorsement with a hard productivity number a rep can cite in any coding or modernization deal.\n\n**Soundbite:** \"Bain went firm-wide on Claude, saw 30 to 50 percent productivity gains modernizing legacy codebases and just became Anthropic's top consulting partner. That is a real business validating real results, not a vendor pitch.\"",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 7,
+    "as_of": "2026-08-25",
+    "updated_on": "2026-08-26",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_dbebd47beb33",
+    "persona": "exec_top_down"
   }
 ]

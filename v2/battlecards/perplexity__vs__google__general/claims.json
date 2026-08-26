@@ -82,25 +82,17 @@
   },
   {
     "subject_key": "perplexity-vs-google | price-vs-value | 2026",
-    "claim": "**Don't fight Google on price: it bundles AI into free Search and into Workspace at zero marginal cost. Fight on neutrality and citations.**\n\nGoogle AI Mode is free to 1B+ users and Gemini is included in paid Workspace tiers, so Perplexity's $20 Pro and $40-seat Enterprise can never win a pure cost comparison. Perplexity's edge is that it routes to Claude, Gemini or GPT in one product, cites every answer and is cleared for government use.\n\n**So what:** Reframe every price objection as a value-and-trust conversation; conceding the price axis and winning the neutrality axis is the stronger play.",
+    "claim": "**Google still wins on sticker price for chat. Portable Computer neutralizes that for agent work.**\n\nGoogle AI Mode is free to 1B+ users and Gemini rides inside paid Workspace seats, so a straight subscription-price fight still favors Google. But Perplexity's Portable Computer, launched August 25, 2026 with Nvidia, runs agent tasks locally at zero marginal cost, on top of routing to Claude, Gemini or GPT in one product and being cleared for government use.\n\n**Soundbite:** \"You don't pay us anything extra to run agent tasks on your own machine, and you're not locked into one model to do it.\"\n\n**So what:** Keep reframing subscription-price objections to value and trust. For agent workloads specifically, lead with the on-device tier costing nothing beyond the subscription, a real cost win a cloud-only Gemini can't match.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 0,
-    "source_url": "https://blog.google/products-and-platforms/products/search/search-io-2026/",
-    "source_tier": "primary",
-    "evidence_excerpt": "as the new default model in AI Mode for everyone globally",
-    "as_of": "2026-05-19",
+    "as_of": "2026-08-25",
     "confidence": "high",
     "id": "c_b5664c37e73b",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-06",
-      "detail": null
-    }
+    "derived_from": "c_b3aefc0588f0",
+    "updated_on": "2026-08-26"
   },
   {
     "subject_key": "alphabet | q-revenue | q1-2026",
@@ -478,25 +470,17 @@
   },
   {
     "subject_key": "perplexity | positioning | orchestration-layer",
-    "claim": "As of June 2026 Perplexity has repositioned from answer engine to a 'hybrid neutral orchestration layer': a model- and chip-agnostic platform that routes each task to the best model across device and cloud, which it frames as its durable advantage versus Google, OpenAI and Anthropic (company claim).",
+    "claim": "Perplexity's June 2026 repositioning from answer engine to a 'hybrid neutral orchestration layer' (a model- and chip-agnostic platform routing each task across device and cloud, a company claim) is now backed by a shipped product. Portable Computer, launched August 25, 2026 with Nvidia, runs the Computer agent entirely on local hardware and escalates a step to a cloud frontier model only with the user's permission.",
     "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.cnbc.com/2026/06/03/perplexity-ceo-ai-valuations-computer-agentic.html",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "That hybrid neutral orchestration layer is what we are doing, and that allows us to balance all the different objectives simultaneously,' Srinivas said.",
-    "as_of": "2026-06-03",
+    "as_of": "2026-08-25",
     "confidence": "high",
     "id": "c_563ad9e3c3dc",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "fuzzy",
-      "fetched_at": "2026-06-06",
-      "detail": "partial_ratio 0.921"
-    }
+    "derived_from": "c_b3aefc0588f0",
+    "updated_on": "2026-08-26"
   },
   {
     "subject_key": "perplexity | positioning | ad-free",
@@ -1047,26 +1031,18 @@
   },
   {
     "subject_key": "objection | perplexity-privacy-data-sharing",
-    "claim": "**\"I heard a lawsuit says Perplexity sends user chats to Google and Meta, even in Incognito.\"**\n\nA March 2026 class action does allege embedded trackers forwarded chat data to Google and Meta without consent. Reps will be asked about it, so don't bury it. The honest answer: these are unproven allegations Perplexity is contesting, paid Pro/Max subscribers are excluded from the proposed class, and Perplexity's enterprise and FedRAMP-cleared government offerings run under separate, accredited data controls from the consumer web product.\n\n**So what:** Acknowledge the suit, separate consumer-tier allegations from the enterprise data posture, and point security buyers to the accredited deployment.",
+    "claim": "**\"I heard a lawsuit says Perplexity sends user chats to Google and Meta, even in Incognito.\"**\n\nA March 2026 class action does allege embedded trackers forwarded chat data to Google and Meta without consent. Reps will be asked about it, so don't bury it. The honest answer: these are unproven allegations Perplexity is contesting, paid Pro/Max subscribers are excluded from the proposed class, and Perplexity's enterprise and FedRAMP-cleared government offerings run under separate, accredited data controls from the consumer web product. For buyers who want data to stay put entirely, Portable Computer, launched August 25, 2026 with Nvidia, runs the agent locally on the user's own hardware and only sends a step to the cloud after the user approves it.\n\n**So what:** Acknowledge the suit, separate consumer-tier allegations from the enterprise data posture, and offer security buyers either the accredited deployment or Portable Computer's on-device option, where nothing leaves the machine without explicit approval.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 5,
-    "source_url": "https://www.claimsjournal.com/news/national/2026/04/01/336634.htm",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "trackers are downloaded onto their devices, giving Meta and Google full access to the conversations between them and Perplexity's AI Machine search engine",
-    "as_of": "2026-04-01",
+    "as_of": "2026-08-25",
     "confidence": "medium",
     "persona": "security_regulated",
     "id": "c_420247f08232",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-06",
-      "detail": null
-    }
+    "derived_from": "c_b3aefc0588f0",
+    "updated_on": "2026-08-26"
   },
   {
     "subject_key": "objection | perplexity-usage-limit-cuts",
@@ -1479,5 +1455,65 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "perplexity | product | portable-computer",
+    "claim": "Perplexity launched Portable Computer on August 25, 2026 in partnership with Nvidia: an on-device version of its Computer agent platform that runs entirely on local hardware, starting with Nvidia's DGX Spark and Linux machines with Nvidia RTX GPUs (24GB+ VRAM). Work completed locally consumes no billing credits, and the agent escalates a step to a cloud frontier model only after asking the user's permission. It ships today for Pro, Max, Enterprise Pro and Enterprise Max subscribers on Linux, with Windows support following in September.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://venturebeat.com/infrastructure/perplexity-partners-with-nvidia-to-launch-portable-computer-a-fully-local-ai-agent-with-zero-token-costs/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Work completed locally consumes no billing credits, and the company says every task starts on the device by default",
+    "as_of": "2026-08-25",
+    "confidence": "high",
+    "id": "c_b3aefc0588f0",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-26",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://siliconangle.com/2026/08/25/perplexity-ai-launches-portable-computer-on-device-ai-agent/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_15756b9c9274",
+    "subject_key": "perplexity | battlecard | portable-computer-on-device",
+    "claim": "**On-device agents that cost nothing to run. Google's Gemini has no equivalent.**\n\nPerplexity's Portable Computer, launched August 25, 2026 with Nvidia, runs its Computer agent platform entirely on local hardware, starting with Nvidia's DGX Spark and Linux machines with RTX GPUs (24GB+ VRAM). Work finished on-device burns zero billing credits, and the agent only reaches out to a cloud frontier model after the user approves that step. It's live today for Pro, Max, Enterprise Pro and Enterprise Max subscribers on Linux, with Windows support arriving in September.\n\n**Soundbite:** \"Run your agent work on your own hardware for free, and it only touches the cloud, and your bill, when you say yes.\"",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 3,
+    "as_of": "2026-08-25",
+    "updated_on": "2026-08-26",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_b3aefc0588f0",
+    "persona": "economic_buyer"
+  },
+  {
+    "id": "c_b27dfaf2c072",
+    "subject_key": "perplexity | pricing-model | on-device-zero-credits",
+    "claim": "Perplexity's Portable Computer makes on-device agent work free: tasks completed locally on Nvidia DGX Spark or RTX-equipped Linux machines (24GB+ VRAM) consume no billing credits, and the agent escalates to a paid cloud frontier model only after the user approves that step. It launched August 25, 2026 for Pro, Max, Enterprise Pro and Enterprise Max subscribers on Linux, with Windows support coming in September.",
+    "claim_type": "interpretation",
+    "section": "pricing",
+    "zone": null,
+    "order": 5,
+    "as_of": "2026-08-25",
+    "updated_on": "2026-08-26",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_b3aefc0588f0",
+    "persona": "economic_buyer"
   }
 ]

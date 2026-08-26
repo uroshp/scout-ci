@@ -10,13 +10,13 @@ Microsoft canceled Claude Code licenses across a major division, Uber capped eng
 
 **So what:** Pre-empt them. Raise Microsoft, Uber, the billing changes and the 28-incident-in-30-days count yourself, with a straight answer ready. If the buyer brings them up first, you're on the back foot. ([status.anthropic.com](https://status.anthropic.com/))
 
-**Anthropic now leads the enterprise-AI race, and coding is the engine.**
+**Anthropic's lead over OpenAI in business adoption is widening.**
 
-Independent Ramp data across 50,000-plus companies puts Anthropic ahead of OpenAI in paid business adoption for the first time, 34.4% to 32.3%, while OpenAI delays its IPO after a \$38.5B loss.
+Ramp's index now shows Anthropic leading business adoption 43.5% to 39.7% in July 2026, a wider gap than the 34.4% to 32.3% margin reported in May, while OpenAI still faces the \$38.5B loss that delayed its IPO.
 
-**Soundbite:** "Anthropic now leads in business deployments. Adopting Claude is keeping up with your competitors."
+**Soundbite:** "Anthropic now leads business adoption 43.5% to 39.7%, and the gap is growing every month. Adopting Claude is keeping up with your competitors."
 
-**So what:** Kill the "OpenAI is the safe default" reflex, then get to the engineers and a pilot on their own repo. ([techcrunch.com](https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-users-than-openai/))
+**So what:** Kill the "OpenAI is the safe default" reflex, then get to the engineers and a pilot on their own repo. ([ramp.com](https://ramp.com/data/ai-index-august-2026))
 
 **A strong secondary play on cost: the GitHub Copilot billing backlash is now backed by real invoices.**
 
@@ -100,11 +100,11 @@ JetBrains' January 2026 survey of 10,000+ professional developers gives Claude C
 
 **Soundbite:** *"JetBrains' own survey of 10,000 engineers shows Claude Code has the highest satisfaction and recommend scores of any AI coding tool. Adoption follows preference."* ([blog.jetbrains.com](https://blog.jetbrains.com/research/2026/04/which-ai-coding-tools-do-developers-actually-use-at-work/))
 
-**Independent spend data now ranks Anthropic the most-adopted AI vendor among businesses.**
+**Independent spend data shows Anthropic's lead over OpenAI widening.**
 
-Ramp's expense index across 50,000+ companies shows 34.4% paying for Anthropic vs 32.3% for OpenAI as of spring 2026, the first time Anthropic has led. It's drawn from actual corporate card spend rather than a vendor survey, which makes it hard for an OpenAI rep to dismiss. Best deployed against the "OpenAI is the safe default" reflex.
+Ramp's July 2026 index across 50,000+ companies shows 43.5% of US businesses paying for Anthropic versus 39.7% for OpenAI, up from 34.4% to 32.3% in May. It's drawn from actual corporate card spend rather than a vendor survey, which makes it hard for an OpenAI rep to dismiss. Ramp's economist notes OpenAI's growth has slowed more than Anthropic's, so the gap is growing, not closing. Best deployed against the "OpenAI is the safe default" reflex.
 
-**Soundbite:** *"Anthropic just passed OpenAI as the #1 AI vendor in business spend, based on Ramp's corporate-card data across 50,000 companies. Anthropic is becoming the default."* ([techcrunch.com](https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-customers-than-openai-according-to-ramp-data/))
+**Soundbite:** *"Anthropic just widened its lead over OpenAI in business spend to 43.5% versus 39.7%, based on Ramp's corporate card data across 50,000 companies, and OpenAI's growth is slowing faster than Anthropic's. Anthropic is becoming the default."* ([ramp.com](https://ramp.com/data/ai-index-august-2026))
 
 **On the hardest, least-gameable coding benchmark, Claude leads.**
 
@@ -136,6 +136,12 @@ Claude Code 2.1.224 added self-hosted environments: Team and Enterprise customer
 
 **Soundbite:** "With the self-hosted runner on Team or Enterprise, your Claude Code sessions execute on your own machines or containers instead of Anthropic-hosted infrastructure, so you decide where the sessions run." ([raw.githubusercontent.com](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md))
 
+**Bain & Company just became Anthropic's top-tier consulting partner.**
+
+Bain is now a 'Global Premier' partner in the Claude Partner Network, the program's top tier, announced August 25, 2026. The deal builds on Bain's firm-wide Claude rollout, where more than 7,000 employees were actively using Claude within weeks of deployment and Bain reports 30% to 50% productivity gains on client engagements involving complex legacy codebases. That is a named, top-tier consulting endorsement with a hard productivity number a rep can cite in any coding or modernization deal.
+
+**Soundbite:** "Bain went firm-wide on Claude, saw 30 to 50 percent productivity gains modernizing legacy codebases and just became Anthropic's top consulting partner. That is a real business validating real results, not a vendor pitch." ([bain.com](https://www.bain.com/about/media-center/press-releases/2026/bain-company-announces-partnership-with-anthropic-to-accelerate-clients-enterprise-ai-transformations/))
+
 ### Where it's a fight
 
 **The headline leaderboard currently reads in OpenAI's favor.**
@@ -162,9 +168,9 @@ Beyond code, GPT-5.x bundles native image generation, voice I/O, web search, and
 
 **OpenAI wins on scale and channel, especially in top-down deals.**
 
-Codex passed 5M weekly users, is expanding to non-developers and ships through a named SI network (Accenture, PwC, Infosys, TCS and more) plus native GitHub Copilot integration. Claude is now generally available in Microsoft Azure Foundry (GA June 29, 2026) with Azure-native billing for EA customers, which narrows OpenAI's prior Azure deployment advantage. The remaining channel strengths are the SI network and GitHub's native Microsoft ownership: in an exec-led, "one-vendor-for-everything" enterprise buy routed through an SI where GitHub is already in the contract, OpenAI is still the path of least resistance.
+Codex passed 5M weekly users, is expanding to non-developers and ships through a named SI network (Accenture, PwC, Infosys, TCS and more) plus native GitHub Copilot integration. Claude is now generally available in Microsoft Azure Foundry (GA June 29, 2026) with Azure-native billing for EA customers, which narrows OpenAI's prior Azure deployment advantage. Claude also picked up a top-tier consulting endorsement: Bain is now a 'Global Premier' partner in the Claude Partner Network. The remaining channel strengths are the SI network and GitHub's native Microsoft ownership: in an exec-led, "one-vendor-for-everything" enterprise buy routed through an SI where GitHub is already in the contract, OpenAI is still the path of least resistance.
 
-**Soundbite:** *"Top-down on breadth through an SI, OpenAI's the easy pick. But Claude is now on the Azure EA bill, and the engineers who actually live in the tool rate Claude higher, so get this in front of them."* ([claude.com](https://claude.com/blog/claude-in-microsoft-foundry))
+**Soundbite:** *"Top-down on breadth through an SI, OpenAI's the easy pick. But Claude is now on the Azure EA bill, and the engineers who actually live in the tool rate Claude higher, so get this in front of them."* ([bain.com](https://www.bain.com/about/media-center/press-releases/2026/bain-company-announces-partnership-with-anthropic-to-accelerate-clients-enterprise-ai-transformations/))
 
 **OpenAI is often already in the building.**
 
