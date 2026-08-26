@@ -4,7 +4,7 @@
   "competitor": "Google",
   "focus": null,
   "baseline_date": "2026-06-06",
-  "last_checked": "2026-08-25T11:22:09",
+  "last_checked": "2026-08-26T11:24:08",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_9ea436272f2a",
@@ -20,7 +20,8 @@
     "f_d7a23a596d93",
     "f_0c47f86127d5",
     "f_8f1eca28ac7f",
-    "f_f551937f75ca"
+    "f_f551937f75ca",
+    "f_9deadf59cfaa"
   ],
   "monitored": true,
   "unresolved_subjects": [
@@ -28,5 +29,9 @@
     "google | product-launch | gemini-37-flash"
   ],
   "unresolved_since": "2026-08-22",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2,
+  "lead_election": {
+    "last_promoted_on": "2026-08-26",
+    "lead_subject_key": "perplexity-vs-google | price-vs-value | 2026"
+  }
 }

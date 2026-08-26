@@ -4,7 +4,7 @@
   "competitor": "Slack",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-08-25T11:17:06",
+  "last_checked": "2026-08-26T11:17:06",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7e46a6f50a55",
@@ -14,5 +14,10 @@
     "f_f917e6151896",
     "f_52768c16bba8"
   ],
-  "monitored": true
+  "monitored": true,
+  "unresolved_subjects": [
+    "slack | service-outage"
+  ],
+  "unresolved_since": "2026-08-25",
+  "unresolved_attempts": 1
 }

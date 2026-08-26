@@ -2,6 +2,12 @@
 
 ## Executive Summary
 
+**Don't fight Google on price: it bundles AI into free Search and into Workspace at zero marginal cost. Fight on neutrality and citations.**
+
+Google AI Mode is free to 1B+ users and Gemini is included in paid Workspace tiers, so Perplexity's \$20 Pro and \$40-seat Enterprise can never win a pure cost comparison. Perplexity's edge is that it routes to Claude, Gemini or GPT in one product, cites every answer and is cleared for government use.
+
+**So what:** Reframe every price objection as a value-and-trust conversation; conceding the price axis and winning the neutrality axis is the stronger play. ([blog.google](https://blog.google/products-and-platforms/products/search/search-io-2026/))
+
 **Pick the best model for each task, and keep the freedom to switch vendors.**
 
 Gemini 3.5 Pro just slipped to July and Google lost four senior Gemini and AlphaFold researchers in two weeks. Perplexity runs across 19 models including Claude and GPT, so each task goes to the model that handles it best.
@@ -29,12 +35,6 @@ A federal judge barred Google from exclusive default-distribution deals for Sear
 Independent analysis estimates Google AI Overviews produce tens of millions of questionable answers per hour at Google's query volume, and publisher click-throughs to top pages fell ~58%. Perplexity dropped advertising entirely in early 2026 and grounds every answer in inline citations.
 
 **So what:** Win trust-sensitive buyers (research, media, legal, regulated industries) on verifiable, ad-free, source-cited answers rather than on raw model horsepower. ([popsci.com](https://www.popsci.com/technology/ai-overview-inaccuracy-google/))
-
-**Don't fight Google on price: it bundles AI into free Search and into Workspace at zero marginal cost. Fight on neutrality and citations.**
-
-Google AI Mode is free to 1B+ users and Gemini is included in paid Workspace tiers, so Perplexity's \$20 Pro and \$40-seat Enterprise can never win a pure cost comparison. Perplexity's edge is that it routes to Claude, Gemini or GPT in one product, cites every answer and is cleared for government use.
-
-**So what:** Reframe every price objection as a value-and-trust conversation; conceding the price axis and winning the neutrality axis is the stronger play. ([blog.google](https://blog.google/products-and-platforms/products/search/search-io-2026/))
 
 ## Snapshot
 
