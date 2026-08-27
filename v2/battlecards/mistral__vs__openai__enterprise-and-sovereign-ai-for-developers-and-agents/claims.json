@@ -307,15 +307,15 @@
   },
   {
     "subject_key": "openai | pricing-model | price-cut-consideration-2026",
-    "claim": "OpenAI cut GPT-5.6 prices again just three weeks after launch. On July 30, 2026 it dropped Luna 80% to $0.20 input and $1.20 output per million tokens, and Terra 20% to $2 input and $12 output. Sol's base rate stays at $5/$30, and OpenAI added a premium Sol Fast tier at $10/$60. Luna's combined $1.40 per million tokens now sits in the low-cost inference tier alongside Google and DeepSeek models, so OpenAI's frontier line directly competes on price for high-volume work.",
+    "claim": "OpenAI cut its flagship GPT-5.6 Sol API price for the first time since launch, dropping input from $5 to $4 and output from $30 to $20 per million tokens, effective August 21 through at least November 21, 2026. It applies to the pay-as-you-go API, Codex credits and eligible ChatGPT Work plans, with Pro, Plus and Business subscriptions unchanged. This is the second GPT-5.6 cut in three weeks, after the July 30 Terra and Luna reductions, and OpenAI is doing it under pressure from Anthropic and cheaper Chinese models.",
     "claim_type": "fact",
     "section": "pricing",
     "zone": null,
-    "order": 1,
-    "source_url": "https://www.cnbc.com/2026/07/30/open-ai-price-cut-gpt.html",
+    "order": 3,
+    "source_url": "https://www.outlookbusiness.com/corporate/openai-cuts-gpt-56-sol-prices-for-developers-how-much-cheaper-is-its-ai-model-now",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "It's cutting the cost of Luna by 80% to 20 cents per million input tokens and $1.20 per million output tokens.",
-    "as_of": "2026-07-30",
+    "evidence_excerpt": "Input pricing will fall to $4 and output pricing to $20 per 1 million tokens.",
+    "as_of": "2026-08-21",
     "confidence": "high",
     "id": "c_a5c54281605e",
     "verified": true,
@@ -323,12 +323,12 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-07-31",
+      "fetched_at": "2026-08-27",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://venturebeat.com/technology/ai-price-wars-openai-cuts-gpt-5-6-luna-prices-by-80-as-model-competition-shifts-toward-cost",
+        "source_url": "https://enterprisedna.co/resources/news/openai-gpt-56-sol-price-cut-20-percent-frontier-model-august-2026/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
@@ -1592,6 +1592,36 @@
     "corroboration": [
       {
         "source_url": "https://cyberinsider.com/openai-slows-model-development-over-concerns-about-cyber-capabilities/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "openai | executive-change | exodus-2026",
+    "claim": "OpenAI's head of data centers Chris Malone left the week of August 18, 2026, the person who oversaw execution of a roughly $600 billion compute buildout through 2030. Business Insider counts 13 senior departures at OpenAI in 2026, several in the past month, including the COO, the chief revenue officer and the product and business chief. The churn lands as OpenAI works to justify its $852 billion valuation ahead of an IPO now reported for 2027.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 4,
+    "source_url": "https://techcrunch.com/2026/08/25/openai-loses-a-top-data-center-exec-as-stream-of-high-profile-departures-continues/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Business Insider recently tallied the total 2026 departure count at 13, with several leaving in just the last month.",
+    "as_of": "2026-08-25",
+    "confidence": "high",
+    "id": "c_9fd366f91716",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-27",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.cnbc.com/2026/08/25/openais-head-of-data-centers-chris-malone-is-out-in-latest-exec-exit.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false

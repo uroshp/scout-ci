@@ -4,7 +4,7 @@
   "competitor": "Google",
   "focus": null,
   "baseline_date": "2026-06-06",
-  "last_checked": "2026-08-26T11:24:08",
+  "last_checked": "2026-08-27T11:17:53",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_9ea436272f2a",
@@ -24,12 +24,6 @@
     "f_9deadf59cfaa"
   ],
   "monitored": true,
-  "unresolved_subjects": [
-    "google | product-launch | ask-gemini-chat",
-    "google | product-launch | gemini-37-flash"
-  ],
-  "unresolved_since": "2026-08-22",
-  "unresolved_attempts": 2,
   "lead_election": {
     "last_promoted_on": "2026-08-26",
     "lead_subject_key": "perplexity-vs-google | price-vs-value | 2026"
