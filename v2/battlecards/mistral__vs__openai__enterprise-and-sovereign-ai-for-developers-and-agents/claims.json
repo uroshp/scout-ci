@@ -249,17 +249,17 @@
   },
   {
     "subject_key": "openai | flagship-model | current",
-    "claim": "OpenAI's current flagship is now the GPT-5.6 line (Sol, Terra and Luna), cleared for open public sale starting July 9, 2026 after a Department of Commerce hold. Sol lists at $5 per million input tokens and $30 output.",
+    "claim": "OpenAI's current flagship is the GPT-5.6 line (Sol, Terra and Luna), cleared for open public sale starting July 9, 2026 after a Department of Commerce hold. Sol now lists at $4 per million input tokens and $20 output, cut from $5 and $30 effective August 21 through at least November 21, 2026, the second GPT-5.6 price cut in three weeks. Pro, Plus and Business subscriptions are unchanged.",
     "claim_type": "interpretation",
     "section": "snapshot",
     "zone": null,
     "order": 8,
-    "as_of": "2026-07-08",
+    "as_of": "2026-08-21",
     "confidence": "high",
     "id": "c_77b7261b1764",
     "verified": true,
-    "derived_from": "c_1abc15d96670",
-    "updated_on": "2026-07-08"
+    "derived_from": "c_a5c54281605e",
+    "updated_on": "2026-08-27"
   },
   {
     "subject_key": "openai | partnership | partner-network-2026",
