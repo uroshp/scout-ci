@@ -4,7 +4,7 @@
   "competitor": "Cognition",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-08-26T11:13:33",
+  "last_checked": "2026-08-27T11:02:45",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_b969e4b96a7c",
@@ -19,11 +19,5 @@
   "lead_election": {
     "last_promoted_on": "2026-08-12",
     "lead_subject_key": "cursor | adverse-objections-readiness | current"
-  },
-  "unresolved_subjects": [
-    "cursor | product-launch | grok-4-6",
-    "cursor-vs-cognition | revenue-scale-comparison"
-  ],
-  "unresolved_since": "2026-08-24",
-  "unresolved_attempts": 2
+  }
 }
