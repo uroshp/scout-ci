@@ -1271,5 +1271,42 @@
     "confidence": "medium",
     "derived_from": "c_5c941e9845ba",
     "persona": "exec_top_down"
+  },
+  {
+    "subject_key": "google-cloud | partnership | clearlake-capital-2026-08",
+    "claim": "On August 27, 2026, Clearlake Capital Group announced a strategic partnership with Google Cloud, giving its private equity portfolio companies structured access to Google Cloud's full AI stack: Gemini Enterprise for agentic deployments, Gemini and third-party models through Vertex AI, TPU and Nvidia GPU capacity through AI Hypercomputer and Google Cloud's data and cybersecurity tools. Clearlake portfolio company Alteryx is already running production workloads on the stack.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://aithority.com/it-and-devops/cloud/clearlake-capital-and-google-cloud-form-strategic-partnership-to-deliver-full-stack-enterprise-ai-across-portfolio-companies/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "announced a strategic partnership with Google Cloud to accelerate full-stack AI adoption and digital modernization across its portfolio companies.",
+    "as_of": "2026-08-27",
+    "confidence": "high",
+    "id": "c_b4a503cde3c1",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-28",
+      "detail": null
+    }
+  },
+  {
+    "id": "c_91e27e807872",
+    "subject_key": "battlecard | win | clearlake-pe-portfolio-reference",
+    "claim": "**A private equity firm just gave its whole portfolio structured access to Google Cloud.**\n\nOn August 27, 2026, Clearlake Capital Group signed a strategic partnership giving its portfolio companies structured access to Google Cloud's full AI stack: Gemini Enterprise for agentic deployments, Gemini and third-party models through Vertex AI, TPU and Nvidia GPU capacity through AI Hypercomputer and Google's data and cybersecurity tools. Clearlake's portfolio company Alteryx is already running production workloads on it. That gives reps a warm path into every company Clearlake owns, backed by a live production reference rather than a pilot.\n\n**Soundbite:** \"Clearlake set up structured access to Google Cloud's full AI stack for its whole portfolio, and Alteryx is running production workloads on it today, so you'd be adopting a stack already proven inside your own investor group.\"",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 4,
+    "as_of": "2026-08-27",
+    "updated_on": "2026-08-28",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_b4a503cde3c1",
+    "persona": "exec_top_down"
   }
 ]

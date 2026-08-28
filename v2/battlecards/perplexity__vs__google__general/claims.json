@@ -550,25 +550,17 @@
   },
   {
     "subject_key": "perplexity | list-price | sonar-api",
-    "claim": "Perplexity's Sonar API is priced per million tokens (Sonar $1 in/$1 out; Sonar Pro $3 in/$15 out; Deep Research $2 in/$8 out) plus per-request and citation/search fees, a usage-based developer model competing with Google's Gemini API/Vertex.",
-    "claim_type": "fact",
+    "claim": "Perplexity's Sonar API is priced per million tokens (Sonar $1 in/$1 out; Sonar Pro $3 in/$15 out; Deep Research $2 in/$8 out) plus per-request and search fees. The citation charge that used to apply across all Sonar models now applies only to Sonar Deep Research, so Sonar and Sonar Pro carry no citation fee, a usage-based developer model competing with Google's Gemini API/Vertex.",
+    "claim_type": "interpretation",
     "section": "pricing",
     "zone": null,
     "order": 1,
-    "source_url": "https://docs.perplexity.ai/docs/getting-started/pricing",
-    "source_tier": "primary",
-    "evidence_excerpt": "Sonar $1 $1 - - - Sonar Pro $3 $15 - - - Sonar Reasoning Pro $2 $8 - - - Sonar Deep Research $2 $8 $2 $5 $3",
-    "as_of": "2026-06-06",
+    "as_of": "2026-08-28",
     "confidence": "medium",
     "id": "c_ce90341434d4",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-06",
-      "detail": null
-    }
+    "derived_from": "c_ce90341434d4",
+    "updated_on": "2026-08-28"
   },
   {
     "subject_key": "google | list-price | ai-pro",

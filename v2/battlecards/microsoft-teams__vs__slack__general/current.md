@@ -2,13 +2,13 @@
 
 ## Executive Summary
 
-**Slack is asking you to assemble an agent stack from other vendors.**
+**Slack's AI story got more unified, but its CRM integration is still in pilot.**
 
-From June's MCP rollout, native Claude and the \$3.6B Fin acquisition through August's Slack Code, every new Slack AI surface is another vendor's agent sold separately, five different coding agents alone. Microsoft 365 Copilot is one agent at 20 million paid seats, on the identity and data you already govern.
+Salesforce's August 26 Claudeforce deal makes Claude the default model across Slackbot, Claude Tag and Slack Code, which answers the old critique that Slack was a stack of separately sold vendor agents. The flagship piece, the Salesforce data plugin, is in pilot now with open beta not until September 2026, while Microsoft 365 Copilot has run at 20 million paid enterprise seats in daily use since April.
 
-**Soundbite:** "Teams is one agent that runs on the identity and data you already control, with nothing new to license or secure."
+**Soundbite:** "Slack's Salesforce data plugin is still in pilot until at least September. Copilot has been live in Teams at 20 million seats since spring."
 
-**So what:** Add up what Slack's stack of bolted-on vendors actually costs the buyer: licenses and security reviews for MCP, Claude, Fin and now five separate coding agents, while Teams adds none. ([venturebeat.com](https://venturebeat.com/orchestration/slack-wants-to-drag-ai-coding-out-of-the-terminal-and-into-the-group-chat))
+**So what:** Concede Claudeforce gives Slack a cleaner AI story, then hold the timing gap: offer to expand the Copilot seats the buyer already runs in Teams today rather than wait on Slack's CRM plugin reaching open beta. ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/08/26/salesforce-and-anthropic-announce-claudeforce/))
 
 **Slack's parent is distracted and its top seat is empty.**
 
@@ -64,7 +64,7 @@ Microsoft's redesigned meeting controls, with a separated Leave button and a two
 ## Positioning and Differentiation
 
 - Microsoft Teams ships inside every Microsoft 365 business subscription (from Business Basic at \$7 per user per month as of July 1, 2026) as an included app, giving it near-frictionless distribution to hundreds of millions of M365 seats. Adopting Slack means standing up and paying for a second tool.
-- Salesforce positions Slack as 'the operating system for work' and Slackbot as the conversational front door to enterprise AI agents: its explicit counter to Microsoft Copilot, and the frame a Teams rep will meet in Salesforce-centric accounts. ([salesforce.com](https://www.salesforce.com/slack/slackbot/agent-orchestration/))
+- Salesforce positions Slack as 'the operating system for work', and since the August 26 Claudeforce launch that claim has real backing: Claude is the default model across Slackbot, Claude Tag and Slack Code, plus a Salesforce data plugin with 37 prebuilt sales skills in pilot now and open beta in September 2026. That is the frame a Teams rep will meet in Salesforce-centric accounts. ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/08/26/salesforce-and-anthropic-announce-claudeforce/))
 
 ## Pricing and Packaging
 
@@ -92,9 +92,9 @@ Teams carries full-scale video (300-participant meetings, webinars to 1,000) plu
 
 **The agent race is genuinely contested. Don't wave it away.**
 
-Slack made Slackbot's MCP client generally available in June 2026, vendor-neutral orchestration over 20-plus apps the customer already owns. On August 20, 2026 it opened a second front, Slack Code: dedicated channels where AI coding agents write, review and ship software, live on every Slack plan, though each partner agent (Claude Code, Devin, GitHub Copilot, Vercel, OpenAI) is a separate purchase. For Salesforce-centric teams, Agentforce adds CRM-aware context on top. Microsoft counters with Copilot wired across Teams, Office and Power Platform, 20 million paid enterprise seats in daily use as of April 2026. Whoever already runs the customer's core systems usually wins the AI on top of them.
+Slack now spans orchestration and coding: Slackbot's MCP client is generally available over 20-plus apps, and Slack Code runs AI coding agents on every plan. The August 26 Claudeforce deal made Claude the default model across Slackbot, Claude Tag and Slack Code, so Slack leads with one integrated frontier model. Claude is built in, while Devin, GitHub Copilot, Vercel and OpenAI's agents each stay a separate purchase, and Agentforce adds CRM context for Salesforce shops. Microsoft counters with Copilot wired across Teams, Office and Power Platform, 20 million paid enterprise seats in daily use as of April 2026. Whoever already runs the customer's core systems usually wins the AI on top of them.
 
-**Soundbite:** *"Slack now spans orchestration and AI coding, and for Salesforce shops that is a strong story. For M365 shops, Copilot is already running in Teams with 20 million enterprise users, no connector wiring and no separate agent to buy per seat."* ([venturebeat.com](https://venturebeat.com/orchestration/slack-wants-to-drag-ai-coding-out-of-the-terminal-and-into-the-group-chat))
+**Soundbite:** *"Slack now spans orchestration and coding with Claude as its default, a strong story for Salesforce shops. For M365 shops, Copilot already runs in Teams at 20 million users, no connector wiring and no separate agent to buy per seat."* ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/08/26/salesforce-and-anthropic-announce-claudeforce/))
 
 ### Where Slack wins
 
@@ -164,9 +164,9 @@ That was a real complaint, serious enough that Microsoft publicly acknowledged i
 
 **"Why can't we just run our coding agents inside Slack instead of Teams?"**
 
-Slack Code puts dedicated channels around AI coding agents on every Slack plan, but Claude Code, Devin, GitHub Copilot, Vercel and OpenAI's agent are each sold separately from Slack itself. The buyer pays for Slack's channel and audit trail, then pays again for whichever agent they plug into it. Teams already carries an AI agent in daily use: Microsoft 365 Copilot reached 20 million paid enterprise seats by April 2026, running on the identity and data the organization already governs, with no new per-agent purchase layered on top.
+Slack's August 26 Claudeforce deal made Claude the default model behind Slack Code, so that one agent now comes bundled with the plan. Devin, GitHub Copilot, Vercel and OpenAI's coding agent still plug into the same channels as separate purchases, each licensed on top of Slack itself. Teams already carries an AI agent in daily use: Microsoft 365 Copilot reached 20 million paid enterprise seats by April 2026, running on the identity and data the organization already governs, with no new per-agent purchase layered on top.
 
-**So what:** Ask what the buyer would actually spend once Slack Code's per-agent licenses are added up, then offer to consolidate on the Copilot seats already licensed in Teams instead of stacking a new agent purchase on top of Slack. ([venturebeat.com](https://venturebeat.com/orchestration/slack-wants-to-drag-ai-coding-out-of-the-terminal-and-into-the-group-chat))
+**So what:** Point out that Claude now ships bundled with Slack Code, but Devin, GitHub Copilot, Vercel and OpenAI still cost extra, then offer to consolidate on the Copilot seats already licensed in Teams instead of buying additional agents piecemeal. ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/08/26/salesforce-and-anthropic-announce-claudeforce/))
 
 ## Cut Log
 
