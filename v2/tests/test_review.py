@@ -50,6 +50,50 @@ class ReviewApply(unittest.TestCase):
         self.assertTrue(all(not validation_errors(c) for c in res["claims"]))
         wb.assert_called_once()
 
+    def test_apply_confirmed_retire_skips_render_gate(self):
+        """A judge-confirmed RETIRE carries no prose (claim=None by contract). It must NOT be pushed
+        through the render gate — that demands a **So what:** on empty text and holds the op forever
+        (2026-08-28: the first retire ever to reach --approve was held this way). It flips the target
+        to retired, keeps its text for lineage, and never calls the reformatter."""
+        target = {**PLAY, "section": "executive_summary", "zone": None,
+                  "claim": "**Parent is distracted.**\n\nStock down a third.\n\n**So what:** counter."}
+        ex = dict(ANCHOR); ex["subject_key"] = "salesforce|q2-beat|current"
+        ex["id"] = claim_id(SLUG, ex["subject_key"]); ex["claim"] = "Salesforce beat Q2."
+        retire = {"operation": "retire", "section": "executive_summary", "zone": None,
+                  "subject_key": PLAY["subject_key"], "target_subject_key": PLAY["subject_key"],
+                  "derived_from": ex["id"], "retired_reason": "invalidated: Q2 beat",
+                  "feed_note": "Removed the parent-distracted talking point."}
+        with mock.patch.object(review.store, "load_meta", return_value=dict(META)), \
+             mock.patch.object(review.store, "load_claims", return_value=[target, ex]), \
+             mock.patch.object(review, "_current_md", return_value=""), \
+             mock.patch.object(review.store, "write_baseline") as wb, \
+             mock.patch("scout.reformat.repair_or_hold",
+                        side_effect=AssertionError("render gate must not see a retire")):
+            res = review.apply(SLUG, [retire], [ex], write=True)
+        self.assertEqual([a["operation"] for a in res["applied"]], ["retire"])
+        self.assertEqual(res["held"], [])
+        flipped = next(c for c in res["claims"] if c["subject_key"] == PLAY["subject_key"])
+        self.assertEqual(flipped["status"], "retired")
+        self.assertEqual(flipped["derived_from"], ex["id"])
+        self.assertIn("Parent is distracted", flipped["claim"])     # lineage text kept
+        wb.assert_called_once()
+
+    def test_apply_revise_already_on_card_is_skipped_not_reapplied(self):
+        """Re-approving a card must be idempotent: a revise whose text is already the target's text is
+        routed to skipped — no updated_on re-stamp, no duplicate feed row (2026-08-28)."""
+        revise = {"operation": "revise", "section": "battlecard", "zone": "where_we_win",
+                  "subject_key": PLAY["subject_key"], "target_subject_key": PLAY["subject_key"],
+                  "claim": PLAY["claim"], "claim_type": "interpretation", "derived_from": ANCHOR["id"],
+                  "persona": "technical_evaluator"}
+        with mock.patch.object(review.store, "load_meta", return_value=dict(META)), \
+             mock.patch.object(review.store, "load_claims", return_value=[dict(PLAY)]), \
+             mock.patch.object(review, "_current_md", return_value=""), \
+             mock.patch.object(review.store, "write_baseline") as wb:
+            res = review.apply(SLUG, [revise], [ANCHOR], write=True)
+        self.assertEqual(res["applied"], [])
+        self.assertEqual([s["reason"] for s in res["skipped"]], ["already on card (identical text)"])
+        wb.assert_not_called()
+
     def test_apply_no_ops_is_a_noop(self):
         res = review.apply(SLUG, [], [], write=True)
         self.assertEqual(res["applied"], [])
