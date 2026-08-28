@@ -974,5 +974,65 @@
     "confidence": "medium",
     "derived_from": "c_ad22f4032e2e",
     "persona": "eng_led"
+  },
+  {
+    "subject_key": "salesforce-anthropic | claudeforce-partnership",
+    "claim": "On August 26, 2026 Salesforce and Anthropic launched Claudeforce, an expanded partnership that makes Claude the default model across Slack and puts Salesforce data, workflows and governance inside Claude through a plugin with 37 prebuilt sales skills (meeting prep, deal health, pipeline review). Per the announcement Claude now powers Slackbot by default, Claude Tag and Slack Code across the Slack surface, and serves as a reasoning model inside Agentforce. Salesforce in Claude is in pilot now, with open beta expected September 2026 and more skills late 2026.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.salesforce.com/news/press-releases/2026/08/26/salesforce-and-anthropic-announce-claudeforce/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Claude is the default model for Slack and serves as the intelligent backbone across every layer of the Slack experience",
+    "as_of": "2026-08-26",
+    "confidence": "high",
+    "id": "c_0b8be73ad7a2",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-28",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.cnbc.com/2026/08/26/salesforce-anthropic-partnership-claudeforce.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "salesforce-slack | parent-stability-risk",
+    "claim": "The parent-company distraction risk behind Slack has eased sharply. In fiscal Q2 (ended July 31, 2026) Salesforce beat Wall Street with revenue of $11.35 billion and adjusted EPS of $5.90 against $3.27 expected, raised full-year revenue guidance to $46.1 to $46.4 billion, and reported Agentforce annualized revenue topping $1.5 billion, up 240% year over year. The stock jumped about 18% on the results, narrowing a year-to-date loss that had reached roughly a third earlier in 2026. CEO Marc Benioff said 'This is not the SaaSpocalypse.' Slack still runs under interim CPO Rob Seaman after Denise Dresser's December 2025 exit.",
+    "claim_type": "fact",
+    "section": "snapshot",
+    "zone": null,
+    "order": 2,
+    "source_url": "https://www.cnbc.com/2026/08/26/salesforce-crm-q2-earnings-report-2027.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Salesforce shares soared 18% in trading on Thursday after the cloud software vendor reported results and issued guidance that surpassed Wall Street projections.",
+    "as_of": "2026-08-27",
+    "confidence": "high",
+    "id": "c_3da4ae3ed49b",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-28",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.cnbc.com/2026/08/26/salesforce-anthropic-partnership-claudeforce.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

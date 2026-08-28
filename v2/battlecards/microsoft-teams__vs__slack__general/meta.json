@@ -4,7 +4,7 @@
   "competitor": "Slack",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-08-27T11:05:04",
+  "last_checked": "2026-08-28T11:12:50",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7e46a6f50a55",
@@ -12,12 +12,9 @@
     "f_588527f7f835",
     "f_be583ae25eb6",
     "f_f917e6151896",
-    "f_52768c16bba8"
+    "f_52768c16bba8",
+    "f_d1ce62b0143c",
+    "f_f7505ff1c70e"
   ],
-  "monitored": true,
-  "unresolved_subjects": [
-    "slack | service-outage"
-  ],
-  "unresolved_since": "2026-08-25",
-  "unresolved_attempts": 2
+  "monitored": true
 }
