@@ -33,7 +33,11 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-05",
       "detail": "partial_ratio 0.991"
-    }
+    },
+    "status": "retired",
+    "retired_on": "2026-08-28",
+    "retired_reason": "invalidated: Salesforce beat fiscal Q2 2026 (revenue $11.35B, adjusted EPS $5.90 vs $3.27 expected), raised full-year guidance, Agentforce ARR +240% to over $1.5B, stock +18%; the 'parent is distracted and under pressure' argument no longer holds",
+    "derived_from": "c_3da4ae3ed49b"
   },
   {
     "subject_key": "microsoft-teams vs slack | ai-agent-battleground | current",
