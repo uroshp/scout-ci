@@ -113,9 +113,17 @@ def apply(slug: str, ops: list, facts: list, write: bool = True) -> dict:
     # for a formatting problem. Each op is repaired (a model adds the required **So what:**/
     # **Soundbite:** block, substance unchanged) or, if unrepairable, HELD + flagged — never applied
     # malformed, never sent to the Cut Log. Only well-formed ops reach apply_ops below.
+    # A RETIRE carries no prose by contract (claim=None; the floor rejects a retire WITH prose), so
+    # there is nothing to render-gate here — validating it would demand a **So what:** block on
+    # empty text and hold it forever (2026-08-28: the first-ever retire to reach --approve, the
+    # Salesforce-Q2 parent-stability retire, was held exactly this way). apply_ops validates the
+    # TARGET claim it flips; the pre-email gate skips retires for the same reason.
     from scout import reformat
     ready, held = [], []
     for o in ops:
+        if o.get("operation") == "retire":
+            ready.append(o)
+            continue
         status, o2 = reformat.repair_or_hold(slug, o)
         (held if status == "held" else ready).append(o2)
     ops = ready
@@ -124,6 +132,25 @@ def apply(slug: str, ops: list, facts: list, write: bool = True) -> dict:
                 "claims": None}
     meta = store.load_meta(slug) or {}
     claims = store.load_claims(slug)
+
+    # IDEMPOTENT RE-APPROVE (2026-08-28): a revise whose text is already on the card is a no-op —
+    # re-applying it re-stamped updated_on and wrote a duplicate feed row (seen when a card was
+    # re-approved to publish one held op next to four already-applied revises). Route it to
+    # `skipped` so only real changes reach apply_ops, the feed, and the adjudication labels.
+    from scout.schema import normalize_subject_key
+
+    def _norm(t):
+        return " ".join(str(t or "").split())
+    active_by_sk = {normalize_subject_key(str(c.get("subject_key"))): c for c in claims
+                    if c.get("status", "active") == "active" and c.get("subject_key")}
+    noop = [o for o in ops if o.get("operation") == "revise"
+            and (tgt := active_by_sk.get(normalize_subject_key(str(o.get("target_subject_key") or ""))))
+            and _norm(tgt.get("claim")) == _norm(o.get("claim"))]
+    ops = [o for o in ops if o not in noop]
+    pre_skipped = [{"op": o, "reason": "already on card (identical text)"} for o in noop]
+    if not ops:
+        return {"applied": [], "skipped": pre_skipped, "held": held,
+                "reason": "all ops already on card", "claims": None}
 
     # Bring on the card any grounding-fact anchor an op needs but the card doesn't have yet
     # (a my_company tracked_facts fact — non-rendered; competitor facts already live in recent_moves).
@@ -162,7 +189,8 @@ def apply(slug: str, ops: list, facts: list, write: bool = True) -> dict:
         applied_keys = {(a.get("subject_key"), a.get("operation")) for a in res["applied"]}
         _log_human_verdict(slug, [o for o in ops if (o.get("subject_key"), o.get("operation")) in applied_keys],
                            "agree", "auto-logged by review.apply on approval")
-    return {"applied": res["applied"], "skipped": res["skipped"], "held": held, "claims": new_claims}
+    return {"applied": res["applied"], "skipped": pre_skipped + res["skipped"], "held": held,
+            "claims": new_claims}
 
 
 def _log_human_verdict(slug: str, ops: list, human_verdict: str, note: str = "") -> int:
