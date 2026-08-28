@@ -10,12 +10,6 @@ Salesforce's August 26 Claudeforce deal makes Claude the default model across Sl
 
 **So what:** Concede Claudeforce gives Slack a cleaner AI story, then hold the timing gap: offer to expand the Copilot seats the buyer already runs in Teams today rather than wait on Slack's CRM plugin reaching open beta. ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/08/26/salesforce-and-anthropic-announce-claudeforce/))
 
-**Slack's parent is distracted and its top seat is empty.**
-
-Salesforce stock is down about a third in 2026 on fears AI agents erode its per-seat model, Bank of America just reinstated coverage at Underperform, and Slack's CEO left in December 2025 to become OpenAI's revenue chief, leaving an interim in charge. Slack itself is growing, but the mothership is under real pressure.
-
-**So what:** When a buyer frames Slack-plus-Salesforce as the safe long-term platform bet, you have a credible, sourced 'is this vendor steady right now?' counter. ([247wallst.com](https://247wallst.com/investing/2026/05/18/bofa-slaps-salesforce-with-underperform-rating-160-price-target-is-the-ai-story-falling-flat/))
-
 The real fight is the AI agent layer.
 
 Salesforce is openly repositioning Slack from a messaging app into an 'agentic' work surface (Slackbot as an agent that routes work across Agentforce and thousands of apps) while Microsoft answers with Copilot embedded across Teams and the whole M365 suite, now at 20M paid seats. Both want their workspace to be where your people first reach for AI.
