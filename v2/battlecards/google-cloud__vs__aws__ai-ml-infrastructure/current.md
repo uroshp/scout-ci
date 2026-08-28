@@ -94,6 +94,12 @@ On August 24, 2026, Verizon and Google Cloud announced a strategic partnership p
 
 **Soundbite:** Verizon already runs the majority of its consumer calls and chats through Gemini Enterprise, that's a Fortune 500 network running its business on us at scale, not a pilot. ([googlecloudpresscorner.com](https://www.googlecloudpresscorner.com/2026-08-24-Google-Cloud-Announces-Strategic-Partnership-with-Verizon-to-Scale-Enterprise-AI))
 
+**A private equity firm just gave its whole portfolio structured access to Google Cloud.**
+
+On August 27, 2026, Clearlake Capital Group signed a strategic partnership giving its portfolio companies structured access to Google Cloud's full AI stack: Gemini Enterprise for agentic deployments, Gemini and third-party models through Vertex AI, TPU and Nvidia GPU capacity through AI Hypercomputer and Google's data and cybersecurity tools. Clearlake's portfolio company Alteryx is already running production workloads on it. That gives reps a warm path into every company Clearlake owns, backed by a live production reference rather than a pilot.
+
+**Soundbite:** "Clearlake set up structured access to Google Cloud's full AI stack for its whole portfolio, and Alteryx is running production workloads on it today, so you'd be adopting a stack already proven inside your own investor group." ([aithority.com](https://aithority.com/it-and-devops/cloud/clearlake-capital-and-google-cloud-form-strategic-partnership-to-deliver-full-stack-enterprise-ai-across-portfolio-companies/))
+
 ### Where it's a fight
 
 **Model breadth is now a real fight, not a Google win.**
