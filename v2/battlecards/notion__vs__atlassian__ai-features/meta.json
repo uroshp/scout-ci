@@ -4,7 +4,7 @@
   "competitor": "Atlassian",
   "focus": "AI features",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-08-28T11:34:10",
+  "last_checked": "2026-08-29T11:25:21",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_af44b318b691",
@@ -15,8 +15,10 @@
   ],
   "monitored": true,
   "unresolved_subjects": [
-    "NEW"
+    "NEW",
+    "atlassian | restructuring-verdict",
+    "notion | agent-apis-beta"
   ],
   "unresolved_since": "2026-08-27",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }
