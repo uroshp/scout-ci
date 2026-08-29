@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise coding/developers",
   "baseline_date": "2026-06-04",
-  "last_checked": "2026-08-28T11:00:33",
+  "last_checked": "2026-08-29T11:00:31",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_e5e52edeb211",
@@ -41,8 +41,9 @@
     "lead_subject_key": "anthropic | adverse-exposure | current"
   },
   "unresolved_subjects": [
-    "NEW"
+    "NEW",
+    "openai-agent-huggingface-breach"
   ],
   "unresolved_since": "2026-08-26",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }
