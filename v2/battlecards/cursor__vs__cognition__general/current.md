@@ -2,13 +2,13 @@
 
 ## Executive Summary
 
-**Our four biggest vulnerabilities: billing trust, the now-closed SpaceX acquisition and two RCE disclosures (DuneSlide, patched; Mindgard's git.exe flaw, fixed quietly with no advisory or CVE yet). Have answers ready.**
+**Our five biggest vulnerabilities: billing trust, the now-closed SpaceX acquisition, OpenAI's model cutoff and two RCE disclosures (DuneSlide, patched; Mindgard's git.exe flaw, fixed quietly with no CVE yet). Have answers ready.**
 
-The \$60B SpaceX deal became effective August 14, 2026, per Cursor's own announcement. The 2025 pricing blow-ups still sting. DuneSlide RCE is patched in Cursor 3.0. Mindgard's git.exe auto-executes on Windows with no click; Cursor shipped a fix July 13 but has no advisory or CVE yet.
+The \$60B SpaceX deal became effective August 14, 2026, and OpenAI is now ending Cursor's direct model access November 12, 2026, about 5% of traffic. The 2025 pricing blow-ups still sting. DuneSlide RCE is patched in Cursor 3.0. Mindgard's git.exe auto-executes on Windows with no click; Cursor shipped a fix July 13 but has no advisory or CVE yet.
 
-**Soundbite:** "The SpaceX deal is closed. What you're buying is what ships today: Grok 4.5, Cursor Router and Fortune 500-scale adoption."
+**Soundbite:** "The SpaceX deal is closed, the OpenAI slice is small and what you're buying is what ships today: Grok 4.5, Cursor Router and Fortune 500-scale adoption."
 
-**So what:** Answer each directly. On billing, cite split usage pools, the spend dashboard and dollar-threshold alerts. On SpaceX, confirm the deal closed August 14 and lead with today's shipping product and Fortune 500-scale adoption. On DuneSlide, point to Cursor 3.0. On Mindgard, confirm the fix shipped with no advisory or CVE yet. ([cnbc.com](https://www.cnbc.com/2026/06/16/spacex-spcx-cursor-acquisition-ipo.html))
+**So what:** Answer each directly. On billing, cite split usage pools, the spend dashboard and dollar-threshold alerts. On SpaceX and the OpenAI cutoff, lead with today's shipping product, Grok 4.5 and Cursor Router. On DuneSlide, point to Cursor 3.0. On Mindgard, confirm the fix shipped with no advisory or CVE yet. ([x.com](https://x.com/OpenAI/status/2093515564786540695))
 
 **Cognition has graduated from viral demo to a scaled competitor: sell against it that way.**
 
@@ -168,9 +168,9 @@ Fair: the 2025 rollout was botched and our CEO apologized publicly. Since then w
 
 **"SpaceX just closed its acquisition of Cursor. Who am I contracting with now, and does the product I bought change?"**
 
-A regulatory filing confirms the deal closed effective August 14, 2026, two months after the June 16 merger agreement: Cursor now operates as part of SpaceX's SpaceXAI unit. Cursor's own announcement says the closing also gives it access to SpaceX's GPU fleet to build stronger, more economical models. That answers who you're contracting with. It does not reset what you get today: Cursor still ships its own frontier model, Grok 4.5, across desktop, web, iOS, CLI and SDK, and Cursor Router still cuts cost per commit 30-50% versus a single daily-driver model, backed by roughly \$2B in ARR and adoption across more than half the Fortune 500.
+The deal closed effective August 14, 2026: Cursor now operates inside SpaceX's SpaceXAI unit. The next beat landed August 29: OpenAI is ending its partnership and cutting Cursor's direct access to OpenAI's models on November 12, 2026, roughly 5% of Cursor's traffic by Cursor's own count. That doesn't reset what you get today: Cursor still ships its own frontier model, Grok 4.5, across desktop, web, iOS, CLI and SDK, and Cursor Router still cuts cost per commit 30-50% versus one daily-driver model, backed by roughly \$2B in ARR and adoption across more than half the Fortune 500.
 
-**So what:** Standardize on Cursor's current product now. Grok 4.5 and Cursor Router are shipping and priced today, and that scale and adoption don't reset because ownership moved to SpaceX's SpaceXAI unit. ([cnbc.com](https://www.cnbc.com/2026/06/16/spacex-spcx-cursor-acquisition-ipo.html))
+**So what:** Standardize on Cursor's current product now. Grok 4.5 and Cursor Router are shipping and priced today and already cover the OpenAI slice, and that scale and adoption don't reset because ownership moved to SpaceX. ([x.com](https://x.com/OpenAI/status/2093515564786540695))
 
 **"Didn't DuneSlide leave Cursor's sandbox wide open?"**
 
@@ -189,6 +189,12 @@ SWE-1.7 is genuinely cheap and it does beat Cursor's own Composer 2.5 on Cogniti
 Mindgard disclosed on July 14, 2026 that a malicious git.exe placed in a repo's project root auto-executes on Windows, no click, prompt or warning, first reported to Cursor in December 2025. Cursor quietly shipped a fix on July 13, one day before that disclosure, but as of July 17 has issued no security advisory, assigned no CVE and not said which version contains the fix, so no customer can confirm their build is patched.
 
 **So what:** Acknowledge the flaw is now fixed, but be straight that there's no advisory, CVE or version number yet to verify against. Anchor the conversation on Cursor's Fortune 500-scale adoption and roughly \$2B ARR, the installed base a buyer is standardizing on today. ([mindgard.ai](https://mindgard.ai/blog/cursor-0day-when-full-disclosure-becomes-the-only-protection-left))
+
+**"OpenAI just said it's cutting off Cursor's direct access to its models on November 12. Does that mean I lose GPT support?"**
+
+OpenAI announced on August 29, 2026 that it is ending its partnership with Cursor following the SpaceX acquisition, citing doubts that SpaceX will keep the technology within OpenAI's terms of service. Under the proposal, direct access to OpenAI's models, including future ones, stops November 12, 2026. Cursor's own count puts OpenAI models at roughly 5% of Cursor's traffic. Cursor ships its own frontier model, Grok 4.5, across desktop, web, iOS, CLI and SDK, and Cursor Router already classifies every request to the best-suited model at lower cost than a single daily-driver model.
+
+**So what:** Point to Grok 4.5 and Cursor Router as the path forward today. Offer to show the account's routing mix now, so the November 12 cutoff lands on a sliver of traffic that's already served elsewhere. ([x.com](https://x.com/OpenAI/status/2093515564786540695))
 
 ## Cut Log
 

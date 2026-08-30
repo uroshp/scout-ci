@@ -161,25 +161,17 @@
   },
   {
     "subject_key": "agentforce | positioning | enterprise-depth",
-    "claim": "Agentforce is positioned on enterprise depth and governance: a dedicated trust layer on every transaction, Data Cloud grounding and one of the largest agent-engineering investments in the market. The Futurum Group notes \"Salesforce has over 450 people working on agent AI,\" framing replication of that governance stack as out of reach for HubSpot's segment.",
+    "claim": "Agentforce is positioned on enterprise depth and governance: a dedicated trust layer on every transaction, Data Cloud grounding and one of the largest agent-engineering investments in the market. The Futurum Group notes \"Salesforce has over 450 people working on agent AI,\" framing replication of that governance stack as out of reach for HubSpot's segment. Claude now powers the Atlas Reasoning Engine by default and is available through Amazon Bedrock inside the Salesforce Trust Boundary, giving regulated customers a frontier model running inside an audited compliance boundary that HubSpot has no equivalent for.",
     "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
     "order": 0,
-    "source_url": "https://venturebeat.com/technology/while-everyone-talks-about-an-ai-bubble-salesforce-quietly-added-6-000",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Salesforce has over 450 people working on agent AI",
-    "as_of": "2025-12-22",
+    "as_of": "2026-08-26",
     "confidence": "medium",
     "id": "c_b09cdfb855de",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_03a5a0bcded8",
+    "updated_on": "2026-08-30"
   },
   {
     "subject_key": "hubspot-breeze | positioning | smb-ease",
@@ -748,5 +740,71 @@
     "confidence": "medium",
     "derived_from": "c_0178606a4abc",
     "persona": "security_regulated"
+  },
+  {
+    "subject_key": "salesforce | partnership | claudeforce",
+    "claim": "Salesforce and Anthropic announced Claudeforce on August 26, 2026, an expanded partnership making Claude the default reasoning model inside Salesforce and putting Salesforce inside Claude. Claude now powers Salesforce's Atlas Reasoning Engine and runs Agentforce Vibes and Agentforce Coworker by default, is available in Agent Builder, and is accessible through Amazon Bedrock inside the Salesforce Trust Boundary for regulated-industry customers. Claude is also the default model for Slack, powering Slackbot by default plus the Claude Tag and Slack Code. Salesforce is launching a 'Salesforce in Claude' plugin with 37 prebuilt sales skills (meeting prep, deal health review, pipeline review) that read across Salesforce, Slack and connected systems; it is live with select pilot customers now, with open beta planned for September 2026 and more skills promised for late 2026. Salesforce is also making Claude Code and Claude Enterprise available to all its own developers and knowledge workers as its preferred AI assistant, and Claude is the first LLM provider fully integrated within the Salesforce Trust Boundary. Internally, Slackbot already runs on Claude and has driven 8.1 million annualized hours of productivity gains at Salesforce, more than doubling quarter over quarter. No pricing was disclosed for the partnership.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.salesforce.com/news/press-releases/2026/08/26/salesforce-and-anthropic-announce-claudeforce/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Claude is available in Agentforce — serving as a reasoning model for the Atlas Reasoning Engine, powering Agentforce Vibes and Agentforce Coworker by default",
+    "as_of": "2026-08-26",
+    "confidence": "high",
+    "id": "c_03a5a0bcded8",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-29",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://thenextweb.com/news/salesforce-anthropic-claudeforce-partnership",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.tradingkey.com/news/market-movers/262138963-market-movers-crm-20260828",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_4d0a1ebc5237",
+    "subject_key": "salesforce | exec-summary | claudeforce-default-model",
+    "claim": "**Claude is now the default reasoning engine across Salesforce and Slack.**\n\nThe August 26 Claudeforce partnership makes Claude the default model behind the Atlas Reasoning Engine, Agentforce Vibes, Agentforce Coworker and Slackbot, and the first LLM provider fully integrated inside the Salesforce Trust Boundary for regulated customers via Amazon Bedrock.\n\n**Soundbite:** \"Every Agentforce and Slack interaction runs on Claude by default now, including inside our audited Trust Boundary for regulated industries.\"\n\n**So what:** Open technical evaluations with the model story: Agentforce and Slack both default to Claude, and HubSpot has no comparable frontier-model partnership to counter with.",
+    "claim_type": "interpretation",
+    "section": "executive_summary",
+    "zone": null,
+    "order": 4,
+    "as_of": "2026-08-26",
+    "updated_on": "2026-08-30",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_03a5a0bcded8",
+    "persona": "technical_evaluator"
+  },
+  {
+    "id": "c_f649115510be",
+    "subject_key": "salesforce | claudeforce | reasoning-engine",
+    "claim": "**Agentforce runs on Claude, the frontier model, by default.**\n\nThe August 2026 Claudeforce partnership makes Claude the default reasoning model for the Atlas Reasoning Engine, Agentforce Vibes and Agentforce Coworker, with access inside the Salesforce Trust Boundary via Amazon Bedrock for regulated customers. Slack's Slackbot, Claude Tag and Slack Code also default to Claude. Internally, Claude-powered Slackbot has already driven 8.1 million annualized hours of productivity gains at Salesforce, more than doubling quarter over quarter. Breeze has no comparable frontier-model partnership to answer with.\n\n**Soundbite:** \"Agentforce runs on Claude by default now, the same model already saving Salesforce employees 8.1 million hours a year internally.\"",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 4,
+    "as_of": "2026-08-26",
+    "updated_on": "2026-08-30",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_03a5a0bcded8",
+    "persona": "technical_evaluator"
   }
 ]
