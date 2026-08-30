@@ -210,9 +210,9 @@ Both have a real basis. Anthropic acknowledged three engineering missteps degrad
 
 **"The federal government banned Anthropic. Is it a risky vendor to standardize on?"**
 
-Real and serious for gov-adjacent buyers: in February 2026 the administration ordered federal agencies to stop using Anthropic and designated it a national-security supply-chain risk, with litigation still ongoing as of June. But the trigger was Anthropic's refusal to allow unrestricted military use without guardrails against mass surveillance and autonomous weapons, a stance most commercial buyers read as a feature. It doesn't affect commercial access via AWS Bedrock or Google Vertex AI.
+A federal judge just ruled that ban illegal. On August 27, 2026, US District Judge Rita Lin found the Pentagon's designation of Anthropic as a supply chain risk was unlawful First Amendment retaliation, arbitrary and capricious, with no evidence Anthropic's model posed the sabotage risk the Pentagon claimed. The trigger was Anthropic refusing in February 2026 to drop contract safeguards against fully autonomous weapons and domestic mass surveillance, a stance most commercial buyers read as a feature. A narrower case over a separate Pentagon rule is still pending at the DC Circuit, and the government is expected to appeal. None of this touches commercial access via AWS Bedrock or Google Vertex AI.
 
-**So what:** If they have federal compliance needs, have the conversation honestly. For commercial enterprise, the dispute is about military red lines, and your cloud procurement path is unaffected. ([cbsnews.com](https://www.cbsnews.com/news/trump-anthropic-ai-order-federal-agencies/))
+**So what:** For gov-adjacent buyers, point to a federal judge who found the ban itself unlawful and retaliatory. For commercial enterprise, your Bedrock or Vertex procurement path was never affected. ([forbes.com](https://www.forbes.com/sites/siladityaray/2026/08/28/federal-judge-blocks-pentagons-illegal-designation-of-anthropic-as-a-supply-chain-risk/))
 
 **"Anthropic keeps changing its pricing. How do I budget against a moving target?"**
 

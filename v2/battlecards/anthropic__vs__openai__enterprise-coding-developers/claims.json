@@ -767,26 +767,18 @@
   },
   {
     "subject_key": "objection | federal-blacklisting | current",
-    "claim": "**\"The federal government banned Anthropic. Is it a risky vendor to standardize on?\"**\n\nReal and serious for gov-adjacent buyers: in February 2026 the administration ordered federal agencies to stop using Anthropic and designated it a national-security supply-chain risk, with litigation still ongoing as of June. But the trigger was Anthropic's refusal to allow unrestricted military use without guardrails against mass surveillance and autonomous weapons, a stance most commercial buyers read as a feature. It doesn't affect commercial access via AWS Bedrock or Google Vertex AI.\n\n**So what:** If they have federal compliance needs, have the conversation honestly. For commercial enterprise, the dispute is about military red lines, and your cloud procurement path is unaffected.",
-    "claim_type": "fact",
+    "claim": "**\"The federal government banned Anthropic. Is it a risky vendor to standardize on?\"**\n\nA federal judge just ruled that ban illegal. On August 27, 2026, US District Judge Rita Lin found the Pentagon's designation of Anthropic as a supply chain risk was unlawful First Amendment retaliation, arbitrary and capricious, with no evidence Anthropic's model posed the sabotage risk the Pentagon claimed. The trigger was Anthropic refusing in February 2026 to drop contract safeguards against fully autonomous weapons and domestic mass surveillance, a stance most commercial buyers read as a feature. A narrower case over a separate Pentagon rule is still pending at the DC Circuit, and the government is expected to appeal. None of this touches commercial access via AWS Bedrock or Google Vertex AI.\n\n**So what:** For gov-adjacent buyers, point to a federal judge who found the ban itself unlawful and retaliatory. For commercial enterprise, your Bedrock or Vertex procurement path was never affected.",
+    "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 4,
-    "source_url": "https://www.cbsnews.com/news/trump-anthropic-ai-order-federal-agencies/",
-    "source_tier": "primary",
-    "evidence_excerpt": "I am directing EVERY Federal Agency in the United States Government to IMMEDIATELY CEASE all use of Anthropic's technology",
-    "as_of": "2026-02-27",
+    "as_of": "2026-08-28",
     "confidence": "high",
     "id": "c_85c75d8b22dd",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-04",
-      "detail": null
-    },
-    "persona": "security_regulated"
+    "persona": "security_regulated",
+    "derived_from": "c_95fd0a2ee0fa",
+    "updated_on": "2026-08-30"
   },
   {
     "subject_key": "objection | billing-instability | current",
@@ -2126,5 +2118,35 @@
     "confidence": "medium",
     "derived_from": "c_dbebd47beb33",
     "persona": "exec_top_down"
+  },
+  {
+    "subject_key": "anthropic-pentagon-retaliation-ruling",
+    "claim": "On August 27, 2026, US District Judge Rita Lin ruled that the Pentagon's designation of Anthropic as a supply chain risk constituted unlawful retaliation in violation of the First Amendment. Lin called Defense Secretary Pete Hegseth's blacklisting decision arbitrary and capricious. Lin found the government's actions were driven by a desire to punish Anthropic for its 'arrogance' in criticizing the government's AI policy, with no evidentiary basis showing Anthropic would sabotage its model. The dispute began after Anthropic refused a February 2026 Pentagon push to drop contract safeguards barring its AI from fully autonomous weapons and domestic mass surveillance use. A separate, narrower case over a different rule the Pentagon is using to designate Anthropic a supply chain risk remains pending before the DC federal appeals court, and the government is expected to appeal Lin's ruling.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.forbes.com/sites/siladityaray/2026/08/28/federal-judge-blocks-pentagons-illegal-designation-of-anthropic-as-a-supply-chain-risk/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "the Pentagon’s actions “constituted unlawful retaliation in violation of the First Amendment,”",
+    "as_of": "2026-08-28",
+    "confidence": "high",
+    "id": "c_95fd0a2ee0fa",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-29",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://fortune.com/2026/08/28/anthropic-pentagon-ruling-rita-lin-arrogance/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

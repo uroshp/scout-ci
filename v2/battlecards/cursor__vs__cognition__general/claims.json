@@ -51,17 +51,17 @@
   },
   {
     "subject_key": "cursor | adverse-objections-readiness | current",
-    "claim": "**Our four biggest vulnerabilities: billing trust, the now-closed SpaceX acquisition and two RCE disclosures (DuneSlide, patched; Mindgard's git.exe flaw, fixed quietly with no advisory or CVE yet). Have answers ready.**\n\nThe $60B SpaceX deal became effective August 14, 2026, per Cursor's own announcement. The 2025 pricing blow-ups still sting. DuneSlide RCE is patched in Cursor 3.0. Mindgard's git.exe auto-executes on Windows with no click; Cursor shipped a fix July 13 but has no advisory or CVE yet.\n\n**Soundbite:** \"The SpaceX deal is closed. What you're buying is what ships today: Grok 4.5, Cursor Router and Fortune 500-scale adoption.\"\n\n**So what:** Answer each directly. On billing, cite split usage pools, the spend dashboard and dollar-threshold alerts. On SpaceX, confirm the deal closed August 14 and lead with today's shipping product and Fortune 500-scale adoption. On DuneSlide, point to Cursor 3.0. On Mindgard, confirm the fix shipped with no advisory or CVE yet.",
+    "claim": "**Our five biggest vulnerabilities: billing trust, the now-closed SpaceX acquisition, OpenAI's model cutoff and two RCE disclosures (DuneSlide, patched; Mindgard's git.exe flaw, fixed quietly with no CVE yet). Have answers ready.**\n\nThe $60B SpaceX deal became effective August 14, 2026, and OpenAI is now ending Cursor's direct model access November 12, 2026, about 5% of traffic. The 2025 pricing blow-ups still sting. DuneSlide RCE is patched in Cursor 3.0. Mindgard's git.exe auto-executes on Windows with no click; Cursor shipped a fix July 13 but has no advisory or CVE yet.\n\n**Soundbite:** \"The SpaceX deal is closed, the OpenAI slice is small and what you're buying is what ships today: Grok 4.5, Cursor Router and Fortune 500-scale adoption.\"\n\n**So what:** Answer each directly. On billing, cite split usage pools, the spend dashboard and dollar-threshold alerts. On SpaceX and the OpenAI cutoff, lead with today's shipping product, Grok 4.5 and Cursor Router. On DuneSlide, point to Cursor 3.0. On Mindgard, confirm the fix shipped with no advisory or CVE yet.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 0,
-    "as_of": "2026-08-14",
+    "as_of": "2026-08-29",
     "confidence": "high",
     "id": "c_64207118572d",
     "verified": true,
-    "derived_from": "c_e5ed555c40d5",
-    "updated_on": "2026-08-16"
+    "derived_from": "c_1abdcf3d69dc",
+    "updated_on": "2026-08-30"
   },
   {
     "subject_key": "devin-desktop | windsurf-migration-opening | current",
@@ -714,18 +714,18 @@
   },
   {
     "subject_key": "objection | cursor-spacex-ownership | cursor-adverse",
-    "claim": "**\"SpaceX just closed its acquisition of Cursor. Who am I contracting with now, and does the product I bought change?\"**\n\nA regulatory filing confirms the deal closed effective August 14, 2026, two months after the June 16 merger agreement: Cursor now operates as part of SpaceX's SpaceXAI unit. Cursor's own announcement says the closing also gives it access to SpaceX's GPU fleet to build stronger, more economical models. That answers who you're contracting with. It does not reset what you get today: Cursor still ships its own frontier model, Grok 4.5, across desktop, web, iOS, CLI and SDK, and Cursor Router still cuts cost per commit 30-50% versus a single daily-driver model, backed by roughly $2B in ARR and adoption across more than half the Fortune 500.\n\n**So what:** Standardize on Cursor's current product now. Grok 4.5 and Cursor Router are shipping and priced today, and that scale and adoption don't reset because ownership moved to SpaceX's SpaceXAI unit.",
+    "claim": "**\"SpaceX just closed its acquisition of Cursor. Who am I contracting with now, and does the product I bought change?\"**\n\nThe deal closed effective August 14, 2026: Cursor now operates inside SpaceX's SpaceXAI unit. The next beat landed August 29: OpenAI is ending its partnership and cutting Cursor's direct access to OpenAI's models on November 12, 2026, roughly 5% of Cursor's traffic by Cursor's own count. That doesn't reset what you get today: Cursor still ships its own frontier model, Grok 4.5, across desktop, web, iOS, CLI and SDK, and Cursor Router still cuts cost per commit 30-50% versus one daily-driver model, backed by roughly $2B in ARR and adoption across more than half the Fortune 500.\n\n**So what:** Standardize on Cursor's current product now. Grok 4.5 and Cursor Router are shipping and priced today and already cover the OpenAI slice, and that scale and adoption don't reset because ownership moved to SpaceX.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 3,
-    "as_of": "2026-08-14",
+    "as_of": "2026-08-29",
     "confidence": "high",
     "id": "c_9dc1510b77e3",
     "verified": true,
     "persona": "security_regulated",
-    "derived_from": "c_e5ed555c40d5",
-    "updated_on": "2026-08-18"
+    "derived_from": "c_1abdcf3d69dc",
+    "updated_on": "2026-08-30"
   },
   {
     "subject_key": "cursor | spacex-acquisition",
@@ -1256,5 +1256,50 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "cursor | openai-partnership-termination",
+    "claim": "OpenAI announced on August 29, 2026 that it is ending its partnership with Cursor following Cursor's acquisition by SpaceX. Under OpenAI's proposal, Cursor's direct access to OpenAI's models, including future models, would end on November 12, 2026. OpenAI said it cannot be confident that SpaceX will use its technology within OpenAI's terms of service, citing its experience with Elon Musk's companies violating contracts. Cursor co-founder Michael Truell, now a SpaceX executive, said OpenAI models account for roughly 5% of Cursor's traffic.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://x.com/OpenAI/status/2093515564786540695",
+    "source_tier": "primary",
+    "evidence_excerpt": "Under our proposal, Cursor's direct access to our models would end on November 12.",
+    "as_of": "2026-08-29",
+    "confidence": "high",
+    "id": "c_1abdcf3d69dc",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-29",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.thenews.com.pk/latest/1414065-openai-to-cut-off-cursor-after-spacex-acquisitionheres-why",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_aba9ac1ba26e",
+    "subject_key": "objection | cursor-openai-cutoff | cursor-adverse",
+    "claim": "**\"OpenAI just said it's cutting off Cursor's direct access to its models on November 12. Does that mean I lose GPT support?\"**\n\nOpenAI announced on August 29, 2026 that it is ending its partnership with Cursor following the SpaceX acquisition, citing doubts that SpaceX will keep the technology within OpenAI's terms of service. Under the proposal, direct access to OpenAI's models, including future ones, stops November 12, 2026. Cursor's own count puts OpenAI models at roughly 5% of Cursor's traffic. Cursor ships its own frontier model, Grok 4.5, across desktop, web, iOS, CLI and SDK, and Cursor Router already classifies every request to the best-suited model at lower cost than a single daily-driver model.\n\n**So what:** Point to Grok 4.5 and Cursor Router as the path forward today. Offer to show the account's routing mix now, so the November 12 cutoff lands on a sliver of traffic that's already served elsewhere.",
+    "claim_type": "interpretation",
+    "section": "objection_handling",
+    "zone": null,
+    "order": 7,
+    "as_of": "2026-08-29",
+    "updated_on": "2026-08-30",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_1abdcf3d69dc",
+    "persona": "technical_evaluator"
   }
 ]

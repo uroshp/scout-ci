@@ -28,6 +28,14 @@ HubSpot ended Q1 with 299,458 customers and bundles Breeze across paid tiers wit
 
 **So what:** Don't fight HubSpot on time-to-value in a 30-seat marketing-led deal you'll lose; qualify hard and spend your energy where governance, scale and cross-cloud workflows decide it. ([ir.hubspot.com](https://ir.hubspot.com/news-releases/news-release-details/hubspot-reports-strong-q1-2026-results))
 
+**Claude is now the default reasoning engine across Salesforce and Slack.**
+
+The August 26 Claudeforce partnership makes Claude the default model behind the Atlas Reasoning Engine, Agentforce Vibes, Agentforce Coworker and Slackbot, and the first LLM provider fully integrated inside the Salesforce Trust Boundary for regulated customers via Amazon Bedrock.
+
+**Soundbite:** "Every Agentforce and Slack interaction runs on Claude by default now, including inside our audited Trust Boundary for regulated industries."
+
+**So what:** Open technical evaluations with the model story: Agentforce and Slack both default to Claude, and HubSpot has no comparable frontier-model partnership to counter with. ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/08/26/salesforce-and-anthropic-announce-claudeforce/))
+
 ## Snapshot
 
 - Agentforce ARR reached \$1.2 billion in Q1 FY2027 (quarter ended April 30, 2026), up 205% year over year, crossing \$1 billion for the first time. This is Salesforce-stated annual recurring revenue, not audited GAAP revenue, and represents under 3% of Salesforce's \$41.5B FY2026 revenue base. ([cnbc.com](https://www.cnbc.com/2026/05/27/salesforce-crm-q1-earnings-report-2027.html))
@@ -43,7 +51,7 @@ HubSpot ended Q1 with 299,458 customers and bundles Breeze across paid tiers wit
 
 ## Positioning and Differentiation
 
-- Agentforce is positioned on enterprise depth and governance: a dedicated trust layer on every transaction, Data Cloud grounding and one of the largest agent-engineering investments in the market. The Futurum Group notes "Salesforce has over 450 people working on agent AI," framing replication of that governance stack as out of reach for HubSpot's segment. ([venturebeat.com](https://venturebeat.com/technology/while-everyone-talks-about-an-ai-bubble-salesforce-quietly-added-6-000))
+- Agentforce is positioned on enterprise depth and governance: a dedicated trust layer on every transaction, Data Cloud grounding and one of the largest agent-engineering investments in the market. The Futurum Group notes "Salesforce has over 450 people working on agent AI," framing replication of that governance stack as out of reach for HubSpot's segment. Claude now powers the Atlas Reasoning Engine by default and is available through Amazon Bedrock inside the Salesforce Trust Boundary, giving regulated customers a frontier model running inside an audited compliance boundary that HubSpot has no equivalent for. ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/08/26/salesforce-and-anthropic-announce-claudeforce/))
 - HubSpot positions Breeze as proven, easy and bundled: it reports Breeze Customer Agent resolves 65% of conversations and cuts resolution time by 39% across more than 8,000 activations. With Agent Builder and Agent Hub now in public beta, that pitch extends past prebuilt support agents into plain-language custom agents on CRM data plus a central console for status and access controls, all still packaged inside the CRM rather than sold as a separate platform. That is the simplicity story Salesforce must respect when selling into lean teams. ([knowledge.hubspot.com](https://knowledge.hubspot.com/ai/create-and-customize-agents-in-the-agent-builder))
 - HubSpot renamed Commerce Hub to Revenue Hub on June 16, 2026, expanding it into full quote-to-cash: quoting, CPQ, contracts and subscription billing unified with payments on the Smart CRM, putting it head to head with the CPQ and quote-to-cash turf Revenue Cloud used to own alone. Seats run \$95 (Professional) and \$140 (Enterprise) per user monthly with billing included for now, and HubSpot has not even set its usage pricing model, due only in September 2026. ([hubspot.com](https://www.hubspot.com/company-news/introducing-revenue-hub-quote-to-cash-finally-in-one-place))
 
@@ -80,6 +88,12 @@ Agentforce Operations went GA on April 29, taking agents into finance, supply ch
 HubSpot's July 1 terms change would have pooled customers' business card contact data (name, job title, company, work email, employer) into a shared enrichment dataset for every customer using enrichment, unless they manually opted out by August 4. Four days of public backlash on LinkedIn forced chief product and technology officer Duncan Lennox to call it "a mistake" on July 5 and pull the change completely, promising any future enrichment will be fully opt-in. Raise this with security and data governance buyers deciding who controls their contact data by default.
 
 **Soundbite:** "HubSpot had to walk back a plan that pooled your contact data with other customers by default. Ask any vendor how they handle your data before you sign." ([cmswire.com](https://www.cmswire.com/customer-experience/hubspot-reverses-customer-data-enrichment-plan-after-customer-backlash/))
+
+**Agentforce runs on Claude, the frontier model, by default.**
+
+The August 2026 Claudeforce partnership makes Claude the default reasoning model for the Atlas Reasoning Engine, Agentforce Vibes and Agentforce Coworker, with access inside the Salesforce Trust Boundary via Amazon Bedrock for regulated customers. Slack's Slackbot, Claude Tag and Slack Code also default to Claude. Internally, Claude-powered Slackbot has already driven 8.1 million annualized hours of productivity gains at Salesforce, more than doubling quarter over quarter. Breeze has no comparable frontier-model partnership to answer with.
+
+**Soundbite:** "Agentforce runs on Claude by default now, the same model already saving Salesforce employees 8.1 million hours a year internally." ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/08/26/salesforce-and-anthropic-announce-claudeforce/))
 
 ### Where it's a fight
 
