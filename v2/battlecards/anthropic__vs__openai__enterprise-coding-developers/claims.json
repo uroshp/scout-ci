@@ -2148,5 +2148,56 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "anthropic | infostealer-session-hijacking",
+    "claim": "Anthropic disclosed on August 29-30, 2026 that a bad actor is using infostealer malware, including Vidar, LummaC2, StealC, RedLine and Acreed on Windows and Atomic Stealer on Mac, to steal users' authenticated Claude browser sessions and hijack their accounts to consume paid usage, bypassing passwords, two-factor authentication and single sign-on. Anthropic is signing out affected users, removing their saved payment methods and refunding charges it identifies as unauthorized, while warning that these account-side fixes do not remove the malware from an infected device so a fresh session could be stolen again. A related persistence technique uses poisoned SKILL.md files, the configuration files that drive Claude's agent skills, to silently re-download the infostealer even after a full operating system reinstall.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.bleepingcomputer.com/news/artificial-intelligence/anthropic-warns-infostealer-malware-is-hijacking-claude-sessions-to-drain-usage/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "The company is signing affected users out of Claude, removing saved payment methods, and refunding charges it identifies as unauthorized.",
+    "as_of": "2026-08-30",
+    "confidence": "high",
+    "id": "c_2e7221fe6dfe",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-31",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://cybersecuritynews.com/hackers-steal-claude-login-sessions/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://securityaffairs.com/198166/ai/infostealers-are-hijacking-claude-sessions-and-draining-subscriptions.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_c691c0fb6389",
+    "subject_key": "objection | infostealer-session-hijacking | current",
+    "claim": "**\"What's stopping a stolen browser session from draining our Claude spend or worse?\"**\n\nThis is commodity endpoint malware, not a Claude flaw. Vidar, LummaC2, StealC, RedLine, Acreed on Windows and Atomic Stealer on Mac lift any live authenticated session off an already-infected device, which is why it slips past passwords, two-factor and SSO. Anthropic disclosed the pattern August 29 to 30, 2026 and is remediating: signing affected users out, removing saved payment methods and refunding charges it flags as unauthorized. Anthropic is also candid that account-side fixes don't clean an infected machine, and poisoned SKILL.md files can re-download the malware even after an OS reinstall.\n\n**So what:** Lead with what Anthropic caught and did: forced sign-outs, removed payment methods and refunds on flagged charges. Tell the buyer the durable fix is endpoint hygiene, since this malware lifts any credential off an infected device, and have their team scrub any SKILL.md files pulled into agent skills.",
+    "claim_type": "interpretation",
+    "section": "objection_handling",
+    "zone": null,
+    "order": 10,
+    "as_of": "2026-08-30",
+    "updated_on": "2026-08-31",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_2e7221fe6dfe",
+    "persona": "security_regulated"
   }
 ]

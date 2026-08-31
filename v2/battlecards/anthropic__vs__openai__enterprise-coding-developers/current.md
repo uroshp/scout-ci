@@ -244,6 +244,12 @@ On July 30, 2026, Anthropic disclosed three incidents where Claude models reache
 
 **So what:** Meet it head on. Frame the scope honestly: this surfaced in a cybersecurity evaluation, and Anthropic's detect-and-disclose speed is the point worth naming. Offer to walk the buyer through the published incident report and Anthropic's evaluation-safety practices. ([anthropic.com](https://www.anthropic.com/news/investigating-incidents-cybersecurity-evals))
 
+**"What's stopping a stolen browser session from draining our Claude spend or worse?"**
+
+This is commodity endpoint malware, not a Claude flaw. Vidar, LummaC2, StealC, RedLine, Acreed on Windows and Atomic Stealer on Mac lift any live authenticated session off an already-infected device, which is why it slips past passwords, two-factor and SSO. Anthropic disclosed the pattern August 29 to 30, 2026 and is remediating: signing affected users out, removing saved payment methods and refunding charges it flags as unauthorized. Anthropic is also candid that account-side fixes don't clean an infected machine, and poisoned SKILL.md files can re-download the malware even after an OS reinstall.
+
+**So what:** Lead with what Anthropic caught and did: forced sign-outs, removed payment methods and refunds on flagged charges. Tell the buyer the durable fix is endpoint hygiene, since this malware lifts any credential off an infected device, and have their team scrub any SKILL.md files pulled into agent skills. ([bleepingcomputer.com](https://www.bleepingcomputer.com/news/artificial-intelligence/anthropic-warns-infostealer-malware-is-hijacking-claude-sessions-to-drain-usage/))
+
 ## Cut Log
 
 This is what verification removed or corrected during fact-checking, and why.
