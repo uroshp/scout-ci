@@ -60,6 +60,11 @@ jobs:
           # ~$0.5-1 my_company grounding on an act-grade OWN development. The my_company + propagation
           # blocks are wrapped so a failure there can never disrupt the competitor monitor.
           SCOUT_PROPAGATE_MODE: "review"
+          # Propose/author budget (2026-08-31): the default $0.60 cap crashed mid-stream on a
+          # two-fact day (Mistral card, ~74k tokens billed for nothing, and a failed propagation
+          # never retries — the facts are already fingerprinted as alerted). $1.00 only affects
+          # runs that would otherwise crash; normal runs finish under the old cap.
+          SCOUT_PROPOSE_MAX_BUDGET_USD: "1.00"
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           # Email backend: Gmail SMTP (owner's own account via an app password — no third-party
           # service) is preferred; Resend is the fallback. Owner alerts go to SCOUT_ALERT_TO.
