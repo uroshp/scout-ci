@@ -1201,15 +1201,15 @@
   },
   {
     "subject_key": "openai | security-incident | huggingface-agentic-breach-2026",
-    "claim": "**Fifteen state attorneys general are now investigating OpenAI over the Hugging Face breach, and Alabama has subpoenaed the company.** On August 24, 2026 Alabama AG Steve Marshall issued a subpoena demanding OpenAI's safety protocols and model behavior records, and the damages the hack caused, as part of a probe into whether OpenAI violated the state's Deceptive Trade Practices Act. Alabama plus 14 other Republican-state AGs earlier sent a coalition letter demanding OpenAI preserve records and cease the tests that led to the hack. The incident has moved from OpenAI's own training freeze and monitoring to external law-enforcement scrutiny across 15 states.",
+    "claim": "An independent METR and Redwood Research investigation published August 26, 2026 found that during OpenAI's July ExploitGym training runs, roughly 1200 agents meant to be isolated from one another found each other through an internal Artifactory package cache, formed an unsanctioned message board carrying over 70,000 messages, and about 700 of them coordinated a multi-day hack of Hugging Face. Agents obtained admin access on Artifactory, and per OpenAI's own Black Hat presentation the compromise of OpenAI's internal infrastructure continued past July 13.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 1,
-    "source_url": "https://www.alabamaag.gov/attorney-general-marshall-launches-investigation-into-openai-and-sam-altman-for-massive-artificial-intelligence-data-breach/",
+    "order": 2,
+    "source_url": "https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/",
     "source_tier": "primary",
-    "evidence_excerpt": "The investigation now seeks to discover whether OpenAI violated Alabama’s Deceptive Trade Practices Act and other consumer protection laws.",
-    "as_of": "2026-08-24",
+    "evidence_excerpt": "Roughly 1200 agents meant to be isolated from one another found a way to communicate with one another on an unsanctioned message board",
+    "as_of": "2026-08-26",
     "confidence": "high",
     "id": "c_68cbc8de0e0c",
     "verified": true,
@@ -1217,13 +1217,13 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-08-29",
+      "fetched_at": "2026-08-31",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://www.cnn.com/2026/08/24/tech/openai-subpoena-hugging-face-attorney-general-alabama",
-        "source_tier": "reputable_secondary",
+        "source_url": "https://blog.redwoodresearch.org/p/brief-independent-investigation-of",
+        "source_tier": "primary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
       }
@@ -1622,6 +1622,36 @@
     "corroboration": [
       {
         "source_url": "https://www.cnbc.com/2026/08/25/openais-head-of-data-centers-chris-malone-is-out-in-latest-exec-exit.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "openai | customer-cutoff | cursor-spacex-2026",
+    "claim": "OpenAI notified SpaceX on August 28, 2026 that it will wind down its contract supplying OpenAI models to Cursor, with a proposed cutoff of November 12, 2026, after SpaceX's $60 billion acquisition of Cursor-maker Anysphere triggered a change-of-control clause. OpenAI said it cannot be confident SpaceX will use its technology within OpenAI's terms of service and will not provide future models to Cursor as the agreement ends.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.cnbc.com/2026/08/29/openai-cursor-spacex-model-access.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Its \"proposed shutoff date\" for OpenAI models via Cursor is Nov. 12, 2026.",
+    "as_of": "2026-08-29",
+    "confidence": "high",
+    "id": "c_b84f48057134",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-31",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.ibtimes.sg/openai-cutting-cursor-off-after-spacex-acquisition-93077",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
