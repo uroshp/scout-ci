@@ -235,15 +235,15 @@
   },
   {
     "subject_key": "man of tomorrow | production-start | 2026",
-    "claim": "Man of Tomorrow started principal photography around April 20, 2026 for a July 9, 2027 release, putting it three months ahead of our Batman Part II (Oct 1, 2027) in the same year.",
+    "claim": "Man of Tomorrow wrapped principal photography on August 26, 2026, a full year before its July 9, 2027 release. James Gunn announced the final day of shooting on Threads, putting Superman's sequel into post-production while our Batman Part II is not due until February 2028.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 3,
-    "source_url": "https://variety.com/2026/film/news/superman-sequel-man-of-tomorrow-starts-filming-james-gunn-1236726082/",
+    "order": 1,
+    "source_url": "https://deadline.com/2026/08/superman-man-of-tomorrow-wraps-filming-1237051326/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "James Gunn has revealed the comic book sequel has started production, with the director sharing a photo from set of a chess board and Van Kull Prison badge for inmate A. Luthor",
-    "as_of": "2026-04-20",
+    "evidence_excerpt": "as he marks the final day of principal photography.",
+    "as_of": "2026-08-26",
     "confidence": "high",
     "id": "c_458d1ff6a506",
     "verified": true,
@@ -251,9 +251,17 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-05",
+      "fetched_at": "2026-08-31",
       "detail": null
-    }
+    },
+    "corroboration": [
+      {
+        "source_url": "https://variety.com/2026/film/news/superman-man-of-tomorrow-wrapped-filming-james-gunn-1236844560/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "superman 2025 | positioning | current",
