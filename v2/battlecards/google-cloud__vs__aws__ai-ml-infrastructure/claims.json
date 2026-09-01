@@ -1308,5 +1308,41 @@
     "confidence": "medium",
     "derived_from": "c_b4a503cde3c1",
     "persona": "exec_top_down"
+  },
+  {
+    "subject_key": "aws | acquisition | ducklabs-duckdb-2026-08",
+    "claim": "On August 26, 2026, AWS signed a definitive agreement to acquire DuckLabs, the Amsterdam company behind DuckDB, the open source in-process analytical database that runs SQL directly against files on local disk or Amazon S3. DuckDB itself stays open source under the MIT license and the independent DuckDB Foundation, and co-founders Hannes Muhleisen and Mark Raasveldt keep leading its technical direction. AWS is buying the engineering team and plans to fold DuckDB's speed on S3 data into its analytics stack (Redshift, Athena, EMR, Glue and SageMaker Lakehouse). The deal is expected to close in early September 2026.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 10,
+    "source_url": "https://www.aboutamazon.com/news/company-news/aws-ducklabs",
+    "source_tier": "primary",
+    "evidence_excerpt": "Amazon has announced it has signed a definitive agreement to acquire DuckLabs , the Amsterdam-based company behind the open source analytical database DuckDB.",
+    "as_of": "2026-08-26",
+    "confidence": "high",
+    "id": "c_ec4bb710c40a",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-01",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://aws.amazon.com/blogs/aws/aws-weekly-roundup-welcome-ducklabs-to-the-team-agentic-resource-discovery-ard-and-more-august-31-2026/",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://siliconangle.com/2026/08/26/aws-buys-ducklabs-to-bring-duckdbs-embeddable-analytics-to-more-enterprises/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

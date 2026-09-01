@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise and sovereign AI for developers and agents",
   "baseline_date": "2026-06-17",
-  "last_checked": "2026-08-31T11:15:46",
+  "last_checked": "2026-09-01T11:07:37",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_911e9a6938ba",
@@ -41,5 +41,10 @@
     "f_4a8896b2eb42",
     "f_bc8d91504bb8"
   ],
-  "monitored": true
+  "monitored": true,
+  "unresolved_subjects": [
+    "openai | security-incident | work-mode-outage-2026-08"
+  ],
+  "unresolved_since": "2026-08-31",
+  "unresolved_attempts": 1
 }
