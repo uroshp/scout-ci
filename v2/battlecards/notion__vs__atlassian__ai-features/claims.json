@@ -649,26 +649,18 @@
   },
   {
     "subject_key": "objection | notion-security-vuln | current",
-    "claim": "**\"I read that Notion AI had a data-exfiltration security hole.\"**\n\nTrue, and worth answering plainly: a researcher disclosed an indirect-prompt-injection vector in late December 2025, and Notion confirmed the fix was in production by January 8, 2026. The underlying risk (agents acting on untrusted content) is industry-wide and applies equally to Atlassian's Rovo; Notion has since added admin controls, logged runs and permission scoping.\n\n**So what:** Don't dodge it. The vector is patched, the disclosure was handled, and \"every agentic AI faces this; ask Atlassian how they handle it\" levels the field.",
+    "claim": "**\"I read that Notion AI had a data-exfiltration security hole.\"**\n\nTrue, and worth answering plainly: a researcher disclosed an indirect-prompt-injection vector in late December 2025, and Notion confirmed the fix was in production by January 8, 2026. Notion has since added admin controls, logged runs and permission scoping. The underlying risk (agents acting on untrusted content) is industry-wide, and Atlassian's Rovo has it too: Varonis disclosed a one-click link attack it calls RovoBlast, which Atlassian patched server-side on July 8, 2026, and PromptArmor disclosed a separate content-borne route on August 5, 2026 that was still unresolved when published.\n\n**So what:** Don't dodge it. Notion's vector is patched and the disclosure was handled. Atlassian has two disclosed Rovo flaws of the same kind, one still open at publication, so point to that record when a buyer raises this.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.promptarmor.com/resources/notion-ai-unpatched-data-exfiltration",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Notion AI was susceptible to data exfiltration via indirect prompt injection due to a vulnerability in which AI document edits are saved before user approval",
-    "as_of": "2026-01-08",
+    "as_of": "2026-08-10",
     "confidence": "high",
     "id": "c_d4786c427348",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
-    "persona": "security_regulated"
+    "persona": "security_regulated",
+    "derived_from": "c_6e3b99bad15c",
+    "updated_on": "2026-09-02"
   },
   {
     "subject_key": "objection | notion-agent-credits | current",

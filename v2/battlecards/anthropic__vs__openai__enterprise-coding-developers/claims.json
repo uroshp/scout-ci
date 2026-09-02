@@ -153,17 +153,17 @@
   },
   {
     "subject_key": "anthropic | flagship-model | current",
-    "claim": "Anthropic's current flagship is Claude Opus 5 (released July 24, 2026), replacing Opus 4.8 at the same price of $5 per million input tokens and $25 per million output tokens. Anthropic says it approaches Fable 5's frontier intelligence at half the cost and is now the default model on Claude Max and the strongest on Claude Pro, while Fable 5 remains Anthropic's most intelligent model overall. Claude Code is its GA developer product.",
+    "claim": "Anthropic's current flagship for cost-sensitive deployment is Claude Opus 5 (released July 24, 2026), the default model on Claude Max and Claude Pro at $5 per million input tokens and $25 per million output tokens. Claude Fable 5.1 and Claude Mythos 5.1, released September 1, 2026, are now Anthropic's most advanced models for coding and knowledge work, ahead of Opus 5 on Anthropic's own benchmarks. Fable 5.1 is generally available on the Claude API, AWS, Google Cloud and Microsoft Azure at the same $10 input and $50 output per million token rate as Fable 5, with cache-read pricing cut 75% to $0.25 per million tokens. Mythos 5.1 is available only through Anthropic's vetted trusted-access programs, currently limited to US organizations. Claude Code is Anthropic's GA developer product.",
     "claim_type": "interpretation",
     "section": "snapshot",
     "zone": null,
     "order": 3,
-    "as_of": "2026-07-24",
+    "as_of": "2026-09-01",
     "confidence": "high",
     "id": "c_705a6f46c8fe",
     "verified": true,
-    "derived_from": "c_6fad97e13a9b",
-    "updated_on": "2026-07-25"
+    "derived_from": "c_517d037a49e8",
+    "updated_on": "2026-09-02"
   },
   {
     "subject_key": "openai | flagship-model | current",
@@ -489,17 +489,17 @@
   },
   {
     "subject_key": "anthropic | api-list-price | current",
-    "claim": "Claude API list pricing (per 1M tokens, as of August 2026): Opus 5 at $5 input / $25 output, replacing Opus 4.8 at the same price; Sonnet 5 at $2 / $10, now the permanent rate after Anthropic canceled the previously scheduled increase to $3 / $15; Sonnet 4.6 at $3 / $15; Haiku 4.5 at $1 / $5. Sonnet 5 is now the credible mid-tier for sustained agentic coding, with agentic performance Anthropic says is close to Opus 4.8.",
+    "claim": "Claude API list pricing (per 1M tokens, as of September 2026): Opus 5 at $5 input / $25 output, replacing Opus 4.8 at the same price; Fable 5.1 at $10 input / $50 output, the same headline rate as Fable 5; Sonnet 5 at $2 / $10, now the permanent rate after Anthropic canceled the previously scheduled increase to $3 / $15; Sonnet 4.6 at $3 / $15; Haiku 4.5 at $1 / $5. Fable 5.1 also cut cache-read pricing 75% to $0.25 per million tokens, lowering overall cost around 25% for typical workloads and up to around 45% for highly agentic workloads. Sonnet 5 remains the credible mid-tier for sustained agentic coding, with agentic performance Anthropic says is close to Opus 4.8.",
     "claim_type": "interpretation",
     "section": "pricing",
     "zone": null,
     "order": 0,
-    "as_of": "2026-08-10",
+    "as_of": "2026-09-01",
     "confidence": "high",
     "id": "c_cafe96c8ef40",
     "verified": true,
-    "derived_from": "c_c37f5aea2db9",
-    "updated_on": "2026-08-16"
+    "derived_from": "c_517d037a49e8",
+    "updated_on": "2026-09-02"
   },
   {
     "subject_key": "claude-code-vs-codex | subscription-price | current",
@@ -2199,5 +2199,56 @@
     "confidence": "medium",
     "derived_from": "c_2e7221fe6dfe",
     "persona": "security_regulated"
+  },
+  {
+    "subject_key": "anthropic-flagship-model",
+    "claim": "Anthropic released Claude Fable 5.1 and Claude Mythos 5.1 on September 1, 2026, calling them the world's most advanced models for coding and knowledge work and positioning them above Opus 5 on Anthropic's own published benchmarks (Terminal-Bench 4.0: 55.8% for Fable 5.1 vs 52.3% for Opus 5; GDPval-AA v2: 1853 vs 1824). Fable 5.1 is generally available today on the Claude API, AWS, Google Cloud and Microsoft Azure at the same headline rate as Fable 5, $10 per million input tokens and $50 per million output tokens, but Anthropic cut cache-read pricing 75% to $0.25 per million tokens, cutting overall cost about 25% for typical workloads and up to about 45% for highly agentic workloads. Mythos 5.1, the same underlying model with lighter cybersecurity and life-sciences safeguards, is available only through Anthropic's vetted trusted-access programs, currently limited to US organizations.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.anthropic.com/claude-fable-and-mythos-5-1",
+    "source_tier": "primary",
+    "evidence_excerpt": "They’re the world’s most advanced models for coding and knowledge work",
+    "as_of": "2026-09-01",
+    "confidence": "high",
+    "id": "c_517d037a49e8",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-02",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://venturebeat.com/technology/anthropics-claude-fable-5-1-and-mythos-5-1-arrive-with-a-75-cost-reduction-for-fable-cache-reads",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.macrumors.com/2026/09/01/anthropic-claude-fable-5-1/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_7e7881a21f9c",
+    "subject_key": "battlecard | fable-51-agentic-cost-cut | where_we_win",
+    "claim": "**Claude's new flagship cuts agentic costs up to 45% while raising the bar on coding.**\n\nFable 5.1, released September 1, 2026, tops Anthropic's own benchmarks over Opus 5 (Terminal-Bench 4.0: 55.8% versus 52.3%; GDPval-AA v2: 1853 versus 1824) and is generally available today on the Claude API, AWS, Google Cloud and Microsoft Azure at the same $10 per million input token and $50 per million output token rate as Fable 5. Anthropic cut cache-read pricing 75% to $0.25 per million tokens, dropping overall cost around 25% for typical workloads and up to around 45% for highly agentic ones. A buyer running heavy agentic workloads gets a stronger model at a lower effective bill, not a tradeoff between the two.\n\n**Soundbite:** Fable 5.1 is our strongest coding model yet, and for agentic workloads your bill actually drops, up to 45%, instead of the usual pay more for the better model.",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 8,
+    "as_of": "2026-09-01",
+    "updated_on": "2026-09-02",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_517d037a49e8",
+    "persona": "economic_buyer"
   }
 ]
