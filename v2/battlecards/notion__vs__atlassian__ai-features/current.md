@@ -132,9 +132,9 @@ That number reflects activation, not deliberate use: Rovo is auto-turned-on acro
 
 **"I read that Notion AI had a data-exfiltration security hole."**
 
-True, and worth answering plainly: a researcher disclosed an indirect-prompt-injection vector in late December 2025, and Notion confirmed the fix was in production by January 8, 2026. The underlying risk (agents acting on untrusted content) is industry-wide and applies equally to Atlassian's Rovo; Notion has since added admin controls, logged runs and permission scoping.
+True, and worth answering plainly: a researcher disclosed an indirect-prompt-injection vector in late December 2025, and Notion confirmed the fix was in production by January 8, 2026. Notion has since added admin controls, logged runs and permission scoping. The underlying risk (agents acting on untrusted content) is industry-wide, and Atlassian's Rovo has it too: Varonis disclosed a one-click link attack it calls RovoBlast, which Atlassian patched server-side on July 8, 2026, and PromptArmor disclosed a separate content-borne route on August 5, 2026 that was still unresolved when published.
 
-**So what:** Don't dodge it. The vector is patched, the disclosure was handled, and "every agentic AI faces this; ask Atlassian how they handle it" levels the field. ([promptarmor.com](https://www.promptarmor.com/resources/notion-ai-unpatched-data-exfiltration))
+**So what:** Don't dodge it. Notion's vector is patched and the disclosure was handled. Atlassian has two disclosed Rovo flaws of the same kind, one still open at publication, so point to that record when a buyer raises this. ([thehackernews.com](https://thehackernews.com/2026/08/atlassian-rovo-can-be-tricked-into.html))
 
 **"Notion's Custom Agents used to be free and now you charge credits. What stops costs from spiking?"**
 
