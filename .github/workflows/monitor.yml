@@ -102,5 +102,12 @@ jobs:
             else
               git commit -m "monitor: heartbeat (advance last_checked)"
             fi
-            git push
+            # PUSH RACE (2026-09-02): a ~40-min run can lose main to a morning human approval
+            # pushed mid-run (the bot's end-of-run push is rejected and the whole run's store
+            # write is dropped). Rebase the bot commit onto the moved head and retry; a genuine
+            # content conflict still fails loudly — never silently clobbered.
+            for i in 1 2 3; do
+              git push && break
+              git pull --rebase || exit 1
+            done
           fi
