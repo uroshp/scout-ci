@@ -228,9 +228,9 @@ Finance teams raise this every time a new billing notice lands. The June 15 Agen
 
 **"The government forced Anthropic to disable two of its models overnight for every customer. How do we know the same won't happen to what we're building on?"**
 
-Real, and now resolved: after an 18-day on-off that began with the June 12 export directive, the Commerce Department lifted the controls on both models on June 30. Fable 5 returned to global users on the Claude Platform, Claude.ai, Claude Code and Cowork on July 1, within 50% of weekly usage limits through July 7 and then via usage credits, and Mythos 5 is restored for the 100-plus approved US organizations. Re-enablement on AWS, Google Cloud and Microsoft Foundry is still pending. Sonnet 4.6 and Opus 4.8 were never under the directive.
+Real, and now resolved: after an 18-day on-off that began with the June 12 export directive, the Commerce Department lifted the controls on both models on June 30. Fable 5 returned to global users on the Claude Platform, Claude.ai, Claude Code and Cowork on July 1, and Mythos 5 is restored for the 100-plus approved US organizations. The cloud-marketplace gap has since closed at the successor tier: Claude Fable 5.1, released September 1, 2026, is generally available on the Claude API, AWS, Google Cloud and Microsoft Azure. Sonnet 4.6 and Opus 4.8 were never under the directive.
 
-**So what:** Anchor cloud-marketplace customers on Sonnet 4.6 or Opus 4.8 until Fable 5 re-enables there. If government risk still worries the buyer, note that OpenAI's GPT-5.6 launched under the same gate: an industry-wide condition, not an Anthropic defect. ([anthropic.com](https://www.anthropic.com/news/fable-mythos-access))
+**So what:** The cloud-availability overhang is gone: marketplace buyers can standardize on Fable 5.1 today on AWS, Google Cloud or Azure. If government risk still worries the buyer, note that OpenAI's GPT-5.6 launched under the same gate: an industry-wide condition, not an Anthropic defect. ([anthropic.com](https://www.anthropic.com/claude-fable-and-mythos-5-1))
 
 **"International buyers are moving to Mistral and Cohere because of the export ban. Is Anthropic losing ground internationally?"**
 
