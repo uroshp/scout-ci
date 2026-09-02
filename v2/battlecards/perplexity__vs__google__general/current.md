@@ -38,6 +38,14 @@ Independent analysis estimates Google AI Overviews produce tens of millions of q
 
 **So what:** Win trust-sensitive buyers (research, media, legal, regulated industries) on verifiable, ad-free, source-cited answers rather than on raw model horsepower. ([popsci.com](https://www.popsci.com/technology/ai-overview-inaccuracy-google/))
 
+**Privacy-by-default lands on hardware buyers already own.**
+
+Hybrid Compute masks sensitive data like names, addresses and account numbers on any Apple silicon Mac before it leaves the device, with the strictest data (credentials, payment cards, government IDs) kept local entirely.
+
+**Soundbite:** "Your data can stay on the Mac you already have, with org-wide admin controls and no cloud credits for local work."
+
+**So what:** Lead security-conscious buyers with Hybrid Compute as the default answer to data-residency concerns, no new hardware or API key required. ([9to5mac.com](https://9to5mac.com/2026/09/01/perplexity-launches-privacy-minded-hybrid-compute-ai-feature-for-mac/))
+
 ## Snapshot
 
 - Alphabet reported Q1 2026 revenue of \$109.9 billion, up 22% year-over-year (audited public filing), beating estimates as Cloud growth accelerated and net income more than doubled. ([finance.yahoo.com](https://finance.yahoo.com/markets/stocks/articles/alphabet-q1-2026-earnings-google-202101883.html))
@@ -74,7 +82,7 @@ Independent analysis estimates Google AI Overviews produce tens of millions of q
 ## Positioning and Differentiation
 
 - Perplexity positions itself as an 'answer engine' replacing ranked blue links with a single synthesized, cited answer, and frames accuracy as foundational. CEO Aravind Srinivas: 'hallucination is a bug,' not a feature (the company's own positioning). ([fortune.com](https://fortune.com/article/perplexity-ceo-aravind-srinivas-ai/))
-- Perplexity's June 2026 repositioning from answer engine to a 'hybrid neutral orchestration layer' (a model- and chip-agnostic platform routing each task across device and cloud, a company claim) is now backed by a shipped product. Portable Computer, launched August 25, 2026 with Nvidia, runs the Computer agent entirely on local hardware and escalates a step to a cloud frontier model only with the user's permission. ([venturebeat.com](https://venturebeat.com/infrastructure/perplexity-partners-with-nvidia-to-launch-portable-computer-a-fully-local-ai-agent-with-zero-token-costs/))
+- Perplexity's June 2026 repositioning from answer engine to a 'hybrid neutral orchestration layer' (a model- and chip-agnostic platform routing each task across device and cloud, a company claim) is now backed by two shipped products. Portable Computer, launched August 25, 2026 with Nvidia, runs the Computer agent entirely on local hardware and escalates to the cloud only with permission, while Hybrid Compute, launched September 1, 2026, splits a task between cloud and a local Mac model and hands off steps involving private files without restarting the task. ([9to5mac.com](https://9to5mac.com/2026/09/01/perplexity-launches-privacy-minded-hybrid-compute-ai-feature-for-mac/))
 - Perplexity abandoned advertising entirely in early 2026, with an executive arguing 'a user needs to believe this is the best possible answer', positioning trust and freedom from commercial bias against Google's structurally ad-funded search (company claim). ([macrumors.com](https://www.macrumors.com/2026/02/18/perplexity-abandons-ai-advertising/))
 - Google positions itself as a full-stack, billion-user AI company (custom silicon to models to products touching billions) and now openly adopts the 'answer' and 'agent' framing Perplexity pioneered, but backed by distribution Perplexity cannot match (company claim). ([blog.google](https://blog.google/innovation-and-ai/sundar-pichai-io-2026/))
 
@@ -85,7 +93,7 @@ Independent analysis estimates Google AI Overviews produce tens of millions of q
 - Google AI Pro is \$19.99/month, at functional price parity with Perplexity Pro (\$20), but bundles YouTube Premium Lite, 5TB storage, and Gemini across Gmail/Docs, none of which Perplexity offers. ([engadget.com](https://www.engadget.com/2176060/the-google-ai-ultra-plan-now-starts-at-100-a-month/))
 - Google no longer sells Gemini as a standalone Workspace add-on: it is bundled into Business Standard (\$14/user/month) and above, meaning Google's enterprise AI distribution is effectively zero incremental cost to existing Workspace customers. ([workspace.google.com](https://workspace.google.com/pricing))
 - Perplexity leans on partner bundles to reach users outside its paywall: Deutsche Telekom's T Phone 3, for example, includes 18 months of Perplexity Pro (\$360 value) free. It's a distribution workaround against Google's native free reach, but one that creates churn risk when promos expire. ([techradar.com](https://www.techradar.com/pro/one-of-the-worlds-biggest-mobile-firms-has-launched-a-usd170-ai-smartphone-that-includes-a-free-18-month-subs-to-perplexity-pro-worth-usd360-i-wonder-what-happens-on-month-19))
-- Perplexity's Portable Computer makes on-device agent work free: tasks completed locally on Nvidia DGX Spark or RTX-equipped Linux machines (24GB+ VRAM) consume no billing credits, and the agent escalates to a paid cloud frontier model only after the user approves that step. It launched August 25, 2026 for Pro, Max, Enterprise Pro and Enterprise Max subscribers on Linux, with Windows support coming in September. ([venturebeat.com](https://venturebeat.com/infrastructure/perplexity-partners-with-nvidia-to-launch-portable-computer-a-fully-local-ai-agent-with-zero-token-costs/))
+- Perplexity's on-device agent work is free across two products now. Portable Computer's tasks on Nvidia DGX Spark or RTX-equipped Linux machines (24GB+ VRAM) consume no billing credits and escalate to a paid cloud model only after approval, while Hybrid Compute extends the same zero-credit model to any Apple silicon Mac with 24GB unified memory, where local steps run at no cost. Portable Computer launched August 25, 2026 for Pro, Max, Enterprise Pro and Enterprise Max subscribers on Linux (Windows coming in September); Hybrid Compute launched September 1, 2026 for Pro, Max and Enterprise subscribers on Mac. ([9to5mac.com](https://9to5mac.com/2026/09/01/perplexity-launches-privacy-minded-hybrid-compute-ai-feature-for-mac/))
 
 ## Competitive Battlecard
 
@@ -114,6 +122,12 @@ Perplexity Enterprise Pro for Government earned FedRAMP prioritization and a GSA
 Perplexity's Portable Computer, launched August 25, 2026 with Nvidia, runs its Computer agent platform entirely on local hardware, starting with Nvidia's DGX Spark and Linux machines with RTX GPUs (24GB+ VRAM). Work finished on-device burns zero billing credits, and the agent only reaches out to a cloud frontier model after the user approves that step. It's live today for Pro, Max, Enterprise Pro and Enterprise Max subscribers on Linux, with Windows support arriving in September.
 
 **Soundbite:** "Run your agent work on your own hardware for free, and it only touches the cloud, and your bill, when you say yes." ([venturebeat.com](https://venturebeat.com/infrastructure/perplexity-partners-with-nvidia-to-launch-portable-computer-a-fully-local-ai-agent-with-zero-token-costs/))
+
+**Privacy-by-default on the Mac you already own.**
+
+Perplexity's Hybrid Compute splits a Computer task between cloud frontier models and a local model on the user's Mac. An on-device classifier masks names, addresses and account numbers before anything leaves the machine, and keeps credentials, payment card numbers and government IDs local entirely, refusing or rewriting rather than sending them out. It runs on any Apple silicon Mac with macOS 15 and 24GB unified memory, installs in one click with no separate runtime or API key, and work done locally costs no cloud credits. Enterprise admins get org-wide rules and audit logs for what must stay on device.
+
+**Soundbite:** "Your sensitive data stays on the Mac your team already uses, with org-wide controls and no cloud credits burned on local steps, and no extra hardware or API key to buy." ([9to5mac.com](https://9to5mac.com/2026/09/01/perplexity-launches-privacy-minded-hybrid-compute-ai-feature-for-mac/))
 
 ### Where it's a fight
 
@@ -191,9 +205,9 @@ It's a legitimate concern: at a \$20B valuation Perplexity is a fraction of Alph
 
 **"I heard a lawsuit says Perplexity sends user chats to Google and Meta, even in Incognito."**
 
-A March 2026 class action does allege embedded trackers forwarded chat data to Google and Meta without consent. Reps will be asked about it, so don't bury it. The honest answer: these are unproven allegations Perplexity is contesting, paid Pro/Max subscribers are excluded from the proposed class, and Perplexity's enterprise and FedRAMP-cleared government offerings run under separate, accredited data controls from the consumer web product. For buyers who want data to stay put entirely, Portable Computer, launched August 25, 2026 with Nvidia, runs the agent locally on the user's own hardware and only sends a step to the cloud after the user approves it.
+A March 2026 class action alleges embedded trackers forwarded chat data to Google and Meta without consent. Reps will get asked, so don't bury it: these are unproven allegations Perplexity is contesting, paid Pro/Max subscribers are excluded from the proposed class, and Perplexity's enterprise and FedRAMP-cleared government offerings run under separate, accredited data controls from the consumer web product. For buyers who want data to stay local, Portable Computer keeps agent work on Nvidia or Linux hardware, and Hybrid Compute now does the same on any Mac: an on-device classifier masks names, addresses and account numbers before anything leaves the machine, and keeps credentials, payment details and government IDs local entirely.
 
-**So what:** Acknowledge the suit, separate consumer-tier allegations from the enterprise data posture, and offer security buyers either the accredited deployment or Portable Computer's on-device option, where nothing leaves the machine without explicit approval. ([venturebeat.com](https://venturebeat.com/infrastructure/perplexity-partners-with-nvidia-to-launch-portable-computer-a-fully-local-ai-agent-with-zero-token-costs/))
+**So what:** Acknowledge the suit, separate consumer-tier allegations from the enterprise data posture, and point security buyers to Portable Computer or Hybrid Compute, whichever matches their hardware, where sensitive data is masked or never leaves the machine. ([9to5mac.com](https://9to5mac.com/2026/09/01/perplexity-launches-privacy-minded-hybrid-compute-ai-feature-for-mac/))
 
 **"Perplexity quietly cut Pro usage limits. Is the pricing even stable?"**
 
