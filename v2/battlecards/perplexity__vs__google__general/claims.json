@@ -470,17 +470,17 @@
   },
   {
     "subject_key": "perplexity | positioning | orchestration-layer",
-    "claim": "Perplexity's June 2026 repositioning from answer engine to a 'hybrid neutral orchestration layer' (a model- and chip-agnostic platform routing each task across device and cloud, a company claim) is now backed by a shipped product. Portable Computer, launched August 25, 2026 with Nvidia, runs the Computer agent entirely on local hardware and escalates a step to a cloud frontier model only with the user's permission.",
+    "claim": "Perplexity's June 2026 repositioning from answer engine to a 'hybrid neutral orchestration layer' (a model- and chip-agnostic platform routing each task across device and cloud, a company claim) is now backed by two shipped products. Portable Computer, launched August 25, 2026 with Nvidia, runs the Computer agent entirely on local hardware and escalates to the cloud only with permission, while Hybrid Compute, launched September 1, 2026, splits a task between cloud and a local Mac model and hands off steps involving private files without restarting the task.",
     "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
     "order": 1,
-    "as_of": "2026-08-25",
+    "as_of": "2026-09-01",
     "confidence": "high",
     "id": "c_563ad9e3c3dc",
     "verified": true,
-    "derived_from": "c_b3aefc0588f0",
-    "updated_on": "2026-08-26"
+    "derived_from": "c_b147a43c7c5b",
+    "updated_on": "2026-09-02"
   },
   {
     "subject_key": "perplexity | positioning | ad-free",
@@ -1023,18 +1023,18 @@
   },
   {
     "subject_key": "objection | perplexity-privacy-data-sharing",
-    "claim": "**\"I heard a lawsuit says Perplexity sends user chats to Google and Meta, even in Incognito.\"**\n\nA March 2026 class action does allege embedded trackers forwarded chat data to Google and Meta without consent. Reps will be asked about it, so don't bury it. The honest answer: these are unproven allegations Perplexity is contesting, paid Pro/Max subscribers are excluded from the proposed class, and Perplexity's enterprise and FedRAMP-cleared government offerings run under separate, accredited data controls from the consumer web product. For buyers who want data to stay put entirely, Portable Computer, launched August 25, 2026 with Nvidia, runs the agent locally on the user's own hardware and only sends a step to the cloud after the user approves it.\n\n**So what:** Acknowledge the suit, separate consumer-tier allegations from the enterprise data posture, and offer security buyers either the accredited deployment or Portable Computer's on-device option, where nothing leaves the machine without explicit approval.",
+    "claim": "**\"I heard a lawsuit says Perplexity sends user chats to Google and Meta, even in Incognito.\"**\n\nA March 2026 class action alleges embedded trackers forwarded chat data to Google and Meta without consent. Reps will get asked, so don't bury it: these are unproven allegations Perplexity is contesting, paid Pro/Max subscribers are excluded from the proposed class, and Perplexity's enterprise and FedRAMP-cleared government offerings run under separate, accredited data controls from the consumer web product. For buyers who want data to stay local, Portable Computer keeps agent work on Nvidia or Linux hardware, and Hybrid Compute now does the same on any Mac: an on-device classifier masks names, addresses and account numbers before anything leaves the machine, and keeps credentials, payment details and government IDs local entirely.\n\n**So what:** Acknowledge the suit, separate consumer-tier allegations from the enterprise data posture, and point security buyers to Portable Computer or Hybrid Compute, whichever matches their hardware, where sensitive data is masked or never leaves the machine.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 5,
-    "as_of": "2026-08-25",
+    "as_of": "2026-09-01",
     "confidence": "medium",
     "persona": "security_regulated",
     "id": "c_420247f08232",
     "verified": true,
-    "derived_from": "c_b3aefc0588f0",
-    "updated_on": "2026-08-26"
+    "derived_from": "c_b147a43c7c5b",
+    "updated_on": "2026-09-02"
   },
   {
     "subject_key": "objection | perplexity-usage-limit-cuts",
@@ -1496,16 +1496,82 @@
   {
     "id": "c_b27dfaf2c072",
     "subject_key": "perplexity | pricing-model | on-device-zero-credits",
-    "claim": "Perplexity's Portable Computer makes on-device agent work free: tasks completed locally on Nvidia DGX Spark or RTX-equipped Linux machines (24GB+ VRAM) consume no billing credits, and the agent escalates to a paid cloud frontier model only after the user approves that step. It launched August 25, 2026 for Pro, Max, Enterprise Pro and Enterprise Max subscribers on Linux, with Windows support coming in September.",
+    "claim": "Perplexity's on-device agent work is free across two products now. Portable Computer's tasks on Nvidia DGX Spark or RTX-equipped Linux machines (24GB+ VRAM) consume no billing credits and escalate to a paid cloud model only after approval, while Hybrid Compute extends the same zero-credit model to any Apple silicon Mac with 24GB unified memory, where local steps run at no cost. Portable Computer launched August 25, 2026 for Pro, Max, Enterprise Pro and Enterprise Max subscribers on Linux (Windows coming in September); Hybrid Compute launched September 1, 2026 for Pro, Max and Enterprise subscribers on Mac.",
     "claim_type": "interpretation",
     "section": "pricing",
     "zone": null,
     "order": 5,
-    "as_of": "2026-08-25",
-    "updated_on": "2026-08-26",
+    "as_of": "2026-09-01",
+    "updated_on": "2026-09-02",
     "verified": true,
     "confidence": "medium",
-    "derived_from": "c_b3aefc0588f0",
+    "derived_from": "c_b147a43c7c5b",
     "persona": "economic_buyer"
+  },
+  {
+    "subject_key": "perplexity | product | hybrid-compute-mac",
+    "claim": "On September 1, 2026, Perplexity launched Hybrid Compute for its Mac app: Computer starts a task in the cloud with frontier models, then hands off steps involving private files or sensitive data to a local model running on the user's Mac, merging both halves into one result without restarting the task. An on-device PII classifier inspects each task before anything leaves the machine, masking names, addresses and account numbers and restoring them once the cloud answer returns, with credentials, payment card numbers and government IDs getting the strictest handling (kept local, refused or rewritten). The feature is live today for Pro, Max and Enterprise subscribers on Apple silicon Macs running macOS 15 or later with a minimum of 24GB unified memory (32GB recommended); the local model (PPLX Qwen 3.8 27B, with Gemma 4 E4B and Qwen3.6 35B-A3B also available) installs in one click with no separate runtime or API key, and work handled locally consumes no cloud credits. Perplexity also open-sourced the underlying PII-Tracer classifier, trained with its Secure Intelligence Institute, and gives Enterprise admins org-wide rules plus audit logs for what must stay on device.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://9to5mac.com/2026/09/01/perplexity-launches-privacy-minded-hybrid-compute-ai-feature-for-mac/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Computer now splits a task between cloud models and a local model on your Mac,",
+    "as_of": "2026-09-01",
+    "confidence": "high",
+    "id": "c_b147a43c7c5b",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-02",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.marktechpost.com/2026/09/01/perplexity-releases-hybrid-compute-on-mac-cloud-agents-orchestrate-down-to-a-local-model-gated-on-device/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://macdailynews.com/2026/09/01/perplexity-brings-hybrid-compute-to-mac-keeping-sensitive-ai-work-on-device/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_14c372549426",
+    "subject_key": "perplexity | battlecard | hybrid-compute-privacy-mac",
+    "claim": "**Privacy-by-default on the Mac you already own.**\n\nPerplexity's Hybrid Compute splits a Computer task between cloud frontier models and a local model on the user's Mac. An on-device classifier masks names, addresses and account numbers before anything leaves the machine, and keeps credentials, payment card numbers and government IDs local entirely, refusing or rewriting rather than sending them out. It runs on any Apple silicon Mac with macOS 15 and 24GB unified memory, installs in one click with no separate runtime or API key, and work done locally costs no cloud credits. Enterprise admins get org-wide rules and audit logs for what must stay on device.\n\n**Soundbite:** \"Your sensitive data stays on the Mac your team already uses, with org-wide controls and no cloud credits burned on local steps, and no extra hardware or API key to buy.\"",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 4,
+    "as_of": "2026-09-01",
+    "updated_on": "2026-09-02",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_b147a43c7c5b",
+    "persona": "security_regulated"
+  },
+  {
+    "id": "c_5d2b32a8973f",
+    "subject_key": "perplexity-vs-google | on-device-privacy-wedge | 2026",
+    "claim": "**Privacy-by-default lands on hardware buyers already own.**\n\nHybrid Compute masks sensitive data like names, addresses and account numbers on any Apple silicon Mac before it leaves the device, with the strictest data (credentials, payment cards, government IDs) kept local entirely.\n\n**Soundbite:** \"Your data can stay on the Mac you already have, with org-wide admin controls and no cloud credits for local work.\"\n\n**So what:** Lead security-conscious buyers with Hybrid Compute as the default answer to data-residency concerns, no new hardware or API key required.",
+    "claim_type": "interpretation",
+    "section": "executive_summary",
+    "zone": null,
+    "order": 5,
+    "as_of": "2026-09-01",
+    "updated_on": "2026-09-02",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_b147a43c7c5b",
+    "persona": "security_regulated"
   }
 ]
