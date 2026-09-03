@@ -445,25 +445,17 @@
   },
   {
     "subject_key": "openai-codex | positioning | current",
-    "claim": "OpenAI positions Codex as a general-purpose enterprise \"work computer\" and leans on Microsoft Foundry/Azure for enterprise-grade deployment, letting customers keep tokens inside their Azure tenancy with existing identity, RBAC, and compliance controls. This data-residency story is a strong pull for regulated buyers.",
+    "claim": "OpenAI positions Codex as a general-purpose enterprise \"work computer\" and leans on Microsoft Foundry/Azure for enterprise-grade deployment, letting customers keep tokens inside their Azure tenancy with existing identity, RBAC and compliance controls. Anthropic now offers a comparable customer-controlled data story: Enterprise Frontier Safeguards stores monitoring data in the customer's own cloud account under the customer's own encryption keys at no charge, narrowing OpenAI's data-residency pull for regulated buyers.",
     "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
     "order": 2,
-    "source_url": "https://techcommunity.microsoft.com/blog/azure-ai-foundry-blog/announcing-gpt%E2%80%915-2%E2%80%91codex-in-microsoft-foundry-enterprise%E2%80%91grade-ai-for-secure-sof/4485379",
-    "source_tier": "primary",
-    "evidence_excerpt": "Deploy GPT-5.2-Codex within existing Azure security boundaries, identity systems, and compliance frameworks",
-    "as_of": "2026-01-14",
+    "as_of": "2026-09-01",
     "confidence": "medium",
     "id": "c_e9c7683865cb",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-04",
-      "detail": null
-    }
+    "derived_from": "c_3bdb3cac599a",
+    "updated_on": "2026-09-03"
   },
   {
     "subject_key": "claude-opus | github-copilot-availability | 2026-05",
@@ -2250,5 +2242,50 @@
     "confidence": "medium",
     "derived_from": "c_517d037a49e8",
     "persona": "economic_buyer"
+  },
+  {
+    "subject_key": "anthropic | enterprise-safeguards",
+    "claim": "On September 1, 2026, Anthropic replaced its 30-day mandatory data retention policy for enterprise customers on Fable 5 and Mythos 5 with a new system called Enterprise Frontier Safeguards (EFS). EFS combines zero data retention with automated misuse detection: activity data used for monitoring is stored in the customer's own cloud account (Amazon S3, Azure Blob Storage or Google Cloud Storage) under the customer's own encryption keys, and automated systems route suspected-misuse flags directly to the customer's own security team, with no human review by Anthropic employees required. Anthropic will not charge for EFS. It rolls out in phases, with broader availability targeted later this fall; in the interim, eligible customers get zero data retention on Fable 5 and Fable 5.1. Anthropic's original June 30-day retention policy still applies to non-enterprise subscribers on Mythos-class models.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.anthropic.com/news/enterprise-frontier-safeguards",
+    "source_tier": "primary",
+    "evidence_excerpt": "EFS works by storing data in cloud infrastructure controlled by the customer, not Anthropic.",
+    "as_of": "2026-09-01",
+    "confidence": "high",
+    "id": "c_3bdb3cac599a",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-03",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.cnbc.com/2026/09/01/anthropic-data-retention.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_10b16b0b0a48",
+    "subject_key": "objection | enterprise-data-retention-efs | current",
+    "claim": "**\"You mandate 30-day data retention. Why should our security team trust Claude with sensitive workloads?\"**\n\nThat retention policy is gone for enterprise. On September 1, 2026 Anthropic replaced the 30-day mandatory retention on Fable 5 and Mythos 5 with Enterprise Frontier Safeguards: zero data retention, with monitoring data stored in the customer's own S3, Azure Blob or Google Cloud Storage bucket under the customer's own encryption keys. Misuse flags route straight to the customer's security team, with no Anthropic employee reviewing the data. It's free. Rollout is phased, with broader availability this fall; in the interim, eligible customers get zero data retention on Fable 5 and Fable 5.1.\n\n**So what:** Tell security and compliance buyers to enroll in EFS now: their activity data stays in a bucket and under keys they control, not Anthropic's, and it costs nothing.",
+    "claim_type": "interpretation",
+    "section": "objection_handling",
+    "zone": null,
+    "order": 11,
+    "as_of": "2026-09-01",
+    "updated_on": "2026-09-03",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_3bdb3cac599a",
+    "persona": "security_regulated"
   }
 ]
