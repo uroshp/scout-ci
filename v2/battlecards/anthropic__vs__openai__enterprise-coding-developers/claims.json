@@ -1759,15 +1759,15 @@
   },
   {
     "subject_key": "openai-astra-math-milestone",
-    "claim": "On August 18, 2026, Sam Altman publicly confirmed OpenAI paused its largest planned frontier reinforcement-learning training run after preliminary tests showed its upcoming Astra model could reach the 'Critical' cybersecurity threshold under OpenAI's Preparedness Framework. OpenAI now applies its strictest security tier to Astra, targets a 30-minute window to halt a suspected breach and spends roughly 20% additional inference compute on monitoring the workloads it watches.",
+    "claim": "OpenAI says Astra is its first model to cross the 'Critical' cybersecurity threshold in its Preparedness Framework, meaning it can find and exploit previously unknown software flaws on its own without step-by-step human direction. OpenAI paused Astra's development in August after detecting the capability, and now says it will release the model 'soon' with its advanced cyber features restricted to a vetted group in its Daybreak defender coalition.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.ibtimes.com/openai-pausing-some-work-due-safety-concerns-after-finding-it-could-pose-critical-cybersecurity-3806572",
+    "source_url": "https://www.cnbc.com/2026/09/01/open-ai-astra-cyber-model.html",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "OpenAI said it is pausing some work on a new model after concluding it could pose critical cybersecurity risks.",
-    "as_of": "2026-08-18",
+    "evidence_excerpt": "OpenAI said that its upcoming AI model Astra is its first to exceed its \"Critical\" cybersecurity capability threshold.",
+    "as_of": "2026-09-01",
     "confidence": "high",
     "id": "c_d942b5ed8da2",
     "verified": true,
@@ -1775,12 +1775,12 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-08-21",
+      "fetched_at": "2026-09-03",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://www.storyboard18.com/brand-marketing/openai-pauses-frontier-rl-training-sam-altman-warns-model-capabilities-were-outstripping-the-pace-of-safety-108054.htm",
+        "source_url": "https://www.csoonline.com/article/4207311/openai-says-astra-could-reach-critical-cyber-capability-tightens-safeguards.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false

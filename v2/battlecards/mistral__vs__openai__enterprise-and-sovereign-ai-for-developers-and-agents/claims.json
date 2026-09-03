@@ -1342,15 +1342,15 @@
   },
   {
     "subject_key": "openai | frontier-research | astra-2026",
-    "claim": "OpenAI paused internal work on its next flagship model, Astra, on August 7, 2026 after evaluations could not rule out that it reached the 'critical' cybersecurity level in the company's Preparedness Framework, the threshold where a model can find and exploit zero-day vulnerabilities in hardened systems with little or no human help. It is the first OpenAI model to trigger that classification. Deployment now waits on testing by government agencies and independent safety organizations. This reverses Astra's prior status, when OpenAI showcased it solving ten open math and theoretical-computer-science problems with machine-checkable Lean 4 proofs.",
+    "claim": "OpenAI confirmed on September 1, 2026 that Astra is the first of its models to cross the 'Critical' cybersecurity threshold in its Preparedness Framework, able to find and exploit previously unknown flaws without step-by-step human guidance. In testing it scored a perfect 100% on ExploitBench and uncovered two zero-day vulnerabilities on its own. OpenAI now plans to release Astra 'soon' with its strongest cyber capabilities gated to a select group and its Daybreak coalition, reversing the August 7 pause.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 5,
-    "source_url": "https://techcrunch.com/2026/08/07/openai-says-it-slowed-astra-model-development-over-security-concerns/",
+    "order": 55,
+    "source_url": "https://www.cnbc.com/2026/09/01/open-ai-astra-cyber-model.html",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "pausing internal activities involving Astra that don’t meet these beefed guardrails.",
-    "as_of": "2026-08-07",
+    "evidence_excerpt": "OpenAI said that its upcoming AI model Astra is its first to exceed its \"Critical\" cybersecurity capability threshold.",
+    "as_of": "2026-09-01",
     "confidence": "high",
     "id": "c_9991fdcf83d5",
     "verified": true,
@@ -1358,12 +1358,12 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-08-10",
+      "fetched_at": "2026-09-03",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://www.helpnetsecurity.com/2026/08/10/openai-astra-critical-cyber-capabilities/",
+        "source_url": "https://www.securityweek.com/openais-astra-becomes-first-model-to-cross-critical-cybersecurity-threshold/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
