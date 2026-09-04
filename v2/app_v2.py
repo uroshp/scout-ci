@@ -42,11 +42,23 @@ try:
 except Exception:
     pass
 
-# Best-effort auto-redirect. Streamlit strips <script> tags; meta-refresh survives in mainstream
-# browsers. If it doesn't fire, the visitor still has the link below — no dead end either way.
+# Best-effort auto-redirect, two layers (verified live 2026-09-04: body meta-refresh does NOT
+# fire in headless Chromium, so the component script is the one that actually works; both are
+# enhancements — if neither fires, the visitor still has the link below. No dead end either way.)
 try:
     st.markdown(f'<meta http-equiv="refresh" content="{REDIRECT_SECONDS};url={target}">',
                 unsafe_allow_html=True)
+    import streamlit.components.v1 as components
+    import json as _json
+    components.html(
+        f"""<script>
+        setTimeout(function() {{
+            try {{ window.parent.location.replace({_json.dumps(target)}); }}
+            catch (e) {{ try {{ window.top.location.href = {_json.dumps(target)}; }} catch (e2) {{}} }}
+        }}, {REDIRECT_SECONDS * 1000});
+        </script>""",
+        height=0,
+    )
 except Exception:
     pass
 
