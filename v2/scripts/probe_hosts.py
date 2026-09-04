@@ -28,8 +28,14 @@ CRASH_MARKERS = [
     "This app has gone to sleep",
     "get this app back up",
 ]
-# The app works only if a visitor sees the product. Both hosts render this masthead line.
-CONTENT_MARKER = "Living battlecards"
+# The app works only if a visitor sees what that host is supposed to show. agent-scout.ai renders
+# the product masthead; streamlit.app is a retirement stub since 2026-09-04 — its own marker
+# counts, and so does the product masthead (the stub meta-refreshes to agent-scout.ai, so a probe
+# that lingers past the redirect legitimately sees the new home's content).
+HOST_MARKERS = {
+    "agent-scout.ai": ("Living battlecards",),
+    "streamlit.app": ("Scout has moved", "Living battlecards"),
+}
 
 HOSTS = {
     "agent-scout.ai": "https://agent-scout.ai/",
@@ -77,10 +83,10 @@ def probe_host(browser, name, url):
             for marker in CRASH_MARKERS:
                 if marker in text:
                     return f"{name}: BROKEN — visitors see \"{marker}\""
-            if CONTENT_MARKER in text:
+            if any(m in text for m in HOST_MARKERS[name]):
                 return None
-        return (f"{name}: BROKEN — no card content rendered after {WAIT_TOTAL_S}s "
-                f"(missing \"{CONTENT_MARKER}\"; page text: \"{text[:120]}\")")
+        return (f"{name}: BROKEN — expected content not rendered after {WAIT_TOTAL_S}s "
+                f"(missing any of {HOST_MARKERS[name]}; page text: \"{text[:120]}\")")
     finally:
         context.close()
 
