@@ -5,7 +5,7 @@
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
-    "order": 0,
+    "order": 1,
     "as_of": "2026-07-31",
     "confidence": "high",
     "id": "c_98b591345bf9",
@@ -19,7 +19,7 @@
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
-    "order": 1,
+    "order": 2,
     "source_url": "https://www.atlassian.com/blog/company-news/cursor-in-jira",
     "source_tier": "primary",
     "evidence_excerpt": "Starting today, Jira teams can assign work directly to Cursor, where a cloud agent will pick it up and begin working",
@@ -41,7 +41,7 @@
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
-    "order": 2,
+    "order": 3,
     "source_url": "https://thenextweb.com/news/atlassian-is-cutting-1600-jobs-and-replacing-its-cto",
     "source_tier": "reputable_secondary",
     "evidence_excerpt": "More than 900 of the affected roles are in software research and development.",
@@ -63,7 +63,7 @@
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
-    "order": 3,
+    "order": 0,
     "as_of": "2026-08-08",
     "confidence": "high",
     "id": "c_d1e661fe3778",
@@ -1027,6 +1027,36 @@
     "corroboration": [
       {
         "source_url": "https://www.csoonline.com/article/4207306/one-click-flaw-in-atlassian-rovo-exposed-enterprise-data-via-prompt-injection-attack.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "atlassian | automation-usage-pricing",
+    "claim": "On September 1, 2026 Atlassian announced it will meter Jira and Confluence automation by individual step (each trigger, condition, action and branch), replacing the old model that counted a whole automation run as one unit. Enterprise plans, which used to include unlimited automation, now get a capped monthly allowance, and billing for overages starts December 3, 2026. This puts automation itself on a meter, not just Rovo AI.",
+    "claim_type": "fact",
+    "section": "pricing",
+    "zone": null,
+    "order": 3,
+    "source_url": "https://www.atlassian.com/blog/company-news/expanded-usage-based-pricing",
+    "source_tier": "primary",
+    "evidence_excerpt": "Allowance limits and billing for these meters will go into effect on December 3, 2026.",
+    "as_of": "2026-09-01",
+    "confidence": "high",
+    "id": "c_ee8728f5f7db",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-04",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.praecipio.com/resources/articles/atlassian-pricing-changes-usage-based-pricing-september-2026",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
