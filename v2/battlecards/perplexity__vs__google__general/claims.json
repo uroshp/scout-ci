@@ -1573,5 +1573,35 @@
     "confidence": "medium",
     "derived_from": "c_b147a43c7c5b",
     "persona": "security_regulated"
+  },
+  {
+    "subject_key": "google | legal-action | doj-ad-exchange-divestiture-rejection",
+    "claim": "On September 2, 2026, US Judge Leonie Brinkema rejected the DOJ's bid to force Google to sell its AdX ad exchange, imposing behavioral remedies instead. It is the third straight time a court has refused to break up Big Tech, and it clears the ad-tech breakup off Google's live antitrust risks. The search default-placement bar and the EU DMA fines still stand.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.aljazeera.com/economy/2026/9/2/us-judge-rejects-bid-to-break-up-googles-ad-business",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Alphabet’s Google has escaped a breakup of its advertising technology business",
+    "as_of": "2026-09-02",
+    "confidence": "high",
+    "id": "c_06e8ff3d0d52",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-04",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techxplore.com/news/2026-09-google-ad-business.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

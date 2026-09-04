@@ -2287,5 +2287,35 @@
     "confidence": "medium",
     "derived_from": "c_3bdb3cac599a",
     "persona": "security_regulated"
+  },
+  {
+    "subject_key": "openai | flagship-model",
+    "claim": "OpenAI released GPT-6 Astra on September 3, 2026 as its new flagship, at first to a limited set of organizations with general availability in the coming days across ChatGPT Plus/Pro/Business/Enterprise, the OpenAI API, Microsoft Azure and AWS Bedrock. OpenAI calls Astra state-of-the-art on computer use, browsing, software engineering, cybersecurity and science, reporting 98% on FrontierMath Tier 4, 99.9% on ARC-AGI-3 and 100% on ExploitBench, and says it beats Claude Opus 5 and Fable 5 on computer use at a lower cost. It is OpenAI's first model to reach the 'Critical' cybersecurity threshold in its Preparedness Framework. All benchmark figures are OpenAI-stated.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://9to5google.com/2026/09/03/openai-gpt-6-astra-launch/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Astra is state-of-the-art on computer use, browsing, software engineering, cybersecurity, science, and professional work.",
+    "as_of": "2026-09-03",
+    "confidence": "high",
+    "id": "c_95433de0d222",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-04",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://thehackernews.com/2026/09/gpt-6-astra-scores-100-on-exploitbench.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

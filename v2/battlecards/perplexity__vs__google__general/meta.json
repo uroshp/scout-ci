@@ -4,7 +4,7 @@
   "competitor": "Google",
   "focus": null,
   "baseline_date": "2026-06-06",
-  "last_checked": "2026-09-03T11:22:20",
+  "last_checked": "2026-09-04T11:48:04",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_9ea436272f2a",
@@ -21,7 +21,8 @@
     "f_0c47f86127d5",
     "f_8f1eca28ac7f",
     "f_f551937f75ca",
-    "f_9deadf59cfaa"
+    "f_9deadf59cfaa",
+    "f_1d62c3f865c1"
   ],
   "monitored": true,
   "lead_election": {
@@ -34,5 +35,5 @@
     "perplexity | partnership | paypal-venmo-pro-bundle"
   ],
   "unresolved_since": "2026-09-01",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }

@@ -249,17 +249,33 @@
   },
   {
     "subject_key": "openai | flagship-model | current",
-    "claim": "OpenAI's current flagship is the GPT-5.6 line (Sol, Terra and Luna), cleared for open public sale starting July 9, 2026 after a Department of Commerce hold. Sol now lists at $4 per million input tokens and $20 output, cut from $5 and $30 effective August 21 through at least November 21, 2026, the second GPT-5.6 price cut in three weeks. Pro, Plus and Business subscriptions are unchanged.",
-    "claim_type": "interpretation",
+    "claim": "OpenAI's flagship is now the GPT-6 Astra line, announced September 3, 2026, replacing the GPT-5.6 line. OpenAI calls it its most intelligent and aligned model, state-of-the-art on software engineering, computer use and cybersecurity, and the first to cross the Critical cyber threshold in its Preparedness Framework. It rolls out first to a limited set of organizations (its Daybreak cyber program members), then over the coming days to all ChatGPT Plus, Pro, Business and Enterprise users, the OpenAI API and AWS.",
+    "claim_type": "fact",
     "section": "snapshot",
     "zone": null,
-    "order": 8,
-    "as_of": "2026-08-21",
+    "order": 1,
+    "source_url": "https://www.cnbc.com/2026/09/03/open-ai-astra-gpt-6-cyber.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI on Thursday announced it will begin rolling out its latest artificial intelligence model, GPT-6 Astra",
+    "as_of": "2026-09-03",
     "confidence": "high",
     "id": "c_77b7261b1764",
     "verified": true,
-    "derived_from": "c_a5c54281605e",
-    "updated_on": "2026-08-27"
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-04",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://9to5mac.com/2026/09/03/openai-releasing-major-upgrade-to-chatgpt-and-codex-with-gpt-6-astra-details-here/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "openai | partnership | partner-network-2026",
@@ -1652,6 +1668,36 @@
     "corroboration": [
       {
         "source_url": "https://www.ibtimes.sg/openai-cutting-cursor-off-after-spacex-acquisition-93077",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "subject_key": "openai | market-program | daybreak-defenders-2026",
+    "claim": "On September 3, 2026 OpenAI committed $1 billion to subsidize access to its Daybreak cyber-defense models, plus training and technical support, for under-resourced defenders of essential services: water and wastewater utilities, electric grid operators, state and local governments, community and regional banks, nonprofits and open-source maintainers. The credits run against OpenAI's own products over six months, starting in the US and expanding to partner countries within weeks, and pair with an MS-ISAC public-sector pilot.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://securitybrief.co.uk/story/openai-launches-daybreak-for-frontline-defenders",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI has launched Daybreak for Frontline Defenders, a programme backed by a USD $1 billion commitment to expand subsidised access to its cyber defence tools.",
+    "as_of": "2026-09-04",
+    "confidence": "high",
+    "id": "c_28344762dce6",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-04",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.helpnetsecurity.com/2026/09/04/openai-daybreak-frontline-defenders-access/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
