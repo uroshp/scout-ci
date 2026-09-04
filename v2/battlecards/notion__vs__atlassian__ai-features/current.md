@@ -2,11 +2,13 @@
 
 ## Executive Summary
 
-**Rovo looks free today, but the meter is already running. Notion's predictable AI cost is a CFO-friendly contrast.**
+**Rovo's per-step automation meter turns "free" into a compounding bill, and Notion's flat rate keeps winning on predictability.**
 
-Rovo is bundled into paid Atlassian plans but capped by thin monthly credits (just 25/user on Standard, where a single Rovo Chat costs 10 credits), and Atlassian has explicitly reserved the right to start billing overages after a 90-day notice. Notion bundles its core AI (Agent, Meeting Notes, Enterprise Search) into Business at \$20/seat with no per-interaction meter.
+Atlassian caps Rovo chat at 25 credits per user on Standard with overage billing looming, and as of September 1, 2026 it meters every Jira and Confluence automation step, ending Enterprise's unlimited automation with overage billing starting December 3, 2026. Notion bundles Agent, Meeting Notes and Enterprise Search into Business at a flat \$20 per seat with no per-interaction meter.
 
-**So what:** For finance-led evaluations, show the AI cost today and the projected cost twelve months out. Custom Agents are already transparently metered at \$10 per 1,000 credits, and Workers joins that same metering on October 15, 2026, keeping the cost roadmap predictable and capped. ([notion.com](https://www.notion.com/help/understand-pricing-for-workers))
+**Soundbite:** "Atlassian now meters your automations by the step and your AI chats by the credit. Notion's core AI stays flat at \$20 a seat no matter how much your team uses it."
+
+**So what:** For finance-led evaluations, show the AI and automation cost today versus the projected cost after December 3, 2026, when Atlassian's new automation overages and Rovo credit overages both kick in. Notion's Custom Agents stay transparently metered at \$10 per 1,000 credits, and Workers joins that metering October 15, 2026, keeping the full cost roadmap predictable and capped. ([atlassian.com](https://www.atlassian.com/blog/company-news/expanded-usage-based-pricing))
 
 **Atlassian's default-on AI training policy is now live and enforceable, sharpening Notion's clean wedge against Confluence.**
 
@@ -100,9 +102,9 @@ Notion's May 13 developer platform and Atlassian's May 6 Teamwork Graph opening 
 
 **AI pricing is a wash on the surface (both meter agents), so win it on transparency, not on "free."**
 
-Notion's Custom Agents use credits (\$10/1,000) and Atlassian's Rovo uses a credit pool with overage billing coming. Don't claim Notion AI is free; claim it's predictable, because core Notion AI is unmetered while Rovo's thin Standard allowance runs out in two or three chats.
+Notion's Custom Agents use credits (\$10 per 1,000) and Atlassian's Rovo uses a credit pool with overage billing coming. Atlassian now also meters Jira and Confluence automation by individual step, and Enterprise's previously unlimited automation allowance is capped, with overage billing starting December 3, 2026. Don't claim Notion AI is free, claim it's predictable: core Notion AI is unmetered while Rovo's thin Standard allowance runs out in two or three chats and Atlassian's new automation meter adds a second running bill.
 
-"Both of us charge for heavy agent automation. The difference: your everyday AI runs out fast on Rovo Standard and stays unlimited on Notion." ([support.atlassian.com](https://support.atlassian.com/rovo/docs/rovo-usage-limits/))
+"Both of us charge for heavy agent automation. The difference: your everyday AI runs out fast on Rovo Standard and stays unlimited on Notion, and now your automations run on a second Atlassian meter too." ([atlassian.com](https://www.atlassian.com/blog/company-news/expanded-usage-based-pricing))
 
 ### Where Atlassian wins
 
@@ -139,9 +141,9 @@ True, and worth answering plainly: a researcher disclosed an indirect-prompt-inj
 
 **"Notion's Custom Agents used to be free and now you charge credits. What stops costs from spiking?"**
 
-Fair, and be upfront: as of May 4, 2026, Custom Agents bill at \$10 per 1,000 credits, pooled per workspace with a usage dashboard and admin caps, and agents pause rather than overrun your budget. Workers, the automation feature behind Custom Agent tool calls, stays free through its beta and moves to that same \$10 per 1,000 credit pricing on October 15, 2026. Everyday Notion AI (Agent, Meeting Notes, Enterprise Search) stays unmetered on Business throughout.
+Fair, and be upfront: since May 4, 2026, Custom Agents bill at \$10 per 1,000 credits, pooled per workspace with a usage dashboard and admin caps, and agents pause rather than overrun your budget. Workers joins that same pricing October 15, 2026, after its free beta. Everyday Notion AI (Agent, Meeting Notes, Enterprise Search) stays unmetered on Business. Atlassian's metering runs deeper: Rovo already caps chat and agent credits with overage billing coming, and since September 1, 2026 it meters every Jira and Confluence automation step, with Enterprise's unlimited automation ending and overage billing starting December 3, 2026.
 
-**So what:** Position it as controllable and visible, then note Atlassian's Rovo also meters chat/agent credits and has overage billing on the way. Neither vendor gives unlimited autonomous automation for free. ([notion.com](https://www.notion.com/help/understand-pricing-for-workers))
+**So what:** Position it as controllable and visible, then note Atlassian now meters both AI chat credits and automation steps, with two separate overage bills coming. Neither vendor gives unlimited autonomous automation for free, but only one just added a second meter. ([atlassian.com](https://www.atlassian.com/blog/company-news/expanded-usage-based-pricing))
 
 **"Notion isn't really built for developers."**
 

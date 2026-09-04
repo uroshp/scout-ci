@@ -211,17 +211,17 @@
   },
   {
     "subject_key": "agentforce | pricing-model | current",
-    "claim": "Agentforce pricing now spans two models: the core platform still runs on consumption based Flex Credits at $0.10 per action, opaque to many buyers and dependent on separately licensed Data Cloud for full functionality, while the new Help Agent charges $2 per autonomously resolved issue, pre purchased in packets of at least 1,000, a genuine outcome based option that sits four times above HubSpot's $0.50 per resolved conversation.",
+    "claim": "Agentforce pricing now spans three models. The core platform still runs on consumption based Flex Credits at $0.10 per action, opaque to many buyers and dependent on separately licensed Data Cloud for full functionality. Help Agent charges $2 per autonomously resolved issue, pre purchased in packets of at least 1,000, four times HubSpot's $0.50 per resolved conversation. As of September 3, three new bundled editions, Core at $195, Advanced at $395 and Max at $550 per user per month, package Agentforce AI, Slack and Slackbot, Tableau Next analytics, enterprise data security and a Premier Success Plan into one purchase with 500,000 to 2.75 million Flex Credits included, and existing Agentforce 1 Edition customers can upgrade to Max free with up to $500 in added value.",
     "claim_type": "interpretation",
     "section": "pricing",
     "zone": null,
     "order": 1,
-    "as_of": "2026-06-25",
+    "as_of": "2026-09-03",
     "confidence": "medium",
     "id": "c_e0963f716cfb",
     "verified": true,
-    "derived_from": "c_705648ed06e4",
-    "updated_on": "2026-07-02"
+    "derived_from": "c_f452744aa582",
+    "updated_on": "2026-09-04"
   },
   {
     "subject_key": "hubspot-breeze | credit-expiry | current",
@@ -467,18 +467,18 @@
   },
   {
     "subject_key": "salesforce | pricing-fatigue | einstein-transition",
-    "claim": "**\"My team feels nickel-and-dimed. Every Agentforce upgrade seems to cost more.\"**\n\nThis is real and reps should not dismiss it: in the Einstein-to-Agentforce transition customers found \"they're being pushed to upgrade at additional cost to get back functionality they had before.\" Meet it with a transparent, capped cost model and a Flex-Credits walkthrough so there are no surprises, and contrast with HubSpot, whose credits expire monthly and can auto-upgrade your tier. For buyers who want zero exposure, point to Agentforce Help Agent: it charges $2 only when it resolves an issue autonomously start to finish, nothing if the customer asks for a human or walks away unhappy, proven on the 4.3 million inquiries Salesforce handles on its own help site at a 70 percent resolution rate.\n\n**So what:** Bring both options into the room: the capped Flex-Credits model for existing deployments, and Help Agent's pay-per-resolution pricing for buyers who want to pay only on success.",
+    "claim": "**\"My team feels nickel-and-dimed. Every Agentforce upgrade seems to cost more.\"**\n\nThis is real: in the Einstein-to-Agentforce transition customers said they were \"pushed to upgrade at additional cost to get back functionality they had before.\" Counter it three ways. The capped Flex-Credits model gives a transparent walkthrough with no surprises, unlike HubSpot's credits, which expire monthly and can auto-upgrade your tier. Help Agent charges $2 only when it resolves an issue start to finish, nothing otherwise, proven on 4.3 million help-site inquiries resolved at a 70 percent rate. As of September 3, the new Core, Advanced and Max editions bundle Agentforce AI, Slack, Tableau Next analytics and premier support into one price from $195 to $550 per seat, and existing Agentforce 1 customers upgrade to Max free with up to $500 in added value.\n\n**So what:** Bring all three into the room: capped Flex-Credits for existing deployments, Help Agent for pay-only-on-success buyers and the new bundled editions for one predictable price with no upgrade surprises.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 3,
-    "as_of": "2026-06-25",
+    "as_of": "2026-09-03",
     "confidence": "high",
     "id": "c_f7e3e26fd607",
     "verified": true,
     "persona": "economic_buyer",
-    "derived_from": "c_705648ed06e4",
-    "updated_on": "2026-07-02"
+    "derived_from": "c_f452744aa582",
+    "updated_on": "2026-09-04"
   },
   {
     "subject_key": "salesforce | layoffs | agentforce-june-2026-round-2",
@@ -806,5 +806,50 @@
     "confidence": "medium",
     "derived_from": "c_03a5a0bcded8",
     "persona": "technical_evaluator"
+  },
+  {
+    "subject_key": "agentforce | editions-pricing | core-advanced-max",
+    "claim": "Salesforce announced on September 3, 2026 three new Agentforce editions, Core, Advanced and Max, spanning Agentforce Sales, Agentforce Service and Agentforce Industries. Every tier now bundles Agentforce AI, Slack and Slackbot, embedded agentic analytics powered by Tableau Next, enterprise-grade data security and a Premier Success Plan into a single purchase. Core costs $195 per user per month with 500,000 Flex Credits, Advanced costs $395 per user per month with 1 million Flex Credits and Max costs $550 per user per month with 2.75 million Flex Credits, the same price as the prior Agentforce 1 Edition. Salesforce says Max delivers 60% more value than Agentforce 1 Edition at no additional cost, and existing Agentforce 1 Edition customers can upgrade to Max free with up to $500 in added value. Pricing for Agentforce Industry Editions takes effect later this fall, and pricing for existing customers on legacy editions stays unchanged.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 32,
+    "source_url": "https://www.salesforce.com/news/stories/salesforce-simplifies-editions-2026/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Core Editions: $195 per user/month (offering 70% more value than legacy Enterprise Edition)",
+    "as_of": "2026-09-03",
+    "confidence": "high",
+    "id": "c_f452744aa582",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-04",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.salesforceben.com/salesforce-announces-3-replacement-editions-bundling-ai-slack-and-security/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_e0955acd31f5",
+    "subject_key": "salesforce | exec-summary | bundled-editions",
+    "claim": "**Salesforce now answers HubSpot's bundling pitch with one price.**\n\nThe new Core, Advanced and Max editions bundle Agentforce AI, Slack, Tableau Next analytics, enterprise data security and a Premier Success Plan into a single per-seat purchase, from $195 to $550 per user per month.\n\n**Soundbite:** \"One price gets you Agentforce, Slack, Tableau Next analytics and premier support, starting at $195 a seat a month, with no separate line items to negotiate.\"\n\n**So what:** Lead with the bundled edition price against any HubSpot all-in-one pitch, and remind existing Agentforce 1 Edition customers they can upgrade to Max free with up to $500 in added value.",
+    "claim_type": "interpretation",
+    "section": "executive_summary",
+    "zone": null,
+    "order": 5,
+    "as_of": "2026-09-03",
+    "updated_on": "2026-09-04",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_f452744aa582",
+    "persona": "economic_buyer"
   }
 ]
