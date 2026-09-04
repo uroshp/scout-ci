@@ -30,19 +30,13 @@ JetBrains' January 2026 survey of 10,000+ professional developers put Claude Cod
 
 **So what:** When a deal stalls on "OpenAI is bigger," pivot to the people who'll use it daily: the developers your champion manages already rate Claude Code highest. ([blog.jetbrains.com](https://blog.jetbrains.com/research/2026/04/which-ai-coding-tools-do-developers-actually-use-at-work/))
 
-**Benchmarks are a split decision, so fight on the harder one.**
-
-OpenAI's GPT-5.5 narrowly leads the now-saturated SWE-bench Verified (88.7% vs Claude Opus 4.7's 87.6%, both vendor-self-reported), but Claude Opus 4.7 leads the harder, contamination-resistant SWE-bench Pro at 64.3% versus GPT-5.4's 59.1%. OpenAI wins the saturated leaderboard by a point. Claude wins the harder, real-task benchmark by five.
-
-**So what:** When a prospect cites GPT-5.5's leaderboard win, move the conversation to SWE-bench Pro and real-world agentic tasks, where Claude's edge actually shows. ([marc0.dev](https://www.marc0.dev/en/leaderboard))
-
 ## Snapshot
 
 - Anthropic raised a \$65B Series H at a \$965B post-money valuation (announced May 28, 2026), surpassing OpenAI's \$852B. Both are private, company-stated valuations, not audited figures. ([cnbc.com](https://www.cnbc.com/2026/05/28/anthropic-open-ai-startup-value.html))
 - Anthropic's run-rate revenue crossed \$47B in May 2026 (company-stated, unaudited), up from a \$30B run-rate earlier in the year and ~\$10B annualized in 2025. Anthropic attributes the growth primarily to Claude Code and enterprise coding. ([anthropic.com](https://www.anthropic.com/news/series-h))
 - OpenAI reported \$2B/month in revenue as of March 31, 2026 (~\$24B annualized, company-stated) on \$13.1B of 2025 revenue, and remains unprofitable. Its disclosed run-rate trails Anthropic's \$47B figure, though the two disclosures are ~2 months apart. ([cnbc.com](https://www.cnbc.com/2026/03/31/openai-funding-round-ipo.html))
 - Anthropic's current flagship for cost-sensitive deployment is Claude Opus 5 (released July 24, 2026), the default model on Claude Max and Claude Pro at \$5 per million input tokens and \$25 per million output tokens. Claude Fable 5.1 and Claude Mythos 5.1, released September 1, 2026, are now Anthropic's most advanced models for coding and knowledge work, ahead of Opus 5 on Anthropic's own benchmarks. Fable 5.1 is generally available on the Claude API, AWS, Google Cloud and Microsoft Azure at the same \$10 input and \$50 output per million token rate as Fable 5, with cache-read pricing cut 75% to \$0.25 per million tokens. Mythos 5.1 is available only through Anthropic's vetted trusted-access programs, currently limited to US organizations. Claude Code is Anthropic's GA developer product. ([anthropic.com](https://www.anthropic.com/claude-fable-and-mythos-5-1))
-- OpenAI's current flagship is GPT-5.5 (released April 23, 2026), with a dedicated coding model gpt-5.3-codex (the LTS base model for all GitHub Copilot Business/Enterprise orgs as of May 17, 2026). Codex is OpenAI's developer product. ([github.blog](https://github.blog/changelog/2026-05-17-gpt-5-3-codex-is-now-the-base-model-for-copilot-business-and-enterprise/))
+- OpenAI's current flagship is GPT-6 Astra, released September 3, 2026 to a limited set of organizations, with general availability coming in the following days across ChatGPT Plus/Pro/Business/Enterprise, the OpenAI API, Microsoft Azure and AWS Bedrock. OpenAI states it is state-of-the-art on computer use, browsing, software engineering, cybersecurity and science, claims a win over Claude Opus 5 and Fable 5 on computer use at lower cost, and says it is the first OpenAI model to reach the 'Critical' cybersecurity threshold in its Preparedness Framework; all of those figures are OpenAI-stated. The dedicated coding model gpt-5.3-codex remains the LTS base model for all GitHub Copilot Business/Enterprise orgs. ([9to5google.com](https://9to5google.com/2026/09/03/openai-gpt-6-astra-launch/))
 - OpenAI reported Codex passed 5 million weekly active users on June 2, 2026 (up ~6x since its February desktop launch), with non-developers now ~20% of users. OpenAI pushes that scale-and-breadth argument hard in enterprise deals. ([constellationr.com](https://www.constellationr.com/insights/news/openai-touts-broadening-codex-usage-5-million-weekly-active-users))
 - Anthropic confidentially filed a draft S-1 for an IPO on June 1, 2026, beating OpenAI to the filing. OpenAI confidentially filed its own draft prospectus around May 22, 2026, targeting a fall-2026 debut. Both are racing to public markets. ([techcrunch.com](https://techcrunch.com/2026/06/01/anthropic-files-to-go-public/))
 
@@ -151,12 +145,6 @@ Fable 5.1, released September 1, 2026, tops Anthropic's own benchmarks over Opus
 
 ### Where it's a fight
 
-**The headline leaderboard currently reads in OpenAI's favor.**
-
-GPT-5.5 leads SWE-bench Verified at 88.7% to Claude Opus 4.7's 87.6%, a 1.1-point, vendor-self-reported gap that OpenAI reps will quote. It's close enough that it tips on the buyer's own eval, not the leaderboard, so the move is to get them off the public number and onto their codebase.
-
-**Soundbite:** *"It's 88.7 to 87.6, both self-reported. That's a rounding error. The score that counts is how it does on your repo, so let's put both on your hardest open tickets."* ([marc0.dev](https://www.marc0.dev/en/leaderboard))
-
 **On token price, the picture stays mixed, but capability per dollar has moved our way.**
 
 OpenAI's mid-tier beats Claude's flagship on raw per-token price: GPT-5.4 at \$2.50/\$15.00 per million versus Claude Opus 5 at \$5.00/\$25.00, and pricing trackers put OpenAI cheaper across most comparable tiers in 2026. Claude Sonnet 5 lists at a permanent \$2/\$10, undercutting GPT-5.4 on both input and output after Anthropic canceled a planned increase to \$3/\$15. At that same \$5/\$25, Opus 5 now scores 43.3% on Frontier-Bench v0.1, up from Opus 4.8's 18.7% and ahead of Fable 5 at 33.7%, per Anthropic's reporting. Caching narrows the gap on both sides.
@@ -262,6 +250,12 @@ This is commodity endpoint malware, not a Claude flaw. Vidar, LummaC2, StealC, R
 That retention policy is gone for enterprise. On September 1, 2026 Anthropic replaced the 30-day mandatory retention on Fable 5 and Mythos 5 with Enterprise Frontier Safeguards: zero data retention, with monitoring data stored in the customer's own S3, Azure Blob or Google Cloud Storage bucket under the customer's own encryption keys. Misuse flags route straight to the customer's security team, with no Anthropic employee reviewing the data. It's free. Rollout is phased, with broader availability this fall; in the interim, eligible customers get zero data retention on Fable 5 and Fable 5.1.
 
 **So what:** Tell security and compliance buyers to enroll in EFS now: their activity data stays in a bucket and under keys they control, not Anthropic's, and it costs nothing. ([anthropic.com](https://www.anthropic.com/news/enterprise-frontier-safeguards))
+
+**"OpenAI just posted benchmarks showing Astra beats Claude on computer use, and cheaper too. Doesn't that put us behind?"**
+
+Every figure in that comparison, FrontierMath Tier 4, ARC-AGI-3, ExploitBench and the computer-use win over Opus 5, is a number OpenAI reported about its own model, released September 3, 2026 to a limited set of organizations ahead of wider rollout. On SWE-bench Pro, built from harder, non-public tasks so vendors cannot game it, Claude Opus 4.7 leads at 64.3% against GPT-5.4's 59.1%. Claude Code also runs entirely inside a customer's own infrastructure today, through self-hosted runner, a deployment option a security team can use right now.
+
+**So what:** Point the buyer to Claude's SWE-bench Pro lead, the harder benchmark OpenAI's own release doesn't touch, and offer to stand up self-hosted Claude Code today rather than wait on unverified numbers for a model still rolling out. ([9to5google.com](https://9to5google.com/2026/09/03/openai-gpt-6-astra-launch/))
 
 ## Cut Log
 

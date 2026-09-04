@@ -83,7 +83,11 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "status": "retired",
+    "retired_on": "2026-09-04",
+    "retired_reason": "superseded: still cites GPT-5.5, replaced per the linked update (c_95433de0d222)",
+    "derived_from": "c_95433de0d222"
   },
   {
     "subject_key": "anthropic | valuation | current",
@@ -167,25 +171,17 @@
   },
   {
     "subject_key": "openai | flagship-model | current",
-    "claim": "OpenAI's current flagship is GPT-5.5 (released April 23, 2026), with a dedicated coding model gpt-5.3-codex (the LTS base model for all GitHub Copilot Business/Enterprise orgs as of May 17, 2026). Codex is OpenAI's developer product.",
-    "claim_type": "fact",
+    "claim": "OpenAI's current flagship is GPT-6 Astra, released September 3, 2026 to a limited set of organizations, with general availability coming in the following days across ChatGPT Plus/Pro/Business/Enterprise, the OpenAI API, Microsoft Azure and AWS Bedrock. OpenAI states it is state-of-the-art on computer use, browsing, software engineering, cybersecurity and science, claims a win over Claude Opus 5 and Fable 5 on computer use at lower cost, and says it is the first OpenAI model to reach the 'Critical' cybersecurity threshold in its Preparedness Framework; all of those figures are OpenAI-stated. The dedicated coding model gpt-5.3-codex remains the LTS base model for all GitHub Copilot Business/Enterprise orgs.",
+    "claim_type": "interpretation",
     "section": "snapshot",
     "zone": null,
     "order": 4,
-    "source_url": "https://github.blog/changelog/2026-05-17-gpt-5-3-codex-is-now-the-base-model-for-copilot-business-and-enterprise/",
-    "source_tier": "primary",
-    "evidence_excerpt": "GPT-5.3-Codex is now the base model for all Copilot Business and Copilot Enterprise organizations, replacing GPT-4.1",
-    "as_of": "2026-05-17",
+    "as_of": "2026-09-03",
     "confidence": "high",
     "id": "c_26a09d4c1fe9",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-04",
-      "detail": null
-    }
+    "derived_from": "c_95433de0d222",
+    "updated_on": "2026-09-04"
   },
   {
     "subject_key": "openai-codex | weekly-active-users | current",
@@ -642,7 +638,11 @@
       "fetched_at": "2026-06-04",
       "detail": null
     },
-    "persona": "technical_evaluator"
+    "persona": "technical_evaluator",
+    "status": "retired",
+    "retired_on": "2026-09-04",
+    "retired_reason": "superseded: still cites GPT-5.5, replaced per the linked update (c_95433de0d222)",
+    "derived_from": "c_95433de0d222"
   },
   {
     "subject_key": "battlecard | codex-scale-distribution | where_they_win",
@@ -2317,5 +2317,20 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "id": "c_e02f3441c5ce",
+    "subject_key": "objection | gpt6-astra-beats-claude-cheaper | current",
+    "claim": "**\"OpenAI just posted benchmarks showing Astra beats Claude on computer use, and cheaper too. Doesn't that put us behind?\"**\n\nEvery figure in that comparison, FrontierMath Tier 4, ARC-AGI-3, ExploitBench and the computer-use win over Opus 5, is a number OpenAI reported about its own model, released September 3, 2026 to a limited set of organizations ahead of wider rollout. On SWE-bench Pro, built from harder, non-public tasks so vendors cannot game it, Claude Opus 4.7 leads at 64.3% against GPT-5.4's 59.1%. Claude Code also runs entirely inside a customer's own infrastructure today, through self-hosted runner, a deployment option a security team can use right now.\n\n**So what:** Point the buyer to Claude's SWE-bench Pro lead, the harder benchmark OpenAI's own release doesn't touch, and offer to stand up self-hosted Claude Code today rather than wait on unverified numbers for a model still rolling out.",
+    "claim_type": "interpretation",
+    "section": "objection_handling",
+    "zone": null,
+    "order": 12,
+    "as_of": "2026-09-03",
+    "updated_on": "2026-09-04",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_95433de0d222",
+    "persona": "technical_evaluator"
   }
 ]

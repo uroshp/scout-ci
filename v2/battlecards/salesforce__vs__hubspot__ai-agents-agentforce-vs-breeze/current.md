@@ -36,6 +36,14 @@ The August 26 Claudeforce partnership makes Claude the default model behind the 
 
 **So what:** Open technical evaluations with the model story: Agentforce and Slack both default to Claude, and HubSpot has no comparable frontier-model partnership to counter with. ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/08/26/salesforce-and-anthropic-announce-claudeforce/))
 
+**Salesforce now answers HubSpot's bundling pitch with one price.**
+
+The new Core, Advanced and Max editions bundle Agentforce AI, Slack, Tableau Next analytics, enterprise data security and a Premier Success Plan into a single per-seat purchase, from \$195 to \$550 per user per month.
+
+**Soundbite:** "One price gets you Agentforce, Slack, Tableau Next analytics and premier support, starting at \$195 a seat a month, with no separate line items to negotiate."
+
+**So what:** Lead with the bundled edition price against any HubSpot all-in-one pitch, and remind existing Agentforce 1 Edition customers they can upgrade to Max free with up to \$500 in added value. ([salesforce.com](https://www.salesforce.com/news/stories/salesforce-simplifies-editions-2026/))
+
 ## Snapshot
 
 - Agentforce ARR reached \$1.2 billion in Q1 FY2027 (quarter ended April 30, 2026), up 205% year over year, crossing \$1 billion for the first time. This is Salesforce-stated annual recurring revenue, not audited GAAP revenue, and represents under 3% of Salesforce's \$41.5B FY2026 revenue base. ([cnbc.com](https://www.cnbc.com/2026/05/27/salesforce-crm-q1-earnings-report-2027.html))
@@ -58,7 +66,7 @@ The August 26 Claudeforce partnership makes Claude the default model behind the 
 ## Pricing and Packaging
 
 - HubSpot Breeze's current model is outcome-based: \$0.50 per resolved conversation for Customer Agent (down from \$1.00 per conversation regardless of outcome) and \$1 per qualified lead for Prospecting Agent, both with a 28-day free trial, but requiring a Pro or Enterprise subscription to access. It is intuitive and de-risked, which is exactly its competitive pull in mid-market. ([martech.org](https://martech.org/hubspot-moves-to-outcome-based-pricing-for-some-breeze-ai-agents/))
-- Agentforce pricing now spans two models: the core platform still runs on consumption based Flex Credits at \$0.10 per action, opaque to many buyers and dependent on separately licensed Data Cloud for full functionality, while the new Help Agent charges \$2 per autonomously resolved issue, pre purchased in packets of at least 1,000, a genuine outcome based option that sits four times above HubSpot's \$0.50 per resolved conversation. ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-help-agent-announcement/))
+- Agentforce pricing now spans three models. The core platform still runs on consumption based Flex Credits at \$0.10 per action, opaque to many buyers and dependent on separately licensed Data Cloud for full functionality. Help Agent charges \$2 per autonomously resolved issue, pre purchased in packets of at least 1,000, four times HubSpot's \$0.50 per resolved conversation. As of September 3, three new bundled editions, Core at \$195, Advanced at \$395 and Max at \$550 per user per month, package Agentforce AI, Slack and Slackbot, Tableau Next analytics, enterprise data security and a Premier Success Plan into one purchase with 500,000 to 2.75 million Flex Credits included, and existing Agentforce 1 Edition customers can upgrade to Max free with up to \$500 in added value. ([salesforce.com](https://www.salesforce.com/news/stories/salesforce-simplifies-editions-2026/))
 - HubSpot's model has its own trap a Salesforce rep can raise: "Unused credits expire at the end of each usage period and do not roll over to the next month," and exceeding a credit allowance can auto-upgrade the account to a higher tier for the remainder of the contract. For uneven usage, the "simple" model can cost more than expected. ([knowledge.hubspot.com](https://knowledge.hubspot.com/account-management/understand-hubspot-credits-and-billing))
 
 ## Competitive Battlecard
@@ -153,9 +161,9 @@ It's a fair point, and Salesforce said it openly: on the Help-site launch "we ac
 
 **"My team feels nickel-and-dimed. Every Agentforce upgrade seems to cost more."**
 
-This is real and reps should not dismiss it: in the Einstein-to-Agentforce transition customers found "they're being pushed to upgrade at additional cost to get back functionality they had before." Meet it with a transparent, capped cost model and a Flex-Credits walkthrough so there are no surprises, and contrast with HubSpot, whose credits expire monthly and can auto-upgrade your tier. For buyers who want zero exposure, point to Agentforce Help Agent: it charges \$2 only when it resolves an issue autonomously start to finish, nothing if the customer asks for a human or walks away unhappy, proven on the 4.3 million inquiries Salesforce handles on its own help site at a 70 percent resolution rate.
+This is real: in the Einstein-to-Agentforce transition customers said they were "pushed to upgrade at additional cost to get back functionality they had before." Counter it three ways. The capped Flex-Credits model gives a transparent walkthrough with no surprises, unlike HubSpot's credits, which expire monthly and can auto-upgrade your tier. Help Agent charges \$2 only when it resolves an issue start to finish, nothing otherwise, proven on 4.3 million help-site inquiries resolved at a 70 percent rate. As of September 3, the new Core, Advanced and Max editions bundle Agentforce AI, Slack, Tableau Next analytics and premier support into one price from \$195 to \$550 per seat, and existing Agentforce 1 customers upgrade to Max free with up to \$500 in added value.
 
-**So what:** Bring both options into the room: the capped Flex-Credits model for existing deployments, and Help Agent's pay-per-resolution pricing for buyers who want to pay only on success. ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-help-agent-announcement/))
+**So what:** Bring all three into the room: capped Flex-Credits for existing deployments, Help Agent for pay-only-on-success buyers and the new bundled editions for one predictable price with no upgrade surprises. ([salesforce.com](https://www.salesforce.com/news/stories/salesforce-simplifies-editions-2026/))
 
 **"HubSpot's new Agent Builder lets us build custom agents ourselves now. Why do we need Agentforce?"**
 
