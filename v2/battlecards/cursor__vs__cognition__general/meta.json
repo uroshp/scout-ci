@@ -4,7 +4,7 @@
   "competitor": "Cognition",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-09-04T11:13:20",
+  "last_checked": "2026-09-05T11:17:09",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_b969e4b96a7c",
@@ -13,16 +13,12 @@
     "f_fd3e28bb761c",
     "f_f35e710f1a93",
     "f_f93a3226e4d5",
-    "f_de7a520fac71"
+    "f_de7a520fac71",
+    "f_77c0b99af140"
   ],
   "monitored": true,
   "lead_election": {
     "last_promoted_on": "2026-08-12",
     "lead_subject_key": "cursor | adverse-objections-readiness | current"
-  },
-  "unresolved_subjects": [
-    "cognition | valuation"
-  ],
-  "unresolved_since": "2026-09-01",
-  "unresolved_attempts": 2
+  }
 }

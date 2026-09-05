@@ -1030,5 +1030,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "salesforce-slack | product-bundling",
+    "claim": "On September 3, 2026 Salesforce replaced its legacy editions with three new tiers (Core at $195, Advanced at $395 and Max at $550 per user per month) that bundle Slack and Slackbot into every Agentforce Sales, Service and Industries edition, alongside Tableau Next analytics, data security and the Premier Success Plan. Slack is now a standard component of the Salesforce CRM purchase rather than a separate buy, with existing Agentforce 1 customers able to move to Max at no extra cost.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 20,
+    "source_url": "https://www.salesforce.com/news/stories/salesforce-simplifies-editions-2026/",
+    "source_tier": "primary",
+    "evidence_excerpt": "They also include Slack, bringing humans and agents into one conversational interface to drive work forward.",
+    "as_of": "2026-09-03",
+    "confidence": "high",
+    "id": "c_1bb7460b6f8b",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-05",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://futurumgroup.com/insights/salesforce-bundles-ai-slack-and-tableau-into-three-new-edition-tiers/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
