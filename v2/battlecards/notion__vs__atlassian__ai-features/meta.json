@@ -4,7 +4,7 @@
   "competitor": "Atlassian",
   "focus": "AI features",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-09-04T11:35:11",
+  "last_checked": "2026-09-05T11:28:29",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_af44b318b691",
@@ -17,11 +17,6 @@
     "f_852b7ea9dcb0"
   ],
   "monitored": true,
-  "unresolved_subjects": [
-    "NEW"
-  ],
-  "unresolved_since": "2026-09-01",
-  "unresolved_attempts": 2,
   "lead_election": {
     "last_promoted_on": "2026-09-04",
     "lead_subject_key": "notion-vs-atlassian | ai-pricing-verdict | current"

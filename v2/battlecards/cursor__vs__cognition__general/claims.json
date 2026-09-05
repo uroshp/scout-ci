@@ -1229,28 +1229,28 @@
   },
   {
     "subject_key": "cognition | valuation",
-    "claim": "Cognition is in early talks for a new funding round that could value it at $40 billion or more, up more than 50% from the $26B Series D it closed in May 2026, per Bloomberg. A raise at that level would put Cognition above the $29.3B private valuation Cursor held before the SpaceX deal. The talks are early, and the company may not raise or may seek different terms.",
+    "claim": "Cognition is set to close a new funding round at about a $47 billion valuation, raising around $1 billion, per Bloomberg (Sept 2, 2026). That is up 81% from the $26 billion it reached in May, four months earlier, and investor interest hit nearly $10 billion, so the final raise may run larger. Its annualized revenue is now above $900 million, roughly double the $492 million it reported in late May. The round is not yet finalized and terms may still change.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 3,
-    "source_url": "https://finance.yahoo.com/technology/ai/articles/ai-startup-cognition-funding-talks-035336592.html",
+    "order": 2,
+    "source_url": "https://www.bloomberg.com/news/articles/2026-09-02/ai-startup-cognition-set-to-raise-around-1-billion-at-a-47-billion-value",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Cognition AI Inc. is in early talks with investors for a new funding round that may boost the coding startup's valuation by more than 50% to at least $40 billion",
-    "as_of": "2026-08-12",
-    "confidence": "medium",
+    "evidence_excerpt": "set to close a new round of funding that would vault its valuation to about $47 billion",
+    "as_of": "2026-09-02",
+    "confidence": "high",
     "id": "c_8c0eaaac85f3",
     "verified": true,
     "grounding": {
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-08-15",
+      "fetched_at": "2026-09-05",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://techcrunch.com/2026/08/12/ai-coding-startup-cognition-reportedly-already-in-talks-to-raise-at-40b-valuation/",
+        "source_url": "https://ca.finance.yahoo.com/news/ai-startup-cognition-set-raise-002937258.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false

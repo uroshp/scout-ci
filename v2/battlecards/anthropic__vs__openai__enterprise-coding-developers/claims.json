@@ -65,29 +65,39 @@
   },
   {
     "subject_key": "claude-vs-gpt | coding-benchmark | current",
-    "claim": "**Benchmarks are a split decision, so fight on the harder one.**\n\nOpenAI's GPT-5.5 narrowly leads the now-saturated SWE-bench Verified (88.7% vs Claude Opus 4.7's 87.6%, both vendor-self-reported), but Claude Opus 4.7 leads the harder, contamination-resistant SWE-bench Pro at 64.3% versus GPT-5.4's 59.1%. OpenAI wins the saturated leaderboard by a point. Claude wins the harder, real-task benchmark by five.\n\n**So what:** When a prospect cites GPT-5.5's leaderboard win, move the conversation to SWE-bench Pro and real-world agentic tasks, where Claude's edge actually shows.",
+    "claim": "With OpenAI's new flagship live, the coding and agentic benchmark picture splits. GPT-6 Astra leads computer use on OSWorld 2.0 at 72.6% to Claude Opus 5's 70.2%, and edges Terminal-Bench 4.0 at 57.7% to Fable 5.1's 55.8%. Claude leads reasoning: on Humanity's Last Exam with tools Fable 5.1 scores 65.0% to Astra's 57.2%, and on the independent Artificial Analysis Intelligence Index Fable 5.1 sits about 5 points ahead at 66 to Astra's 61.",
     "claim_type": "fact",
-    "section": "executive_summary",
+    "section": "positioning",
     "zone": null,
-    "order": 4,
-    "source_url": "https://www.marc0.dev/en/leaderboard",
+    "order": 1,
+    "source_url": "https://artificialanalysis.ai/articles/benchmarking-gpt-6-astra",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Claude Opus 4.7 leads at 64.3% (Anthropic-reported, April 2026 release). GPT-5.4 (xHigh) reaches 59.1%",
-    "as_of": "2026-05-31",
-    "confidence": "medium",
+    "evidence_excerpt": "GPT-6 Astra scores equal to GPT-5.6 Sol in the Index at 61. This is 5 points lower than Claude Fable 5.1 (max with fallback).",
+    "as_of": "2026-09-03",
+    "confidence": "high",
     "id": "c_65573cf583db",
     "verified": true,
     "grounding": {
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-04",
+      "fetched_at": "2026-09-05",
       "detail": null
     },
-    "status": "retired",
-    "retired_on": "2026-09-04",
-    "retired_reason": "superseded: still cites GPT-5.5, replaced per the linked update (c_95433de0d222)",
-    "derived_from": "c_95433de0d222"
+    "corroboration": [
+      {
+        "source_url": "https://officechai.com/ai/gpt-6-astra-benchmarks/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.vellum.ai/blog/gpt-6-astra-benchmarks-explained",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "anthropic | valuation | current",
@@ -2290,15 +2300,15 @@
   },
   {
     "subject_key": "openai | flagship-model",
-    "claim": "OpenAI released GPT-6 Astra on September 3, 2026 as its new flagship, at first to a limited set of organizations with general availability in the coming days across ChatGPT Plus/Pro/Business/Enterprise, the OpenAI API, Microsoft Azure and AWS Bedrock. OpenAI calls Astra state-of-the-art on computer use, browsing, software engineering, cybersecurity and science, reporting 98% on FrontierMath Tier 4, 99.9% on ARC-AGI-3 and 100% on ExploitBench, and says it beats Claude Opus 5 and Fable 5 on computer use at a lower cost. It is OpenAI's first model to reach the 'Critical' cybersecurity threshold in its Preparedness Framework. All benchmark figures are OpenAI-stated.",
+    "claim": "GPT-6 Astra reached general availability in GitHub Copilot on September 4, 2026, one day after its September 3 limited launch. It is selectable in the Copilot model picker for Pro+, Max, Business and Enterprise users across VS Code, JetBrains and the Copilot coding agent, the same channel where Claude Fable 5.1 went GA on September 1.",
     "claim_type": "fact",
-    "section": "recent_moves",
+    "section": "snapshot",
     "zone": null,
     "order": 1,
-    "source_url": "https://9to5google.com/2026/09/03/openai-gpt-6-astra-launch/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Astra is state-of-the-art on computer use, browsing, software engineering, cybersecurity, science, and professional work.",
-    "as_of": "2026-09-03",
+    "source_url": "https://github.blog/changelog/2026-09-04-gpt-6-astra-is-generally-available-in-github-copilot/",
+    "source_tier": "primary",
+    "evidence_excerpt": "GPT-6 Astra from OpenAI is now available in GitHub Copilot.",
+    "as_of": "2026-09-04",
     "confidence": "high",
     "id": "c_95433de0d222",
     "verified": true,
@@ -2306,17 +2316,9 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-09-04",
+      "fetched_at": "2026-09-05",
       "detail": null
-    },
-    "corroboration": [
-      {
-        "source_url": "https://thehackernews.com/2026/09/gpt-6-astra-scores-100-on-exploitbench.html",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false
-      }
-    ]
+    }
   },
   {
     "id": "c_e02f3441c5ce",
@@ -2332,5 +2334,35 @@
     "confidence": "medium",
     "derived_from": "c_95433de0d222",
     "persona": "technical_evaluator"
+  },
+  {
+    "subject_key": "openai | api-list-price",
+    "claim": "OpenAI set GPT-6 Astra's list price at $10 per million input tokens and $50 per million output tokens, double its prior GPT-5.5 flagship rate of $5/$30 and 2.5x its own GPT-5.6 Sol tier. That puts OpenAI's new flagship at the same token price as Claude Fable 5.1.",
+    "claim_type": "fact",
+    "section": "pricing",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://artificialanalysis.ai/articles/benchmarking-gpt-6-astra",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Pricing is 2.5x GPT-5.6 Sol’s current prices across the board, up from $4/$20 to $10/$50 per million input/output tokens",
+    "as_of": "2026-09-03",
+    "confidence": "high",
+    "id": "c_7894fe9bb1f4",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-05",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.vellum.ai/blog/gpt-6-astra-benchmarks-explained",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
