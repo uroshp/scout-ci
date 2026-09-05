@@ -82,7 +82,7 @@ JetBrains' January 2026 survey of 10,000+ professional developers put Claude Cod
 ## Pricing and Packaging
 
 - Claude API list pricing (per 1M tokens, as of September 2026): Opus 5 at \$5 input / \$25 output, replacing Opus 4.8 at the same price; Fable 5.1 at \$10 input / \$50 output, the same headline rate as Fable 5; Sonnet 5 at \$2 / \$10, now the permanent rate after Anthropic canceled the previously scheduled increase to \$3 / \$15; Sonnet 4.6 at \$3 / \$15; Haiku 4.5 at \$1 / \$5. Fable 5.1 also cut cache-read pricing 75% to \$0.25 per million tokens, lowering overall cost around 25% for typical workloads and up to around 45% for highly agentic workloads. Sonnet 5 remains the credible mid-tier for sustained agentic coding, with agentic performance Anthropic says is close to Opus 4.8. ([anthropic.com](https://www.anthropic.com/claude-fable-and-mythos-5-1))
-- OpenAI API list pricing (per 1M tokens, as of June 2026): GPT-5.5 at \$5 input / \$30 output; the dedicated gpt-5.3-codex at \$1.75 / \$14. On raw token price the Codex model undercuts Claude Opus, a real cost argument OpenAI will make on high-volume coding workloads. ([developers.openai.com](https://developers.openai.com/api/docs/pricing))
+- OpenAI's flagship price has jumped from GPT-5.5's \$5/\$30 per million tokens to GPT-6 Astra's \$10/\$50, exactly matching Claude Fable 5.1's rate. The dedicated gpt-5.3-codex tier still lists at \$1.75 input and \$14 output per million tokens, so it remains the one OpenAI price point that undercuts Claude Opus on high-volume coding workloads. ([artificialanalysis.ai](https://artificialanalysis.ai/articles/benchmarking-gpt-6-astra))
 - OpenAI set GPT-6 Astra's list price at \$10 per million input tokens and \$50 per million output tokens, double its prior GPT-5.5 flagship rate of \$5/\$30 and 2.5x its own GPT-5.6 Sol tier. That puts OpenAI's new flagship at the same token price as Claude Fable 5.1. ([artificialanalysis.ai](https://artificialanalysis.ai/articles/benchmarking-gpt-6-astra))
 - Developer subscription tiers are at parity: Claude Pro (\$20/mo, includes Claude Code) vs Codex Plus (\$20/mo); Claude Max 5x/20x at \$100/\$200 vs Codex Pro 5x/20x at \$100/\$200. Seat price is a wash; the fight is on quality, predictability, and usage limits. ([claude.com](https://claude.com/pricing))
 - Effective June 15, 2026, Anthropic moves programmatic usage (Agent SDK, `claude -p`, GitHub Actions) off subscription pools onto a separate per-user monthly credit pool (\$20 Pro / \$100 Max 5x / \$200 Max 20x) billed at API rates, no rollover; Standard Enterprise seats get no credit. It's the third billing change of the year and a live disruption for CI/CD-heavy teams. ([techtimes.com](http://www.techtimes.com/articles/317625/20260602/anthropic-ends-subscription-subsidy-agents-june-15-credit-pool-replaces-flat-rate-access.htm))
@@ -145,6 +145,12 @@ Fable 5.1, released September 1, 2026, tops Anthropic's own benchmarks over Opus
 
 **Soundbite:** Fable 5.1 is our strongest coding model yet, and for agentic workloads your bill actually drops, up to 45%, instead of the usual pay more for the better model. ([anthropic.com](https://www.anthropic.com/claude-fable-and-mythos-5-1))
 
+**On the independent benchmark buyers actually trust, Claude still leads.**
+
+GPT-6 Astra edges Claude on computer-use tasks: OSWorld 2.0 at 72.6% versus Opus 5's 70.2%, and Terminal-Bench 4.0 at 57.7% to Fable 5.1's 55.8%. But on reasoning, Fable 5.1 leads Humanity's Last Exam with tools 65.0% to Astra's 57.2%, and on the independent Artificial Analysis Intelligence Index, which OpenAI doesn't control, Fable 5.1 scores 66 to Astra's 61.
+
+**Soundbite:** "Astra wins a couple of narrow computer-use tests, but on the independent index that scores actual reasoning, Claude is still five points ahead." ([artificialanalysis.ai](https://artificialanalysis.ai/articles/benchmarking-gpt-6-astra))
+
 ### Where it's a fight
 
 **On token price, the picture stays mixed, but capability per dollar has moved our way.**
@@ -159,7 +165,9 @@ Beyond code, GPT-5.x bundles native image generation, voice I/O, web search, and
 
 **Soundbite:** *"Putting your coding and everything else on one vendor is lock-in, and lock-in costs you at renewal. Once they know you can't easily walk, your pricing leverage is gone and you're tied to their roadmap and their uptime. Running Claude alongside what you already have keeps a real second option live, which keeps OpenAI honest on price and gives you somewhere to go if their service or direction slips. You're not putting the whole company's AI on one provider."* ([intuitionlabs.ai](https://intuitionlabs.ai/articles/chatgpt-vs-claude-enterprise-comparison))
 
-**OpenAI cut its low-end tiers 80%, and its coding flagship still costs more than Claude's.** On July 30, 2026 OpenAI dropped GPT-5.6 Luna to \$0.20/\$1.20 per million tokens (down 80%) and Terra to \$2/\$12 (down 20%), moving them into the low-cost tier populated by Google and Chinese models. Luna and Terra are OpenAI's throughput models for summarization and routing. On the flagship tier where enterprise coding deals run, Claude Opus 5 at \$5/\$25 stays cheaper than GPT-5.6 Sol at \$5/\$30 on output tokens, at comparable performance. ([cnbc.com](https://www.cnbc.com/2026/07/30/open-ai-price-cut-gpt.html))
+**OpenAI's low-end tiers are still far cheaper, but the flagship price gap just closed.**
+
+OpenAI cut GPT-5.6 Luna 80% to \$0.20/\$1.20 per million tokens and Terra 20% to \$2/\$12 in July, keeping its throughput models priced into the low-cost tier alongside Google and Chinese models. But OpenAI's new flagship, GPT-6 Astra, lists at \$10 per million input tokens and \$50 output, double its predecessor's flagship rate and level with Claude Fable 5.1's price. On the tier where enterprise coding deals get decided, list price is now a wash between the two vendors. ([artificialanalysis.ai](https://artificialanalysis.ai/articles/benchmarking-gpt-6-astra))
 
 ### Where OpenAI wins
 

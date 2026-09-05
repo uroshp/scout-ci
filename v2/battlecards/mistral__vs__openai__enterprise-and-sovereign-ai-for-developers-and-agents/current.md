@@ -118,9 +118,9 @@ France's Ministry of Armed Forces deployed Mistral entirely on national infrastr
 
 **Open weights cut your real monthly bill, the part the sticker price hides.**
 
-Mistral lists Devstral 2 as up to 7x more cost-efficient than Claude on real tasks, and self-hosting the Apache 2.0 models drops per-token cost to your own compute. For high-volume agentic workloads, that gap compounds month over month.
+OpenAI's new flagship, GPT-6 Astra, now lists at \$10 per million input tokens and \$50 per million output, 2.5x what its predecessor GPT-5.6 Sol charged. Mistral Medium 3.5 runs \$1.50 input and \$7.50 output, and Devstral 2 is rated up to 7x more cost-efficient than Claude on real tasks. Self-host the Apache 2.0 models and per-token cost drops to your own compute entirely. For high-volume agentic workloads that gap compounds every month, and OpenAI's own price jump shows their sticker price can move against you at any time while Mistral's stays flat.
 
-**Soundbite:** You'll pay significantly more every month, while a few benchmark points barely change your deployment. And benchmarks reset with every new model release, while the cost keeps piling up. ([mistral.ai](https://mistral.ai/news/devstral-2-vibe-cli/))
+**Soundbite:** OpenAI's flagship just jumped to \$10 and \$50 per million tokens, 2.5x its old rate, while Mistral Medium 3.5 holds at \$1.50 and \$7.50, and our open-weight models cost nothing per token on hardware you already own. ([computingforgeeks.com](https://computingforgeeks.com/gpt-6-astra-released-features-benchmarks/))
 
 **Vibe still bundles work automation and coding under one license, and OpenAI's answer stays cloud only.**
 

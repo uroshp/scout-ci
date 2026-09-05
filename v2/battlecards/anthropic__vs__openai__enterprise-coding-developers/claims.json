@@ -1079,24 +1079,17 @@
   },
   {
     "subject_key": "openai | api-list-price | current",
-    "claim": "OpenAI API list pricing (per 1M tokens, as of June 2026): GPT-5.5 at $5 input / $30 output; the dedicated gpt-5.3-codex at $1.75 / $14. On raw token price the Codex model undercuts Claude Opus, a real cost argument OpenAI will make on high-volume coding workloads.",
-    "claim_type": "fact",
+    "claim": "OpenAI's flagship price has jumped from GPT-5.5's $5/$30 per million tokens to GPT-6 Astra's $10/$50, exactly matching Claude Fable 5.1's rate. The dedicated gpt-5.3-codex tier still lists at $1.75 input and $14 output per million tokens, so it remains the one OpenAI price point that undercuts Claude Opus on high-volume coding workloads.",
+    "claim_type": "interpretation",
     "section": "pricing",
     "zone": null,
     "order": 1,
-    "source_url": "https://developers.openai.com/api/docs/pricing",
-    "source_tier": "primary",
-    "evidence_excerpt": "Model Input Cached input Output ChatGPT chat-latest $5.00 $0.50 $30.00 Codex gpt-5.3-codex $1.75 $0.175 $14.00 Cyber gpt-5.4-cyber -",
-    "as_of": "2026-06-04",
+    "as_of": "2026-09-03",
     "confidence": "medium",
     "id": "c_3a6022395b0c",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "fuzzy",
-      "fetched_at": "2026-06-22"
-    }
+    "derived_from": "c_7894fe9bb1f4",
+    "updated_on": "2026-09-05"
   },
   {
     "subject_key": "openai-gpt55-cyber-launch",
@@ -1686,33 +1679,17 @@
   },
   {
     "subject_key": "battlecard | token-price-undercut",
-    "claim": "**OpenAI cut its low-end tiers 80%, and its coding flagship still costs more than Claude's.** On July 30, 2026 OpenAI dropped GPT-5.6 Luna to $0.20/$1.20 per million tokens (down 80%) and Terra to $2/$12 (down 20%), moving them into the low-cost tier populated by Google and Chinese models. Luna and Terra are OpenAI's throughput models for summarization and routing. On the flagship tier where enterprise coding deals run, Claude Opus 5 at $5/$25 stays cheaper than GPT-5.6 Sol at $5/$30 on output tokens, at comparable performance.",
+    "claim": "**OpenAI's low-end tiers are still far cheaper, but the flagship price gap just closed.**\n\nOpenAI cut GPT-5.6 Luna 80% to $0.20/$1.20 per million tokens and Terra 20% to $2/$12 in July, keeping its throughput models priced into the low-cost tier alongside Google and Chinese models. But OpenAI's new flagship, GPT-6 Astra, lists at $10 per million input tokens and $50 output, double its predecessor's flagship rate and level with Claude Fable 5.1's price. On the tier where enterprise coding deals get decided, list price is now a wash between the two vendors.",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
     "order": 2,
-    "source_url": "https://www.cnbc.com/2026/07/30/open-ai-price-cut-gpt.html",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "The company said it is reducing the price of Terra by 20% and the cost of Luna by 80%.",
-    "as_of": "2026-07-30",
+    "as_of": "2026-09-03",
     "confidence": "high",
     "id": "c_40d0d5520bfc",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-07-31",
-      "detail": null
-    },
-    "corroboration": [
-      {
-        "source_url": "https://venturebeat.com/technology/ai-price-wars-openai-cuts-gpt-5-6-luna-prices-by-80-as-model-competition-shifts-toward-cost",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false
-      }
-    ]
+    "derived_from": "c_7894fe9bb1f4",
+    "updated_on": "2026-09-05"
   },
   {
     "subject_key": "anthropic-claude-external-containment-breach",
@@ -2364,5 +2341,20 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "id": "c_cde33845e2b7",
+    "subject_key": "battlecard | independent-index-lead | where_we_win",
+    "claim": "**On the independent benchmark buyers actually trust, Claude still leads.**\n\nGPT-6 Astra edges Claude on computer-use tasks: OSWorld 2.0 at 72.6% versus Opus 5's 70.2%, and Terminal-Bench 4.0 at 57.7% to Fable 5.1's 55.8%. But on reasoning, Fable 5.1 leads Humanity's Last Exam with tools 65.0% to Astra's 57.2%, and on the independent Artificial Analysis Intelligence Index, which OpenAI doesn't control, Fable 5.1 scores 66 to Astra's 61.\n\n**Soundbite:** \"Astra wins a couple of narrow computer-use tests, but on the independent index that scores actual reasoning, Claude is still five points ahead.\"",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 9,
+    "as_of": "2026-09-03",
+    "updated_on": "2026-09-05",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_65573cf583db",
+    "persona": "technical_evaluator"
   }
 ]
