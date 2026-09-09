@@ -4,7 +4,7 @@
   "competitor": "Cognition",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-09-08T11:03:31",
+  "last_checked": "2026-09-09T11:01:46",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_b969e4b96a7c",
@@ -14,7 +14,9 @@
     "f_f35e710f1a93",
     "f_f93a3226e4d5",
     "f_de7a520fac71",
-    "f_77c0b99af140"
+    "f_77c0b99af140",
+    "f_04f0e51c90af",
+    "f_40caa0f1304e"
   ],
   "monitored": true,
   "lead_election": {

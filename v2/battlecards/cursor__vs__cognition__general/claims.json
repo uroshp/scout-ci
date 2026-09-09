@@ -87,15 +87,15 @@
   },
   {
     "subject_key": "cognition | valuation | current",
-    "claim": "Cognition raised over $1B in a Series D at a $26B post-money valuation ($25B pre-money), announced May 27, 2026, up from a $10.2B valuation just eight months earlier. Round led by Lux Capital, General Catalyst and 8VC.",
+    "claim": "Cognition closed a Series E of more than $2B at a $48B post-money valuation on September 8, 2026, led by new investors Andreessen Horowitz and Accel alongside Founders Fund, General Catalyst and Avenir. That is roughly double the ~$1B raise reported a week earlier and up from $26B in May 2026. Since May its run-rate revenue grew from $492M to almost $900M.",
     "claim_type": "fact",
     "section": "snapshot",
     "zone": null,
-    "order": 0,
-    "source_url": "https://techcrunch.com/2026/05/27/ai-coding-startup-cognition-raises-1b-at-25b-pre-money-valuation/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Cognition, the makers of the autonomous AI software engineer named Devin, has raised more than $1 billion at a $25 billion pre-money valuation ($26 billion post money), the company announced on Wednesday.",
-    "as_of": "2026-05-27",
+    "order": 3,
+    "source_url": "https://cognition.com/blog/series-e",
+    "source_tier": "primary",
+    "evidence_excerpt": "Cognition has raised over $2B at a $48B valuation.",
+    "as_of": "2026-09-08",
     "confidence": "high",
     "id": "c_5ada902861b4",
     "verified": true,
@@ -103,9 +103,17 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-05",
+      "fetched_at": "2026-09-09",
       "detail": null
-    }
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/09/08/cognition-hits-48b-valuation-signaling-investors-believe-ai-coding-is-far-from-a-winner-take-all-market/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "cognition | funding-total | current",
@@ -255,15 +263,15 @@
   },
   {
     "subject_key": "cognition | latest-funding-round | series-d",
-    "claim": "May 27, 2026: Cognition closed a $1B+ Series D at a $26B post-money valuation (led by Lux Capital, General Catalyst, 8VC), 2.5x its valuation eight months prior. So what for Cursor: Cognition is well-capitalized for a sustained enterprise push and won't be outspent on GTM. Compete on product fit, not on who has more runway.",
+    "claim": "September 8, 2026: Cognition closed a Series E of more than $2B at a $48B valuation, led by new investors Andreessen Horowitz and Accel with Founders Fund, General Catalyst and Avenir. The raise is about 2x what was reported a week earlier and up from $26B in May. Run-rate revenue grew from $492M to almost $900M since May, a higher revenue multiple than Cursor carried at its own spring funding talks.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 2,
-    "source_url": "https://techcrunch.com/2026/05/27/ai-coding-startup-cognition-raises-1b-at-25b-pre-money-valuation/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Cognition, the makers of the autonomous AI software engineer named Devin, has raised more than $1 billion at a $25 billion pre-money valuation ($26 billion post money), the company announced on Wednesday.",
-    "as_of": "2026-05-27",
+    "order": 1,
+    "source_url": "https://cognition.com/blog/series-e",
+    "source_tier": "primary",
+    "evidence_excerpt": "Since our last round in May, Cognition’s run-rate revenue has grown from $492M to almost $900M.",
+    "as_of": "2026-09-08",
     "confidence": "high",
     "id": "c_a926192e1d29",
     "verified": true,
@@ -271,9 +279,17 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-05",
+      "fetched_at": "2026-09-09",
       "detail": null
-    }
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/09/08/cognition-hits-48b-valuation-signaling-investors-believe-ai-coding-is-far-from-a-winner-take-all-market/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "cognition | pricing-change | self-serve-2026",

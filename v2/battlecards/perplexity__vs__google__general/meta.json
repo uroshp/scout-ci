@@ -4,7 +4,7 @@
   "competitor": "Google",
   "focus": null,
   "baseline_date": "2026-06-06",
-  "last_checked": "2026-09-08T11:21:16",
+  "last_checked": "2026-09-09T11:23:28",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_9ea436272f2a",
@@ -33,5 +33,5 @@
     "NEW"
   ],
   "unresolved_since": "2026-09-07",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }

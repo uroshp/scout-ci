@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-09-08T11:04:19",
+  "last_checked": "2026-09-09T11:05:27",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -23,10 +23,5 @@
     "f_3d6829b9be72",
     "f_61a166f72f7d"
   ],
-  "monitored": true,
-  "unresolved_subjects": [
-    "aws | list-price | bedrock-claude-sonnet-5-2026-09"
-  ],
-  "unresolved_since": "2026-09-05",
-  "unresolved_attempts": 2
+  "monitored": true
 }
