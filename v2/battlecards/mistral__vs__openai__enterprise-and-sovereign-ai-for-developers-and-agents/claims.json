@@ -1759,5 +1759,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "openai | product-launch | agents-api-2026",
+    "claim": "OpenAI opened its Agents API in public beta on September 10, 2026, putting the managed Codex harness behind a single API call so developers get context management, tool search, sandboxes and subagent coordination without building that infrastructure themselves. It runs on OpenAI-hosted, self-hosted or partner sandboxes, but data stays US-only and zero data retention is unsupported, so regulated and European workloads cannot use it as shipped.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.marktechpost.com/2026/09/10/openai-launches-the-agents-api-in-public-beta-putting-the-codex-harness-behind-one-api-call/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI has released the Agents API in public beta. It gives developers the same harness and infrastructure that run Codex.",
+    "as_of": "2026-09-10",
+    "confidence": "high",
+    "id": "c_9745f18892fa",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-11",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.datastudios.org/post/openai-agents-api-cloud-agents-subagents-hosted-sandboxes-codex-harness",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
