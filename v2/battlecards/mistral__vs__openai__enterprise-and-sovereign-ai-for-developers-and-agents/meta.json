@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise and sovereign AI for developers and agents",
   "baseline_date": "2026-06-17",
-  "last_checked": "2026-09-10T11:13:44",
+  "last_checked": "2026-09-11T11:11:15",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_911e9a6938ba",
@@ -46,7 +46,8 @@
     "f_7facbd8f59e1",
     "f_f7ee46ec133a",
     "f_4c96daa05fb6",
-    "f_df169f6098a0"
+    "f_df169f6098a0",
+    "f_e648dba02df4"
   ],
   "monitored": true,
   "lead_election": {

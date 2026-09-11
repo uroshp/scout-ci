@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise coding/developers",
   "baseline_date": "2026-06-04",
-  "last_checked": "2026-09-10T11:00:30",
+  "last_checked": "2026-09-11T11:00:33",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_e5e52edeb211",
@@ -48,8 +48,11 @@
   "unresolved_subjects": [
     "NEW",
     "battlecard | openai-agent-containment-breach | where_we_win",
-    "battlecard | swe-bench-verified-headline | contested"
+    "battlecard | swe-bench-verified-headline | contested",
+    "openai | agent-autonomy-misconduct",
+    "openai | executive-hire",
+    "openai | product-launch"
   ],
   "unresolved_since": "2026-09-09",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }
