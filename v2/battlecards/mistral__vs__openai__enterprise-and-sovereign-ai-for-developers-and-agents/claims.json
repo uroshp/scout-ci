@@ -1789,5 +1789,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "openai | funding-structure | softbank-debt-2026",
+    "claim": "SoftBank, OpenAI's largest backer, secured an $11.87 billion two-year loan from about 20 banks to fund its OpenAI investment, above its earlier $10 billion target. It is part of SoftBank's roughly $65 billion OpenAI commitment due by October, financed largely with debt: SoftBank shares fell as much as 13% on the news, it is repaying a separate $40 billion loan, and it is weighing a junk-bond sale of up to $20 billion. OpenAI's capital scale increasingly rests on one heavily leveraged backer.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 0,
+    "source_url": "https://www.japantimes.co.jp/business/2026/09/14/companies/softbank-loan-openai/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "SoftBank Group secured an $11.87 billion loan to support its investment in U.S. artificial intelligence firm OpenAI",
+    "as_of": "2026-09-14",
+    "confidence": "high",
+    "id": "c_1ed75de9cdeb",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-14",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.business-standard.com/world-news/softbank-group-gets-upsized-11-9-billion-loan-in-openai-funding-push-126091400091_1.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
