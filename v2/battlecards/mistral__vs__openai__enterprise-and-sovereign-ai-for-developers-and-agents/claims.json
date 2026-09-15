@@ -317,15 +317,15 @@
   },
   {
     "subject_key": "openai | ipo-filing | 2026",
-    "claim": "**OpenAI's own $7 billion buyback signals the IPO will wait, and its valuation is flat since March.** On August 10, 2026 OpenAI completed a $7 billion tender offer, buying back employee shares itself instead of bringing in outside investors, at an $852 billion valuation unchanged from its March round. Reporting reads the tender as a sign the public listing will wait, consistent with OpenAI weighing a delay to 2027. Anthropic has meanwhile passed OpenAI in valuation.",
+    "claim": "**Altman put OpenAI's IPO delay on the record and tied it to safety, which strengthens Mistral's control argument.** In a September 12, 2026 Fortune interview, Sam Altman said going public right now would be an 'ill-advised moment' given AI safety concerns and confirmed the IPO will not happen in 2026, pointing to 2027 at the earliest. He connected the delay to the recent rogue-agent incidents, including the Hugging Face breach, and said OpenAI may pause its most advanced work for safety and alignment. This turns the earlier buyback-based read that the IPO would wait into a direct on-record statement from the CEO.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 1,
-    "source_url": "https://finance.yahoo.com/technology/ai/articles/openai-buys-back-7-billion-202608285.html",
+    "order": 8,
+    "source_url": "https://fortune.com/2026/09/12/sam-altman-openai-ipo-delay-ill-advised-moment-safety-concerns/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "The deal valued the startup at $852 billion, the people said, unchanged from its most recent funding round.",
-    "as_of": "2026-08-10",
+    "evidence_excerpt": "right now would be an ill-advised moment to go public",
+    "as_of": "2026-09-12",
     "confidence": "high",
     "id": "c_ad58243f0a8e",
     "verified": true,
@@ -333,12 +333,12 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-08-11",
+      "fetched_at": "2026-09-15",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://techcrunch.com/2026/08/10/openai-reportedly-completed-a-7-billion-employee-tender-offer/",
+        "source_url": "https://techcrunch.com/2026/09/12/openais-sam-altman-says-it-would-be-ill-advised-to-go-public-in-2026/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false

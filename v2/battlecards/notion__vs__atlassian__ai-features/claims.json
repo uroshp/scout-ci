@@ -1054,5 +1054,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "atlassian | jira-agent-loops",
+    "claim": "September 10, 2026: Atlassian announced governed \"agent loops\" for Jira that turn backlogs into pull requests automatically. The system continuously scans for well-defined, unassigned Jira work items, hands them to the Jira Coding Agent to build and test, and opens ready-to-review PRs. It ships alongside Code Context (multi-repo grounding on the Teamwork Graph), Standards (org-wide coding rules mapped to repos), AI Review (an agent that checks every PR), and a Jira Agent Usage Dashboard that measures which agents teams use. This is an escalation of Atlassian's engineering-led play beyond the May 2026 Cursor-in-Jira integration: always-on, continuous execution rather than a manual per-ticket handoff. Availability is early: Agent loops, Standards and AI Review are in private early access, Code Context is in open beta and the Agent Usage Dashboard reaches general availability in the coming months.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.atlassian.com/blog/jira/governed-agent-loops",
+    "source_tier": "primary",
+    "evidence_excerpt": "Agent loops, Standards, and AI Review are available in private early access.",
+    "as_of": "2026-09-10",
+    "confidence": "high",
+    "id": "c_0014ec93f251",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "fuzzy",
+      "fetched_at": "2026-09-15",
+      "detail": "partial_ratio 0.987"
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.itpro.com/software/development/atlassian-introduces-always-on-capabilities-for-agentic-development-workflows",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

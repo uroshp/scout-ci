@@ -4,7 +4,7 @@
   "competitor": "Atlassian",
   "focus": "AI features",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-09-14T11:20:25",
+  "last_checked": "2026-09-15T11:12:31",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_af44b318b691",
@@ -14,7 +14,8 @@
     "f_5f7a1709dd7e",
     "f_e292e1f52fa5",
     "f_c186b0af0078",
-    "f_852b7ea9dcb0"
+    "f_852b7ea9dcb0",
+    "f_fef1044ced75"
   ],
   "monitored": true,
   "lead_election": {

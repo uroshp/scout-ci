@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise and sovereign AI for developers and agents",
   "baseline_date": "2026-06-17",
-  "last_checked": "2026-09-14T11:16:22",
+  "last_checked": "2026-09-15T11:09:29",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_911e9a6938ba",
@@ -48,16 +48,12 @@
     "f_4c96daa05fb6",
     "f_df169f6098a0",
     "f_e648dba02df4",
-    "f_9d98b0962bb4"
+    "f_9d98b0962bb4",
+    "f_8e6871688e19"
   ],
   "monitored": true,
   "lead_election": {
     "last_promoted_on": "2026-09-07",
     "lead_subject_key": "mistral | sovereign-self-host-edge | current"
-  },
-  "unresolved_subjects": [
-    "openai | security-incident | astra-training-data-consent"
-  ],
-  "unresolved_since": "2026-09-11",
-  "unresolved_attempts": 2
+  }
 }
