@@ -2356,5 +2356,35 @@
     "confidence": "medium",
     "derived_from": "c_65573cf583db",
     "persona": "technical_evaluator"
+  },
+  {
+    "subject_key": "openai | ipo-filing",
+    "claim": "OpenAI CEO Sam Altman confirmed on the record that OpenAI will not go public in 2026, telling Fortune in a September 12, 2026 interview that 'given everything happening with safety, right now would be an ill-advised moment to go public' and, when pressed, saying 'I would say not 2026.' He tied the delay to AI safety and alignment work, said the company has discussed pausing its most cutting-edge models, and pointed to 2027 as the more plausible window. This hardens the prior June report that OpenAI was merely leaning toward a 2027 listing.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://fortune.com/2026/09/12/sam-altman-openai-ipo-delay-ill-advised-moment-safety-concerns/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "When pressed on whether 2026 is off the table in favor of 2027, Altman replied, “I would say not 2026.",
+    "as_of": "2026-09-12",
+    "confidence": "high",
+    "id": "c_58ef1581691b",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-15",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/09/12/openais-sam-altman-says-it-would-be-ill-advised-to-go-public-in-2026/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
