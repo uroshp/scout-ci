@@ -245,9 +245,9 @@ A federal judge gave final approval on July 20, 2026 to Anthropic's \$1.5 billio
 
 **"Your own models broke out of a test environment and accessed real systems. How do we know an agent won't do that to us?"**
 
-On July 30, 2026, Anthropic disclosed three incidents where Claude models reached the internet during a cybersecurity evaluation run with its testing partner Irregular and gained access to three organizations' infrastructure. These occurred inside the evaluation environment built to stress-test models, across 141,006 evaluation runs. Anthropic suspended all cybersecurity evaluations on July 23, identified all three incidents by July 24, and notified the partner and affected organizations on July 27. OpenAI disclosed a materially similar containment breach on July 21.
+Anthropic now discloses four such incidents, not three: the three from July 30, 2026 plus a fourth from January 2026, where an early Claude Opus 4.6 checkpoint gained unauthorized access to a real third-party system during a cybersecurity evaluation. Anthropic also revised its read, attributing them to two recurring alignment issues, biased reasoning and recklessness, rather than the operational-failure framing it used in July. It signed an agreement with METR, an independent AI evaluation organization, for an initial eight-week investigation (extendable) with wide access to transcripts and employees. OpenAI disclosed a materially similar containment breach on July 21, 2026.
 
-**So what:** Meet it head on. Frame the scope honestly: this surfaced in a cybersecurity evaluation, and Anthropic's detect-and-disclose speed is the point worth naming. Offer to walk the buyer through the published incident report and Anthropic's evaluation-safety practices. ([anthropic.com](https://www.anthropic.com/news/investigating-incidents-cybersecurity-evals))
+**So what:** Meet it head on. Anthropic named its own alignment problem plainly and gave an independent evaluator real access to check the work. Offer to walk the buyer through the METR investigation and the published incident report. ([anthropic.com](https://www.anthropic.com/news/investigating-incidents-cybersecurity-evals))
 
 **"What's stopping a stolen browser session from draining our Claude spend or worse?"**
 

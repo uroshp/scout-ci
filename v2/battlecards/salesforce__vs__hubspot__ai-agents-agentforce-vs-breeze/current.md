@@ -44,6 +44,22 @@ The new Core, Advanced and Max editions bundle Agentforce AI, Slack, Tableau Nex
 
 **So what:** Lead with the bundled edition price against any HubSpot all-in-one pitch, and remind existing Agentforce 1 Edition customers they can upgrade to Max free with up to \$500 in added value. ([salesforce.com](https://www.salesforce.com/news/stories/salesforce-simplifies-editions-2026/))
 
+**Salesforce now ships six named, job-ready agents out of the box, with a seventh in pilot.**
+
+Casey (customer service), Paige (IT/HR), Carter (commerce), Piper (inbound pipeline), Marshall (supply chain) and Fin (customer experience) are generally available today, and Hunter (outbound sales) is in pilot now with GA targeted for November 2026, running on a new long-horizon runtime built to pursue a goal over days and weeks.
+
+**Soundbite:** "You get six working agents today, one per job, not a builder kit you have to assemble yourself."
+
+**So what:** Map the buyer's open roles (service, IT/HR, commerce, pipeline, supply chain, CX) to a named agent already GA, and flag Hunter's long-horizon runtime for outbound teams planning past November. ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-job-ready-ai-agents/))
+
+**Salesforce now owns a live, multi-channel support agent resolving 76% of conversations end to end, closed September 10, 2026, months ahead of schedule.**
+
+The Fin acquisition closed September 10, 2026, months ahead of the original Q4 FY2027 timeline, bringing a 76%-resolution customer agent and its base of more than 30,000 companies into Salesforce's AI Labs.
+
+**Soundbite:** "We already closed on a support agent that resolves 76% of conversations end to end across chat, email, WhatsApp, SMS, voice and Slack, so you get that alongside Agentforce today instead of waiting on a roadmap."
+
+**So what:** Lead support-deflection conversations with Fin's shipped 76% resolution rate and full channel coverage as a Salesforce capability available now, not a future integration. ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/06/15/salesforce-signs-definitive-agreement-to-acquire-fin/))
+
 ## Snapshot
 
 - Agentforce ARR reached \$1.2 billion in Q1 FY2027 (quarter ended April 30, 2026), up 205% year over year, crossing \$1 billion for the first time. This is Salesforce-stated annual recurring revenue, not audited GAAP revenue, and represents under 3% of Salesforce's \$41.5B FY2026 revenue base. ([cnbc.com](https://www.cnbc.com/2026/05/27/salesforce-crm-q1-earnings-report-2027.html))
@@ -103,15 +119,21 @@ The August 2026 Claudeforce partnership makes Claude the default reasoning model
 
 **Soundbite:** "Agentforce runs on Claude by default now, the same model already saving Salesforce employees 8.1 million hours a year internally." ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/08/26/salesforce-and-anthropic-announce-claudeforce/))
 
+**A named agent for every job, live today, while HubSpot hands you a builder.**
+
+Casey, Paige, Carter, Piper, Marshall and Fin are GA now, covering customer service, IT/HR, commerce, inbound pipeline, supply chain and customer experience. HubSpot's answer is Agent Builder, a beta tool for building your own agents from scratch. A buyer choosing Salesforce turns an agent on. A buyer choosing HubSpot starts a build project.
+
+**Soundbite:** "Ours are built and running today. Theirs is still a kit you have to assemble." ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-job-ready-ai-agents/))
+
 ### Where it's a fight
 
 **On front-line support resolution, Breeze is genuinely competitive.**
 
-HubSpot's Customer Agent now resolves about 70% of support conversations autonomously, with some customers above 90%. In a tier-1 support-deflection deal that number is real, and the buyer will cite it. Pretending otherwise costs credibility.
+HubSpot's Customer Agent resolves about 70% of support conversations autonomously, with some customers above 90%. In a tier-1 support-deflection deal that number is real, and the buyer will cite it. Pretending otherwise costs credibility.
 
-With Salesforce's signed agreement to acquire Fin (expected close Q4 FY2027), the resolution-rate comparison shifts. Fin's AI Agent averages 76% of support volume resolved end-to-end across live chat, email, WhatsApp, SMS, phone and Slack. On close, Salesforce will have a packaged support AI that runs above Breeze on the headline metric in its own mid-market territory.
+Salesforce closed its Fin (formerly Intercom) acquisition on September 10, 2026, months ahead of the Q4 FY2027 target, and Fin is GA now inside Salesforce alongside Agentforce. Fin's AI Agent averages 76% of support volume resolved end to end across live chat, email, WhatsApp, SMS, phone and Slack, so Salesforce now owns a packaged support AI that runs above Breeze on the headline metric in HubSpot's own mid-market territory.
 
-**Soundbite:** *"Their 70% is real for FAQ deflection, so make them prove it on complex, multi-system B2B workflows where Agentforce executes the whole process. And note: Fin, pending Q4 FY2027 close, averages 76% with the same packaged mid-market approach they're pitching."* ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/06/15/salesforce-signs-definitive-agreement-to-acquire-fin/))
+**Soundbite:** *"Their 70% is real for FAQ deflection, so make them prove it on complex, multi-system B2B workflows where Agentforce executes the whole process. And Fin, now inside Salesforce, averages 76% end to end across every channel they're pitching."* ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/06/15/salesforce-signs-definitive-agreement-to-acquire-fin/))
 
 **The mid-market is contested, but HubSpot's own GTM reset is slowing its deals.**
 
@@ -167,9 +189,9 @@ This is real: in the Einstein-to-Agentforce transition customers said they were 
 
 **"HubSpot's new Agent Builder lets us build custom agents ourselves now. Why do we need Agentforce?"**
 
-HubSpot's Agent Builder beta (Professional and Enterprise, July 23) does let customers build custom agents in plain language on CRM data, with Agent Hub as a single console showing status across agents and per-agent access controls. That covers basic build and visibility. It stops there: no trusted agent identity for high-stakes actions, no centralized LLM governance, no orchestration across multiple model vendors, the control plane Agent Fabric already runs for Agentforce across Amazon Bedrock and Microsoft Foundry. Breeze also still only reaches the front office, while Agentforce Operations is GA in finance, supply chain and procurement.
+HubSpot's Agent Builder beta (Professional and Enterprise, July 23) lets customers build custom agents in plain language on CRM data, with Agent Hub as a single console for status and per-agent access controls. That covers basic build and visibility, and stops there: no trusted agent identity for high-stakes actions, no centralized LLM governance, no orchestration across multiple model vendors, the control plane Agent Fabric already runs for Agentforce across Amazon Bedrock and Microsoft Foundry. Breeze also still only reaches the front office, while Agentforce Operations is GA in finance, supply chain and procurement. Salesforce also ships six named, job-ready agents GA today, so the buyer can turn one on instead of building it.
 
-**So what:** Walk the buyer through Agent Fabric's governance control plane and an Agentforce Operations use case in their own back office. That's a concrete gap Agent Builder's beta doesn't close today. ([knowledge.hubspot.com](https://knowledge.hubspot.com/ai/create-and-customize-agents-in-the-agent-builder))
+**So what:** Show the buyer a named agent that already does the job they'd otherwise build, then walk through Agent Fabric's governance and an Agentforce Operations use case in their back office. ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-job-ready-ai-agents/))
 
 ## Cut Log
 

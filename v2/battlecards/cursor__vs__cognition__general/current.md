@@ -38,6 +38,14 @@ On June 2 Cognition retired the Windsurf brand, relaunched it as Devin Desktop, 
 
 **So what:** Target Windsurf/Cascade accounts through June with a 'skip the forced migration' message before the July 1 cutover locks them in. ([devin.ai](https://devin.ai/blog/windsurf-is-now-devin-desktop/))
 
+**Projects gives Cursor the autonomous-fleet capability enterprises were shopping Devin for.**
+
+Cursor's Projects (beta), rolling out to all users since September 10, 2026, runs a coordinator agent that plans work and delegates to thousands of subagents on its own cloud machine, subscribes to a Slack channel, a schedule or a repo's PRs, and acts on those signals without being prompted; Cursor reports users who primarily use Projects merge six times as many PRs.
+
+**Soundbite:** "Point Projects at your PR queue or a Slack channel and the coordinator keeps planning and shipping work after your laptop closes, and the people who lean on it merge six times the PRs."
+
+**So what:** Lead enterprise pitches with a live Projects demo against the buyer's own Slack channel or PR queue, then let the six-times merge-rate number carry the autonomy case. ([cursor.com](https://cursor.com/blog/projects))
+
 ## Snapshot
 
 - Cognition has now raised more than \$2.5B in total funding to date. ([thenextweb.com](https://thenextweb.com/news/cognition-just-raised-1-billion-at-a-26-billion-valuation-and-90-of-its-own-code-is-written-by-its-ai))
@@ -63,10 +71,10 @@ On June 2 Cognition retired the Windsurf brand, relaunched it as Devin Desktop, 
 
 ## Positioning and Differentiation
 
-- Cognition still positions itself as cloud-agent vs local-agent, arguing a local agent's 'ceiling is your attention' and stops when you close your laptop. That line no longer holds against Cursor: since June 29, 2026 Cursor's iOS app lets developers launch always-on cloud agents and steer local Remote Control agents from their phone, then review diffs and merge PRs on the go. ([cursor.com](https://cursor.com/blog/ios-mobile-app))
+- Cognition still positions itself as cloud-agent vs local-agent, arguing a local agent's 'ceiling is your attention' and stops when you close your laptop. That line no longer holds against Cursor: since June 29, 2026 the iOS app lets developers launch always-on cloud agents and steer local Remote Control agents from their phone, and since September 10, 2026 Projects runs its coordinator and subagents on their own cloud machine, continuing to plan and merge work after the laptop closes. ([cursor.com](https://cursor.com/blog/projects))
 - Cognition brands Devin as 'the first AI software engineer' and frames cloud agents as the fastest-growing way to build software (the company's own claim). ([cognition.ai](https://cognition.ai/blog/series-d))
 - Cognition still markets itself as an independent, model-agnostic 'agent lab' that routes tasks across all major foundation models, an implicit contrast with Cursor's model dependence (the company's own claim). But on July 8, 2026 it shipped its own in-house model, SWE-1.7, sold only inside Devin and not offered as an API, adding a proprietary model to the same portfolio it says stays neutral. Cursor now routes across models too: Cursor Router, launched July 22, 2026, classifies every request and sends it to the best-suited model across desktop, web, iOS, CLI and the SDK, closing the gap Cognition's positioning claimed as its own. ([cursor.com](https://cursor.com/blog/router))
-- Industry analysis frames the AI-coding market as a split bet: IDE-first (keep the engineer in the loop: Cursor) vs agent-first (delegate whole tasks to an autonomous agent: Devin). Useful framing because it lets a Cursor rep define the axis of the comparison on our terms. ([techtimes.com](https://www.techtimes.com/articles/317354/20260529/ai-coding-agents-cognitions-26b-raise-bets-agent-first-architecture-beats-ide-tools.htm))
+- Industry analysis has framed the AI-coding market as a split bet: IDE-first (keep the engineer in the loop: Cursor) versus agent-first (delegate whole tasks to an autonomous agent: Devin). Cursor's Projects (beta), delegating whole tasks to a coordinator and thousands of subagents since September 10, 2026, now competes on the agent-first axis too, so the framing splits Cursor's own product line rather than splitting Cursor from Devin. ([cursor.com](https://cursor.com/blog/projects))
 - Grok 4.5 is the first model Cursor has built for more than software engineering, aimed at long-running work across data science, finance, legal work and other knowledge work in addition to coding. It is live now across desktop, web, iOS, CLI and the SDK, broadening Cursor's pitch from a coding tool to a platform for knowledge work generally. ([cursor.com](https://cursor.com/blog/grok-4-5))
 
 ## Pricing and Packaging
@@ -111,6 +119,12 @@ Cursor's per-request classifier picks the right model for each task instead of d
 
 **Soundbite:** Ask what they pay per commit today, then show Cursor Router hitting frontier quality for \$4.63 to \$6.76 against \$7.34 for Opus 4.8 and \$12.69 for Fable 5. ([cursor.com](https://cursor.com/blog/router))
 
+**Projects turns Cursor into a coordinator that runs whole workstreams, not just autocomplete.**
+
+Cursor's Projects (beta), rolling out to all users from September 10, 2026, runs a coordinator agent that plans work and delegates it to thousands of subagents. It runs on its own cloud machine, so it keeps working after the laptop closes, and only spins up a local agent when something needs testing on the developer's machine. Shared context files sync across every agent on a Project and build up over months. The coordinator can subscribe to a Slack channel, a schedule or a repo's full PR stream and act without being prompted. Cursor reports new users merge 30% more PRs, and users who primarily work through Projects merge six times as many.
+
+**Soundbite:** "Point Projects at your Slack channel or your PR queue and it keeps working after you close your laptop. Teams that lean on it merge six times as many PRs." ([cursor.com](https://cursor.com/blog/projects))
+
 ### Where it's a fight
 
 **Daily developer mindshare is ours, but the lead has stopped widening.**
@@ -127,11 +141,11 @@ Some enterprises run both (Cursor for senior architectural work, Devin for a par
 
 ### Where Cognition wins
 
-**Devin wins the 'fleet of async agents' use case.**
+**Devin still owns published ROI for scoped batch maintenance, but the orchestration gap has closed.**
 
-When the buyer wants to assign well-scoped tickets and review PRs later (migrations, vulnerability fixes, batch maintenance), Devin's sandboxed-VM, run-to-PR model is purpose-built for it, and Cognition has published ROI like Mercedes-Benz compressing an eight-month modernization to eight days. Our background agents are newer and narrower here.
+When the buyer wants to hand off well-scoped tickets and review PRs later (migrations, vulnerability fixes, batch maintenance), Devin's sandboxed-VM, run-to-PR model has real proof points like Mercedes-Benz compressing an eight-month modernization to eight days. But Cursor's Projects (beta), rolling out from September 10, 2026, now runs its own coordinator that delegates to thousands of subagents on a persistent cloud machine, subscribing to a Slack channel, a schedule or a repo's full PR stream without being prompted. Cursor reports users who primarily work through Projects merge six times as many PRs.
 
-**Soundbite:** *"If you want a fleet of agents knocking out scoped maintenance overnight, Devin is genuinely good at that. Let's map which of your work fits that and which still needs an engineer driving."* ([cognition.ai](https://cognition.ai/blog/series-d))
+**Soundbite:** "Devin has real case studies for scoped batch work. Point Projects at that same queue today and measure it against Devin's numbers yourself." ([cursor.com](https://cursor.com/blog/projects))
 
 **Devin has marquee regulated and government references we can't fully match.**
 
@@ -150,9 +164,9 @@ Cognition names Goldman Sachs, Citi, Mercedes-Benz, Santander, the U.S. Army and
 
 **"Devin actually ships PRs autonomously while my team sleeps. Cursor just autocompletes."**
 
-Devin runs end-to-end to a PR, and Cognition says 89% of its own code is now committed by Devin. But Cursor runs long autonomous background and cloud agents too, and since June 29, 2026 you can launch one from the Cursor iOS app, close your laptop, and come back to review the diff and merge the PR from your phone. The real difference is oversight granularity: Cognition's own review admits Devin struggles on ambiguous, changing work, and Cursor keeps an engineer checking the work at every step, not only at PR time.
+Devin runs end to end to a PR, and Cognition says 89% of its own code is now committed by Devin. Cursor runs autonomous agents too: an iOS-launched agent has merged PRs while the laptop stayed closed since June 29, 2026, and since September 10, 2026 Projects (beta) adds a coordinator that delegates to thousands of subagents on its own cloud machine, subscribing to a Slack channel, a schedule or a repo's full PR stream without being prompted. The real gap is oversight: Cognition's own review admits Devin struggles on ambiguous, changing work, while Cursor keeps an engineer checking the work at every step, not only at PR time.
 
-**So what:** Open the Cursor iOS app on the call and show an always-on agent running. Move the conversation from 'autonomy vs autocomplete' to 'where do you want a human checking the work,' then put both tools on their own messy tickets. ([cursor.com](https://cursor.com/blog/ios-mobile-app))
+**So what:** Open a live Project or the iOS app on the call and show an always-on agent working a real queue. Shift the conversation from "autonomy vs autocomplete" to "where do you want a human checking the work," then give both tools the same messy ticket. ([cursor.com](https://cursor.com/blog/projects))
 
 **"Cognition just raised \$1B at \$26B. They have all the momentum."**
 

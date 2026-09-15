@@ -337,17 +337,17 @@
   },
   {
     "subject_key": "cognition | positioning | cloud-agent-vs-local",
-    "claim": "Cognition still positions itself as cloud-agent vs local-agent, arguing a local agent's 'ceiling is your attention' and stops when you close your laptop. That line no longer holds against Cursor: since June 29, 2026 Cursor's iOS app lets developers launch always-on cloud agents and steer local Remote Control agents from their phone, then review diffs and merge PRs on the go.",
+    "claim": "Cognition still positions itself as cloud-agent vs local-agent, arguing a local agent's 'ceiling is your attention' and stops when you close your laptop. That line no longer holds against Cursor: since June 29, 2026 the iOS app lets developers launch always-on cloud agents and steer local Remote Control agents from their phone, and since September 10, 2026 Projects runs its coordinator and subagents on their own cloud machine, continuing to plan and merge work after the laptop closes.",
     "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
     "order": 0,
-    "as_of": "2026-06-29",
+    "as_of": "2026-09-10",
     "confidence": "high",
     "id": "c_79e0bf384fd0",
     "verified": true,
-    "derived_from": "c_1d28b915a2d5",
-    "updated_on": "2026-07-02"
+    "derived_from": "c_40fe372fb456",
+    "updated_on": "2026-09-14"
   },
   {
     "subject_key": "cognition | positioning | first-ai-software-engineer",
@@ -387,25 +387,17 @@
   },
   {
     "subject_key": "ai-coding-market | structural-framing | ide-vs-agent",
-    "claim": "Industry analysis frames the AI-coding market as a split bet: IDE-first (keep the engineer in the loop: Cursor) vs agent-first (delegate whole tasks to an autonomous agent: Devin). Useful framing because it lets a Cursor rep define the axis of the comparison on our terms.",
+    "claim": "Industry analysis has framed the AI-coding market as a split bet: IDE-first (keep the engineer in the loop: Cursor) versus agent-first (delegate whole tasks to an autonomous agent: Devin). Cursor's Projects (beta), delegating whole tasks to a coordinator and thousands of subagents since September 10, 2026, now competes on the agent-first axis too, so the framing splits Cursor's own product line rather than splitting Cursor from Devin.",
     "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
     "order": 3,
-    "source_url": "https://www.techtimes.com/articles/317354/20260529/ai-coding-agents-cognitions-26b-raise-bets-agent-first-architecture-beats-ide-tools.htm",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "On one side sits the IDE-first bet: keep the engineer in the driver's seat, embed AI into the editing environment as an assistant that accelerates decisions already being made",
-    "as_of": "2026-05-29",
+    "as_of": "2026-09-10",
     "confidence": "medium",
     "id": "c_c73a0b5c696b",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    }
+    "derived_from": "c_40fe372fb456",
+    "updated_on": "2026-09-14"
   },
   {
     "subject_key": "cognition | pricing-model | devin-self-serve",
@@ -467,26 +459,18 @@
   },
   {
     "subject_key": "devin | battlecard-strength | autonomous-delegation",
-    "claim": "**Devin wins the 'fleet of async agents' use case.**\n\nWhen the buyer wants to assign well-scoped tickets and review PRs later (migrations, vulnerability fixes, batch maintenance), Devin's sandboxed-VM, run-to-PR model is purpose-built for it, and Cognition has published ROI like Mercedes-Benz compressing an eight-month modernization to eight days. Our background agents are newer and narrower here.\n\n**Soundbite:** *\"If you want a fleet of agents knocking out scoped maintenance overnight, Devin is genuinely good at that. Let's map which of your work fits that and which still needs an engineer driving.\"*",
+    "claim": "**Devin still owns published ROI for scoped batch maintenance, but the orchestration gap has closed.**\n\nWhen the buyer wants to hand off well-scoped tickets and review PRs later (migrations, vulnerability fixes, batch maintenance), Devin's sandboxed-VM, run-to-PR model has real proof points like Mercedes-Benz compressing an eight-month modernization to eight days. But Cursor's Projects (beta), rolling out from September 10, 2026, now runs its own coordinator that delegates to thousands of subagents on a persistent cloud machine, subscribing to a Slack channel, a schedule or a repo's full PR stream without being prompted. Cursor reports users who primarily work through Projects merge six times as many PRs.\n\n**Soundbite:** \"Devin has real case studies for scoped batch work. Point Projects at that same queue today and measure it against Devin's numbers yourself.\"",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_they_win",
     "order": 0,
-    "source_url": "https://cognition.ai/blog/series-d",
-    "source_tier": "primary",
-    "evidence_excerpt": "Mercedes-Benz cut an eight-month legacy modernization project down to eight days.",
-    "as_of": "2026-05-27",
+    "as_of": "2026-09-10",
     "confidence": "medium",
     "id": "c_158afa754910",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
-    "persona": "technical_evaluator"
+    "persona": "technical_evaluator",
+    "derived_from": "c_40fe372fb456",
+    "updated_on": "2026-09-14"
   },
   {
     "subject_key": "devin | battlecard-strength | enterprise-references",
@@ -685,18 +669,18 @@
   },
   {
     "subject_key": "objection | devin-autonomy | competitor-strength",
-    "claim": "**\"Devin actually ships PRs autonomously while my team sleeps. Cursor just autocompletes.\"**\n\nDevin runs end-to-end to a PR, and Cognition says 89% of its own code is now committed by Devin. But Cursor runs long autonomous background and cloud agents too, and since June 29, 2026 you can launch one from the Cursor iOS app, close your laptop, and come back to review the diff and merge the PR from your phone. The real difference is oversight granularity: Cognition's own review admits Devin struggles on ambiguous, changing work, and Cursor keeps an engineer checking the work at every step, not only at PR time.\n\n**So what:** Open the Cursor iOS app on the call and show an always-on agent running. Move the conversation from 'autonomy vs autocomplete' to 'where do you want a human checking the work,' then put both tools on their own messy tickets.",
+    "claim": "**\"Devin actually ships PRs autonomously while my team sleeps. Cursor just autocompletes.\"**\n\nDevin runs end to end to a PR, and Cognition says 89% of its own code is now committed by Devin. Cursor runs autonomous agents too: an iOS-launched agent has merged PRs while the laptop stayed closed since June 29, 2026, and since September 10, 2026 Projects (beta) adds a coordinator that delegates to thousands of subagents on its own cloud machine, subscribing to a Slack channel, a schedule or a repo's full PR stream without being prompted. The real gap is oversight: Cognition's own review admits Devin struggles on ambiguous, changing work, while Cursor keeps an engineer checking the work at every step, not only at PR time.\n\n**So what:** Open a live Project or the iOS app on the call and show an always-on agent working a real queue. Shift the conversation from \"autonomy vs autocomplete\" to \"where do you want a human checking the work,\" then give both tools the same messy ticket.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 0,
-    "as_of": "2026-06-29",
+    "as_of": "2026-09-10",
     "confidence": "high",
     "id": "c_025a6e459b30",
     "verified": true,
     "persona": "technical_evaluator",
-    "derived_from": "c_1d28b915a2d5",
-    "updated_on": "2026-07-02"
+    "derived_from": "c_40fe372fb456",
+    "updated_on": "2026-09-14"
   },
   {
     "subject_key": "objection | cognition-momentum | competitor-strength",
@@ -1317,5 +1301,71 @@
     "confidence": "medium",
     "derived_from": "c_1abdcf3d69dc",
     "persona": "technical_evaluator"
+  },
+  {
+    "subject_key": "cursor | product-launch | projects",
+    "claim": "On September 10, 2026 Cursor launched Projects (beta): a coordinator agent that plans work and delegates tasks to thousands of subagents. A Project runs on its own cloud machine, so it keeps working after the laptop closes, and spins up a local agent only when something needs testing on the developer's machine. Shared context files sync across every agent a Project uses and accumulate over months. The coordinator can subscribe to a Slack channel, a schedule or all of a repo's PRs and act on those signals without being prompted. Cursor reports that new users merge 30% more PRs and users who primarily use Projects merge six times as many. Projects is rolling out to all users starting September 10, 2026.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://cursor.com/blog/projects",
+    "source_tier": "primary",
+    "evidence_excerpt": "delegates tasks to thousands of subagents, and performs recurring work without being prompted.",
+    "as_of": "2026-09-10",
+    "confidence": "high",
+    "id": "c_40fe372fb456",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-14",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://cursor.com/changelog",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://alphasignal.ai/news/cursor-s-projects-lets-a-coordinator-agent-direct-thousands-of-subagents",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_8e12b5f7b2c1",
+    "subject_key": "cursor | battlecard-strength | projects-coordinator",
+    "claim": "**Projects turns Cursor into a coordinator that runs whole workstreams, not just autocomplete.**\n\nCursor's Projects (beta), rolling out to all users from September 10, 2026, runs a coordinator agent that plans work and delegates it to thousands of subagents. It runs on its own cloud machine, so it keeps working after the laptop closes, and only spins up a local agent when something needs testing on the developer's machine. Shared context files sync across every agent on a Project and build up over months. The coordinator can subscribe to a Slack channel, a schedule or a repo's full PR stream and act without being prompted. Cursor reports new users merge 30% more PRs, and users who primarily work through Projects merge six times as many.\n\n**Soundbite:** \"Point Projects at your Slack channel or your PR queue and it keeps working after you close your laptop. Teams that lean on it merge six times as many PRs.\"",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 5,
+    "as_of": "2026-09-10",
+    "updated_on": "2026-09-14",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_40fe372fb456",
+    "persona": "eng_led"
+  },
+  {
+    "id": "c_5a615bb1bc3e",
+    "subject_key": "cursor | async-agent-parity | projects",
+    "claim": "**Projects gives Cursor the autonomous-fleet capability enterprises were shopping Devin for.**\n\nCursor's Projects (beta), rolling out to all users since September 10, 2026, runs a coordinator agent that plans work and delegates to thousands of subagents on its own cloud machine, subscribes to a Slack channel, a schedule or a repo's PRs, and acts on those signals without being prompted; Cursor reports users who primarily use Projects merge six times as many PRs.\n\n**Soundbite:** \"Point Projects at your PR queue or a Slack channel and the coordinator keeps planning and shipping work after your laptop closes, and the people who lean on it merge six times the PRs.\"\n\n**So what:** Lead enterprise pitches with a live Projects demo against the buyer's own Slack channel or PR queue, then let the six-times merge-rate number carry the autonomy case.",
+    "claim_type": "interpretation",
+    "section": "executive_summary",
+    "zone": null,
+    "order": 5,
+    "as_of": "2026-09-10",
+    "updated_on": "2026-09-14",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_40fe372fb456",
+    "persona": "eng_led"
   }
 ]
