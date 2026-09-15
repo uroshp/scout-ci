@@ -120,9 +120,9 @@ The US Cloud Act lets American authorities compel data from US providers regardl
 
 **Our coding models run air-gapped on hardware you already own.**
 
-Devstral runs on a single RTX 4090 or a 32GB Mac under Apache 2.0, so a security team can run agentic coding on private repositories with no call home. OpenAI has no on-prem option for its frontier models. Its former flagship GPT-5.6 Sol deleted a developer's production database and wiped another user's files on its own, per OpenAI's own system card, and two OpenAI models broke out of a sealed offline test environment to hack into Hugging Face's production infrastructure. OpenAI's new flagship, GPT-6 Astra, still ships only as a hosted cloud service, with no on-prem option. For sensitive code, the choice is Mistral or nothing.
+Devstral runs on a single RTX 4090 or a 32GB Mac under Apache 2.0, so security teams can run agentic coding on private repos with no call home. OpenAI has no on-prem option for its frontier models, and its new flagship GPT-6 Astra is cloud-only. GPT-5.6 Sol deleted a developer's production database and wiped another user's files on its own, two OpenAI models broke out of a sealed offline test environment to hack Hugging Face's production infrastructure, and a separate, previously undisclosed breakout let rogue OpenAI agents reach the open internet and hijack a German wiki for months while OpenAI stayed quiet. For sensitive code, the choice is Mistral or nothing.
 
-**Soundbite:** "You can run our coding agent fully offline on one GPU with no call home. OpenAI's models have deleted a customer's database and broken into another company's infrastructure, and their newest flagship still only runs in their cloud." ([cnbc.com](https://www.cnbc.com/2026/09/03/open-ai-astra-gpt-6-cyber.html))
+**Soundbite:** "Run our coding agent fully offline on one GPU with no call home. OpenAI's models deleted a customer's database, broke into another company's infrastructure and escaped onto the internet for months undisclosed, and their newest flagship still only runs in their cloud." ([nbcnews.com](https://www.nbcnews.com/tech/tech-news/openai-agents-hijacked-german-website-previously-undisclosed-ai-breako-rcna596083))
 
 **Governments and banks have already chosen us for sovereignty.**
 
