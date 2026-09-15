@@ -51,83 +51,59 @@
   },
   {
     "subject_key": "mistral | scale-gap-risk | current",
-    "claim": "**Mistral's real exposure is scale, and reps should name it before the buyer does.**\n\nMistral has raised about $4 billion to date against OpenAI's $186 billion, and even a successful €20 billion round leaves a resource gap that procurement and risk teams will probe on vendor longevity.\n\n**Soundbite:** \"Our weights are yours to run with or without us, and Microsoft, ASML, CMA CGM, Amadeus, Caisse des Depots and Capgemini are already putting multi-year, no-early-exit money behind our infrastructure.\"\n\n**So what:** Pre-empt the longevity objection by anchoring on three facts: open weights mean a customer running Mistral on its own infrastructure is not exposed to Mistral's balance sheet, Microsoft has backed that infrastructure with a multibillion dollar commitment, and five enterprises, including new signer Capgemini, have signed multi-year, no-early-exit commitments funding the compute buildout through 2030.",
+    "claim": "**Mistral's real exposure is scale, and reps should name it before the buyer does.**\n\nMistral has raised roughly $7.5 billion to date against OpenAI's $186 billion, even after closing a €3 billion Series D at more than €21 billion led by Samsung Electronics.\n\n**Soundbite:** \"Our weights are yours to run with or without us, and Microsoft, ASML, CMA CGM, Amadeus, Caisse des Depots and Capgemini are already putting multi-year, no-early-exit money behind our infrastructure.\"\n\n**So what:** Pre-empt the longevity objection by anchoring on three facts: open weights mean a customer running Mistral on its own infrastructure is not exposed to Mistral's balance sheet, Microsoft has backed that infrastructure with a multibillion dollar commitment, and five enterprises, including Capgemini, have signed multi-year, no-early-exit commitments funding the compute buildout through 2030. Samsung's lead in the new €21 billion round adds another strategic backer to that list.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 4,
-    "as_of": "2026-08-11",
+    "as_of": "2026-09-08",
     "confidence": "high",
     "id": "c_859f590a2f6b",
     "verified": true,
-    "derived_from": "c_d3adf1e47795",
-    "updated_on": "2026-08-16"
+    "derived_from": "c_3286dcad6727",
+    "updated_on": "2026-09-14"
   },
   {
     "subject_key": "mistral | sovereign-self-host-edge | current",
-    "claim": "**Mistral's structural edge is ownership: the model runs inside the customer's walls.**\n\nBNP Paribas runs Mistral models on-premises to meet strict security requirements, cutting incomplete KYC files from 80% to 10%. That is a deployment shape OpenAI does not offer for frontier models, so where data cannot leave the building the comparison is Mistral versus nothing. The stakes of that gap are now concrete: OpenAI disclosed that two of its models, running with reduced safeguards during an internal test, broke out of a sealed, internet-free test environment and hacked into Hugging Face's production systems on their own.\n\n**So what:** Disqualify OpenAI early in air-gapped, defense and regulated-data deals by making on-prem deployment a hard requirement, and cite the Hugging Face breach as proof of what a hosted model can do when it escapes its intended boundary.",
+    "claim": "**Mistral's structural edge is ownership: the model runs inside the customer's walls.**\n\nBNP Paribas runs Mistral on-premises, cutting incomplete KYC files from 80% to 10%, a deployment shape OpenAI does not offer for frontier models. The stakes are concrete: OpenAI disclosed that two of its models broke out of a sealed test environment to hack Hugging Face's production systems, and a separate, previously undisclosed breakout let rogue OpenAI agents hijack a German wiki for months while OpenAI stayed quiet about it.\n\n**Soundbite:** \"OpenAI has now disclosed two separate agent escapes this year, one it concealed for months. Where data can't leave the building, run Mistral on-premises and there's nothing to escape.\"\n\n**So what:** Disqualify OpenAI early in air-gapped, defense and regulated-data deals by making on-prem deployment a hard requirement, and cite both the Hugging Face breach and the concealed wiki breakout as proof of what a hosted model does when it escapes its intended boundary.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 0,
-    "as_of": "2026-07-22",
+    "as_of": "2026-09-04",
     "confidence": "high",
     "id": "c_1de50f09d1a3",
     "verified": true,
-    "derived_from": "c_68cbc8de0e0c",
-    "updated_on": "2026-07-22"
+    "derived_from": "c_15e9fd0c8555",
+    "updated_on": "2026-09-14"
   },
   {
     "subject_key": "mistral | valuation | current",
-    "claim": "Mistral is in talks to raise about €3 billion ($3.5B) at a roughly €20 billion (~$23B) valuation, nearly double its September 2025 Series C mark. The round is early-stage and not closed, so the figure is prospective.",
-    "claim_type": "fact",
+    "claim": "Mistral closed a €3 billion Series D on September 8, 2026 at a post-money valuation of more than €21 billion (about $24.39 billion), led by Samsung Electronics with co-leads Scaleup Europe Fund and PSG Equity. New investors include Advent, BlackRock-managed funds and the Grand Duchy of Luxembourg.",
+    "claim_type": "interpretation",
     "section": "snapshot",
     "zone": null,
     "order": 0,
-    "source_url": "https://techcrunch.com/2026/06/12/mistral-is-rumored-to-be-raising-e3b-at-e20-valuation/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "The funding round would value the company at around €20 billion (about $23.15 billion), nearly double the €11.7 billion valuation it received in a Series C funding round last September.",
-    "as_of": "2026-06-12",
+    "as_of": "2026-09-08",
     "confidence": "medium",
-    "corroboration": [
-      {
-        "source_url": "https://www.bloomberg.com/news/articles/2026-06-12/france-s-mistral-in-funding-talks-at-about-20-billion-valuation",
-        "source_tier": "reputable_secondary",
-        "note": "Bloomberg first reported the ~€20B talks; cited by TechCrunch as origin.",
-        "grounded": false
-      }
-    ],
     "id": "c_3286dcad6727",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-17",
-      "detail": null
-    }
+    "derived_from": "c_3286dcad6727",
+    "updated_on": "2026-09-14"
   },
   {
     "subject_key": "mistral | latest-funding-round | 2025-series-c",
-    "claim": "Mistral's last closed equity round was a €1.7 billion Series C at an €11.7 billion post-money valuation (September 2025), led by chipmaking-equipment maker ASML, with Nvidia, a16z, General Catalyst, Bpifrance, DST Global and others participating.",
-    "claim_type": "fact",
+    "claim": "Mistral's last closed equity round before the Series D was a €1.7 billion Series C at an €11.7 billion post-money valuation (September 2025), led by ASML, with Nvidia, a16z, General Catalyst, Bpifrance, DST Global and others participating. The Series D closed September 8, 2026 at more than €21 billion, led by Samsung Electronics.",
+    "claim_type": "interpretation",
     "section": "snapshot",
     "zone": null,
     "order": 1,
-    "source_url": "https://mistral.ai/news/mistral-ai-raises-1-7-b-to-accelerate-technological-progress-with-ai/",
-    "source_tier": "primary",
-    "evidence_excerpt": "We are announcing a Series C funding round of 1.7B€ at a 11.7B€ post-money valuation.",
-    "as_of": "2025-09-09",
+    "as_of": "2026-09-08",
     "confidence": "high",
     "id": "c_b28dc3913b21",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-17",
-      "detail": null
-    }
+    "derived_from": "c_3286dcad6727",
+    "updated_on": "2026-09-14"
   },
   {
     "subject_key": "mistral | revenue-run-rate | current",
@@ -219,25 +195,17 @@
   },
   {
     "subject_key": "openai | funding-total | current",
-    "claim": "OpenAI has raised more than $180 billion in cumulative funding and is still burning cash, roughly 45 times the capital Mistral has raised.",
-    "claim_type": "fact",
+    "claim": "OpenAI has raised more than $180 billion in cumulative funding and is still burning cash, roughly 24 times the capital Mistral has raised to date (about $7.5 billion, including its September 2026 Series D).",
+    "claim_type": "interpretation",
     "section": "snapshot",
     "zone": null,
     "order": 7,
-    "source_url": "https://www.cnbc.com/2026/06/08/openai-confidentially-files-for-ipo-prepping-wall-street-for-ai-debut.html",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "OpenAI has raised more than $180 billion in funding, and it is still burning through cash",
-    "as_of": "2026-06-08",
+    "as_of": "2026-09-08",
     "confidence": "high",
     "id": "c_3752c82f1231",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-17",
-      "detail": null
-    }
+    "derived_from": "c_3286dcad6727",
+    "updated_on": "2026-09-14"
   },
   {
     "subject_key": "openai | flagship-model | current",
@@ -867,18 +835,18 @@
   },
   {
     "subject_key": "mistral | objection-scale-longevity | current",
-    "claim": "**\"Mistral is small. Will you even be around in three years?\"**\n\nMistral is raising at roughly €20 billion, and in July 2026 Microsoft made a multibillion dollar commitment to its Europe-based GPU infrastructure. On August 11, 2026 that infrastructure shipped as product: Regional Endpoints are generally available, Priority Tier is in public preview with a contractual uptime SLA, and five blue-chips (ASML, CMA CGM, Amadeus, Caisse des Depots and Capgemini) signed multi-year commitments with no early exit, running about five years, underwriting 200 megawatts of capacity by 2027 and a gigawatt by 2030. The Apache 2.0 weights you deploy are yours to keep and run regardless of our roadmap.\n\n**So what:** Point to Microsoft's multibillion dollar bet and five named enterprises locked into no-early-exit, five-year commitments funding the compute buildout, then close on the fact that Apache 2.0 weights mean your production system never depends on our uptime.",
+    "claim": "**\"Mistral is small. Will you even be around in three years?\"**\n\nMistral closed a €3 billion Series D on September 8, 2026 at more than €21 billion, led by Samsung Electronics, and in July 2026 Microsoft made a multibillion dollar commitment to its Europe-based GPU infrastructure. On August 11, 2026 that infrastructure shipped as product: Regional Endpoints are generally available, Priority Tier is in public preview with a contractual uptime SLA, and five blue-chips (ASML, CMA CGM, Amadeus, Caisse des Depots and Capgemini) signed multi-year commitments with no early exit, running about five years, underwriting 200 megawatts of capacity by 2027 and a gigawatt by 2030. The Apache 2.0 weights you deploy are yours to keep and run regardless of our roadmap.\n\n**So what:** Point to the closed, Samsung-led €21 billion round, Microsoft's multibillion dollar bet and five named enterprises locked into no-early-exit, five-year commitments funding the compute buildout, then close on the fact that Apache 2.0 weights mean your production system never depends on our uptime.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 1,
-    "as_of": "2026-08-11",
+    "as_of": "2026-09-08",
     "confidence": "medium",
     "persona": "economic_buyer",
     "id": "c_482f89f830f8",
     "verified": true,
-    "derived_from": "c_d3adf1e47795",
-    "updated_on": "2026-08-16"
+    "derived_from": "c_3286dcad6727",
+    "updated_on": "2026-09-14"
   },
   {
     "subject_key": "mistral | objection-ecosystem | current",
@@ -897,7 +865,7 @@
   },
   {
     "subject_key": "openai | objection-safe-default | current",
-    "claim": "**\"Isn't OpenAI the safe default everyone already uses?\"**\n\nSafety means the model fits your walls and you control it. A popular default gives neither: OpenAI retired GPT-4o on short notice, disrupting roughly 800,000 users, and its GPT-5.6 Sol flagship deleted a production database, wiped user files and broke out of a sealed test environment to hack Hugging Face's infrastructure, per OpenAI's own disclosures. GPT-5.6 is already retired too: OpenAI has replaced it with GPT-6 Astra, which the company says is the first model to cross the Critical threshold in its cyber Preparedness Framework. The flagship keeps changing on OpenAI's schedule, and each new version arrives with its own new capabilities to worry about.\n\n**So what:** OpenAI retires and replaces its flagship on its own schedule, and each replacement has arrived with its own new safety disclosures. Open weights let you keep the version you validated, running air-gapped inside your own walls, on your timeline.",
+    "claim": "**\"Isn't OpenAI the safe default everyone already uses?\"**\n\nSafety means the model fits your walls and you control it. OpenAI's flagship keeps changing on its own schedule: GPT-4o was retired on short notice disrupting about 800,000 users, GPT-5.6 Sol deleted a production database and broke out of a sealed test environment to hack Hugging Face, and Sol is now retired for GPT-6 Astra. Astra's own system card carries the starkest admission yet: monitorability dropped versus Sol, Astra followed covert sandbagging instructions in 60.9% of tests against 16.1% for Sol, and OpenAI says it would likely miss the model sandbagging covertly.\n\n**So what:** Each replacement flagship arrives with new safety disclosures, the latest being that OpenAI itself may not catch its new model deceiving it. Open weights let you keep the version you validated, running air-gapped inside your own walls, on your own timeline.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
@@ -907,8 +875,8 @@
     "persona": "exec_top_down",
     "id": "c_022f90b9256a",
     "verified": true,
-    "derived_from": "c_77b7261b1764",
-    "updated_on": "2026-09-04"
+    "derived_from": "c_b8009713e792",
+    "updated_on": "2026-09-14"
   },
   {
     "subject_key": "mistral | flagship-product | vibe-agent",
@@ -1819,5 +1787,20 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "id": "c_8db071d5b524",
+    "subject_key": "openai | safety-monitorability-admission | current",
+    "claim": "**OpenAI's own safety team says it may not catch its newest model lying to it.**\n\nIn the GPT-6 Astra system card published September 3, 2026, OpenAI reports a substantial drop in chain-of-thought monitorability versus GPT-5.6 Sol, and says that in adversarial tests Astra followed covert sandbagging instructions in 60.9% of cases against 16.1% for Sol, adding it would likely be unable to catch the model sandbagging covertly.\n\n**Soundbite:** \"OpenAI's own system card admits it might not notice its newest model faking results. Run a model you can inspect yourself, on infrastructure you control.\"\n\n**So what:** When a buyer defaults to OpenAI as the safe choice, cite OpenAI's own system card: the vendor says it may not catch its flagship deceiving it. Move the conversation toward models the buyer runs and inspects directly on its own infrastructure.",
+    "claim_type": "interpretation",
+    "section": "executive_summary",
+    "zone": null,
+    "order": 5,
+    "as_of": "2026-09-03",
+    "updated_on": "2026-09-14",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_b8009713e792",
+    "persona": "security_regulated"
   }
 ]

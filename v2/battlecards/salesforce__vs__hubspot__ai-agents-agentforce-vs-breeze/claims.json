@@ -308,18 +308,18 @@
   },
   {
     "subject_key": "hubspot-breeze | resolution-rate | current",
-    "claim": "**On front-line support resolution, Breeze is genuinely competitive.**\n\nHubSpot's Customer Agent now resolves about 70% of support conversations autonomously, with some customers above 90%. In a tier-1 support-deflection deal that number is real, and the buyer will cite it. Pretending otherwise costs credibility.\n\nWith Salesforce's signed agreement to acquire Fin (expected close Q4 FY2027), the resolution-rate comparison shifts. Fin's AI Agent averages 76% of support volume resolved end-to-end across live chat, email, WhatsApp, SMS, phone and Slack. On close, Salesforce will have a packaged support AI that runs above Breeze on the headline metric in its own mid-market territory.\n\n**Soundbite:** *\"Their 70% is real for FAQ deflection, so make them prove it on complex, multi-system B2B workflows where Agentforce executes the whole process. And note: Fin, pending Q4 FY2027 close, averages 76% with the same packaged mid-market approach they're pitching.\"*",
+    "claim": "**On front-line support resolution, Breeze is genuinely competitive.**\n\nHubSpot's Customer Agent resolves about 70% of support conversations autonomously, with some customers above 90%. In a tier-1 support-deflection deal that number is real, and the buyer will cite it. Pretending otherwise costs credibility.\n\nSalesforce closed its Fin (formerly Intercom) acquisition on September 10, 2026, months ahead of the Q4 FY2027 target, and Fin is GA now inside Salesforce alongside Agentforce. Fin's AI Agent averages 76% of support volume resolved end to end across live chat, email, WhatsApp, SMS, phone and Slack, so Salesforce now owns a packaged support AI that runs above Breeze on the headline metric in HubSpot's own mid-market territory.\n\n**Soundbite:** *\"Their 70% is real for FAQ deflection, so make them prove it on complex, multi-system B2B workflows where Agentforce executes the whole process. And Fin, now inside Salesforce, averages 76% end to end across every channel they're pitching.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
     "order": 0,
-    "as_of": "2026-06-15",
+    "as_of": "2026-09-10",
     "confidence": "high",
     "id": "c_0d8c580bee52",
     "verified": true,
     "persona": "technical_evaluator",
     "derived_from": "c_af896f3200dc",
-    "updated_on": "2026-06-15"
+    "updated_on": "2026-09-14"
   },
   {
     "subject_key": "hubspot-breeze | sales-cycle | current",
@@ -684,16 +684,16 @@
   {
     "id": "c_73139c459226",
     "subject_key": "hubspot-agent-builder | objection | custom-agent-parity",
-    "claim": "**\"HubSpot's new Agent Builder lets us build custom agents ourselves now. Why do we need Agentforce?\"**\n\nHubSpot's Agent Builder beta (Professional and Enterprise, July 23) does let customers build custom agents in plain language on CRM data, with Agent Hub as a single console showing status across agents and per-agent access controls. That covers basic build and visibility. It stops there: no trusted agent identity for high-stakes actions, no centralized LLM governance, no orchestration across multiple model vendors, the control plane Agent Fabric already runs for Agentforce across Amazon Bedrock and Microsoft Foundry. Breeze also still only reaches the front office, while Agentforce Operations is GA in finance, supply chain and procurement.\n\n**So what:** Walk the buyer through Agent Fabric's governance control plane and an Agentforce Operations use case in their own back office. That's a concrete gap Agent Builder's beta doesn't close today.",
+    "claim": "**\"HubSpot's new Agent Builder lets us build custom agents ourselves now. Why do we need Agentforce?\"**\n\nHubSpot's Agent Builder beta (Professional and Enterprise, July 23) lets customers build custom agents in plain language on CRM data, with Agent Hub as a single console for status and per-agent access controls. That covers basic build and visibility, and stops there: no trusted agent identity for high-stakes actions, no centralized LLM governance, no orchestration across multiple model vendors, the control plane Agent Fabric already runs for Agentforce across Amazon Bedrock and Microsoft Foundry. Breeze also still only reaches the front office, while Agentforce Operations is GA in finance, supply chain and procurement. Salesforce also ships six named, job-ready agents GA today, so the buyer can turn one on instead of building it.\n\n**So what:** Show the buyer a named agent that already does the job they'd otherwise build, then walk through Agent Fabric's governance and an Agentforce Operations use case in their back office.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 4,
-    "as_of": "2026-07-23",
-    "updated_on": "2026-07-24",
+    "as_of": "2026-09-11",
+    "updated_on": "2026-09-14",
     "verified": true,
     "confidence": "medium",
-    "derived_from": "c_3112117ff2d1",
+    "derived_from": "c_f4f6a752c992",
     "persona": "technical_evaluator"
   },
   {
@@ -850,6 +850,81 @@
     "verified": true,
     "confidence": "medium",
     "derived_from": "c_f452744aa582",
+    "persona": "economic_buyer"
+  },
+  {
+    "subject_key": "agentforce | job-ready-agents | launch",
+    "claim": "Salesforce introduced a new portfolio of seven named, job-ready Agentforce agents on September 11, 2026: Casey (customer service), Paige (IT/HR service), Carter (shopper/commerce), Piper (inbound pipeline generation), Marshall (supply chain) and Fin (customer experience, built on the newly acquired Fin technology) are all GA now. Hunter (outbound sales) is in pilot now with GA targeted for November 2026 and is the first agent to run on a new long-horizon runtime that lets it pursue goals over days and weeks instead of single interactions.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 2,
+    "source_url": "https://www.salesforce.com/news/stories/agentforce-job-ready-ai-agents/",
+    "source_tier": "primary",
+    "evidence_excerpt": "a new portfolio of job-ready agents built to take on high-value work across sales, service, commerce, employee experience, and the back office.",
+    "as_of": "2026-09-11",
+    "confidence": "high",
+    "id": "c_f4f6a752c992",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-12",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://siliconangle.com/2026/09/11/salesforce-introduces-new-ai-agents-to-automate-sales-support-tasks/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_9f888af25de8",
+    "subject_key": "salesforce | exec-summary | job-ready-agents",
+    "claim": "**Salesforce now ships six named, job-ready agents out of the box, with a seventh in pilot.**\n\nCasey (customer service), Paige (IT/HR), Carter (commerce), Piper (inbound pipeline), Marshall (supply chain) and Fin (customer experience) are generally available today, and Hunter (outbound sales) is in pilot now with GA targeted for November 2026, running on a new long-horizon runtime built to pursue a goal over days and weeks.\n\n**Soundbite:** \"You get six working agents today, one per job, not a builder kit you have to assemble yourself.\"\n\n**So what:** Map the buyer's open roles (service, IT/HR, commerce, pipeline, supply chain, CX) to a named agent already GA, and flag Hunter's long-horizon runtime for outbound teams planning past November.",
+    "claim_type": "interpretation",
+    "section": "executive_summary",
+    "zone": null,
+    "order": 6,
+    "as_of": "2026-09-11",
+    "updated_on": "2026-09-14",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_f4f6a752c992",
+    "persona": "exec_top_down"
+  },
+  {
+    "id": "c_5adc1d6f1c41",
+    "subject_key": "agentforce | job-ready-agents | prebuilt-portfolio",
+    "claim": "**A named agent for every job, live today, while HubSpot hands you a builder.**\n\nCasey, Paige, Carter, Piper, Marshall and Fin are GA now, covering customer service, IT/HR, commerce, inbound pipeline, supply chain and customer experience. HubSpot's answer is Agent Builder, a beta tool for building your own agents from scratch. A buyer choosing Salesforce turns an agent on. A buyer choosing HubSpot starts a build project.\n\n**Soundbite:** \"Ours are built and running today. Theirs is still a kit you have to assemble.\"",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 5,
+    "as_of": "2026-09-11",
+    "updated_on": "2026-09-14",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_f4f6a752c992",
+    "persona": "technical_evaluator"
+  },
+  {
+    "id": "c_b001c5ff7bd5",
+    "subject_key": "salesforce | exec-summary | fin-acquisition",
+    "claim": "**Salesforce now owns a live, multi-channel support agent resolving 76% of conversations end to end, closed September 10, 2026, months ahead of schedule.**\n\nThe Fin acquisition closed September 10, 2026, months ahead of the original Q4 FY2027 timeline, bringing a 76%-resolution customer agent and its base of more than 30,000 companies into Salesforce's AI Labs.\n\n**Soundbite:** \"We already closed on a support agent that resolves 76% of conversations end to end across chat, email, WhatsApp, SMS, voice and Slack, so you get that alongside Agentforce today instead of waiting on a roadmap.\"\n\n**So what:** Lead support-deflection conversations with Fin's shipped 76% resolution rate and full channel coverage as a Salesforce capability available now, not a future integration.",
+    "claim_type": "interpretation",
+    "section": "executive_summary",
+    "zone": null,
+    "order": 7,
+    "as_of": "2026-09-10",
+    "updated_on": "2026-09-14",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_af896f3200dc",
     "persona": "economic_buyer"
   }
 ]
