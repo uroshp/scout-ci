@@ -181,11 +181,15 @@ def load_state() -> dict:
         s = json.loads(raw)
     except json.JSONDecodeError:
         return default_state()
-    # Tolerate a hand-edited/partial file; config is the source of truth for the limits.
+    # Tolerate a hand-edited/partial file. The COUNTERS (used, spend_usd) come from the file; the
+    # LIMITS come from config, always. 2026-09-15 incident: the file carried spend_ceiling_usd=100
+    # from the June default, the Action env said 500, and this line let the file win — so with the
+    # Action's $100 per-run reservation every request after the first was rejected as
+    # "spend ceiling reached" while $486 of intended headroom sat unused.
     s.setdefault("used", 0)
     s.setdefault("spend_usd", 0.0)
-    s["free_limit"] = s.get("free_limit", config.SELFSERVE_FREE_LIMIT)
-    s["spend_ceiling_usd"] = s.get("spend_ceiling_usd", config.SELFSERVE_SPEND_CEILING_USD)
+    s["free_limit"] = config.SELFSERVE_FREE_LIMIT
+    s["spend_ceiling_usd"] = config.SELFSERVE_SPEND_CEILING_USD
     return s
 
 
