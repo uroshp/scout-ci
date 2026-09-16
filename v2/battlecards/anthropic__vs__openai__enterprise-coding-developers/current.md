@@ -152,6 +152,12 @@ GPT-6 Astra edges Claude on computer-use tasks: OSWorld 2.0 at 72.6% versus Opus
 
 **Soundbite:** "Astra wins a couple of narrow computer-use tests, but on the independent index that scores actual reasoning, Claude is still five points ahead." ([artificialanalysis.ai](https://artificialanalysis.ai/articles/benchmarking-gpt-6-astra))
 
+**Google widened internal access to Claude Opus 5, not just Gemini.**
+
+Google opened its internal development platform, Antigravity, so engineers across the company can use Claude Opus 5, ending a policy that had limited most employees to Gemini and restricted Claude to select DeepMind teams and high-priority projects. A company that builds its own frontier model chose to give its own engineers broader access to Claude. Google still calls Gemini the primary internal model and caps third-party models like Claude on a quota basis, and employees still cannot use Claude Code directly, only Opus 5 inside Antigravity.
+
+**Soundbite:** Google builds its own frontier model and still opened Claude Opus 5 up to engineers company-wide. If Google's own engineers get that choice, yours should too. ([finance.biggo.com](https://finance.biggo.com/news/2aa7c4bf-ad9a-4e3b-8ed8-3c2862e9ecb6))
+
 ### Where it's a fight
 
 **On token price, the picture stays mixed, but capability per dollar has moved our way.**

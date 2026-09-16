@@ -2386,5 +2386,50 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "anthropic | google-antigravity-access",
+    "claim": "Google opened its internal development platform Antigravity so engineers across the company can use Anthropic's Claude Opus 5, ending a policy that had limited most employees to Gemini and restricted Claude access to select DeepMind teams and high-priority projects. A Google spokesperson said Gemini remains the primary foundation model for internal development and that third-party models are provided on a quota basis for specialized use cases, and employees still cannot use Claude Code directly, only Opus 5 inside Antigravity.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 2,
+    "source_url": "https://finance.biggo.com/news/2aa7c4bf-ad9a-4e3b-8ed8-3c2862e9ecb6",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Gemini remains the primary foundation model for internal development, and third-party models are provided on a quota basis to support specialized use cases.",
+    "as_of": "2026-09-14",
+    "confidence": "high",
+    "id": "c_b28f949def47",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-16",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://en.sedaily.com/international/2026/09/15/google-lets-engineers-use-rival-anthropics-claude",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_4e493f221e28",
+    "subject_key": "battlecard | google-antigravity-claude-adoption | where_we_win",
+    "claim": "**Google widened internal access to Claude Opus 5, not just Gemini.**\n\nGoogle opened its internal development platform, Antigravity, so engineers across the company can use Claude Opus 5, ending a policy that had limited most employees to Gemini and restricted Claude to select DeepMind teams and high-priority projects. A company that builds its own frontier model chose to give its own engineers broader access to Claude. Google still calls Gemini the primary internal model and caps third-party models like Claude on a quota basis, and employees still cannot use Claude Code directly, only Opus 5 inside Antigravity.\n\n**Soundbite:** Google builds its own frontier model and still opened Claude Opus 5 up to engineers company-wide. If Google's own engineers get that choice, yours should too.",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 10,
+    "as_of": "2026-09-14",
+    "updated_on": "2026-09-16",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_b28f949def47",
+    "persona": "exec_top_down"
   }
 ]

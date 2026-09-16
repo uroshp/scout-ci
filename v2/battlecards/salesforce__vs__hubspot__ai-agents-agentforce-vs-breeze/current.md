@@ -16,11 +16,13 @@ Agentforce ARR hit \$1.2 billion in Q1 FY2027, up 205% year over year, the first
 
 **So what:** Lead enterprise and regulated deals with hard proof and expansion references, and make the buyer ask HubSpot for an equivalent number they cannot produce. ([cnbc.com](https://www.cnbc.com/2026/05/27/salesforce-crm-q1-earnings-report-2027.html))
 
-**Salesforce's own bad news is now sales ammunition for HubSpot. Get ahead of it.**
+**Salesforce's own bad news keeps handing HubSpot ammunition. Get ahead of it.**
 
-Bank of America reinstated Salesforce at Underperform in May, calling Agentforce "directionally correct but having product challenges and limited impact," and February's layoffs hit the Agentforce unit itself. Morgan Stanley added a second downgrade on July 21, cutting Salesforce to Equal-Weight and its price target 35% to \$185, on the view that Agentforce hasn't yet driven an organic growth inflection and monetization is still nascent. A HubSpot rep now has three separate headlines to weaponize.
+Bank of America's May Underperform call, February's Agentforce-unit layoffs, Morgan Stanley's July 21 downgrade to Equal-Weight (price target cut 35% to \$185) and the September 16 global outage during Dreamforce week give a HubSpot rep four separate headlines to work with.
 
-**So what:** Reps must carry honest, rehearsed answers to the layoff and analyst-skepticism objections; spin loses credibility faster than the facts do. ([cnbc.com](https://www.cnbc.com/2026/07/21/salesforce-ai-push-isnt-enough-to-save-shares-morgan-stanley-says.html))
+**Soundbite:** "Every platform has a bad week. What matters is that Salesforce found the root cause and had a fleetwide fix live in about four hours. Ask HubSpot what their last major incident's recovery time looked like."
+
+**So what:** Reps must carry honest, rehearsed answers to the layoff, analyst-skepticism and outage objections. Naming the fix timeline beats letting HubSpot frame the story. ([theregister.com](https://www.theregister.com/saas/2026/09/16/salesforce-suffers-global-outage-amid-dreamforce-shindig/5296800))
 
 **HubSpot genuinely wins SMB and mid-market on speed and simplicity. Pick the battlefield accordingly.**
 
@@ -192,6 +194,12 @@ This is real: in the Einstein-to-Agentforce transition customers said they were 
 HubSpot's Agent Builder beta (Professional and Enterprise, July 23) lets customers build custom agents in plain language on CRM data, with Agent Hub as a single console for status and per-agent access controls. That covers basic build and visibility, and stops there: no trusted agent identity for high-stakes actions, no centralized LLM governance, no orchestration across multiple model vendors, the control plane Agent Fabric already runs for Agentforce across Amazon Bedrock and Microsoft Foundry. Breeze also still only reaches the front office, while Agentforce Operations is GA in finance, supply chain and procurement. Salesforce also ships six named, job-ready agents GA today, so the buyer can turn one on instead of building it.
 
 **So what:** Show the buyer a named agent that already does the job they'd otherwise build, then walk through Agent Fabric's governance and an Agentforce Operations use case in their back office. ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-job-ready-ai-agents/))
+
+**"Salesforce just had a global outage during Dreamforce week, so why should we trust the platform's reliability?"**
+
+The timing stung, and it deserves a straight answer. On September 16 an external dependency failure hit Salesforce's legacy login server, causing delays, intermittent errors and support-case failures across hundreds of instances in the US, UK, France, Germany, Japan, India, Canada, Brazil and Australia. What matters for a reliability decision is the response: Salesforce traced the root cause to that external dependency, validated a fix and began rolling it out fleetwide within about four hours of the outage starting.
+
+**So what:** Walk the buyer through the outage's own timeline out loud (root cause traced to an external dependency, a fix validated, fleetwide rollout begun in roughly four hours) and let that fast diagnosis-and-fix response stand as the reliability answer rather than talking around the event. ([theregister.com](https://www.theregister.com/saas/2026/09/16/salesforce-suffers-global-outage-amid-dreamforce-shindig/5296800))
 
 ## Cut Log
 
