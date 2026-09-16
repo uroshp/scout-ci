@@ -1606,15 +1606,15 @@
   },
   {
     "subject_key": "google | product-launch | googlebook",
-    "claim": "Google is launching Googlebook, a new category of laptop built on an Android-based operating system with Gemini woven into the OS layer rather than bolted on. Pre-orders open September 21, 2026 at 9 a.m. ET, with the first devices from Acer, Asus, Dell, HP and Lenovo shipping this fall. Gemini powers OS-level features like Magic Pointer, which lets a user point at anything on screen to ask, compare or create.",
+    "claim": "Google set Googlebook pre-orders to open September 21, 2026 at 9AM ET, with the first models shipping this fall from Acer, Asus, Dell, HP and Lenovo. Googlebooks are flagship laptops running a version of ChromeOS built on Android, with Gemini Intelligence in the OS powering features like Magic Pointer and Create My Widget, plus deep Android-phone integration. Google has not published prices yet.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 1,
+    "order": 50,
     "source_url": "https://googlebook.google/",
     "source_tier": "primary",
     "evidence_excerpt": "The first wave of Googlebooks launching during fall this year will be made by leading laptop manufacturers like Acer, Asus, Dell, HP and Lenovo.",
-    "as_of": "2026-09-15",
+    "as_of": "2026-09-14",
     "confidence": "high",
     "id": "c_2e670cc73718",
     "verified": true,
@@ -1622,16 +1622,10 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-09-15",
+      "fetched_at": "2026-09-16",
       "detail": null
     },
     "corroboration": [
-      {
-        "source_url": "https://9to5google.com/2026/09/14/googlebook-pre-order/",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false
-      },
       {
         "source_url": "https://www.engadget.com/2258035/pre-orders-for-the-android-based-googlebook-laptops-open-on-september-21/",
         "source_tier": "reputable_secondary",
