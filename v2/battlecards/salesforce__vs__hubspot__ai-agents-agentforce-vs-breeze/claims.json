@@ -37,17 +37,17 @@
   },
   {
     "subject_key": "salesforce | exec-summary | adverse-ammunition",
-    "claim": "**Salesforce's own bad news is now sales ammunition for HubSpot. Get ahead of it.**\n\nBank of America reinstated Salesforce at Underperform in May, calling Agentforce \"directionally correct but having product challenges and limited impact,\" and February's layoffs hit the Agentforce unit itself. Morgan Stanley added a second downgrade on July 21, cutting Salesforce to Equal-Weight and its price target 35% to $185, on the view that Agentforce hasn't yet driven an organic growth inflection and monetization is still nascent. A HubSpot rep now has three separate headlines to weaponize.\n\n**So what:** Reps must carry honest, rehearsed answers to the layoff and analyst-skepticism objections; spin loses credibility faster than the facts do.",
+    "claim": "**Salesforce's own bad news keeps handing HubSpot ammunition. Get ahead of it.**\n\nBank of America's May Underperform call, February's Agentforce-unit layoffs, Morgan Stanley's July 21 downgrade to Equal-Weight (price target cut 35% to $185) and the September 16 global outage during Dreamforce week give a HubSpot rep four separate headlines to work with.\n\n**Soundbite:** \"Every platform has a bad week. What matters is that Salesforce found the root cause and had a fleetwide fix live in about four hours. Ask HubSpot what their last major incident's recovery time looked like.\"\n\n**So what:** Reps must carry honest, rehearsed answers to the layoff, analyst-skepticism and outage objections. Naming the fix timeline beats letting HubSpot frame the story.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 2,
-    "as_of": "2026-07-21",
+    "as_of": "2026-09-16",
     "confidence": "high",
     "id": "c_01ed8870ef4c",
     "verified": true,
-    "derived_from": "c_00f949c099f7",
-    "updated_on": "2026-07-23"
+    "derived_from": "c_ba63650f6985",
+    "updated_on": "2026-09-16"
   },
   {
     "subject_key": "salesforce | exec-summary | choose-battlefield",
@@ -926,5 +926,50 @@
     "confidence": "medium",
     "derived_from": "c_af896f3200dc",
     "persona": "economic_buyer"
+  },
+  {
+    "subject_key": "salesforce | platform | outage-sept-2026",
+    "claim": "Salesforce suffered a global service disruption starting at 7:50 AM GMT on September 16, 2026, the same week as its Dreamforce conference in San Francisco. The outage hit hundreds of instances across all regions including the US, UK, France, Germany, Japan, India, Canada, Brazil and Australia, with customers reporting severe delays, intermittent errors, inability to access some services and difficulty submitting new support cases. Salesforce traced the disruption to an external dependency failure affecting its legacy login server and validated a fix that it began rolling out fleetwide within about four hours of the outage's start.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.theregister.com/saas/2026/09/16/salesforce-suffers-global-outage-amid-dreamforce-shindig/5296800",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "The outage has hit hundreds of instances throughout the world, including the USA, Japan, India, the UK, France, and Germany.",
+    "as_of": "2026-09-16",
+    "confidence": "high",
+    "id": "c_ba63650f6985",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-16",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://thecybersecguru.com/news/salesforce-down-outage-september-2026/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_5af179046756",
+    "subject_key": "salesforce | objection | platform-outage-sept-2026",
+    "claim": "**\"Salesforce just had a global outage during Dreamforce week, so why should we trust the platform's reliability?\"**\n\nThe timing stung, and it deserves a straight answer. On September 16 an external dependency failure hit Salesforce's legacy login server, causing delays, intermittent errors and support-case failures across hundreds of instances in the US, UK, France, Germany, Japan, India, Canada, Brazil and Australia. What matters for a reliability decision is the response: Salesforce traced the root cause to that external dependency, validated a fix and began rolling it out fleetwide within about four hours of the outage starting.\n\n**So what:** Walk the buyer through the outage's own timeline out loud (root cause traced to an external dependency, a fix validated, fleetwide rollout begun in roughly four hours) and let that fast diagnosis-and-fix response stand as the reliability answer rather than talking around the event.",
+    "claim_type": "interpretation",
+    "section": "objection_handling",
+    "zone": null,
+    "order": 5,
+    "as_of": "2026-09-16",
+    "updated_on": "2026-09-16",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_ba63650f6985",
+    "persona": "security_regulated"
   }
 ]
