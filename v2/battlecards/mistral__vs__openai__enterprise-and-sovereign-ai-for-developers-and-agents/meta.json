@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise and sovereign AI for developers and agents",
   "baseline_date": "2026-06-17",
-  "last_checked": "2026-09-16T11:10:35",
+  "last_checked": "2026-09-17T11:07:24",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_911e9a6938ba",
@@ -49,7 +49,9 @@
     "f_df169f6098a0",
     "f_e648dba02df4",
     "f_9d98b0962bb4",
-    "f_8e6871688e19"
+    "f_8e6871688e19",
+    "f_c61de49c4a8a",
+    "f_7441adf31f83"
   ],
   "monitored": true,
   "lead_election": {
@@ -60,5 +62,5 @@
     "openai | security-incident | cyberattack-codex-agents-2026"
   ],
   "unresolved_since": "2026-09-15",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }
