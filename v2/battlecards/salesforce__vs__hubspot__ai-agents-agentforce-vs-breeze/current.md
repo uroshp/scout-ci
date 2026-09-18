@@ -2,6 +2,14 @@
 
 ## Executive Summary
 
+**Salesforce now ships six named, job-ready agents out of the box, with a seventh in pilot.**
+
+Casey (customer service), Paige (IT/HR), Carter (commerce), Piper (inbound pipeline), Marshall (supply chain) and Fin (customer experience) are generally available today, and Hunter (outbound sales) is in pilot now with GA targeted for November 2026, running on a new long-horizon runtime built to pursue a goal over days and weeks.
+
+**Soundbite:** "You get six working agents today, one per job, not a builder kit you have to assemble yourself."
+
+**So what:** Map the buyer's open roles (service, IT/HR, commerce, pipeline, supply chain, CX) to a named agent already GA, and flag Hunter's long-horizon runtime for outbound teams planning past November. ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-job-ready-ai-agents/))
+
 **Agentforce now has its own pay-only-when-it-resolves pricing, so meet HubSpot's pitch with ours, not a defense.**
 
 Salesforce launched Agentforce Help Agent, generally available July 2026, charging \$2 for every issue the agent resolves autonomously start to finish, with nothing charged if the customer asks for a human or walks away unhappy, grounded on Salesforce's own help site handling 4.3 million inquiries at a 70 percent resolution rate.
@@ -46,14 +54,6 @@ The new Core, Advanced and Max editions bundle Agentforce AI, Slack, Tableau Nex
 
 **So what:** Lead with the bundled edition price against any HubSpot all-in-one pitch, and remind existing Agentforce 1 Edition customers they can upgrade to Max free with up to \$500 in added value. ([salesforce.com](https://www.salesforce.com/news/stories/salesforce-simplifies-editions-2026/))
 
-**Salesforce now ships six named, job-ready agents out of the box, with a seventh in pilot.**
-
-Casey (customer service), Paige (IT/HR), Carter (commerce), Piper (inbound pipeline), Marshall (supply chain) and Fin (customer experience) are generally available today, and Hunter (outbound sales) is in pilot now with GA targeted for November 2026, running on a new long-horizon runtime built to pursue a goal over days and weeks.
-
-**Soundbite:** "You get six working agents today, one per job, not a builder kit you have to assemble yourself."
-
-**So what:** Map the buyer's open roles (service, IT/HR, commerce, pipeline, supply chain, CX) to a named agent already GA, and flag Hunter's long-horizon runtime for outbound teams planning past November. ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-job-ready-ai-agents/))
-
 **Salesforce now owns a live, multi-channel support agent resolving 76% of conversations end to end, closed September 10, 2026, months ahead of schedule.**
 
 The Fin acquisition closed September 10, 2026, months ahead of the original Q4 FY2027 timeline, bringing a 76%-resolution customer agent and its base of more than 30,000 companies into Salesforce's AI Labs.
@@ -69,6 +69,7 @@ The Fin acquisition closed September 10, 2026, months ahead of the original Q4 F
 
 ## Recent Strategic Moves
 
+- At its Fall 2026 Spotlight on September 16, HubSpot relaunched its whole platform around agents, calling it the most significant release in years. The Breeze Assistant now takes action and coordinates specialized agents: a rep states a goal and Breeze assigns the agents to plan campaigns, prospect and draft outreach, all grounded in a self-updating Smart CRM. New content and campaign agents plus a Marketing Studio push HubSpot's AI deep into marketing and sales, well past its front-line customer-service roots. ([hubspot.com](https://www.hubspot.com/company-news/fall-26-spotlight))
 - HubSpot launched Agent Hub and Agent Builder in public beta on July 23, 2026 for all Professional and Enterprise customers. Agent Hub is a single console showing live status and performance for every active agent, and Agent Builder lets customers build custom agents in plain language on their existing CRM data (deal history, contact records and buying signals) via Breeze Assistant. This moves Breeze past prebuilt agents into custom build and centralized management, with per-agent access controls and credit run limits. ([knowledge.hubspot.com](https://knowledge.hubspot.com/ai/create-and-customize-agents-in-the-agent-builder))
 - HubSpot reversed a July 1 terms-of-service change that would have pooled customers' business-card-level contact data (name, job title, company, work email, employer) into a shared enrichment dataset by default, enrolling any customer using enrichment unless they manually turned it off before August 4. After four days of public backlash on LinkedIn, chief product and technology officer Duncan Lennox posted "We made a mistake" on July 5 and pulled the change completely, saying any future enrichment using customer data will be fully and transparently opt-in. ([cmswire.com](https://www.cmswire.com/customer-experience/hubspot-reverses-customer-data-enrichment-plan-after-customer-backlash/))
 - HubSpot renamed Commerce Hub to Revenue Hub on June 16, 2026 and expanded it from payments into full quote-to-cash: quoting, CPQ, contracts, subscription billing and payments unified on the Smart CRM, with a native Contract object tying a signed quote to every renewal and amendment. Seat pricing starts at \$95 (Professional) and \$140 (Enterprise) per user monthly, with billing included at no extra cost for now and a usage pricing model due September 2026. This puts HubSpot head-on against the quote-to-cash and CPQ turf Salesforce Revenue Cloud used to own by itself. ([hubspot.com](https://www.hubspot.com/company-news/introducing-revenue-hub-quote-to-cash-finally-in-one-place))

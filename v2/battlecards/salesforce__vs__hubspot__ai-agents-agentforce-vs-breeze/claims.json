@@ -5,7 +5,7 @@
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
-    "order": 0,
+    "order": 1,
     "as_of": "2026-06-25",
     "confidence": "high",
     "id": "c_23fd30f167a2",
@@ -19,7 +19,7 @@
     "claim_type": "fact",
     "section": "executive_summary",
     "zone": null,
-    "order": 1,
+    "order": 2,
     "source_url": "https://www.cnbc.com/2026/05/27/salesforce-crm-q1-earnings-report-2027.html",
     "source_tier": "reputable_secondary",
     "evidence_excerpt": "Annualized revenue from Agentforce reached $1.2 billion, up 205% year over year. The figure came in above $1 billion for the first time",
@@ -41,7 +41,7 @@
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
-    "order": 2,
+    "order": 3,
     "as_of": "2026-09-16",
     "confidence": "high",
     "id": "c_01ed8870ef4c",
@@ -55,7 +55,7 @@
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
-    "order": 3,
+    "order": 4,
     "source_url": "https://ir.hubspot.com/news-releases/news-release-details/hubspot-reports-strong-q1-2026-results",
     "source_tier": "primary",
     "evidence_excerpt": "Grew Customers to 299,458 as of March 31, 2026",
@@ -784,7 +784,7 @@
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
-    "order": 4,
+    "order": 5,
     "as_of": "2026-08-26",
     "updated_on": "2026-08-30",
     "verified": true,
@@ -844,7 +844,7 @@
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
-    "order": 5,
+    "order": 6,
     "as_of": "2026-09-03",
     "updated_on": "2026-09-04",
     "verified": true,
@@ -889,7 +889,7 @@
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
-    "order": 6,
+    "order": 0,
     "as_of": "2026-09-11",
     "updated_on": "2026-09-14",
     "verified": true,
@@ -971,5 +971,41 @@
     "confidence": "medium",
     "derived_from": "c_ba63650f6985",
     "persona": "security_regulated"
+  },
+  {
+    "subject_key": "hubspot | fall-2026-spotlight | agentic-platform-relaunch",
+    "claim": "At its Fall 2026 Spotlight on September 16, HubSpot relaunched its whole platform around agents, calling it the most significant release in years. The Breeze Assistant now takes action and coordinates specialized agents: a rep states a goal and Breeze assigns the agents to plan campaigns, prospect and draft outreach, all grounded in a self-updating Smart CRM. New content and campaign agents plus a Marketing Studio push HubSpot's AI deep into marketing and sales, well past its front-line customer-service roots.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.hubspot.com/company-news/fall-26-spotlight",
+    "source_tier": "primary",
+    "evidence_excerpt": "These insights drove the most significant product release we've shipped in years.",
+    "as_of": "2026-09-16",
+    "confidence": "high",
+    "id": "c_a853e5a866e2",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-18",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://finance.yahoo.com/technology/ai/articles/fall-26-spotlight-hubspot-just-133000556.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://completeaitraining.com/news/hubspot-launches-breeze-assistant-self-updating-smart-crm/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
