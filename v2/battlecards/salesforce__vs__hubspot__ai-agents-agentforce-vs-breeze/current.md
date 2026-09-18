@@ -2,13 +2,13 @@
 
 ## Executive Summary
 
-**Salesforce now ships six named, job-ready agents out of the box, with a seventh in pilot.**
+**Salesforce ships six named, job-ready agents live today, with a seventh in pilot.**
 
-Casey (customer service), Paige (IT/HR), Carter (commerce), Piper (inbound pipeline), Marshall (supply chain) and Fin (customer experience) are generally available today, and Hunter (outbound sales) is in pilot now with GA targeted for November 2026, running on a new long-horizon runtime built to pursue a goal over days and weeks.
+Casey, Paige, Carter, Piper, Marshall and Fin are GA today, with Hunter in pilot for outbound sales targeting a November 2026 GA on a new long-horizon runtime built to pursue a goal over days and weeks.
 
-**Soundbite:** "You get six working agents today, one per job, not a builder kit you have to assemble yourself."
+**Soundbite:** "You get six named agents doing the job today. HubSpot gives you an assistant that hands the work to its agents."
 
-**So what:** Map the buyer's open roles (service, IT/HR, commerce, pipeline, supply chain, CX) to a named agent already GA, and flag Hunter's long-horizon runtime for outbound teams planning past November. ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-job-ready-ai-agents/))
+**So what:** Map the buyer's open roles (service, IT/HR, commerce, pipeline, supply chain, CX) to a named agent already GA, and flag Hunter's long-horizon runtime for outbound teams planning past November. ([hubspot.com](https://www.hubspot.com/company-news/fall-26-spotlight))
 
 **Agentforce now has its own pay-only-when-it-resolves pricing, so meet HubSpot's pitch with ours, not a defense.**
 
@@ -79,7 +79,7 @@ The Fin acquisition closed September 10, 2026, months ahead of the original Q4 F
 ## Positioning and Differentiation
 
 - Agentforce is positioned on enterprise depth and governance: a dedicated trust layer on every transaction, Data Cloud grounding and one of the largest agent-engineering investments in the market. The Futurum Group notes "Salesforce has over 450 people working on agent AI," framing replication of that governance stack as out of reach for HubSpot's segment. Claude now powers the Atlas Reasoning Engine by default and is available through Amazon Bedrock inside the Salesforce Trust Boundary, giving regulated customers a frontier model running inside an audited compliance boundary that HubSpot has no equivalent for. ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/08/26/salesforce-and-anthropic-announce-claudeforce/))
-- HubSpot positions Breeze as proven, easy and bundled: it reports Breeze Customer Agent resolves 65% of conversations and cuts resolution time by 39% across more than 8,000 activations. With Agent Builder and Agent Hub now in public beta, that pitch extends past prebuilt support agents into plain-language custom agents on CRM data plus a central console for status and access controls, all still packaged inside the CRM rather than sold as a separate platform. That is the simplicity story Salesforce must respect when selling into lean teams. ([knowledge.hubspot.com](https://knowledge.hubspot.com/ai/create-and-customize-agents-in-the-agent-builder))
+- HubSpot's September 16 relaunch has Breeze Assistant take a stated goal and assign specialized agents to plan campaigns, prospect and draft outreach on a self-updating Smart CRM, with new content, campaign and Marketing Studio agents pushing it deep into marketing and sales. That builds on the pitch it already had: prebuilt support agents resolving 65% of conversations 39% faster, plus a beta Agent Builder and Agent Hub console, all still packaged inside the CRM rather than sold as a separate platform, the simplicity story Salesforce must respect when selling into lean teams. ([hubspot.com](https://www.hubspot.com/company-news/fall-26-spotlight))
 - HubSpot renamed Commerce Hub to Revenue Hub on June 16, 2026, expanding it into full quote-to-cash: quoting, CPQ, contracts and subscription billing unified with payments on the Smart CRM, putting it head to head with the CPQ and quote-to-cash turf Revenue Cloud used to own alone. Seats run \$95 (Professional) and \$140 (Enterprise) per user monthly with billing included for now, and HubSpot has not even set its usage pricing model, due only in September 2026. ([hubspot.com](https://www.hubspot.com/company-news/introducing-revenue-hub-quote-to-cash-finally-in-one-place))
 
 ## Pricing and Packaging
@@ -104,11 +104,11 @@ Agent Hub now gives Breeze a console for live status and per-agent access contro
 
 **Soundbite:** "When your agents touch money, PII or regulated data, who governs every action and proves identity across vendors? Agentforce runs it through one control plane. Breeze's new console tracks status, it doesn't govern." ([knowledge.hubspot.com](https://knowledge.hubspot.com/ai/create-and-customize-agents-in-the-agent-builder))
 
-**Agentforce reaches into the back office; Breeze stays in the front.**
+**Agentforce reaches into the back office; Breeze stays in front-office marketing and sales.**
 
-Agentforce Operations went GA on April 29, taking agents into finance, supply chain and procurement with claimed "cycle times reduced by 50 to 70%." When operations and finance stakeholders are in the room, HubSpot has nothing to follow with.
+Agentforce Operations went GA on April 29, taking agents into finance, supply chain and procurement with claimed "cycle times reduced by 50 to 70%." HubSpot's September 16 relaunch pushes Breeze deep into marketing and sales campaigns, but it still has no back-office answer. When operations and finance stakeholders are in the room, HubSpot has nothing to follow with.
 
-**Soundbite:** *"Breeze can answer a support ticket. Agentforce can run the back-office process end to end: Operations is live today across finance and supply chain."* ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-operations-announcement/))
+**Soundbite:** "Breeze now runs your marketing campaigns. Agentforce runs your back office: Operations is live today across finance and supply chain." ([hubspot.com](https://www.hubspot.com/company-news/fall-26-spotlight))
 
 **HubSpot defaulted customers into a shared data pool, then had to reverse course.**
 
@@ -122,11 +122,11 @@ The August 2026 Claudeforce partnership makes Claude the default reasoning model
 
 **Soundbite:** "Agentforce runs on Claude by default now, the same model already saving Salesforce employees 8.1 million hours a year internally." ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/08/26/salesforce-and-anthropic-announce-claudeforce/))
 
-**A named agent for every job, live today, while HubSpot hands you a builder.**
+**Six named agents are GA today; HubSpot now runs an assistant that hands work to its specialist agents.**
 
-Casey, Paige, Carter, Piper, Marshall and Fin are GA now, covering customer service, IT/HR, commerce, inbound pipeline, supply chain and customer experience. HubSpot's answer is Agent Builder, a beta tool for building your own agents from scratch. A buyer choosing Salesforce turns an agent on. A buyer choosing HubSpot starts a build project.
+Casey, Paige, Carter, Piper, Marshall and Fin are GA today, covering customer service, IT/HR, commerce, inbound pipeline, supply chain and customer experience. HubSpot's September 16 relaunch has Breeze Assistant take a stated goal and coordinate its specialized content and campaign agents across marketing and sales. A buyer choosing Salesforce activates one of six finished, named agents. A buyer choosing HubSpot directs an assistant that assigns the work to HubSpot's specialist agents.
 
-**Soundbite:** "Ours are built and running today. Theirs is still a kit you have to assemble." ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-job-ready-ai-agents/))
+**Soundbite:** "Ours are six named agents doing the job today. Theirs is an assistant that hands the work off to its own agents." ([hubspot.com](https://www.hubspot.com/company-news/fall-26-spotlight))
 
 ### Where it's a fight
 
@@ -190,11 +190,11 @@ This is real: in the Einstein-to-Agentforce transition customers said they were 
 
 **So what:** Bring all three into the room: capped Flex-Credits for existing deployments, Help Agent for pay-only-on-success buyers and the new bundled editions for one predictable price with no upgrade surprises. ([salesforce.com](https://www.salesforce.com/news/stories/salesforce-simplifies-editions-2026/))
 
-**"HubSpot's new Agent Builder lets us build custom agents ourselves now. Why do we need Agentforce?"**
+**"HubSpot's Breeze Assistant now assigns agents for us. Why do we need Agentforce?"**
 
-HubSpot's Agent Builder beta (Professional and Enterprise, July 23) lets customers build custom agents in plain language on CRM data, with Agent Hub as a single console for status and per-agent access controls. That covers basic build and visibility, and stops there: no trusted agent identity for high-stakes actions, no centralized LLM governance, no orchestration across multiple model vendors, the control plane Agent Fabric already runs for Agentforce across Amazon Bedrock and Microsoft Foundry. Breeze also still only reaches the front office, while Agentforce Operations is GA in finance, supply chain and procurement. Salesforce also ships six named, job-ready agents GA today, so the buyer can turn one on instead of building it.
+HubSpot's September 16 relaunch lets a rep state a goal and Breeze coordinate its specialized content and campaign agents to plan campaigns, prospect and draft outreach on a self-updating Smart CRM. That still stops at coordination: no trusted agent identity for high-stakes actions, no centralized LLM governance and no orchestration across multiple model vendors, the control plane Agent Fabric already runs for Agentforce across Amazon Bedrock and Microsoft Foundry. Agentforce Operations is also GA in finance, supply chain and procurement, where Breeze still has nothing to send. Salesforce ships six named, job-ready agents GA today, so the buyer turns one on instead of assembling a workflow.
 
-**So what:** Show the buyer a named agent that already does the job they'd otherwise build, then walk through Agent Fabric's governance and an Agentforce Operations use case in their back office. ([salesforce.com](https://www.salesforce.com/news/stories/agentforce-job-ready-ai-agents/))
+**So what:** Show the buyer a named agent that already does the job Breeze would have to assign, then walk through Agent Fabric's governance and an Agentforce Operations use case in their back office. ([hubspot.com](https://www.hubspot.com/company-news/fall-26-spotlight))
 
 **"Salesforce just had a global outage during Dreamforce week, so why should we trust the platform's reliability?"**
 
