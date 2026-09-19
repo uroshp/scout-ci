@@ -4,7 +4,7 @@
   "competitor": "Google",
   "focus": null,
   "baseline_date": "2026-06-06",
-  "last_checked": "2026-09-18T11:08:38",
+  "last_checked": "2026-09-19T11:17:24",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_9ea436272f2a",
@@ -24,16 +24,12 @@
     "f_9deadf59cfaa",
     "f_1d62c3f865c1",
     "f_ff903bafd6d1",
-    "f_7f74d84b90c8"
+    "f_7f74d84b90c8",
+    "f_c47cab622c25"
   ],
   "monitored": true,
   "lead_election": {
     "last_promoted_on": "2026-08-26",
     "lead_subject_key": "perplexity-vs-google | price-vs-value | 2026"
-  },
-  "unresolved_subjects": [
-    "google | product-launch | home-mcp-interop"
-  ],
-  "unresolved_since": "2026-09-16",
-  "unresolved_attempts": 2
+  }
 }

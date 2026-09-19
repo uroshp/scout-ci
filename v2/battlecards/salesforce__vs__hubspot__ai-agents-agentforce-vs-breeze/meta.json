@@ -4,7 +4,7 @@
   "competitor": "HubSpot",
   "focus": "AI agents (Agentforce vs Breeze)",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-09-18T11:09:48",
+  "last_checked": "2026-09-19T11:21:49",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_50b31fce6350",
@@ -14,11 +14,6 @@
     "f_8c837ec0c640"
   ],
   "monitored": true,
-  "unresolved_subjects": [
-    "hubspot-breeze"
-  ],
-  "unresolved_since": "2026-09-16",
-  "unresolved_attempts": 2,
   "lead_election": {
     "last_promoted_on": "2026-09-18",
     "lead_subject_key": "salesforce | exec-summary | job-ready-agents"
