@@ -2431,5 +2431,35 @@
     "confidence": "medium",
     "derived_from": "c_b28f949def47",
     "persona": "exec_top_down"
+  },
+  {
+    "subject_key": "openai-astra-for-law",
+    "claim": "OpenAI launched Astra for Law on September 17-18, 2026, a GPT-6 Astra offering tuned for professional legal work. It pairs the model with a Legal Search Index covering more than 230 million URLs of US case law, statutes and regulations, adds 26 partner-built plugins (Thomson Reuters, Harvey, Legora, iManage) plus 47 community plugins, and opens through Trusted Access in ChatGPT and Codex to firms including Latham & Watkins, Ropes & Gray, Cooley and Sullivan & Cromwell, with API access coming soon.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 30,
+    "source_url": "https://www.pymnts.com/news/artificial-intelligence/2026/openai-targets-legal-tech-market-with-astra-for-law/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "The new Astra for Law combines OpenAI’s latest and most powerful model, GPT-6 Astra, with settings, tools and context tailored for professional legal work",
+    "as_of": "2026-09-18",
+    "confidence": "high",
+    "id": "c_a1d259739bcf",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-19",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.artificiallawyer.com/2026/09/18/openai-launches-astra-for-law/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
