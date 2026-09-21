@@ -815,15 +815,15 @@
   },
   {
     "subject_key": "warner-bros-discovery-paramount-acquisition",
-    "claim": "Paramount is trying to unfreeze its stalled Warner Bros. Discovery takeover by putting its theatrical promise in writing. On August 9, 2026 it offered AMC and Regal three-year contracts guaranteeing 30 films a year in theaters, with exclusive 45-day windows and financial penalties if it breaks them, a concession meant to defuse the 12-state antitrust suit. The deal stays frozen and the antitrust trial is set for March 2027, so control of Superman's studio is unresolved well into 2027.",
+    "claim": "Superman's studio sale is now stuck in court. On September 20, 2026, four of the 12 state attorneys general (Minnesota, New York, Connecticut and Washington) broke from California AG Rob Bonta's faction and resisted a quick settlement of the antitrust suit against Paramount's $111B Warner Bros. Discovery takeover, calling the proposed terms too lenient to Paramount. A federal antitrust trial is now locked for March 2, 2027, and Paramount starts paying WBD shareholders a $7M-per-day ticking fee on October 1, roughly $1.3B accrued by the time the trial ends. The deal has moved from concessions offered to theaters to a contested case headed for trial with the closing timeline in doubt.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
     "order": 1,
-    "source_url": "https://variety.com/2026/film/news/david-ellison-theater-owners-guarantee-30-movies-paramount-warner-bros-merger-1236830791/",
+    "source_url": "https://deadline.com/2026/09/paramount-settlement-latest-opposition-bonta-1237109024/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Ellison is now offering three-year contractually enforceable commitments to the U.S.’s two biggest theater chains, AMC Entertainment and Regal Cinemas",
-    "as_of": "2026-08-09",
+    "evidence_excerpt": "A March 2, 2027 trial date has been set in the matter, much to Paramount’s chagrin.",
+    "as_of": "2026-09-20",
     "confidence": "high",
     "id": "c_d56e29441dcb",
     "verified": true,
@@ -831,12 +831,12 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-08-10",
+      "fetched_at": "2026-09-21",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://deadline.com/2026/08/paramount-wbd-regal-amc-deals-1237029635/",
+        "source_url": "https://variety.com/2026/tv/news/paramount-warner-bros-antitrust-trial-date-march-2027-1236827843/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
