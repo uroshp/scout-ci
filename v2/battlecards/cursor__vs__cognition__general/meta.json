@@ -4,7 +4,7 @@
   "competitor": "Cognition",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-09-19T11:05:22",
+  "last_checked": "2026-09-21T11:04:23",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_b969e4b96a7c",
@@ -22,5 +22,11 @@
   "lead_election": {
     "last_promoted_on": "2026-08-12",
     "lead_subject_key": "cursor | adverse-objections-readiness | current"
-  }
+  },
+  "unresolved_subjects": [
+    "NEW",
+    "cursor | async-agent-parity | projects"
+  ],
+  "unresolved_since": "2026-09-19",
+  "unresolved_attempts": 1
 }
