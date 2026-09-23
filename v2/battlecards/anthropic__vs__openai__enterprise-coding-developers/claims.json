@@ -65,39 +65,17 @@
   },
   {
     "subject_key": "claude-vs-gpt | coding-benchmark | current",
-    "claim": "With OpenAI's new flagship live, the coding and agentic benchmark picture splits. GPT-6 Astra leads computer use on OSWorld 2.0 at 72.6% to Claude Opus 5's 70.2%, and edges Terminal-Bench 4.0 at 57.7% to Fable 5.1's 55.8%. Claude leads reasoning: on Humanity's Last Exam with tools Fable 5.1 scores 65.0% to Astra's 57.2%, and on the independent Artificial Analysis Intelligence Index Fable 5.1 sits about 5 points ahead at 66 to Astra's 61.",
-    "claim_type": "fact",
+    "claim": "With OpenAI's new flagship live, the coding and agentic benchmark picture splits, though Claude's newest flagship narrows it further. GPT-6 Astra leads computer use on OSWorld 2.0 at 72.6% to Claude Opus 5's 70.2%. On Terminal-Bench 4.0, Astra edged Fable 5.1 57.7% to 55.8%, but Claude Opus 5.5 now matches Astra's Terminal-Bench 4.0 score at about 40% of the cost and beats Astra on FrontierCode at roughly 20% of the cost per task. Claude leads reasoning: on Humanity's Last Exam with tools Fable 5.1 scores 65.0% to Astra's 57.2%, and on the independent Artificial Analysis Intelligence Index Fable 5.1 sits about 5 points ahead at 66 to Astra's 61.",
+    "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
     "order": 1,
-    "source_url": "https://artificialanalysis.ai/articles/benchmarking-gpt-6-astra",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "GPT-6 Astra scores equal to GPT-5.6 Sol in the Index at 61. This is 5 points lower than Claude Fable 5.1 (max with fallback).",
-    "as_of": "2026-09-03",
+    "as_of": "2026-09-22",
     "confidence": "high",
     "id": "c_65573cf583db",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-09-05",
-      "detail": null
-    },
-    "corroboration": [
-      {
-        "source_url": "https://officechai.com/ai/gpt-6-astra-benchmarks/",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false
-      },
-      {
-        "source_url": "https://www.vellum.ai/blog/gpt-6-astra-benchmarks-explained",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false
-      }
-    ]
+    "derived_from": "c_6fad97e13a9b",
+    "updated_on": "2026-09-23"
   },
   {
     "subject_key": "anthropic | valuation | current",
@@ -167,17 +145,17 @@
   },
   {
     "subject_key": "anthropic | flagship-model | current",
-    "claim": "Anthropic's current flagship for cost-sensitive deployment is Claude Opus 5 (released July 24, 2026), the default model on Claude Max and Claude Pro at $5 per million input tokens and $25 per million output tokens. Claude Fable 5.1 and Claude Mythos 5.1, released September 1, 2026, are now Anthropic's most advanced models for coding and knowledge work, ahead of Opus 5 on Anthropic's own benchmarks. Fable 5.1 is generally available on the Claude API, AWS, Google Cloud and Microsoft Azure at the same $10 input and $50 output per million token rate as Fable 5, with cache-read pricing cut 75% to $0.25 per million tokens. Mythos 5.1 is available only through Anthropic's vetted trusted-access programs, currently limited to US organizations. Claude Code is Anthropic's GA developer product.",
+    "claim": "Anthropic's current flagship for cost-sensitive deployment is Claude Opus 5.5 (released September 22, 2026), the first model in the new Claude 5.5 family, replacing Opus 5 at $4 per million input tokens and $20 per million output tokens (20% less than Opus 5), with cache reads at $0.20 per million and cache writes at $5 per million. Claude Fable 5.1 and Claude Mythos 5.1, released September 1, 2026, remain Anthropic's most advanced models for coding and knowledge work, ahead of Opus 5 on Anthropic's own benchmarks. Fable 5.1 is generally available on the Claude API, AWS, Google Cloud and Microsoft Azure at the same $10 input and $50 output per million token rate as Fable 5, with cache-read pricing cut 75% to $0.25 per million tokens. Mythos 5.1 is available only through Anthropic's vetted trusted-access programs, currently limited to US organizations. Claude Code is Anthropic's GA developer product.",
     "claim_type": "interpretation",
     "section": "snapshot",
     "zone": null,
     "order": 3,
-    "as_of": "2026-09-01",
+    "as_of": "2026-09-22",
     "confidence": "high",
     "id": "c_705a6f46c8fe",
     "verified": true,
-    "derived_from": "c_517d037a49e8",
-    "updated_on": "2026-09-02"
+    "derived_from": "c_6fad97e13a9b",
+    "updated_on": "2026-09-23"
   },
   {
     "subject_key": "openai | flagship-model | current",
@@ -487,17 +465,17 @@
   },
   {
     "subject_key": "anthropic | api-list-price | current",
-    "claim": "Claude API list pricing (per 1M tokens, as of September 2026): Opus 5 at $5 input / $25 output, replacing Opus 4.8 at the same price; Fable 5.1 at $10 input / $50 output, the same headline rate as Fable 5; Sonnet 5 at $2 / $10, now the permanent rate after Anthropic canceled the previously scheduled increase to $3 / $15; Sonnet 4.6 at $3 / $15; Haiku 4.5 at $1 / $5. Fable 5.1 also cut cache-read pricing 75% to $0.25 per million tokens, lowering overall cost around 25% for typical workloads and up to around 45% for highly agentic workloads. Sonnet 5 remains the credible mid-tier for sustained agentic coding, with agentic performance Anthropic says is close to Opus 4.8.",
+    "claim": "Claude API list pricing (per 1M tokens, as of September 2026): Opus 5.5 at $4 input / $20 output, replacing Opus 5 at 20% less; cache reads at $0.20 per million (60% less than Opus 5) and cache writes at $5 per million, cutting typical workload cost 40% versus Opus 5. Fable 5.1 at $10 input / $50 output, the same headline rate as Fable 5; Sonnet 5 at $2 / $10, now the permanent rate after Anthropic canceled the previously scheduled increase to $3 / $15; Sonnet 4.6 at $3 / $15; Haiku 4.5 at $1 / $5. Fable 5.1 also cut cache-read pricing 75% to $0.25 per million tokens, lowering overall cost around 25% for typical workloads and up to around 45% for highly agentic workloads. Sonnet 5 remains the credible mid-tier for sustained agentic coding, with agentic performance Anthropic says is close to Opus 4.8.",
     "claim_type": "interpretation",
     "section": "pricing",
     "zone": null,
     "order": 0,
-    "as_of": "2026-09-01",
+    "as_of": "2026-09-22",
     "confidence": "high",
     "id": "c_cafe96c8ef40",
     "verified": true,
-    "derived_from": "c_517d037a49e8",
-    "updated_on": "2026-09-02"
+    "derived_from": "c_6fad97e13a9b",
+    "updated_on": "2026-09-23"
   },
   {
     "subject_key": "claude-code-vs-codex | subscription-price | current",
@@ -1159,18 +1137,18 @@
   },
   {
     "subject_key": "battlecard | token-price-undercut | contested",
-    "claim": "**On token price, the picture stays mixed, but capability per dollar has moved our way.**\n\nOpenAI's mid-tier beats Claude's flagship on raw per-token price: GPT-5.4 at $2.50/$15.00 per million versus Claude Opus 5 at $5.00/$25.00, and pricing trackers put OpenAI cheaper across most comparable tiers in 2026. Claude Sonnet 5 lists at a permanent $2/$10, undercutting GPT-5.4 on both input and output after Anthropic canceled a planned increase to $3/$15. At that same $5/$25, Opus 5 now scores 43.3% on Frontier-Bench v0.1, up from Opus 4.8's 18.7% and ahead of Fable 5 at 33.7%, per Anthropic's reporting. Caching narrows the gap on both sides.\n\n**Soundbite:** *\"Their mid-tier prices under our flagship. At the same $5 in and $25 out, Opus 5 scores 43.3% on Frontier-Bench, more than double Opus 4.8's 18.7%. If raw price matters more, Sonnet 5 at a permanent $2 and $10 undercuts GPT-5.4 on both.\"*",
+    "claim": "**On token price, the picture stays mixed, but capability per dollar has moved further our way.**\n\nOpenAI's mid-tier still beats Claude's flagship on raw per-token price: GPT-5.4 at $2.50/$15.00 per million versus Claude Opus 5.5 at $4.00/$20.00, itself a 20% cut from Opus 5's $5.00/$25.00, and pricing trackers put OpenAI cheaper across most comparable tiers in 2026. Claude Sonnet 5 lists at a permanent $2/$10, undercutting GPT-5.4 on both input and output after Anthropic canceled a planned increase to $3/$15. At its prior $5/$25 price, Opus 5 scored 43.3% on Frontier-Bench v0.1, up from Opus 4.8's 18.7% and ahead of Fable 5 at 33.7%, per Anthropic's reporting. Opus 5.5 also cut cache-read pricing 60% to $0.20 per million tokens, narrowing the gap further on sustained workloads.",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
     "order": 1,
-    "as_of": "2026-08-10",
+    "as_of": "2026-09-22",
     "confidence": "high",
     "id": "c_46eee6ef2add",
     "verified": true,
     "persona": "economic_buyer",
-    "derived_from": "c_c37f5aea2db9",
-    "updated_on": "2026-08-16"
+    "derived_from": "c_6fad97e13a9b",
+    "updated_on": "2026-09-23"
   },
   {
     "subject_key": "battlecard | platform-breadth-lockin | contested",
@@ -2300,16 +2278,16 @@
   {
     "id": "c_e02f3441c5ce",
     "subject_key": "objection | gpt6-astra-beats-claude-cheaper | current",
-    "claim": "**\"OpenAI just posted benchmarks showing Astra beats Claude on computer use, and cheaper too. Doesn't that put us behind?\"**\n\nEvery figure in that comparison, FrontierMath Tier 4, ARC-AGI-3, ExploitBench and the computer-use win over Opus 5, is a number OpenAI reported about its own model, released September 3, 2026 to a limited set of organizations ahead of wider rollout. On SWE-bench Pro, built from harder, non-public tasks so vendors cannot game it, Claude Opus 4.7 leads at 64.3% against GPT-5.4's 59.1%. Claude Code also runs entirely inside a customer's own infrastructure today, through self-hosted runner, a deployment option a security team can use right now.\n\n**So what:** Point the buyer to Claude's SWE-bench Pro lead, the harder benchmark OpenAI's own release doesn't touch, and offer to stand up self-hosted Claude Code today rather than wait on unverified numbers for a model still rolling out.",
+    "claim": "**\"OpenAI just posted benchmarks showing Astra beats Claude on computer use, and cheaper too. Doesn't that put us behind?\"**\n\nEvery figure in that comparison is a number OpenAI reported about its own model, released September 3, 2026 to a limited set of organizations. On SWE-bench Pro, built from harder non-public tasks vendors cannot game, Claude Opus 4.7 leads 64.3% to GPT-5.4's 59.1%. The price claim doesn't hold either: Opus 5.5 runs 20% below Opus 5 at $4/$20 per million tokens, beats Astra on FrontierCode at about a fifth of the cost per task and beats GPT-5.6 Sol on CursorBench by 11 points at about a third of the cost. Claude Code also runs entirely inside a customer's own infrastructure today.\n\n**So what:** Lead with Opus 5.5's per-task cost lead over Astra and Sol and Claude's SWE-bench Pro edge on the harder benchmark OpenAI's release skips, then offer to stand up self-hosted Claude Code today.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 12,
-    "as_of": "2026-09-03",
-    "updated_on": "2026-09-04",
+    "as_of": "2026-09-22",
+    "updated_on": "2026-09-23",
     "verified": true,
     "confidence": "medium",
-    "derived_from": "c_95433de0d222",
+    "derived_from": "c_6fad97e13a9b",
     "persona": "technical_evaluator"
   },
   {
@@ -2355,7 +2333,9 @@
     "verified": true,
     "confidence": "medium",
     "derived_from": "c_65573cf583db",
-    "persona": "technical_evaluator"
+    "persona": "technical_evaluator",
+    "source_url": "https://artificialanalysis.ai/articles/benchmarking-gpt-6-astra",
+    "source_tier": "reputable_secondary"
   },
   {
     "subject_key": "openai | ipo-filing",
@@ -2461,5 +2441,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "id": "c_6c4aa7ca7709",
+    "subject_key": "battlecard | opus-55-cost-per-task-lead | where_we_win",
+    "claim": "**Claude's new flagship beats OpenAI's models on real tasks at a fraction of the cost.**\n\nOn Anthropic's own benchmarks, Opus 5.5 beats GPT-6 Astra on FrontierCode at roughly 20% of the cost per task, matches Astra on Terminal-Bench 4.0 at about 40% of the cost and beats GPT-5.6 Sol on CursorBench by 11 points at about a third of the cost. For a buyer comparing bills instead of leaderboard rank, that is the number that decides the deal.\n\n**Soundbite:** \"Opus 5.5 beats GPT-6 Astra on FrontierCode at a fifth of the cost per task and beats GPT-5.6 Sol on CursorBench by 11 points at a third of the cost. You get a stronger result and a smaller bill.\"",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 11,
+    "as_of": "2026-09-22",
+    "updated_on": "2026-09-23",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_6fad97e13a9b",
+    "persona": "economic_buyer"
+  },
+  {
+    "id": "c_524676fea635",
+    "subject_key": "anthropic | flagship-price-performance | current",
+    "claim": "**Claude's newest flagship costs 40% less to run and still wins on real coding tasks.**\n\nOpus 5.5, released September 22, 2026, prices at $4 input and $20 output per million tokens, 20% below Opus 5, and Anthropic says it cuts typical workload cost 40% versus Opus 5 while beating GPT-6 Astra on FrontierCode at roughly 20% of the cost per task.\n\n**Soundbite:** \"Our newest model costs 40% less to run than the one before it and still beats OpenAI's flagship on coding tasks at a fifth of the cost.\"\n\n**So what:** Lead cost-sensitive deals with Opus 5.5's price cut and its per-task cost lead over Astra and Sol, before OpenAI can reframe the conversation around its own next release.",
+    "claim_type": "interpretation",
+    "section": "executive_summary",
+    "zone": null,
+    "order": 4,
+    "as_of": "2026-09-22",
+    "updated_on": "2026-09-23",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_6fad97e13a9b",
+    "persona": "economic_buyer"
   }
 ]
