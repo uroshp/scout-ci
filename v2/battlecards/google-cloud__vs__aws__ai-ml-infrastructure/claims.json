@@ -419,17 +419,17 @@
   },
   {
     "subject_key": "google-cloud | list-price | gemini-flash-token-economics",
-    "claim": "Google's pitch that shifting about 80% of workloads to Gemini 3.5 Flash could save enterprises $1B+ annually still holds, but AWS narrowed the raw per-token gap on August 3, 2026 by cutting Bedrock prices for OpenAI's GPT-5.6 Luna 80% to $0.20 per million input tokens and $1.20 per million output tokens. That price cut is AWS discounting a model it resells from OpenAI, so the number to compare is full workload cost on owned infrastructure, rather than one AWS-set list price.",
+    "claim": "Google's pitch that shifting about 80% of workloads to Gemini Flash could save enterprises $1B plus annually now runs on Gemini 3.8 Flash, launched September 2, 2026 at the same $0.75 per million input tokens and $3.75 per million output tokens as 3.7 Flash, holding through December 31, 2026 before rising to $1.50 and $7.50 on January 1, 2027. AWS narrowed the raw per-token gap on August 3, 2026 by cutting Bedrock prices for OpenAI's GPT-5.6 Luna 80% to $0.20 per million input tokens and $1.20 per million output tokens, but that price cut is AWS discounting a model it resells from OpenAI, so the number to compare is full workload cost on owned infrastructure, rather than one AWS-set list price.",
     "claim_type": "interpretation",
     "section": "pricing",
     "zone": null,
     "order": 2,
-    "as_of": "2026-08-03",
+    "as_of": "2026-09-02",
     "confidence": "medium",
     "id": "c_7e6887a81c34",
     "verified": true,
-    "derived_from": "c_34f71f686923",
-    "updated_on": "2026-08-04"
+    "derived_from": "c_37405faa45f0",
+    "updated_on": "2026-09-23"
   },
   {
     "subject_key": "battlecard | win | tpu-silicon-scale",
@@ -1344,5 +1344,50 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "google-cloud | model-launch | gemini-3-8-flash-2026-09",
+    "claim": "On September 2, 2026, Google launched Gemini 3.8 Flash, its third Flash-tier release in six weeks (following Gemini 3.7 Flash three weeks earlier), alongside a separate cybersecurity variant, Gemini 3.8 Flash Cyber. Gemini 3.8 Flash is priced the same as 3.7 Flash, $0.75 per million input tokens and $3.75 per million output tokens through December 31, 2026, rising to $1.50/$7.50 on January 1, 2027, while improving coding and agentic benchmarks, including a DeepSWE v1.1 long-horizon software engineering score of 73.7% versus 65.3% for 3.7 Flash. It is generally available now in the Gemini app, Gemini Enterprise, Google AI Studio, the Gemini API, Android Studio, Google Antigravity and AI Mode in Google Search. Gemini 3.8 Flash Cyber is restricted to trusted defenders through Google's new Fairwind Program, not generally available.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/3-8-flash-and-3-8-flash-cyber/",
+    "source_tier": "primary",
+    "evidence_excerpt": "our third Flash release in only six weeks, today we’re introducing Gemini 3.8, our best reasoning and coding model yet, at the same speed and low cost of 3.7.",
+    "as_of": "2026-09-02",
+    "confidence": "high",
+    "id": "c_37405faa45f0",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-19",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://deepmind.google/models/model-cards/gemini-3-8-flash/",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
+  },
+  {
+    "id": "c_c5be284bfc39",
+    "subject_key": "battlecard | win | gemini-flash-first-party-velocity",
+    "claim": "**Google ships frontier model gains faster than buyers can finish evaluating the last one.**\n\nOn September 2, 2026, Google released Gemini 3.8 Flash, its third Flash-tier model in six weeks after 3.7 Flash landed just three weeks earlier. 3.8 Flash holds the exact same price as 3.7 Flash, $0.75 per million input tokens and $3.75 per million output tokens through the end of 2026, while its DeepSWE v1.1 long-horizon coding score climbs to 73.7% from 65.3%. It went live at once across the Gemini app, Gemini Enterprise, Google AI Studio, the Gemini API, Android Studio, Google Antigravity and AI Mode in Google Search, not a staged rollout.\n\n**Soundbite:** Google has shipped three Flash upgrades in six weeks at the same price, each one better at coding than the last, so your model keeps improving without your bill moving.",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 5,
+    "as_of": "2026-09-02",
+    "updated_on": "2026-09-23",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_37405faa45f0",
+    "persona": "technical_evaluator"
   }
 ]
