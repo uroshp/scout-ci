@@ -210,3 +210,31 @@ class TargetsDigest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ReviseKeepsDependentProvenance(unittest.TestCase):
+    """2026-09-23: a revise re-anchors its TARGET to the firing fact and drops the target's own
+    source. Claims that derive from that target borrow its source at render time, so without a
+    pin they would render unsourced (or cite the firing fact, which never grounded them)."""
+
+    def test_dependents_keep_the_target_s_old_source(self):
+        parent = _play("claude-vs-gpt|coding-benchmark|current")
+        parent["section"], parent["zone"] = "positioning", None
+        parent["claim"] = "Claude leads the independent index."
+        child = _play("battlecard|independent-index-lead|where_we_win")
+        for k in ("source_url", "source_tier", "evidence_excerpt", "grounding"):
+            child.pop(k, None)
+        child["derived_from"] = parent["id"]
+        op = {"operation": "revise", "section": "positioning", "zone": None,
+              "subject_key": parent["subject_key"], "target_subject_key": parent["subject_key"],
+              "claim": "Claude's newest flagship narrows the gap further.",
+              "claim_type": "interpretation", "derived_from": FACT_ID2}
+        res = apply_ops([parent, child], [op], FACTS, SLUG, TODAY)
+        self.assertEqual(res["skipped"], [])
+        new_parent = next(c for c in res["claims"] if c["id"] == parent["id"])
+        new_child = next(c for c in res["claims"] if c["id"] == child["id"])
+        self.assertNotIn("source_url", new_parent)            # target re-anchored to the firing fact
+        self.assertEqual(new_parent["derived_from"], FACT_ID2)
+        self.assertEqual(new_child["source_url"], "https://own.test/a")   # child keeps its provenance
+        md = claims_to_markdown(res["claims"], "# T")
+        self.assertIn("(https://own.test/a)", md)

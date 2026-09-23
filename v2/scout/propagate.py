@@ -1590,6 +1590,20 @@ def apply_ops(claims: list[dict], confirmed_ops: list[dict], facts: list[dict],
                 continue
             before = dict(tgt)
             if operation == "revise":
+                # PROVENANCE PRESERVATION (2026-09-23): claims that DERIVE from this target inherit
+                # its source at render time. Re-anchoring the target to the firing fact would
+                # silently re-source (or, one hop later, un-source) every dependent — the Opus 5.5
+                # revise of the coding-benchmark positioning claim left the independent-index
+                # battlecard rendering with NO citation. Pin the target's outgoing source onto each
+                # dependent that has none of its own, so their provenance stays what it was.
+                old_url = before.get("source_url")
+                if old_url:
+                    for dep in out:
+                        if (dep is not tgt and dep.get("derived_from") == tgt.get("id")
+                                and not dep.get("source_url")):
+                            dep["source_url"] = old_url
+                            if before.get("source_tier"):
+                                dep["source_tier"] = before["source_tier"]
                 tgt["claim"] = op.get("claim")
                 tgt["claim_type"] = "interpretation"
                 tgt["derived_from"] = df
