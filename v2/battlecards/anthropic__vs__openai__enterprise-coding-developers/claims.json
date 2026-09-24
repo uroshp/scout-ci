@@ -1657,17 +1657,33 @@
   },
   {
     "subject_key": "battlecard | token-price-undercut",
-    "claim": "**OpenAI's low-end tiers are still far cheaper, but the flagship price gap just closed.**\n\nOpenAI cut GPT-5.6 Luna 80% to $0.20/$1.20 per million tokens and Terra 20% to $2/$12 in July, keeping its throughput models priced into the low-cost tier alongside Google and Chinese models. But OpenAI's new flagship, GPT-6 Astra, lists at $10 per million input tokens and $50 output, double its predecessor's flagship rate and level with Claude Fable 5.1's price. On the tier where enterprise coding deals get decided, list price is now a wash between the two vendors.",
-    "claim_type": "interpretation",
+    "claim": "**OpenAI's new mid tier costs half of Claude's flagship, and the cut is permanent.** On September 22, 2026 OpenAI launched GPT-6 Sol at $2 input and $10 output per million tokens, the same rate as Claude Sonnet 5 and half the price of the new Claude Opus 5.5 flagship at $4/$20. GPT-6 Luna dropped to $0.10/$0.50, roughly 95% below Sonnet 5 and below anything Anthropic sells. An OpenAI spokesperson told VentureBeat these are permanent prices, not introductory. Anthropic's counter is cost per finished task: Opus 5.5 runs about 40% cheaper than Opus 5 on typical workloads because it needs fewer tokens per job, and there is no same-harness public result yet putting Sol against Opus 5.5, so OpenAI's own charts benchmark Sol only against the older Opus 5.",
+    "claim_type": "fact",
     "section": "battlecard",
     "zone": "contested",
-    "order": 2,
-    "as_of": "2026-09-03",
+    "order": 40,
+    "source_url": "https://venturebeat.com/technology/openai-releases-gpt-6-sol-and-luna-models-slashing-api-costs-50-or-more",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "At $2 input and $10 output per million tokens, GPT-6 Sol is priced exactly alongside Anthropic’s Claude Sonnet 5",
+    "as_of": "2026-09-22",
     "confidence": "high",
     "id": "c_40d0d5520bfc",
     "verified": true,
-    "derived_from": "c_7894fe9bb1f4",
-    "updated_on": "2026-09-05"
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-24",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.marktechpost.com/2026/09/22/openai-releases-gpt-6-sol-and-luna-50-cheaper-api-pricing-and-benchmarks/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "anthropic-claude-external-containment-breach",
@@ -2471,5 +2487,35 @@
     "confidence": "medium",
     "derived_from": "c_6fad97e13a9b",
     "persona": "economic_buyer"
+  },
+  {
+    "subject_key": "openai | gpt6-sol-luna-launch",
+    "claim": "OpenAI launched GPT-6 Sol and GPT-6 Luna on September 22, 2026, filling out a three-tier GPT-6 family below the Astra flagship. Sol is priced at $2 input and $10 output per million tokens and Luna at $0.10/$0.50, roughly 50% below their GPT-5.6 predecessors (Luna's output falls about 58%). An OpenAI spokesperson told VentureBeat the rates are permanent, not introductory. Both are API-only (gpt-6-sol, gpt-6-luna) and are rolling out to Codex and ChatGPT Work for paid tiers, with Luna reaching Free and Go users in the desktop app.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 5,
+    "source_url": "https://venturebeat.com/technology/openai-releases-gpt-6-sol-and-luna-models-slashing-api-costs-50-or-more",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "An OpenAI spokesperson confirmed to VentureBeat that these GPT-6 Sol and Luna rates are permanent prices, not promotional or introductory pricing.",
+    "as_of": "2026-09-22",
+    "confidence": "high",
+    "id": "c_a2845849383e",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-24",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.marktechpost.com/2026/09/22/openai-releases-gpt-6-sol-and-luna-50-cheaper-api-pricing-and-benchmarks/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]

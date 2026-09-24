@@ -1084,5 +1084,35 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "atlassian | public-sector-il5-timeline | 2026-09",
+    "claim": "Atlassian is pushing into the federal and public sector with committed compliance dates. On September 23, 2026 it pulled its IL5 authorization submission forward to July 2028 (six months earlier than planned), set FedRAMP High submission for January 2029 and said it is designing a fully disconnected, air-gapped cloud for IL6 and above workloads, currently in technical design with US government customers. Nothing is authorized above FedRAMP Moderate today, so these are commitments for 2028 and later, not capabilities a buyer can use now.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 10,
+    "source_url": "https://www.financialcontent.com/article/bizwire-2026-9-23-atlassian-accelerates-public-sector-cloud-investments-pulls-forward-il5-timelines",
+    "source_tier": "primary",
+    "evidence_excerpt": "The company will now submit for IL5 authorization in July 2028, six months ahead of its prior timeline",
+    "as_of": "2026-09-23",
+    "confidence": "high",
+    "id": "c_75553b4dc1e3",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-24",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.marketscreener.com/news/atlassian-accelerates-public-sector-cloud-investments-pulls-forward-il5-timelines-ce785ad9d08af620",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
