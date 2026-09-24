@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise coding/developers",
   "baseline_date": "2026-06-04",
-  "last_checked": "2026-09-23T11:01:10",
+  "last_checked": "2026-09-24T11:00:33",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_e5e52edeb211",
@@ -40,7 +40,9 @@
     "f_4d4798831991",
     "f_f16a6b763948",
     "f_7fd3d24c3cd2",
-    "f_b90360cdb658"
+    "f_b90360cdb658",
+    "f_2822638506dc",
+    "f_f8cef832eff1"
   ],
   "monitored": true,
   "lead_election": {
@@ -51,5 +53,5 @@
     "openai | ipo-filing"
   ],
   "unresolved_since": "2026-09-22",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }
