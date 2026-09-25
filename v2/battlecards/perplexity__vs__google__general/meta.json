@@ -4,7 +4,7 @@
   "competitor": "Google",
   "focus": null,
   "baseline_date": "2026-06-06",
-  "last_checked": "2026-09-24T11:30:45",
+  "last_checked": "2026-09-25T11:10:57",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_9ea436272f2a",
@@ -31,5 +31,11 @@
   "lead_election": {
     "last_promoted_on": "2026-08-26",
     "lead_subject_key": "perplexity-vs-google | price-vs-value | 2026"
-  }
+  },
+  "unresolved_subjects": [
+    "google | product-pipeline | gemini-4",
+    "perplexity | product-discontinuation | sonar-chat-api"
+  ],
+  "unresolved_since": "2026-09-24",
+  "unresolved_attempts": 1
 }

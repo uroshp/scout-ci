@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise and sovereign AI for developers and agents",
   "baseline_date": "2026-06-17",
-  "last_checked": "2026-09-24T11:24:18",
+  "last_checked": "2026-09-25T11:08:24",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_911e9a6938ba",
@@ -57,11 +57,5 @@
   "lead_election": {
     "last_promoted_on": "2026-09-07",
     "lead_subject_key": "mistral | sovereign-self-host-edge | current"
-  },
-  "unresolved_subjects": [
-    "NEW",
-    "openai | executive-hire-patreon-2026"
-  ],
-  "unresolved_since": "2026-09-22",
-  "unresolved_attempts": 2
+  }
 }
