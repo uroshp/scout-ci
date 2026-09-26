@@ -62,8 +62,11 @@ class ReviewApplyFeed(unittest.TestCase):
           "target_subject_key": "openai|flagship|current", "subject_key": "openai|flagship|current",
           "claim": "Updated neutral framing.", "claim_type": "interpretation",
           "derived_from": "c_" + "a" * 12, "feed_note": "flagship framing updated"}
+    # A grounded fact always carries a source; the provenance gate (2026-09-26) refuses a revise
+    # that would leave the target uncited, so the fixture must be sourced like the real thing.
     FACT = {"id": "c_" + "a" * 12, "subject_key": "f", "claim": "x", "claim_type": "fact",
-            "section": "tracked_facts", "zone": None, "order": 0}
+            "section": "tracked_facts", "zone": None, "order": 0,
+            "source_url": "https://news.test/fact", "source_tier": "reputable_secondary"}
 
     def test_applied_revise_writes_feed_entry_and_apply_date(self):
         with mock.patch.object(review.store, "load_meta", return_value={"competitor": "OpenAI"}), \
