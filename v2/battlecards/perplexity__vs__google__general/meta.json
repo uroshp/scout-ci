@@ -4,7 +4,7 @@
   "competitor": "Google",
   "focus": null,
   "baseline_date": "2026-06-06",
-  "last_checked": "2026-09-25T11:10:57",
+  "last_checked": "2026-09-26T11:26:55",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_9ea436272f2a",
@@ -37,5 +37,5 @@
     "perplexity | product-discontinuation | sonar-chat-api"
   ],
   "unresolved_since": "2026-09-24",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }
