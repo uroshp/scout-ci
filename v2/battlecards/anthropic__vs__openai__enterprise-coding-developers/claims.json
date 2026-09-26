@@ -747,18 +747,18 @@
   },
   {
     "subject_key": "objection | federal-blacklisting | current",
-    "claim": "**\"The federal government banned Anthropic. Is it a risky vendor to standardize on?\"**\n\nA federal judge just ruled that ban illegal. On August 27, 2026, US District Judge Rita Lin found the Pentagon's designation of Anthropic as a supply chain risk was unlawful First Amendment retaliation, arbitrary and capricious, with no evidence Anthropic's model posed the sabotage risk the Pentagon claimed. The trigger was Anthropic refusing in February 2026 to drop contract safeguards against fully autonomous weapons and domestic mass surveillance, a stance most commercial buyers read as a feature. A narrower case over a separate Pentagon rule is still pending at the DC Circuit, and the government is expected to appeal. None of this touches commercial access via AWS Bedrock or Google Vertex AI.\n\n**So what:** For gov-adjacent buyers, point to a federal judge who found the ban itself unlawful and retaliatory. For commercial enterprise, your Bedrock or Vertex procurement path was never affected.",
+    "claim": "**\"The federal government banned Anthropic. Is it a risky vendor to standardize on?\"**\n\nThe picture is now split. A federal judge struck down one Pentagon supply chain risk designation in August as unlawful retaliation, and that ruling stands. On September 25, the DC Circuit upheld a second, separate Pentagon designation litigated under a different statute, so Claude remains barred from use inside the Department of Defense specifically. Anthropic disagrees with that ruling and is weighing an en banc rehearing or a Supreme Court appeal. Outside the DoD, nothing changes: other federal agencies and contractors can still work with Anthropic under the unreversed August ruling, and commercial access via AWS Bedrock or Google Vertex AI was never part of either case.\n\n**So what:** For a DoD buyer, be direct: that designation stands and Claude cannot be used there today. For every other federal agency, contractor or commercial buyer, the procurement path through Bedrock or Vertex is untouched by either ruling.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 4,
-    "as_of": "2026-08-28",
+    "as_of": "2026-09-25",
     "confidence": "high",
     "id": "c_85c75d8b22dd",
     "verified": true,
     "persona": "security_regulated",
     "derived_from": "c_95fd0a2ee0fa",
-    "updated_on": "2026-08-30"
+    "updated_on": "2026-09-26"
   },
   {
     "subject_key": "objection | billing-instability | current",
@@ -2094,15 +2094,15 @@
   },
   {
     "subject_key": "anthropic-pentagon-retaliation-ruling",
-    "claim": "On August 27, 2026, US District Judge Rita Lin ruled that the Pentagon's designation of Anthropic as a supply chain risk constituted unlawful retaliation in violation of the First Amendment. Lin called Defense Secretary Pete Hegseth's blacklisting decision arbitrary and capricious. Lin found the government's actions were driven by a desire to punish Anthropic for its 'arrogance' in criticizing the government's AI policy, with no evidentiary basis showing Anthropic would sabotage its model. The dispute began after Anthropic refused a February 2026 Pentagon push to drop contract safeguards barring its AI from fully autonomous weapons and domestic mass surveillance use. A separate, narrower case over a different rule the Pentagon is using to designate Anthropic a supply chain risk remains pending before the DC federal appeals court, and the government is expected to appeal Lin's ruling.",
+    "claim": "The US Court of Appeals for the District of Columbia Circuit ruled 2-1 on September 25, 2026 that the Pentagon's designation of Anthropic as a national security supply chain risk was lawful. This ruling covers a second, separate Pentagon designation, litigated under a different statute than the one a San Francisco federal judge struck down on August 27; that August 27 ruling stands unchanged. The DC Circuit's decision means Claude remains prohibited for use within the Department of Defense, while the unreversed California ruling still lets other federal agencies and contractors work with Anthropic. Anthropic said it disagrees with the decision and is considering further review, including an en banc rehearing or a Supreme Court appeal.",
     "claim_type": "fact",
     "section": "tracked_facts",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.forbes.com/sites/siladityaray/2026/08/28/federal-judge-blocks-pentagons-illegal-designation-of-anthropic-as-a-supply-chain-risk/",
+    "source_url": "https://www.cnbc.com/2026/09/25/pentagon-anthropic-ai-risk-appeals-court.html",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "the Pentagon’s actions “constituted unlawful retaliation in violation of the First Amendment,”",
-    "as_of": "2026-08-28",
+    "evidence_excerpt": "A federal appeals court panel in Washington, D.C., on Friday upheld the Pentagon's blacklisting of Anthropic",
+    "as_of": "2026-09-25",
     "confidence": "high",
     "id": "c_95fd0a2ee0fa",
     "verified": true,
@@ -2110,12 +2110,12 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-08-29",
+      "fetched_at": "2026-09-26",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://fortune.com/2026/08/28/anthropic-pentagon-ruling-rita-lin-arrogance/",
+        "source_url": "https://www.cnn.com/2026/09/25/tech/anthropic-pentagon-blacklist-dc-ruling",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false

@@ -234,9 +234,9 @@ Both have a real basis. Anthropic acknowledged three engineering missteps degrad
 
 **"The federal government banned Anthropic. Is it a risky vendor to standardize on?"**
 
-A federal judge just ruled that ban illegal. On August 27, 2026, US District Judge Rita Lin found the Pentagon's designation of Anthropic as a supply chain risk was unlawful First Amendment retaliation, arbitrary and capricious, with no evidence Anthropic's model posed the sabotage risk the Pentagon claimed. The trigger was Anthropic refusing in February 2026 to drop contract safeguards against fully autonomous weapons and domestic mass surveillance, a stance most commercial buyers read as a feature. A narrower case over a separate Pentagon rule is still pending at the DC Circuit, and the government is expected to appeal. None of this touches commercial access via AWS Bedrock or Google Vertex AI.
+The picture is now split. A federal judge struck down one Pentagon supply chain risk designation in August as unlawful retaliation, and that ruling stands. On September 25, the DC Circuit upheld a second, separate Pentagon designation litigated under a different statute, so Claude remains barred from use inside the Department of Defense specifically. Anthropic disagrees with that ruling and is weighing an en banc rehearing or a Supreme Court appeal. Outside the DoD, nothing changes: other federal agencies and contractors can still work with Anthropic under the unreversed August ruling, and commercial access via AWS Bedrock or Google Vertex AI was never part of either case.
 
-**So what:** For gov-adjacent buyers, point to a federal judge who found the ban itself unlawful and retaliatory. For commercial enterprise, your Bedrock or Vertex procurement path was never affected. ([forbes.com](https://www.forbes.com/sites/siladityaray/2026/08/28/federal-judge-blocks-pentagons-illegal-designation-of-anthropic-as-a-supply-chain-risk/))
+**So what:** For a DoD buyer, be direct: that designation stands and Claude cannot be used there today. For every other federal agency, contractor or commercial buyer, the procurement path through Bedrock or Vertex is untouched by either ruling. ([cnbc.com](https://www.cnbc.com/2026/09/25/pentagon-anthropic-ai-risk-appeals-court.html))
 
 **"Anthropic keeps changing its pricing. How do I budget against a moving target?"**
 
