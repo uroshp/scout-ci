@@ -168,6 +168,19 @@ def apply(slug: str, ops: list, facts: list, write: bool = True) -> dict:
     res = apply_ops(claims, ops, facts or [], slug, today)
     new_claims = res["claims"]
 
+    # PROVENANCE GATE: refuse to write a card whose citations regressed or disagree with what the
+    # judge confirmed. Loud, deterministic, before any file changes (2026-09-26).
+    _landed = {(a.get("subject_key"), a.get("operation")) for a in res["applied"]}
+    issues = provenance_issues(claims, new_claims,
+                               [o for o in ops if (o.get("subject_key"), o.get("operation")) in _landed],
+                               facts or [])
+    if issues:
+        for i in issues:
+            print(f"[review] PROVENANCE GATE: {i}", file=sys.stderr)
+        return {"applied": [], "skipped": pre_skipped + res["skipped"], "held": held,
+                "reason": "provenance gate failed — nothing written", "provenance_issues": issues,
+                "claims": None}
+
     if write and res["applied"]:
         body = claims_to_markdown(new_claims, _title(meta),
                                   my_company=meta.get("my_company"), competitor=meta.get("competitor"))
@@ -352,3 +365,37 @@ if __name__ == "__main__":
         print(f"  {str(d.get('operation','?')).upper()} {d.get('section')}  ({d.get('subject_key')})")
         if d.get("new_text"):
             print(f"     NEW: {str(d['new_text'])[:200]}")
+
+
+def provenance_issues(before: list, after: list, applied_ops: list, facts: list) -> list[str]:
+    """DETERMINISTIC PRE-WRITE PROVENANCE GATE (2026-09-26). Two checks, no model:
+      1. no active claim that rendered a citation before may render none after (the 9/23 leak);
+      2. every applied op must cite the source the judge saw — the run's logged fact for its
+         derived_from (the 9/26 leak: a September ruling cited an August article).
+    Returns human-readable issues; empty means clean. Legacy claims without a citation before are
+    not flagged (they were never sourced; that is a separate, older debt)."""
+    from scout.render import _resolve_source_url
+    b_by = {c.get("id"): c for c in before}
+    a_by = {c.get("id"): c for c in after}
+    issues = []
+    for cid, a in a_by.items():
+        if str(a.get("status", "active")) != "active":
+            continue
+        b = b_by.get(cid)
+        if b is not None and _resolve_source_url(b, b_by) and not _resolve_source_url(a, a_by):
+            issues.append(f"citation LOST on {a.get('section')} ({a.get('subject_key')})")
+    facts_by_id = {f.get("id"): f for f in (facts or []) if f.get("id")}
+    by_sk = {c.get("subject_key"): c for c in after if str(c.get("status", "active")) == "active"}
+    for op in applied_ops or []:
+        if op.get("operation") not in ("add", "revise"):
+            continue
+        f = facts_by_id.get(op.get("derived_from"))
+        want = (f or {}).get("source_url")
+        c = by_sk.get(op.get("subject_key"))
+        if not (want and c):
+            continue
+        got = _resolve_source_url(c, a_by)
+        if got != want:
+            issues.append(f"citation MISMATCH on {c.get('section')} ({c.get('subject_key')}): "
+                          f"cites {got or 'nothing'}, judge saw {want}")
+    return issues

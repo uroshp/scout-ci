@@ -73,6 +73,22 @@ _PROPERTIES = {
         "source_tier": {"enum": SOURCE_TIERS},
         "evidence_excerpt": {"type": "string", "minLength": 40},
         "as_of": {"type": ["string", "null"], "format": "date"},
+        # PROVENANCE BY VALUE (2026-09-26): the source a propagated claim was judge-confirmed
+        # against, copied onto the claim at apply time. `derived_from` stays as lineage, but the
+        # citation no longer has to be resolved through a neighbour that can be revised or
+        # re-grounded later (two stale-citation leaks in one week). The renderer prefers this.
+        "provenance": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["source_url"],
+            "properties": {
+                "source_url": {"type": "string", "format": "uri"},
+                "source_tier": {"enum": SOURCE_TIERS + [None]},
+                "as_of": {"type": ["string", "null"]},
+                "fact_id": {"type": ["string", "null"]},
+                "stamped_on": {"type": ["string", "null"]},
+            },
+        },
         # Optional audience tag for battlecard plays + objections; null/absent elsewhere.
         "persona": {"enum": PERSONAS + [None]},
         "verified": {"const": True},

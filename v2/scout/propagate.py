@@ -26,6 +26,7 @@ from claude_agent_sdk import ClaudeAgentOptions
 from scout import config, selfserve
 from scout.generate import _drive, _extract_json
 from scout.prompts import WRITING_STYLE
+from scout.render import _resolve_source_url as _resolve_render_source
 from scout.route import route, ROUTABLE_SECTIONS, CHANGE_KINDS
 from scout.schema import (ZONES, claim_id, normalize_subject_key, render_structure_errors,
                           validation_errors, word_cap_errors)
@@ -1556,6 +1557,14 @@ def apply_ops(claims: list[dict], confirmed_ops: list[dict], facts: list[dict],
         df = op.get("derived_from")
         parent = facts_by_id.get(df) or {}
         as_of = parent.get("as_of") or today
+        # PROVENANCE BY VALUE (2026-09-26): the source the judge saw for this op, copied onto the
+        # claim. Prefer the run's logged fact (freshest); fall back to the card's copy.
+        prov_src = parent if parent.get("source_url") else next(
+            (c for c in out if c.get("id") == df), {})
+        prov_url = _resolve_render_source(prov_src, {c.get("id"): c for c in out}) if prov_src else None
+        provenance = ({"source_url": prov_url, "source_tier": prov_src.get("source_tier"),
+                       "as_of": prov_src.get("as_of"), "fact_id": df, "stamped_on": today}
+                      if prov_url else None)
 
         if operation == "add":
             sk = op.get("subject_key")
@@ -1575,6 +1584,8 @@ def apply_ops(claims: list[dict], confirmed_ops: list[dict], facts: list[dict],
             }
             if op.get("persona"):
                 new["persona"] = op["persona"]
+            if provenance:
+                new["provenance"] = provenance
             publishable = _no_drop(slug, new, op)          # repair render format, or HOLD — never drop
             if publishable is None:
                 held.append({"op": op, "reason": "held pending publish (render format unrepairable)"})
@@ -1596,14 +1607,17 @@ def apply_ops(claims: list[dict], confirmed_ops: list[dict], facts: list[dict],
                 # revise of the coding-benchmark positioning claim left the independent-index
                 # battlecard rendering with NO citation. Pin the target's outgoing source onto each
                 # dependent that has none of its own, so their provenance stays what it was.
-                old_url = before.get("source_url")
+                # Pinned BY VALUE into `provenance` (not source_url: a bare source_url on a derived
+                # claim trips the schema's own-source rule, which wants excerpt + grounding too).
+                old_url = _resolve_render_source(before, {c.get("id"): c for c in out})
                 if old_url:
                     for dep in out:
                         if (dep is not tgt and dep.get("derived_from") == tgt.get("id")
-                                and not dep.get("source_url")):
-                            dep["source_url"] = old_url
-                            if before.get("source_tier"):
-                                dep["source_tier"] = before["source_tier"]
+                                and not dep.get("source_url") and not dep.get("provenance")):
+                            dep["provenance"] = {"source_url": old_url,
+                                                 "source_tier": before.get("source_tier"),
+                                                 "as_of": before.get("as_of"),
+                                                 "fact_id": tgt.get("id"), "stamped_on": today}
                 tgt["claim"] = op.get("claim")
                 tgt["claim_type"] = "interpretation"
                 tgt["derived_from"] = df
@@ -1611,6 +1625,10 @@ def apply_ops(claims: list[dict], confirmed_ops: list[dict], facts: list[dict],
                 tgt["updated_on"] = today                   # when this change landed (changelog + badge)
                 for k in _OWN_SOURCE_FIELDS:               # re-anchor to the firing fact's provenance
                     tgt.pop(k, None)
+                if provenance:
+                    tgt["provenance"] = provenance
+                else:
+                    tgt.pop("provenance", None)
             else:  # retire — status flip, keep text + any own source for the lineage view
                 tgt["status"] = "retired"
                 tgt["retired_on"] = today
