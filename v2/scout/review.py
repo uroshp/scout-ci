@@ -159,6 +159,8 @@ def apply(slug: str, ops: list, facts: list, write: bool = True) -> dict:
     for fid in {o.get("derived_from") for o in ops}:
         if fid and fid not in by_id and fid in facts_by_id:
             claims = claims + [facts_by_id[fid]]
+    claims = refresh_anchor_facts(claims, [facts_by_id[f] for f in
+                                           {o.get("derived_from") for o in ops} if f in facts_by_id])
 
     # Stamp updated_on with the APPLY date, not the proposal run's date — the "Recently updated"
     # panel and the last-updated ordering must reflect when the card actually changed.
@@ -191,6 +193,33 @@ def apply(slug: str, ops: list, facts: list, write: bool = True) -> dict:
                            "agree", "auto-logged by review.apply on approval")
     return {"applied": res["applied"], "skipped": pre_skipped + res["skipped"], "held": held,
             "claims": new_claims}
+
+
+def refresh_anchor_facts(claims: list, facts: list) -> list:
+    """REVIEW-MODE ANCHOR REFRESH (2026-09-26). In review mode the monitor's my_company arm never
+    writes its grounded tracked_facts to the card (only `live` does — monitor.py); it carries them
+    in the decision log. When a later development RE-GROUNDS an anchor that already exists on the
+    card (same subject_key -> same id), the log holds the fresh version (new text, source, as_of)
+    but the card keeps the stale one, and every op derived from it renders with the OLD citation:
+    the 9/26 Pentagon-ruling objection cited the August Forbes article for a September 25 appeals
+    ruling. Replace a card anchor with the log's version when the log's as_of is newer. Anchors
+    are non-rendered tracked_facts; competitor facts in rendered sections are never touched."""
+    from scout.schema import ANCHOR_SECTION
+    fresh = {f.get("id"): f for f in (facts or [])
+             if f.get("id") and f.get("section") == ANCHOR_SECTION and f.get("as_of")}
+    if not fresh:
+        return claims
+    out = []
+    for c in claims:
+        f = fresh.get(c.get("id"))
+        if (f and c.get("section") == ANCHOR_SECTION
+                and str(f.get("as_of")) > str(c.get("as_of") or "")):
+            merged = dict(c)
+            merged.update({k: v for k, v in f.items() if v is not None})
+            out.append(merged)
+        else:
+            out.append(c)
+    return out
 
 
 def _log_human_verdict(slug: str, ops: list, human_verdict: str, note: str = "") -> int:
