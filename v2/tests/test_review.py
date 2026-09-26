@@ -305,3 +305,78 @@ class RefreshAnchorFacts(unittest.TestCase):
         out = review.refresh_anchor_facts(card, log)
         self.assertEqual(out[0]["source_url"], "https://card.test")
         self.assertEqual(out[1]["source_url"], "https://r.test")
+
+
+class ProvenanceGate(unittest.TestCase):
+    """2026-09-26: the deterministic pre-write check. A lost citation or a citation that disagrees
+    with the source the judge confirmed against blocks the write, loudly."""
+
+    def _c(self, cid, sk, **kw):
+        base = {"id": cid, "subject_key": sk, "section": "battlecard", "status": "active"}
+        base.update(kw); return base
+
+    def test_clean_when_citations_hold_and_match_the_judge_fact(self):
+        fact = {"id": "c_f", "source_url": "https://judge.test/f"}
+        before = [self._c("c_a", "a|b|c", source_url="https://own.test")]
+        after = [self._c("c_a", "a|b|c", source_url="https://own.test"),
+                 self._c("c_n", "n|e|w", derived_from="c_f", provenance={"source_url": "https://judge.test/f"})]
+        ops = [{"operation": "add", "subject_key": "n|e|w", "derived_from": "c_f"}]
+        self.assertEqual(review.provenance_issues(before, after, ops, [fact]), [])
+
+    def test_lost_citation_is_flagged(self):
+        before = [self._c("c_a", "a|b|c", source_url="https://own.test")]
+        after = [self._c("c_a", "a|b|c")]
+        issues = review.provenance_issues(before, after, [], [])
+        self.assertEqual(len(issues), 1); self.assertIn("LOST", issues[0])
+
+    def test_citation_disagreeing_with_the_judge_fact_is_flagged(self):
+        fact = {"id": "c_f", "source_url": "https://judge.test/sep"}
+        stale = {"id": "c_f", "source_url": "https://card.test/aug"}
+        after = [stale, self._c("c_r", "r|e|v", derived_from="c_f")]     # legacy hop -> stale card copy
+        ops = [{"operation": "revise", "subject_key": "r|e|v", "derived_from": "c_f"}]
+        issues = review.provenance_issues([stale], after, ops, [fact])
+        self.assertEqual(len(issues), 1); self.assertIn("MISMATCH", issues[0])
+
+
+class ProvenanceGateEndToEnd(unittest.TestCase):
+    """The gate is wired into apply(): a stale card anchor whose log twin is NEWER is refreshed
+    (RefreshAnchorFacts) and the op cites the log's source; a stale card anchor with NO refresh
+    available in the log (same as_of, different source) is caught and nothing is written."""
+
+    def _run(self, card_anchor, log_facts):
+        with mock.patch.object(review.store, "load_meta", return_value=dict(META)), \
+             mock.patch.object(review.store, "load_claims", return_value=[dict(PLAY), card_anchor]), \
+             mock.patch.object(review, "_current_md", return_value=""), \
+             mock.patch.object(review.store, "write_baseline") as wb, \
+             mock.patch("scout.reformat.repair_or_hold", side_effect=lambda s, o: ("ok", o)):
+            res = review.apply(SLUG, [dict(OP)], log_facts)
+        return res, wb
+
+    def test_applied_op_cites_the_judge_seen_source(self):
+        res, wb = self._run(dict(ANCHOR), [dict(ANCHOR)])
+        self.assertEqual(len(res["applied"]), 1)
+        new = next(c for c in res["claims"] if c["subject_key"] == OP["subject_key"])
+        self.assertEqual(new["provenance"]["source_url"], "https://news.test/fable5")
+        self.assertTrue(wb.called)
+
+    def test_stale_card_anchor_is_caught_by_the_gate(self):
+        """Card cites OLD, the judge confirmed against NEW, and no refresh applies (same as_of):
+        the wired gate must report a MISMATCH so apply() writes nothing."""
+        stale = dict(ANCHOR); stale["source_url"] = "https://news.test/OLD"
+        fresh = dict(ANCHOR); fresh["source_url"] = "https://news.test/NEW"
+        after = [dict(PLAY), stale, {"id": "c_x", "subject_key": OP["subject_key"],
+                                     "section": "objection_handling", "derived_from": FACT}]
+        issues = review.provenance_issues([dict(PLAY), stale], after, [dict(OP)], [fresh])
+        self.assertEqual(len(issues), 1)
+        self.assertIn("MISMATCH", issues[0])
+        with mock.patch.object(review, "apply_ops", return_value={"applied": [{"subject_key": OP["subject_key"], "operation": "add"}],
+                                                                  "skipped": [], "claims": after}), \
+             mock.patch.object(review.store, "load_meta", return_value=dict(META)), \
+             mock.patch.object(review.store, "load_claims", return_value=[dict(PLAY), stale]), \
+             mock.patch.object(review, "_current_md", return_value=""), \
+             mock.patch.object(review.store, "write_baseline") as wb, \
+             mock.patch("scout.reformat.repair_or_hold", side_effect=lambda s, o: ("ok", o)):
+            res = review.apply(SLUG, [dict(OP)], [fresh])
+        self.assertEqual(res["applied"], [])
+        self.assertIn("MISMATCH", res["provenance_issues"][0])
+        self.assertFalse(wb.called)

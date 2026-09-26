@@ -102,9 +102,14 @@ def _source_label(url: str) -> str:
 
 
 def _resolve_source_url(c: dict, by_id: dict | None) -> str | None:
-    """The URL to link for a claim. An ordinary claim carries its own `source_url`. A PROPAGATED
-    interpretation has none — its provenance is the grounded fact it descends from, so follow
-    `derived_from` to that parent and borrow its source (claim-object.md §2.3)."""
+    """The URL to link for a claim. A PROPAGATED claim applied since 2026-09-26 carries the source
+    it was judge-confirmed against BY VALUE in `provenance` — that wins, so the citation can never
+    drift when a neighbour is revised or re-grounded later. Otherwise an ordinary claim carries its
+    own `source_url`, and a legacy propagated interpretation follows `derived_from` to its parent
+    and borrows that source (claim-object.md §2.3)."""
+    prov = c.get("provenance") or {}
+    if prov.get("source_url"):
+        return prov["source_url"]
     if c.get("source_url"):
         return c["source_url"]
     df = c.get("derived_from")

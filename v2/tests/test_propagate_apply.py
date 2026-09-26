@@ -56,6 +56,9 @@ class ApplyAdd(unittest.TestCase):
         self.assertEqual(new["derived_from"], FACT_ID)
         self.assertNotIn("source_url", new)            # no own source — inherits via derived_from
         self.assertEqual(new["as_of"], "2026-06-11")   # parent fact's as_of
+        # PROVENANCE BY VALUE (2026-09-26): the judge-seen source is copied onto the claim.
+        self.assertEqual(new["provenance"]["source_url"], "https://news.test/openai-outage")
+        self.assertEqual(new["provenance"]["fact_id"], FACT_ID)
         self.assertEqual(validation_errors(new), [])
 
     def test_add_orders_after_existing_peers(self):
@@ -235,6 +238,22 @@ class ReviseKeepsDependentProvenance(unittest.TestCase):
         new_child = next(c for c in res["claims"] if c["id"] == child["id"])
         self.assertNotIn("source_url", new_parent)            # target re-anchored to the firing fact
         self.assertEqual(new_parent["derived_from"], FACT_ID2)
-        self.assertEqual(new_child["source_url"], "https://own.test/a")   # child keeps its provenance
+        self.assertEqual(new_parent["provenance"]["source_url"], "https://news.test/fable5")
+        # child keeps its provenance BY VALUE (not via source_url, which the schema would reject)
+        self.assertEqual(new_child["provenance"]["source_url"], "https://own.test/a")
+        self.assertNotIn("source_url", new_child)
+        self.assertEqual(validation_errors(new_child), [])
         md = claims_to_markdown(res["claims"], "# T")
         self.assertIn("(https://own.test/a)", md)
+        self.assertIn("(https://news.test/fable5)", md)
+
+    def test_provenance_wins_over_a_later_change_to_the_parent(self):
+        """The whole point: once stamped, a claim's citation no longer moves with its neighbour."""
+        parent = _play("p|q|r"); parent["section"], parent["zone"] = "positioning", None
+        child = {"id": claim_id(SLUG, "c|d|e"), "subject_key": "c|d|e", "claim": "**X**\n\ny.\n\n**Soundbite:** *\"z\"*",
+                 "claim_type": "interpretation", "section": "battlecard", "zone": "where_we_win", "order": 1,
+                 "as_of": "2026-01-01", "verified": True, "confidence": "medium", "persona": "technical_evaluator",
+                 "derived_from": parent["id"], "provenance": {"source_url": "https://stamped.test/x"}}
+        parent["source_url"] = "https://changed.test/later"
+        md = claims_to_markdown([parent, child], "# T")
+        self.assertIn("(https://stamped.test/x)", md)
