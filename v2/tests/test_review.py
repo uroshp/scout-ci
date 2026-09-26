@@ -275,3 +275,33 @@ class Dispatch(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RefreshAnchorFacts(unittest.TestCase):
+    """2026-09-26: in review mode a re-grounded tracked_facts anchor lives only in the decision log;
+    approval must carry the fresh version (text/source/as_of) onto the card so derived ops cite it."""
+
+    def test_newer_log_anchor_replaces_stale_card_anchor(self):
+        fid = claim_id(SLUG, "anthropic-pentagon-ruling")
+        card = [{"id": fid, "section": ANCHOR_SECTION, "subject_key": "anthropic-pentagon-ruling",
+                 "claim": "August ruling.", "as_of": "2026-08-28", "source_url": "https://old.test/aug"},
+                {"id": "c_other", "section": "recent_moves", "as_of": "2026-01-01",
+                 "source_url": "https://keep.test"}]
+        log = [{"id": fid, "section": ANCHOR_SECTION, "subject_key": "anthropic-pentagon-ruling",
+                "claim": "September appeals ruling.", "as_of": "2026-09-25",
+                "source_url": "https://new.test/sep"}]
+        out = review.refresh_anchor_facts(card, log)
+        anchor = next(c for c in out if c["id"] == fid)
+        self.assertEqual(anchor["source_url"], "https://new.test/sep")
+        self.assertEqual(anchor["claim"], "September appeals ruling.")
+        self.assertEqual(next(c for c in out if c["id"] == "c_other")["source_url"], "https://keep.test")
+
+    def test_older_or_rendered_facts_are_left_alone(self):
+        fid = claim_id(SLUG, "x")
+        card = [{"id": fid, "section": ANCHOR_SECTION, "as_of": "2026-09-25", "source_url": "https://card.test"},
+                {"id": "c_r", "section": "recent_moves", "as_of": "2026-01-01", "source_url": "https://r.test"}]
+        log = [{"id": fid, "section": ANCHOR_SECTION, "as_of": "2026-08-01", "source_url": "https://older.test"},
+               {"id": "c_r", "section": "recent_moves", "as_of": "2026-09-30", "source_url": "https://newer.test"}]
+        out = review.refresh_anchor_facts(card, log)
+        self.assertEqual(out[0]["source_url"], "https://card.test")
+        self.assertEqual(out[1]["source_url"], "https://r.test")
