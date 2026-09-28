@@ -46,7 +46,9 @@ _CHALLENGER_SYSTEM = (
     "actually state what the claim asserts; keep a claim whose evidence is specific, on-point, and "
     "from a credible (primary or tier-1) source. Judge each claim ON ITS OWN MERITS — do not defer "
     "to any prior note about it. Reason only from what you are given; you have no tools and must not "
-    "assume facts not present. Return ONLY a JSON object:\n"
+    "assume facts not present."
+" Some items carry a supporting_fact: those are INTERPRETATIONS (plays, objections, summaries) grounded on that fact, not on an excerpt of their own — for them, judge whether the interpretation is SUPPORTED by the supporting_fact and its excerpt (cut if it asserts a number, entity, or causal claim the fact does not license; do not cut merely because the excerpt is a fragment of the fact). "
+    "Return ONLY a JSON object:\n"
     '{"verdicts": [{"item_id": "<id>", "verdict": "keep" | "cut", '
     '"reason": "<one sentence>", "confidence": "high" | "medium" | "low"}]}\n'
     "Return exactly one verdict per item_id you were given."
@@ -64,7 +66,9 @@ _CHALLENGER_SYSTEM_NEUTRAL = (
     "the excerpt you are shown may be just ONE of several snippets that grounded the claim — do NOT "
     "cut a claim merely because this single excerpt omits some sub-detail or figure; cut only if the "
     "core assertion is clearly unsupported or contradicted. Reason only from what you are given; you "
-    "have no tools. Return ONLY a JSON object:\n"
+    "have no tools."
+" Some items carry a supporting_fact: those are INTERPRETATIONS (plays, objections, summaries) grounded on that fact, not on an excerpt of their own — for them, judge whether the interpretation is SUPPORTED by the supporting_fact and its excerpt (cut if it asserts a number, entity, or causal claim the fact does not license; do not cut merely because the excerpt is a fragment of the fact). "
+    "Return ONLY a JSON object:\n"
     '{"verdicts": [{"item_id": "<id>", "verdict": "keep" | "cut", '
     '"reason": "<one sentence>", "confidence": "high" | "medium" | "low"}]}\n'
     "Return exactly one verdict per item_id you were given."
@@ -87,13 +91,28 @@ def _items(record: dict) -> tuple[list, dict]:
         # Judging it against a blank excerpt produced ~all the false "slop" cuts (the 7 of 9 Uroš ruled
         # over-cut). Skip it; only excerpt-bearing claims (facts — including a MIS-grounded fact we DO
         # want caught) are judged here.
-        if not str(c.get("evidence_excerpt") or "").strip():
+        parent = c.get("parent") if isinstance(c.get("parent"), dict) else None
+        if not str(c.get("evidence_excerpt") or "").strip() and not parent:
             continue
         item_id = c.get("id") or f"keep:{i}"
         champion[item_id] = "keep"
+        if parent:
+            # DERIVED item (2026-09-28): the evidence is the PARENT FACT + its excerpt; the question is
+            # whether the interpretation is supported by that fact (no numbers/entities beyond it).
+            model_items.append({
+                "item_id": item_id,
+                "claim": c.get("claim"),
+                "evidence_mode": "parent_fact",
+                "supporting_fact": parent.get("claim"),
+                "evidence": parent.get("evidence_excerpt"),
+                "source_url": parent.get("source_url"),
+                "source_tier": parent.get("source_tier"),
+            })
+            continue
         model_items.append({
             "item_id": item_id,
             "claim": c.get("claim"),
+            "evidence_mode": "own_excerpt",
             "evidence": c.get("evidence_excerpt"),
             "source_url": c.get("source_url"),
             "source_tier": c.get("source_tier"),
@@ -181,25 +200,26 @@ def compare(record: dict, judged: dict) -> dict:
     slug, run_ts = record.get("slug"), record.get("run_ts")
     items, ca, cb = [], [], []
     by_id = {c.get("id"): c for c in (record.get("kept") or []) if isinstance(c, dict)}
+    mode_by_id = {m["item_id"]: m.get("evidence_mode") for m in _items(record)[0]}
     cut_by_idx = {f"cut:{j}": e for j, e in enumerate(record.get("cut") or []) if isinstance(e, dict)}
     for item_id, champ in champion.items():
         v = verdicts.get(item_id)
         if not v:
             items.append({"item_id": item_id, "champion": champ, "challenger": None,
-                          "status": "abstain"})
+                          "status": "abstain", "evidence_mode": mode_by_id.get(item_id)})
             continue
         chal = v["verdict"]
         ca.append(champ); cb.append(chal)
         if chal == champ:
             items.append({"item_id": item_id, "champion": champ, "challenger": chal,
-                          "status": "agree"})
+                          "status": "agree", "evidence_mode": mode_by_id.get(item_id)})
             continue
         direction = "recovery_candidate" if (champ == "cut" and chal == "keep") else "slop_candidate"
         src = by_id.get(item_id) or cut_by_idx.get(item_id) or {}
         items.append({
             "delta_id": _delta_id(slug, run_ts, item_id),
             "item_id": item_id, "champion": champ, "challenger": chal, "status": "disagree",
-            "direction": direction,
+            "direction": direction, "evidence_mode": mode_by_id.get(item_id),
             "claim": src.get("claim"),
             "challenger_reason": v.get("reason"), "challenger_confidence": v.get("confidence"),
         })
@@ -275,6 +295,41 @@ def load_labels() -> dict:
     return out
 
 
+
+# DERIVED-CAPTURE FIX (2026-09-28): results judged before this stamp were produced under the old
+# capture (interpretations shown with no evidence -> the June over-cuts, then skipped). The
+# scoreboard keeps every label but reports the two periods separately rather than resetting.
+DERIVED_FIX_STAMP = "2026-09-28T00:00:00"
+
+
+def _slice(disagreements: list, labels: dict) -> dict:
+    adj = [d for d in disagreements if d.get("delta_id") in labels]
+    right = sum(1 for d in adj if labels[d["delta_id"]] == "agree")
+    return {"disagreements": len(disagreements), "adjudicated": len(adj), "challenger_right": right,
+            "challenger_wrong": len(adj) - right,
+            "precision": round(right / len(adj), 3) if adj else None}
+
+
+def scorecard_slices(results: list) -> dict:
+    """Disagreement precision by PERIOD (pre/post the derived-capture fix, keyed on judged_at) and by
+    EVIDENCE MODE (own_excerpt = a fact judged on its excerpt; parent_fact = an interpretation judged
+    on its parent fact; legacy = items judged before modes were recorded)."""
+    labels = load_labels()
+    rows = []
+    for r in results:
+        for it in r.get("items", []):
+            if it["status"] == "disagree":
+                rows.append({**it, "judged_at": r.get("judged_at") or ""})
+    pre = [d for d in rows if d["judged_at"] < DERIVED_FIX_STAMP]
+    post = [d for d in rows if d["judged_at"] >= DERIVED_FIX_STAMP]
+    modes = {}
+    for m in sorted({d.get("evidence_mode") or "legacy" for d in rows}):
+        modes[m] = _slice([d for d in rows if (d.get("evidence_mode") or "legacy") == m], labels)
+    return {"fix_stamp": DERIVED_FIX_STAMP,
+            "period": {"pre_fix": _slice(pre, labels), "post_fix": _slice(post, labels)},
+            "by_evidence_mode": modes}
+
+
 def scorecard(results: list) -> dict:
     """Aggregate across challenger result records. The champion-vs-challenger kappa is recomputed on
     the POOLED item labels (not averaged per card). The challenger-vs-human kappa is computed only
@@ -318,4 +373,5 @@ def scorecard(results: list) -> dict:
                                           else None),
         },
         "pending_disagreements": [d for d in disagreements if d.get("delta_id") not in labels],
+        "slices": scorecard_slices(results),
     }

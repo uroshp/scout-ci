@@ -856,6 +856,12 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
         shadow.capture(slug, "monitor", kept=grounded["kept"], cut=grounded["cut"],
                        grounding=grounded, competitor=meta.get("competitor"),
                        my_company=meta.get("my_company"), focus=meta.get("focus"))
+        # DERIVED CAPTURE (2026-09-28): today's new/revised interpretations WITH their parent facts,
+        # so the challenger judges support on plays/objections/summaries too (live-mode applies land
+        # here; review-mode applies are captured in review.apply). No-op when nothing derived changed.
+        shadow.capture_derived(slug, "monitor", new_claims, checked_at[:10],
+                               competitor=meta.get("competitor"),
+                               my_company=meta.get("my_company"), focus=meta.get("focus"))
         # DISMISSAL CAPTURE: what this run surfaced but did NOT alert on (triage candidates +
         # materiality immaterial verdicts + own-company signals), so the dismissals are auditable —
         # the silent-miss surface the eval's "never drop anything important" bar cares about.

@@ -57,7 +57,7 @@ def _kept_rows(kept):
     for c in kept or []:
         if not isinstance(c, dict):
             continue
-        rows.append({
+        row = {
             "id": c.get("id"),
             "claim": c.get("claim"),
             "claim_type": c.get("claim_type"),
@@ -68,8 +68,59 @@ def _kept_rows(kept):
             "evidence_excerpt": c.get("evidence_excerpt"),
             "confidence": c.get("confidence"),
             "grounding_method": (c.get("grounding") or {}).get("method"),
-        })
+        }
+        # DERIVED CAPTURE (2026-09-28): an interpretation carries no excerpt of its own; its support is
+        # the parent fact. Carry that fact with the row so the challenger can judge SUPPORT instead of
+        # cutting for "no evidence" (the 7 over-cuts of June) or skipping the claim entirely.
+        if c.get("parent"):
+            row["parent"] = c["parent"]
+            row["evidence_mode"] = "parent_fact"
+        rows.append(row)
     return rows
+
+
+def derived_rows(claims: list, changed_on: str | None = None) -> list:
+    """Active derived claims (derived_from set, no own excerpt) paired with their parent fact —
+    {claim, evidence_excerpt, source_url, source_tier, subject_key}. `changed_on` restricts to claims
+    added/revised that day (updated_on / as_of), so a daily capture only carries what changed and the
+    challenger never re-judges the whole card. Pure function."""
+    by_id = {c.get("id"): c for c in claims or [] if isinstance(c, dict) and c.get("id")}
+    out = []
+    for c in claims or []:
+        if not isinstance(c, dict) or str(c.get("status", "active")) != "active":
+            continue
+        if not c.get("derived_from") or str(c.get("evidence_excerpt") or "").strip():
+            continue
+        if changed_on and changed_on not in (c.get("updated_on"), c.get("as_of")):
+            continue
+        parent = by_id.get(c.get("derived_from"))
+        if not parent:
+            continue
+        prov = c.get("provenance") or {}
+        row = dict(c)
+        row["parent"] = {"subject_key": parent.get("subject_key"), "claim": parent.get("claim"),
+                         "evidence_excerpt": parent.get("evidence_excerpt"),
+                         "source_url": prov.get("source_url") or parent.get("source_url"),
+                         "source_tier": prov.get("source_tier") or parent.get("source_tier")}
+        out.append(row)
+    return out
+
+
+def capture_derived(slug, source, claims, changed_on=None, *, competitor=None, my_company=None,
+                    focus=None):
+    """Record the day's NEW/REVISED derived claims with their parent facts as a shadow record
+    (source "<source>-derived"), so the verification challenger judges interpretations on support.
+    No-op unless SHADOW_EVAL_ENABLED or when nothing derived changed. Never raises."""
+    if not config.SHADOW_EVAL_ENABLED:
+        return
+    try:
+        rows = derived_rows(claims, changed_on)
+        if not rows:
+            return
+        capture(slug, f"{source}-derived", kept=rows, cut=[], grounding=[],
+                competitor=competitor, my_company=my_company, focus=focus)
+    except Exception as e:
+        print(f"[shadow] derived capture skipped ({type(e).__name__}: {e})", file=sys.stderr)
 
 
 def _cut_rows(cut):
