@@ -257,3 +257,24 @@ class ReviseKeepsDependentProvenance(unittest.TestCase):
         parent["source_url"] = "https://changed.test/later"
         md = claims_to_markdown([parent, child], "# T")
         self.assertIn("(https://stamped.test/x)", md)
+
+
+class ReviseSelfReground(unittest.TestCase):
+    """2026-09-28: a rendered fact updated by a fresh fact with the same subject_key (same id) must
+    keep its own source from the fresh fact, not point derived_from at itself and lose its citation."""
+
+    def test_self_reground_keeps_own_source_and_stays_a_fact(self):
+        fact = _play("mistral|valuation|current"); fact["section"], fact["zone"] = "snapshot", None
+        fact["claim_type"] = "fact"; fact["claim"] = "Old valuation."
+        fresh = {**fact, "claim": "New valuation.", "source_url": "https://fresh.test/d",
+                 "evidence_excerpt": "y" * 45, "as_of": "2026-09-08"}
+        op = {"operation": "revise", "section": "snapshot", "zone": None,
+              "subject_key": fact["subject_key"], "target_subject_key": fact["subject_key"],
+              "claim": "New valuation.", "claim_type": "fact", "derived_from": fact["id"]}
+        res = apply_ops([fact], [op], [fresh], SLUG, TODAY)
+        out = res["claims"][0]
+        self.assertEqual(out["source_url"], "https://fresh.test/d")
+        self.assertEqual(out["claim_type"], "fact")
+        self.assertNotIn("derived_from", out)
+        self.assertEqual(validation_errors(out), [])
+        self.assertIn("(https://fresh.test/d)", claims_to_markdown(res["claims"], "# T"))

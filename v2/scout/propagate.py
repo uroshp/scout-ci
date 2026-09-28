@@ -1619,16 +1619,29 @@ def apply_ops(claims: list[dict], confirmed_ops: list[dict], facts: list[dict],
                                                  "as_of": before.get("as_of"),
                                                  "fact_id": tgt.get("id"), "stamped_on": today}
                 tgt["claim"] = op.get("claim")
-                tgt["claim_type"] = "interpretation"
-                tgt["derived_from"] = df
                 tgt["as_of"] = as_of
                 tgt["updated_on"] = today                   # when this change landed (changelog + badge)
-                for k in _OWN_SOURCE_FIELDS:               # re-anchor to the firing fact's provenance
-                    tgt.pop(k, None)
-                if provenance:
-                    tgt["provenance"] = provenance
-                else:
+                if df == tgt.get("id") and parent.get("source_url"):
+                    # SELF RE-GROUND (2026-09-28 sweep found 24 uncited claims): a rendered FACT
+                    # (snapshot/pricing/recent_moves) updated by a fresh fact with the SAME subject_key
+                    # gets the same id, so derived_from would point at itself and the source strip
+                    # below would orphan it and every dependent. Keep it a fact: take the fresh
+                    # fact's own source fields instead.
+                    tgt["claim_type"] = parent.get("claim_type") or tgt.get("claim_type") or "fact"
+                    tgt.pop("derived_from", None)
+                    for k in _OWN_SOURCE_FIELDS:
+                        if parent.get(k) is not None:
+                            tgt[k] = parent[k]
                     tgt.pop("provenance", None)
+                else:
+                    tgt["claim_type"] = "interpretation"
+                    tgt["derived_from"] = df
+                    for k in _OWN_SOURCE_FIELDS:           # re-anchor to the firing fact's provenance
+                        tgt.pop(k, None)
+                    if provenance:
+                        tgt["provenance"] = provenance
+                    else:
+                        tgt.pop("provenance", None)
             else:  # retire — status flip, keep text + any own source for the lineage view
                 tgt["status"] = "retired"
                 tgt["retired_on"] = today

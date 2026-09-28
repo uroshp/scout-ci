@@ -424,7 +424,7 @@
   {
     "subject_key": "cursor | pricing-model | teams-2026",
     "claim": "Cursor's Teams pricing keeps Standard at $32/seat/mo annual ($40 monthly) and Premium at $96/seat/mo annual ($120 monthly, 5x the usage at 3x the cost), and now splits every seat into two usage pools, one for first-party Composer and Auto models, one for third-party API calls, with a real-time dashboard split by pool and dollar-threshold spend alerts over Slack or email. There's still no flat team base fee, undercutting Cognition's $80 base plus per-seat Teams structure for smaller teams.",
-    "claim_type": "interpretation",
+    "claim_type": "fact",
     "section": "pricing",
     "zone": null,
     "order": 1,
@@ -432,8 +432,25 @@
     "confidence": "high",
     "id": "c_8a5372ca0015",
     "verified": true,
-    "derived_from": "c_8a5372ca0015",
-    "updated_on": "2026-07-02"
+    "updated_on": "2026-07-02",
+    "source_url": "https://cursor.com/blog/teams-pricing-june-2026",
+    "source_tier": "primary",
+    "evidence_excerpt": "These changes will start for all new customers immediately, and renewing customers on billing cycles starting July 1st, 2026.",
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "fuzzy",
+      "fetched_at": "2026-07-02",
+      "detail": "partial_ratio 0.992"
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.startuphub.ai/ai-news/technology/2026/cursor-teams-upgrades-pricing-for-predictability",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "cursor | pricing-model | individual-2026",
@@ -831,7 +848,14 @@
     "verified": true,
     "confidence": "medium",
     "derived_from": "c_8a5372ca0015",
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "provenance": {
+      "source_url": "https://cursor.com/blog/teams-pricing-june-2026",
+      "source_tier": "primary",
+      "as_of": "2026-07-01",
+      "fact_id": "c_8a5372ca0015",
+      "stamped_on": "2026-09-28"
+    }
   },
   {
     "subject_key": "cursor | product-launch | ios",

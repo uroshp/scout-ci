@@ -22,7 +22,7 @@ The EU forced Microsoft to sell Microsoft 365 without Teams and to widen the pri
 
 **Soundbite:** "You can strip Teams out of the bundle, but the whole suite just got more expensive anyway, so compare total cost, not sticker price."
 
-**So what:** Expect procurement to ask for Teams-excluded pricing and to cite antitrust. Go in with the value and TCO case (Copilot, meetings, compliance in one suite), not a bundle-or-nothing posture.
+**So what:** Expect procurement to ask for Teams-excluded pricing and to cite antitrust. Go in with the value and TCO case (Copilot, meetings, compliance in one suite), not a bundle-or-nothing posture. ([microsoft.com](https://www.microsoft.com/en-us/microsoft-365/blog/2025/12/04/advancing-microsoft-365-new-capabilities-and-pricing-update/))
 
 **Teams' meeting-UI complaint now has a shipping fix, though other quality dings still stand.**
 
@@ -58,12 +58,12 @@ Microsoft's redesigned meeting controls, with a separated Leave button and a two
 
 ## Positioning and Differentiation
 
-- Microsoft Teams ships inside every Microsoft 365 business subscription (from Business Basic at \$7 per user per month as of July 1, 2026) as an included app, giving it near-frictionless distribution to hundreds of millions of M365 seats. Adopting Slack means standing up and paying for a second tool.
+- Microsoft Teams ships inside every Microsoft 365 business subscription (from Business Basic at \$7 per user per month as of July 1, 2026) as an included app, giving it near-frictionless distribution to hundreds of millions of M365 seats. Adopting Slack means standing up and paying for a second tool. ([microsoft.com](https://www.microsoft.com/en-us/microsoft-365/blog/2025/12/04/advancing-microsoft-365-new-capabilities-and-pricing-update/))
 - Salesforce positions Slack as 'the operating system for work', and since the August 26 Claudeforce launch that claim has real backing: Claude is the default model across Slackbot, Claude Tag and Slack Code, plus a Salesforce data plugin with 37 prebuilt sales skills in pilot now and open beta in September 2026. That is the frame a Teams rep will meet in Salesforce-centric accounts. ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/08/26/salesforce-and-anthropic-announce-claudeforce/))
 
 ## Pricing and Packaging
 
-- Microsoft Teams list pricing effective July 1, 2026: Teams Essentials stays at \$4.00 per user per month, while Microsoft 365 Business Basic rose from \$6 to \$7, Business Standard from \$12.50 to \$14, Microsoft 365 E3 from \$36 to \$39, Microsoft 365 E5 from \$57 to \$60 and Microsoft 365 F3 from \$8 to \$10 per user per month, with Teams included in all of these suites.
+- Microsoft Teams list pricing effective July 1, 2026: Teams Essentials stays at \$4.00 per user per month, while Microsoft 365 Business Basic rose from \$6 to \$7, Business Standard from \$12.50 to \$14, Microsoft 365 E3 from \$36 to \$39, Microsoft 365 E5 from \$57 to \$60 and Microsoft 365 F3 from \$8 to \$10 per user per month, with Teams included in all of these suites. ([microsoft.com](https://www.microsoft.com/en-us/microsoft-365/blog/2025/12/04/advancing-microsoft-365-new-capabilities-and-pricing-update/))
 - Slack list pricing: Pro \$8.75/user/month billed monthly (or \$7.25 annual), Business+ \$18 monthly (or \$15 annual), Enterprise+ custom; the free tier caps message history at 90 days. The page also currently shows a temporary 50%-off promo on monthly plans. ([slack.com](https://slack.com/pricing))
 - Because the EU settlement forces a price gap between Teams-included and Teams-excluded Microsoft 365, one analysis estimates a 5,000-seat M365 E3 org pays a ~\$513,000/year 'Teams premium', a procurement lever buyers can now pull at renewal to demand Teams-excluded pricing. ([uctoday.com](https://www.uctoday.com/unified-communications/microsoft-teams-slack-bundling-antitrust-lawsuit/))
 
@@ -131,7 +131,7 @@ Microsoft itself acknowledged the older client could use up to a gigabyte of RAM
 
 As of July 1, 2026 M365 list prices are up: Business Basic \$6 to \$7, Business Standard \$12.50 to \$14, E3 \$36 to \$39, E5 \$57 to \$60 and F3 \$8 to \$10 per user per month, bundled with additions like Defender for Office 365 Plan 1 on E3, expanded Intune and richer Copilot Chat. Standalone Teams and Copilot SKUs are excluded from the change, and the suites folded in real added value, not just an AI tax.
 
-**So what:** Run a real TCO comparison (M365 with Copilot optional versus Slack plus Office plus Agentforce/Salesforce licensing) and let the buyer add AI when ready instead of being forced into a separate ecosystem.
+**So what:** Run a real TCO comparison (M365 with Copilot optional versus Slack plus Office plus Agentforce/Salesforce licensing) and let the buyer add AI when ready instead of being forced into a separate ecosystem. ([microsoft.com](https://www.microsoft.com/en-us/microsoft-365/blog/2025/12/04/advancing-microsoft-365-new-capabilities-and-pricing-update/))
 
 **"Can I trust Microsoft on security after Storm-0558 and Midnight Blizzard?"**
 

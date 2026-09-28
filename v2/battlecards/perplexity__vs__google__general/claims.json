@@ -34,7 +34,14 @@
     "id": "c_ad25e7c14361",
     "verified": true,
     "derived_from": "c_26aaa3eb63dc",
-    "updated_on": "2026-08-25"
+    "updated_on": "2026-08-25",
+    "provenance": {
+      "source_url": "https://techstartups.com/2026/08/24/nvidia-in-talks-to-invest-in-perplexity-at-30-billion-valuation-as-revenue-tops-750-million/",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-08-24",
+      "fact_id": "c_26aaa3eb63dc",
+      "stamped_on": "2026-09-28"
+    }
   },
   {
     "subject_key": "google | distribution-under-legal-attack | 2026",
@@ -251,7 +258,7 @@
   {
     "subject_key": "perplexity | revenue-run-rate | current",
     "claim": "Perplexity's annualized revenue topped $750 million as of August 2026, up from under $250 million at the start of the year, per a report by The Information; that's roughly 50% above the approximately $500 million ARR the CEO reported to CNBC in June 2026.",
-    "claim_type": "interpretation",
+    "claim_type": "fact",
     "section": "snapshot",
     "zone": null,
     "order": 7,
@@ -259,8 +266,31 @@
     "confidence": "medium",
     "id": "c_26aaa3eb63dc",
     "verified": true,
-    "derived_from": "c_26aaa3eb63dc",
-    "updated_on": "2026-08-25"
+    "updated_on": "2026-08-25",
+    "source_url": "https://techstartups.com/2026/08/24/nvidia-in-talks-to-invest-in-perplexity-at-30-billion-valuation-as-revenue-tops-750-million/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Perplexity’s annualized revenue has climbed above $750 million, up from less than $250 million at the start of 2026.",
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-25",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.pymnts.com/news/artificial-intelligence/2026/nvidia-considers-backing-perplexity-30-billion-dollar-valuation/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://finance.yahoo.com/technology/ai/articles/nvidia-reportedly-weighs-perplexity-investment-111111172.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "perplexity | valuation | current",
@@ -551,7 +581,7 @@
   {
     "subject_key": "perplexity | list-price | sonar-api",
     "claim": "Perplexity's Sonar API is priced per million tokens (Sonar $1 in/$1 out; Sonar Pro $3 in/$15 out; Deep Research $2 in/$8 out) plus per-request and search fees. The citation charge that used to apply across all Sonar models now applies only to Sonar Deep Research, so Sonar and Sonar Pro carry no citation fee, a usage-based developer model competing with Google's Gemini API/Vertex.",
-    "claim_type": "interpretation",
+    "claim_type": "fact",
     "section": "pricing",
     "zone": null,
     "order": 1,
@@ -559,8 +589,25 @@
     "confidence": "medium",
     "id": "c_ce90341434d4",
     "verified": true,
-    "derived_from": "c_ce90341434d4",
-    "updated_on": "2026-08-28"
+    "updated_on": "2026-08-28",
+    "source_url": "https://docs.perplexity.ai/getting-started/pricing",
+    "source_tier": "primary",
+    "evidence_excerpt": "Sonar $1 $1 - - - Sonar Pro $3 $15 - - - Sonar Reasoning Pro $2 $8 - - - Sonar Deep Research $2 $8 $2 $5 $3",
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-08-28",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.cloudzero.com/blog/perplexity-api-pricing/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "google | list-price | ai-pro",
@@ -1019,7 +1066,14 @@
     "id": "c_949c69727c83",
     "verified": true,
     "derived_from": "c_26aaa3eb63dc",
-    "updated_on": "2026-08-25"
+    "updated_on": "2026-08-25",
+    "provenance": {
+      "source_url": "https://techstartups.com/2026/08/24/nvidia-in-talks-to-invest-in-perplexity-at-30-billion-valuation-as-revenue-tops-750-million/",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-08-24",
+      "fact_id": "c_26aaa3eb63dc",
+      "stamped_on": "2026-09-28"
+    }
   },
   {
     "subject_key": "objection | perplexity-privacy-data-sharing",
