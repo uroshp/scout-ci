@@ -46,6 +46,7 @@ def verification_metrics() -> dict:
         "kappa_vs_code": sc.get("kappa_champion_vs_challenger"),
         "disagreements": sc.get("disagreements", 0),
         "pending": len(sc.get("pending_disagreements", [])),
+        "slices": sc.get("slices"),
     }
 
 
@@ -93,6 +94,24 @@ def verdict(kind: str, cur: dict, prior: dict | None) -> dict:
             f"{KILL_STREAK}); find the cause or conclude.", "no_improve_streak": streak}
 
 
+def _slices_block(sl: dict | None) -> str:
+    """Pre/post derived-capture-fix + per-evidence-mode precision (2026-09-28). The pre-fix period
+    is the old capture (interpretations judged blind); post-fix is the measurement that counts."""
+    if not sl:
+        return ""
+    def one(name, x):
+        return (f"  - {name}: precision {x['precision']} [{x['challenger_right']} right / "
+                f"{x['challenger_wrong']} wrong of {x['adjudicated']} adjudicated; "
+                f"{x['disagreements']} disagreements]\n")
+    out = f"  - PERIODS (derived-capture fix {sl['fix_stamp'][:10]}):\n"
+    out += one("  pre-fix (old capture, interpretations judged blind)", sl["period"]["pre_fix"])
+    out += one("  post-fix", sl["period"]["post_fix"])
+    out += "  - BY EVIDENCE MODE:\n"
+    for m, x in sl["by_evidence_mode"].items():
+        out += one(f"  {m}", x)
+    return out
+
+
 def _load_prior() -> dict | None:
     try:
         files = sorted(f for f in selfserve.list_data(EVAL_DIR) if f.endswith(".json"))
@@ -128,7 +147,8 @@ def build(now: datetime) -> tuple[dict, str]:
             f"Prior check-in: {(prior or {}).get('stamp', 'none (first run)')}\n\n"
             + block("Verification challenger (support over grounding)", ver, v_ver)
             + f"  - alignment κ vs code grader: {ver['kappa_vs_code']} (sanity, not the gate); "
-              f"open disagreements: {ver['disagreements']}\n\n"
+              f"open disagreements: {ver['disagreements']}\n"
+            + _slices_block(ver.get("slices")) + "\n"
             + block("Authorship judge (propose→judge)", auth, v_auth)
             + "\nPer-slice κ (by claim type / section) is the next refinement; v1 reports aggregate "
               "disagreement precision. Bar + rule: docs/eval-exit-criteria.md.\n"

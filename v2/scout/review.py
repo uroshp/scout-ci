@@ -188,6 +188,15 @@ def apply(slug: str, ops: list, facts: list, write: bool = True) -> dict:
         if cut_log:
             body = body.rstrip() + "\n\n" + cut_log
         store.write_baseline(slug, new_claims, meta, format_report(clean_output(body)))
+        # DERIVED CAPTURE for the verification challenger (2026-09-28): the interpretations just
+        # applied, paired with their parent facts. Best-effort, never blocks approval.
+        try:
+            from scout import shadow
+            shadow.capture_derived(slug, "review", new_claims, today,
+                                   competitor=meta.get("competitor"),
+                                   my_company=meta.get("my_company"), focus=meta.get("focus"))
+        except Exception as e:
+            print(f"[review] derived capture skipped ({type(e).__name__}: {e})", file=sys.stderr)
         # SURFACE EVERY APPLIED OP in the updates panel (2026-07-02: approved revises were invisible
         # — no feed row, no viewer reorder). Each op's feed_note lands as a feed entry, so a card
         # change is never silent and the last-updated ordering keys see it.
