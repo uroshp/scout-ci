@@ -79,6 +79,9 @@ jobs:
           # without these it would fall back to local-FS and be discarded). Pure observer — see
           # scout/shadow.py for the non-disruption guarantees.
           SCOUT_SHADOW_EVAL: "1"
+          # Call capture for the on-device model comparison (2026-09-28): one bundle per run of
+          # every paid call's exact inputs + output, private store only (scout/calllog.py).
+          SCOUT_CALL_CAPTURE: "1"
           SELFSERVE_GH_TOKEN: ${{ secrets.SELFSERVE_GH_TOKEN }}
           SELFSERVE_REPO: ${{ secrets.SELFSERVE_REPO }}
         run: python -m scout.monitor

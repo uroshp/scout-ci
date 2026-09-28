@@ -48,5 +48,6 @@ jobs:
           # Reads shadow/ and writes shadow_eval/ in the private data repo (same creds as self-serve).
           SELFSERVE_GH_TOKEN: ${{ secrets.SELFSERVE_GH_TOKEN }}
           SELFSERVE_REPO: ${{ secrets.SELFSERVE_REPO }}
+          SCOUT_CALL_CAPTURE: "1"     # capture the challenger calls for the on-device comparison
         # --limit bounds per-run spend; un-judged records roll to the next run (idempotent skip).
         run: python scripts/run_challenger.py --run --write --limit 25

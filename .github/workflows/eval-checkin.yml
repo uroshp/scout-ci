@@ -41,6 +41,7 @@ jobs:
           # override the default with "" and break the model id).
           SELFSERVE_GH_TOKEN: ${{ secrets.SELFSERVE_GH_TOKEN }}
           SELFSERVE_REPO: ${{ secrets.SELFSERVE_REPO }}
+          SCOUT_CALL_CAPTURE: "1"     # capture the challenger calls for the on-device comparison
         run: python scripts/run_challenger.py --run --write --limit 25
       - name: Check-in report (metrics + trend + verdict) -> email + snapshot
         env:

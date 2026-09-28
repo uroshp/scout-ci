@@ -90,20 +90,25 @@ def main() -> None:
         return
 
     print(f"\n--- running challenger (variant: {args.variant}) ---")
+    from scout import calllog
+    calllog.begin_run("challenger")            # call capture: these judgments are real spend
     results = []
-    for r in records:
-        judged = challenger.judge_record(r, variant=args.variant)
-        comparison = challenger.compare(r, judged)
-        result = challenger.result_record(r, judged, comparison)
-        results.append(result)
-        s = result["summary"]
-        print(f"  {r['slug']:50} cost=${(judged.get('cost_usd') or 0):.3f}  "
-              f"agree={s['agree']}/{s['judged']} κ={s['kappa_champion_vs_challenger']}  "
-              f"recoveries={s['recovery_candidates']} slop={s['slop_candidates']}")
-        if args.write:
-            challenger.persist(result)
-
-    sc = challenger.scorecard(results)
+    try:
+        for r in records:
+            calllog.set_context(slug=r.get("slug"), phase="challenger")
+            judged = challenger.judge_record(r, variant=args.variant)
+            comparison = challenger.compare(r, judged)
+            result = challenger.result_record(r, judged, comparison)
+            results.append(result)
+            s = result["summary"]
+            print(f"  {r['slug']:50} cost=${(judged.get('cost_usd') or 0):.3f}  "
+                  f"agree={s['agree']}/{s['judged']} κ={s['kappa_champion_vs_challenger']}  "
+                  f"recoveries={s['recovery_candidates']} slop={s['slop_candidates']}")
+            if args.write:
+                challenger.persist(result)
+        sc = challenger.scorecard(results)
+    finally:
+        calllog.flush_run(args.write)          # a crash after N judged records still lands the N captures (with --write)
     print(f"\n=== SCORECARD ({sc['records']} records, {sc['items_judged']} claims judged) ===")
     print(f"  agreement: {sc['agree']}/{sc['items_judged']} ({sc['agreement_rate']})   "
           f"kappa (champion vs challenger): {sc['kappa_champion_vs_challenger']}")

@@ -202,6 +202,10 @@ GROUNDING_CONTACT = os.environ.get("SCOUT_GROUNDING_CONTACT", "https://github.co
 # PRIVATE data store, so an OFFLINE challenger model-judge can be scored against them later.
 # It triggers no model call and never alters or gates a production run (scout/shadow.py).
 SHADOW_EVAL_ENABLED = os.environ.get("SCOUT_SHADOW_EVAL", "") == "1"
+# Call capture for the on-device model comparison (2026-09-28): records every paid call's exact
+# inputs + output, one bundle per run, to the PRIVATE store (scout/calllog.py). Independent of
+# SCOUT_SHADOW_EVAL; off = every hook is a no-op and the live path is byte-identical.
+CALL_CAPTURE_ENABLED = os.environ.get("SCOUT_CALL_CAPTURE", "") == "1"
 
 
 # --- Monitoring cadence (per-competitor; A1) ---------------------------------

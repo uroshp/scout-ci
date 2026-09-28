@@ -63,35 +63,12 @@ def authorship_metrics() -> dict:
 
 
 def verdict(kind: str, cur: dict, prior: dict | None) -> dict:
-    """The pre-registered rule. Returns {status, note, no_improve_streak}."""
-    prev_streak = (prior or {}).get("no_improve_streak", 0)
-    adj, prec = cur["adjudicated"], cur["precision"]
-    prior_prec = (prior or {}).get("precision")
-
-    if adj < MIN_ADJUDICATED[kind] or prec is None:
-        return {"status": "ACCUMULATE",
-                "note": f"{adj}/{MIN_ADJUDICATED[kind]} adjudicated — adjudicate the {cur['pending']} "
-                        f"pending before this can be judged.", "no_improve_streak": 0}
-    if prec >= PRECISION_BAR:
-        if prior_prec is None:
-            return {"status": "BASELINE", "note": f"precision {prec} at/above bar {PRECISION_BAR}; "
-                    "need one more check-in to confirm it's sustained.", "no_improve_streak": 0}
-        if prec >= prior_prec:
-            return {"status": "ELIGIBLE", "note": f"precision {prec} >= prior {prior_prec}, at/above "
-                    "bar and sustained. Promotable if it holds next check-in.", "no_improve_streak": 0}
-        return {"status": "WATCH", "note": f"precision {prec} above bar but DOWN vs prior {prior_prec}; "
-                "confirm next check-in.", "no_improve_streak": 0}
-    # below bar
-    if prior_prec is None or prec > prior_prec:
-        return {"status": "DIAGNOSE", "note": f"precision {prec} below bar {PRECISION_BAR} but improving "
-                f"(prior {prior_prec}); investigate the misses and continue.", "no_improve_streak": 0}
-    streak = prev_streak + 1
-    if streak >= KILL_STREAK:
-        return {"status": "KILL?", "note": f"precision {prec} below bar and NOT improving for {streak} "
-                "check-ins. Conclude the model can't take over here unless a fixable cause is found; "
-                "keep the code in charge.", "no_improve_streak": streak}
-    return {"status": "DIAGNOSE", "note": f"precision {prec} below bar, not improving (streak {streak}/"
-            f"{KILL_STREAK}); find the cause or conclude.", "no_improve_streak": streak}
+    """The pre-registered rule. Returns {status, note, no_improve_streak}. Since 2026-09-28 the state
+    machine lives in scout/evalrule.py (shared with the on-device model lane); this wrapper passes
+    this lane's unchanged constants, so its behaviour is identical (tests pin it)."""
+    from scout import evalrule
+    return evalrule.verdict(kind, cur, prior, bar=PRECISION_BAR, min_adjudicated=MIN_ADJUDICATED[kind],
+                            kill_streak=KILL_STREAK)
 
 
 def _slices_block(sl: dict | None) -> str:
