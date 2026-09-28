@@ -133,6 +133,19 @@ def build(now: datetime) -> tuple[dict, str]:
     return snapshot, body
 
 
+def _model_lane(now: datetime) -> tuple[dict | None, str | None]:
+    """The on-device model comparison lane (2026-09-28, scripts/model_checkin.py) rides this
+    check-in: same 1st/15th cadence, same email, its own snapshot dir and bars. Fail-soft: any
+    error here leaves the two existing lanes untouched."""
+    try:
+        import model_checkin                      # sibling script; scripts/ is on sys.path when run
+        snap, text = model_checkin.build(now)
+        return snap, text
+    except Exception as e:
+        print(f"[eval] model lane skipped ({type(e).__name__}: {e})", file=sys.stderr)
+        return None, None
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="14-day eval check-in for the v3.5 takeover judges.")
     ap.add_argument("--snapshot", action="store_true", help="persist this check-in (enables next trend)")
@@ -141,6 +154,9 @@ def main() -> None:
 
     now = datetime.now()
     snapshot, body = build(now)
+    model_snap, model_body = _model_lane(now)
+    if model_body:
+        body += "\n\n---\n\n" + model_body
     print(body)
 
     if args.snapshot:
@@ -152,6 +168,15 @@ def main() -> None:
             print(f"\n[eval] snapshot persisted -> {EVAL_DIR}/{stamp}.json")
         except Exception as e:
             print(f"[eval] snapshot write failed ({type(e).__name__}: {e})", file=sys.stderr)
+        if model_snap is not None:
+            try:
+                import model_checkin
+                path = f"{model_checkin.CHECKIN_DIR}/{now.strftime('%Y%m%dT%H%M%S')}.json"
+                selfserve.write_data(path, json.dumps(model_snap, indent=1, default=str, ensure_ascii=False),
+                                     f"model-checkin: snapshot {now.date()}")
+                print(f"[eval] model-lane snapshot persisted -> {path}")
+            except Exception as e:
+                print(f"[eval] model-lane snapshot write failed ({type(e).__name__}: {e})", file=sys.stderr)
 
     if args.email:
         v = snapshot["verdicts"]
