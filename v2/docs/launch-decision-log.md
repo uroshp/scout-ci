@@ -119,6 +119,13 @@ discussion (kept out of scope for launch).
 - **Anthropic vs OpenAI (general): archived** → moved to `archive/` (out of `battlecards/`), so
   it's saved but excluded from both the public showcase *and* monitoring. Superseded by the
   enterprise-coding hero.
+- **Salesforce vs HubSpot and Cursor vs Cognition: archived 2026-09-28** (cost-vs-relevance read
+  of the 80-run ledger: Salesforce was the third most expensive card in the last 30 days, $24, off
+  4 material changes in three months, mostly propagation churn off marketing cadence; Cursor's
+  Cursor-vs-Devin framing was overtaken by the SpaceX acquisition and its yield was falling). Moved
+  to `archive/`: off the site, no more monitor spend (~$40/month saved). Their decision streams in
+  the private store (propagation/, shadow/, filter/) stay intact as replay material for the
+  on-device model comparison.
 
 ## 6. Spend caps — the full picture
 
