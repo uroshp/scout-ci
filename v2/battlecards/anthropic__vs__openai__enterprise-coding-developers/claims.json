@@ -15,17 +15,24 @@
   },
   {
     "subject_key": "github-copilot | billing-backlash | 2026-06",
-    "claim": "**A strong secondary play on cost: the GitHub Copilot billing backlash is now backed by real invoices.**\n\nCopilot switched to token-based billing on June 1, 2026, and its first full billing cycle closed June 30, 2026. The invoices confirmed what developers feared: agentic users report bills 10x to 50x their old flat rate, one developer's roughly $29 plan projecting to nearly $750 a month, another's $50 to about $3,000. GitHub has confirmed intense agentic users will pay more and hasn't reversed course. This is OpenAI's own distribution channel generating churn at the exact moment the price shock became a real bill.\n\n**So what:** Run a targeted TCO play against the Copilot base this quarter: Claude Code's flat pricing (Pro $20, Max $100/$200) against a meter that just sent some developers' bills up 10x to 50x.",
+    "claim": "**A strong secondary play on cost: Copilot's metered billing is a live, sourced pain point, as long as reps quote it as projections.**\n\nCopilot switched to token-based billing on June 1, 2026. GitHub itself warned that intense agentic users would likely pay more, developers projected jumps from about $29 to nearly $750 a month and from $50 to some $3,000, and forum users reported single agent requests eating about half a month's credits. No invoice totals have been published, so the number to lead with is the flat-rate contrast: Claude Code Pro at $20 and Max at $100 or $200, against a meter on OpenAI's own distribution channel.\n\n**So what:** Run the TCO play against the Copilot base with GitHub's own warning and the developer projections, quoted as projections, and let the buyer do the arithmetic against a flat plan.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 2,
-    "as_of": "2026-06-30",
+    "as_of": "2026-06-01",
     "confidence": "high",
     "id": "c_db3a54cbabdd",
     "verified": true,
-    "updated_on": "2026-07-02",
-    "derived_from": "c_52b822fdf6ea"
+    "updated_on": "2026-09-28",
+    "derived_from": "c_52b822fdf6ea",
+    "provenance": {
+      "source_url": "https://github.com/orgs/community/discussions/192948",
+      "source_tier": "primary",
+      "as_of": "2026-06-01",
+      "fact_id": "c_52b822fdf6ea",
+      "stamped_on": "2026-09-28"
+    }
   },
   {
     "subject_key": "claude-code | developer-loyalty | current",
@@ -649,17 +656,24 @@
   },
   {
     "subject_key": "openai-copilot | sentiment-billing-defection | current",
-    "claim": "Developer sentiment toward the Microsoft/OpenAI coding stack has hardened from souring talk into confirmed damage. After Copilot's June 1 metered-billing switch, communities described a shift from a predictable subscription to a stressful meter. The first full billing cycle closed June 30, 2026 and confirmed the fear: agentic users report bills 10x to 50x their prior flat rate. That's a live defection signal now backed by real invoices, not just threats to move work to Anthropic.",
+    "claim": "Developer sentiment toward the Microsoft/OpenAI coding stack soured after Copilot's June 1 metered-billing switch: communities described a shift from a predictable subscription to a stressful meter, developers projected bills roughly ten times their old flat rate, and forum users reported single agent requests consuming about half a month's credits on the first day. That is a live defection signal, though it rests on projections and user reports, since no invoice data has been published.",
     "claim_type": "interpretation",
     "section": "sentiment",
     "zone": null,
     "order": 1,
-    "as_of": "2026-06-30",
+    "as_of": "2026-06-01",
     "confidence": "high",
     "id": "c_c1671dbb9314",
     "verified": true,
     "derived_from": "c_52b822fdf6ea",
-    "updated_on": "2026-07-02"
+    "updated_on": "2026-09-28",
+    "provenance": {
+      "source_url": "https://github.com/orgs/community/discussions/192948",
+      "source_tier": "primary",
+      "as_of": "2026-06-01",
+      "fact_id": "c_52b822fdf6ea",
+      "stamped_on": "2026-09-28"
+    }
   },
   {
     "subject_key": "objection | microsoft-dropped-claude-code | current",
@@ -1369,7 +1383,7 @@
   },
   {
     "subject_key": "github-copilot | billing-backlash",
-    "claim": "GitHub Copilot's first full token-billing cycle closed on June 30, 2026, and the invoices confirmed the damage developers feared. On Reddit, X and GitHub's own forum, agentic users report costs 10x to 50x their old flat rate: one developer's roughly $29 plan projected to nearly $750 a month, another's $50 to about $3,000. GitHub concedes intense agentic users will pay more and has not reversed course. That turns the flat-rate contrast with Claude Code (Pro $20, Max 5x/20x at $100/$200) into a confirmed cost argument rather than a projection.",
+    "claim": "GitHub Copilot moved every plan to usage-based token billing on June 1, 2026, and GitHub's own announcement warned that users with intense agentic usage would likely see an increase in costs. Developers projected the jump before the switch: TechCrunch on May 30 quoted one Copilot user expecting a roughly $29 monthly plan to balloon to nearly $750 a month and another expecting $50 to reach some $3,000. On June 1, users on GitHub's forum reported single agent requests consuming about half of a month's credit allotment, and one estimated needing to pay around ten times as much for the same output. GitHub has not reversed course. No published invoice data confirms these figures; they are projections and user estimates.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
@@ -1377,7 +1391,7 @@
     "source_url": "https://github.com/orgs/community/discussions/192948",
     "source_tier": "primary",
     "evidence_excerpt": "Users with intense agentic usage will likely see an increase in costs because those features consume more compute.",
-    "as_of": "2026-06-30",
+    "as_of": "2026-06-01",
     "confidence": "high",
     "id": "c_52b822fdf6ea",
     "verified": true,
@@ -1392,16 +1406,12 @@
       {
         "source_url": "https://techcrunch.com/2026/05/30/what-a-joke-github-copilots-new-token-based-billing-spurs-consternation-among-devs/",
         "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false
-      },
-      {
-        "source_url": "https://www.techtimes.com/articles/319340/20260629/github-copilot-billing-shock-confirmed-agentic-users-face-10x-cost-surge.htm",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "note": "the $29 to $750 and $50 to $3,000 figures, stated as developers' projections",
+        "grounded": true,
+        "evidence_excerpt": "while they currently only pay around $29 per month, the new rate will balloon their costs to nearly $750 a month."
       }
-    ]
+    ],
+    "updated_on": "2026-09-28"
   },
   {
     "subject_key": "openai | government-equity-proposal | 2026-07",
