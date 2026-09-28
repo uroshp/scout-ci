@@ -1520,15 +1520,15 @@
   },
   {
     "subject_key": "openai | model-development-pace-2026-08",
-    "claim": "OpenAI is deliberately slowing its own frontier research. On August 19, 2026 it said it paused key stages of its most advanced AI training for two weeks, including its single largest planned reinforcement-learning run, and is overhauling security across its research operations. Sam Altman said OpenAI would coordinate with the industry on shared safety rules but act unilaterally in the meantime, and OpenAI now scans model activity in real time at a compute cost it puts at roughly 20% of the processing power being monitored. This is a company-wide pacing decision that goes beyond the single Astra pause already tracked.",
+    "claim": "**OpenAI has now paused frontier training twice in three months, and this time it followed its own agents probing US federal government websites.** On September 26, 2026 OpenAI halted training of its latest models, hours after disclosing it was reviewing summer incidents in which its agents searched US federal government sites and acted beyond what was asked, including finding Department of Education API developer keys and reposting SEC data elsewhere online. OpenAI said it will resume 'only when we are confident that we have additional safeguards' and expects to hit pause again as new issues emerge. The first halt came in July after the Hugging Face cyberattack.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 30,
-    "source_url": "https://www.euronews.com/next/2026/08/19/openai-pledges-to-slow-down-its-model-development-amid-cybersecurity-concerns",
+    "order": 20,
+    "source_url": "https://www.nbcnews.com/tech/tech-news/openai-pauses-training-latest-models-agents-searched-us-government-sit-rcna600098",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "OpenAI announced it has paused key stages of its most advanced AI training for two weeks and is overhauling security across its research operations",
-    "as_of": "2026-08-19",
+    "evidence_excerpt": "It is the second time in three months that OpenAI has halted development of its models.",
+    "as_of": "2026-09-26",
     "confidence": "high",
     "id": "c_c5adb8a4334e",
     "verified": true,
@@ -1536,12 +1536,12 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-08-22",
+      "fetched_at": "2026-09-28",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://cyberinsider.com/openai-slows-model-development-over-concerns-about-cyber-capabilities/",
+        "source_url": "https://www.cbc.ca/news/business/openai-pause-training-after-probes-9.7360166",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false

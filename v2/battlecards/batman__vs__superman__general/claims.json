@@ -815,15 +815,15 @@
   },
   {
     "subject_key": "warner-bros-discovery-paramount-acquisition",
-    "claim": "Superman's studio sale is now stuck in court. On September 20, 2026, four of the 12 state attorneys general (Minnesota, New York, Connecticut and Washington) broke from California AG Rob Bonta's faction and resisted a quick settlement of the antitrust suit against Paramount's $111B Warner Bros. Discovery takeover, calling the proposed terms too lenient to Paramount. A federal antitrust trial is now locked for March 2, 2027, and Paramount starts paying WBD shareholders a $7M-per-day ticking fee on October 1, roughly $1.3B accrued by the time the trial ends. The deal has moved from concessions offered to theaters to a contested case headed for trial with the closing timeline in doubt.",
+    "claim": "Paramount Skydance settled the antitrust suit brought by a dozen state attorneys general on September 21, 2026, clearing the last obstacle to its roughly $111B takeover of Warner Bros. Discovery, the studio behind Superman and DC Studios. Paramount told staff it expects to close in about two weeks, ahead of a $7M-per-day ticking fee that would have started Oct. 1. Settlement terms make the combined company negotiate cable packages separately, keep both studios' Los Angeles lots and hold Superman and Warner Bros. film operations as separate businesses for a period, but WBD's studio and streaming assets pass to Paramount control.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
     "order": 1,
-    "source_url": "https://deadline.com/2026/09/paramount-settlement-latest-opposition-bonta-1237109024/",
+    "source_url": "https://www.hollywoodreporter.com/business/business-news/paramount-antitrust-suit-settlement-deal-state-ags-warners-1236704473/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "A March 2, 2027 trial date has been set in the matter, much to Paramount’s chagrin.",
-    "as_of": "2026-09-20",
+    "evidence_excerpt": "Paramount Skydance and the state attorneys general have settled the blockbuster antitrust lawsuit over the $111 billion Warner Bros. Discovery acquisition.",
+    "as_of": "2026-09-21",
     "confidence": "high",
     "id": "c_d56e29441dcb",
     "verified": true,
@@ -831,12 +831,18 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-09-21",
+      "fetched_at": "2026-09-28",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://variety.com/2026/tv/news/paramount-warner-bros-antitrust-trial-date-march-2027-1236827843/",
+        "source_url": "https://deadline.com/2026/09/paramount-settles-antitrust-suit-to-seal-warner-bros-deal-1237109223/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://www.cnbc.com/2026/09/21/paramount-reaches-settlement-over-warner-bros-merger.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false
