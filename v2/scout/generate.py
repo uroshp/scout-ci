@@ -25,7 +25,7 @@ from datetime import date
 
 from claude_agent_sdk import AgentDefinition, ClaudeAgentOptions, query
 
-from scout import config, shadow
+from scout import config, shadow, calllog
 from scout.prompts import SOURCE_HIERARCHY, WRITING_STYLE, load_methodology
 from scout.schema import (
     SECTIONS, ZONES, claim_id, pregrounding_errors, validation_errors,
@@ -487,12 +487,15 @@ async def _drive(prompt: str, options, top_role: str) -> dict:
         d["cache_creation"] += _u(usage, "cache_creation_input_tokens")
         d["messages"] += 1
 
+    cap = calllog.start(top_role, prompt, options)      # call capture: None unless enabled + run open
     try:
         async for message in query(prompt=prompt, options=options):
             kind = type(message).__name__
+            parent = getattr(message, "parent_tool_use_id", None)
+            role = top_role if parent is None else agent_names.get(parent, "subagent")
+            if cap is not None:
+                cap.event(message, role)
             if kind == "AssistantMessage":
-                parent = getattr(message, "parent_tool_use_id", None)
-                role = top_role if parent is None else agent_names.get(parent, "subagent")
                 # First sighting of a research/verify subagent = a REAL pipeline stage boundary
                 # for the live progress UI. Fires once per role per drive; fail-soft.
                 if role in ("researcher", "verifier") and role not in by_role:
@@ -517,10 +520,12 @@ async def _drive(prompt: str, options, top_role: str) -> dict:
               f"{msgs} msgs, ~{tok} non-cache tokens across {list(by_role) or '[]'} BEFORE the "
               f"error. A crashed run is NOT free; verify actual usage before any retry. "
               f"Error: {type(e).__name__}: {e}", file=sys.stderr, flush=True)
+        if cap is not None:
+            cap.fail(e, by_role)
         raise
 
     _merge_role_totals(by_role)
-    return {
+    out = {
         "text": final_text or last_text,
         "cost_usd": getattr(result, "total_cost_usd", None),
         "duration_ms": getattr(result, "duration_ms", None),
@@ -529,6 +534,9 @@ async def _drive(prompt: str, options, top_role: str) -> dict:
         "by_role": by_role,
         "model_usage": getattr(result, "model_usage", None),
     }
+    if cap is not None:
+        cap.finish(out)
+    return out
 
 
 async def _preflight():
@@ -786,4 +794,9 @@ if __name__ == "__main__":
     target = args[0]
     perspective = args[1] if len(args) > 1 else None
     focus = args[2] if len(args) > 2 else None
-    _print_report(generate(target, perspective, focus))
+    calllog.begin_run("baseline")                       # roster baseline = real spend; no-op unless enabled
+    calllog.set_context(slug=make_slug(target, perspective, focus), phase="generate")
+    try:
+        _print_report(generate(target, perspective, focus))
+    finally:
+        calllog.flush_run(True)

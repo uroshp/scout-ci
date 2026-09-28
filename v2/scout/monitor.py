@@ -691,6 +691,8 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     # stories every day a window stays open (2026-07-02 cost pass; Uroš's design).
     my_since = _since_date(since_override or meta.get("last_checked") or meta.get("baseline_date"))
     checked_at = datetime.now().isoformat(timespec="seconds")  # full timestamp, not just a date
+    from scout import calllog
+    calllog.set_context(slug=slug, phase="monitor")
     reset_log()
 
     # Stage 1: triage (cheap)
@@ -1033,6 +1035,18 @@ def _persist_run_cost(started, rows: list, write: bool) -> None:
 
 
 def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
+            force: bool = False) -> list[dict]:
+    """Thin wrapper (2026-09-28): opens the call-capture run and guarantees it is flushed even when a
+    run crashes (a crashed run still captured billable calls). The body is _run_all_impl, unchanged."""
+    from scout import calllog
+    calllog.begin_run("monitor")          # no-op unless SCOUT_CALL_CAPTURE=1
+    try:
+        return _run_all_impl(write=write, send=send, email_dry_run=email_dry_run, force=force)
+    finally:
+        calllog.flush_run(write)
+
+
+def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = True,
             force: bool = False) -> list[dict]:
     """Cron entrypoint: check every DUE battlecard, write per policy, email digests.
 

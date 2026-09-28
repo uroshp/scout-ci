@@ -234,3 +234,19 @@ v2/shadow/
 
 # Claude memory stash for codespace rebuilds (claude-backup.sh) — never commit
 .claude-backup/
+
+# Scout private-store fallback dirs (2026-09-28): scout/selfserve.py writes under v2/ when the
+# private-repo creds are absent. None of these belong in the public repo, and a stray file here
+# would freeze the mini's hourly ff-only sync. Root-anchored on purpose: an unanchored `costs/`
+# would also hide any future source folder with that name.
+/v2/calls/
+/v2/shadow_models/
+/v2/model_checkin/
+/v2/costs/
+/v2/propagation/
+/v2/filter/
+/v2/dismissals/
+/v2/pending_publish/
+/v2/eval_checkin/
+/v2/shadow_eval/
+/v2/strengths/

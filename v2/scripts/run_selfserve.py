@@ -17,8 +17,10 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from scout import calllog
 from scout import config, notify, selfserve, shadow
 from scout.generate import generate
+from scout.store import make_slug
 
 MAX_ATTEMPTS = 2   # one requeue, then an honest visitor-facing error (never a raw exception)
 
@@ -85,55 +87,64 @@ def main() -> None:
             continue
 
         attempts = int(req.get("attempts") or 0) + 1
+        calllog.begin_run("selfserve")          # call capture: this generation is real spend
+        calllog.set_context(slug=make_slug(req["competitor"], req.get("my_company"), req.get("focus")),
+                            phase="generate", job_id=job_id)
         try:
             res = generate(req["competitor"], req.get("my_company"), req.get("focus"), write=False,
                            on_stage=lambda s, j=job_id: selfserve.write_progress(j, s))
         except Exception as e:
-            _handle_failure(req, job_id, attempts, e, now)
+            try:
+                _handle_failure(req, job_id, attempts, e, now)
+            finally:
+                calllog.flush_run(True)             # the failed job's calls were real spend: land them
             continue
 
         gen_cost = (res.get("run") or {}).get("cost_usd") or 0.0
         retry_cost = ((res.get("retry") or {}).get("run") or {}).get("cost_usd") or 0.0
         total = round(gen_cost + retry_cost, 4)
 
-        # Update BOTH gates after a successful spend (only successes count).
-        state = selfserve.load_state()
-        state["used"] = int(state["used"]) + 1
-        state["spend_usd"] = round(float(state["spend_usd"]) + total, 4)
-        selfserve.save_state(state)
+        try:
+            # Update BOTH gates after a successful spend (only successes count).
+            state = selfserve.load_state()
+            state["used"] = int(state["used"]) + 1
+            state["spend_usd"] = round(float(state["spend_usd"]) + total, 4)
+            selfserve.save_state(state)
 
-        selfserve.save_result(job_id, {
-            "job_id": job_id, "status": "done", "finished_at": now,
-            "slug": res.get("slug"), "cost_usd": total,
-            "kept_claims": len(res.get("kept", [])),
-            "message": "Report ready.",
-        }, markdown=res.get("markdown"), claims=res.get("kept"))
-        print(f"{job_id}: DONE  cost=${total}  claims={len(res.get('kept', []))}  "
-              f"(used={state['used']}/{state['free_limit']}, spend=${state['spend_usd']})")
+            selfserve.save_result(job_id, {
+                "job_id": job_id, "status": "done", "finished_at": now,
+                "slug": res.get("slug"), "cost_usd": total,
+                "kept_claims": len(res.get("kept", [])),
+                "message": "Report ready.",
+            }, markdown=res.get("markdown"), claims=res.get("kept"))
+            print(f"{job_id}: DONE  cost=${total}  claims={len(res.get('kept', []))}  "
+                  f"(used={state['used']}/{state['free_limit']}, spend=${state['spend_usd']})")
 
-        # Shadow-eval observer (v3.5): a self-serve card is a REAL paid generation, so record its
-        # champion decisions too. generate(write=False) here means "don't touch battlecards/", NOT
-        # "dry run" — so we capture explicitly at the caller that knows the spend was real (the
-        # generate() hook only fires for write=True roster baselines). No-op unless
-        # SCOUT_SHADOW_EVAL=1; never raises (scout/shadow.py).
-        shadow.capture(res.get("slug"), "selfserve", kept=res.get("kept", []),
-                       cut=res.get("cut_log", []), grounding=res.get("grounding", {}),
-                       competitor=req.get("competitor"), my_company=req.get("my_company"),
-                       focus=req.get("focus"))
+            # Shadow-eval observer (v3.5): a self-serve card is a REAL paid generation, so record its
+            # champion decisions too. generate(write=False) here means "don't touch battlecards/", NOT
+            # "dry run" — so we capture explicitly at the caller that knows the spend was real (the
+            # generate() hook only fires for write=True roster baselines). No-op unless
+            # SCOUT_SHADOW_EVAL=1; never raises (scout/shadow.py).
+            shadow.capture(res.get("slug"), "selfserve", kept=res.get("kept", []),
+                           cut=res.get("cut_log", []), grounding=res.get("grounding", {}),
+                           competitor=req.get("competitor"), my_company=req.get("my_company"),
+                           focus=req.get("focus"))
 
-        # Optional "your report is ready" email — only if the user left an address AND Resend is
-        # configured in this Action. Best-effort: a mail failure must never fail a paid-for job.
-        if req.get("notify_email"):
-            comp = req.get("competitor") or ""
-            mine = req.get("my_company")
-            label = f"{comp} vs {mine}" if mine else comp
-            try:
-                r = notify.send_selfserve_ready(req["notify_email"], job_id, label or None)
-                print(f"{job_id}: email {'sent' if r.get('sent') else 'skipped'}"
-                      f" ({r.get('reason', r.get('status'))})")
-            except Exception as e:   # belt-and-suspenders; send_selfserve_ready already guards
-                print(f"{job_id}: email error {e}")
+            # Optional "your report is ready" email — only if the user left an address AND Resend is
+            # configured in this Action. Best-effort: a mail failure must never fail a paid-for job.
+            if req.get("notify_email"):
+                comp = req.get("competitor") or ""
+                mine = req.get("my_company")
+                label = f"{comp} vs {mine}" if mine else comp
+                try:
+                    r = notify.send_selfserve_ready(req["notify_email"], job_id, label or None)
+                    print(f"{job_id}: email {'sent' if r.get('sent') else 'skipped'}"
+                          f" ({r.get('reason', r.get('status'))})")
+                except Exception as e:   # belt-and-suspenders; send_selfserve_ready already guards
+                    print(f"{job_id}: email error {e}")
 
+        finally:
+            calllog.flush_run(True)             # land the captured calls AFTER the job's own bookkeeping
 
 if __name__ == "__main__":
     main()

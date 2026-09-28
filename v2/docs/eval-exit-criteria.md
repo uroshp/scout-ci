@@ -1,5 +1,7 @@
 # Exit criteria: when a model judge may take over from the code
 
+> Sibling lane (2026-09-28): the on-device model comparison has its own pre-registered bars in [model-substitution-exit-criteria.md](model-substitution-exit-criteria.md); nothing in this document changes for it.
+
 > Decided with Uroš 2026-06-28. Governs the **v3.5 shadow-eval judges** — the model judges that may
 > TAKE OVER a deterministic step: the **verification challenger** (does the evidence SUPPORT a claim,
 > the support layer on top of the code grounder) and the **authorship judge** (propose→judge on

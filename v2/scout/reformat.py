@@ -167,20 +167,37 @@ def classify_persona(claim_text: str, section: str, zone=None) -> str | None:
     sys_prompt = ("Tag a competitive-battlecard play or objection with the SINGLE buyer persona it is "
                   "primarily aimed at (or that tends to raise the objection). Choose exactly one of: "
                   + ", ".join(personas) + ". Use the assign_persona tool.")
+    import time as _time
+    from scout import calllog
+    user = f"section={section} zone={zone}\n\n{claim_text}"
+    t0 = _time.monotonic()
     try:
         client = anthropic.Anthropic()
         msg = client.messages.create(
             model=config.FAST_MODEL, max_tokens=200,
             system=sys_prompt, tools=[_PERSONA_TOOL],
             tool_choice={"type": "tool", "name": "assign_persona"},
-            messages=[{"role": "user", "content": f"section={section} zone={zone}\n\n{claim_text}"}],
+            messages=[{"role": "user", "content": user}],
         )
+        out = None
         for block in msg.content:
             if getattr(block, "type", "") == "tool_use" and block.name == "assign_persona":
-                pid = block.input.get("persona")
-                return pid if pid in personas else None
+                out = block.input
+        # call capture (no-op unless SCOUT_CALL_CAPTURE=1 and a run is open)
+        calllog.record_direct(role="persona", model=config.FAST_MODEL, system=sys_prompt, user=user,
+                              tools=[_PERSONA_TOOL], tool_choice={"type": "tool", "name": "assign_persona"},
+                              result_text=json.dumps(out) if out is not None else "",
+                              usage=getattr(msg, "usage", None),
+                              duration_ms=int((_time.monotonic() - t0) * 1000))
+        if out is not None:
+            pid = out.get("persona")
+            return pid if pid in personas else None
     except Exception as e:
         print(f"[reformat] persona classify failed ({type(e).__name__}: {e})", file=sys.stderr)
+        calllog.record_direct(role="persona", model=config.FAST_MODEL, system=sys_prompt, user=user,
+                              tools=[_PERSONA_TOOL], tool_choice={"type": "tool", "name": "assign_persona"},
+                              result_text=None, status="failed", error=f"{type(e).__name__}: {e}",
+                              duration_ms=int((_time.monotonic() - t0) * 1000))
     return None
 
 

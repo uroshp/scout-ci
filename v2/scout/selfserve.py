@@ -95,6 +95,14 @@ def _gh_get(path: str) -> tuple[str | None, str | None]:
         return None, None
     r.raise_for_status()
     data = r.json()
+    if data.get("encoding") == "none" and data.get("git_url"):
+        # Files over 1 MB come back with an EMPTY `content` and encoding "none" from the Contents
+        # endpoint (GitHub documents the limit); the blob endpoint serves them up to 100 MB. Without
+        # this a large capture bundle would read back as an empty string, not as an error.
+        b = _gh_read(data["git_url"])
+        b.raise_for_status()
+        blob = b.json()
+        return base64.b64decode(blob["content"]).decode("utf-8"), data["sha"]
     return base64.b64decode(data["content"]).decode("utf-8"), data["sha"]
 
 
