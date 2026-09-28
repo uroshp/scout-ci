@@ -101,6 +101,104 @@ class Align(unittest.TestCase):
         self.assertEqual(st, {"x | y": "disagree", "z": "agree"})
 
 
+class LoopMode(unittest.TestCase):
+    """Question 2 scoring (plan C): the floor on both sides, retrieval vs judgment misses, tool failure
+    kept out of agreement, the repeat floor, and the loop slices."""
+    USER = ("Competitor: X\n\nTRACKED SUBJECTS (subject_key — current value already known):\n"
+            "- x|price — $10 per seat\n- x|ceo — Jane\n")
+
+    def _loop_rep(self, text, hosts=(), tool_failure=False, protocol="native", lag=30.0, backend="ollama"):
+        r = rep(text, backend=backend)
+        r["loop"] = {"tool_protocol": protocol, "turns": 3, "turn_at_exceed": None, "tool_calls": [{"name": "search"}],
+                     "tool_call_parse_ok": True, "tool_arg_schema_ok": True, "tool_failure": tool_failure,
+                     "hosts": list(hosts), "replay_lag_hours": lag, "format_retry": False}
+        return r
+
+    def test_tracked_keys_recovered_from_the_prompt(self):
+        self.assertEqual([c["subject_key"] for c in mc.tracked_claims_from_prompt(self.USER)], ["x|price", "x|ceo"])
+        self.assertEqual(mc.tracked_claims_from_prompt("no digest here"), [])
+
+    def test_floor_applied_to_both_sides(self):
+        # both sides surface a tracked subject with substantial=false: the floor lifts both → agree
+        ref = '{"has_candidates":true,"candidates":[{"signal":"X price $12 2026-09-27","subject_key":"x|price","about":"competitor","substantial":false}]}'
+        r = rec("triage", ref); r["user"] = self.USER
+        c = mc.compare_call(r, rep(ref))
+        self.assertEqual((c["items"][0]["reference"], c["items"][0]["candidate"], c["items"][0]["status"]),
+                         ("escalate", "escalate", "agree"))
+        self.assertEqual(c["extra"]["floor_applied"], {"reference": 1, "candidate": 1})
+
+    def test_retrieval_vs_judgment_miss(self):
+        ref = '{"has_candidates":true,"candidates":[{"signal":"A 2026-09-27","subject_key":"NEW","about":"competitor","substantial":true,"source_hint":"https://www.news.example.com/a"}]}'
+        quiet = '{"has_candidates":false,"candidates":[]}'
+        r = rec("triage", ref); r["user"] = self.USER
+        seen = mc.compare_call(r, self._loop_rep(quiet, hosts=["news.example.com", "other.org"]))
+        unseen = mc.compare_call(r, self._loop_rep(quiet, hosts=["other.org"]))
+        exact = mc.compare_call(r, rep(quiet))
+        self.assertEqual(seen["items"][0]["miss_kind"], "judgment_miss")
+        self.assertEqual(unseen["items"][0]["miss_kind"], "retrieval_miss")
+        self.assertNotIn("miss_kind", exact["items"][0])                       # exact mode: no attribution
+        self.assertEqual(seen["extra"]["loop"]["tool_protocol"], "native")
+        # live transcript fetches are the fallback host source when source_hint is not a URL
+        ref2 = ref.replace("https://www.news.example.com/a", "some outlet")
+        r2 = rec("triage", ref2); r2["user"] = self.USER
+        r2["transcript"] = [{"kind": "tool_use", "name": "mcp__scoutfetch__fetch_page", "input": {"url": "https://press.example.com/x"}}]
+        self.assertEqual(mc.compare_call(r2, self._loop_rep(quiet, hosts=["press.example.com"]))["items"][0]["miss_kind"], "judgment_miss")
+
+    def test_materiality_miss_kind_from_source_urls(self):
+        ref = '{"material":[{"claim":{"subject_key":"x | y","source_url":"https://a.example.com/p"}}],"immaterial":[]}'
+        r = rec("materiality", ref)
+        c = mc.compare_call(r, self._loop_rep('{"material":[],"immaterial":[{"signal":"x | y"}]}', hosts=["b.example.com"]))
+        self.assertEqual(c["items"][0]["miss_kind"], "retrieval_miss")
+
+    def test_tool_failure_is_excluded_from_agreement(self):
+        ref = '{"has_candidates":true,"candidates":[{"signal":"A","subject_key":"NEW","about":"competitor","substantial":true}]}'
+        r = rec("triage", ref); r["user"] = self.USER
+        c = mc.compare_call(r, self._loop_rep('{"has_candidates":false,"candidates":[]}', tool_failure=True))
+        self.assertEqual(c["summary"]["candidate_parse"], "tool_failure")
+        self.assertEqual(c["items"], [])
+        rp = self._loop_rep('{"has_candidates":false,"candidates":[]}', tool_failure=True)
+        row = mc.result_record(r, rp, c, backend="ollama", mode="loop")
+        ok_rp = self._loop_rep(ref, hosts=["h"])
+        row2 = mc.result_record(r, ok_rp, mc.compare_call(r, ok_rp), backend="ollama", mode="loop")
+        cell = mc._score_cell([row, row2], {})
+        self.assertEqual(cell["tool_failure_rate"], 0.5)
+        self.assertEqual(cell["items_judged"], 1); self.assertEqual(cell["parse_ok"], 1.0)
+
+    def test_retrieval_miss_is_not_a_costly_error(self):
+        ref = '{"has_candidates":true,"candidates":[{"signal":"A","subject_key":"NEW","about":"competitor","substantial":true,"source_hint":"https://n.example.com/a"}]}'
+        quiet = '{"has_candidates":false,"candidates":[]}'
+        r = rec("triage", ref); r["user"] = self.USER
+        rp = self._loop_rep(quiet, hosts=["elsewhere.org"])                      # retrieval_miss
+        row = mc.result_record(r, rp, mc.compare_call(r, rp), backend="ollama", mode="loop")
+        did = row["comparison"]["items"][0]["delta_id"]
+        cell = mc._score_cell([row], {did: {"truth": "escalate"}})
+        self.assertEqual(cell["adjudicated"], 1); self.assertEqual(cell["candidate_right"], 0)
+        self.assertEqual(cell["costly_error_rate"], 0.0)                          # tooling gap, not judgment
+        self.assertEqual(cell["miss_kinds"], {"retrieval_miss": 1})
+        rp2 = self._loop_rep(quiet, hosts=["n.example.com"])                     # judgment_miss
+        row2 = mc.result_record(r, rp2, mc.compare_call(r, rp2), backend="ollama", mode="loop")
+        self.assertEqual(mc._score_cell([row2], {did: {"truth": "escalate"}})["costly_error_rate"], 1.0)
+
+    def test_loop_slices_and_repeat_floor(self):
+        ref = '{"has_candidates":true,"candidates":[{"signal":"A","subject_key":"NEW","about":"competitor","substantial":true}]}'
+        quiet = '{"has_candidates":false,"candidates":[]}'
+        r = rec("triage", ref); r["user"] = self.USER
+        rows = []
+        for i, (txt, lag, proto) in enumerate([(ref, 10.0, "native"), (quiet, 50.0, "native"), (ref, 100.0, "action_json")]):
+            rp = self._loop_rep(txt, hosts=["h"], lag=lag, protocol=proto)
+            rows.append(mc.result_record(r, rp, mc.compare_call(r, rp), backend="ollama", mode="loop"))
+        rp_rep = self._loop_rep(quiet, hosts=["h"])
+        rows.append(mc.result_record(r, rp_rep, mc.compare_call(r, rp_rep), backend="ollama", mode="loop", rep=1))
+        ms = mc.mode_summary(rows, {})
+        cell = ms["ollama|triage|loop"]
+        self.assertEqual(set(cell["by_tool_protocol"]), {"native", "action_json"})
+        self.assertEqual(set(cell["by_replay_lag"]), {"<24h", "24-72h", ">72h"})
+        self.assertIn("ollama|triage|loop|rep", ms)
+        floor = mc.repeat_floor(rows)
+        self.assertEqual(floor["ollama|triage"]["pairs"], 1)
+        self.assertIn(floor["ollama|triage"]["self_agreement"], (0.0, 1.0))
+
+
 class Scorecard(unittest.TestCase):
     JUDGE_REF = '{"verdicts":[{"op_index":0,"verdict":"confirm","reason":"r"},{"op_index":1,"verdict":"reject","reason":"r"}]}'
 
@@ -165,9 +263,16 @@ class Scorecard(unittest.TestCase):
 
 
 class Persist(unittest.TestCase):
-    def test_paths_encode_backend_mode_rep(self):
-        self.assertEqual(mc.result_path("ollama", "c_1"), "shadow_models/ollama/c_1.json")
-        self.assertEqual(mc.result_path("ollama", "c_1", "loop", 2), "shadow_models/ollama/c_1.loop.r2.json")
+    def test_paths_encode_backend_month_mode_rep(self):
+        # month-sharded by the LIVE call's run_ts (Contents API lists ≤1000 entries per dir)
+        self.assertEqual(mc.result_path("ollama", "c_1", run_ts="2026-09-28T04:10:00"), "shadow_models/ollama/2026-09/c_1.json")
+        self.assertEqual(mc.result_path("ollama", "c_1", "loop", 2, "2026-10-01T04:00:00"),
+                         "shadow_models/ollama/2026-10/c_1.loop.r2.json")
+        self.assertEqual(mc.result_path("ollama", "c_1"), "shadow_models/ollama/unknown/c_1.json")
+        self.assertEqual(mc.result_name("c_1", "frozen", 0), "c_1.frozen.json")
+        with mock.patch.object(selfserve, "list_data", return_value=["c_1.json", "c_1.loop.json"]) as ld:
+            self.assertEqual(mc.existing("ollama", "2026-09"), {"c_1.json", "c_1.loop.json"})
+            ld.assert_called_once_with("shadow_models/ollama/2026-09")
 
     def test_cost_view(self):
         b = {"stamp": "s", "calls": [{"role": "judge", "result": {"cost_usd": 0.4}}, {"role": "judge", "result": {"cost_usd": 0.6}}]}

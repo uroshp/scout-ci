@@ -10,6 +10,7 @@ enabled backend could attempt) and on `full` (that backend's own eligibility).
 """
 import hashlib
 import json
+import re
 import math
 from collections import defaultdict
 from datetime import datetime
@@ -55,6 +56,13 @@ def compare_call(record: dict, replay: dict) -> dict:
     if replay.get("status") != "ok":
         out["summary"] = {"judged": 0, "agree": 0, "disagree": 0, "abstain": 0, "agreement_rate": None,
                           "kappa": None, "candidate_parse": replay.get("reason")}
+        return out
+    if (replay.get("loop") or {}).get("tool_failure"):
+        # Every search came back empty with engine errors: a tooling outcome, not a model one.
+        # Excluded from agreement/kappa; counted under its own bar (plan C, R13).
+        out["summary"] = {"judged": 0, "agree": 0, "disagree": 0, "abstain": 0, "agreement_rate": None,
+                          "kappa": None, "candidate_parse": "tool_failure"}
+        _loop_extra(out, replay)
         return out
     parse = spec.get("parse")
     ref = parse(ref_text) if parse else None
@@ -111,17 +119,29 @@ def compare_call(record: dict, replay: dict) -> dict:
         return out
     # run-level / set-valued (triage as escalation decision; materiality per candidate)
     if role == "triage":
-        r_esc = _escalates((ref or {}).get("extra", {}).get("candidates"))
-        c_esc = _escalates(cand.get("extra", {}).get("candidates"))
+        # The live path applies monitor._escalation_floor AFTER the model answers (a candidate naming
+        # a tracked subject is forced substantial). Both sides get the same floor here, against the
+        # tracked subjects captured in the prompt, so the unit is the escalation decision that
+        # production would actually have made (plan E, R8).
+        tracked = tracked_claims_from_prompt(record.get("user") or "")
+        r_c = [dict(c) for c in (ref or {}).get("extra", {}).get("candidates") or [] if isinstance(c, dict)]
+        c_c = [dict(c) for c in cand.get("extra", {}).get("candidates") or [] if isinstance(c, dict)]
+        _apply_floor(r_c, tracked); _apply_floor(c_c, tracked)
+        r_esc, c_esc = _escalates(r_c), _escalates(c_c)
         status = "agree" if r_esc == c_esc else "disagree"
         item = {"item_id": "escalation", "reference": "escalate" if r_esc else "quiet",
                 "candidate": "escalate" if c_esc else "quiet", "status": status}
         if status == "disagree":
             item["delta_id"] = delta_id(record["call_id"], "escalation")
+            if r_esc and not c_esc and (mk := _miss_kind(_hosts_of_candidates(r_c, record), replay)):
+                item["miss_kind"] = mk
         out["items"].append(item)
         out["summary"] = {"judged": 1, "agree": int(status == "agree"), "disagree": int(status == "disagree"),
                           "abstain": 0, "agreement_rate": float(status == "agree"), "kappa": None,
                           "candidate_parse": "ok"}
+        out["extra"]["floor_applied"] = {"reference": sum(1 for c in r_c if c.get("escalated_by")),
+                                         "candidate": sum(1 for c in c_c if c.get("escalated_by"))}
+        _loop_extra(out, replay)
         return out
     if role == "materiality":
         rm = {_sk(c) for c in (ref or {}).get("extra", {}).get("material", [])}
@@ -139,6 +159,10 @@ def compare_call(record: dict, replay: dict) -> dict:
             it = {"item_id": key, "reference": rl, "candidate": cl, "status": "agree" if rl == cl else "disagree"}
             if rl != cl:
                 it["delta_id"] = delta_id(record["call_id"], key)
+                if rl == "material":
+                    srcs = [c for c in (ref or {}).get("extra", {}).get("material", []) if _sk(c) == key]
+                    if (mk := _miss_kind(_hosts_of_material(srcs), replay)):
+                        it["miss_kind"] = mk
             out["items"].append(it)
         agree = sum(1 for x, y in zip(ca, cb) if x == y)
         out["summary"] = {"judged": len(ca), "agree": agree, "disagree": len(ca) - agree,
@@ -146,10 +170,84 @@ def compare_call(record: dict, replay: dict) -> dict:
                           "agreement_rate": round(agree / len(ca), 3) if ca else None,
                           "kappa": (round(k, 3) if ca and (k := challenger.cohens_kappa(ca, cb)) is not None else None),
                           "candidate_parse": "ok", "candidate_only_material": sorted(cm - rm - ri - {None})}
+        _loop_extra(out, replay)
         return out
     out["summary"] = {"judged": 0, "agree": 0, "disagree": 0, "abstain": 0, "agreement_rate": None,
                       "kappa": None, "candidate_parse": "ok"}
     return out
+
+
+_TRACKED_LINE = re.compile(r"^- (?P<key>\S+) — ", re.M)
+
+
+def tracked_claims_from_prompt(user: str) -> list[dict]:
+    """Recover the tracked subject_keys from the captured triage prompt (monitor._tracked_digest
+    writes one `- <subject_key> — <claim>` line per claim under TRACKED SUBJECTS)."""
+    _, _, tail = user.partition("TRACKED SUBJECTS")
+    return [{"subject_key": m.group("key")} for m in _TRACKED_LINE.finditer(tail)]
+
+
+def _apply_floor(cands: list[dict], claims: list[dict]) -> None:
+    from scout.monitor import _escalation_floor
+    _escalation_floor(cands, claims)
+
+
+def _host(url) -> str:
+    from urllib.parse import urlparse
+    try:
+        return (urlparse(str(url)).hostname or "").lower().removeprefix("www.")
+    except Exception:
+        return ""
+
+
+def _hosts_of_candidates(cands: list[dict], record: dict) -> set:
+    """Hosts the LIVE run saw for its escalating candidates: source_hint URLs, else every URL the live
+    transcript fetched (the tool_use inputs of fetch_page)."""
+    hosts = {_host(c.get("source_hint")) for c in cands if c.get("substantial") and str(c.get("source_hint", "")).startswith("http")}
+    hosts.discard("")
+    if hosts:
+        return hosts
+    for row in record.get("transcript") or []:
+        if row.get("kind") == "tool_use" and "fetch" in str(row.get("name", "")):
+            h = _host((row.get("input") or {}).get("url"))
+            if h:
+                hosts.add(h)
+    return hosts
+
+
+def _hosts_of_material(items: list[dict]) -> set:
+    hosts = set()
+    for c in items:
+        cl = c.get("claim") if isinstance(c, dict) else None
+        for u in ([(cl or {}).get("source_url")] + [s.get("source_url") for s in ((cl or {}).get("candidate_sources") or []) if isinstance(s, dict)]):
+            h = _host(u)
+            if h:
+                hosts.add(h)
+    return hosts
+
+
+def _miss_kind(live_hosts: set, replay: dict) -> str | None:
+    """Loop mode only: a live-only item is a retrieval_miss when none of its hosts appear anywhere in
+    the local tool transcript, else a judgment_miss (the model saw the source and still passed).
+    costly_error_rate counts judgment_miss only (plan C)."""
+    loop = replay.get("loop")
+    if not loop:
+        return None
+    if not live_hosts:
+        return "unknown"
+    seen = set(loop.get("hosts") or [])
+    return "judgment_miss" if live_hosts & seen else "retrieval_miss"
+
+
+def _loop_extra(out: dict, replay: dict) -> None:
+    loop = replay.get("loop")
+    if not loop:
+        return
+    out["extra"]["loop"] = {k: loop.get(k) for k in ("tool_protocol", "turns", "turn_at_exceed", "tool_call_parse_ok",
+                                                      "tool_arg_schema_ok", "tool_failure", "replay_lag_hours",
+                                                      "format_retry", "repeated_tool_calls")}
+    out["extra"]["loop"]["n_tool_calls"] = len(loop.get("tool_calls") or [])
+    out["extra"]["loop"]["n_hosts"] = len(loop.get("hosts") or [])
 
 
 def _escalates(cands) -> bool:
@@ -207,21 +305,32 @@ def result_record(record: dict, replay: dict, comparison: dict, *, backend: str,
     }
 
 
-def result_path(backend: str, call_id: str, mode: str = "exact", rep: int = 0) -> str:
+def result_month(run_ts: str | None) -> str:
+    """Results shard by the LIVE call's month (shadow_models/<backend>/<YYYY-MM>/): the GitHub Contents
+    API lists at most 1,000 entries per directory, which a flat per-backend dir would pass in weeks."""
+    return (run_ts or "")[:7] if run_ts and len(run_ts) >= 7 and run_ts[4] == "-" else "unknown"
+
+
+def result_name(call_id: str, mode: str = "exact", rep: int = 0) -> str:
     suffix = "" if mode == "exact" else f".{mode}"
     suffix += f".r{rep}" if rep else ""
-    return f"{SHADOW_MODELS_DIR}/{backend}/{call_id}{suffix}.json"
+    return f"{call_id}{suffix}.json"
+
+
+def result_path(backend: str, call_id: str, mode: str = "exact", rep: int = 0, run_ts: str | None = None) -> str:
+    return f"{SHADOW_MODELS_DIR}/{backend}/{result_month(run_ts)}/{result_name(call_id, mode, rep)}"
 
 
 def persist(result: dict) -> str:
-    path = result_path(result["backend"], result["call_id"], result.get("mode", "exact"), result.get("rep", 0))
+    path = result_path(result["backend"], result["call_id"], result.get("mode", "exact"), result.get("rep", 0),
+                       result.get("run_ts"))
     selfserve.write_data(path, json.dumps(result, indent=1, ensure_ascii=False),
                          f"shadow-models: {result['backend']} {result['role']} {result['call_id']}")
     return path
 
 
-def existing(backend: str) -> set:
-    return set(selfserve.list_data(f"{SHADOW_MODELS_DIR}/{backend}") or [])
+def existing(backend: str, month: str) -> set:
+    return set(selfserve.list_data(f"{SHADOW_MODELS_DIR}/{backend}/{month}") or [])
 
 
 def load_results(backend: str | None = None) -> list:
@@ -229,15 +338,18 @@ def load_results(backend: str | None = None) -> list:
     for b in (selfserve.list_data(SHADOW_MODELS_DIR, include_dirs=True) or []):
         if "." in b or (backend and b != backend):
             continue
-        for fn in (selfserve.list_data(f"{SHADOW_MODELS_DIR}/{b}") or []):
-            if not fn.endswith(".json"):
+        for month in (selfserve.list_data(f"{SHADOW_MODELS_DIR}/{b}", include_dirs=True) or []):
+            if "." in month:
                 continue
-            raw = selfserve.read_data(f"{SHADOW_MODELS_DIR}/{b}/{fn}")
-            if raw:
-                try:
-                    out.append(json.loads(raw))
-                except json.JSONDecodeError:
-                    pass
+            for fn in (selfserve.list_data(f"{SHADOW_MODELS_DIR}/{b}/{month}") or []):
+                if not fn.endswith(".json"):
+                    continue
+                raw = selfserve.read_data(f"{SHADOW_MODELS_DIR}/{b}/{month}/{fn}")
+                if raw:
+                    try:
+                        out.append(json.loads(raw))
+                    except json.JSONDecodeError:
+                        pass
     return out
 
 
@@ -274,6 +386,7 @@ def _score_cell(rows: list, labels: dict) -> dict:
     cand_on_adj, truth_on_adj, costly_c, costly_r = [], [], 0, 0
     slips = 0
     period = defaultdict(int)
+    miss_kinds = defaultdict(int)
     role = rows[0]["role"] if rows else None
     costly_label = COSTLY_LABEL.get(role)
     for r in ok:
@@ -292,16 +405,23 @@ def _score_cell(rows: list, labels: dict) -> dict:
                     adjud_r.append(1 if truth == it["reference"] else 0)
                     cand_on_adj.append(it["candidate"]); truth_on_adj.append(truth)
                     if costly_label:
-                        costly_c += int(it["candidate"] == costly_label and truth != costly_label)
+                        # loop mode: a retrieval_miss is a tooling gap, not a judgment error (plan C)
+                        judged_miss = it.get("miss_kind") != "retrieval_miss"
+                        costly_c += int(judged_miss and it["candidate"] == costly_label and truth != costly_label)
                         costly_r += int(it["reference"] == costly_label and truth != costly_label)
+            if it["status"] == "disagree" and it.get("miss_kind"):
+                miss_kinds[it["miss_kind"]] += 1
         period[(json.dumps(r.get("backend_version"), sort_keys=True), (r.get("reference") or {}).get("model"))] += 1
+    tool_failures = [r for r in ok if (r.get("comparison") or {}).get("summary", {}).get("candidate_parse") == "tool_failure"]
     right = sum(adjud_c)
     kappa_vs_human = (round(k, 3) if cand_on_adj and (k := challenger.cohens_kappa(cand_on_adj, truth_on_adj)) is not None
                       else None)
     return {
         "n_results": n, "attempted": len(attempted), "coverage": round(len(attempted) / n, 3) if n else None,
-        "parse_ok": round(len(parse_ok) / len(ok), 3) if ok else None,
+        "parse_ok": round(len(parse_ok) / len([r for r in ok if r not in tool_failures]), 3) if [r for r in ok if r not in tool_failures] else None,
         "parse_slip_items": slips,
+        "tool_failure_rate": round(len(tool_failures) / len(ok), 3) if ok and rows and rows[0].get("mode") == "loop" else None,
+        "miss_kinds": dict(miss_kinds) if miss_kinds else None,
         "refusal_rate": round(refusals / len(attempted), 3) if attempted else None,
         "items_judged": len(ca), "agree": sum(1 for x, y in zip(ca, cb) if x == y),
         "agreement_rate": round(sum(1 for x, y in zip(ca, cb) if x == y) / len(ca), 3) if ca else None,
@@ -363,12 +483,63 @@ def _slim(cell: dict) -> dict:
 
 
 def mode_summary(results: list, labels: dict) -> dict:
-    """Loop / frozen / repeat rows for the tools-on roles, kept apart from exact."""
+    """Loop / frozen / repeat rows for the tools-on roles, kept apart from exact. Loop cells also carry
+    the tool_protocol and replay-lag slices (plan C) and the tool-failure rate."""
     out = defaultdict(list)
     for r in results:
         if r.get("mode", "exact") != "exact":
             out[f"{r['backend']}|{r['role']}|{r['mode']}{'|rep' if r.get('rep') else ''}"].append(r)
-    return {k: _slim(_score_cell(v, labels)) for k, v in sorted(out.items())}
+    summary = {}
+    for k, v in sorted(out.items()):
+        cell = _score_cell(v, labels)
+        slim = _slim(cell)
+        if v and v[0].get("mode") == "loop":
+            slim["tool_failure_rate"] = cell.get("tool_failure_rate")
+            slim["miss_kinds"] = cell.get("miss_kinds")
+            by_proto, by_lag = defaultdict(list), defaultdict(list)
+            for r in v:
+                lp = ((r.get("comparison") or {}).get("extra") or {}).get("loop") or {}
+                by_proto[lp.get("tool_protocol") or "?"].append(r)
+                by_lag[_lag_slice(lp.get("replay_lag_hours"))].append(r)
+            slim["by_tool_protocol"] = {p: _slim(_score_cell(rs, labels)) for p, rs in sorted(by_proto.items())}
+            slim["by_replay_lag"] = {p: _slim(_score_cell(rs, labels)) for p, rs in sorted(by_lag.items())}
+        summary[k] = slim
+    return summary
+
+
+def _lag_slice(hours) -> str:
+    if hours is None:
+        return "unknown"
+    return "<24h" if hours < 24 else "24-72h" if hours < 72 else ">72h"
+
+
+def repeat_floor(results: list) -> dict:
+    """$0 local-vs-local variance floor: for each loop call with a rep>0 twin, do the two local runs
+    agree with each other? A loop-vs-live gap inside this floor is not a model effect (plan C)."""
+    base, reps = {}, defaultdict(list)
+    for r in results:
+        if r.get("mode") != "loop":
+            continue
+        key = (r["backend"], r["role"], r["call_id"])
+        if r.get("rep"):
+            reps[key].append(r)
+        else:
+            base[key] = r
+    out = defaultdict(lambda: {"pairs": 0, "self_agree": 0})
+    for key, rs in reps.items():
+        b = base.get(key)
+        if not b:
+            continue
+        b_items = {i["item_id"]: i.get("candidate") for i in ((b.get("comparison") or {}).get("items") or [])}
+        for r in rs:
+            r_items = {i["item_id"]: i.get("candidate") for i in ((r.get("comparison") or {}).get("items") or [])}
+            for iid, lab in b_items.items():
+                if iid in r_items and lab is not None and r_items[iid] is not None:
+                    cell = out[f"{key[0]}|{key[1]}"]
+                    cell["pairs"] += 1
+                    cell["self_agree"] += int(lab == r_items[iid])
+    return {k: {**v, "self_agreement": round(v["self_agree"] / v["pairs"], 3) if v["pairs"] else None}
+            for k, v in sorted(out.items())}
 
 
 def cost_view(bundles: list, days: int = 30) -> dict:
