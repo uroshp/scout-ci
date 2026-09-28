@@ -12,7 +12,7 @@ calls nothing. Local backends cost $0; the `anthropic` reference re-run refuses 
 
 Creds come from ~/scout-replay/env (600), loaded by absolute path; the runner hard-exits before any
 store call if they are missing, and runs a positive-control read on costs/ (an empty store read is a
-broken read, not an empty store). Runs only inside --window (default 01:00-06:00 PT) unless
+broken read, not an empty store). Runs only inside --window (default 05:00-08:30 PT) unless
 --no-window; --deadline HH:MM and --max-minutes stop it cleanly, partial progress already persisted.
 """
 import argparse
@@ -119,7 +119,7 @@ def main():
     ap.add_argument("--write", action="store_true")
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--allow-spend", action="store_true")
-    ap.add_argument("--window", default="01:00-06:00")
+    ap.add_argument("--window", default="05:00-08:30")
     ap.add_argument("--no-window", action="store_true")
     ap.add_argument("--deadline", default=None, help="HH:MM local; stop cleanly")
     ap.add_argument("--max-minutes", type=int, default=240)
