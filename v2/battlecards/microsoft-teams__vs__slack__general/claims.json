@@ -73,7 +73,14 @@
     "id": "c_323d4de70c58",
     "verified": true,
     "derived_from": "c_bcd7a4e321e3",
-    "updated_on": "2026-07-04"
+    "updated_on": "2026-07-04",
+    "provenance": {
+      "source_url": "https://www.microsoft.com/en-us/microsoft-365/blog/2025/12/04/advancing-microsoft-365-new-capabilities-and-pricing-update/",
+      "source_tier": "primary",
+      "as_of": "2026-07-01",
+      "fact_id": "c_bcd7a4e321e3",
+      "stamped_on": "2026-09-28"
+    }
   },
   {
     "subject_key": "microsoft-teams | product-quality-exposure | current",
@@ -299,7 +306,14 @@
     "id": "c_7596f21f1d8a",
     "verified": true,
     "derived_from": "c_bcd7a4e321e3",
-    "updated_on": "2026-07-04"
+    "updated_on": "2026-07-04",
+    "provenance": {
+      "source_url": "https://www.microsoft.com/en-us/microsoft-365/blog/2025/12/04/advancing-microsoft-365-new-capabilities-and-pricing-update/",
+      "source_tier": "primary",
+      "as_of": "2026-07-01",
+      "fact_id": "c_bcd7a4e321e3",
+      "stamped_on": "2026-09-28"
+    }
   },
   {
     "subject_key": "slack | positioning | agentic-os",
@@ -318,7 +332,7 @@
   {
     "subject_key": "microsoft-teams | list-price | current",
     "claim": "Microsoft Teams list pricing effective July 1, 2026: Teams Essentials stays at $4.00 per user per month, while Microsoft 365 Business Basic rose from $6 to $7, Business Standard from $12.50 to $14, Microsoft 365 E3 from $36 to $39, Microsoft 365 E5 from $57 to $60 and Microsoft 365 F3 from $8 to $10 per user per month, with Teams included in all of these suites.",
-    "claim_type": "interpretation",
+    "claim_type": "fact",
     "section": "pricing",
     "zone": null,
     "order": 0,
@@ -326,8 +340,31 @@
     "confidence": "high",
     "id": "c_bcd7a4e321e3",
     "verified": true,
-    "derived_from": "c_bcd7a4e321e3",
-    "updated_on": "2026-07-04"
+    "updated_on": "2026-07-04",
+    "source_url": "https://www.microsoft.com/en-us/microsoft-365/blog/2025/12/04/advancing-microsoft-365-new-capabilities-and-pricing-update/",
+    "source_tier": "primary",
+    "evidence_excerpt": "we will also update our commercial pricing for Microsoft 365 suite subscriptions effective July 1, 2026",
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-03",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.microsoft.com/en-us/licensing/news/2026-m365-packaging-pricing-updates-faq",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      },
+      {
+        "source_url": "https://blog.teamascend.com/blog/microsoft-365-pricing-updates-start-july-1-2026",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "slack | list-price | current",
@@ -641,7 +678,14 @@
     "verified": true,
     "persona": "economic_buyer",
     "derived_from": "c_bcd7a4e321e3",
-    "updated_on": "2026-07-04"
+    "updated_on": "2026-07-04",
+    "provenance": {
+      "source_url": "https://www.microsoft.com/en-us/microsoft-365/blog/2025/12/04/advancing-microsoft-365-new-capabilities-and-pricing-update/",
+      "source_tier": "primary",
+      "as_of": "2026-07-01",
+      "fact_id": "c_bcd7a4e321e3",
+      "stamped_on": "2026-09-28"
+    }
   },
   {
     "subject_key": "microsoft | objection | security-breach",

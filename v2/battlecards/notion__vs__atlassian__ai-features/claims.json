@@ -207,7 +207,14 @@
     "id": "c_bfa9f35ac2e3",
     "verified": true,
     "derived_from": "c_b04857cc4138",
-    "updated_on": "2026-07-04"
+    "updated_on": "2026-07-04",
+    "provenance": {
+      "source_url": "https://www.notion.com/releases/2026-07-01",
+      "source_tier": "primary",
+      "as_of": "2026-07-01",
+      "fact_id": "c_b04857cc4138",
+      "stamped_on": "2026-09-28"
+    }
   },
   {
     "subject_key": "atlassian | cursor-jira-integration | 2026-05",
@@ -410,7 +417,7 @@
   {
     "subject_key": "notion | developer-platform-positioning | current",
     "claim": "Notion's CEO publicly acknowledged the historical \"not for developers\" gap and has now closed it: release 3.6, shipped July 1, 2026, makes External Agents generally available, with Claude and Cursor assignable from a shared team board and mentionable like teammates alongside Notion's own Custom Agents. The May 2026 developer platform announcement is now a shipped product, not a roadmap promise.",
-    "claim_type": "interpretation",
+    "claim_type": "fact",
     "section": "positioning",
     "zone": null,
     "order": 3,
@@ -418,8 +425,17 @@
     "confidence": "high",
     "id": "c_b04857cc4138",
     "verified": true,
-    "derived_from": "c_b04857cc4138",
-    "updated_on": "2026-07-04"
+    "updated_on": "2026-07-04",
+    "source_url": "https://www.notion.com/releases/2026-07-01",
+    "source_tier": "primary",
+    "evidence_excerpt": "Claude and Cursor are the first two External Agents in Notion.",
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "fuzzy",
+      "fetched_at": "2026-07-04",
+      "detail": "partial_ratio 0.984"
+    }
   },
   {
     "subject_key": "atlassian | rovo-overage-billing | current",
@@ -553,7 +569,14 @@
     "verified": true,
     "persona": "eng_led",
     "derived_from": "c_b04857cc4138",
-    "updated_on": "2026-07-04"
+    "updated_on": "2026-07-04",
+    "provenance": {
+      "source_url": "https://www.notion.com/releases/2026-07-01",
+      "source_tier": "primary",
+      "as_of": "2026-07-01",
+      "fact_id": "c_b04857cc4138",
+      "stamped_on": "2026-09-28"
+    }
   },
   {
     "subject_key": "battlecard | ai-pricing-credits | contested",
@@ -682,7 +705,14 @@
     "verified": true,
     "persona": "eng_led",
     "derived_from": "c_b04857cc4138",
-    "updated_on": "2026-07-04"
+    "updated_on": "2026-07-04",
+    "provenance": {
+      "source_url": "https://www.notion.com/releases/2026-07-01",
+      "source_tier": "primary",
+      "as_of": "2026-07-01",
+      "fact_id": "c_b04857cc4138",
+      "stamped_on": "2026-09-28"
+    }
   },
   {
     "subject_key": "objection | notion-vendor-stability | current",

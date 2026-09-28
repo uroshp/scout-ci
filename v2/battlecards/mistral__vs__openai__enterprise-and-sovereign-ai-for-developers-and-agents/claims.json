@@ -61,7 +61,14 @@
     "id": "c_859f590a2f6b",
     "verified": true,
     "derived_from": "c_3286dcad6727",
-    "updated_on": "2026-09-14"
+    "updated_on": "2026-09-14",
+    "provenance": {
+      "source_url": "https://mistral.ai/news/mistral-makes-sovereign-open-weight-ai-to-frontier/",
+      "source_tier": "primary",
+      "as_of": "2026-09-08",
+      "fact_id": "c_3286dcad6727",
+      "stamped_on": "2026-09-28"
+    }
   },
   {
     "subject_key": "mistral | sovereign-self-host-edge | current",
@@ -80,7 +87,7 @@
   {
     "subject_key": "mistral | valuation | current",
     "claim": "Mistral closed a €3 billion Series D on September 8, 2026 at a post-money valuation of more than €21 billion (about $24.39 billion), led by Samsung Electronics with co-leads Scaleup Europe Fund and PSG Equity. New investors include Advent, BlackRock-managed funds and the Grand Duchy of Luxembourg.",
-    "claim_type": "interpretation",
+    "claim_type": "fact",
     "section": "snapshot",
     "zone": null,
     "order": 0,
@@ -88,8 +95,25 @@
     "confidence": "medium",
     "id": "c_3286dcad6727",
     "verified": true,
-    "derived_from": "c_3286dcad6727",
-    "updated_on": "2026-09-14"
+    "updated_on": "2026-09-14",
+    "source_url": "https://mistral.ai/news/mistral-makes-sovereign-open-weight-ai-to-frontier/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Mistral today announced that it has raised €3 billion in a Series D funding round at a post-money valuation of more than €21 billion",
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-09",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/09/08/mistral-raises-e3b-as-sovereign-ai-becomes-big-business/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "mistral | latest-funding-round | 2025-series-c",
@@ -103,7 +127,14 @@
     "id": "c_b28dc3913b21",
     "verified": true,
     "derived_from": "c_3286dcad6727",
-    "updated_on": "2026-09-14"
+    "updated_on": "2026-09-14",
+    "provenance": {
+      "source_url": "https://mistral.ai/news/mistral-makes-sovereign-open-weight-ai-to-frontier/",
+      "source_tier": "primary",
+      "as_of": "2026-09-08",
+      "fact_id": "c_3286dcad6727",
+      "stamped_on": "2026-09-28"
+    }
   },
   {
     "subject_key": "mistral | revenue-run-rate | current",
@@ -205,7 +236,14 @@
     "id": "c_3752c82f1231",
     "verified": true,
     "derived_from": "c_3286dcad6727",
-    "updated_on": "2026-09-14"
+    "updated_on": "2026-09-14",
+    "provenance": {
+      "source_url": "https://mistral.ai/news/mistral-makes-sovereign-open-weight-ai-to-frontier/",
+      "source_tier": "primary",
+      "as_of": "2026-09-08",
+      "fact_id": "c_3286dcad6727",
+      "stamped_on": "2026-09-28"
+    }
   },
   {
     "subject_key": "openai | flagship-model | current",
@@ -423,7 +461,14 @@
     "id": "c_6349bc700d30",
     "verified": true,
     "derived_from": "c_21be6aaf4116",
-    "updated_on": "2026-07-22"
+    "updated_on": "2026-07-22",
+    "provenance": {
+      "source_url": "https://www.prnewswire.com/in/news-releases/microsoft-and-mistral-expand-strategic-partnership-to-give-enterprises-and-regulated-industries-frontier-ai-they-can-control-302830228.html",
+      "source_tier": "primary",
+      "as_of": "2026-07-21",
+      "fact_id": "c_21be6aaf4116",
+      "stamped_on": "2026-09-28"
+    }
   },
   {
     "subject_key": "mistral | flagship-product | mistral-compute",
@@ -846,7 +891,14 @@
     "id": "c_482f89f830f8",
     "verified": true,
     "derived_from": "c_3286dcad6727",
-    "updated_on": "2026-09-14"
+    "updated_on": "2026-09-14",
+    "provenance": {
+      "source_url": "https://mistral.ai/news/mistral-makes-sovereign-open-weight-ai-to-frontier/",
+      "source_tier": "primary",
+      "as_of": "2026-09-08",
+      "fact_id": "c_3286dcad6727",
+      "stamped_on": "2026-09-28"
+    }
   },
   {
     "subject_key": "mistral | objection-ecosystem | current",
@@ -861,7 +913,14 @@
     "id": "c_84efa1221718",
     "verified": true,
     "derived_from": "c_21be6aaf4116",
-    "updated_on": "2026-07-22"
+    "updated_on": "2026-07-22",
+    "provenance": {
+      "source_url": "https://www.prnewswire.com/in/news-releases/microsoft-and-mistral-expand-strategic-partnership-to-give-enterprises-and-regulated-industries-frontier-ai-they-can-control-302830228.html",
+      "source_tier": "primary",
+      "as_of": "2026-07-21",
+      "fact_id": "c_21be6aaf4116",
+      "stamped_on": "2026-09-28"
+    }
   },
   {
     "subject_key": "openai | objection-safe-default | current",
@@ -929,7 +988,14 @@
     "confidence": "medium",
     "derived_from": "c_2fe7de2c130d",
     "updated_on": "2026-07-10",
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "provenance": {
+      "source_url": "https://www.cnbc.com/2026/09/03/open-ai-astra-gpt-6-cyber.html",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-09-03",
+      "fact_id": "c_77b7261b1764",
+      "stamped_on": "2026-09-28"
+    }
   },
   {
     "subject_key": "openai | gpt-5.5-cyber",
@@ -995,7 +1061,7 @@
     "id": "c_aea351606f4e",
     "subject_key": "mistral | ocr4-product-launch | 2026",
     "claim": "**OCR 4 extends Mistral's self-hosted stack into document intelligence.**\n\nMistral OCR 4 launched June 23, 2026, returning bounding boxes, typed-block classification (titles, tables, equations, signatures), and per-page and per-word confidence scores alongside extracted text. It covers 170 languages across 10 language groups and ships as a single container for fully air-gapped deployment. Pricing is $4 per 1,000 pages, dropping to $2 with the Batch API. Mistral reports a 72% average win rate in blind human evaluations against leading systems and the top score on OlmOCRBench (85.20); Mistral itself notes these benchmark figures are directional rather than definitive.\n\n**Soundbite:** Our document-intelligence model runs on-prem in a single container at $2 per 1,000 pages with the Batch API, covering 170 languages, with no data leaving your infrastructure.",
-    "claim_type": "interpretation",
+    "claim_type": "fact",
     "section": "battlecard",
     "zone": "where_we_win",
     "order": 5,
@@ -1003,8 +1069,25 @@
     "updated_on": "2026-06-26",
     "verified": true,
     "confidence": "medium",
-    "derived_from": "c_aea351606f4e",
-    "persona": "technical_evaluator"
+    "persona": "technical_evaluator",
+    "source_url": "https://mistral.ai/news/ocr-4/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Today, we're releasing Mistral OCR 4, featuring bounding boxes, block classification, and inline confidence scores alongside extracted text.",
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-06-26",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://venturebeat.com/data/mistral-launches-ocr-4-turning-document-extraction-into-a-full-enterprise-ai-play",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "openai | model-release-restriction | gpt-5.6-2026",
@@ -1190,7 +1273,7 @@
     "id": "c_21be6aaf4116",
     "subject_key": "mistral | partnership | microsoft-sovereign-cloud-2026",
     "claim": "Microsoft expanded its strategic partnership with Mistral on July 21, 2026, including a multibillion dollar commitment tied to Mistral's Europe-based GPU infrastructure. Mistral Medium 3.5 and OCR 4 are now live in Microsoft Foundry, Mistral Medium 3.5 is in Microsoft Copilot Studio, and Azure Local runs Mistral models in cloud, cloud-connected or fully disconnected environments.",
-    "claim_type": "interpretation",
+    "claim_type": "fact",
     "section": "snapshot",
     "zone": null,
     "order": 9,
@@ -1198,8 +1281,25 @@
     "updated_on": "2026-07-22",
     "verified": true,
     "confidence": "medium",
-    "derived_from": "c_21be6aaf4116",
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "source_url": "https://www.prnewswire.com/in/news-releases/microsoft-and-mistral-expand-strategic-partnership-to-give-enterprises-and-regulated-industries-frontier-ai-they-can-control-302830228.html",
+    "source_tier": "primary",
+    "evidence_excerpt": "Mistral Medium 3.5 and OCR 4 are now available in Microsoft Foundry, and Mistral Medium 3.5 is now in Microsoft Copilot Studio.",
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-07-22",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.cio.com/article/4199721/microsoft-doubles-down-on-sovereign-ai-with-expanded-mistral-partnership.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   },
   {
     "subject_key": "openai | product-launch | presence-2026",

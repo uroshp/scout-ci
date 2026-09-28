@@ -24,7 +24,7 @@ Annualized revenue climbed above \$750M by August 2026, up from under \$250M in 
 
 **Soundbite:** "Perplexity's revenue has more than tripled this year and it just won the right to keep Comet shopping on Amazon; the remaining suits are the same copyright fight every AI vendor faces."
 
-**So what:** Pair the momentum story with a straight legal answer: Perplexity won the core access-legality fight on Comet, licensing deals are getting signed and the remaining suits are an industry-wide risk every AI vendor faces.
+**So what:** Pair the momentum story with a straight legal answer: Perplexity won the core access-legality fight on Comet, licensing deals are getting signed and the remaining suits are an industry-wide risk every AI vendor faces. ([techstartups.com](https://techstartups.com/2026/08/24/nvidia-in-talks-to-invest-in-perplexity-at-30-billion-valuation-as-revenue-tops-750-million/))
 
 **A judge just barred Google from buying default placement, so the 'Google's too embedded to displace' objection is weaker than it looks.**
 
@@ -55,7 +55,7 @@ Hybrid Compute masks sensitive data like names, addresses and account numbers on
 - Google AI Mode in Search surpassed 1 billion monthly active users as of Google I/O (May 19, 2026), one year after launch, with queries more than doubling every quarter (company-stated). ([blog.google](https://blog.google/products-and-platforms/products/search/search-io-2026/))
 - Google's AI Overviews now reach more than 2.5 billion monthly users as of May 2026 (company-stated, reported by TechCrunch). ([techcrunch.com](https://techcrunch.com/2026/05/19/google-search-as-you-know-it-is-over/))
 - Google's Gemini app reported more than 900 million monthly active users at I/O (May 19, 2026), available in 230+ countries, up from 750M in February 2026 (company-stated). ([techcrunch.com](https://techcrunch.com/2026/05/19/google-updates-its-gemini-app-to-take-on-chatgpt-and-claude-at-io-2026/))
-- Perplexity's annualized revenue topped \$750 million as of August 2026, up from under \$250 million at the start of the year, per a report by The Information; that's roughly 50% above the approximately \$500 million ARR the CEO reported to CNBC in June 2026.
+- Perplexity's annualized revenue topped \$750 million as of August 2026, up from under \$250 million at the start of the year, per a report by The Information; that's roughly 50% above the approximately \$500 million ARR the CEO reported to CNBC in June 2026. ([techstartups.com](https://techstartups.com/2026/08/24/nvidia-in-talks-to-invest-in-perplexity-at-30-billion-valuation-as-revenue-tops-750-million/))
 - Perplexity was last reported valued at \$20 billion (June 2026), trailing far behind Anthropic (~\$1T) and OpenAI (~\$850B), per CNBC. ([cnbc.com](https://www.cnbc.com/2026/06/03/perplexity-ceo-ai-valuations-computer-agentic.html))
 - Perplexity reported more than 100 million monthly active users across its search and agent tools as of April 2026 (company executives, via the Financial Times). ([pymnts.com](https://www.pymnts.com/artificial-intelligence-2/2026/perplexitys-shift-to-ai-agents-boosts-revenue-50/))
 
@@ -92,7 +92,7 @@ Hybrid Compute masks sensitive data like names, addresses and account numbers on
 ## Pricing and Packaging
 
 - Perplexity's tiers run Free, Pro at \$20/month, and Max at \$200/month; the Comet agentic browser launched as a \$200/month Max-only benefit before going free worldwide in October 2025. ([cnbc.com](https://www.cnbc.com/2025/10/02/perplexity-ai-comet-browser-free-.html))
-- Perplexity's Sonar API is priced per million tokens (Sonar \$1 in/\$1 out; Sonar Pro \$3 in/\$15 out; Deep Research \$2 in/\$8 out) plus per-request and search fees. The citation charge that used to apply across all Sonar models now applies only to Sonar Deep Research, so Sonar and Sonar Pro carry no citation fee, a usage-based developer model competing with Google's Gemini API/Vertex.
+- Perplexity's Sonar API is priced per million tokens (Sonar \$1 in/\$1 out; Sonar Pro \$3 in/\$15 out; Deep Research \$2 in/\$8 out) plus per-request and search fees. The citation charge that used to apply across all Sonar models now applies only to Sonar Deep Research, so Sonar and Sonar Pro carry no citation fee, a usage-based developer model competing with Google's Gemini API/Vertex. ([docs.perplexity.ai](https://docs.perplexity.ai/getting-started/pricing))
 - Google AI Pro is \$19.99/month, at functional price parity with Perplexity Pro (\$20), but bundles YouTube Premium Lite, 5TB storage, and Gemini across Gmail/Docs, none of which Perplexity offers. ([engadget.com](https://www.engadget.com/2176060/the-google-ai-ultra-plan-now-starts-at-100-a-month/))
 - Google no longer sells Gemini as a standalone Workspace add-on: it is bundled into Business Standard (\$14/user/month) and above, meaning Google's enterprise AI distribution is effectively zero incremental cost to existing Workspace customers. ([workspace.google.com](https://workspace.google.com/pricing))
 - Perplexity leans on partner bundles to reach users outside its paywall: Deutsche Telekom's T Phone 3, for example, includes 18 months of Perplexity Pro (\$360 value) free. It's a distribution workaround against Google's native free reach, but one that creates churn risk when promos expire. ([techradar.com](https://www.techradar.com/pro/one-of-the-worlds-biggest-mobile-firms-has-launched-a-usd170-ai-smartphone-that-includes-a-free-18-month-subs-to-perplexity-pro-worth-usd360-i-wonder-what-happens-on-month-19))
@@ -204,7 +204,7 @@ Don't dodge it: security researchers disclosed prompt-injection and data-exfiltr
 
 It's a legitimate concern: at a \$20B valuation Perplexity is a fraction of Alphabet's ~\$4.5T. But annualized revenue climbed past \$750 million by August 2026, up from under \$250 million at the start of the year, and Perplexity has raised roughly \$1.5B from SoftBank, Nvidia and others, with the bulk of the Fortune 500 as users. The question that matters is whether the product survives and delivers ROI over the buyer's horizon, and the trajectory says yes.
 
-**So what:** Answer with the growth and enterprise-adoption proof points, and reframe the stability question to the buyer's actual time horizon.
+**So what:** Answer with the growth and enterprise-adoption proof points, and reframe the stability question to the buyer's actual time horizon. ([techstartups.com](https://techstartups.com/2026/08/24/nvidia-in-talks-to-invest-in-perplexity-at-30-billion-valuation-as-revenue-tops-750-million/))
 
 **"I heard a lawsuit says Perplexity sends user chats to Google and Meta, even in Incognito."**
 
