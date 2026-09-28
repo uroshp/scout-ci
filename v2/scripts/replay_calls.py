@@ -20,10 +20,13 @@ import json
 import os
 import sys
 import time
+
+import httpx
 from datetime import datetime, timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+LOOKBACK_DAYS = 14
 ENV_PATH = os.path.expanduser("~/scout-replay/env")
 STATE_PATH = os.path.expanduser("~/scout-replay/state.json")
 
@@ -108,7 +111,7 @@ def main():
     ap.add_argument("--roles", default=None, help="comma list; default = every exact role (or tools-on for loop/frozen)")
     ap.add_argument("--mode", choices=["exact", "frozen", "loop", "all"], default="exact")
     ap.add_argument("--repeat", type=int, default=0, help="re-run rep N of a loop call (variance floor)")
-    ap.add_argument("--since", default=None, help="bundle stamp YYYYMMDDTHHMMSS; default = last processed")
+    ap.add_argument("--since", default=None, help=f"bundle stamp YYYYMMDDTHHMMSS; default = {LOOKBACK_DAYS} days ago")
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--slug", default=None)
     ap.add_argument("--call-id", default=None)
@@ -125,7 +128,10 @@ def main():
 
     _require_store()
     st = _state()
-    since = args.since or st.get("last_stamp")
+    # Default lookback = 14 days. Idempotency (one result file per call/backend/mode/rep) makes
+    # re-listing safe, so no shared "last stamp" can skip a bundle for the second arm or after an
+    # early stop; older bundles are reachable with --since.
+    since = args.since or (datetime.now() - timedelta(days=LOOKBACK_DAYS)).strftime("%Y%m%dT%H%M%S")
     modes = ["exact", "frozen", "loop"] if args.mode == "all" else [args.mode]
     roles = set(args.roles.split(",")) if args.roles else None
 
@@ -171,7 +177,23 @@ def main():
     for backend in args.backend:
         if backend == "anthropic" and not args.allow_spend:
             print(f"{backend}: refused (pass --allow-spend to spend money)"); continue
-        have = set() if args.force else modelcompare.existing(backend)
+        have_by_month: dict[str, set] = {}
+
+        def have(month: str) -> set:
+            if args.force:
+                return set()
+            if month not in have_by_month:
+                have_by_month[month] = modelcompare.existing(backend, month)
+            return have_by_month[month]
+        searx_ok = True
+        if "loop" in modes:
+            from scout import localagent
+            try:
+                searx_ok = httpx.get(f"{localagent.SEARXNG_URL}/search", params={"q": "ping", "format": "json"}, timeout=15).status_code == 200
+            except Exception:
+                searx_ok = False
+            if not searx_ok:
+                print(f"  SEARXNG DOWN at {localagent.SEARXNG_URL}: loop-mode calls will be skipped (not persisted)")
         print(f"\n--- {backend} ---")
         n_done = n_skip = 0
         if backend == "ollama":
@@ -185,12 +207,16 @@ def main():
                 print("  deadline reached; stopping"); break
             if (time.monotonic() - t_start) / 60 > args.max_minutes:
                 print("  max-minutes reached; stopping"); break
-            path = modelcompare.result_path(backend, c["call_id"], mode, args.repeat)
-            if path.split("/")[-1] in have:
+            month = modelcompare.result_month(c.get("run_ts"))
+            if modelcompare.result_name(c["call_id"], mode, args.repeat) in have(month):
                 n_skip += 1; continue
+            if args.repeat and modelcompare.result_name(c["call_id"], mode, 0) not in have(month):
+                n_skip += 1; continue                  # a rep needs its rep-0 twin first
             if mode == "loop":
                 from scout import localagent
-                replay = localagent.run_loop(c, backend)
+                if not searx_ok:
+                    print("  SEARXNG DOWN: loop mode skipped for this call"); n_skip += 1; continue
+                replay = localagent.run_loop(c, backend, rep=args.repeat)
             else:
                 replay = replaybackends.drive_replay(c, backend, mode=mode, allow_spend=args.allow_spend)
             if backend == "ollama" and replay.get("status") == "ok":
@@ -212,9 +238,10 @@ def main():
         done_total += n_done
         if backend == "ollama":
             replaybackends.ollama_unload()
-    if args.write and paths:
-        st["last_stamp"] = max(p.split("_")[1] for p in paths if "_" in p)
+    if args.write:
         st["last_run"] = datetime.now().isoformat(timespec="seconds")
+        st["last_backends"] = args.backend
+        st["last_replays"] = done_total
         _save_state(st)
     print(f"\ndone: {done_total} replays" + (" (persisted)" if args.write else " (NOT persisted; add --write)"))
 

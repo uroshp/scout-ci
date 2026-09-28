@@ -41,9 +41,11 @@ def _terms(query: str) -> list[str]:
     return [t for t in toks if len(t) >= 3 and t not in _STOP]
 
 
-def _window(page: str, query: str):
+def _window(page: str, query: str, budget_chars: int = WINDOW_BUDGET_CHARS):
     """Return (text, windowed, returned_len, max_end). Keyword windows merged in
-    document order, budget-capped; head fallback if no query terms are found."""
+    document order, budget-capped; head fallback if no query terms are found.
+    `budget_chars` defaults to the live budget; the on-device replay loop (scout/localagent.py)
+    passes a smaller one so every backend sees the same tool budget (2026-09-28)."""
     terms = _terms(query)
     low = page.lower()
     hits = []
@@ -56,7 +58,7 @@ def _window(page: str, query: str):
             hits.append(i)
             start = i + len(t)
     if not hits:
-        head = page[:WINDOW_BUDGET_CHARS]
+        head = page[:budget_chars]
         return head, False, len(head), len(head)
 
     hits.sort()
@@ -70,7 +72,7 @@ def _window(page: str, query: str):
 
     out, total, max_end = [], 0, 0
     for s, e in spans:
-        if total >= WINDOW_BUDGET_CHARS:
+        if total >= budget_chars:
             break
         chunk = page[s:e]
         out.append(chunk)

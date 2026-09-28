@@ -52,21 +52,31 @@ def _prior(key: str) -> dict | None:
     return None
 
 
-def build(now: datetime) -> tuple[dict, str]:
-    from scout import modelcompare, selfserve
-    from scripts.replay_calls import list_bundles, load_calls  # noqa
-    results = modelcompare.load_results()
-    labels = modelcompare.load_labels()
-    sc = modelcompare.scorecard(results, labels)
+def _recent_bundles(limit: int = 60) -> list:
+    """The last `limit` call bundles (for the cost view). Sibling-script import: scripts/ is on
+    sys.path both when run directly and when eval_checkin imports this module."""
+    from scout import selfserve
+    try:
+        from replay_calls import list_bundles
+    except ImportError:
+        from scripts.replay_calls import list_bundles  # noqa
     bundles = []
-    for p in list_bundles(None)[-60:]:
+    for p in list_bundles(None)[-limit:]:
         raw = selfserve.read_data(p)
         if raw:
             try:
                 bundles.append(json.loads(raw))
             except json.JSONDecodeError:
                 pass
-    cost = modelcompare.cost_view(bundles)
+    return bundles
+
+
+def build(now: datetime) -> tuple[dict, str]:
+    from scout import modelcompare
+    results = modelcompare.load_results()
+    labels = modelcompare.load_labels()
+    sc = modelcompare.scorecard(results, labels)
+    cost = modelcompare.cost_view(_recent_bundles())
     cells_out, lines = {}, []
     lines.append(f"# On-device model comparison check-in — {now.date()}")
     lines.append(f"results={len(results)}  labels={len(labels)}  backends={sc['backends']}  "
@@ -98,12 +108,26 @@ def build(now: datetime) -> tuple[dict, str]:
                           "coverage": cell["full"]["coverage"], "parse_ok": cell["full"]["parse_ok"],
                           "verdict": v["status"], "note": v["note"], "no_improve_streak": v["no_improve_streak"],
                           "coverage_ok": v["coverage_ok"], "reliability_ok": v["reliability_ok"]}
+    floor = modelcompare.repeat_floor(results)
     if sc.get("modes"):
         lines.append("\n## Tools-on roles: loop / frozen / repeat (never pooled with exact)")
+        lines.append("frozen = judgment only on the live run's retrieval (comparable to exact-mode kappa); "
+                     "loop = the local model searched and fetched itself; loop minus frozen = retrieval attribution.")
         for k, c in sc["modes"].items():
             lines.append(f"- {k}: n={c['n_results']} coverage={c['coverage']} parse_ok={c['parse_ok']} "
                          f"agree={c['agreement_rate']} kappa={c['kappa_candidate_vs_reference']} "
-                         f"disagreements={c['disagreements']} adjudicated={c['adjudicated']} precision={c['precision']}")
+                         f"disagreements={c['disagreements']} adjudicated={c['adjudicated']} precision={c['precision']}"
+                         + (f" tool_failure={c.get('tool_failure_rate')} misses={c.get('miss_kinds')}" if "|loop" in k else ""))
+            for sl_name in ("by_tool_protocol", "by_replay_lag"):
+                for sk, sv in (c.get(sl_name) or {}).items():
+                    lines.append(f"    {sl_name[3:]}={sk}: n={sv['n_results']} agree={sv['agreement_rate']} "
+                                 f"kappa={sv['kappa_candidate_vs_reference']} precision={sv['precision']}")
+        if floor:
+            lines.append("  local-vs-local repeat floor (a loop-vs-live gap inside this is not a model effect):")
+            for k, f in floor.items():
+                lines.append(f"    {k}: self-agreement {f['self_agreement']} over {f['pairs']} item pairs")
+    lines.append("\nLoop-mode floor: human-confirmed material items the candidate missed ≈ 0 "
+                 "(live-scored miss rate above is a labelled proxy until adjudicated).")
     lines.append("\n## Cost view (live $ per role, last window; local backends $0)")
     for r, usd in cost["projected_monthly_usd_by_role"].items():
         lines.append(f"- {r}: ~${usd}/month live")
@@ -112,7 +136,7 @@ def build(now: datetime) -> tuple[dict, str]:
                  "no production switch exists. Bars: docs/model-substitution-exit-criteria.md")
     snapshot = {"stamp": now.isoformat(timespec="seconds"), "bar": BAR - MARGIN, "margin": MARGIN,
                 "results": len(results), "labels": len(labels), "common_n": sc["common_n"],
-                "cells": cells_out, "modes": sc.get("modes"), "cost": cost}
+                "cells": cells_out, "modes": sc.get("modes"), "repeat_floor": floor, "cost": cost}
     return snapshot, "\n".join(lines)
 
 
