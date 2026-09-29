@@ -76,6 +76,7 @@ jobs:
           SCOUT_MONITOR_SLUGS: ${{ inputs.slugs }}
           SCOUT_MONITOR_FORCE: ${{ inputs.force && '1' || '0' }}
           SCOUT_SOURCES_TOOLS: ${{ inputs.sources_tools && '1' || '0' }}
+          SCOUT_MONITOR_TRACE: ${{ inputs.dry_run && '1' || '0' }}
           # Propagation (spec §17) in REVIEW (human-approval gate): on an act-grade grounded
           # development (ours or the competitor's), run propose->judge, LOG the decisions + grounding
           # facts to the PRIVATE data repo, and EMAIL the proposed change (where/what/how/verdict).
