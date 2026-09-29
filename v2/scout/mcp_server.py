@@ -36,7 +36,7 @@ SLUG = re.compile(r"^[a-z0-9][a-z0-9_-]{2,120}$")
 # hostname behind a bearer gate for the only tool that spends, so the host check is off.
 # stateless + JSON responses: Cloud Run may serve consecutive requests from different instances,
 # so no server-side session state; a client gets a plain JSON body per call.
-mcp = FastMCP("scout", streamable_http_path="/", stateless_http=True, json_response=True,
+mcp = FastMCP("scout", streamable_http_path="/mcp", stateless_http=True, json_response=True,
               transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=False),
               instructions=(
     "Scout keeps verified competitive battlecards. Every claim on a card was checked against its source by "
