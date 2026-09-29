@@ -192,7 +192,9 @@ function savePending(p){pending=p;lsSet(PEND_KEY,p?JSON.stringify(p):null);}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function token(){var a=new Uint8Array(16);try{crypto.getRandomValues(a);}catch(e){for(var i=0;i<16;i++)a[i]=Math.floor(Math.random()*256);}return Array.prototype.map.call(a,function(b){return ('0'+b.toString(16)).slice(-2);}).join('');}
 function badge(){var n=history.length;fabN.hidden=!n;fabN.textContent=n?String(n):'';}
-function focusQ(){try{q.focus({preventScroll:true});}catch(e){q.focus();}}
+var FINE=window.matchMedia&&window.matchMedia('(pointer: fine)').matches;
+// on touch, a programmatic focus pops the keyboard and moves the layout: the reader taps when ready
+function focusQ(){if(!FINE)return;try{q.focus({preventScroll:true});}catch(e){q.focus();}}
 function scrollEnd(){thread.scrollTop=thread.scrollHeight;}
 // open / minimize: the widget is NOT modal (the page stays usable behind it); Esc minimizes.
 function open(){lastFocus=document.activeElement;panel.hidden=false;fab.hidden=true;lsSet(OPEN_KEY,'1');fit();scrollEnd();setTimeout(focusQ,30);}
@@ -200,26 +202,30 @@ function minimize(){panel.hidden=true;fab.hidden=false;badge();lsSet(OPEN_KEY,'0
 // The on-screen keyboard (iPad, phone) shrinks the VISUAL viewport and Safari scrolls the page to
 // reveal the field, dragging a bottom-fixed panel with it. Keep the panel inside the visual
 // viewport instead, and hold the page's scroll when the composer takes focus.
-var vv=window.visualViewport;
-function fit(){
+var vv=window.visualViewport, fitTimer=null, yKeep=null;
+function fitNow(){
   if(!vv||panel.hidden){panel.style.bottom='';panel.style.height='';return;}
   var phone=window.matchMedia('(max-width:640px)').matches;
   var hidden=Math.max(0,Math.round(window.innerHeight-vv.height-vv.offsetTop));   // layout px covered below (keyboard)
-  if(hidden<40&&!phone){panel.style.bottom='';panel.style.height='';return;}
-  panel.style.bottom=(hidden+(phone?0:18))+'px';
-  panel.style.height=Math.max(240,Math.round(phone?vv.height:Math.min(640,vv.height-36)))+'px';
-  scrollEnd();}
+  var b=(hidden<40&&!phone)?'':(hidden+(phone?0:18))+'px';
+  var h=(hidden<40&&!phone)?'':Math.max(240,Math.round(phone?vv.height:Math.min(640,vv.height-36)))+'px';
+  if(panel.style.bottom!==b)panel.style.bottom=b;                                   // write only on change: no reflow churn
+  if(panel.style.height!==h)panel.style.height=h;
+  // the page moved under the keyboard: put it back ONCE, after the keyboard has settled
+  if(yKeep!==null&&Math.abs(window.scrollY-yKeep)>2)window.scrollTo(0,yKeep);}
+// the keyboard animates for ~300 ms and fires resize on every frame; fit once it has settled
+function fit(){clearTimeout(fitTimer);fitTimer=setTimeout(fitNow,FINE?0:180);}
 if(vv){vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit);}
-var ySave=null;
-q.addEventListener('pointerdown',function(){ySave=window.scrollY;});
-q.addEventListener('focus',function(){var y=ySave;ySave=null;if(y===null)return;var hold=function(){if(Math.abs(window.scrollY-y)>1)window.scrollTo(0,y);};hold();requestAnimationFrame(hold);setTimeout(hold,120);setTimeout(hold,400);});
+q.addEventListener('focus',function(){yKeep=window.scrollY;if(FINE){var y=yKeep;requestAnimationFrame(function(){if(Math.abs(window.scrollY-y)>1)window.scrollTo(0,y);});}});
+q.addEventListener('blur',function(){yKeep=null;});
 fab.addEventListener('click',open);
 document.getElementById('ask-close').addEventListener('click',minimize);
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!panel.hidden)minimize();});
 Array.prototype.forEach.call(document.querySelectorAll('.ask-ex'),function(b){b.addEventListener('click',function(){q.value=b.textContent;submit();});});
 // Enter sends, Shift+Enter is a newline (the chat convention)
 q.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submit();}});
-q.addEventListener('input',function(){q.style.height='auto';q.style.height=Math.min(q.scrollHeight,140)+'px';});
+var lastLen=0;
+q.addEventListener('input',function(){var n=q.value.length;if(n<lastLen)q.style.height='auto';lastLen=n;if(q.scrollHeight>q.clientHeight+2)q.style.height=Math.min(q.scrollHeight,140)+'px';});
 form.addEventListener('submit',function(e){e.preventDefault();submit();});
 function add(html,cls){var d=document.createElement('div');d.className='ask-msg '+(cls||'');d.innerHTML=html;thread.appendChild(d);scrollEnd();return d;}
 function stageHtml(k,extra,note){
@@ -342,7 +348,7 @@ PANEL_CSS = """
    hidden attribute (the script's only show/hide mechanism) authoritative */
 .ask-fab[hidden],.ask-panel[hidden],.ask-fab-n[hidden],.ask-clear[hidden],.ask-intro[hidden]{display:none!important}
 .ask-fab{position:fixed;right:18px;bottom:18px;z-index:60;display:inline-flex;align-items:center;gap:8px;padding:11px 16px;border:0;border-radius:999px;background:#2b2a26;color:#fff;font:600 14px/1 system-ui,-apple-system,sans-serif;box-shadow:0 6px 20px rgba(20,18,10,.22);cursor:pointer}
-.ask-fab:hover{background:#151410}.ask-fab-dot{width:8px;height:8px;border-radius:50%;background:#7ed0a6;box-shadow:0 0 0 3px rgba(126,208,166,.28)}
+.ask-fab-dot{width:8px;height:8px;border-radius:50%;background:#7ed0a6;box-shadow:0 0 0 3px rgba(126,208,166,.28)}
 .ask-fab-n{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#7ed0a6;color:#12301f;font:700 11px/18px system-ui,sans-serif;text-align:center}
 .ask-panel{position:fixed;right:18px;bottom:18px;width:min(440px,calc(100vw - 24px));height:min(640px,calc(100vh - 36px));z-index:80;background:#fbfaf6;border:1px solid #e3ded2;border-radius:14px;box-shadow:0 18px 48px rgba(20,18,10,.22);display:flex;flex-direction:column;overflow:hidden;font-family:system-ui,-apple-system,sans-serif;color:#2b2a26}
 .ask-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px 18px 12px;border-bottom:1px solid #e3ded2}
@@ -350,9 +356,9 @@ PANEL_CSS = """
 .ask-beta{font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#7a2e0e;background:#f9ece6;border:1px solid #ecc9bb;border-radius:4px;padding:2px 6px;font-weight:600}
 .ask-sub{margin-top:3px;font-size:12.5px;color:#5f5e54}
 .ask-why{font-size:12px;color:#5f5e54;margin:0 0 8px;padding-bottom:8px;border-bottom:1px dashed #e3ded2}
-.ask-close{border:0;background:transparent;font-size:26px;line-height:1;color:#8a877c;cursor:pointer;padding:0 4px}.ask-close:hover{color:#2b2a26}
+.ask-close{border:0;background:transparent;font-size:26px;line-height:1;color:#8a877c;cursor:pointer;padding:0 4px}
 .ask-headbtns{display:flex;align-items:center;gap:8px}
-.ask-clear{border:1px solid #dfdbcf;background:#fff;border-radius:999px;padding:4px 10px;font-size:11.5px;color:#5f5e54;cursor:pointer;white-space:nowrap}.ask-clear:hover{border-color:#34566b;color:#2a4658}
+.ask-clear{border:1px solid #dfdbcf;background:#fff;border-radius:999px;padding:4px 10px;font-size:11.5px;color:#5f5e54;cursor:pointer;white-space:nowrap}
 .ask-about{display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#8a877c;margin-bottom:6px}
 .ask-thread{flex:1;overflow:auto;padding:14px 18px 8px;display:flex;flex-direction:column;gap:12px}
 .ask-review{font-size:12px;color:#7a2e0e;background:#f9ece6;border:1px solid #ecc9bb;border-radius:8px;padding:8px 10px}
@@ -366,8 +372,8 @@ PANEL_CSS = """
 .ask-composer textarea{flex:1;min-width:0;box-sizing:border-box;padding:10px 12px;font:16px/1.4 system-ui,sans-serif;border:1px solid #cfc8b8;border-radius:10px;background:#fff;resize:none;max-height:140px}
 .ask-composer textarea:disabled{background:#f4f2ec;color:#8a877c}
 .ask-exs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
-.ask-ex{border:1px solid #dfdbcf;background:#fff;border-radius:999px;padding:5px 10px;font-size:12px;color:#5f5e54;cursor:pointer;text-align:left}.ask-ex:hover{border-color:#34566b;color:#2a4658}
-.ask-go{border:0;border-radius:10px;background:#2b2a26;color:#fff;font:600 14px system-ui,sans-serif;padding:10px 16px;cursor:pointer;min-height:40px}.ask-go:hover{background:#151410}.ask-go:disabled{background:#a9a69b;cursor:default}
+.ask-ex{border:1px solid #dfdbcf;background:#fff;border-radius:999px;padding:5px 10px;font-size:12px;color:#5f5e54;cursor:pointer;text-align:left}
+.ask-go{border:0;border-radius:10px;background:#2b2a26;color:#fff;font:600 14px system-ui,sans-serif;padding:10px 16px;cursor:pointer;min-height:40px}.ask-go:disabled{background:#a9a69b;cursor:default}
 .ask-elapsed{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#8a877c;padding:4px 0 0 20px}
 .ask-note{color:#7a2e0e}
 .ask-hint{display:block;font-weight:400;font-size:11.5px;color:#8a877c;margin-top:1px}
@@ -395,7 +401,7 @@ PANEL_CSS = """
 .ask-tgl.open{text-decoration:none;color:#2b2a26}
 .ask-vmark{color:#1f4d2a;font-weight:600}
 .ask-deeper{border:1px solid #34566b;background:#fff;color:#2a4658;border-radius:999px;padding:5px 11px;font:600 12px system-ui,sans-serif;cursor:pointer;white-space:nowrap}
-.ask-deeper:hover{background:#eef3f6}.ask-deeper:disabled{opacity:.5;cursor:default}
+.ask-deeper:disabled{opacity:.5;cursor:default}
 .ask-deep-tag{display:block;font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;opacity:.75;margin-bottom:3px}
 
 .ask-answer .srcclass{font-family:ui-monospace,Menlo,monospace;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#2a4658;background:#eef3f6;border:1px solid #cfdce5;border-radius:4px;padding:2px 6px;white-space:nowrap}
@@ -408,4 +414,7 @@ PANEL_CSS = """
 .ask-back{max-width:720px;margin:12px auto;font-family:ui-monospace,Menlo,monospace;font-size:11px}
 @media (max-width:640px){.ask-panel{right:0;bottom:0;width:100vw;height:100vh;height:100dvh;border-radius:0;border:0}.ask-fab{right:12px;bottom:12px}}
 @media (prefers-reduced-motion:reduce){.ask-st.on .ask-st-dot{animation:none}}
+/* hover only where a pointer can hover: on iOS a hover rule makes the first tap "hover" and the
+   second tap act (Uroš, iPad, 2026-09-29) */
+@media (hover: hover){.ask-fab:hover{background:#151410}.ask-close:hover{color:#2b2a26}.ask-clear:hover{border-color:#34566b;color:#2a4658}.ask-ex:hover{border-color:#34566b;color:#2a4658}.ask-go:hover{background:#151410}.ask-deeper:hover{background:#eef3f6}}
 """

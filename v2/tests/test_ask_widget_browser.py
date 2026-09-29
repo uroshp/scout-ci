@@ -296,3 +296,59 @@ class Recovery(unittest.TestCase):
         self.assertEqual(page.locator(".ask-answer").count(), 2); self.assertEqual(page.locator(".ask-tgl").count(), 6)   # restored with its toggles
         page.locator(".ask-tgl").first.click(); self.assertTrue(page.locator(".ask-srcs").first.is_visible())          # ...and they work after restore
         self.assertEqual(self.errors, []); page.context.close()
+
+
+@unittest.skipUnless(_HAVE_PW, "playwright not installed")
+class Touch(unittest.TestCase):
+    """iPad (Uroš, 2026-09-29: "first tap focuses, second acts; wobbly on focus"): touch + mobile
+    emulation on an iPad-sized viewport. Single taps act, nothing auto-focuses the composer (a
+    programmatic focus pops the keyboard), hover rules are off, the page holds still."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.slug = display.list_battlecards()[0]
+        cls.p = [mock.patch.object(config, "RC_PASSWORD", ""), mock.patch.object(config, "RC_MODE", False),
+                 mock.patch.object(config, "ANALYTICS_ENABLED", False), mock.patch.object(display, "_commits_via_api", return_value=[]),
+                 mock.patch.object(config, "ASK_ENABLED", True), mock.patch.object(config, "ASK_CANNED_ID", "a_0123456789ab"),
+                 mock.patch.object(server, "_load_answer", side_effect=lambda aid: ANSWER if aid == "a_0123456789ab" else None)]
+        for p in cls.p:
+            p.start()
+        server.app.config["TESTING"] = True
+        cls.pw = sync_playwright().start()
+        try:
+            cls.browser = cls.pw.chromium.launch()
+        except Exception as e:   # pragma: no cover
+            cls.pw.stop()
+            for p in cls.p:
+                p.stop()
+            raise unittest.SkipTest(f"chromium not available: {e}")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.browser.close(); cls.pw.stop()
+        for p in cls.p:
+            p.stop()
+
+    def test_single_taps_and_no_auto_focus(self):
+        ctx = self.browser.new_context(viewport={"width": 1024, "height": 768}, has_touch=True, is_mobile=True, device_scale_factor=2)
+        page = ctx.new_page(); page.route("**/*", _serve)
+        errors = []; page.on("pageerror", lambda e: errors.append(str(e)))
+        page.goto(f"{ORIGIN}/c/{self.slug}")
+        self.assertFalse(page.evaluate("matchMedia('(hover: hover)').matches"))
+        self.assertFalse(page.evaluate("matchMedia('(pointer: fine)').matches"))
+        page.evaluate("window.scrollTo(0, 500)"); y0 = page.evaluate("window.scrollY")
+        page.tap("#ask-fab")                                                              # ONE tap opens
+        self.assertTrue(page.locator("#ask-panel").is_visible())
+        page.wait_for_timeout(250)
+        self.assertNotEqual(page.evaluate("document.activeElement && document.activeElement.id"), "ask-q")   # no auto-focus on touch
+        page.tap("#ask-q"); page.wait_for_timeout(250)                                   # ONE tap focuses
+        self.assertEqual(page.evaluate("document.activeElement.id"), "ask-q")
+        self.assertEqual(page.evaluate("window.scrollY"), y0)
+        page.keyboard.type("Is X cheaper?"); page.keyboard.press("Enter")
+        self.assertEqual(page.locator(".ask-user").count(), 1)
+        page.wait_for_selector(".ask-answer", timeout=15000); page.wait_for_timeout(300)
+        self.assertNotEqual(page.evaluate("document.activeElement && document.activeElement.id"), "ask-q")   # keyboard stays down after an answer
+        self.assertEqual(page.evaluate("window.scrollY"), y0)
+        page.tap(".ask-tgl >> nth=0"); self.assertTrue(page.locator(".ask-srcs").first.is_visible())   # ONE tap on a link
+        page.tap("#ask-close"); self.assertTrue(page.locator("#ask-panel").is_hidden())              # ONE tap minimizes
+        self.assertEqual(errors, []); ctx.close()
