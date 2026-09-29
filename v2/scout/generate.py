@@ -391,7 +391,11 @@ async def _run_retry(payload):
 
 def _extract_json(text: str) -> dict:
     """Pull the final JSON object out of the orchestrator's last message. Robust to
-    fenced (```json) output, nested braces, and prose around it."""
+    fenced (```json) output, nested braces, prose around it, and (2026-09-28) an object the
+    model closed one bracket short: Opus judge verdicts ended `...}]` + fence with the outer `}`
+    missing in ~1 in 5 propagation runs (Sep 2026), which sent two Opus calls to the bin and the
+    verdict to the Sonnet fallback (~$0.60 a run, verdicts not adjudicable). `_close_unbalanced`
+    appends ONLY the missing closers, never content; anything else still fails."""
     # Capture each fenced block's CONTENTS (non-greedy on the FENCE, not the braces),
     # last-first, and return the first that parses as a JSON object.
     for block in reversed(re.findall(r"```(?:json)?\s*(.*?)```", text, re.DOTALL)):
@@ -400,12 +404,54 @@ def _extract_json(text: str) -> dict:
             try:
                 return json.loads(block)
             except json.JSONDecodeError:
-                pass
+                repaired = _close_unbalanced(block)
+                if repaired is not None:
+                    return repaired
     # Fallback: the widest brace span in the text.
     start, end = text.find("{"), text.rfind("}")
     if start != -1 and end > start:
-        return json.loads(text[start:end + 1])
+        try:
+            return json.loads(text[start:end + 1])
+        except json.JSONDecodeError:
+            repaired = _close_unbalanced(text[start:])
+            if repaired is not None:
+                return repaired
+            raise
+    if start != -1:
+        repaired = _close_unbalanced(text[start:])
+        if repaired is not None:
+            return repaired
     raise ValueError("no JSON object found in orchestrator output")
+
+
+def _close_unbalanced(block: str):
+    """If `block` is a JSON object missing only its final closers (`}` / `]`), append them in the
+    right order and return the parsed object; else None. Strings are skipped when counting, so a
+    brace inside a "reason" cannot fool it. Deterministic, content-free."""
+    stack, in_str, esc = [], False, False
+    for ch in block:
+        if in_str:
+            if esc:
+                esc = False
+            elif ch == "\\":
+                esc = True
+            elif ch == '"':
+                in_str = False
+            continue
+        if ch == '"':
+            in_str = True
+        elif ch in "{[":
+            stack.append("}" if ch == "{" else "]")
+        elif ch in "}]":
+            if not stack or stack[-1] != ch:
+                return None
+            stack.pop()
+    if in_str or not stack or len(stack) > 3:
+        return None
+    try:
+        return json.loads(block.rstrip().rstrip(",") + "".join(reversed(stack)))
+    except json.JSONDecodeError:
+        return None
 
 
 def _accept_grounded(slug, grounded_kept, schema_problems):
