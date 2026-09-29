@@ -417,6 +417,40 @@ def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict],
     return subject, "\n".join(out)
 
 
+def _decision_card_html(d: dict) -> str:
+    """One propagation decision as a scannable card: the what-changed diff is the hero (additions
+    bold-green, removals struck red), then the feed note and the judge's reason in full."""
+    op = d.get("operation")
+    parts = [_hhead(str(op or "").upper(), d.get("section", ""), d.get("zone"),
+                    d.get("change_kind"), d.get("subject_key"))]
+    if op == "revise" and d.get("old_text"):
+        # tracked-changes: the edited paragraph with ONLY the changed words marked
+        parts.append('<div style="font-weight:600;margin:8px 0 3px">Edited paragraph '
+                     '(green = added, (struck) = removed)</div>'
+                     + f'<div style="background:#fbfaf6;border:1px solid #eceadf;border-radius:6px;'
+                     f'padding:12px 14px">{_diff_html(d.get("old_text"), d.get("new_text"))}</div>')
+    elif op == "retire":
+        parts.append('<div style="font-weight:600;margin:8px 0 3px;color:#b0301c">Removed from '
+                     'the card</div>')
+    else:  # add (or a revise with no prior text) — all-new content, shown plainly, not diffed
+        parts.append('<div style="font-weight:600;margin:8px 0 3px">New (all content is added)</div>'
+                     + _hblock(d.get("new_text")))
+    if d.get("length_cured") or d.get("condensed_at_gate"):
+        parts.append('<div style="color:#8a6322;font-size:14px;margin-top:8px">Auto-condensed to '
+                     'the 170-word cap after confirmation, re-verified by a blind judge.</div>')
+    # Feed note and Judge: each its OWN readable block, same body font, labeled — not tiny grey.
+    if d.get("feed_note"):
+        parts.append('<div style="margin-top:12px"><div style="font-weight:600">Feed note</div>'
+                     f'<div style="margin-top:2px">{_esc(_flat(d["feed_note"]))}</div></div>')
+    if d.get("judge_reason"):
+        parts.append('<div style="margin-top:12px"><div style="font-weight:600">Judge</div>'
+                     f'<div style="margin-top:2px">{_esc(_flat(d["judge_reason"]))}</div></div>')
+    if d.get("trigger_source_url"):
+        parts.append(f'<div style="margin-top:12px"><a style="{_C_LINK}" '
+                     f'href="{_esc(d["trigger_source_url"])}">source</a></div>')
+    return _hcard("".join(parts))
+
+
 def render_propagation_proposals_html(slug: str, meta: dict, decisions: list[dict],
                                       exhausted: list[dict] = None, unjudged: list[dict] = None,
                                       held: list[dict] = None, cost_note: str | None = None) -> str:
@@ -432,37 +466,7 @@ def render_propagation_proposals_html(slug: str, meta: dict, decisions: list[dic
                 f'{_esc(card)}. The card is <strong>unchanged</strong> — approve before they go live.</p>')
     else:
         lead = (f'<p>No changes confirmed for {_esc(card)}, but items below need your eyes.</p>')
-    blocks = []
-    for d in decisions:
-        op = d.get("operation")
-        parts = [_hhead(str(op or "").upper(), d.get("section", ""), d.get("zone"),
-                        d.get("change_kind"), d.get("subject_key"))]
-        if op == "revise" and d.get("old_text"):
-            # tracked-changes: the edited paragraph with ONLY the changed words marked
-            parts.append('<div style="font-weight:600;margin:8px 0 3px">Edited paragraph '
-                         '(green = added, (struck) = removed)</div>'
-                         + f'<div style="background:#fbfaf6;border:1px solid #eceadf;border-radius:6px;'
-                         f'padding:12px 14px">{_diff_html(d.get("old_text"), d.get("new_text"))}</div>')
-        elif op == "retire":
-            parts.append('<div style="font-weight:600;margin:8px 0 3px;color:#b0301c">Removed from '
-                         'the card</div>')
-        else:  # add (or a revise with no prior text) — all-new content, shown plainly, not diffed
-            parts.append('<div style="font-weight:600;margin:8px 0 3px">New (all content is added)</div>'
-                         + _hblock(d.get("new_text")))
-        if d.get("length_cured") or d.get("condensed_at_gate"):
-            parts.append('<div style="color:#8a6322;font-size:14px;margin-top:8px">Auto-condensed to '
-                         'the 170-word cap after confirmation, re-verified by a blind judge.</div>')
-        # Feed note and Judge: each its OWN readable block, same body font, labeled — not tiny grey.
-        if d.get("feed_note"):
-            parts.append('<div style="margin-top:12px"><div style="font-weight:600">Feed note</div>'
-                         f'<div style="margin-top:2px">{_esc(_flat(d["feed_note"]))}</div></div>')
-        if d.get("judge_reason"):
-            parts.append('<div style="margin-top:12px"><div style="font-weight:600">Judge</div>'
-                         f'<div style="margin-top:2px">{_esc(_flat(d["judge_reason"]))}</div></div>')
-        if d.get("trigger_source_url"):
-            parts.append(f'<div style="margin-top:12px"><a style="{_C_LINK}" '
-                         f'href="{_esc(d["trigger_source_url"])}">source</a></div>')
-        blocks.append(_hcard("".join(parts)))
+    blocks = [_decision_card_html(d) for d in decisions]
     for d in exhausted:
         att = d.get("attempts") or []
         rows = "".join(f'<li>{_esc(_flat(a.get("reason") or "(no reason)"))}</li>' for a in att)
@@ -694,3 +698,130 @@ def send_strategic_shift(meta: dict, lead: dict, dry_run: bool = True) -> dict:
         return {"sent": False, "reason": "no lead"}
     subject, body = render_strategic_shift(meta, lead)
     return _dispatch(subject, body, dry_run=dry_run)
+
+
+# --- LIVE mode (2026-09-29): one cumulative FYI per run, one "needs you" email only when there is
+# something to act on. Uroš: "I don't want several FYI emails. One cumulative FYI email is enough;
+# separate emails for issues I need to look into." Per-card emails stay the review-mode shape.
+
+def _alert_block_html(a: dict) -> str:
+    sev = a.get("severity")
+    badge = (f'<span style="font-size:11px;font-weight:700;color:#34566b;background:#eef1f4;'
+             f'border-radius:3px;padding:1px 5px;margin-right:6px">{_esc(sev.upper())}</span>' if sev else "")
+    parts = [f'<div style="font-weight:700">{badge}{_esc(a.get("headline", a.get("subject_key", "change")))}</div>']
+    old, new = a.get("old_value"), a.get("new_value")
+    if old or new:
+        parts.append('<div style="margin-top:4px">' + (f'<span style="{_C_DEL}">{_esc(old)}</span> → ' if old else "")
+                     + (f'<span style="{_C_ADD}">{_esc(new)}</span>' if new else "") + "</div>")
+    if a.get("so_what"):
+        parts.append(f'<div style="{_C_MUTED};font-size:13px;margin-top:4px">So what: {_esc(a["so_what"])}</div>')
+    if a.get("source_url"):
+        parts.append(f'<div style="font-size:13px;margin-top:4px"><a style="{_C_LINK}" href="{_esc(a["source_url"])}">source</a></div>')
+    return _hcard("".join(parts))
+
+
+def render_run_fyi(cards: list[dict], cost_total: float | None = None) -> tuple[str, str, str]:
+    """(subject, text, html) for the run's single FYI. `cards`: [{meta, alerts, applied (decisions
+    that landed), deferred_n, election}] for cards where anything happened."""
+    n_alerts = sum(len(c.get("alerts") or []) for c in cards)
+    n_applied = sum(len(c.get("applied") or []) for c in cards)
+    n_cards = len(cards)
+    bits = []
+    if n_alerts:
+        bits.append(f"{n_alerts} material change{'s' if n_alerts != 1 else ''}")
+    if n_applied:
+        bits.append(f"{n_applied} card update{'s' if n_applied != 1 else ''} applied")
+    subject = "Scout this morning: " + (", ".join(bits) if bits else "quiet run") + f" ({n_cards} card{'s' if n_cards != 1 else ''})"
+    lead = (f'<p><strong>{", ".join(bits) if bits else "Nothing material"}</strong> across {n_cards} '
+            f'card{"s" if n_cards != 1 else ""}. Updates are already on the cards; nothing here needs approval.</p>')
+    text_lines = [subject, ""]
+    blocks = []
+    for c in cards:
+        meta = c.get("meta") or {}
+        label = _card_label(meta)
+        blocks.append(f'<h2 style="font-size:17px;margin:22px 0 8px">{_esc(label)}</h2>')
+        text_lines.append(f"== {label} ==")
+        for a in c.get("alerts") or []:
+            blocks.append(_alert_block_html(a))
+            text_lines.append(f"- CHANGE {a.get('headline') or a.get('subject_key')}: {a.get('old_value') or ''} -> {a.get('new_value') or ''}")
+        for d in c.get("applied") or []:
+            blocks.append(_decision_card_html(d))
+            text_lines.append(f"- APPLIED {str(d.get('operation') or '').upper()} {d.get('subject_key')}: {_flat(d.get('feed_note') or d.get('new_text') or '')[:200]}")
+        if c.get("election"):
+            el = c["election"]
+            blocks.append(_hcard(f'<div style="font-weight:700">Today\'s angle changed</div><div style="margin-top:4px">'
+                                 f'{_esc(_flat(el.get("feed_note") or el.get("lead_reason") or el.get("winner_subject_key") or ""))}</div>'))
+            text_lines.append(f"- ANGLE {_flat(el.get('feed_note') or el.get('winner_subject_key') or '')[:200]}")
+        if c.get("deferred_n"):
+            blocks.append(f'<div style="{_C_MUTED};font-size:13px">{c["deferred_n"]} routed update(s) deferred by the '
+                          'consequentiality gate (in the decision log).</div>')
+            text_lines.append(f"- {c['deferred_n']} routine update(s) deferred by the consequentiality gate")
+        text_lines.append("")
+    foot = []
+    if cost_total is not None:
+        foot.append(f'<div style="{_C_MUTED};font-size:13px">Run cost: ${cost_total:.2f}</div>')
+        text_lines.append(f"Run cost: ${cost_total:.2f}")
+    foot.append(f'<div style="{_C_MUTED};font-size:12px;margin-top:10px">— Scout (every claim verified against its '
+                'source; every applied update passed the authorship judge and the provenance gate)</div>')
+    return subject, "\n".join(text_lines), _hdoc(lead, "".join(blocks), "".join(foot))
+
+
+def send_run_fyi(cards: list[dict], cost_total: float | None = None, dry_run: bool = True) -> dict:
+    if not cards:
+        return {"sent": False, "reason": "nothing to report"}
+    subject, text, html = render_run_fyi(cards, cost_total)
+    return _dispatch(subject, text, dry_run=dry_run, html=html)
+
+
+def render_run_issues(cards: list[dict]) -> tuple[str, str, str]:
+    """(subject, text, html) for the run's "needs you" email. `cards`: [{meta, held, unjudged,
+    exhausted, provenance_issues, pipeline_health, errors}] for cards with at least one item."""
+    n = sum(len(c.get("held") or []) + len(c.get("unjudged") or []) + len(c.get("exhausted") or [])
+            + len(c.get("provenance_issues") or []) + (1 if c.get("pipeline_health") else 0) + len(c.get("errors") or [])
+            for c in cards)
+    subject = f"Scout needs you: {n} item{'s' if n != 1 else ''} on {len(cards)} card{'s' if len(cards) != 1 else ''}"
+    lead = ('<p><strong>These did not go on a card by themselves.</strong> Each says why and what to do; '
+            'everything else this morning was applied and is in the FYI.</p>')
+    blocks, text_lines = [], [subject, ""]
+    for c in cards:
+        meta = c.get("meta") or {}
+        label = _card_label(meta)
+        blocks.append(f'<h2 style="font-size:17px;margin:22px 0 8px">{_esc(label)}</h2>')
+        text_lines.append(f"== {label} ==")
+        for d in c.get("held") or []:
+            blocks.append(_hcard(f'<div style="font-weight:700;color:#8a6322">HELD, needs curing</div>'
+                                 f'<div style="{_C_MUTED};font-size:13px;margin:4px 0 8px">{_esc(_flat(d.get("held_reason") or d.get("format_reason") or "render gate"))}'
+                                 '. Cure it, then approve with scout-proposals.</div>' + _decision_card_html(d), accent="#e2c98a"))
+            text_lines.append(f"- HELD {d.get('subject_key')}: {_flat(d.get('held_reason') or 'render gate')}")
+        for d in c.get("unjudged") or []:
+            blocks.append(_hcard('<div style="font-weight:700;color:#8a6322">UNJUDGED (judge unavailable)</div>'
+                                 f'<div style="{_C_MUTED};font-size:13px;margin:4px 0 8px">Not applied. Approve manually with allow_unjudged if it holds up.</div>'
+                                 + _decision_card_html(d), accent="#e2c98a"))
+            text_lines.append(f"- UNJUDGED {d.get('subject_key')}")
+        for d in c.get("exhausted") or []:
+            att = d.get("attempts") or []
+            rows = "".join(f"<li>{_esc(_flat(a.get('reason') or '(no reason)'))}</li>" for a in att)
+            blocks.append(_hcard('<div style="font-weight:700;color:#b0301c">AUTHORING FAILED</div>'
+                                 f'<div style="margin-top:4px">{_esc(d.get("subject_key") or "")}</div><ul>{rows}</ul>', accent="#e5a99a"))
+            text_lines.append(f"- AUTHORING FAILED {d.get('subject_key')}")
+        for i in c.get("provenance_issues") or []:
+            blocks.append(_hcard('<div style="font-weight:700;color:#b0301c">PROVENANCE GATE: nothing from this card\'s propagation was written</div>'
+                                 f'<div style="margin-top:4px">{_esc(str(i))}</div>', accent="#e5a99a"))
+            text_lines.append(f"- PROVENANCE {i}")
+        if c.get("pipeline_health"):
+            blocks.append(_hcard(f'<div style="font-weight:700;color:#b0301c">PIPELINE HEALTH</div><div style="margin-top:4px">{_esc(str(c["pipeline_health"]))}</div>', accent="#e5a99a"))
+            text_lines.append(f"- HEALTH {c['pipeline_health']}")
+        for e in c.get("errors") or []:
+            blocks.append(_hcard(f'<div style="font-weight:700;color:#b0301c">ERROR</div><div style="margin-top:4px">{_esc(str(e))}</div>', accent="#e5a99a"))
+            text_lines.append(f"- ERROR {e}")
+        text_lines.append("")
+    foot = [f'<div style="{_C_MUTED};font-size:12px;margin-top:10px">— Scout</div>']
+    return subject, "\n".join(text_lines), _hdoc(lead, "".join(blocks), "".join(foot))
+
+
+def send_run_issues(cards: list[dict], dry_run: bool = True) -> dict:
+    cards = [c for c in cards if any(c.get(k) for k in ("held", "unjudged", "exhausted", "provenance_issues", "pipeline_health", "errors"))]
+    if not cards:
+        return {"sent": False, "reason": "no issues"}
+    subject, text, html = render_run_issues(cards)
+    return _dispatch(subject, text, dry_run=dry_run, html=html)
