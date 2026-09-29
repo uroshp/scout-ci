@@ -17,7 +17,8 @@ images:
   - '${_IMAGE}'
 substitutions:
   _SERVICE: 'scout-engine'
-  _TAG: 'dev'
-  _IMAGE: 'us-west1-docker.pkg.dev/${PROJECT_ID}/cloud-run-source-deploy/${_SERVICE}:${_TAG}'
+  # gcloud builds submit passes _IMAGE fully formed (a substitution used only inside another's
+  # default is rejected as "not matched in the template"); a trigger would set it from SHORT_SHA.
+  _IMAGE: 'us-west1-docker.pkg.dev/${PROJECT_ID}/cloud-run-source-deploy/scout-engine:dev'
 options:
   logging: CLOUD_LOGGING_ONLY
