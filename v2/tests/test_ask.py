@@ -394,3 +394,33 @@ class DeepCap(unittest.TestCase):
         a = ask.ask("q", research=_research(facts, answer), verify=_verify({i: ("confirm", "none", "ok") for i in range(6)}), grounder=_grounder({"n1"}))
         self.assertEqual(len(a["paragraphs"]), 4); self.assertEqual(a["trajectory"]["trimmed"], 2); self.assertEqual(a["kind"], "deep")
         self.assertFalse(any("restates" in c["reason"] for c in a["cut_log"]))   # numbered distinct sentences are not restatements
+
+
+class CiteRepair(unittest.TestCase):
+    def test_a_number_from_an_uncited_known_fact_gets_its_cite(self):
+        facts = {"c1": _fact("c1", "https://openai.com/p", "GPT-6 Astra: $10 per million input tokens, $50 per million output tokens"),
+                 "c2": _fact("c2", "https://anthropic.com/p", "Claude Opus 5.5: $4 per million input tokens, $20 per million output tokens"),
+                 "c3": _fact("c3", "https://x.com/p", "Nothing relevant here at all, no figures.")}
+        e = {"text": "GPT-6 Astra lists at $10/$50 while Opus 5.5 lists at $4/$20.", "cites": ["c1"]}
+        self.assertTrue(ask.floor_check(e, facts))                       # $4 and $20 are not in c1
+        self.assertEqual(ask.repair_cites(e, facts), ["c2"])
+        self.assertEqual(e["cites"], ["c1", "c2"]); self.assertEqual(ask.floor_check(e, facts), [])
+        # an invented number stays unsupported: nothing is added, the floor still cuts
+        e2 = {"text": "Astra costs $12 per million.", "cites": ["c1"]}
+        self.assertEqual(ask.repair_cites(e2, facts), []); self.assertTrue(ask.floor_check(e2, facts))
+
+    def test_quick_path_repairs_then_verifies(self):
+        with mock.patch.object(ask, "known_facts_for", return_value=[
+                dict(_fact("c1", "https://openai.com/p", "GPT-6 Astra: $10 per million input tokens, $50 per million output tokens"), from_card=True),
+                dict(_fact("c2", "https://anthropic.com/p", "Claude Opus 5.5: $4 per million input tokens, $20 per million output tokens"), from_card=True)]), \
+             mock.patch.object(ask, "infer_competitor", return_value=("OpenAI", "anthropic__vs__openai__x")), \
+             mock.patch.object(ask.store, "load_meta", return_value={"competitor": "OpenAI", "my_company": "Anthropic"}), \
+             mock.patch.object(ask, "named_companies", return_value=["OpenAI", "Anthropic"]):
+            draft = lambda q, known, ctx, history=None: {"text": "```json\n" + json.dumps({"answer": [{"text": "GPT-6 Astra lists at $10/$50 while Opus 5.5 lists at $4/$20.", "cites": ["c1"]}], "unanswered": []}) + "\n```", "cost_usd": 0.1}
+            seen = {}
+            def verify(entries, facts_by_id):
+                seen["cites"] = entries[0]["cites"]
+                return _verify({0: ("confirm", "none", "ok")})(entries, facts_by_id)
+            a = ask.quick_ask("Is OpenAI cheaper?", draft=draft, verify=verify)
+        self.assertEqual(seen["cites"], ["c1", "c2"])                     # the judge saw both facts
+        self.assertEqual(len(a["paragraphs"]), 1); self.assertEqual(a["paragraphs"][0]["cites"], [1, 2]); self.assertEqual(a["trajectory"]["cites_repaired"], 1)
