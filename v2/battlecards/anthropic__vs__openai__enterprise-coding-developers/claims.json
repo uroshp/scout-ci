@@ -2532,5 +2532,27 @@
         "grounded": false
       }
     ]
+  },
+  {
+    "subject_key": "openai | softbank-junk-bond-financing",
+    "claim": "OpenAI's biggest backer is paying up to keep funding it. On September 24, 2026 SoftBank priced roughly $11 billion of dollar and euro junk bonds, one of the largest high-yield corporate offerings on record, at the highest yields it has ever paid: 8.625% on 3.5-year notes, 9.25% on 5.5-year securities and 9.75% on the 7.5-year tranche. Proceeds go toward SoftBank's commitments nearing $65 billion to OpenAI. The cost to insure SoftBank debt against default rose to its highest since April 2025.",
+    "claim_type": "fact",
+    "section": "snapshot",
+    "zone": null,
+    "order": 8,
+    "source_url": "https://www.japantimes.co.jp/business/2026/09/24/companies/softbank-junk-bond-steep-price-pay/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "The firm sold $1 billion of 3.5-year bonds at a yield of 8.625% and $4.5 billion of 5.5-year securities at a yield of 9.25%",
+    "as_of": "2026-09-24",
+    "confidence": "high",
+    "id": "c_ec1339ff8795",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-29",
+      "detail": null
+    }
   }
 ]
