@@ -19,6 +19,7 @@
 # ── RUN ─────────────────────────────────────────────────────────────────────────────────────
 #   export GCP_PROJECT_ID=scout-monitor
 #   export SCOUT_RC_PASSWORD='choose-a-password'      # the review gate; do NOT commit this
+#   export SCOUT_ASK_CANNED=a_3fcddc763fa9              # optional: the stored answer the Ask panel replays on RC
 #   bash v2/scripts/setup_rc.sh
 #
 # Re-running is safe: the secret gets a new version, the service and trigger are updated in place.
@@ -53,7 +54,7 @@ IMAGE=$(gcloud run services describe "$PROD_SERVICE" --region "$REGION" \
 echo "  seeding $RC_SERVICE from $IMAGE"
 gcloud run deploy "$RC_SERVICE" --image "$IMAGE" --region "$REGION" --allow-unauthenticated \
   --min-instances 0 --max-instances 2 --memory 512Mi --cpu 1 --port 8080 --quiet \
-  --set-env-vars "SCOUT_RC=1,SCOUT_ANALYTICS=0,SCOUT_SELFSERVE_DATA_PREFIX=rc,SCOUT_SELFSERVE_DATA_READ_FALLBACK=1,SCOUT_SELFSERVE_EMAIL=1,SELFSERVE_REPO=${DATA_REPO}" \
+  --set-env-vars "SCOUT_RC=1,SCOUT_ANALYTICS=0,SCOUT_SELFSERVE_DATA_PREFIX=rc,SCOUT_SELFSERVE_DATA_READ_FALLBACK=1,SCOUT_SELFSERVE_EMAIL=1,SELFSERVE_REPO=${DATA_REPO},SCOUT_ASK=1,SCOUT_ASK_CANNED=${SCOUT_ASK_CANNED:-}" \
   --set-secrets "SELFSERVE_GH_TOKEN=scout-gh-token:latest,SCOUT_RC_PASSWORD=scout-rc-password:latest"
 RC_URL=$(gcloud run services describe "$RC_SERVICE" --region "$REGION" --format='value(status.url)')
 gcloud run services update "$RC_SERVICE" --region "$REGION" --quiet \
