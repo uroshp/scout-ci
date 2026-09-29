@@ -110,10 +110,15 @@ def button_and_panel_html(slug: str | None, meta: dict | None, persona: str | No
     cfg = json.dumps({"slug": slug, "competitor": comp, "my_company": meta.get("my_company") or "", "persona": persona or "",
                       "canned": canned})
     review = ('<div class="ask-review">Review build: every question replays one stored answer.</div>' if canned else "")
+    # The script is a RAW template, not part of the f-string: an f-string turned the JS `'\n\n'`
+    # into two real newlines inside a string literal (a syntax error that silently killed every
+    # handler on RC, 2026-09-28), and its brace doubling made the JS unreadable. `onsubmit="return
+    # false"` is the belt to that: even with no script the form can never navigate the page.
+    script = _PANEL_JS.replace("__CFG__", cfg).replace("__STAGES__", stages_js)
     return f'''
 <button type="button" class="ask-fab" id="ask-fab" aria-haspopup="dialog" aria-controls="ask-panel">
   <span class="ask-fab-dot"></span>Ask Scout<span class="ask-fab-n" id="ask-fab-n" hidden></span></button>
-<aside class="ask-panel" id="ask-panel" role="dialog" aria-modal="true" aria-labelledby="ask-title" hidden>
+<aside class="ask-panel" id="ask-panel" role="dialog" aria-labelledby="ask-title" hidden>
   <div class="ask-head"><div><div class="ey">Ask Scout</div><h3 id="ask-title">{_html.escape(ctx)}</h3></div>
     <div class="ask-headbtns"><button type="button" class="ask-clear" id="ask-clear" title="Start a new thread" hidden>New thread</button>
     <button type="button" class="ask-close" id="ask-close" aria-label="Minimize" title="Minimize">–</button></div></div>
@@ -124,80 +129,112 @@ def button_and_panel_html(slug: str | None, meta: dict | None, persona: str | No
       <div class="ask-exs">{ex_html}</div>
     </div>
   </div>
-  <form class="ask-composer" id="ask-form">
-    <textarea id="ask-q" rows="1" maxlength="400" placeholder="Ask a question" aria-label="Your question"></textarea>
+  <form class="ask-composer" id="ask-form" onsubmit="return false">
+    <textarea id="ask-q" rows="1" maxlength="400" placeholder="Ask a question" aria-label="Your question" enterkeyhint="send"></textarea>
     <button type="submit" class="ask-go" id="ask-go" aria-label="Ask">Ask</button>
   </form>
 </aside>
-<script>(function(){{
-var CFG={cfg}, STAGES={stages_js};
+<script>{script}</script>'''
+
+
+# The widget's script. Plain JS (single braces, real backslash escapes); `__CFG__` and `__STAGES__`
+# are replaced with JSON at render time. tests/test_viewer_routes.py syntax-checks the rendered
+# script with node and drives it in a headless browser.
+_PANEL_JS = r"""(function(){
+var CFG=__CFG__, STAGES=__STAGES__;
 var fab=document.getElementById('ask-fab'), panel=document.getElementById('ask-panel');
 var form=document.getElementById('ask-form'), q=document.getElementById('ask-q'), go=document.getElementById('ask-go');
 var thread=document.getElementById('ask-thread'), intro=document.getElementById('ask-intro'), clearBtn=document.getElementById('ask-clear');
-var history=[], busy=false, lastFocus=null, timer=null, t0=0, KEY='scout_ask_thread_v1', OPEN_KEY='scout_ask_open_v1', MAX=20;
 var fabN=document.getElementById('ask-fab-n');
-function load(){{try{{var raw=localStorage.getItem(KEY);var arr=raw?JSON.parse(raw):[];if(!Array.isArray(arr))return [];return arr.slice(-MAX);}}catch(e){{return [];}}}}
-function save(){{try{{localStorage.setItem(KEY,JSON.stringify(history.slice(-MAX)));}}catch(e){{}}}}
-function esc(s){{return String(s).replace(/[&<>"]/g,function(c){{return {{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}}[c];}});}}
-function badge(){{var n=history.length;fabN.hidden=!n;fabN.textContent=n?String(n):'';}}
-function open(){{lastFocus=document.activeElement;panel.hidden=false;fab.hidden=true;try{{localStorage.setItem(OPEN_KEY,'1');}}catch(e){{}}scrollEnd();setTimeout(function(){{q.focus();}},30);}}
-function minimize(){{panel.hidden=true;fab.hidden=false;badge();try{{localStorage.setItem(OPEN_KEY,'0');}}catch(e){{}}if(lastFocus&&lastFocus.focus)lastFocus.focus();}}
-fab.addEventListener('click',open);document.getElementById('ask-close').addEventListener('click',minimize);
-document.addEventListener('keydown',function(e){{if(e.key==='Escape'&&!panel.hidden)minimize();}});
-panel.addEventListener('keydown',function(e){{if(e.key!=='Tab')return;var f=panel.querySelectorAll('button:not([disabled]),textarea,a[href],summary,[tabindex]:not([tabindex="-1"])');if(!f.length)return;var a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){{z.focus();e.preventDefault();}}else if(!e.shiftKey&&document.activeElement===z){{a.focus();e.preventDefault();}}}});
-Array.prototype.forEach.call(document.querySelectorAll('.ask-ex'),function(b){{b.addEventListener('click',function(){{q.value=b.textContent;submit();}});}});
-q.addEventListener('keydown',function(e){{if(e.key==='Enter'&&!e.shiftKey){{e.preventDefault();submit();}}}});
-q.addEventListener('input',function(){{q.style.height='auto';q.style.height=Math.min(q.scrollHeight,140)+'px';}});
-function scrollEnd(){{thread.scrollTop=thread.scrollHeight;}}
-function add(html,cls){{var d=document.createElement('div');d.className='ask-msg '+(cls||'');d.innerHTML=html;thread.appendChild(d);scrollEnd();return d;}}
-function stageHtml(k,extra){{var i=STAGES.findIndex(function(s){{return s.k===k;}});return STAGES.map(function(s,j){{var st=j<i?'done':(j===i?'on':'');return '<div class="ask-st '+st+'"><span class="ask-st-dot"></span><span>'+s.t+(j===i&&extra?(' · '+extra):'')+'</span></div>';}}).join('')+'<div class="ask-elapsed" id="ask-elapsed">0 s</div>';}}
-function tick(){{var s=Math.round((Date.now()-t0)/1000);var el=document.getElementById('ask-elapsed');if(el)el.textContent=s+' s';}}
-function wire(box){{Array.prototype.forEach.call(box.querySelectorAll('.ask-cite'),function(a){{a.addEventListener('click',function(e){{e.preventDefault();var t=box.querySelector('#ask-src-'+a.getAttribute('data-n'));if(t){{t.classList.add('lit');t.scrollIntoView({{block:'center',behavior:'smooth'}});setTimeout(function(){{t.classList.remove('lit');}},1600);}}}});}});var l=box.querySelector('.ask-link');if(l)l.addEventListener('click',function(e){{e.preventDefault();var u=location.origin+l.getAttribute('href');try{{navigator.clipboard.writeText(u);l.textContent='Link copied';}}catch(err){{location.href=u;}}}});}}
-function setBusy(b){{busy=b;go.disabled=b;q.disabled=b;q.placeholder=b?'Scout is working…':(history.length?'Ask a follow-up':'Ask a question');}}
-function submit(){{if(busy)return;var question=q.value.trim();if(!question)return;
+var history=[], busy=false, lastFocus=null, timer=null, t0=0, KEY='scout_ask_thread_v1', OPEN_KEY='scout_ask_open_v1', MAX=20;
+function load(){try{var raw=localStorage.getItem(KEY);var arr=raw?JSON.parse(raw):[];if(!Array.isArray(arr))return [];return arr.slice(-MAX);}catch(e){return [];}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(history.slice(-MAX)));}catch(e){}}
+function remember(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function badge(){var n=history.length;fabN.hidden=!n;fabN.textContent=n?String(n):'';}
+function focusQ(){try{q.focus({preventScroll:true});}catch(e){q.focus();}}
+function scrollEnd(){thread.scrollTop=thread.scrollHeight;}
+// open / minimize: the widget is NOT modal (the page stays usable behind it); Esc minimizes.
+function open(){lastFocus=document.activeElement;panel.hidden=false;fab.hidden=true;remember(OPEN_KEY,'1');scrollEnd();setTimeout(focusQ,30);}
+function minimize(){panel.hidden=true;fab.hidden=false;badge();remember(OPEN_KEY,'0');if(lastFocus&&lastFocus.focus&&lastFocus!==document.body){try{lastFocus.focus({preventScroll:true});}catch(e){}}}
+fab.addEventListener('click',open);
+document.getElementById('ask-close').addEventListener('click',minimize);
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!panel.hidden)minimize();});
+Array.prototype.forEach.call(document.querySelectorAll('.ask-ex'),function(b){b.addEventListener('click',function(){q.value=b.textContent;submit();});});
+// Enter sends, Shift+Enter is a newline (the chat convention)
+q.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submit();}});
+q.addEventListener('input',function(){q.style.height='auto';q.style.height=Math.min(q.scrollHeight,140)+'px';});
+form.addEventListener('submit',function(e){e.preventDefault();submit();});
+function add(html,cls){var d=document.createElement('div');d.className='ask-msg '+(cls||'');d.innerHTML=html;thread.appendChild(d);scrollEnd();return d;}
+function stageHtml(k,extra){var i=STAGES.findIndex(function(s){return s.k===k;});return STAGES.map(function(s,j){var st=j<i?'done':(j===i?'on':'');return '<div class="ask-st '+st+'"><span class="ask-st-dot"></span><span>'+s.t+(j===i&&extra?(' · '+esc(extra)):'')+'</span></div>';}).join('')+'<div class="ask-elapsed" id="ask-elapsed">0 s</div>';}
+function tick(){var s=Math.round((Date.now()-t0)/1000);var el=document.getElementById('ask-elapsed');if(el)el.textContent=s+' s';}
+function wire(box){
+  // [n] scrolls the THREAD to the source line (never the page: scrollIntoView would move the document too)
+  Array.prototype.forEach.call(box.querySelectorAll('.ask-cite'),function(a){a.addEventListener('click',function(e){e.preventDefault();var t=box.querySelector('#ask-src-'+a.getAttribute('data-n'));if(t){t.classList.add('lit');thread.scrollTop=Math.max(0,t.offsetTop-thread.offsetTop-thread.clientHeight/2+t.offsetHeight/2);setTimeout(function(){t.classList.remove('lit');},1600);}});});
+  var l=box.querySelector('.ask-link');if(l)l.addEventListener('click',function(e){e.preventDefault();var u=location.origin+l.getAttribute('href');try{navigator.clipboard.writeText(u);l.textContent='Link copied';}catch(err){location.href=u;}});
+}
+function setBusy(b){busy=b;go.disabled=b;q.disabled=b;q.placeholder=b?'Scout is working…':(history.length?'Ask a follow-up':'Ask a question');}
+function fail(prog,question,text){done(prog,'<p class="ask-p ask-none">'+esc(text)+'</p>',null,question);}
+function submit(){
+  if(busy)return;var question=q.value.trim();if(!question)return;
   if(intro)intro.hidden=true;q.value='';q.style.height='auto';setBusy(true);
   add('<div class="ask-bubble">'+esc(question)+'</div>','ask-user');
   var prog=add(stageHtml('facts'),'ask-scout ask-working');t0=Date.now();timer=setInterval(tick,1000);
-  var payload={{question:question,slug:CFG.slug,competitor:CFG.competitor,my_company:CFG.my_company,persona:CFG.persona,history:history.slice(-6).map(function(h){{return {{question:h.question,answer_id:h.answer_id}};}})}};
-  fetch('/api/ask',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify(payload)}})
-  .then(function(r){{return r.json().then(function(j){{return {{ok:r.ok,j:j}};}});}})
-  .then(function(x){{if(!x.ok||!x.j){{done(prog,'<p class="ask-p ask-none">'+esc((x.j&&x.j.message)||'Ask Scout is not available right now.')+'</p>',null,question);return;}}
-    if(x.j.mode==='engine'){{stream(x.j.engine,x.j.token,payload,prog,question);return;}}
-    if(!x.j.id){{done(prog,'<p class="ask-p ask-none">'+esc(x.j.message||'Ask Scout is not available right now.')+'</p>',null,question);return;}}
+  var payload={question:question,slug:CFG.slug,competitor:CFG.competitor,my_company:CFG.my_company,persona:CFG.persona,
+               history:history.slice(-6).map(function(h){return {question:h.question,answer_id:h.answer_id};})};
+  fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+  .then(function(x){
+    if(!x.ok||!x.j){fail(prog,question,(x.j&&x.j.message)||'Ask Scout is not available right now.');return;}
+    if(x.j.mode==='engine'){stream(x.j.engine,x.j.token,payload,prog,question);return;}
+    if(!x.j.id){fail(prog,question,x.j.message||'Ask Scout is not available right now.');return;}
     var plan=x.j.stages||[],i=0;
-    function next(){{if(i>=plan.length){{fetch('/api/answers/'+x.j.id).then(function(r){{return r.json();}}).then(function(a){{done(prog,a.html||'',x.j.id,question);}}).catch(function(){{done(prog,'<p class="ask-p ask-none">The answer could not be loaded.</p>',null,question);}});return;}}
-      prog.innerHTML=stageHtml(plan[i].k,plan[i].extra||'');scrollEnd();var d=plan[i].ms||1200;i++;setTimeout(next,d);}}
-    next();}})
-  .catch(function(){{done(prog,'<p class="ask-p ask-none">Ask Scout is not reachable right now.</p>',null,question);}});
-}}
-function stream(engine,token,payload,prog,question){{
-  fetch(engine+'/ask',{{method:'POST',headers:{{'Content-Type':'application/json','Authorization':'Bearer '+token}},body:JSON.stringify(payload)}})
-  .then(function(r){{
-    if(!r.ok){{return r.json().then(function(j){{done(prog,'<p class="ask-p ask-none">'+esc((j&&j.message)||('Ask Scout returned '+r.status))+'</p>',null,question);}}).catch(function(){{done(prog,'<p class="ask-p ask-none">Ask Scout returned '+r.status+'.</p>',null,question);}});}}
-    var reader=r.body.getReader(),dec=new TextDecoder(),buf='';
-    function pump(){{return reader.read().then(function(c){{
-      if(c.done){{if(!prog.classList.contains('ask-done'))done(prog,'<p class="ask-p ask-none">The connection closed before the answer arrived.</p>',null,question);return;}}
-      buf+=dec.decode(c.value,{{stream:true}});var parts=buf.split('\n\n');buf=parts.pop();
-      parts.forEach(function(p){{var line=p.split('\n').filter(function(l){{return l.indexOf('data: ')===0;}})[0];if(!line)return;var ev;try{{ev=JSON.parse(line.slice(6));}}catch(e){{return;}}
-        if(ev.stage){{prog.innerHTML=stageHtml(ev.stage,ev.extra||'');scrollEnd();}}
-        else if(ev.done){{prog.classList.add('ask-done');done(prog,ev.html||'',ev.id,question);}}
-        else if(ev.error){{prog.classList.add('ask-done');done(prog,'<p class="ask-p ask-none">'+esc(ev.error)+'</p>',null,question);}}}});
-      return pump();}});}}
-    return pump();}})
-  .catch(function(){{done(prog,'<p class="ask-p ask-none">Ask Scout is not reachable right now.</p>',null,question);}});
-}}
-function done(box,html,id,question){{clearInterval(timer);box.className='ask-msg ask-scout';box.innerHTML=html;wire(box);if(id){{history.push({{question:question,answer_id:id,html:html}});save();clearBtn.hidden=false;}}badge();setBusy(false);scrollEnd();if(!panel.hidden)setTimeout(function(){{q.focus();}},20);}}
-form.addEventListener('submit',function(e){{e.preventDefault();submit();}});
-clearBtn.addEventListener('click',function(){{history=[];save();Array.prototype.forEach.call(thread.querySelectorAll('.ask-msg'),function(m){{m.remove();}});if(intro)intro.hidden=false;clearBtn.hidden=true;badge();setBusy(false);q.focus();}});
+    function next(){
+      if(i>=plan.length){fetch('/api/answers/'+x.j.id).then(function(r){return r.json();}).then(function(a){done(prog,a.html||'',x.j.id,question);}).catch(function(){fail(prog,question,'The answer could not be loaded.');});return;}
+      prog.innerHTML=stageHtml(plan[i].k,plan[i].extra||'');scrollEnd();var d=plan[i].ms||1200;i++;setTimeout(next,d);
+    }
+    next();
+  })
+  .catch(function(){fail(prog,question,'Ask Scout is not reachable right now.');});
+}
+function stream(engine,token,payload,prog,question){
+  fetch(engine+'/ask',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(payload)})
+  .then(function(r){
+    if(!r.ok){return r.json().then(function(j){fail(prog,question,(j&&j.message)||('Ask Scout returned '+r.status));}).catch(function(){fail(prog,question,'Ask Scout returned '+r.status+'.');});}
+    var reader=r.body.getReader(),dec=new TextDecoder(),buf='',finished=false;
+    function handle(ev){
+      if(ev.stage){prog.innerHTML=stageHtml(ev.stage,ev.extra||'');scrollEnd();}
+      else if(ev.done){finished=true;done(prog,ev.html||'',ev.id,question);}
+      else if(ev.error){finished=true;fail(prog,question,ev.error);}
+    }
+    function pump(){return reader.read().then(function(c){
+      if(c.done){if(!finished)fail(prog,question,'The connection closed before the answer arrived.');return;}
+      buf+=dec.decode(c.value,{stream:true});var parts=buf.split('\n\n');buf=parts.pop();
+      parts.forEach(function(p){var line=p.split('\n').filter(function(l){return l.indexOf('data: ')===0;})[0];if(!line)return;var ev;try{ev=JSON.parse(line.slice(6));}catch(e){return;}handle(ev);});
+      return pump();
+    });}
+    return pump();
+  })
+  .catch(function(){fail(prog,question,'Ask Scout is not reachable right now.');});
+}
+function done(box,html,id,question){
+  clearInterval(timer);box.className='ask-msg ask-scout';box.innerHTML=html;wire(box);
+  if(id){history.push({question:question,answer_id:id,html:html});save();clearBtn.hidden=false;}
+  badge();setBusy(false);scrollEnd();if(!panel.hidden)setTimeout(focusQ,20);
+}
+clearBtn.addEventListener('click',function(){history=[];save();Array.prototype.forEach.call(thread.querySelectorAll('.ask-msg'),function(m){m.remove();});if(intro)intro.hidden=false;clearBtn.hidden=true;badge();setBusy(false);focusQ();});
 // restore the thread this browser already has (across cards and visits), and whether it was open
 history=load();
-if(history.length){{if(intro)intro.hidden=true;clearBtn.hidden=false;history.forEach(function(h){{add('<div class="ask-bubble">'+esc(h.question)+'</div>','ask-user');var b=add(h.html||'','ask-scout');wire(b);}});}}
+if(history.length){if(intro)intro.hidden=true;clearBtn.hidden=false;history.forEach(function(h){add('<div class="ask-bubble">'+esc(h.question)+'</div>','ask-user');var b=add(h.html||'','ask-scout');wire(b);});}
 badge();setBusy(false);
-try{{if(localStorage.getItem(OPEN_KEY)==='1'){{panel.hidden=false;fab.hidden=true;scrollEnd();}}}}catch(e){{}}
-}})();</script>'''
+try{if(localStorage.getItem(OPEN_KEY)==='1'){panel.hidden=false;fab.hidden=true;scrollEnd();}}catch(e){}
+})();"""
 
 
 PANEL_CSS = """
+/* the widget's own `display` values would beat the UA's [hidden]{display:none}; this keeps the
+   hidden attribute (the script's only show/hide mechanism) authoritative */
+.ask-fab[hidden],.ask-panel[hidden],.ask-fab-n[hidden],.ask-clear[hidden],.ask-intro[hidden]{display:none!important}
 .ask-fab{position:fixed;right:18px;bottom:18px;z-index:60;display:inline-flex;align-items:center;gap:8px;padding:11px 16px;border:0;border-radius:999px;background:#2b2a26;color:#fff;font:600 14px/1 system-ui,-apple-system,sans-serif;box-shadow:0 6px 20px rgba(20,18,10,.22);cursor:pointer}
 .ask-fab:hover{background:#151410}.ask-fab-dot{width:8px;height:8px;border-radius:50%;background:#7ed0a6;box-shadow:0 0 0 3px rgba(126,208,166,.28)}
 .ask-fab-n{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#7ed0a6;color:#12301f;font:700 11px/18px system-ui,sans-serif;text-align:center}
@@ -216,7 +253,8 @@ PANEL_CSS = """
 .ask-scout{background:#fff;border:1px solid #e3ded2;border-radius:14px 14px 14px 4px;padding:12px 14px}
 .ask-working{color:#8a877c}
 .ask-composer{display:flex;gap:8px;align-items:flex-end;padding:10px 12px 12px;border-top:1px solid #e3ded2;background:#fbfaf6}
-.ask-composer textarea{flex:1;box-sizing:border-box;padding:10px 12px;font:14px/1.4 system-ui,sans-serif;border:1px solid #cfc8b8;border-radius:10px;background:#fff;resize:none;max-height:140px}
+/* 16px: below that iOS Safari zooms the whole page when the field takes focus */
+.ask-composer textarea{flex:1;min-width:0;box-sizing:border-box;padding:10px 12px;font:16px/1.4 system-ui,sans-serif;border:1px solid #cfc8b8;border-radius:10px;background:#fff;resize:none;max-height:140px}
 .ask-composer textarea:disabled{background:#f4f2ec;color:#8a877c}
 .ask-exs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
 .ask-ex{border:1px solid #dfdbcf;background:#fff;border-radius:999px;padding:5px 10px;font-size:12px;color:#5f5e54;cursor:pointer;text-align:left}.ask-ex:hover{border-color:#34566b;color:#2a4658}
@@ -245,6 +283,6 @@ PANEL_CSS = """
 
 .ask-permalink{max-width:720px;margin:8px auto 0;padding:18px 20px;background:#fbfaf6;border:1px solid #e3ded2;border-radius:10px;font-family:system-ui,-apple-system,sans-serif;color:#2b2a26}
 .ask-back{max-width:720px;margin:12px auto;font-family:ui-monospace,Menlo,monospace;font-size:11px}
-@media (max-width:640px){.ask-panel{right:0;bottom:0;width:100vw;height:100vh;border-radius:0;border:0}.ask-fab{right:12px;bottom:12px}}
+@media (max-width:640px){.ask-panel{right:0;bottom:0;width:100vw;height:100vh;height:100dvh;border-radius:0;border:0}.ask-fab{right:12px;bottom:12px}}
 @media (prefers-reduced-motion:reduce){.ask-st.on .ask-st-dot{animation:none}}
 """
