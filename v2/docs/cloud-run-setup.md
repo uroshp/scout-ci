@@ -186,3 +186,8 @@ with its bundled CLI, run as a non-root user: the CLI refuses `bypassPermissions
 - **Flags on `main`.** `SCOUT_ASK` (the panel and `/api/ask`) and `SCOUT_SOURCES_TOOLS` (the
   monitor's structured-source tools) default OFF: a merge of `rc` changes nothing visible until
   the flag is set on the service.
+
+- **MCP on the engine.** `MCP_ENABLED=1` in the setup script env (→ `SCOUT_MCP=1` on the service)
+  mounts `/mcp`; see `docs/mcp.md`. **Signals.** `SCOUT_SIGNALS` is a repo variable read by
+  `monitor.yml`; the mini's `~/scout-signals/run.sh` polls hourly and dispatches only after the
+  promotion (drop `--no-dispatch` there and point `REPO` at the main checkout).
