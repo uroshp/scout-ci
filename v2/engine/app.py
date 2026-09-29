@@ -26,6 +26,7 @@ import queue
 import re
 import threading
 import time
+from contextlib import asynccontextmanager
 from datetime import datetime
 
 from fastapi import FastAPI, Header, Request
@@ -41,10 +42,30 @@ ASK_ALLOWED_ORIGINS = [o.strip() for o in os.environ.get("ASK_ALLOWED_ORIGINS", 
 LEDGER = ledger.Ledger("ask/state.json", ASK_DAILY_CEILING_USD, config.ASK_MAX_USD)
 PING_S = 15
 
-app = FastAPI(title="Ask Scout engine", docs_url=None, redoc_url=None, openapi_url=None)
+# --- MCP (WS4, 2026-09-29): the same tools as `python -m scout.mcp_server`, over Streamable HTTP at
+# /mcp. Reads are free; `ask_scout` spends, so a tools/call for it needs an owner key (Uroš:
+# owner-key only). Mounted only with SCOUT_MCP=1; its session manager runs in the app lifespan.
+MCP_ENABLED = os.environ.get("SCOUT_MCP", "0") == "1"
+if MCP_ENABLED:
+    from scout import mcp_server
+
+
+@asynccontextmanager
+async def _lifespan(_app):
+    if MCP_ENABLED:
+        async with mcp_server.mcp.session_manager.run():
+            yield
+    else:
+        yield
+
+
+app = FastAPI(title="Ask Scout engine", docs_url=None, redoc_url=None, openapi_url=None, lifespan=_lifespan)
 if ASK_ALLOWED_ORIGINS:
     app.add_middleware(CORSMiddleware, allow_origins=ASK_ALLOWED_ORIGINS, allow_methods=["POST", "GET"],
                        allow_headers=["Authorization", "Content-Type"], max_age=600)
+
+
+
 
 
 # --- auth (page tokens live in scout/asktoken.py, shared with the viewer) -------------------
@@ -208,3 +229,10 @@ def ask_dry():
         yield _sse({"done": True, "id": rec["id"], "html": askui.answer_html(rec, show_question=False, chat=True),
                     "cost_usd": 0.0, "seconds": rec.get("seconds"), "verified": rec.get("verified"), "dry": True})
     return StreamingResponse(events(), media_type="text/event-stream")
+
+
+if MCP_ENABLED:
+    # Mounted LAST at the root so /mcp is served at exactly that path (a mount at "/mcp" would
+    # redirect POST /mcp to /mcp/, which MCP clients do not follow) without shadowing the routes
+    # above. Auth for the metered tool is inside the tool (scout/mcp_server.py); reads are free.
+    app.mount("", mcp_server.mcp.streamable_http_app())

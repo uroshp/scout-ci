@@ -144,6 +144,18 @@ class Widget(unittest.TestCase):
         self.assertEqual(self.errors, [])
         page.context.close()
 
+    def test_phone_freezes_the_page_only_while_the_composer_has_focus(self):
+        ctx = self.browser.new_context(viewport={"width": 390, "height": 844}, has_touch=True, is_mobile=True)
+        page = ctx.new_page(); page.route("**/*", _serve); page.goto(f"{ORIGIN}/c/{self.slugs[0]}")
+        page.evaluate("window.scrollTo(0, 300)"); y0 = page.evaluate("window.scrollY")
+        page.tap("#ask-fab"); page.wait_for_timeout(200)
+        self.assertFalse(page.evaluate("document.body.classList.contains('ask-lock')"))
+        page.tap("#ask-q"); page.wait_for_timeout(200)
+        self.assertTrue(page.evaluate("document.body.classList.contains('ask-lock')")); self.assertEqual(page.evaluate("document.body.style.top"), f"-{y0}px")
+        page.tap("#ask-close"); page.wait_for_timeout(200)
+        self.assertFalse(page.evaluate("document.body.classList.contains('ask-lock')")); self.assertEqual(page.evaluate("window.scrollY"), y0)
+        ctx.close()
+
 
 @unittest.skipUnless(_HAVE_PW, "playwright not installed")
 class Recovery(unittest.TestCase):
@@ -296,3 +308,103 @@ class Recovery(unittest.TestCase):
         self.assertEqual(page.locator(".ask-answer").count(), 2); self.assertEqual(page.locator(".ask-tgl").count(), 6)   # restored with its toggles
         page.locator(".ask-tgl").first.click(); self.assertTrue(page.locator(".ask-srcs").first.is_visible())          # ...and they work after restore
         self.assertEqual(self.errors, []); page.context.close()
+
+
+@unittest.skipUnless(_HAVE_PW, "playwright not installed")
+class Touch(unittest.TestCase):
+    """iPad (Uroš, 2026-09-29: "first tap focuses, second acts; wobbly on focus"): touch + mobile
+    emulation on an iPad-sized viewport. Single taps act, nothing auto-focuses the composer (a
+    programmatic focus pops the keyboard), hover rules are off, the page holds still."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.slug = display.list_battlecards()[0]
+        cls.p = [mock.patch.object(config, "RC_PASSWORD", ""), mock.patch.object(config, "RC_MODE", False),
+                 mock.patch.object(config, "ANALYTICS_ENABLED", False), mock.patch.object(display, "_commits_via_api", return_value=[]),
+                 mock.patch.object(config, "ASK_ENABLED", True), mock.patch.object(config, "ASK_CANNED_ID", "a_0123456789ab"),
+                 mock.patch.object(server, "_load_answer", side_effect=lambda aid: ANSWER if aid == "a_0123456789ab" else None)]
+        for p in cls.p:
+            p.start()
+        server.app.config["TESTING"] = True
+        cls.pw = sync_playwright().start()
+        try:
+            cls.browser = cls.pw.chromium.launch()
+        except Exception as e:   # pragma: no cover
+            cls.pw.stop()
+            for p in cls.p:
+                p.stop()
+            raise unittest.SkipTest(f"chromium not available: {e}")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.browser.close(); cls.pw.stop()
+        for p in cls.p:
+            p.stop()
+
+    def test_single_taps_and_no_auto_focus(self):
+        ctx = self.browser.new_context(viewport={"width": 1024, "height": 768}, has_touch=True, is_mobile=True, device_scale_factor=2)
+        page = ctx.new_page(); page.route("**/*", _serve)
+        errors = []; page.on("pageerror", lambda e: errors.append(str(e)))
+        page.goto(f"{ORIGIN}/c/{self.slug}")
+        self.assertFalse(page.evaluate("matchMedia('(hover: hover)').matches"))
+        self.assertFalse(page.evaluate("matchMedia('(pointer: fine)').matches"))
+        page.evaluate("window.scrollTo(0, 500)"); y0 = page.evaluate("window.scrollY")
+        page.tap("#ask-fab")                                                              # ONE tap opens
+        self.assertTrue(page.locator("#ask-panel").is_visible())
+        page.wait_for_timeout(250)
+        self.assertNotEqual(page.evaluate("document.activeElement && document.activeElement.id"), "ask-q")   # no auto-focus on touch
+        page.tap("#ask-q"); page.wait_for_timeout(250)                                   # ONE tap focuses
+        self.assertEqual(page.evaluate("document.activeElement.id"), "ask-q")
+        self.assertEqual(page.evaluate("window.scrollY"), y0)                            # and the page is left alone
+        page.keyboard.type("Is X cheaper?"); page.keyboard.press("Enter")
+        self.assertEqual(page.locator(".ask-user").count(), 1)
+        page.wait_for_selector(".ask-answer", timeout=15000); page.wait_for_timeout(300)
+        self.assertNotEqual(page.evaluate("document.activeElement && document.activeElement.id"), "ask-q")   # keyboard stays down after an answer
+        page.tap(".ask-tgl >> nth=0"); self.assertTrue(page.locator(".ask-srcs").first.is_visible())   # ONE tap on a link
+        page.tap("#ask-close"); self.assertTrue(page.locator("#ask-panel").is_hidden())              # ONE tap minimizes
+        self.assertEqual(page.evaluate("window.scrollY"), y0)                                          # and the page is back where it was
+        self.assertEqual(errors, []); ctx.close()
+
+    def test_page_is_frozen_while_open_on_touch_and_restored_on_minimize(self):
+        ctx = self.browser.new_context(viewport={"width": 1024, "height": 768}, has_touch=True, is_mobile=True)
+        page = ctx.new_page(); page.route("**/*", _serve)
+        errors = []; page.on("pageerror", lambda e: errors.append(str(e)))
+        page.goto(f"{ORIGIN}/c/{self.slug}")
+        page.evaluate("window.scrollTo(0, 640)"); y0 = page.evaluate("window.scrollY")
+        page.tap("#ask-fab"); page.wait_for_timeout(300)
+        self.assertFalse(page.evaluate("document.body.classList.contains('ask-lock')"))   # open alone does not freeze (no repaint flicker)
+        box = page.locator("#ask-panel").bounding_box()
+        self.assertAlmostEqual(box["x"] + box["width"], 1024 - 18, delta=2)              # bottom-right corner
+        self.assertAlmostEqual(box["y"] + box["height"], 768 - 18, delta=2)
+        page.tap("#ask-q"); page.wait_for_timeout(200)                                   # focus on a TABLET: nothing is touched
+        self.assertFalse(page.evaluate("document.body.classList.contains('ask-lock')"))
+        self.assertEqual(page.evaluate("document.body.style.top"), "")
+        self.assertEqual(page.evaluate("document.documentElement.style.height"), "")
+        self.assertEqual(page.evaluate("window.scrollY"), y0)
+        page.keyboard.type("hello"); page.wait_for_timeout(300)
+        self.assertEqual(page.locator("#ask-panel").bounding_box()["y"], box["y"])       # focus + typing: no move
+        self.assertEqual(page.locator("#ask-panel").evaluate("e => e.style.height"), "")                        # height untouched
+        page.tap("#ask-close"); page.wait_for_timeout(200)
+        self.assertEqual(page.evaluate("window.scrollY"), y0)                            # exactly where it was
+        page.tap("#ask-fab"); page.wait_for_timeout(300)
+        self.assertEqual(page.locator("#ask-panel").bounding_box()["y"], box["y"])       # reopen: same corner
+        # a hardware-keyboard bar shrinks the window by ~55 px: the box holds still (pinned by its top edge)
+        page.set_viewport_size({"width": 1024, "height": 713}); page.wait_for_timeout(200)
+        self.assertEqual(page.locator("#ask-panel").bounding_box()["y"], box["y"])
+        # a real change (rotation) re-pins it into view
+        page.set_viewport_size({"width": 1024, "height": 560}); page.wait_for_timeout(200)
+        b2 = page.locator("#ask-panel").bounding_box(); self.assertLessEqual(round(b2["y"] + b2["height"]), 560)
+        self.assertEqual(errors, []); ctx.close()
+
+    def test_split_view_bar_does_not_move_the_sheet(self):
+        # an iPad in Split View is phone-width: a ~55 px keyboard bar must not shrink the sheet; a real keyboard does
+        ctx = self.browser.new_context(viewport={"width": 507, "height": 1100}, has_touch=True, is_mobile=True)
+        page = ctx.new_page(); page.route("**/*", _serve); page.goto(f"{ORIGIN}/c/{self.slug}")
+        page.tap("#ask-fab"); page.wait_for_timeout(200)
+        b0 = page.locator("#ask-panel").bounding_box(); self.assertGreaterEqual(round(b0["height"]), 1000)
+        page.tap("#ask-q"); page.wait_for_timeout(200)
+        page.set_viewport_size({"width": 507, "height": 1045}); page.wait_for_timeout(250)              # the bar: 55 px less
+        b1 = page.locator("#ask-panel").bounding_box(); self.assertEqual(round(b1["height"]), round(b0["height"]))   # holds still
+        page.set_viewport_size({"width": 507, "height": 700}); page.wait_for_timeout(250)               # a keyboard: 400 px less
+        b2 = page.locator("#ask-panel").bounding_box(); self.assertLessEqual(round(b2["height"]), 700)  # the sheet sits above it
+        ctx.close()

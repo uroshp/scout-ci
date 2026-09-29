@@ -44,8 +44,9 @@ def _pkey(c: dict):
 
 
 def _pdim(c: dict) -> str:
-    p = _PERSONA.get()
-    return " pdim" if (p and c.get("persona") and c.get("persona") != p) else ""
+    """Kept as a no-op: the audience view once dimmed other personas' items to 55% with a hover
+    un-dim; Uroš (2026-09-29) called it unwanted. Picking an audience REORDERS, never greys out."""
+    return ""
 
 # Rotating build-status copy for the self-serve wait (originally the v1 app's progress lines).
 # ONE shared source (2026-07-19): the Flask viewer serializes these into its progress JS and the
@@ -356,7 +357,7 @@ def _prose_item(c: dict, *, callout_label=None, callout_kind="sw", badge_prefix=
         call = _callout("sb", "Soundbite", p["soundbite"])
     elif p["so_what"] and callout_label:
         call = _callout(callout_kind, callout_label, p["so_what"])
-    return (f'<div class="item{_pdim(c)}" id="{_anchor(c.get("subject_key"))}">'
+    return (f'<div class="item" id="{_anchor(c.get("subject_key"))}">'
             f'{head}{body}{call}{_vsrc(c)}</div>')
 
 
@@ -504,6 +505,10 @@ def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = N
             chips += f'<span class="sev {sev}">{sev.upper()}</span>'
         if (a.get("fingerprint") or a.get("subject_key")) in recent_fps:
             chips += '<span class="new">NEW</span>'
+        tb = a.get("triggered_by") or {}                      # WS3: this row came from a structured signal
+        if tb.get("kind"):
+            label = {"filing": "new filing", "new_department": "new department"}.get(tb["kind"], tb["kind"])
+            chips += f'<span class="trig" title="{_html.escape(str(tb.get("summary") or ""))}">Triggered by: {_html.escape(label)}</span>'
         sw = a.get("so_what")
         swx = (f'<details class="swx"><summary>Why it matters</summary>'
                f'<div class="swb">{_inline(str(sw))}</div></details>') if sw else ""
@@ -734,8 +739,6 @@ _OVERRIDES = """
 #scout-page .srcclass-unknown{color:var(--faint);background:transparent;border-color:var(--line)}
 #scout-page .srcclass-filing,#scout-page .srcclass-court,#scout-page .srcclass-government{color:#1f4d2a;background:#e6f1e8;border-color:#bcd8c2}
 #scout-page .srcclass-review_site,#scout-page .srcclass-forum{color:#6b5a1e;background:#f7f0dc;border-color:#e2d3a3}
-#scout-page .item.pdim{opacity:.55}
-#scout-page .item.pdim:hover{opacity:1}
 /* Persona palette (2026-09-28): one colour per audience, on the badge of every play and
    objection AND on the rail's audience picker, so the two tie together. Muted hues on the paper
    palette; each pair is text/fill/line. */
@@ -806,6 +809,8 @@ _OVERRIDES = """
 #scout-page .sev{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.08em;
   border-radius:4px;padding:0 4px;border:1px solid;line-height:1.5;}
 #scout-page .sev.act{color:var(--amber);border-color:var(--amber-line);background:rgba(138,99,34,.09);}
+#scout-page .trig{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.06em;border-radius:4px;
+  padding:0 5px;border:1px solid #bcd8c2;color:#1f4d2a;background:#e6f1e8;line-height:1.5;white-space:nowrap;}
 #scout-page .sev.watch{color:var(--muted);border-color:var(--line);background:var(--paper2);}
 #scout-page .swx{margin-top:2px;}
 #scout-page .swx>summary{list-style:none;cursor:pointer;user-select:none;font-family:var(--mono);

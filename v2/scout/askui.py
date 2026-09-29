@@ -164,8 +164,12 @@ def button_and_panel_html(slug: str | None, meta: dict | None, persona: str | No
       <div class="ask-exs">{ex_html}</div>
     </div>
   </div>
+  <!-- autocorrect/autocomplete/spellcheck off: with them on, iPadOS shows the full QuickType bar
+       ("Paste from …") for this field and shrinks Safari's window; without them the bar collapses to
+       the small overlaid island other sites' composers get (Uroš, 2026-09-29). -->
   <form class="ask-composer" id="ask-form" onsubmit="return false">
-    <textarea id="ask-q" rows="1" maxlength="400" placeholder="Ask a question" aria-label="Your question" enterkeyhint="send"></textarea>
+    <textarea id="ask-q" rows="1" maxlength="400" placeholder="Ask a question" aria-label="Your question" enterkeyhint="send"
+      autocorrect="off" autocapitalize="off" autocomplete="off" spellcheck="false"></textarea>
     <button type="submit" class="ask-go" id="ask-go" aria-label="Ask">Ask</button>
   </form>
 </aside>
@@ -192,34 +196,79 @@ function savePending(p){pending=p;lsSet(PEND_KEY,p?JSON.stringify(p):null);}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function token(){var a=new Uint8Array(16);try{crypto.getRandomValues(a);}catch(e){for(var i=0;i<16;i++)a[i]=Math.floor(Math.random()*256);}return Array.prototype.map.call(a,function(b){return ('0'+b.toString(16)).slice(-2);}).join('');}
 function badge(){var n=history.length;fabN.hidden=!n;fabN.textContent=n?String(n):'';}
-function focusQ(){try{q.focus({preventScroll:true});}catch(e){q.focus();}}
+var FINE=window.matchMedia&&window.matchMedia('(pointer: fine)').matches, COARSE=!FINE;
+// on touch, a programmatic focus pops the keyboard and moves the layout: the reader taps when ready
+function focusQ(){if(!FINE)return;try{q.focus({preventScroll:true});}catch(e){q.focus();}}
 function scrollEnd(){thread.scrollTop=thread.scrollHeight;}
 // open / minimize: the widget is NOT modal (the page stays usable behind it); Esc minimizes.
-function open(){lastFocus=document.activeElement;panel.hidden=false;fab.hidden=true;lsSet(OPEN_KEY,'1');fit();scrollEnd();setTimeout(focusQ,30);}
-function minimize(){panel.hidden=true;fab.hidden=false;badge();lsSet(OPEN_KEY,'0');fit();if(lastFocus&&lastFocus.focus&&lastFocus!==document.body){try{lastFocus.focus({preventScroll:true});}catch(e){}}}
+// TOUCH (iPad, iPhone; Uroš 2026-09-29: "the box doesn't move from the bottom right corner, ever"):
+// Safari scrolls the page to reveal a focused field when the keyboard opens and a bottom-anchored
+// panel rides along. So while the panel is open on a touch device the PAGE is frozen in place
+// (body fixed at its scroll position, restored exactly on minimize) and the panel is anchored to
+// the VISIBLE area: when the keyboard comes up it glides above it once; nothing else moves.
+// The freeze is needed only while the KEYBOARD is up (it is what Safari scrolls for), so it
+// happens on focus, not on open: no full-page repaint when the panel opens (his "flicker"),
+// and the page stays scrollable behind an open panel.
+// PHONES ONLY (Uroš, iPad, 2026-09-29: "the panel shouldn't rise at all; it's not on other
+// websites"): on a tablet or desktop the panel stays in its corner and the page is never touched,
+// exactly like every other site's chat box; Safari handles the keyboard natively there.
+function phone(){return window.matchMedia('(max-width:640px)').matches;}
+var lockY=null;
+function lockPage(){if(!COARSE||!phone()||lockY!==null)return;lockY=window.scrollY;document.body.style.top=(-lockY)+'px';document.body.classList.add('ask-lock');sizeDoc();}
+function unlockPage(){if(lockY===null)return;document.body.classList.remove('ask-lock');document.body.style.top='';document.documentElement.style.height='';var y=lockY;lockY=null;window.scrollTo(0,y);}
+// while frozen, the document is exactly the visible area: Safari has no room left to shift the
+// page to "reveal" the field (the blank band under the content)
+function sizeDoc(px){if(lockY===null||!vv)return;var h=Math.round(px||vv.height)+'px';if(document.documentElement.style.height!==h)document.documentElement.style.height=h;}
+function open(){lastFocus=document.activeElement;panel.hidden=false;fab.hidden=true;lsSet(OPEN_KEY,'1');pinnedH=0;sheetH=0;fitNow();scrollEnd();setTimeout(focusQ,30);}
+function minimize(){if(document.activeElement===q)q.blur();panel.hidden=true;fab.hidden=false;badge();lsSet(OPEN_KEY,'0');unlockPage();fitNow();if(lastFocus&&lastFocus.focus&&lastFocus!==document.body){try{lastFocus.focus({preventScroll:true});}catch(e){}}}
 // The on-screen keyboard (iPad, phone) shrinks the VISUAL viewport and Safari scrolls the page to
 // reveal the field, dragging a bottom-fixed panel with it. Keep the panel inside the visual
 // viewport instead, and hold the page's scroll when the composer takes focus.
-var vv=window.visualViewport;
-function fit(){
-  if(!vv||panel.hidden){panel.style.bottom='';panel.style.height='';return;}
-  var phone=window.matchMedia('(max-width:640px)').matches;
-  var hidden=Math.max(0,Math.round(window.innerHeight-vv.height-vv.offsetTop));   // layout px covered below (keyboard)
-  if(hidden<40&&!phone){panel.style.bottom='';panel.style.height='';return;}
-  panel.style.bottom=(hidden+(phone?0:18))+'px';
-  panel.style.height=Math.max(240,Math.round(phone?vv.height:Math.min(640,vv.height-36)))+'px';
-  scrollEnd();}
+var vv=window.visualViewport, fitTimer=null, yKeep=null;
+// Tablet/desktop: pin the panel by its TOP edge when it opens (Uroš, iPad + hardware keyboard,
+// 2026-09-29: the shortcut bar shrinks Safari's window by ~55 px and anything pinned to the
+// bottom edge follows it). A small window change keeps the pin; a real one (rotation, split
+// view, > 120 px) re-pins.
+var pinnedH=0;
+function pin(){
+  if(panel.hidden||phone()){panel.style.top='';panel.style.bottom='';pinnedH=0;return;}
+  var h=window.innerHeight;
+  if(pinnedH&&Math.abs(h-pinnedH)<120)return;                                     // a keyboard bar, not a resize: hold still
+  pinnedH=h;panel.style.bottom='auto';panel.style.top=Math.max(8,Math.round(h-panel.offsetHeight-18))+'px';}
+window.addEventListener('resize',function(){if(!phone())pin();});
+var sheetH=0;
+function fitNow(){
+  if(!phone()){pin();return;}
+  if(panel.hidden||!vv){panel.style.top='';panel.style.bottom='';panel.style.height='';sheetH=0;return;}
+  // narrow (a phone, or an iPad in Split View): the sheet fills the VISIBLE area. A small change
+  // to that area (a keyboard bar, ~55 px) is ignored so the composer holds still; only a real
+  // keyboard (over 120 px) shrinks the sheet above it.
+  if(!sheetH)sheetH=Math.round(vv.height);
+  var vh=Math.round(vv.height), keyboard=(sheetH-vh)>120;
+  var h=Math.max(240,keyboard?vh:sheetH);
+  if(!keyboard&&Math.abs(vh-sheetH)>120)sheetH=h=vh;                                  // a real resize (rotation): re-base
+  sizeDoc(keyboard?vh:sheetH);
+  var top=Math.max(0,Math.round(vv.offsetTop));
+  var T=top+'px',H=h+'px';
+  if(panel.style.top!==T){panel.style.top=T;panel.style.bottom='auto';}             // write only on change: no reflow churn
+  if(panel.style.height!==H)panel.style.height=H;}
+// follow the keyboard frame by frame (one write per animation frame): the composer never leaves
+// the visible area, so Safari has no reason to shift the page to reveal it
+var fitRaf=0;
+function fit(){if(fitRaf)return;fitRaf=requestAnimationFrame(function(){fitRaf=0;fitNow();});}
 if(vv){vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit);}
-var ySave=null;
-q.addEventListener('pointerdown',function(){ySave=window.scrollY;});
-q.addEventListener('focus',function(){var y=ySave;ySave=null;if(y===null)return;var hold=function(){if(Math.abs(window.scrollY-y)>1)window.scrollTo(0,y);};hold();requestAnimationFrame(hold);setTimeout(hold,120);setTimeout(hold,400);});
+q.addEventListener('focus',function(){yKeep=window.scrollY;lockPage();fitNow();if(FINE){var y=yKeep;requestAnimationFrame(function(){if(Math.abs(window.scrollY-y)>1)window.scrollTo(0,y);});}});
+q.addEventListener('blur',function(){yKeep=null;setTimeout(function(){if(document.activeElement!==q)unlockPage();},50);});
+// a tablet or desktop never reacts to the visual viewport at all
+if(vv&&!phone()){vv.removeEventListener('resize',fit);vv.removeEventListener('scroll',fit);}
 fab.addEventListener('click',open);
 document.getElementById('ask-close').addEventListener('click',minimize);
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!panel.hidden)minimize();});
 Array.prototype.forEach.call(document.querySelectorAll('.ask-ex'),function(b){b.addEventListener('click',function(){q.value=b.textContent;submit();});});
 // Enter sends, Shift+Enter is a newline (the chat convention)
 q.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submit();}});
-q.addEventListener('input',function(){q.style.height='auto';q.style.height=Math.min(q.scrollHeight,140)+'px';});
+var lastLen=0;
+q.addEventListener('input',function(){var n=q.value.length;if(n<lastLen)q.style.height='auto';lastLen=n;if(q.scrollHeight>q.clientHeight+2)q.style.height=Math.min(q.scrollHeight,140)+'px';});
 form.addEventListener('submit',function(e){e.preventDefault();submit();});
 function add(html,cls){var d=document.createElement('div');d.className='ask-msg '+(cls||'');d.innerHTML=html;thread.appendChild(d);scrollEnd();return d;}
 function stageHtml(k,extra,note){
@@ -341,8 +390,10 @@ PANEL_CSS = """
 /* the widget's own `display` values would beat the UA's [hidden]{display:none}; this keeps the
    hidden attribute (the script's only show/hide mechanism) authoritative */
 .ask-fab[hidden],.ask-panel[hidden],.ask-fab-n[hidden],.ask-clear[hidden],.ask-intro[hidden]{display:none!important}
+body.ask-lock{position:fixed;left:0;right:0;width:100%;overflow:hidden}
+@media (pointer: coarse){.ask-panel{transition:none}}
 .ask-fab{position:fixed;right:18px;bottom:18px;z-index:60;display:inline-flex;align-items:center;gap:8px;padding:11px 16px;border:0;border-radius:999px;background:#2b2a26;color:#fff;font:600 14px/1 system-ui,-apple-system,sans-serif;box-shadow:0 6px 20px rgba(20,18,10,.22);cursor:pointer}
-.ask-fab:hover{background:#151410}.ask-fab-dot{width:8px;height:8px;border-radius:50%;background:#7ed0a6;box-shadow:0 0 0 3px rgba(126,208,166,.28)}
+.ask-fab-dot{width:8px;height:8px;border-radius:50%;background:#7ed0a6;box-shadow:0 0 0 3px rgba(126,208,166,.28)}
 .ask-fab-n{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#7ed0a6;color:#12301f;font:700 11px/18px system-ui,sans-serif;text-align:center}
 .ask-panel{position:fixed;right:18px;bottom:18px;width:min(440px,calc(100vw - 24px));height:min(640px,calc(100vh - 36px));z-index:80;background:#fbfaf6;border:1px solid #e3ded2;border-radius:14px;box-shadow:0 18px 48px rgba(20,18,10,.22);display:flex;flex-direction:column;overflow:hidden;font-family:system-ui,-apple-system,sans-serif;color:#2b2a26}
 .ask-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px 18px 12px;border-bottom:1px solid #e3ded2}
@@ -350,9 +401,9 @@ PANEL_CSS = """
 .ask-beta{font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#7a2e0e;background:#f9ece6;border:1px solid #ecc9bb;border-radius:4px;padding:2px 6px;font-weight:600}
 .ask-sub{margin-top:3px;font-size:12.5px;color:#5f5e54}
 .ask-why{font-size:12px;color:#5f5e54;margin:0 0 8px;padding-bottom:8px;border-bottom:1px dashed #e3ded2}
-.ask-close{border:0;background:transparent;font-size:26px;line-height:1;color:#8a877c;cursor:pointer;padding:0 4px}.ask-close:hover{color:#2b2a26}
+.ask-close{border:0;background:transparent;font-size:26px;line-height:1;color:#8a877c;cursor:pointer;padding:0 4px}
 .ask-headbtns{display:flex;align-items:center;gap:8px}
-.ask-clear{border:1px solid #dfdbcf;background:#fff;border-radius:999px;padding:4px 10px;font-size:11.5px;color:#5f5e54;cursor:pointer;white-space:nowrap}.ask-clear:hover{border-color:#34566b;color:#2a4658}
+.ask-clear{border:1px solid #dfdbcf;background:#fff;border-radius:999px;padding:4px 10px;font-size:11.5px;color:#5f5e54;cursor:pointer;white-space:nowrap}
 .ask-about{display:inline-block;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#8a877c;margin-bottom:6px}
 .ask-thread{flex:1;overflow:auto;padding:14px 18px 8px;display:flex;flex-direction:column;gap:12px}
 .ask-review{font-size:12px;color:#7a2e0e;background:#f9ece6;border:1px solid #ecc9bb;border-radius:8px;padding:8px 10px}
@@ -362,12 +413,13 @@ PANEL_CSS = """
 .ask-scout{background:#fff;border:1px solid #e3ded2;border-radius:14px 14px 14px 4px;padding:12px 14px}
 .ask-working{color:#8a877c}
 .ask-composer{display:flex;gap:8px;align-items:flex-end;padding:10px 12px 12px;border-top:1px solid #e3ded2;background:#fbfaf6}
+@media (any-pointer: coarse){.ask-composer{padding-bottom:28px}}   /* the text line clears an iPad keyboard bar (also in Split View) */
 /* 16px: below that iOS Safari zooms the whole page when the field takes focus */
 .ask-composer textarea{flex:1;min-width:0;box-sizing:border-box;padding:10px 12px;font:16px/1.4 system-ui,sans-serif;border:1px solid #cfc8b8;border-radius:10px;background:#fff;resize:none;max-height:140px}
 .ask-composer textarea:disabled{background:#f4f2ec;color:#8a877c}
 .ask-exs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
-.ask-ex{border:1px solid #dfdbcf;background:#fff;border-radius:999px;padding:5px 10px;font-size:12px;color:#5f5e54;cursor:pointer;text-align:left}.ask-ex:hover{border-color:#34566b;color:#2a4658}
-.ask-go{border:0;border-radius:10px;background:#2b2a26;color:#fff;font:600 14px system-ui,sans-serif;padding:10px 16px;cursor:pointer;min-height:40px}.ask-go:hover{background:#151410}.ask-go:disabled{background:#a9a69b;cursor:default}
+.ask-ex{border:1px solid #dfdbcf;background:#fff;border-radius:999px;padding:5px 10px;font-size:12px;color:#5f5e54;cursor:pointer;text-align:left}
+.ask-go{border:0;border-radius:10px;background:#2b2a26;color:#fff;font:600 14px system-ui,sans-serif;padding:10px 16px;cursor:pointer;min-height:40px}.ask-go:disabled{background:#a9a69b;cursor:default}
 .ask-elapsed{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#8a877c;padding:4px 0 0 20px}
 .ask-note{color:#7a2e0e}
 .ask-hint{display:block;font-weight:400;font-size:11.5px;color:#8a877c;margin-top:1px}
@@ -395,7 +447,7 @@ PANEL_CSS = """
 .ask-tgl.open{text-decoration:none;color:#2b2a26}
 .ask-vmark{color:#1f4d2a;font-weight:600}
 .ask-deeper{border:1px solid #34566b;background:#fff;color:#2a4658;border-radius:999px;padding:5px 11px;font:600 12px system-ui,sans-serif;cursor:pointer;white-space:nowrap}
-.ask-deeper:hover{background:#eef3f6}.ask-deeper:disabled{opacity:.5;cursor:default}
+.ask-deeper:disabled{opacity:.5;cursor:default}
 .ask-deep-tag{display:block;font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;opacity:.75;margin-bottom:3px}
 
 .ask-answer .srcclass{font-family:ui-monospace,Menlo,monospace;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#2a4658;background:#eef3f6;border:1px solid #cfdce5;border-radius:4px;padding:2px 6px;white-space:nowrap}
@@ -408,4 +460,7 @@ PANEL_CSS = """
 .ask-back{max-width:720px;margin:12px auto;font-family:ui-monospace,Menlo,monospace;font-size:11px}
 @media (max-width:640px){.ask-panel{right:0;bottom:0;width:100vw;height:100vh;height:100dvh;border-radius:0;border:0}.ask-fab{right:12px;bottom:12px}}
 @media (prefers-reduced-motion:reduce){.ask-st.on .ask-st-dot{animation:none}}
+/* hover only where a pointer can hover: on iOS a hover rule makes the first tap "hover" and the
+   second tap act (Uroš, iPad, 2026-09-29) */
+@media (hover: hover){.ask-fab:hover{background:#151410}.ask-close:hover{color:#2b2a26}.ask-clear:hover{border-color:#34566b;color:#2a4658}.ask-ex:hover{border-color:#34566b;color:#2a4658}.ask-go:hover{background:#151410}.ask-deeper:hover{background:#eef3f6}}
 """

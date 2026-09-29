@@ -64,7 +64,7 @@ class Routes(unittest.TestCase):
         self.assertIn("Back to the card", h)
         self.assertEqual(c.get("/c/not-a-card/sources").status_code, 404)
 
-    def test_persona_view_reorders_and_dims(self):
+    def test_persona_view_reorders_and_never_dims(self):
         c = _client()
         base = c.get(f"/c/{self.slug}").data.decode()
         self.assertNotIn(" pdim", base)
@@ -81,6 +81,7 @@ class Routes(unittest.TestCase):
                   if x.get("zone") == "where_we_win"]
         if any(x.get("persona") == p for x in claims):
             self.assertTrue(any(page._anchor(x.get("subject_key", "")) == first.group(1) and x.get("persona") == p for x in claims))
+        self.assertNotIn(" pdim", h); self.assertNotIn(".pdim", h)                    # no greyed-out items in the audience view (Uroš 2026-09-29)
         self.assertEqual(c.get(f"/c/{self.slug}?persona=hacker").status_code, 200)   # unknown = default
         self.assertEqual(c.get(f"/print/{self.slug}?persona={p}").status_code, 200)
 
@@ -210,3 +211,16 @@ class KeyClause(unittest.TestCase):
         p = ask._para({"text": "A costs $10, B costs $2.", "cites": ["c1"], "key": "B costs $2"}, {"c1": 1})
         self.assertEqual(p["key"], "B costs $2")
         self.assertNotIn("key", ask._para({"text": "A costs $10.", "cites": ["c1"], "key": "A costs $10."}, {"c1": 1}))   # the whole sentence is not a key
+
+
+class TriggeredBy(unittest.TestCase):
+    def test_alert_row_shows_the_signal_chip(self):
+        from scout import display as _d
+        slug = _d.list_battlecards()[0]
+        rows = _d.load_alerts(slug)
+        with mock.patch.object(config, "RC_PASSWORD", ""), mock.patch.object(config, "RC_MODE", False), mock.patch.object(config, "ANALYTICS_ENABLED", False), \
+             mock.patch.object(_d, "_commits_via_api", return_value=[]), \
+             mock.patch.object(_d, "load_alerts", return_value=rows + [{"detected_at": "2026-09-29T11:05:00", "headline": "Q3 8-K: revenue guidance raised", "severity": "act",
+                                                                         "source_url": "https://www.sec.gov/x", "triggered_by": {"kind": "filing", "summary": "New 8-K filed 2026-09-29"}}]):
+            h = _client().get(f"/c/{slug}").data.decode()
+        self.assertIn('class="trig"', h); self.assertIn("Triggered by: new filing", h); self.assertIn('title="New 8-K filed 2026-09-29"', h)
