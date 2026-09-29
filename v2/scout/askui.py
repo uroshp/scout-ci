@@ -164,8 +164,12 @@ def button_and_panel_html(slug: str | None, meta: dict | None, persona: str | No
       <div class="ask-exs">{ex_html}</div>
     </div>
   </div>
+  <!-- autocorrect/autocomplete/spellcheck off: with them on, iPadOS shows the full QuickType bar
+       ("Paste from …") for this field and shrinks Safari's window; without them the bar collapses to
+       the small overlaid island other sites' composers get (Uroš, 2026-09-29). -->
   <form class="ask-composer" id="ask-form" onsubmit="return false">
-    <textarea id="ask-q" rows="1" maxlength="400" placeholder="Ask a question" aria-label="Your question" enterkeyhint="send"></textarea>
+    <textarea id="ask-q" rows="1" maxlength="400" placeholder="Ask a question" aria-label="Your question" enterkeyhint="send"
+      autocorrect="off" autocapitalize="off" autocomplete="off" spellcheck="false"></textarea>
     <button type="submit" class="ask-go" id="ask-go" aria-label="Ask">Ask</button>
   </form>
 </aside>
