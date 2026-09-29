@@ -392,8 +392,8 @@ PANEL_CSS = """
 .ask-fab[hidden],.ask-panel[hidden],.ask-fab-n[hidden],.ask-clear[hidden],.ask-intro[hidden]{display:none!important}
 body.ask-lock{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 @media (pointer: coarse){.ask-panel{transition:none}}
-.ask-fab{position:fixed;right:18px;bottom:18px;z-index:60;display:inline-flex;align-items:center;gap:8px;padding:11px 16px;border:0;border-radius:999px;background:#2b2a26;color:#fff;font:600 14px/1 system-ui,-apple-system,sans-serif;box-shadow:0 6px 20px rgba(20,18,10,.22);cursor:pointer}
-.ask-fab-dot{width:8px;height:8px;border-radius:50%;background:#7ed0a6;box-shadow:0 0 0 3px rgba(126,208,166,.28)}
+.ask-fab{position:fixed;right:20px;bottom:20px;z-index:60;display:inline-flex;align-items:center;gap:10px;padding:15px 22px;border:0;border-radius:999px;background:#2b2a26;color:#fff;font:600 16px/1 system-ui,-apple-system,sans-serif;letter-spacing:.005em;box-shadow:0 8px 26px rgba(20,18,10,.28);cursor:pointer}
+.ask-fab-dot{width:10px;height:10px;border-radius:50%;background:#7ed0a6;box-shadow:0 0 0 4px rgba(126,208,166,.28)}
 .ask-fab-n{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#7ed0a6;color:#12301f;font:700 11px/18px system-ui,sans-serif;text-align:center}
 .ask-panel{position:fixed;right:18px;bottom:18px;width:min(440px,calc(100vw - 24px));height:min(640px,calc(100vh - 36px));z-index:80;background:#fbfaf6;border:1px solid #e3ded2;border-radius:14px;box-shadow:0 18px 48px rgba(20,18,10,.22);display:flex;flex-direction:column;overflow:hidden;font-family:system-ui,-apple-system,sans-serif;color:#2b2a26}
 .ask-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px 18px 12px;border-bottom:1px solid #e3ded2}
