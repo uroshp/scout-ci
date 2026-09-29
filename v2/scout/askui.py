@@ -215,14 +215,26 @@ function unlockPage(){if(lockY===null)return;document.body.classList.remove('ask
 // while frozen, the document is exactly the visible area: Safari has no room left to shift the
 // page to "reveal" the field (the blank band under the content)
 function sizeDoc(){if(lockY===null||!vv)return;var h=Math.round(vv.height)+'px';if(document.documentElement.style.height!==h)document.documentElement.style.height=h;}
-function open(){lastFocus=document.activeElement;panel.hidden=false;fab.hidden=true;lsSet(OPEN_KEY,'1');fitNow();scrollEnd();setTimeout(focusQ,30);}
+function open(){lastFocus=document.activeElement;panel.hidden=false;fab.hidden=true;lsSet(OPEN_KEY,'1');pinnedH=0;fitNow();scrollEnd();setTimeout(focusQ,30);}
 function minimize(){if(document.activeElement===q)q.blur();panel.hidden=true;fab.hidden=false;badge();lsSet(OPEN_KEY,'0');unlockPage();fitNow();if(lastFocus&&lastFocus.focus&&lastFocus!==document.body){try{lastFocus.focus({preventScroll:true});}catch(e){}}}
 // The on-screen keyboard (iPad, phone) shrinks the VISUAL viewport and Safari scrolls the page to
 // reveal the field, dragging a bottom-fixed panel with it. Keep the panel inside the visual
 // viewport instead, and hold the page's scroll when the composer takes focus.
 var vv=window.visualViewport, fitTimer=null, yKeep=null;
+// Tablet/desktop: pin the panel by its TOP edge when it opens (Uroš, iPad + hardware keyboard,
+// 2026-09-29: the shortcut bar shrinks Safari's window by ~55 px and anything pinned to the
+// bottom edge follows it). A small window change keeps the pin; a real one (rotation, split
+// view, > 120 px) re-pins.
+var pinnedH=0;
+function pin(){
+  if(panel.hidden||phone()){panel.style.top='';panel.style.bottom='';pinnedH=0;return;}
+  var h=window.innerHeight;
+  if(pinnedH&&Math.abs(h-pinnedH)<120)return;                                     // a keyboard bar, not a resize: hold still
+  pinnedH=h;panel.style.bottom='auto';panel.style.top=Math.max(8,Math.round(h-panel.offsetHeight-18))+'px';}
+window.addEventListener('resize',function(){if(!phone())pin();});
 function fitNow(){
-  if(panel.hidden||!vv||!phone()){panel.style.top='';panel.style.bottom='';panel.style.height='';return;}   // tablet/desktop: the CSS corner, untouched
+  if(!phone()){pin();return;}
+  if(panel.hidden||!vv){panel.style.top='';panel.style.bottom='';panel.style.height='';return;}
   sizeDoc();
   // phone: the sheet fills the VISIBLE area (the part of the screen the keyboard leaves)
   var h=Math.max(240,Math.round(vv.height));
@@ -391,6 +403,7 @@ body.ask-lock{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .ask-scout{background:#fff;border:1px solid #e3ded2;border-radius:14px 14px 14px 4px;padding:12px 14px}
 .ask-working{color:#8a877c}
 .ask-composer{display:flex;gap:8px;align-items:flex-end;padding:10px 12px 12px;border-top:1px solid #e3ded2;background:#fbfaf6}
+@media (any-pointer: coarse) and (min-width: 641px){.ask-composer{padding-bottom:28px}}   /* the text line clears an iPad keyboard bar */
 /* 16px: below that iOS Safari zooms the whole page when the field takes focus */
 .ask-composer textarea{flex:1;min-width:0;box-sizing:border-box;padding:10px 12px;font:16px/1.4 system-ui,sans-serif;border:1px solid #cfc8b8;border-radius:10px;background:#fff;resize:none;max-height:140px}
 .ask-composer textarea:disabled{background:#f4f2ec;color:#8a877c}
