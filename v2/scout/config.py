@@ -194,6 +194,10 @@ GROUNDING_TIMEOUT_S = float(os.environ.get("SCOUT_GROUNDING_TIMEOUT_S", "20"))
 # needed to ground filings. Defaults to the public project URL so no personal email
 # ships in a public default; override with a real contact in .env if a service demands one.
 GROUNDING_CONTACT = os.environ.get("SCOUT_GROUNDING_CONTACT", "https://github.com/uroshp/scout-ci")
+# sec.gov's fair-access rule wants "Company Name email@domain" in the User-Agent and 403s anything
+# else (2026-09-28: the URL-style contact UA above was refused by www.sec.gov, which is why the
+# generation prompt warned against anchoring on SEC.gov). Sent to sec.gov hosts only.
+SEC_CONTACT = os.environ.get("SCOUT_SEC_CONTACT", "Agent Scout admin scout@agent-scout.ai")
 
 
 # --- Shadow-mode eval (v3.5 challenger qualification; docs/vnext-roadmap.md) --
@@ -299,6 +303,58 @@ ANALYTICS_HOSTNAMES = tuple(
     h.strip() for h in os.environ.get(
         "SCOUT_ANALYTICS_HOSTNAMES",
         "agent-scout.ai,agent-scout.streamlit.app").split(",") if h.strip())
+# Master switch for BOTH the client tag and the server-side visit event (SCOUT_ANALYTICS=0 on the
+# RC service, 2026-09-28): the hostname allow-list already excludes an RC host from the client tag,
+# but the server-side Measurement Protocol event fires from any host, so RC needs an explicit off.
+ANALYTICS_ENABLED = os.environ.get("SCOUT_ANALYTICS", "1") != "0"
+
+# --- Structured sources (WS1, 2026-09-28) ---------------------------------------
+# SCOUT_SOURCES_TOOLS=1 adds the `scoutsources` MCP server (SEC EDGAR filings + XBRL facts, public
+# job boards, Wayback page history; scout/sources/) to the tools-on model calls. OFF by default on
+# main: the live prompts stay byte-identical until the flip, which is a new eval period for the
+# tools-on roles (the on-device lane mirrors the same tools in scout/localagent.py).
+SOURCES_TOOLS_ENABLED = os.environ.get("SCOUT_SOURCES_TOOLS", "") == "1"
+
+# --- Ask Scout (WS2, 2026-09-28) -----------------------------------------------
+# Per-call caps are the Agent SDK's native max_budget_usd; ASK_MAX_USD is the ceiling one question
+# may reach in total (research + verify + one rewrite + a second verify). Measured target ~$1-1.75.
+# 2026-09-28: a broad question ("how do Slack agents from Claude and ChatGPT compare?") blew the
+# $1.00 research cap on search results alone (16 messages, 235k tokens), so the cap is $1.50 and the
+# contract limits the tool budget (4 searches, 3 page reads); ASK_MAX_USD bounds one question end to end.
+ASK_RESEARCH_BUDGET_USD = float(os.environ.get("SCOUT_ASK_RESEARCH_BUDGET_USD", "1.50"))
+ASK_VERIFY_BUDGET_USD = float(os.environ.get("SCOUT_ASK_VERIFY_BUDGET_USD", "0.75"))
+ASK_REWRITE_BUDGET_USD = float(os.environ.get("SCOUT_ASK_REWRITE_BUDGET_USD", "0.50"))
+ASK_MAX_USD = float(os.environ.get("SCOUT_ASK_MAX_USD", "3.00"))
+# The QUICK path (2026-09-28): no tools, answers from what Scout already verified, the same Opus
+# verifier, rejects cut. One draft call + one judge call; the ledger reserves ASK_QUICK_MAX_USD.
+# Measured 2026-09-28: the draft's prompt is ~35k tokens (119 facts + 33 takes for OpenAI +
+# Anthropic) and the SDK bills it across two messages plus the cache write, so $0.40 was too low.
+ASK_QUICK_DRAFT_BUDGET_USD = float(os.environ.get("SCOUT_ASK_QUICK_DRAFT_BUDGET_USD", "1.00"))
+ASK_QUICK_MAX_USD = float(os.environ.get("SCOUT_ASK_QUICK_MAX_USD", "1.50"))
+# Viewer-side soft limits (scout/ratelimit.py): per visitor id per day, per client IP per minute;
+# the engine's ledger is the hard bound. RC sets the quota high for review; a comma list of visitor
+# ids (the scout_cid cookie) is exempt, for the owner.
+ASK_VISITOR_QUOTA = int(os.environ.get("SCOUT_ASK_VISITOR_QUOTA", "6"))
+ASK_IP_PER_MIN = int(os.environ.get("SCOUT_ASK_IP_PER_MIN", "6"))
+ASK_QUOTA_BYPASS_CIDS = [c.strip() for c in os.environ.get("SCOUT_ASK_QUOTA_BYPASS_CIDS", "").split(",") if c.strip()]
+REQUEST_IP_PER_MIN = int(os.environ.get("SCOUT_REQUEST_IP_PER_MIN", "3"))
+REQUEST_IP_PER_DAY = int(os.environ.get("SCOUT_REQUEST_IP_PER_DAY", "10"))
+# The in-page Ask panel renders only when SCOUT_ASK=1 (production stays byte-identical until the
+# flip). SCOUT_ASK_CANNED=<answer id> puts the panel in review mode: every question replays that
+# stored answer with realistic stage timing, $0 (RC only). SCOUT_ASK_ENGINE_URL wires the engine.
+ASK_ENABLED = os.environ.get("SCOUT_ASK", "") == "1"
+ASK_CANNED_ID = os.environ.get("SCOUT_ASK_CANNED", "")
+ASK_ENGINE_URL = os.environ.get("SCOUT_ASK_ENGINE_URL", "")
+ASK_VIEWER_SECRET = os.environ.get("ASK_VIEWER_SECRET", "")     # shared with the engine; mints page tokens
+
+# --- RC environment (2026-09-28) ---------------------------------------------
+# A second deployment of the SAME code (branch `rc` -> service agent-scout-rc) where every new
+# screen is reviewed before it reaches agent-scout.ai. Production is never the test surface.
+# SCOUT_RC=1 turns on the visible ribbon and the robots Disallow; SCOUT_RC_PASSWORD gates every
+# page behind a cookie (the v1 APP_PASSWORD idea, cookie-based so the iPad works); both are unset
+# in production, so the code is inert there.
+RC_MODE = os.environ.get("SCOUT_RC", "") == "1"
+RC_PASSWORD = os.environ.get("SCOUT_RC_PASSWORD", "")
 
 # --- Author / credit ---------------------------------------------------------
 # Shown in the app footer and used as the self-serve "get in touch" link. When
@@ -322,6 +378,11 @@ SELFSERVE_GH_TOKEN = os.environ.get("SELFSERVE_GH_TOKEN")
 SELFSERVE_REPO = os.environ.get("SELFSERVE_REPO")              # PRIVATE data repo, e.g. "uroshp/scout-user-data"
 SELFSERVE_BRANCH = os.environ.get("SELFSERVE_BRANCH", "main")
 SELFSERVE_DATA_PREFIX = os.environ.get("SCOUT_SELFSERVE_DATA_PREFIX", "")  # path prefix in the data repo (root)
+# RC isolation (2026-09-28): with a prefix set (rc/), every WRITE lands under it; with the read
+# fallback on, a READ that finds nothing under the prefix falls through to the unprefixed
+# production path, so RC pages see production's decision logs / ledgers while RC can never write
+# to them. Writers never use the fallback (a fallback sha would target the wrong file).
+SELFSERVE_DATA_READ_FALLBACK = os.environ.get("SCOUT_SELFSERVE_DATA_READ_FALLBACK", "") == "1"
 # The public code repo whose selfserve workflow the app dispatches when a request is submitted.
 SELFSERVE_DISPATCH_REPO = os.environ.get("SCOUT_SELFSERVE_DISPATCH_REPO", "uroshp/scout-ci")
 SELFSERVE_DISPATCH_WORKFLOW = os.environ.get("SCOUT_SELFSERVE_DISPATCH_WORKFLOW", "selfserve.yml")

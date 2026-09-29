@@ -238,6 +238,47 @@ def parse_my_facts(text):
                                                 "immaterial": d.get("immaterial") if isinstance(d.get("immaterial"), list) else []}}
 
 
+def _ask_research_schema():
+    return {"type": "object", "properties": {"facts": {"type": "array"}, "answer": {"type": "array"}, "unanswered": {"type": "array"}},
+            "required": ["facts", "answer"]}
+
+
+def _ask_rewrite_schema():
+    return {"type": "object", "properties": {"answer": {"type": "array"}}, "required": ["answer"]}
+
+
+def _ask_quick_schema():
+    return {"type": "object", "properties": {"answer": {"type": "array"}, "unanswered": {"type": "array"}}, "required": ["answer"]}
+
+
+def parse_ask_quick(text):
+    d = _extract(text)
+    if not isinstance(d, dict):
+        return None
+    answer = [a for a in (d.get("answer") if isinstance(d.get("answer"), list) else []) if isinstance(a, dict)]
+    return {"items": {}, "abstain": {}, "extra": {"answer": answer, "texts": {str(a.get("cites") or i): str(a.get("text") or "") for i, a in enumerate(answer)},
+                                                "unanswered": d.get("unanswered") if isinstance(d.get("unanswered"), list) else []}}
+
+
+def parse_ask_research(text):
+    d = _extract(text)
+    if not isinstance(d, dict):
+        return None
+    facts = [f for f in (d.get("facts") if isinstance(d.get("facts"), list) else []) if isinstance(f, dict)]
+    answer = [a for a in (d.get("answer") if isinstance(d.get("answer"), list) else []) if isinstance(a, dict)]
+    texts = {str(a.get("cites") or i): str(a.get("text") or "") for i, a in enumerate(answer)}
+    return {"items": {}, "abstain": {}, "extra": {"facts": facts, "answer": answer, "texts": texts,
+                                                "unanswered": d.get("unanswered") if isinstance(d.get("unanswered"), list) else []}}
+
+
+def parse_ask_rewrite(text):
+    d = _extract(text)
+    if not isinstance(d, dict):
+        return None
+    answer = [a for a in (d.get("answer") if isinstance(d.get("answer"), list) else []) if isinstance(a, dict)]
+    return {"items": {}, "abstain": {}, "extra": {"texts": {str(a.get("index")): str(a.get("text") or "") for a in answer}}}
+
+
 def parse_triage(text):
     d = _extract(text)
     if not isinstance(d, dict):
@@ -286,6 +327,23 @@ ROLE_SPECS = {
     "my_facts": {"family": GENERATIVE, "unit": "fact", "label_set": (), "costly": "fact broader than source",
                  "parse": parse_my_facts, "schema": _my_facts_schema,
                  "primary_model": lambda: config.SUBAGENT_MODEL, "output_reserve": 2048, "tools_on": True},
+    # Ask Scout (WS2, pre-registered 2026-09-28 before the first capture, plan C43): the research
+    # pass is generative + tools-on (its facts are judged like my_facts); the verifier is a
+    # confirm|reject classification per sentence, costly direction = a wrong confirm; the rewrite is
+    # generative + tools-off.
+    "ask_research": {"family": GENERATIVE, "unit": "fact", "label_set": (), "costly": "fact broader than source",
+                     "parse": parse_ask_research, "schema": _ask_research_schema,
+                     "primary_model": lambda: config.SUBAGENT_MODEL, "output_reserve": 2048, "tools_on": True},
+    "ask_verify": {"family": CLASSIFICATION, "unit": "sentence", "label_set": ("confirm", "reject"),
+                   "costly": "wrong confirm", "parse": parse_judge, "schema": _judge_schema,
+                   "primary_model": lambda: config.ORCHESTRATOR_MODEL, "output_reserve": 1024},
+    "ask_rewrite": {"family": GENERATIVE, "unit": "sentence", "label_set": (), "costly": "sentence broader than its facts",
+                    "parse": parse_ask_rewrite, "schema": _ask_rewrite_schema,
+                    "primary_model": lambda: config.SUBAGENT_MODEL, "output_reserve": 1024},
+    # the quick path's draft (2026-09-28): tools off, prose from known facts + labelled takes only
+    "ask_quick": {"family": GENERATIVE, "unit": "sentence", "label_set": (), "costly": "sentence broader than its facts",
+                  "parse": parse_ask_quick, "schema": _ask_quick_schema,
+                  "primary_model": lambda: config.SUBAGENT_MODEL, "output_reserve": 1024},
 }
 
 EXACT_ROLES = tuple(r for r, s in ROLE_SPECS.items() if not s.get("tools_on"))

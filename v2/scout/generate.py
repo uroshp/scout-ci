@@ -25,7 +25,7 @@ from datetime import date
 
 from claude_agent_sdk import AgentDefinition, ClaudeAgentOptions, query
 
-from scout import config, shadow, calllog
+from scout import config, shadow, calllog, sources_tool
 from scout.prompts import SOURCE_HIERARCHY, WRITING_STYLE, load_methodology
 from scout.schema import (
     SECTIONS, ZONES, claim_id, pregrounding_errors, validation_errors,
@@ -69,7 +69,7 @@ RESEARCHER = AgentDefinition(
         "excluded. Prefer sources a plain HTTP client can fetch over hard-paywalled ones. Return "
         "concise, sourced findings — not prose."
     ),
-    tools=["WebSearch", FETCH_TOOL_NAME],
+    tools=["WebSearch", FETCH_TOOL_NAME, *sources_tool.names()],
     model=config.SUBAGENT_MODEL,
 )
 
@@ -95,7 +95,7 @@ VERIFIER = AgentDefinition(
         "revision. Your support judgment is separate from the later mechanical grounding check — "
         "do your job even though grounding will re-check the excerpt."
     ),
-    tools=["WebSearch", FETCH_TOOL_NAME],
+    tools=["WebSearch", FETCH_TOOL_NAME, *sources_tool.names()],
     model=config.SUBAGENT_MODEL,
 )
 
@@ -145,7 +145,7 @@ CLAIM_CONTRACT = f"""Emit each claim as a JSON object with EXACTLY these fields 
 - "corroboration" (optional): a list of secondary sources confirming the SAME value, each
   {{"source_url","source_tier","note","grounded":false}}. Never grounded; never the anchor.
 - "anchor_substitution" (optional): include ONLY if the best (higher-tier) source is unfetchable
-  by a plain HTTP client (hard paywall, Cloudflare, SEC.gov direct) AND you read both it and a
+  by a plain HTTP client (hard paywall, Cloudflare) AND you read both it and a
   fetchable agreeing source. Then make the FETCHABLE source the anchor (source_url/excerpt),
   put the unfetchable one in corroboration, and set
   {{"preferred_url","preferred_tier","agreement_verified":true,"note"}}.
@@ -154,9 +154,10 @@ CLAIM_CONTRACT = f"""Emit each claim as a JSON object with EXACTLY these fields 
 
 Do NOT include "id", "verified", or "grounding" — those are filled deterministically downstream.
 
-GROUNDABILITY: prefer source_url values a plain HTTP client can read. Avoid anchoring on
-SEC.gov directly (it blocks datacenter IPs), hard paywalls, or Cloudflare-walled pages; use a
-fetchable reputable source as the anchor and keep the stronger one as corroboration.
+GROUNDABILITY: prefer source_url values a plain HTTP client can read. Avoid anchoring on hard
+paywalls or Cloudflare-walled pages; use a fetchable reputable source as the anchor and keep the
+stronger one as corroboration. SEC.gov IS fetchable (the fetcher sends the SEC's required contact
+User-Agent, 2026-09-28): a filing document or an EDGAR XBRL fact is the strongest anchor there is.
 
 SOURCING DISCIPLINE (enforced): every "recent_moves" claim and every status/current-state claim
 (current/flagship/latest, a launch, a cancellation, a price/limit change) MUST anchor source_url
@@ -377,9 +378,9 @@ async def _run_retry(payload):
         model=config.SUBAGENT_MODEL,            # mechanical repair — Sonnet
         # Free lever N: the static repair contract goes in the (cached) system prompt.
         system_prompt={"type": "preset", "preset": "claude_code",
-                       "append": RETRY_CONTRACT + "\n\n" + WRITING_STYLE},
-        mcp_servers={"scoutfetch": FETCH_SERVER},
-        allowed_tools=["WebSearch", FETCH_TOOL_NAME],  # re-source 'unreachable' claims via real fetch
+                       "append": RETRY_CONTRACT + sources_tool.note() + "\n\n" + WRITING_STYLE},
+        mcp_servers={"scoutfetch": FETCH_SERVER, **sources_tool.servers()},
+        allowed_tools=["WebSearch", FETCH_TOOL_NAME, *sources_tool.names()],  # re-source 'unreachable' claims via real fetch
         disallowed_tools=["WebFetch"],
         permission_mode="bypassPermissions",
         max_turns=config.MAX_TURNS,
@@ -494,6 +495,9 @@ ROLE_TOTALS: dict = {}
 # a stage-callback failure can NEVER break a paid generation — and None (the default) keeps every
 # other caller (monitor, scripts) byte-identical.
 _ON_STAGE = None
+# Same contract for tool calls (2026-09-28): Ask Scout streams "Searching: …" / "Reading: …" lines
+# to the reader while the research pass runs, so a two-minute step is not one frozen line.
+_ON_TOOL = None
 
 
 def _emit_stage(stage: str) -> None:
@@ -504,6 +508,16 @@ def _emit_stage(stage: str) -> None:
         cb(stage)
     except Exception as e:
         print(f"[generate] stage hook skipped ({type(e).__name__}: {e})", file=sys.stderr)
+
+
+def _emit_tool(name: str, inp: dict) -> None:
+    cb = _ON_TOOL
+    if cb is None:
+        return
+    try:
+        cb(name, inp)
+    except Exception as e:
+        print(f"[generate] tool hook skipped ({type(e).__name__}: {e})", file=sys.stderr)
 
 
 def reset_role_totals() -> None:
@@ -549,9 +563,11 @@ async def _drive(prompt: str, options, top_role: str) -> dict:
                 bump(role, getattr(message, "usage", None))
                 for b in getattr(message, "content", []) or []:
                     bk = type(b).__name__
-                    if bk == "ToolUseBlock" and getattr(b, "name", "") == "Agent":
+                    if bk == "ToolUseBlock":
                         inp = getattr(b, "input", {}) or {}
-                        agent_names[getattr(b, "id", "")] = inp.get("subagent_type") or "subagent"
+                        if getattr(b, "name", "") == "Agent":
+                            agent_names[getattr(b, "id", "")] = inp.get("subagent_type") or "subagent"
+                        _emit_tool(getattr(b, "name", "") or "", inp if isinstance(inp, dict) else {})
                     elif bk == "TextBlock":
                         last_text = getattr(b, "text", "") or last_text
             elif kind == "ResultMessage":
@@ -568,6 +584,15 @@ async def _drive(prompt: str, options, top_role: str) -> dict:
               f"Error: {type(e).__name__}: {e}", file=sys.stderr, flush=True)
         if cap is not None:
             cap.fail(e, by_role)
+        # The SDK yields the error ResultMessage (with the cost so far) BEFORE it raises on the
+        # CLI's non-zero exit, so a budget-exhausted run still knows what it spent (2026-09-28):
+        # callers with a ledger settle the real number instead of guessing. A process that died
+        # before its first message did no billable work (the Cloud Run root-user ProcessError), so
+        # that is a KNOWN zero; None stays "unknown" and the ledger fails closed on it.
+        try:
+            e.scout_cost_usd = 0.0 if (result is None and msgs == 0) else getattr(result, "total_cost_usd", None)
+        except Exception:
+            pass
         raise
 
     _merge_role_totals(by_role)
@@ -617,10 +642,10 @@ async def _run_orchestrator(target, perspective, focus) -> dict:
         model=config.ORCHESTRATOR_MODEL,                  # Opus orchestrator
         # Free lever N: static instructions in the (cached) system prompt, appended
         # to the default preset; only the dynamic framing goes in the user prompt.
-        system_prompt={"type": "preset", "preset": "claude_code", "append": _orch_system()},
+        system_prompt={"type": "preset", "preset": "claude_code", "append": _orch_system() + sources_tool.note()},
         agents={"researcher": RESEARCHER, "verifier": VERIFIER},
-        mcp_servers={"scoutfetch": FETCH_SERVER},        # our httpx fetch tool, replaces WebFetch
-        allowed_tools=["Agent", "WebSearch", FETCH_TOOL_NAME],
+        mcp_servers={"scoutfetch": FETCH_SERVER, **sources_tool.servers()},   # our httpx fetch tool, replaces WebFetch
+        allowed_tools=["Agent", "WebSearch", FETCH_TOOL_NAME, *sources_tool.names()],
         disallowed_tools=["WebFetch"],                    # no model-mediated fetch anywhere
         permission_mode="bypassPermissions",
         max_turns=config.MAX_TURNS,

@@ -67,7 +67,14 @@ def new_meta(competitor: str, my_company: str | None, focus: str | None, slug: s
 
 
 def write_baseline(slug: str, claims: list[dict], meta: dict, current_md: str) -> dict:
-    """Write a fresh tracked baseline. Returns the paths written."""
+    """Write a fresh tracked baseline. Returns the paths written.
+
+    Every card write passes through here (generate, monitor, review.apply, promotion), so this is
+    where the deterministic source class is stamped on every claim (2026-09-28, WS0): the chip the
+    reader sees comes from the host, decided by code, and the tier is normalized where code can
+    know it (scout/sources/classify.py, never invalidating a claim)."""
+    from scout.sources import classify as _classify
+    _classify.stamp_all(claims, meta)
     p = _paths(slug)
     os.makedirs(p["dir"], exist_ok=True)
     with open(p["claims"], "w") as f:
@@ -77,6 +84,17 @@ def write_baseline(slug: str, claims: list[dict], meta: dict, current_md: str) -
     with open(p["current"], "w") as f:
         f.write(current_md)
     return p
+
+
+def write_claims(slug: str, claims: list[dict], meta: dict | None = None) -> str:
+    """Write ONLY claims.json (the backfill's path: no re-render, the Cut Log in current.md stays
+    exactly as it is). Stamps the source class like write_baseline."""
+    from scout.sources import classify as _classify
+    _classify.stamp_all(claims, meta or load_meta(slug) or {})
+    p = _paths(slug)
+    with open(p["claims"], "w") as f:
+        json.dump(claims, f, indent=2, ensure_ascii=False)
+    return p["claims"]
 
 
 def load_claims(slug: str) -> list[dict]:

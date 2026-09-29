@@ -77,3 +77,11 @@ streak.
 
 No production switch, no fallback-to-local, no auto-promotion. The first 14 nights produce a
 BASELINE at most. This lane is blinded; the two older lanes were not.
+
+## Addendum 2026-09-28: Ask Scout roles (pre-registered before the first capture)
+
+`ask_research` (generative, tools-on; facts judged like `my_facts`), `ask_verify` (classification,
+unit = answer sentence, confirm | reject; costly direction = a wrong confirm, the same as `judge`),
+`ask_rewrite` (generative, tools-off). Same bars, same populations, same period rule. The Ask
+loop's model-free floor runs before `ask_verify` in production, so a replay of `ask_verify` sees
+only sentences that already passed the floor: the comparison is of judgment, not of the floor.

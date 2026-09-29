@@ -21,7 +21,31 @@ import os
 import re
 from datetime import datetime, timedelta, timezone
 
+import contextvars
+
 from scout import config, display, store
+from scout.sources import classify as _classify
+from scout.schema import PERSONAS as _PERSONAS
+
+# The persona the reader chose (?persona=<key>, WS0 2026-09-28): that persona's plays and
+# objections render first and the rest dim; None = the default order. A context variable so the
+# choice is scoped to one request and never leaks between concurrent renders.
+_PERSONA = contextvars.ContextVar("scout_persona", default=None)
+
+
+def persona_or_none(value) -> str | None:
+    return value if value in _PERSONAS else None
+
+
+def _pkey(c: dict):
+    """Sort key: the chosen persona's items first, then the stored order."""
+    p = _PERSONA.get()
+    return (0 if (p and c.get("persona") == p) else 1, c.get("order", 0))
+
+
+def _pdim(c: dict) -> str:
+    p = _PERSONA.get()
+    return " pdim" if (p and c.get("persona") and c.get("persona") != p) else ""
 
 # Rotating build-status copy for the self-serve wait (originally the v1 app's progress lines).
 # ONE shared source (2026-07-19): the Flask viewer serializes these into its progress JS and the
@@ -189,7 +213,7 @@ def _badge(c: dict, prefix: str) -> str:
     label = _PERSONA_LABELS.get(c.get("persona"))
     if not label:
         return ""
-    return (f'<span class="persona"><span class="pk">{_html.escape(prefix)}</span> '
+    return (f'<span class="persona p-{_html.escape(c["persona"])}"><span class="pk">{_html.escape(prefix)}</span> '
             f'{_html.escape(label)}</span>')
 
 
@@ -204,14 +228,112 @@ def _anchor(subject_key: str) -> str:
     return "u-" + re.sub(r"[^a-z0-9]+", "-", (subject_key or "").lower()).strip("-")
 
 
-def _verified(url: str, asof: str = "") -> str:
+_CLASS_ORDER = ["filing", "court", "government", "company_statement", "job_posting", "research",
+                "news", "page_snapshot", "review_site", "forum", "unknown"]
+_CLASS_BLURB = {
+    "filing": "Regulatory filings. Audited or sworn documents; the strongest source there is.",
+    "court": "Court records. What was actually filed or ruled.",
+    "government": "Regulators and government bodies, in their own words.",
+    "company_statement": "The company's own site, press releases and investor pages. Reliable for what the company said; still the company's framing.",
+    "job_posting": "Public job boards. What a company is hiring for is a leading indicator of what it is building.",
+    "research": "Papers and journals.",
+    "news": "Major outlets. Reputable, and secondhand: a paraphrase of a source, not the source.",
+    "page_snapshot": "Archived copies of a page, dated.",
+    "review_site": "Review platforms. Sentiment, never the anchor for a fact.",
+    "forum": "Discussion and social. Sentiment, never the anchor for a fact.",
+    "unknown": "Everything else on the web. The tier shown is the one Scout's verifier assigned; the kind of site is not one code can vouch for.",
+}
+
+
+def sources_html(slug: str) -> str:
+    """The per-card sources page (WS0, 2026-09-28): every citation on the active card grouped by
+    KIND (decided by code from the host), then by host, with the claims resting on each source and
+    a deep link back to the claim. Conflicts (a fact anchored on a sentiment-grade host) are called
+    out rather than hidden: the verifier's tier stands, and the reader can judge."""
+    meta = store.load_meta(slug) or {}
+    active, _retired = _prepare_display(store.load_claims(slug), meta)
+    cited = [c for c in active if c.get("source_url")]
+    by_class: dict = {}
+    for c in cited:
+        by_class.setdefault(c.get("source_class") or "unknown", {}).setdefault(_domain(c["source_url"]), []).append(c)
+    counts = {k: sum(len(v) for v in hosts.values()) for k, hosts in by_class.items()}
+    total = sum(counts.values())
+    head = (f'<div class="srchead"><div class="srctitle"><span class="ey">Sources</span>'
+            f'<h2>What this card rests on</h2>'
+            f'<p class="srclede">{total} citations on the active card, sorted by the kind of source, '
+            f'strongest first. The kind is decided by code from the host, never by the model; the tier '
+            f'on each chip is the verifier\'s.</p></div>'
+            f'<a class="srcback" href="/c/{_html.escape(slug)}">Back to the card</a></div>')
+    chips = "".join(f'<span class="srcrow">{_class_chip(k)}<span class="srcn">{counts[k]}</span></span>'
+                    for k in _CLASS_ORDER if k in counts)
+    conflicts = [c for c in cited if c.get("source_class_conflict")]
+    warn = ""
+    if conflicts:
+        items = "".join(f'<li>{_inline(_parse_claim(c)["title"] or str(c.get("claim", ""))[:120])} '
+                        f'<span class="muted">rests on {_html.escape(_domain(c["source_url"]))}, a '
+                        f'{_html.escape(_classify.CLASS_LABEL.get(c["source_class_conflict"], "sentiment").lower())} source; '
+                        f'the verifier\'s tier ({_html.escape(str(c.get("source_tier")))}) is kept.</span></li>'
+                        for c in conflicts)
+        warn = f'<div class="srcwarn"><b>{len(conflicts)} fact{"s" if len(conflicts) > 1 else ""} on a sentiment-grade source</b><ul>{items}</ul></div>'
+    secs = []
+    for k in _CLASS_ORDER:
+        hosts = by_class.get(k)
+        if not hosts:
+            continue
+        rows = []
+        for host, cs in sorted(hosts.items(), key=lambda kv: (-len(kv[1]), kv[0])):
+            first = cs[0]["source_url"]
+            claim_rows = "".join(
+                f'<li><a href="/c/{_html.escape(slug)}#{_anchor(c.get("subject_key", ""))}">'
+                f'{_inline(_parse_claim(c)["title"] or str(c.get("claim", ""))[:110])}</a>'
+                f'<span class="muted"> · {_html.escape(_SECTION_TITLES.get(c.get("section"), c.get("section") or ""))}'
+                + (f' · {_html.escape(_fmt_asof(c.get("as_of")))}' if c.get("as_of") else "") + "</span></li>"
+                for c in cs)
+            rows.append(f'<div class="srchost"><div class="srchostline"><a href="{_html.escape(first)}" target="_blank" '
+                        f'rel="noopener">{_html.escape(host)}</a><span class="srcn">{len(cs)}</span></div>'
+                        f'<ul class="srcclaims">{claim_rows}</ul></div>')
+        blurb = f'<p class="srcblurb">{_html.escape(_CLASS_BLURB.get(k, ""))}</p>'
+        secs.append(_section(f"src-{k}", _classify.CLASS_LABEL.get(k, k), f"{counts[k]}", blurb + "".join(rows)))
+    return ('<div id="scout-page"><div class="wrap srcpage">' + head + f'<div class="srcchips big">{chips}</div>'
+            + warn + "".join(secs) + "</div></div>")
+
+
+_TIER_TITLE = {
+    "primary": "Primary source: the document itself, or the company's own statement",
+    "reputable_secondary": "Reputable secondary source",
+    "sentiment_only": "Sentiment: reviews or discussion, not a fact source",
+}
+
+
+def _class_chip(cls, tier=None) -> str:
+    """The source-class chip beside a citation (WS0, 2026-09-28): what KIND of source this is,
+    decided by code from the host (scout/sources/classify.py). The tier is the tooltip. Nothing
+    renders when the class is missing (a derived claim with no resolvable source)."""
+    if not cls:
+        return ""
+    label = _classify.CLASS_LABEL.get(cls, "Web")
+    title = _TIER_TITLE.get(tier or _classify.CLASS_TIER.get(cls) or "", "")
+    return (f'<span class="srcclass srcclass-{_html.escape(cls)}"'
+            + (f' title="{_html.escape(title)}"' if title else "") + f'>{_html.escape(label)}</span>')
+
+
+def _verified(url: str, asof: str = "", cls=None, tier=None) -> str:
     bits = ['<span class="verified"><span class="tick">✓</span>Verified</span>']
     if url:
         bits.append(f'<span class="sep">·</span><a href="{_html.escape(url)}" target="_blank" '
                     f'rel="noopener">{_html.escape(_domain(url))}</a>')
+        chip = _class_chip(cls, tier)
+        if chip:
+            bits.append(chip)
     if asof:
         bits.append(f'<span class="sep">·</span>{_html.escape(asof)}')
     return '<div class="srcline">' + "".join(bits) + "</div>"
+
+
+def _vsrc(c: dict, asof: str = "") -> str:
+    """_verified from a display claim (source_url + class + tier already resolved by
+    _prepare_display)."""
+    return _verified(c.get("source_url", ""), asof, cls=c.get("source_class"), tier=c.get("source_tier"))
 
 
 def _callout(kind: str, label: str, text: str) -> str:
@@ -234,19 +356,19 @@ def _prose_item(c: dict, *, callout_label=None, callout_kind="sw", badge_prefix=
         call = _callout("sb", "Soundbite", p["soundbite"])
     elif p["so_what"] and callout_label:
         call = _callout(callout_kind, callout_label, p["so_what"])
-    return (f'<div class="item" id="{_anchor(c.get("subject_key"))}">'
-            f'{head}{body}{call}{_verified(c.get("source_url",""))}</div>')
+    return (f'<div class="item{_pdim(c)}" id="{_anchor(c.get("subject_key"))}">'
+            f'{head}{body}{call}{_vsrc(c)}</div>')
 
 
 def _bullet_item(c: dict, new: bool = False) -> str:
     return (f'<div class="item" id="{_anchor(c.get("subject_key"))}">'
             f'<p>{_new_chip(new)}{_inline(c.get("claim",""))}</p>'
-            f'{_verified(c.get("source_url",""), _fmt_asof(c.get("as_of")))}</div>')
+            f'{_vsrc(c, _fmt_asof(c.get("as_of")))}</div>')
 
 
 def _snapshot_box(c: dict, new: bool = False) -> str:
     return (f'<div class="box">{_new_chip(new)}{_inline(c.get("claim",""))}'
-            f'{_verified(c.get("source_url",""), _fmt_asof(c.get("as_of")))}</div>')
+            f'{_vsrc(c, _fmt_asof(c.get("as_of")))}</div>')
 
 
 def _section(sid: str, title: str, count_label: str, inner: str) -> str:
@@ -289,7 +411,7 @@ def _battlecard(claims: list, recent_keys: set | None = None) -> str:
     recent_keys = recent_keys or set()
     subs = []
     for zid, zlabel, zcls in _ZONES:
-        zc = sorted([c for c in claims if c.get("zone") == zid], key=lambda c: c.get("order", 0))
+        zc = sorted([c for c in claims if c.get("zone") == zid], key=_pkey)
         if not zc:
             continue
         items = [_prose_item(c, badge_prefix="Best for",
@@ -329,7 +451,8 @@ def _cut_log(md: str):
     return _section("cut", "Cut Log", f"{n} removed / revised", note + "".join(rows)), n
 
 
-def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = None) -> str:
+def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = None,
+          sources: tuple | None = None) -> str:
     plays_lbl = "Top play" if plays_n == 1 else f"Top {plays_n} plays"
     toc = ['<div class="grp brief first">Contents</div>',
            '<a href="#brief">Today\'s angle</a>',
@@ -412,11 +535,43 @@ def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = N
     if getattr(config, "SOURCE_REPO_URL", ""):
         credit += (f' · <a href="{_html.escape(config.SOURCE_REPO_URL)}" target="_blank" '
                    f'rel="noopener">GitHub</a>')
-    return ('<div class="rail">' + nav
+    # Sources (2026-09-28): what kinds of sources the active card rests on, decided by code from
+    # the host, with the full per-source listing one click away.
+    # Pick your audience (2026-09-28): the personas present on this card, each in its own colour
+    # (the same colour as its badge on every play and objection, so the rail and the card tie
+    # together); the chosen one's plays and objections lead and the others dim. Plain links, so it
+    # works on the iPad and in print.
+    view_panel = ""
+    if sources:
+        slug, _counts = sources
+        present_p = [p for p in _PERSONAS if any(c.get("persona") == p for c in (status.get("_claims") or []))]
+        if present_p:
+            cur = _PERSONA.get()
+            links = [f'<a class="pv{" on" if not cur else ""}" href="/c/{_html.escape(slug)}">Everyone</a>']
+            for p in present_p:
+                links.append(f'<a class="pv p-{p}{" on" if cur == p else ""}" href="/c/{_html.escape(slug)}?persona={p}">'
+                             f'{_html.escape(_PERSONA_LABELS.get(p, p))}</a>')
+            view_panel = panel("Pick your audience", '<div class="pviews">' + "".join(links) + "</div>")
+    src_panel = ""
+    if sources:
+        slug, counts = sources
+        total = sum(counts.values())
+        chips = "".join(f'<span class="srcrow">{_class_chip(k)}<span class="srcn">{n}</span></span>'
+                        for k, n in sorted(counts.items(), key=lambda kv: (_CLASS_ORDER.index(kv[0]) if kv[0] in _CLASS_ORDER else 99)))
+        body = (f'<div class="srcchips">{chips}</div>'
+                f'<a class="srcall" href="/c/{_html.escape(slug)}/sources">All sources by kind</a>')
+        src_panel = panel("Sources", body, f'<span class="ph-n">{total}</span>')
+    # History (2026-09-28): the git feed is engineering history, not reader signal, so it collapses
+    # into one line at the foot of the rail instead of a third panel beside Material changes and
+    # Recently updated.
+    history = ""
+    if cf_rows:
+        history = (f'<details class="rail-history"><summary>History <span class="ph-n">{len(cf_rows)}</span></summary>'
+                   f'<div class="feed">{"".join(cf_rows)}</div></details>')
+    return ('<div class="rail">' + nav + view_panel
             + panel("Material changes", mc, f'<span class="ph-n">{len(mc_rows)}</span>')
             + panel("Recently updated", ru_html, f'<span class="ph-n">{len(ru)}</span>')
-            + panel("Change feed", _collapse(cf_rows) if cf_rows
-                    else '<div class="empty">No changes recorded yet.</div>')
+            + src_panel + history
             + f'<div class="rail-credit">{credit}</div>' + "</div>")
 
 
@@ -468,10 +623,10 @@ def _briefing(claims: list, label: str = "Your Daily Briefing",
             + (f'<p>{_inline(body)}</p>' if body else "")
             + (_callout("sb", "Say", p["soundbite"]) if p["soundbite"] else "")
             + (_callout("sw", "Move", p["so_what"]) if p["so_what"] else "")
-            + _verified(angle.get("source_url", ""), _fmt_asof(angle.get("as_of"))) + "</div>")
+            + _vsrc(angle, _fmt_asof(angle.get("as_of"))) + "</div>")
 
     wins = sorted([c for c in claims if c.get("section") == "battlecard"
-                   and c.get("zone") == "where_we_win"], key=lambda c: c.get("order", 0))[:3]
+                   and c.get("zone") == "where_we_win"], key=_pkey)[:3]
     plays = []
     for i, c in enumerate(wins, 1):
         p = _parse_claim(c)
@@ -481,7 +636,7 @@ def _briefing(claims: list, label: str = "Your Daily Briefing",
         why = "".join(f"<p>{_inline(b)}</p>" for b in p["body"])
         sb = _callout("sb", "Soundbite", p["soundbite"]) if p["soundbite"] else ""
         plays.append(f'<div class="play">{top}<h4>{_inline(p["title"])}</h4>{why}{sb}'
-                     f'{_verified(c.get("source_url",""))}</div>')
+                     f'{_vsrc(c)}</div>')
     plays_lbl = "Top play" if len(plays) == 1 else f"Top {len(plays)} plays"
     plays_html = (f'<div class="bsub two" id="brief2">{plays_lbl}</div>'
                   f'<div class="playbox">{"".join(plays)}</div>') if plays else ""
@@ -573,6 +728,51 @@ FONT_HEAD = (
 # 2-col breakpoint so a narrow viewport doesn't stack the rail on top of the brief.
 _OVERRIDES = """
 #scout-page .wrap{padding-left:0;padding-right:0;padding-bottom:32px;}
+/* Source-class chip on every citation (2026-09-28): the .persona chip idiom, one notch quieter.
+   unknown ("Web") is outlined only, so the eye lands on the classes that carry meaning. */
+#scout-page .srcclass{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-deep);background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:4px;padding:2px 6px;white-space:nowrap;line-height:1.3}
+#scout-page .srcclass-unknown{color:var(--faint);background:transparent;border-color:var(--line)}
+#scout-page .srcclass-filing,#scout-page .srcclass-court,#scout-page .srcclass-government{color:#1f4d2a;background:#e6f1e8;border-color:#bcd8c2}
+#scout-page .srcclass-review_site,#scout-page .srcclass-forum{color:#6b5a1e;background:#f7f0dc;border-color:#e2d3a3}
+#scout-page .item.pdim{opacity:.55}
+#scout-page .item.pdim:hover{opacity:1}
+/* Persona palette (2026-09-28): one colour per audience, on the badge of every play and
+   objection AND on the rail's audience picker, so the two tie together. Muted hues on the paper
+   palette; each pair is text/fill/line. */
+#scout-page .p-eng_led{--pc:#1f6f6b;--pf:#e3f1ef;--pl:#b7dad5}
+#scout-page .p-technical_evaluator{--pc:#2f4f9e;--pf:#e7ecf8;--pl:#bfcdef}
+#scout-page .p-economic_buyer{--pc:#3d6b2e;--pf:#e8f1e2;--pl:#c0dab4}
+#scout-page .p-security_regulated{--pc:#8a2f3d;--pf:#f7e7ea;--pl:#e4bcc5}
+#scout-page .p-exec_top_down{--pc:#5b3d8c;--pf:#ede7f6;--pl:#cfc1e6}
+#scout-page .persona[class*=" p-"]{color:var(--pc);background:var(--pf);border-color:var(--pl)}
+#scout-page .persona[class*=" p-"] .pk{color:var(--pc);opacity:.7}
+#scout-page .pviews{display:flex;flex-wrap:wrap;gap:6px}
+#scout-page .pviews .pv{font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:transparent}
+#scout-page .pviews .pv[class*=" p-"]{color:var(--pc);border-color:var(--pl)}
+#scout-page .pviews .pv.on{font-weight:600;color:var(--accent-deep);background:var(--accent-soft);border-color:var(--accent-line)}
+#scout-page .pviews .pv.on[class*=" p-"]{color:#fff;background:var(--pc);border-color:var(--pc)}
+#scout-page .pviews .pv:hover{text-decoration:none;filter:brightness(.92)}
+#scout-page .rail-history{margin:10px 0 6px;font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+#scout-page .rail-history summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;letter-spacing:.12em;text-transform:uppercase;font-size:9px}
+#scout-page .rail-history summary::-webkit-details-marker{display:none}
+#scout-page .rail-history .feed{margin-top:6px}
+#scout-page .srcchips{display:flex;flex-wrap:wrap;gap:6px 10px;margin:2px 0 8px}
+#scout-page .srcrow{display:inline-flex;align-items:center;gap:5px}
+#scout-page .srcn{font-family:var(--mono);font-size:10px;color:var(--faint)}
+#scout-page .srcall{font-family:var(--mono);font-size:10.5px;color:var(--accent-deep)}
+#scout-page .srcpage .srchead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin:6px 0 10px}
+#scout-page .srcpage h2{margin:2px 0 4px;font-size:22px}
+#scout-page .srcpage .srclede{margin:0;max-width:62ch;color:var(--muted);font-size:13.5px;line-height:1.5}
+#scout-page .srcback{font-family:var(--mono);font-size:11px;color:var(--accent-deep);white-space:nowrap}
+#scout-page .srcchips.big{margin:8px 0 14px}
+#scout-page .srcwarn{border:1px solid #e2d3a3;background:#f7f0dc;border-radius:8px;padding:10px 14px;margin:0 0 14px;font-size:13px}
+#scout-page .srcwarn ul{margin:6px 0 0 18px;padding:0}
+#scout-page .srcblurb{margin:0 0 10px;color:var(--muted);font-size:13px}
+#scout-page .srchost{padding:8px 0;border-top:1px solid var(--line)}
+#scout-page .srchostline{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px}
+#scout-page .srcclaims{margin:4px 0 0 0;padding-left:18px;font-size:13px;line-height:1.5}
+#scout-page .srcclaims li{margin:2px 0}
+#scout-page .srcclaims .muted{color:var(--faint);font-size:12px}
 /* Tighten the top: the masthead + title blocks each sit in a .wrap whose 32px bottom padding
    opened big gaps above the control row and below the title. Trim those two (the content .wrap
    keeps its padding for the page end), pull the tagline up under the name, and close the
@@ -791,18 +991,34 @@ def title_html(slug: str) -> str:
     return '<div id="scout-page"><div class="wrap tw">' + _title_block(meta) + "</div></div>"
 
 
-def _prepare_display(claims: list):
+def _prepare_display(claims: list, meta: dict | None = None):
     """Split claims for the viewer and resolve propagated source links. Returns (active, retired):
     a `status: retired` claim leaves the active card for the lineage view (claim-object.md §2.3); a
     propagated claim (no own source_url) borrows the source of the grounded fact it derives_from, so
-    its 'Verified · <domain>' line still renders. Returns NEW dicts — never mutates the store list."""
+    its 'Verified · <domain>' line still renders. Returns NEW dicts — never mutates the store list.
+
+    Source class (2026-09-28): the stored `source_class` when the card carries it (stamped at write
+    time / by the backfill), else classified at render time from the host with the card's company
+    names, so the chip shows on every card before the backfill has landed. A propagated claim
+    inherits the class of the source it renders: provenance first, then the parent fact."""
+    names = ((meta or {}).get("competitor"), (meta or {}).get("my_company"))
     by_id = {c.get("id"): c for c in claims if c.get("id")}
     active, retired = [], []
     for c in claims:
+        c = dict(c)
+        prov = c.get("provenance") or {}
         if not c.get("source_url") and c.get("derived_from"):
             parent = by_id.get(c["derived_from"])
-            if parent and parent.get("source_url"):
-                c = {**c, "source_url": parent["source_url"]}
+            if prov.get("source_url"):
+                c["source_url"] = prov["source_url"]
+                c["source_class"] = prov.get("source_class") or _classify.classify(prov["source_url"], *names)
+                c["source_tier"] = prov.get("source_tier") or c.get("source_tier")
+            elif parent and parent.get("source_url"):
+                c["source_url"] = parent["source_url"]
+                c["source_class"] = parent.get("source_class") or _classify.classify(parent["source_url"], *names)
+                c["source_tier"] = parent.get("source_tier") or c.get("source_tier")
+        elif c.get("source_url") and not c.get("source_class"):
+            c["source_class"] = _classify.classify(c["source_url"], *names)
         (retired if str(c.get("status", "active")) == "retired" else active).append(c)
     return active, retired
 
@@ -824,7 +1040,7 @@ def _lineage(retired: list) -> str:
         reason = c.get("retired_reason") or "retired"
         rows.append(f'<div class="item retired"><div class="ihead"><h4>{title}</h4></div>'
                     f'<p class="rtmeta"><b>{" · ".join(bits)}</b> — {_inline(reason)}</p>'
-                    f'{_verified(c.get("source_url", ""))}</div>')
+                    f'{_vsrc(c)}</div>')
     return _section("lineage", "Lineage — retired plays & objections",
                     f"{len(retired)} retired", "".join(rows))
 
@@ -871,7 +1087,7 @@ def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retir
             secs.append(_section(sid, title, f"{len(cs)} objections",
                                  "".join(_prose_item(c, callout_label="So what",
                                                      badge_prefix="Raised by",
-                                                     new=_new(c)) for c in cs)))
+                                                     new=_new(c)) for c in sorted(cs, key=_pkey))))
         elif sid in _PREVIEW_SECTIONS:   # recent_moves, positioning, pricing
             label = {"recent_moves": "moves"}.get(sid, "items")
             secs.append(_preview_section(sid, title, f"{len(cs)} {label}",
@@ -903,7 +1119,7 @@ def static_brief_html(claims: list, md: str, meta: dict | None = None,
     `briefing=True` opens with the summary box (the exec-summary leads + top plays — the
     2-minute payoff after a long generation wait); label/tag default to the live viewer's
     header so the monitored-card path renders byte-identically."""
-    active, retired = _prepare_display(claims)
+    active, retired = _prepare_display(claims, meta)
     secs, cut_html, _present = _brief_sections(active, md, retired=retired)
     title = _title_block(meta) if meta else ""
     brief = _briefing(active, label=briefing_label, tag=briefing_tag) if briefing else ""
@@ -917,14 +1133,24 @@ def static_brief_html(claims: list, md: str, meta: dict | None = None,
     return '<div id="scout-page"><div class="wrap">' + inner + '</div></div>'
 
 
-def content_html(slug: str) -> str:
+def content_html(slug: str, persona: str | None = None) -> str:
     """The card body below the title: rule → metric strip + 5-min briefing → full brief →
-    freshness, plus the left rail. CSS + masthead + title are injected separately."""
+    freshness, plus the left rail. CSS + masthead + title are injected separately.
+    `persona` (2026-09-28): the reader's chosen buyer persona; its plays and objections lead."""
+    token = _PERSONA.set(persona_or_none(persona))
+    try:
+        return _content_html(slug)
+    finally:
+        _PERSONA.reset(token)
+
+
+def _content_html(slug: str) -> str:
     status = display.card_status(slug)
     cp = status["checkpoints"]
     # Split retired off the active card (lineage view) and resolve propagated source links once, so
     # every downstream consumer (rail, briefing, sections) sees only active claims with live sources.
-    claims, retired = _prepare_display(store.load_claims(slug))
+    claims, retired = _prepare_display(store.load_claims(slug), store.load_meta(slug))
+    status["_claims"] = claims                      # the rail's persona switcher reads what is present
     md = _read_current(slug)
     rows = status["claim_timestamps"]
     secs, cut_html, present = _brief_sections(claims, md, set(status["recent_keys"]), retired=retired)
@@ -939,7 +1165,8 @@ def content_html(slug: str) -> str:
     nav_ids = set(re.findall(r'id="(u-[a-z0-9-]+)"', secs))   # anchors that actually render
     inner = (
         '<hr class="rule">'
-        '<div class="cols">' + _rail(status, present, plays_n, nav_ids)
+        '<div class="cols">' + _rail(status, present, plays_n, nav_ids,
+                                     sources=(slug, _classify.class_counts(claims)))
         + '<div class="maincol">'
         + _metrics(cp, status["agent_activity"]["claims_tracked"], max(remaining, 0),
                    sum(1 for r in rows if r.get("is_new")))
@@ -982,11 +1209,15 @@ body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;color:#1c
 """
 
 
-def call_sheet_html(slug: str) -> str:
+def call_sheet_html(slug: str, persona: str | None = None) -> str:
     """A self-contained, print-optimized one-pager (the pitch + the rebuttals). The print button
     opens this in a fresh window and prints it — so it never touches Streamlit's layout and can't
-    be clipped by the scroll container."""
-    return call_sheet_from_claims(store.load_claims(slug), store.load_meta(slug))
+    be clipped by the scroll container. `persona` puts that buyer's plays and objections first."""
+    token = _PERSONA.set(persona_or_none(persona))
+    try:
+        return call_sheet_from_claims(store.load_claims(slug), store.load_meta(slug))
+    finally:
+        _PERSONA.reset(token)
 
 
 def call_sheet_from_claims(claims: list, meta: dict | None) -> str:
@@ -1012,7 +1243,7 @@ def call_sheet_from_claims(claims: list, meta: dict | None) -> str:
                       f'<div class="angle"><p>{_inline(text)}</p>{sw}</div>')
 
     wins = sorted([c for c in claims if c.get("section") == "battlecard"
-                   and c.get("zone") == "where_we_win"], key=lambda c: c.get("order", 0))[:3]
+                   and c.get("zone") == "where_we_win"], key=_pkey)[:3]
     plays = []
     for i, c in enumerate(wins, 1):
         p = _parse_claim(c)
@@ -1023,8 +1254,7 @@ def call_sheet_from_claims(claims: list, meta: dict | None) -> str:
     plays_lbl = "Top play" if len(plays) == 1 else f"Top {len(plays)} plays"
     plays_html = (f'<div class="lbl">{plays_lbl}</div>' + "".join(plays)) if plays else ""
 
-    objs = sorted([c for c in claims if c.get("section") == "objection_handling"],
-                  key=lambda c: c.get("order", 0))
+    objs = sorted([c for c in claims if c.get("section") == "objection_handling"], key=_pkey)
     obj_items = []
     for c in objs:
         p = _parse_claim(c)

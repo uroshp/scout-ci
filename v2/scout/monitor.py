@@ -31,6 +31,7 @@ from claude_agent_sdk import ClaudeAgentOptions
 
 from scout import config, selfserve, shadow, store, strengths
 from scout.fetch_tool import FETCH_SERVER, FETCH_TOOL_NAME, reset_log
+from scout import sources_tool
 from scout.generate import _drive, _extract_json, _build_retry_payload, _run_retry
 from scout.propagate import propagate, apply_ops, promote_lead
 from scout.grounding import CUT_ABSENT, ground_claims, is_excluded_source
@@ -41,6 +42,15 @@ from scout.schema import ANCHOR_SECTION, SOURCE_TIERS, claim_id, pregrounding_er
 # Source-tier preference order for multi-source grounding (best first): a primary filing /
 # company release beats reputable secondary reporting, which beats sentiment-only.
 _TIER_RANK = {tier: i for i, tier in enumerate(SOURCE_TIERS)}
+# Within a tier, the source CLASS decided by code from the host breaks the tie (2026-09-28, WS1):
+# a filing beats the company's own page beats a job board; news beats an unknown host beats a forum.
+_CLASS_RANK = {"filing": 0, "court": 0, "government": 0, "company_statement": 1, "job_posting": 2,
+               "research": 3, "news": 3, "page_snapshot": 4, "unknown": 5, "review_site": 6, "forum": 6}
+
+
+def _source_rank(url, tier) -> tuple:
+    from scout.sources import classify as _classify
+    return (_TIER_RANK.get(tier, 99), _CLASS_RANK.get(_classify.classify(url), 5))
 
 MATERIAL_CATEGORIES = (
     "funding, IPO/S-1 filing, M&A, exec hire/departure, pricing/packaging change, "
@@ -268,9 +278,9 @@ async def _run_triage(meta, since, claims, my_since=None):
             + _tracked_digest(claims) + hunt_block)
     options = ClaudeAgentOptions(
         model=config.FAST_MODEL,
-        system_prompt={"type": "preset", "preset": "claude_code", "append": _TRIAGE_SYSTEM},
-        mcp_servers={"scoutfetch": FETCH_SERVER},
-        allowed_tools=["WebSearch", FETCH_TOOL_NAME],
+        system_prompt={"type": "preset", "preset": "claude_code", "append": _TRIAGE_SYSTEM + sources_tool.note("triage")},
+        mcp_servers={"scoutfetch": FETCH_SERVER, **sources_tool.servers()},
+        allowed_tools=["WebSearch", FETCH_TOOL_NAME, *sources_tool.names("triage")],
         disallowed_tools=["WebFetch"],
         permission_mode="bypassPermissions",
         # Triage-specific tight caps (lever B): few turns structurally bound the number of
@@ -342,9 +352,9 @@ async def _run_materiality(meta, since, candidates, claims):
     options = ClaudeAgentOptions(
         model=config.ORCHESTRATOR_MODEL,
         system_prompt={"type": "preset", "preset": "claude_code",
-                       "append": _MATERIALITY_SYSTEM + "\n\n" + WRITING_STYLE},
-        mcp_servers={"scoutfetch": FETCH_SERVER},
-        allowed_tools=["WebSearch", FETCH_TOOL_NAME],
+                       "append": _MATERIALITY_SYSTEM + sources_tool.note() + "\n\n" + WRITING_STYLE},
+        mcp_servers={"scoutfetch": FETCH_SERVER, **sources_tool.servers()},
+        allowed_tools=["WebSearch", FETCH_TOOL_NAME, *sources_tool.names()],
         disallowed_tools=["WebFetch"],
         permission_mode="bypassPermissions",
         max_turns=config.MAX_TURNS,
@@ -373,7 +383,7 @@ def _candidate_variants(claim: dict) -> list[dict]:
             continue
         seen.add(url)
         clean.append({"source_url": url, "source_tier": tier, "evidence_excerpt": ex})
-    clean.sort(key=lambda s: _TIER_RANK[s["source_tier"]])  # primary first
+    clean.sort(key=lambda s: _source_rank(s["source_url"], s["source_tier"]))  # primary first, then class
     return clean[:3]
 
 
@@ -398,7 +408,7 @@ def _ground_best(claims: list[dict]) -> dict:
             vclaims = [{k: val for k, val in claim.items() if k != "candidate_sources"}]
         g = ground_claims(vclaims)
         if g["kept"]:
-            best = min(g["kept"], key=lambda c: _TIER_RANK.get(c.get("source_tier"), 99))
+            best = min(g["kept"], key=lambda c: _source_rank(c.get("source_url"), c.get("source_tier")))
             # Demote the OTHER candidate sources (whatever their fate) to corroboration pointers.
             corro = [c for c in (claim.get("corroboration") or [])
                      if c.get("source_url") != best["source_url"]]
@@ -500,9 +510,9 @@ async def _run_my_facts(meta, since, candidates, claims):
         # everything downstream, and a human approves in review mode.
         model=config.SUBAGENT_MODEL,
         system_prompt={"type": "preset", "preset": "claude_code",
-                       "append": _MY_FACTS_SYSTEM + "\n\n" + WRITING_STYLE},
-        mcp_servers={"scoutfetch": FETCH_SERVER},
-        allowed_tools=["WebSearch", FETCH_TOOL_NAME],
+                       "append": _MY_FACTS_SYSTEM + sources_tool.note() + "\n\n" + WRITING_STYLE},
+        mcp_servers={"scoutfetch": FETCH_SERVER, **sources_tool.servers()},
+        allowed_tools=["WebSearch", FETCH_TOOL_NAME, *sources_tool.names()],
         disallowed_tools=["WebFetch"],
         permission_mode="bypassPermissions",
         max_turns=config.MAX_TURNS,
@@ -1035,19 +1045,22 @@ def _persist_run_cost(started, rows: list, write: bool) -> None:
 
 
 def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
-            force: bool = False) -> list[dict]:
+            force: bool = False, slugs: list | None = None) -> list[dict]:
     """Thin wrapper (2026-09-28): opens the call-capture run and guarantees it is flushed even when a
-    run crashes (a crashed run still captured billable calls). The body is _run_all_impl, unchanged."""
+    run crashes (a crashed run still captured billable calls). The body is _run_all_impl, unchanged.
+    `slugs` (2026-09-28, WS1/WS3): check only these cards (a dry test run, a signal-triggered run)."""
     from scout import calllog
     calllog.begin_run("monitor")          # no-op unless SCOUT_CALL_CAPTURE=1
     try:
-        return _run_all_impl(write=write, send=send, email_dry_run=email_dry_run, force=force)
+        return _run_all_impl(write=write, send=send, email_dry_run=email_dry_run, force=force, slugs=slugs)
     finally:
+        if not write and os.environ.get("SCOUT_MONITOR_TRACE") == "1":
+            print(calllog.trace_summary(), flush=True)      # dry test runs: show the tool calls
         calllog.flush_run(write)
 
 
 def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = True,
-            force: bool = False) -> list[dict]:
+            force: bool = False, slugs: list | None = None) -> list[dict]:
     """Cron entrypoint: check every DUE battlecard, write per policy, email digests.
 
     Due-gate (_is_due): by default a card is only checked when it hasn't been checked
@@ -1067,7 +1080,11 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
     run_started = datetime.now()
     summary = []
     cost_rows = []
+    wanted = set(slugs) if slugs else None
     for slug in list_battlecards():
+        if wanted is not None and slug not in wanted:
+            summary.append({"slug": slug, "skipped": "not selected"})
+            continue
         meta = store.load_meta(slug) or {}
         # Showcase cards can opt out of monitoring (e.g. the Batman vs Superman
         # stress-test card): it still renders in the viewer but never burns a check.
@@ -1237,7 +1254,13 @@ if __name__ == "__main__":
     # LIVE only when the cron sets SCOUT_MONITOR_LIVE=1: then write the store and send real
     # email. Default (any other context) is fully dry: compute, no writes, no email sent.
     live = os.environ.get("SCOUT_MONITOR_LIVE") == "1"
-    out = run_all(write=live, send=True, email_dry_run=not live)
+    # Run controls (2026-09-28): SCOUT_MONITOR_SLUGS (comma list) checks only those cards;
+    # SCOUT_MONITOR_FORCE=1 ignores the due gate. Both empty on the scheduled run.
+    slugs = [x.strip() for x in os.environ.get("SCOUT_MONITOR_SLUGS", "").split(",") if x.strip()] or None
+    force = os.environ.get("SCOUT_MONITOR_FORCE") == "1"
+    if not live:
+        print(f"[monitor] DRY run: no writes, no email (slugs={slugs or 'all'}, force={force})")
+    out = run_all(write=live, send=True, email_dry_run=not live, force=force, slugs=slugs)
     print(_json.dumps(out, indent=2, default=str))
     # Partial failure still exits 1 (after the full summary prints) so the Actions run
     # notifies — but only after every card had its chance to check and write.

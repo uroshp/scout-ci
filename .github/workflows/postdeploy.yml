@@ -40,4 +40,5 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           SCOUT_ALERT_TO: ${{ secrets.SCOUT_ALERT_TO }}
           SCOUT_ALERT_FROM: ${{ secrets.SCOUT_ALERT_FROM }}
+          SCOUT_ASK_ENGINE_URL: ${{ vars.SCOUT_ASK_ENGINE_URL }}     # set once the production engine exists; empty = skipped
         run: python scripts/probe_hosts.py
