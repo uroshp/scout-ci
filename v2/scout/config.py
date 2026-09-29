@@ -345,6 +345,7 @@ SIGNAL_NEW_DEPT_LOOKBACK_DAYS = int(os.environ.get("SCOUT_SIGNAL_NEW_DEPT_LOOKBA
 SIGNAL_MAX_DISPATCHES_PER_DAY = int(os.environ.get("SCOUT_SIGNAL_MAX_DISPATCHES_PER_DAY", "2"))
 SIGNAL_MIN_HOURS_SINCE_CHECK = float(os.environ.get("SCOUT_SIGNAL_MIN_HOURS_SINCE_CHECK", "6"))
 MONITOR_DISPATCH_WORKFLOW = os.environ.get("SCOUT_MONITOR_DISPATCH_WORKFLOW", "monitor.yml")
+MONITOR_SIGNAL_GAP_H = float(os.environ.get("SCOUT_MONITOR_SIGNAL_GAP_H", "18"))   # a signal run inside this gap serves the next anchor
 ASK_VISITOR_QUOTA = int(os.environ.get("SCOUT_ASK_VISITOR_QUOTA", "6"))
 ASK_IP_PER_MIN = int(os.environ.get("SCOUT_ASK_IP_PER_MIN", "6"))
 ASK_QUOTA_BYPASS_CIDS = [c.strip() for c in os.environ.get("SCOUT_ASK_QUOTA_BYPASS_CIDS", "").split(",") if c.strip()]
