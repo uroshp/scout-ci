@@ -37,19 +37,24 @@ TRIAGE_TOOL_NAMES = ["mcp__scoutsources__job_postings"]      # the cheap one for
 
 
 # --- wiring helpers (flag-gated; everything is a no-op when SCOUT_SOURCES_TOOLS is off) ------------
+# The tools are DEFERRED under the claude_code preset: the model loads them by EXACT name through
+# ToolSearch (a dry run on 2026-09-28 showed `select:WebSearch,job_postings` failing to load the tool
+# because the short name was used), so the notes name them in full.
 PROMPT_NOTE = (
-    "\n\nSTRUCTURED SOURCES (prefer them when they exist): the scoutsources tools give you sources that "
-    "outrank news. sec_fact returns audited XBRL figures (revenue, net income, RPO, cash, R&D, employees) "
-    "for a US-listed company: cite the URL it returns and copy ONE returned line verbatim as the "
-    "evidence_excerpt; NEVER paraphrase a filing number. sec_filings lists a company's 8-K / 10-Q / 10-K "
-    "with primary document URLs. job_postings is the company's own board (what it is hiring for). "
-    "page_history reads dated archived copies of a page (what a pricing page said before a change). "
-    "Each tool result starts with a SOURCE line naming the URL to cite and its class; that line is not "
-    "page text and must never be quoted as evidence. Private companies have no filings; the tool says so."
+    "\n\nSTRUCTURED SOURCES (prefer them when they exist; load by their full names): "
+    "mcp__scoutsources__sec_fact returns audited XBRL figures (revenue, net income, RPO, cash, R&D, "
+    "employees) for a US-listed company: cite the URL it returns and copy ONE returned line verbatim as "
+    "the evidence_excerpt; NEVER paraphrase a filing number. mcp__scoutsources__sec_filings lists a "
+    "company's 8-K / 10-Q / 10-K with primary document URLs. mcp__scoutsources__job_postings is the "
+    "company's own public job board (what it is hiring for). mcp__scoutsources__page_history reads dated "
+    "archived copies of a page (what a pricing page said before a change). Each tool result starts with "
+    "a SOURCE line naming the URL to cite and its class; that line is not page text and must never be "
+    "quoted as evidence. Private companies have no filings; the tool says so."
 )
 TRIAGE_NOTE = (
-    "\n\nThe job_postings tool returns a competitor's own public job board (count by department, newest "
-    "postings): a sudden hiring wave in a function is a candidate development, dated by the postings."
+    "\n\nOne extra tool, mcp__scoutsources__job_postings (load it by that exact name): the competitor's "
+    "own public job board, counted by department with the newest postings. Call it once per check; a "
+    "hiring wave in a function is a candidate development, dated by the postings."
 )
 
 
