@@ -70,12 +70,18 @@ class Loop(unittest.TestCase):
                   {"text": "Deals grew 400% quarter over quarter.", "cites": ["n1"]}]
         seen = {}
         def verify(entries, facts_by_id):
-            seen["entries"] = [e["text"] for e in entries]
+            seen.setdefault("entries", []).append([e["text"] for e in entries])
             return _verify({0: ("confirm", "none", "ok")})(entries, facts_by_id)
-        a = ask.ask("q", research=_research(facts, answer), verify=verify, grounder=_grounder({"n1"}))
-        self.assertEqual(seen["entries"], ["Agentforce passed 1,000 paid deals."])   # the judge never saw the bad ones
+        def rewrite(entries, verdicts, facts_by_id):
+            seen["rewrite"] = {i: v["reason"] for i, v in verdicts.items()}
+            # the rewriter drops the unsupported figure from one, returns nothing for the other
+            return {"text": "```json\n" + json.dumps({"answer": [{"index": 1, "text": "Agentforce passed 1,000 paid deals, per Salesforce.", "cites": ["n1"]}]}) + "\n```", "cost_usd": 0.2}
+        a = ask.ask("q", research=_research(facts, answer), verify=verify, rewrite=rewrite, grounder=_grounder({"n1"}))
+        self.assertEqual(seen["entries"][0], ["Agentforce passed 1,000 paid deals."])   # the judge never saw the bad ones
+        self.assertTrue(all(r.startswith("floor:") for r in seen["rewrite"].values()))   # floor failures got ONE rewrite
         self.assertEqual(a["trajectory"]["floor_dropped"], 2)
-        self.assertEqual(len(a["paragraphs"]), 1)
+        self.assertEqual(len(a["paragraphs"]), 2)                                        # the repaired one came back
+        self.assertTrue(any("no rewrite returned" in c["reason"] for c in a["cut_log"]))
 
     def test_zero_cite_sentences_and_bad_facts_never_reach_the_answer(self):
         facts = [{"id": "n1", "claim": "x", "source_url": "ftp://nope", "source_tier": "primary", "evidence_excerpt": "short"}]

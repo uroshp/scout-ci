@@ -174,7 +174,8 @@ def gate_facts(new_facts: list, meta: dict | None = None, grounder=ground_claims
 
 
 # --- 4. floor -----------------------------------------------------------------------------------------
-_NUM = re.compile(r"(?<![\w.])(\$|€|£)?\s?(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d+))?(?:\s*(%|(?:percent|billion|million|thousand|bn|mn|m|b|k|x)\b))?(?![\w.])", re.I)
+_NUM = re.compile(r"(?<![\w.])(\$|€|£)?\s?(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d+))?(?:[\s-]*(%|(?:percent|billion|million|thousand|bn|mn|m|b|k|x)\b))?(?![\w.])", re.I)
+_CITE_MARK = re.compile(r"\[(?:n\d+|c_[0-9a-f]{12}|\d{1,2})(?:,\s*(?:n\d+|c_[0-9a-f]{12}|\d{1,2}))*\]")
 _SCALE = {"billion": 1e9, "bn": 1e9, "b": 1e9, "million": 1e6, "mn": 1e6, "m": 1e6, "thousand": 1e3, "k": 1e3}
 _YEAR = re.compile(r"(?<!\d)(19|20)\d{2}(?!\d)")
 
@@ -230,6 +231,7 @@ def floor_check(entry: dict, facts_by_id: dict) -> list[str]:
                         for c in cites)
     ev_nums = _numbers(evidence)
     errs = []
+    text = _CITE_MARK.sub(" ", text)                 # inline [1] / [n2] markers are not numbers
     years = {m.group(0) for m in _YEAR.finditer(text)}
     for v, dec, kind in _numbers(text):
         if kind == "plain" and v == int(v) and str(int(v)) in years:
@@ -341,20 +343,23 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
     pending = [dict(e, text=str(e.get("text") or ""), cites=[str(c) for c in (e.get("cites") or [])]) for e in entries]
     for rnd in range(1, MAX_ROUNDS + 1):
         trajectory["rounds"] = rnd
-        passed = []
+        passed, floor_failed = [], []
         for e in pending:
             errs = floor_check(e, facts_by_id)
             if errs:
                 trajectory["floor_dropped"] += 1
-                cut_log.append({"label": e["text"][:80], "reason": "floor: " + "; ".join(errs)})
+                if rnd < MAX_ROUNDS and any(c in facts_by_id for c in e.get("cites", [])):
+                    floor_failed.append((e, "floor: " + "; ".join(errs)))   # one rewrite may drop the unsupported bit
+                else:
+                    cut_log.append({"label": e["text"][:80], "reason": "floor: " + "; ".join(errs)})
             else:
                 passed.append(e)
-        if not passed:
-            break
-        v = verify(passed, facts_by_id)
-        cost += float(v.get("cost_usd") or 0.0)
-        from scout.propagate import _parse_verdicts
-        verdicts = _parse_verdicts(v.get("text") or "")
+        verdicts = {}
+        if passed:
+            v = verify(passed, facts_by_id)
+            cost += float(v.get("cost_usd") or 0.0)
+            from scout.propagate import _parse_verdicts
+            verdicts = _parse_verdicts(v.get("text") or "")
         to_rewrite = {}
         for i, e in enumerate(passed):
             vd = verdicts.get(i)
@@ -367,6 +372,10 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
                     to_rewrite[i] = {"reason": reason}
                 else:
                     cut_log.append({"label": e["text"][:80], "reason": "verifier: " + reason})
+        # floor failures ride the same rewrite, numbered after the judged sentences
+        for j, (e, why) in enumerate(floor_failed):
+            passed.append(e)
+            to_rewrite[len(passed) - 1] = {"reason": why + ". Remove or correct the unsupported figure; keep only what the cited facts state."}
         if not to_rewrite:
             break
         rw = rewrite(passed, to_rewrite, facts_by_id)
