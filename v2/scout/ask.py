@@ -33,6 +33,7 @@ import asyncio
 import hashlib
 import json
 import re
+import sys
 from datetime import date, datetime
 
 from scout import config, display, store
@@ -53,13 +54,14 @@ ANSWER_CONTRACT = """You are Scout, a competitive-intelligence analyst who answe
 rests on verified facts only. Read the KNOWN FACTS first (already verified; cite them by id). Search
 and fetch only for what they do not cover. Then return ONLY a single fenced ```json block:
 
-{"facts": [ <new facts you found, each in the CLAIM CONTRACT shape below, with an "id" you assign
-            like "n1", "n2"; "claim_type" must be "fact"; section "recent_moves"; zone null; order 0> ],
+{"facts": [ <new facts you found, each in the CLAIM CONTRACT shape below, each with an "id" field you
+            assign: "f1", "f2", ... (never reuse a KNOWN FACT id); "claim_type" must be "fact";
+            section "recent_moves"; zone null; order 0> ],
  "answer": [ {"text": "<one sentence or short paragraph>", "cites": ["<fact id>", ...]}, ... ],
  "unanswered": ["<a topic the question asked about that no source you could verify covers>", ...]}
 
-RULES. Every answer entry cites at least one fact id (a KNOWN FACT id like "c_..." or one of your new
-"n" ids); an entry with no cite will be deleted by code. Every number, percentage, money amount, and
+RULES. Every answer entry cites at least one fact id (a KNOWN FACT id exactly as listed, or one of your
+new "f" ids); a fact without an "id" field or an entry with no cite will be deleted by code. Every number, percentage, money amount, and
 year in an entry must appear in the evidence_excerpt of a fact it cites; code checks this and deletes
 what fails. Never paraphrase a filing figure: the sec_fact tool gives you the exact line to copy as an
 evidence_excerpt. If the question asks for something you cannot verify, put the TOPIC in
@@ -218,12 +220,53 @@ def fact_errors(f: dict) -> list[str]:
     return errs
 
 
+_ID_ALIASES = ("fact_id", "factId", "ref", "key", "n", "label", "name")
+
+
+def repair_fact_ids(new_facts: list, entries: list, known_ids: set) -> None:
+    """Deterministic repair of a formatting slip, in place: a new fact that carries its id under
+    another key, or none at all, gets one ("f<position>"), and cites written as "[f2]", "F2" or the
+    bare position "2" are normalized to the id they point at. Nothing here judges support: the
+    floor still requires every cite to resolve and every number to be in the cited evidence."""
+    by_pos = {}
+    for i, f in enumerate(new_facts or [], 1):
+        if not isinstance(f, dict):
+            continue
+        fid = str(f.get("id") or "").strip()
+        if not fid:
+            for k in _ID_ALIASES:
+                if str(f.get(k) or "").strip():
+                    fid = str(f[k]).strip()
+                    break
+        if not fid or fid in known_ids:
+            fid = f"f{i}"
+        f["id"] = fid
+        by_pos[str(i)] = fid
+    ids = known_ids | {f["id"] for f in new_facts or [] if isinstance(f, dict)}
+    lower = {i.lower(): i for i in ids}
+    for e in entries or []:
+        fixed = []
+        for c in e.get("cites") or []:
+            c = re.sub(r"^[\[\(]|[\]\)]$", "", str(c).strip())
+            if c in ids:
+                fixed.append(c)
+            elif c.lower() in lower:
+                fixed.append(lower[c.lower()])
+            elif c in by_pos:
+                fixed.append(by_pos[c])
+            else:
+                fixed.append(c)
+        e["cites"] = fixed
+
+
 def gate_facts(new_facts: list, meta: dict | None = None, grounder=ground_claims) -> tuple[list, list]:
     """(surviving new facts, cut log entries). Schema first, then class, then the grounding check."""
     ok, cut = [], []
     for f in new_facts or []:
         errs = fact_errors(f)
         if errs:
+            # the engine's log is the only trace of a malformed fact on RC (capture is off there)
+            print(f"[ask] malformed fact ({'; '.join(errs)}): keys={sorted((f or {}).keys()) if isinstance(f, dict) else type(f).__name__}", file=sys.stderr, flush=True)
             cut.append({"label": str((f or {}).get("id") or "?"), "reason": "malformed fact: " + "; ".join(errs),
                         "source_url": (f or {}).get("source_url")})
             continue
@@ -458,8 +501,9 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
     cost += float(r.get("cost_usd") or 0.0)
     trajectory["research_turns"] = r.get("num_turns")
     data = _json_or_none(r.get("text") or "") or {}
-    new_facts = data.get("facts") if isinstance(data.get("facts"), list) else []
+    new_facts = [f for f in (data.get("facts") if isinstance(data.get("facts"), list) else []) if isinstance(f, dict)]
     entries = [e for e in (data.get("answer") if isinstance(data.get("answer"), list) else []) if isinstance(e, dict)]
+    repair_fact_ids(new_facts, entries, {f["id"] for f in known})
     unanswered = [_scrub_digits(u) for u in (data.get("unanswered") or []) if isinstance(u, str) and u.strip()]
 
     # 3. gates
