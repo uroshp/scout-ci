@@ -145,7 +145,7 @@ CLAIM_CONTRACT = f"""Emit each claim as a JSON object with EXACTLY these fields 
 - "corroboration" (optional): a list of secondary sources confirming the SAME value, each
   {{"source_url","source_tier","note","grounded":false}}. Never grounded; never the anchor.
 - "anchor_substitution" (optional): include ONLY if the best (higher-tier) source is unfetchable
-  by a plain HTTP client (hard paywall, Cloudflare, SEC.gov direct) AND you read both it and a
+  by a plain HTTP client (hard paywall, Cloudflare) AND you read both it and a
   fetchable agreeing source. Then make the FETCHABLE source the anchor (source_url/excerpt),
   put the unfetchable one in corroboration, and set
   {{"preferred_url","preferred_tier","agreement_verified":true,"note"}}.
@@ -154,9 +154,10 @@ CLAIM_CONTRACT = f"""Emit each claim as a JSON object with EXACTLY these fields 
 
 Do NOT include "id", "verified", or "grounding" — those are filled deterministically downstream.
 
-GROUNDABILITY: prefer source_url values a plain HTTP client can read. Avoid anchoring on
-SEC.gov directly (it blocks datacenter IPs), hard paywalls, or Cloudflare-walled pages; use a
-fetchable reputable source as the anchor and keep the stronger one as corroboration.
+GROUNDABILITY: prefer source_url values a plain HTTP client can read. Avoid anchoring on hard
+paywalls or Cloudflare-walled pages; use a fetchable reputable source as the anchor and keep the
+stronger one as corroboration. SEC.gov IS fetchable (the fetcher sends the SEC's required contact
+User-Agent, 2026-09-28): a filing document or an EDGAR XBRL fact is the strongest anchor there is.
 
 SOURCING DISCIPLINE (enforced): every "recent_moves" claim and every status/current-state claim
 (current/flagship/latest, a launch, a cancellation, a price/limit change) MUST anchor source_url
