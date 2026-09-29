@@ -395,3 +395,16 @@ class Touch(unittest.TestCase):
         page.set_viewport_size({"width": 1024, "height": 560}); page.wait_for_timeout(200)
         b2 = page.locator("#ask-panel").bounding_box(); self.assertLessEqual(round(b2["y"] + b2["height"]), 560)
         self.assertEqual(errors, []); ctx.close()
+
+    def test_split_view_bar_does_not_move_the_sheet(self):
+        # an iPad in Split View is phone-width: a ~55 px keyboard bar must not shrink the sheet; a real keyboard does
+        ctx = self.browser.new_context(viewport={"width": 507, "height": 1100}, has_touch=True, is_mobile=True)
+        page = ctx.new_page(); page.route("**/*", _serve); page.goto(f"{ORIGIN}/c/{self.slug}")
+        page.tap("#ask-fab"); page.wait_for_timeout(200)
+        b0 = page.locator("#ask-panel").bounding_box(); self.assertGreaterEqual(round(b0["height"]), 1000)
+        page.tap("#ask-q"); page.wait_for_timeout(200)
+        page.set_viewport_size({"width": 507, "height": 1045}); page.wait_for_timeout(250)              # the bar: 55 px less
+        b1 = page.locator("#ask-panel").bounding_box(); self.assertEqual(round(b1["height"]), round(b0["height"]))   # holds still
+        page.set_viewport_size({"width": 507, "height": 700}); page.wait_for_timeout(250)               # a keyboard: 400 px less
+        b2 = page.locator("#ask-panel").bounding_box(); self.assertLessEqual(round(b2["height"]), 700)  # the sheet sits above it
+        ctx.close()

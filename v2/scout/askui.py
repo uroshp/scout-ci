@@ -218,8 +218,8 @@ function lockPage(){if(!COARSE||!phone()||lockY!==null)return;lockY=window.scrol
 function unlockPage(){if(lockY===null)return;document.body.classList.remove('ask-lock');document.body.style.top='';document.documentElement.style.height='';var y=lockY;lockY=null;window.scrollTo(0,y);}
 // while frozen, the document is exactly the visible area: Safari has no room left to shift the
 // page to "reveal" the field (the blank band under the content)
-function sizeDoc(){if(lockY===null||!vv)return;var h=Math.round(vv.height)+'px';if(document.documentElement.style.height!==h)document.documentElement.style.height=h;}
-function open(){lastFocus=document.activeElement;panel.hidden=false;fab.hidden=true;lsSet(OPEN_KEY,'1');pinnedH=0;fitNow();scrollEnd();setTimeout(focusQ,30);}
+function sizeDoc(px){if(lockY===null||!vv)return;var h=Math.round(px||vv.height)+'px';if(document.documentElement.style.height!==h)document.documentElement.style.height=h;}
+function open(){lastFocus=document.activeElement;panel.hidden=false;fab.hidden=true;lsSet(OPEN_KEY,'1');pinnedH=0;sheetH=0;fitNow();scrollEnd();setTimeout(focusQ,30);}
 function minimize(){if(document.activeElement===q)q.blur();panel.hidden=true;fab.hidden=false;badge();lsSet(OPEN_KEY,'0');unlockPage();fitNow();if(lastFocus&&lastFocus.focus&&lastFocus!==document.body){try{lastFocus.focus({preventScroll:true});}catch(e){}}}
 // The on-screen keyboard (iPad, phone) shrinks the VISUAL viewport and Safari scrolls the page to
 // reveal the field, dragging a bottom-fixed panel with it. Keep the panel inside the visual
@@ -236,12 +236,18 @@ function pin(){
   if(pinnedH&&Math.abs(h-pinnedH)<120)return;                                     // a keyboard bar, not a resize: hold still
   pinnedH=h;panel.style.bottom='auto';panel.style.top=Math.max(8,Math.round(h-panel.offsetHeight-18))+'px';}
 window.addEventListener('resize',function(){if(!phone())pin();});
+var sheetH=0;
 function fitNow(){
   if(!phone()){pin();return;}
-  if(panel.hidden||!vv){panel.style.top='';panel.style.bottom='';panel.style.height='';return;}
-  sizeDoc();
-  // phone: the sheet fills the VISIBLE area (the part of the screen the keyboard leaves)
-  var h=Math.max(240,Math.round(vv.height));
+  if(panel.hidden||!vv){panel.style.top='';panel.style.bottom='';panel.style.height='';sheetH=0;return;}
+  // narrow (a phone, or an iPad in Split View): the sheet fills the VISIBLE area. A small change
+  // to that area (a keyboard bar, ~55 px) is ignored so the composer holds still; only a real
+  // keyboard (over 120 px) shrinks the sheet above it.
+  if(!sheetH)sheetH=Math.round(vv.height);
+  var vh=Math.round(vv.height), keyboard=(sheetH-vh)>120;
+  var h=Math.max(240,keyboard?vh:sheetH);
+  if(!keyboard&&Math.abs(vh-sheetH)>120)sheetH=h=vh;                                  // a real resize (rotation): re-base
+  sizeDoc(keyboard?vh:sheetH);
   var top=Math.max(0,Math.round(vv.offsetTop));
   var T=top+'px',H=h+'px';
   if(panel.style.top!==T){panel.style.top=T;panel.style.bottom='auto';}             // write only on change: no reflow churn
@@ -407,7 +413,7 @@ body.ask-lock{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .ask-scout{background:#fff;border:1px solid #e3ded2;border-radius:14px 14px 14px 4px;padding:12px 14px}
 .ask-working{color:#8a877c}
 .ask-composer{display:flex;gap:8px;align-items:flex-end;padding:10px 12px 12px;border-top:1px solid #e3ded2;background:#fbfaf6}
-@media (any-pointer: coarse) and (min-width: 641px){.ask-composer{padding-bottom:28px}}   /* the text line clears an iPad keyboard bar */
+@media (any-pointer: coarse){.ask-composer{padding-bottom:28px}}   /* the text line clears an iPad keyboard bar (also in Split View) */
 /* 16px: below that iOS Safari zooms the whole page when the field takes focus */
 .ask-composer textarea{flex:1;min-width:0;box-sizing:border-box;padding:10px 12px;font:16px/1.4 system-ui,sans-serif;border:1px solid #cfc8b8;border-radius:10px;background:#fff;resize:none;max-height:140px}
 .ask-composer textarea:disabled{background:#f4f2ec;color:#8a877c}
