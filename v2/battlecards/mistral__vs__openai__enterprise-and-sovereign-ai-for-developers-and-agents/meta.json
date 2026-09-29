@@ -60,5 +60,13 @@
   "lead_election": {
     "last_promoted_on": "2026-09-07",
     "lead_subject_key": "mistral | sovereign-self-host-edge | current"
+  },
+  "watch": {
+    "job_boards": [
+      {
+        "host": "ashby",
+        "token": "openai"
+      }
+    ]
   }
 }
