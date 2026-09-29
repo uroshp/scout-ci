@@ -255,7 +255,7 @@ def _doc(body_inner: str, *, title: str, page_type: str = None, ask: tuple | Non
     rc = config.RC_MODE
     return (
         '<!doctype html><html lang="en"><head><meta charset="utf-8">'
-        '<meta name="viewport" content="width=device-width, initial-scale=1">'
+        '<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">'
         f'<title>{("[RC] " if rc else "") + _html.escape(title)}</title>'
         '<link rel="icon" href="/favicon.ico">'
         + _ga_head(page_type)

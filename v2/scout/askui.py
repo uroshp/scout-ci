@@ -192,27 +192,36 @@ function savePending(p){pending=p;lsSet(PEND_KEY,p?JSON.stringify(p):null);}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function token(){var a=new Uint8Array(16);try{crypto.getRandomValues(a);}catch(e){for(var i=0;i<16;i++)a[i]=Math.floor(Math.random()*256);}return Array.prototype.map.call(a,function(b){return ('0'+b.toString(16)).slice(-2);}).join('');}
 function badge(){var n=history.length;fabN.hidden=!n;fabN.textContent=n?String(n):'';}
-var FINE=window.matchMedia&&window.matchMedia('(pointer: fine)').matches;
+var FINE=window.matchMedia&&window.matchMedia('(pointer: fine)').matches, COARSE=!FINE;
 // on touch, a programmatic focus pops the keyboard and moves the layout: the reader taps when ready
 function focusQ(){if(!FINE)return;try{q.focus({preventScroll:true});}catch(e){q.focus();}}
 function scrollEnd(){thread.scrollTop=thread.scrollHeight;}
 // open / minimize: the widget is NOT modal (the page stays usable behind it); Esc minimizes.
-function open(){lastFocus=document.activeElement;panel.hidden=false;fab.hidden=true;lsSet(OPEN_KEY,'1');fit();scrollEnd();setTimeout(focusQ,30);}
-function minimize(){panel.hidden=true;fab.hidden=false;badge();lsSet(OPEN_KEY,'0');fit();if(lastFocus&&lastFocus.focus&&lastFocus!==document.body){try{lastFocus.focus({preventScroll:true});}catch(e){}}}
+// TOUCH (iPad, iPhone; Uroš 2026-09-29: "the box doesn't move from the bottom right corner, ever"):
+// Safari scrolls the page to reveal a focused field when the keyboard opens and a bottom-anchored
+// panel rides along. So while the panel is open on a touch device the PAGE is frozen in place
+// (body fixed at its scroll position, restored exactly on minimize) and the panel is anchored to
+// the VISIBLE area: when the keyboard comes up it glides above it once; nothing else moves.
+var lockY=null;
+function lockPage(){if(!COARSE||lockY!==null)return;lockY=window.scrollY;document.body.style.top=(-lockY)+'px';document.body.classList.add('ask-lock');}
+function unlockPage(){if(lockY===null)return;document.body.classList.remove('ask-lock');document.body.style.top='';var y=lockY;lockY=null;window.scrollTo(0,y);}
+function open(){lastFocus=document.activeElement;panel.hidden=false;fab.hidden=true;lsSet(OPEN_KEY,'1');lockPage();fitNow();scrollEnd();setTimeout(focusQ,30);}
+function minimize(){if(document.activeElement===q)q.blur();panel.hidden=true;fab.hidden=false;badge();lsSet(OPEN_KEY,'0');fitNow();unlockPage();if(lastFocus&&lastFocus.focus&&lastFocus!==document.body){try{lastFocus.focus({preventScroll:true});}catch(e){}}}
 // The on-screen keyboard (iPad, phone) shrinks the VISUAL viewport and Safari scrolls the page to
 // reveal the field, dragging a bottom-fixed panel with it. Keep the panel inside the visual
 // viewport instead, and hold the page's scroll when the composer takes focus.
 var vv=window.visualViewport, fitTimer=null, yKeep=null;
 function fitNow(){
-  if(!vv||panel.hidden){panel.style.bottom='';panel.style.height='';return;}
+  if(panel.hidden||!vv){panel.style.top='';panel.style.bottom='';panel.style.height='';return;}
   var phone=window.matchMedia('(max-width:640px)').matches;
-  var hidden=Math.max(0,Math.round(window.innerHeight-vv.height-vv.offsetTop));   // layout px covered below (keyboard)
-  var b=(hidden<40&&!phone)?'':(hidden+(phone?0:18))+'px';
-  var h=(hidden<40&&!phone)?'':Math.max(240,Math.round(phone?vv.height:Math.min(640,vv.height-36)))+'px';
-  if(panel.style.bottom!==b)panel.style.bottom=b;                                   // write only on change: no reflow churn
-  if(panel.style.height!==h)panel.style.height=h;
-  // the page moved under the keyboard: put it back ONCE, after the keyboard has settled
-  if(yKeep!==null&&Math.abs(window.scrollY-yKeep)>2)window.scrollTo(0,yKeep);}
+  if(!COARSE&&!phone){panel.style.top='';panel.style.bottom='';panel.style.height='';return;}   // desktop: the CSS corner
+  // anchor to the VISIBLE area (the part of the screen the keyboard leaves), in layout coordinates
+  var h=Math.max(240,Math.round(phone?vv.height:Math.min(640,vv.height-36)));
+  var top=Math.max(0,Math.round(vv.offsetTop+vv.height-h-(phone?0:18)));
+  var T=top+'px',H=h+'px';
+  if(panel.style.top!==T){panel.style.top=T;panel.style.bottom='auto';}             // write only on change: no reflow churn
+  if(panel.style.height!==H)panel.style.height=H;
+  if(yKeep!==null&&lockY===null&&Math.abs(window.scrollY-yKeep)>2)window.scrollTo(0,yKeep);}
 // the keyboard animates for ~300 ms and fires resize on every frame; fit once it has settled
 function fit(){clearTimeout(fitTimer);fitTimer=setTimeout(fitNow,FINE?0:180);}
 if(vv){vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit);}
@@ -347,6 +356,8 @@ PANEL_CSS = """
 /* the widget's own `display` values would beat the UA's [hidden]{display:none}; this keeps the
    hidden attribute (the script's only show/hide mechanism) authoritative */
 .ask-fab[hidden],.ask-panel[hidden],.ask-fab-n[hidden],.ask-clear[hidden],.ask-intro[hidden]{display:none!important}
+body.ask-lock{position:fixed;left:0;right:0;width:100%;overflow:hidden}
+@media (pointer: coarse){.ask-panel{transition:top .18s ease-out,height .18s ease-out}}
 .ask-fab{position:fixed;right:18px;bottom:18px;z-index:60;display:inline-flex;align-items:center;gap:8px;padding:11px 16px;border:0;border-radius:999px;background:#2b2a26;color:#fff;font:600 14px/1 system-ui,-apple-system,sans-serif;box-shadow:0 6px 20px rgba(20,18,10,.22);cursor:pointer}
 .ask-fab-dot{width:8px;height:8px;border-radius:50%;background:#7ed0a6;box-shadow:0 0 0 3px rgba(126,208,166,.28)}
 .ask-fab-n{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#7ed0a6;color:#12301f;font:700 11px/18px system-ui,sans-serif;text-align:center}
