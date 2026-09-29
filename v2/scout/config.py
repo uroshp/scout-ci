@@ -315,6 +315,14 @@ ANALYTICS_ENABLED = os.environ.get("SCOUT_ANALYTICS", "1") != "0"
 # tools-on roles (the on-device lane mirrors the same tools in scout/localagent.py).
 SOURCES_TOOLS_ENABLED = os.environ.get("SCOUT_SOURCES_TOOLS", "") == "1"
 
+# --- Ask Scout (WS2, 2026-09-28) -----------------------------------------------
+# Per-call caps are the Agent SDK's native max_budget_usd; ASK_MAX_USD is the ceiling one question
+# may reach in total (research + verify + one rewrite + a second verify). Measured target ~$1-1.75.
+ASK_RESEARCH_BUDGET_USD = float(os.environ.get("SCOUT_ASK_RESEARCH_BUDGET_USD", "1.00"))
+ASK_VERIFY_BUDGET_USD = float(os.environ.get("SCOUT_ASK_VERIFY_BUDGET_USD", "0.75"))
+ASK_REWRITE_BUDGET_USD = float(os.environ.get("SCOUT_ASK_REWRITE_BUDGET_USD", "0.50"))
+ASK_MAX_USD = float(os.environ.get("SCOUT_ASK_MAX_USD", "2.50"))
+
 # --- RC environment (2026-09-28) ---------------------------------------------
 # A second deployment of the SAME code (branch `rc` -> service agent-scout-rc) where every new
 # screen is reviewed before it reaches agent-scout.ai. Production is never the test surface.
