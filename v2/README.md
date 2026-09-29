@@ -15,8 +15,12 @@
 - **Living battlecards.** Each card is stored as JSON state + rendered markdown under
   `battlecards/<slug>/`, it's re-checked twice a day, before the work day and at lunch, surfacing only what's *new and
   material* (with a per-card cadence and a cheap triage gate to keep cost down).
-- **The viewer** (`app_v2.py`) is **read-only** — it renders committed cards plus the freshness/updates indicators.
-  It never generates or monitors.
+- **The viewer** (`server.py`, Flask on Cloud Run at agent-scout.ai; `app_v2.py` is the retired Streamlit
+  stub) is **read-only and holds no model key**: it renders committed cards, the freshness/updates
+  indicators, every citation's source kind (`/c/<slug>/sources`), what changed and why (`/changes`),
+  and a per-persona view (`?persona=`). It never generates or monitors; self-serve requests are handed to
+  an Action. Every change is reviewed on a release-candidate service before it reaches the main domain
+  (`docs/cloud-run-setup.md`, "The RC environment").
 - **Self-serve** ("create your own") runs **out-of-band**: the app commits a request, a GitHub
   Action runs the same pipeline headless and commits a private result to a private repo visible only to the author.
 
