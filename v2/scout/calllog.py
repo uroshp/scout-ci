@@ -85,6 +85,28 @@ def run_open() -> bool:
     return _RUN is not None
 
 
+def trace_summary() -> str:
+    """A compact stdout trace of the open run (2026-09-28): per call, the role, model, cost, and every
+    tool it used with its first argument. For DRY test runs, whose bundle is never written, this is
+    the only way to see whether a new tool was actually called. Never raises."""
+    try:
+        if not _RUN:
+            return "[calllog] no open run"
+        lines = [f"[calllog] TRACE {_RUN['source']} {_RUN['run_ts']}: {len(_RUN['calls'])} call(s)"]
+        for c in _RUN["calls"]:
+            res = c.get("result") or {}
+            lines.append(f"  {c.get('role'):14} {c.get('model') or '?':28} ${res.get('cost_usd') or 0:.3f} "
+                         f"turns={res.get('num_turns')} status={c.get('status')} slug={c.get('slug')}")
+            for row in c.get("transcript") or []:
+                if row.get("kind") == "tool_use":
+                    inp = row.get("input") or {}
+                    first = next((f"{k}={str(v)[:60]!r}" for k, v in inp.items() if v), "")
+                    lines.append(f"      tool {row.get('name')} {first}")
+        return "\n".join(lines)
+    except Exception as e:
+        return f"[calllog] trace skipped ({type(e).__name__}: {e})"
+
+
 def flush_run(write: bool = True) -> list[str]:
     """Write the run's bundle ONCE (split into parts under PART_MAX_BYTES). Returns the paths
     written ([] when disabled / no run / write=False / no creds). Never raises; resets the run."""

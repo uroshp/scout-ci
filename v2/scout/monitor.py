@@ -1054,6 +1054,8 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
     try:
         return _run_all_impl(write=write, send=send, email_dry_run=email_dry_run, force=force, slugs=slugs)
     finally:
+        if not write and os.environ.get("SCOUT_MONITOR_TRACE") == "1":
+            print(calllog.trace_summary(), flush=True)      # dry test runs: show the tool calls
         calllog.flush_run(write)
 
 
