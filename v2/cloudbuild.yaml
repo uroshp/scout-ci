@@ -5,6 +5,11 @@
 #
 # Deploys by --image only, so the service's existing config (env vars, secrets, scaling, the
 # allUsers invoker binding) is preserved across deploys; this build just swaps in the new image.
+#
+# ONE build definition, TWO services (2026-09-28): the production trigger (branch main) leaves
+# _SERVICE at its default; the RC trigger (agent-scout-rc-deploy, branch rc) sets
+# _SERVICE=agent-scout-rc, so the release-candidate service is built and deployed by exactly the
+# same steps. See scripts/setup_rc.sh.
 steps:
   - id: build
     name: gcr.io/cloud-builders/docker
@@ -19,13 +24,14 @@ steps:
     args:
       - run
       - deploy
-      - agent-scout
+      - ${_SERVICE}
       - --image=${_IMAGE}
       - --region=us-west1
       - --quiet
 images:
   - '${_IMAGE}'
 substitutions:
-  _IMAGE: 'us-west1-docker.pkg.dev/${PROJECT_ID}/cloud-run-source-deploy/agent-scout:${SHORT_SHA}'
+  _SERVICE: 'agent-scout'
+  _IMAGE: 'us-west1-docker.pkg.dev/${PROJECT_ID}/cloud-run-source-deploy/${_SERVICE}:${SHORT_SHA}'
 options:
   logging: CLOUD_LOGGING_ONLY

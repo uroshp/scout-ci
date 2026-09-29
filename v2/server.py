@@ -14,6 +14,8 @@ Run locally:
     cd v2 && ./.venv/bin/python -m flask --app server run --debug --port 8080
 Deploy: see v2/docs/cloud-run-setup.md
 """
+import hashlib
+import hmac
 import html as _html
 import json as _json
 import os
@@ -22,7 +24,7 @@ import urllib.parse
 import uuid
 from datetime import datetime
 
-from flask import Flask, Response, abort, jsonify, request, send_from_directory, url_for
+from flask import Flask, Response, abort, jsonify, redirect, request, send_from_directory, url_for
 
 from scout import analytics, config, display, page, selfserve, store
 
@@ -161,7 +163,7 @@ def _ga_head(page_type: str = None) -> str:
     default landing from a deliberate card view — content_group can. Queryable as the `contentGroup`
     dimension. Values: home | card | print | create."""
     mid = config.GA_MEASUREMENT_ID
-    if not mid:
+    if not mid or not config.ANALYTICS_ENABLED:
         return ""
     host_guard = (f"if({analytics._hosts_js()}.indexOf(location.hostname)===-1)return;"
                   if config.ANALYTICS_HOSTNAMES else "")
@@ -246,18 +248,92 @@ def _doc(body_inner: str, *, title: str, page_type: str = None) -> str:
     """Wrap inner HTML in a full document: viewport + GA + fonts + the card CSS + control CSS.
     page_type flows to the GA content_group (home | card | print | create) so analytics can tell a
     default homepage landing from a deliberately-selected card (2026-07-29)."""
+    rc = config.RC_MODE
     return (
         '<!doctype html><html lang="en"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width, initial-scale=1">'
-        f'<title>{_html.escape(title)}</title>'
+        f'<title>{("[RC] " if rc else "") + _html.escape(title)}</title>'
         '<link rel="icon" href="/favicon.ico">'
         + _ga_head(page_type)
         + _FONT_LINKS
         + page.style_block()
         + f'<style>{_CTRL_CSS}</style>'
+        + (f'<style>{_RC_CSS}</style>' if rc else "")
         + '</head><body style="background:#f4f2ec;margin:0;padding:6px 0 24px">'
+        + (_RC_RIBBON if rc else "")
         + body_inner
         + '</body></html>')
+
+
+# --- RC environment (2026-09-28) -----------------------------------------------------------
+# The same code deployed twice: agent-scout.ai from `main`, the RC service from `rc`. On RC every
+# page carries a ribbon and sits behind a cookie gate, so a half-built screen can be reviewed on a
+# real URL (desktop + iPad) without ever touching production. All of it is inert unless SCOUT_RC /
+# SCOUT_RC_PASSWORD are set, which they are not on the production service.
+_RC_RIBBON = ('<div class="rc-ribbon" role="note">RC · release candidate · not production</div>')
+_RC_CSS = (
+    ".rc-ribbon{position:sticky;top:0;z-index:50;background:#7a2e0e;color:#fff;"
+    "font:600 12px/1.6 system-ui,sans-serif;letter-spacing:.04em;text-transform:uppercase;"
+    "text-align:center;padding:4px 12px;margin:-6px 0 6px}"
+    ".rc-login{max-width:420px;margin:12vh auto;padding:28px 28px 24px;background:#fff;"
+    "border:1px solid #e3ded2;border-radius:10px;font:15px/1.5 system-ui,sans-serif;color:#2b2a26}"
+    ".rc-login h1{font-size:18px;margin:0 0 6px}.rc-login p{margin:0 0 16px;color:#6b675e}"
+    ".rc-login input{width:100%;box-sizing:border-box;padding:10px 12px;font-size:15px;"
+    "border:1px solid #cfc8b8;border-radius:6px}"
+    ".rc-login button{margin-top:12px;width:100%;padding:10px;font-size:15px;border:0;"
+    "border-radius:6px;background:#2b2a26;color:#fff;cursor:pointer}"
+    ".rc-login .err{color:#9b2c1a;margin:8px 0 0}"
+)
+_RC_OPEN_PATHS = ("/healthcheck", "/robots.txt", "/favicon.ico", "/rc-login")
+
+
+def _rc_token(password: str) -> str:
+    return hashlib.sha256(("scout-rc|" + password).encode("utf-8")).hexdigest()[:32]
+
+
+def _rc_authorized() -> bool:
+    tok = request.cookies.get("scout_rc", "")
+    return bool(tok) and hmac.compare_digest(tok, _rc_token(config.RC_PASSWORD))
+
+
+def _rc_login_page(error: str = "", nxt: str = "/") -> str:
+    body = ('<div id="scout-page"><form class="rc-login" method="post" action="/rc-login">'
+            '<h1>Agent Scout · release candidate</h1>'
+            '<p>This is the review build. Enter the RC password to continue.</p>'
+            f'<input type="hidden" name="next" value="{_html.escape(nxt)}">'
+            '<input type="password" name="password" autocomplete="current-password" autofocus '
+            'placeholder="RC password" aria-label="RC password">'
+            + (f'<div class="err">{_html.escape(error)}</div>' if error else "")
+            + '<button type="submit">Open RC</button></form></div>')
+    return _doc(body, title="Agent Scout RC", page_type=None)
+
+
+@app.before_request
+def _rc_gate():
+    if not config.RC_PASSWORD:
+        return None
+    if request.path in _RC_OPEN_PATHS or request.path.startswith("/assets/"):
+        return None
+    if _rc_authorized():
+        return None
+    nxt = request.full_path if request.query_string else request.path
+    return Response(_rc_login_page(nxt=nxt), status=401, mimetype="text/html")
+
+
+@app.post("/rc-login")
+def rc_login():
+    if not config.RC_PASSWORD:
+        abort(404)
+    pw = request.form.get("password", "")
+    nxt = request.form.get("next") or "/"
+    if not nxt.startswith("/") or nxt.startswith("//"):
+        nxt = "/"
+    if not hmac.compare_digest(pw, config.RC_PASSWORD):
+        return Response(_rc_login_page("That password did not match.", nxt), status=403, mimetype="text/html")
+    resp = redirect(nxt, code=303)
+    resp.set_cookie("scout_rc", _rc_token(pw), max_age=2592000, httponly=True, samesite="Lax",
+                    secure=request.is_secure)
+    return resp
 
 
 def _chrome(is_create: bool, slug, cards: list) -> str:
@@ -295,6 +371,8 @@ def _noindex(resp):
 @app.after_request
 def _server_visit(resp):
     try:
+        if not config.ANALYTICS_ENABLED:
+            return resp                                    # RC / preview: no GA at all
         if (request.method != "GET" or request.path == "/healthcheck"
                 or resp.status_code != 200
                 or not (resp.content_type or "").startswith("text/html")):
@@ -339,6 +417,9 @@ def robots():
     # Deliberately PERMISSIVE, counterintuitively: to DROP already-indexed pages, crawlers must be
     # able to fetch them and see the X-Robots-Tag noindex header above. A "Disallow: /" here would
     # block the crawl, hide the noindex, and leave stale entries in the index indefinitely.
+    # The RC service was never indexed, so there it is a plain Disallow.
+    if config.RC_MODE:
+        return Response("User-agent: *\nDisallow: /\n", mimetype="text/plain")
     return Response("User-agent: *\nAllow: /\n", mimetype="text/plain")
 
 

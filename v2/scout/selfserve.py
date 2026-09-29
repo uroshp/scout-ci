@@ -55,11 +55,16 @@ def _headers() -> dict:
     }
 
 
-def _repo_path(path: str) -> str:
+def _repo_path(path: str, prefixed: bool = True) -> str:
     """Path within the DATA repo for the GitHub API. Local store paths are anchored to _REPO_ROOT
     (the v2/ dir); in the private data repo the data sits at the root by default
-    (SELFSERVE_DATA_PREFIX=''), so usually a no-op."""
-    return f"{config.SELFSERVE_DATA_PREFIX}/{path}" if config.SELFSERVE_DATA_PREFIX else path
+    (SELFSERVE_DATA_PREFIX=''), so usually a no-op. prefixed=False is the read-through target
+    (the unprefixed production path) used ONLY by the read fallback below."""
+    return f"{config.SELFSERVE_DATA_PREFIX}/{path}" if (prefixed and config.SELFSERVE_DATA_PREFIX) else path
+
+
+def _read_fallback_on() -> bool:
+    return bool(config.SELFSERVE_DATA_PREFIX and config.SELFSERVE_DATA_READ_FALLBACK)
 
 
 _TRANSIENT_STATUS = {502, 503, 504}       # momentary GitHub API blips, not a real failure
@@ -87,9 +92,9 @@ def _gh_read(url: str) -> httpx.Response:
     raise last
 
 
-def _gh_get(path: str) -> tuple[str | None, str | None]:
+def _gh_get(path: str, prefixed: bool = True) -> tuple[str | None, str | None]:
     """Return (text_content, sha) for a repo file, or (None, None) if it 404s."""
-    url = f"{_GH_API}/repos/{config.SELFSERVE_REPO}/contents/{_repo_path(path)}"
+    url = f"{_GH_API}/repos/{config.SELFSERVE_REPO}/contents/{_repo_path(path, prefixed)}"
     r = _gh_read(url)
     if r.status_code == 404:
         return None, None
@@ -106,12 +111,12 @@ def _gh_get(path: str) -> tuple[str | None, str | None]:
     return base64.b64decode(data["content"]).decode("utf-8"), data["sha"]
 
 
-def _gh_list(path: str, include_dirs: bool = False) -> list[str]:
+def _gh_list(path: str, include_dirs: bool = False, prefixed: bool = True) -> list[str]:
     """List a repo directory via the GitHub API; [] if the dir 404s. By default returns FILES only
     (the historical behavior most callers rely on). Pass include_dirs=True to also return
     SUBDIRECTORIES — needed for stores laid out one-subdir-per-key (shadow/<slug>/, propagation/
     <slug>/): without it a listing of the parent looks empty even when full (it has only subdirs)."""
-    url = f"{_GH_API}/repos/{config.SELFSERVE_REPO}/contents/{_repo_path(path)}"
+    url = f"{_GH_API}/repos/{config.SELFSERVE_REPO}/contents/{_repo_path(path, prefixed)}"
     r = _gh_read(url)                  # transient-retry (2026-08-17: 504 blips tripped canary/approve)
     if r.status_code == 404:
         return []
@@ -143,8 +148,15 @@ def _local(path: str) -> str:
 
 
 def _read(path: str) -> str | None:
+    """Store read. READ-THROUGH (RC, 2026-09-28): under a data prefix with the read fallback on, a
+    miss under the prefix falls through to the unprefixed production path. Reads only: `_write`
+    and `update_data` fetch their sha via `_gh_get(path)` directly, so a writer can never pick up
+    a production file's sha and PUT it under the prefix."""
     if use_github():
-        return _gh_get(path)[0]
+        text = _gh_get(path)[0]
+        if text is None and _read_fallback_on():
+            text = _gh_get(path, prefixed=False)[0]
+        return text
     p = _local(path)
     return open(p).read() if os.path.exists(p) else None
 
@@ -166,7 +178,10 @@ def _listdir(path: str, include_dirs: bool = False) -> list[str]:
     the GitHub backend; include_dirs=True also returns subdirectories (local os.listdir already
     returns both, so the flag only changes the GitHub path)."""
     if use_github():
-        return _gh_list(path, include_dirs)
+        names = _gh_list(path, include_dirs)
+        if not names and _read_fallback_on():
+            names = _gh_list(path, include_dirs, prefixed=False)   # read-through, see _read
+        return names
     p = _local(path)
     return sorted(os.listdir(p)) if os.path.isdir(p) else []
 

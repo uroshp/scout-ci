@@ -299,6 +299,19 @@ ANALYTICS_HOSTNAMES = tuple(
     h.strip() for h in os.environ.get(
         "SCOUT_ANALYTICS_HOSTNAMES",
         "agent-scout.ai,agent-scout.streamlit.app").split(",") if h.strip())
+# Master switch for BOTH the client tag and the server-side visit event (SCOUT_ANALYTICS=0 on the
+# RC service, 2026-09-28): the hostname allow-list already excludes an RC host from the client tag,
+# but the server-side Measurement Protocol event fires from any host, so RC needs an explicit off.
+ANALYTICS_ENABLED = os.environ.get("SCOUT_ANALYTICS", "1") != "0"
+
+# --- RC environment (2026-09-28) ---------------------------------------------
+# A second deployment of the SAME code (branch `rc` -> service agent-scout-rc) where every new
+# screen is reviewed before it reaches agent-scout.ai. Production is never the test surface.
+# SCOUT_RC=1 turns on the visible ribbon and the robots Disallow; SCOUT_RC_PASSWORD gates every
+# page behind a cookie (the v1 APP_PASSWORD idea, cookie-based so the iPad works); both are unset
+# in production, so the code is inert there.
+RC_MODE = os.environ.get("SCOUT_RC", "") == "1"
+RC_PASSWORD = os.environ.get("SCOUT_RC_PASSWORD", "")
 
 # --- Author / credit ---------------------------------------------------------
 # Shown in the app footer and used as the self-serve "get in touch" link. When
@@ -322,6 +335,11 @@ SELFSERVE_GH_TOKEN = os.environ.get("SELFSERVE_GH_TOKEN")
 SELFSERVE_REPO = os.environ.get("SELFSERVE_REPO")              # PRIVATE data repo, e.g. "uroshp/scout-user-data"
 SELFSERVE_BRANCH = os.environ.get("SELFSERVE_BRANCH", "main")
 SELFSERVE_DATA_PREFIX = os.environ.get("SCOUT_SELFSERVE_DATA_PREFIX", "")  # path prefix in the data repo (root)
+# RC isolation (2026-09-28): with a prefix set (rc/), every WRITE lands under it; with the read
+# fallback on, a READ that finds nothing under the prefix falls through to the unprefixed
+# production path, so RC pages see production's decision logs / ledgers while RC can never write
+# to them. Writers never use the fallback (a fallback sha would target the wrong file).
+SELFSERVE_DATA_READ_FALLBACK = os.environ.get("SCOUT_SELFSERVE_DATA_READ_FALLBACK", "") == "1"
 # The public code repo whose selfserve workflow the app dispatches when a request is submitted.
 SELFSERVE_DISPATCH_REPO = os.environ.get("SCOUT_SELFSERVE_DISPATCH_REPO", "uroshp/scout-ci")
 SELFSERVE_DISPATCH_WORKFLOW = os.environ.get("SCOUT_SELFSERVE_DISPATCH_WORKFLOW", "selfserve.yml")

@@ -1,0 +1,32 @@
+# The RC branch changes CODE, never CARDS (2026-09-28).
+#
+# Battlecards reach rc only by the sync merge from main. If a commit on rc touched
+# v2/battlecards/** or v2/archive/** directly, promoting rc would rewrite production content
+# outside the monitor / review flow, and the next sync would conflict. This check fails the
+# push (and the PR to main) when the rc-only diff contains any card file.
+name: rc-guard
+on:
+  push:
+    branches: [rc]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  cards-untouched:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: rc-only diff must not touch battlecards
+        run: |
+          git fetch origin main
+          changed=$(git diff --name-only origin/main...HEAD -- 'v2/battlecards/**' 'v2/archive/**' || true)
+          if [ -n "$changed" ]; then
+            echo "::error::rc touches card files (only the sync merge from main may):"
+            echo "$changed"
+            exit 1
+          fi
+          echo "cards untouched"

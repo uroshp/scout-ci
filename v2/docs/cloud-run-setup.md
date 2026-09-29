@@ -124,3 +124,25 @@ push to that branch goes live, skipping the manual gate. Good once the app is st
 
 **Recommendation:** Option A during the migration (control + verification), add Option B later for
 convenience.
+
+## The RC environment (2026-09-28)
+
+Production (agent-scout.ai, service `agent-scout`, built from `main` by the `agent-scout-deploy`
+trigger) is never the test surface. A second service, `agent-scout-rc`, is built from the `rc`
+branch by the `agent-scout-rc-deploy` trigger using the SAME `v2/cloudbuild.yaml` with
+`_SERVICE=agent-scout-rc`. Every new screen is reviewed on the RC URL (desktop + iPad) and only
+then promoted with a PR `rc -> main`.
+
+- **Same cards.** `.github/workflows/sync-rc.yml` merges `main` into `rc` on every push to main,
+  so the monitor's daily card commits reach RC within minutes. `rc-guard.yml` refuses any rc-only
+  diff under `v2/battlecards/**` or `v2/archive/**`: rc changes code, never cards.
+- **Isolated data.** RC runs with `SCOUT_SELFSERVE_DATA_PREFIX=rc` and
+  `SCOUT_SELFSERVE_DATA_READ_FALLBACK=1`: every RC write lands under `rc/` in the private data
+  repo; a read that misses under `rc/` falls through to the production path (writers never do).
+- **Hygiene.** `SCOUT_RC=1` (ribbon, `<title>` prefix, `robots.txt` Disallow), `SCOUT_RC_PASSWORD`
+  (cookie gate on every page; secret `scout-rc-password`), `SCOUT_ANALYTICS=0` (no GA tag, no
+  server-side visit event), `min-instances 0` (idle ~ $0).
+- **Setup / update:** `GCP_PROJECT_ID=… SCOUT_RC_PASSWORD='…' bash v2/scripts/setup_rc.sh`
+  (idempotent). **Rollback** on either service: `gcloud run deploy <service> --image <prior tag>`.
+- **Promotion:** PR `rc -> main` (squash). Features that change engine behaviour ship behind an
+  env flag that defaults OFF on main and is flipped only after the RC review.
