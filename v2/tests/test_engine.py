@@ -111,6 +111,51 @@ class Engine(unittest.TestCase):
         self.assertNotIn("Nothing was charged", e["error"])
         self.assertEqual(json.loads(self.st.files["ask/state.json"])["spend_usd"], 1.47)
 
+    def test_request_token_fixes_the_answer_id_and_activity_streams(self):
+        rid = "browser-token-0123456789"
+        want = asktoken.record_id_for(rid)
+        def fake_ask(question, **kw):
+            self.assertEqual(kw["record_id"], want)
+            kw["on_stage"]("search", "3 known facts"); kw["on_stage"]("activity", "Searching: X pricing"); kw["on_stage"]("activity", "")
+            return {"id": kw["record_id"], "cost_usd": 1.0, "seconds": 5.0, "verified": True, "question": question,
+                    "paragraphs": [{"text": "X grew.", "cites": [1]}], "sources": [{"n": 1, "url": "https://www.cnbc.com/x", "class": "news", "tier": "reputable_secondary"}],
+                    "cut_log": [], "unanswered": [], "trajectory": {}, "competitor": "X", "card": None}
+        with mock.patch.object(eng.ask, "ask", side_effect=fake_ask):
+            r = self.c.post("/ask", json={"question": "q", "rid": rid}, headers={"Authorization": "Bearer owner-key"})
+        ev = _events(r)
+        self.assertEqual(ev[0].get("id"), want)                                   # the first frame carries the id
+        self.assertEqual([e["activity"] for e in ev if "activity" in e], ["Searching: X pricing"])   # empty lines are not sent
+        self.assertEqual([e for e in ev if e.get("done")][0]["id"], want)
+        # a bad token gets no id (and still works)
+        with mock.patch.object(eng.ask, "ask", side_effect=fake_ask) as fa:
+            fa.side_effect = lambda question, **kw: dict(fake_ask(question, **dict(kw, record_id=want)), id="a_0123456789ab")
+            r = self.c.post("/ask", json={"question": "q", "rid": "x y"}, headers={"Authorization": "Bearer owner-key"})
+        self.assertIsNone(_events(r)[0].get("id"))
+
+    def test_same_token_replays_the_finished_record_for_free(self):
+        rid = "browser-token-0123456789"; aid = asktoken.record_id_for(rid)
+        self.st.files["ask/2026-09/" + aid + ".json"] = json.dumps({"id": aid, "question": "q", "seconds": 5, "verified": True, "cost_usd": 1.0,
+                                                                   "paragraphs": [{"text": "X grew.", "cites": [1]}], "sources": [{"n": 1, "url": "https://www.cnbc.com/x", "class": "news", "tier": "reputable_secondary"}], "cut_log": [], "unanswered": [], "trajectory": {}})
+        with mock.patch.object(selfserve, "list_data", return_value=["2026-09"]), mock.patch.object(eng.ask, "ask") as fa:
+            r = self.c.post("/ask", json={"question": "q", "rid": rid}, headers={"Authorization": "Bearer owner-key"})
+        ev = _events(r); self.assertTrue(ev[-1]["done"]); self.assertTrue(ev[-1]["replay"]); self.assertIn("X grew", ev[-1]["html"])
+        fa.assert_not_called(); self.assertNotIn("ask/state.json", self.st.files)   # no run, no ledger entry
+
+    def test_failure_leaves_a_record_at_the_expected_id(self):
+        rid = "browser-token-0123456789"; aid = asktoken.record_id_for(rid)
+        err = RuntimeError("Command failed with exit code 1"); err.scout_cost_usd = 0.4
+        written = {}
+        with mock.patch.object(eng.ask, "ask", side_effect=err), mock.patch.object(selfserve, "write_data", side_effect=lambda path, text, msg: written.__setitem__(path, text)):
+            r = self.c.post("/ask", json={"question": "q", "rid": rid}, headers={"Authorization": "Bearer owner-key"})
+        e = [x for x in _events(r) if "error" in x][0]; self.assertEqual(e["id"], aid)
+        path = [k for k in written if k.endswith(aid + ".json")][0]
+        rec = json.loads(written[path]); self.assertTrue(rec["failed"]); self.assertIn("hit a problem", rec["error"]); self.assertEqual(rec["cost_usd"], 0.4)
+        # and the replay of a failed record is the honest error, not a second run
+        self.st.files["ask/2026-09/" + aid + ".json"] = written[path]
+        with mock.patch.object(selfserve, "list_data", return_value=["2026-09"]), mock.patch.object(eng.ask, "ask") as fa:
+            r = self.c.post("/ask", json={"question": "q", "rid": rid}, headers={"Authorization": "Bearer owner-key"})
+        self.assertIn("hit a problem", _events(r)[-1]["error"]); fa.assert_not_called()
+
     def test_turn_cap_failure_says_so(self):
         err = RuntimeError("Claude Code returned an error result: Reached maximum number of turns (16)"); err.scout_cost_usd = 0.9
         with mock.patch.object(eng.ask, "ask", side_effect=err):

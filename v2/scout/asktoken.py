@@ -26,3 +26,11 @@ def check_token(token: str, secret: str, now: float | None = None) -> str | None
         return cid if hmac.compare_digest(sig, want) else None
     except Exception:
         return None
+
+
+def record_id_for(rid: str) -> str:
+    """The answer id a client-chosen request token maps to (viewer and engine agree on it), so
+    the panel knows where its answer will land before the engine starts: recovery after a dropped
+    stream or a reload. The client cannot pick the id itself: it is a hash of the token."""
+    import hashlib
+    return "a_" + hashlib.sha256(f"rid:{rid}".encode()).hexdigest()[:12]

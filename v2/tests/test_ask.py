@@ -120,10 +120,17 @@ class Loop(unittest.TestCase):
                      rewrite=rewrite, grounder=_grounder({"n1"}))
         self.assertEqual(a2["paragraphs"], []); self.assertTrue(all("fail-closed" in c["reason"] for c in a2["cut_log"]))
 
-    def test_unanswered_topics_carry_no_digits(self):
+    def test_unanswered_topics_carry_no_quantities(self):
         a = ask.ask("q", research=_research([], [], unanswered=["2026 revenue of $5 billion", "headcount"]), verify=_verify({}), grounder=_grounder(set()))
-        self.assertEqual(a["unanswered"], ["a figure revenue of a figure", "headcount"])
+        self.assertEqual(a["unanswered"], ["2026 revenue of a figure", "headcount"])   # a year is not a claim
         self.assertFalse(a["verified"])
+        # quantities go; names with digits and bare years stay (RC 9/28: "GPT-6" became "GPT-a figure")
+        cases = {"benchmark results between Mistral's latest model and GPT-6 Astra": "benchmark results between Mistral's latest model and GPT-6 Astra",
+                 "Opus 4.8 pricing at $10 per million tokens": "Opus 4.8 pricing at a figure per million tokens",
+                 "growth of 35% and 1,200 seats in Q2": "growth of a figure and a figure seats in Q2",
+                 "€20/user, 3x faster, 12000 employees": "a figure/user, 3x faster, a figure employees"}
+        for src, want in cases.items():
+            self.assertEqual(ask._scrub_digits(src), want, src)
 
     def test_card_facts_are_evidence_without_a_search(self):
         known = [_fact("c_0123456789ab", "https://www.anthropic.com/news/x", "Claude Code Pro costs $20 per month and Max $100 or $200.")]
@@ -206,6 +213,50 @@ class Thread(unittest.TestCase):
                             history=[{"question": "q", "answer_id": "a_0123456789ab"}],
                             research=_research([], []), verify=_verify({}), grounder=_grounder(set()))
             self.assertEqual((a["competitor"], a["slug"]), ("Mistral", "mistral__vs__openai__z"))
+
+
+class Scope(unittest.TestCase):
+    METAS = {"anthropic__vs__openai__x": {"competitor": "OpenAI", "my_company": "Anthropic"},
+             "mistral__vs__openai__y": {"competitor": "OpenAI", "my_company": "Mistral"},
+             "google-cloud__vs__aws__z": {"competitor": "AWS", "my_company": "Google Cloud"}}
+
+    def test_the_card_matching_the_most_named_companies_wins(self):
+        with mock.patch.object(ask.display, "list_battlecards", return_value=list(self.METAS)), \
+             mock.patch.object(ask.store, "load_meta", side_effect=lambda s: self.METAS.get(s)):
+            # RC 9/28: "Mistral instead of OpenAI" went to the Anthropic card (first card naming OpenAI)
+            self.assertEqual(ask.infer_competitor("My client wants Mistral instead of OpenAI for knowledge work"), ("OpenAI", "mistral__vs__openai__y"))
+            self.assertEqual(ask.infer_competitor("What is OpenAI shipping?"), ("OpenAI", "anthropic__vs__openai__x"))   # tie: card order
+            self.assertEqual(ask.infer_competitor("Is AWS cheaper?"), ("AWS", "google-cloud__vs__aws__z"))
+            self.assertEqual(ask.infer_competitor("Which is best?"), (None, None))
+
+
+class Activity(unittest.TestCase):
+    def test_tool_calls_become_reader_lines(self):
+        self.assertEqual(ask.activity_text("WebSearch", {"query": "Mistral Le Chat Enterprise pricing"}), "Searching: Mistral Le Chat Enterprise pricing")
+        self.assertEqual(ask.activity_text("mcp__scoutfetch__fetch_page", {"url": "https://www.mistral.ai/news/x"}), "Reading: mistral.ai")
+        self.assertEqual(ask.activity_text("mcp__scoutsources__page_history", {"url": "https://openai.com/pricing"}), "Reading: openai.com (archived copy)")
+        self.assertEqual(ask.activity_text("mcp__scoutsources__sec_fact", {"company": "Salesforce", "concept": "Revenues"}), "Checking SEC EDGAR: Salesforce")
+        self.assertEqual(ask.activity_text("mcp__scoutsources__job_postings", {"host": "greenhouse", "token": "anthropic"}), "Checking job postings: greenhouse")
+        self.assertEqual(ask.activity_text("ToolSearch", {"query": "x"}), "")
+
+    def test_the_hook_is_live_only_during_research_and_reaches_on_stage(self):
+        from scout import generate
+        seen = []
+        def research(q, known, ctx, history=None):
+            self.assertIsNotNone(generate._ON_TOOL)
+            generate._emit_tool("WebSearch", {"query": "q1"})
+            return _research([], [])(q, known, ctx)
+        ask.ask("q", research=research, verify=_verify({}), grounder=_grounder(set()), on_stage=lambda k, e="": seen.append((k, e)))
+        self.assertIn(("activity", "Searching: q1"), seen); self.assertIsNone(generate._ON_TOOL)
+
+    def test_record_id_and_failure_record(self):
+        a = ask.ask("q", research=_research([], []), verify=_verify({}), grounder=_grounder(set()), record_id="a_abcdefabcdef")
+        self.assertEqual(a["id"], "a_abcdefabcdef")
+        written = {}
+        with mock.patch("scout.selfserve.write_data", side_effect=lambda path, text, msg: written.__setitem__(path, text)):
+            ask.persist_failure("a_abcdefabcdef", "q", "Scout hit a problem answering that.", 0.4, "2026-09-28T22:05:50")
+        rec = json.loads(written["ask/2026-09/a_abcdefabcdef.json"])
+        self.assertTrue(rec["failed"]); self.assertEqual(rec["cost_usd"], 0.4); self.assertEqual(rec["paragraphs"], [])
 
 
 class FactIdRepair(unittest.TestCase):

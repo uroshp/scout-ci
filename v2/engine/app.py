@@ -88,19 +88,37 @@ async def ask_route(request: Request, authorization: str | None = Header(default
     persona = persona if persona in ("eng_led", "technical_evaluator", "economic_buyer", "security_regulated", "exec_top_down") else None
     history = [h for h in ((body or {}).get("history") or [])[-6:]
                if isinstance(h, dict) and isinstance(h.get("question"), str) and re.fullmatch(r"a_[0-9a-f]{12}", str(h.get("answer_id") or ""))]
+    # the panel's request token decides the answer id up front, so a reader whose stream drops (or
+    # who reloads) can fetch the answer from the viewer by id; the same token twice replays the
+    # finished record instead of paying for a second run
+    rid = str((body or {}).get("rid") or "")
+    record_id = ask.record_id_for(rid) if re.fullmatch(r"[A-Za-z0-9_-]{8,64}", rid) else None
+    if record_id:
+        prior = _stored(record_id)
+        if prior:
+            return StreamingResponse(_replay(prior), media_type="text/event-stream",
+                                     headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
     ok, state = LEDGER.start()
     if not ok:
         return JSONResponse({"message": "Today's question budget is spent. Come back tomorrow, or browse the answers so far.",
                              "room_usd": LEDGER.room(state)}, status_code=429)
 
     q: queue.Queue = queue.Queue()
+    asked_at = datetime.now().isoformat(timespec="seconds")
+
+    def on_stage(k, extra=""):
+        if k == "activity":
+            if extra:
+                q.put({"activity": extra})
+        else:
+            q.put({"stage": k, "extra": extra})
 
     def run():
         calllog.begin_run("ask")
         try:
             a = ask.ask(question, slug=(body or {}).get("slug") or None, competitor=(body or {}).get("competitor") or None,
                         my_company=(body or {}).get("my_company") or None, persona=persona, history=history, persist=True,
-                        on_stage=lambda k, extra="": q.put({"stage": k, "extra": extra}))
+                        on_stage=on_stage, record_id=record_id)
             a["asked_by"] = kind
             q.put({"done": True, "id": a["id"], "html": askui.answer_html(a, show_question=False),
                    "cost_usd": a["cost_usd"], "seconds": a["seconds"], "verified": a["verified"]})
@@ -115,8 +133,11 @@ async def ask_route(request: Request, authorization: str | None = Header(default
             msg = ("Scout ran out of research budget on that question before it could verify an answer" if "budget" in low
                    else "Scout ran out of research steps on that question before it could verify an answer" if "maximum number of turns" in low
                    else "Scout hit a problem answering that")
-            q.put({"error": f"{msg}. Try a narrower question, or one about a single company.", "cost_usd": round(spent, 2)})
+            text = f"{msg}. Try a narrower question, or one about a single company."
+            q.put({"error": text, "cost_usd": round(spent, 2), "id": record_id})
             LEDGER.settle(spent)
+            if record_id:
+                ask.persist_failure(record_id, question, text, spent, asked_at)
         finally:
             try:
                 calllog.flush_run(True)
@@ -127,7 +148,7 @@ async def ask_route(request: Request, authorization: str | None = Header(default
     threading.Thread(target=run, daemon=True).start()
 
     def events():
-        yield _sse({"stage": "facts", "extra": ""})
+        yield _sse({"stage": "facts", "extra": "", "id": record_id})
         while True:
             try:
                 item = q.get(timeout=PING_S)
@@ -142,20 +163,36 @@ async def ask_route(request: Request, authorization: str | None = Header(default
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
-@app.get("/ask/dry")
-def ask_dry():
-    """A stored answer replayed with fake stages: $0, for the postdeploy probe."""
-    aid = os.environ.get("SCOUT_ASK_CANNED", "")
+def _stored(aid: str) -> dict | None:
+    """The persisted answer (or failure) record with this id, newest month first; None if absent."""
     from scout import selfserve
-    rec = None
-    if re.fullmatch(r"a_[0-9a-f]{12}", aid):
+    if not re.fullmatch(r"a_[0-9a-f]{12}", aid or ""):
+        return None
+    try:
         for month in sorted(selfserve.list_data(ask.ASK_DIR, include_dirs=True) or [], reverse=True):
             if "." in month:
                 continue
             raw = selfserve.read_data(f"{ask.ASK_DIR}/{month}/{aid}.json")
             if raw:
-                rec = json.loads(raw)
-                break
+                return json.loads(raw)
+    except Exception:
+        return None
+    return None
+
+
+def _replay(rec: dict):
+    """A finished record as one SSE frame: $0, no run."""
+    if rec.get("failed"):
+        yield _sse({"error": rec.get("error") or "Scout could not answer that.", "cost_usd": rec.get("cost_usd", 0), "id": rec["id"], "replay": True})
+    else:
+        yield _sse({"done": True, "id": rec["id"], "html": askui.answer_html(rec, show_question=False),
+                    "cost_usd": rec.get("cost_usd", 0), "seconds": rec.get("seconds", 0), "verified": rec.get("verified", False), "replay": True})
+
+
+@app.get("/ask/dry")
+def ask_dry():
+    """A stored answer replayed with fake stages: $0, for the postdeploy probe."""
+    rec = _stored(os.environ.get("SCOUT_ASK_CANNED", ""))
     if not rec:
         return JSONResponse({"message": "no stored answer configured"}, status_code=503)
 
