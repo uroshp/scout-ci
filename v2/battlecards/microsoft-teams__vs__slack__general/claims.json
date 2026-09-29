@@ -37,7 +37,8 @@
     "status": "retired",
     "retired_on": "2026-08-28",
     "retired_reason": "invalidated: Salesforce beat fiscal Q2 2026 (revenue $11.35B, adjusted EPS $5.90 vs $3.27 expected), raised full-year guidance, Agentforce ARR +240% to over $1.5B, stock +18%; the 'parent is distracted and under pressure' argument no longer holds",
-    "derived_from": "c_3da4ae3ed49b"
+    "derived_from": "c_3da4ae3ed49b",
+    "source_class": "news"
   },
   {
     "subject_key": "microsoft-teams vs slack | ai-agent-battleground | current",
@@ -59,7 +60,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "microsoft-365 | regulatory-pricing-exposure | current",
@@ -79,7 +81,8 @@
       "source_tier": "primary",
       "as_of": "2026-07-01",
       "fact_id": "c_bcd7a4e321e3",
-      "stamped_on": "2026-09-28"
+      "stamped_on": "2026-09-28",
+      "source_class": "company_statement"
     }
   },
   {
@@ -116,7 +119,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-05",
       "detail": "partial_ratio 0.994"
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "microsoft-teams vs slack | market-share | current",
@@ -138,7 +142,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "salesforce | analyst-rating | 2026-05",
@@ -160,7 +165,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-05",
       "detail": "partial_ratio 0.991"
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "slack | ai-product-relaunch | 2026",
@@ -182,7 +188,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "slack | revenue-run-rate | 2026",
@@ -204,7 +211,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "slack | flagship-product | slackbot-ga",
@@ -226,7 +234,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "slack | key-departure | ceo-2025",
@@ -248,7 +257,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "slack | api-data-restriction | 2025",
@@ -270,7 +280,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "slack | service-outage | 2025-05",
@@ -292,7 +303,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "microsoft-teams | differentiator | bundling",
@@ -312,7 +324,8 @@
       "source_tier": "primary",
       "as_of": "2026-07-01",
       "fact_id": "c_bcd7a4e321e3",
-      "stamped_on": "2026-09-28"
+      "stamped_on": "2026-09-28",
+      "source_class": "company_statement"
     }
   },
   {
@@ -356,15 +369,18 @@
         "source_url": "https://www.microsoft.com/en-us/licensing/news/2026-m365-packaging-pricing-updates-faq",
         "source_tier": "primary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "company_statement"
       },
       {
         "source_url": "https://blog.teamascend.com/blog/microsoft-365-pricing-updates-start-july-1-2026",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "slack | list-price | current",
@@ -386,7 +402,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "microsoft-365 | teams-premium-delta | current",
@@ -408,7 +425,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-05",
       "detail": "partial_ratio 0.993"
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "microsoft-teams | copilot-adoption | current",
@@ -431,7 +449,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "source_class": "news"
   },
   {
     "subject_key": "microsoft-teams | differentiator | all-in-one-video",
@@ -454,7 +473,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "source_class": "unknown"
   },
   {
     "subject_key": "microsoft-teams vs slack | ai-agents | contested",
@@ -492,7 +512,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "slack | differentiator | app-ecosystem",
@@ -515,7 +536,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "eng_led"
+    "persona": "eng_led",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "slack | sentiment | user-satisfaction",
@@ -537,7 +559,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "review_site"
   },
   {
     "subject_key": "microsoft-teams | sentiment | meeting-ui",
@@ -573,7 +596,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "slack | sentiment | free-tier-limit",
@@ -595,7 +619,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "review_site"
   },
   {
     "subject_key": "slack | sentiment | developer-relations",
@@ -617,7 +642,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "forum"
   },
   {
     "subject_key": "microsoft-teams | objection | antitrust-bundling",
@@ -640,7 +666,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "security_regulated"
+    "persona": "security_regulated",
+    "source_class": "unknown"
   },
   {
     "subject_key": "microsoft-teams | objection | performance",
@@ -663,7 +690,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "technical_evaluator"
+    "persona": "technical_evaluator",
+    "source_class": "unknown"
   },
   {
     "subject_key": "microsoft-365 | objection | price-increase",
@@ -684,7 +712,8 @@
       "source_tier": "primary",
       "as_of": "2026-07-01",
       "fact_id": "c_bcd7a4e321e3",
-      "stamped_on": "2026-09-28"
+      "stamped_on": "2026-09-28",
+      "source_class": "company_statement"
     }
   },
   {
@@ -708,7 +737,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "security_regulated"
+    "persona": "security_regulated",
+    "source_class": "unknown"
   },
   {
     "subject_key": "slack | objection | user-preference",
@@ -731,7 +761,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "eng_led"
+    "persona": "eng_led",
+    "source_class": "unknown"
   },
   {
     "subject_key": "microsoft-teams | objection | reliability-outage",
@@ -754,7 +785,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "security_regulated"
+    "persona": "security_regulated",
+    "source_class": "unknown"
   },
   {
     "subject_key": "slack | distribution | salesforce-bundled-default",
@@ -782,9 +814,11 @@
         "source_url": "https://voip.review/2026/06/11/salesforce-transforms-enterprise-collaboration-slack-now-default-platform/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "salesforce | agent-acquisition | fin-2026",
@@ -812,10 +846,12 @@
         "source_url": "https://techcrunch.com/2026/06/15/salesforce-acquires-ai-customer-service-platform-fin-for-3-6b/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
     ],
-    "updated_on": "2026-06-16"
+    "updated_on": "2026-06-16",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "slack | ai-integration-claude-tag",
@@ -843,9 +879,11 @@
         "source_url": "https://www.salesforceben.com/anthropic-and-salesforce-announce-new-claude-to-slack-integration/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "company_statement"
       }
-    ]
+    ],
+    "source_class": "unknown"
   },
   {
     "subject_key": "slack | agent-orchestration | slackbot-mcp-client",
@@ -873,15 +911,18 @@
         "source_url": "https://venturebeat.com/orchestration/slack-adds-30-ai-features-to-slackbot-its-most-ambitious-update-since-the",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       },
       {
         "source_url": "https://www.itpro.com/software/slackbot-just-got-a-big-update-with-mcp-and-desktop-access",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "microsoft-teams | product-quality-exposure",
@@ -909,15 +950,18 @@
         "source_url": "https://mc.merill.net/message/MC1317197",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       },
       {
         "source_url": "https://www.uctoday.com/unified-communications/microsoft-teams-admits-its-meeting-controls-are-broken-heres-how-its-fixing-them/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "id": "c_e9386f83db03",
@@ -960,15 +1004,18 @@
         "source_url": "https://www.salesforce.com/ap/news/press-releases/2026/07/01/salesforce-brings-agentforce-into-salesforce-suites-and-slack-crm-for-small-businesses-in-singapore/",
         "source_tier": "primary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "company_statement"
       },
       {
         "source_url": "https://www.salesforceben.com/salesforce-launches-slack-crm-ending-tab-switching-forever/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "company_statement"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "slack | product-launch-ai-code",
@@ -996,9 +1043,11 @@
         "source_url": "https://thenextweb.com/news/slack-code-ai-coding-channels-launch",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "id": "c_224ae3b81756",
@@ -1041,9 +1090,11 @@
         "source_url": "https://www.cnbc.com/2026/08/26/salesforce-anthropic-partnership-claudeforce.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "salesforce-slack | parent-stability-risk",
@@ -1071,9 +1122,11 @@
         "source_url": "https://www.cnbc.com/2026/08/26/salesforce-anthropic-partnership-claudeforce.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "salesforce-slack | product-bundling",
@@ -1101,8 +1154,10 @@
         "source_url": "https://futurumgroup.com/insights/salesforce-bundles-ai-slack-and-tableau-into-three-new-edition-tiers/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   }
 ]

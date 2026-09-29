@@ -19,7 +19,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "competitive-verdict | sequel-gap-exposure | current",
@@ -55,7 +56,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "competitive-verdict | superman-key-person-risk | current",
@@ -77,7 +79,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "the batman 2022 | worldwide-gross | lifetime",
@@ -99,7 +102,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "superman 2025 | worldwide-gross | lifetime",
@@ -121,7 +125,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "dc film universes | continuity structure | current",
@@ -143,7 +148,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "the batman part ii | release-date | current",
@@ -185,9 +191,11 @@
         "source_url": "https://www.comingsoon.net/movies/news/2151594-supergirl-trouble-box-office-prediction-low-forecast",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "unknown"
   },
   {
     "subject_key": "man of tomorrow | production-first-look | 2026",
@@ -209,7 +217,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-05",
       "detail": "partial_ratio 0.995"
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "man of tomorrow | casting-addition | 2026",
@@ -231,7 +240,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "man of tomorrow | production-start | 2026",
@@ -259,9 +269,11 @@
         "source_url": "https://variety.com/2026/film/news/superman-man-of-tomorrow-wrapped-filming-james-gunn-1236844560/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "superman 2025 | positioning | current",
@@ -283,7 +295,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "the batman 2022 | positioning | current",
@@ -305,7 +318,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "the batman 2022 | critical-tier-placement | current",
@@ -327,7 +341,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-05",
       "detail": "partial_ratio 0.929"
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "superman 2025 | production-budget-roi | current",
@@ -349,7 +364,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "the batman 2022 | production-budget-roi | current",
@@ -371,7 +387,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "superman 2025 | total-production-marketing-cost | current",
@@ -393,7 +410,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "the batman | franchise-standalone-strength | current",
@@ -416,7 +434,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "source_class": "news"
   },
   {
     "subject_key": "superman | dcu-momentum-reset | current",
@@ -454,7 +473,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "source_class": "news"
   },
   {
     "subject_key": "superman | international-box-office-weakness | current",
@@ -477,7 +497,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "source_class": "news"
   },
   {
     "subject_key": "superman | inherited-franchise-damage | current",
@@ -500,7 +521,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "source_class": "news"
   },
   {
     "subject_key": "superman | key-person-concentration | current",
@@ -523,7 +545,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "source_class": "news"
   },
   {
     "subject_key": "superman 2025 | critic-sentiment | current",
@@ -545,7 +568,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "review_site"
   },
   {
     "subject_key": "superman 2025 | audience-sentiment | current",
@@ -555,7 +579,7 @@
     "zone": null,
     "order": 1,
     "source_url": "https://deadline.com/2025/07/box-office-superman-1236454805/",
-    "source_tier": "sentiment_only",
+    "source_tier": "reputable_secondary",
     "evidence_excerpt": "it has excellent audience exits of A- CinemaScore, 74% definite recommend and 86% positive on Comscore/Screen Engine's PostTrak.",
     "as_of": "2025-07-14",
     "confidence": "high",
@@ -567,7 +591,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "superman 2025 | recurring-complaint | current",
@@ -589,7 +614,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-05",
       "detail": "partial_ratio 0.992"
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "the batman 2022 | critic-sentiment | current",
@@ -611,7 +637,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "review_site"
   },
   {
     "subject_key": "the batman 2022 | recurring-complaint | current",
@@ -621,7 +648,7 @@
     "zone": null,
     "order": 4,
     "source_url": "https://www.cnbc.com/2022/03/02/the-batman-reviews-what-critics-thought-of-the-new-dark-knight-film.html",
-    "source_tier": "sentiment_only",
+    "source_tier": "reputable_secondary",
     "evidence_excerpt": "Some have praised the nearly three hour-long feature as a deconstruction of the superhero genre, others found it to be a dark slog.",
     "as_of": "2022-03-02",
     "confidence": "high",
@@ -633,7 +660,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "the batman part ii | delay-objection | current",
@@ -671,7 +699,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "source_class": "news"
   },
   {
     "subject_key": "the batman | sequel-momentum-gap-objection | current",
@@ -709,7 +738,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "technical_evaluator"
+    "persona": "technical_evaluator",
+    "source_class": "news"
   },
   {
     "subject_key": "the batman part ii | production-status",
@@ -737,9 +767,11 @@
         "source_url": "https://www.comingsoon.net/movies/news/2147851-the-batman-2-director-matt-revees-announces-filming-start-with-new-photo",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "unknown"
   },
   {
     "subject_key": "supergirl | box-office-tracking",
@@ -767,15 +799,18 @@
         "source_url": "https://comicbook.com/movies/news/supergirl-box-office-opening-weekend-officially-lower-than-the-flash/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       },
       {
         "source_url": "https://screenrant.com/supergirl-2026-box-office-opening-weekend-domestic-chart-report/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "warner bros discovery | paramount-acquisition",
@@ -803,15 +838,18 @@
         "source_url": "https://variety.com/2026/tv/news/doj-approves-paramount-warner-bros-discovery-merger-1236780234/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       },
       {
         "source_url": "https://www.npr.org/2026/04/23/nx-s1-5793628/warner-bros-discovery-paramount-skydance-merger",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "warner-bros-discovery-paramount-acquisition",
@@ -839,15 +877,18 @@
         "source_url": "https://deadline.com/2026/09/paramount-settles-antitrust-suit-to-seal-warner-bros-deal-1237109223/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       },
       {
         "source_url": "https://www.cnbc.com/2026/09/21/paramount-reaches-settlement-over-warner-bros-merger.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "the batman part ii | release-date",
@@ -875,14 +916,17 @@
         "source_url": "https://variety.com/2026/film/news/the-batman-2-release-date-2028-first-footage-pattinson-1236811623/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       },
       {
         "source_url": "https://www.hollywoodreporter.com/movies/movie-news/the-batman-part-ii-release-delayed-again-2028-1236649280/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   }
 ]

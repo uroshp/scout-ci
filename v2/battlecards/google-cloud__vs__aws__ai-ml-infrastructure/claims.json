@@ -33,7 +33,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "google-cloud | tpu-inference-economics | 2026",
@@ -55,7 +56,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "google-cloud | reliability-objection | current",
@@ -77,7 +79,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "aws | q-revenue | q1-2026",
@@ -99,7 +102,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "google-cloud | q-revenue | q1-2026",
@@ -121,7 +125,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "cloud-market | market-share | q1-2026",
@@ -143,7 +148,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "aws | ceo | current",
@@ -165,7 +171,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "amazon | capex-guidance | 2026",
@@ -193,9 +200,11 @@
         "source_url": "https://fortune.com/2026/07/30/andy-jassy-amazon-capex-demand-aws-pga-tour/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "aws | launch | openai-on-bedrock-2026-06",
@@ -217,7 +226,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "amazon | latest-funding-round | anthropic-2026-04",
@@ -239,7 +249,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "aws | trainium-capacity | 2026",
@@ -261,7 +272,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-05",
       "detail": "partial_ratio 0.980"
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "aws | security-incident | kiro-outage-2025-12",
@@ -283,7 +295,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-05",
       "detail": "partial_ratio 0.980"
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "aws | list-price | gpu-capacity-block-hike-2026-01",
@@ -305,7 +318,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "aws | positioning | bedrock-model-marketplace",
@@ -327,7 +341,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "aws | positioning | trainium3-vs-gpu-cost",
@@ -349,7 +364,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "aws | positioning | nvidia-gpu-breadth",
@@ -371,7 +387,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "google-cloud | differentiator | tpu-single-cluster-scale",
@@ -393,7 +410,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "google-cloud | pricing-model | automatic-sustained-use-discount",
@@ -415,7 +433,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "google-cloud | list-price | gemini-flash-token-economics",
@@ -452,7 +471,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "technical_evaluator"
+    "persona": "technical_evaluator",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "battlecard | win | tpu-external-validation-blackstone",
@@ -475,7 +495,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "source_class": "news"
   },
   {
     "subject_key": "battlecard | win | ibm-delivery-partnership",
@@ -498,7 +519,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "source_class": "unknown"
   },
   {
     "subject_key": "battlecard | contested | model-breadth",
@@ -521,7 +543,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "technical_evaluator"
+    "persona": "technical_evaluator",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "battlecard | contested | nvidia-gpu-availability",
@@ -559,7 +582,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "battlecard | lose | aws-anthropic-claude-depth",
@@ -582,7 +606,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "eng_led"
+    "persona": "eng_led",
+    "source_class": "news"
   },
   {
     "subject_key": "battlecard | lose | aws-service-breadth-ecosystem",
@@ -605,7 +630,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "aws | sentiment | bedrock-billing-surprises",
@@ -627,7 +653,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "review_site"
   },
   {
     "subject_key": "aws | sentiment | sagemaker-complexity-lockin",
@@ -649,7 +676,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "aws | sentiment | trainium-neuron-sdk-friction",
@@ -671,7 +699,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "forum"
   },
   {
     "subject_key": "aws | sentiment | bedrock-integration-praise",
@@ -693,7 +722,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "review_site"
   },
   {
     "subject_key": "google-cloud | sentiment | vertex-pricing-complexity",
@@ -715,7 +745,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "objection | gcp-june-2025-outage | current",
@@ -738,7 +769,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "security_regulated"
+    "persona": "security_regulated",
+    "source_class": "news"
   },
   {
     "subject_key": "objection | google-deprecates-products | current",
@@ -761,7 +793,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "objection | gcp-compute-constrained | current",
@@ -784,7 +817,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "source_class": "news"
   },
   {
     "subject_key": "objection | claude-only-on-bedrock | current",
@@ -807,7 +841,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "eng_led"
+    "persona": "eng_led",
+    "source_class": "unknown"
   },
   {
     "subject_key": "objection | aws-market-share-lead | current",
@@ -830,7 +865,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "source_class": "unknown"
   },
   {
     "subject_key": "aws | launch | graviton5-2026-06",
@@ -858,9 +894,11 @@
         "source_url": "https://siliconangle.com/2026/06/10/aws-powerful-graviton5-cpu-makes-debut-new-m9g-m9gd-cloud-instances/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "google-cloud | reliability-incident | june-2026",
@@ -888,10 +926,12 @@
         "source_url": "https://www.theregister.com/off-prem/2026/06/14/fire-burns-google-cloud-indias-network-which-remains-slow-a-week-later/5255246",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
     ],
-    "updated_on": "2026-06-16"
+    "updated_on": "2026-06-16",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "battlecard | contested | agent-platform-maturity",
@@ -919,15 +959,18 @@
         "source_url": "https://aws.amazon.com/blogs/aws/runtime-instances-persistent-compute-for-production-ai-agents-on-amazon-bedrock-agentcore/",
         "source_tier": "primary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "company_statement"
       },
       {
         "source_url": "https://securitybrief.co.uk/story/amazon-launches-runtime-instances-for-bedrock-agents",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "amazon | capex-india-expansion | 2026",
@@ -955,9 +998,11 @@
         "source_url": "https://www.deccanherald.com/business/amazon-to-invest-additional-13-billion-in-india-to-expand-ai-cloud-infrastructure-by-2030-4052036",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "unknown"
   },
   {
     "subject_key": "aws | list-price | capacity-block-gpu-hike-2026-06",
@@ -985,9 +1030,11 @@
         "source_url": "https://finance.yahoo.com/technology/ai/articles/aws-raising-gpu-instance-prices-134420295.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "battlecard | contested | delivery-deployment-muscle",
@@ -1015,9 +1062,11 @@
         "source_url": "https://www.cnbc.com/2026/06/30/aws-amazon-ai-forward-deployed-engineers.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "aws | launch | secret-cloud-for-industry-2026-06",
@@ -1045,9 +1094,11 @@
         "source_url": "https://www.nextgov.com/acquisition/2026/06/aws-launches-secret-cloud-industrys-classified-workloads/414548/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "aws | launch | icamf-ic-credits-2026-06",
@@ -1075,15 +1126,18 @@
         "source_url": "https://www.nextgov.com/acquisition/2026/06/aws-launches-secret-cloud-industrys-classified-workloads/414548/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       },
       {
         "source_url": "https://www.govconwire.com/articles/aws-1b-ic-cloud-incentive-icamf-ai-investments",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "aws | product-lifecycle | bedrock-agents-classic-maintenance-2026-07",
@@ -1111,9 +1165,11 @@
         "source_url": "https://dev.classmethod.jp/en/articles/aws-service-lifecycle-summary-20260630/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "aws | reliability-incident | cost-explorer-billing-bug-2026-07",
@@ -1141,9 +1197,11 @@
         "source_url": "https://techcrunch.com/2026/07/17/amazon-fixing-bug-that-billed-some-aws-customers-billions-of-dollars/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "aws | reliability-incident | us-west-2-outage-2026-07",
@@ -1171,9 +1229,11 @@
         "source_url": "https://www.digit.in/news/general/is-aws-down-playstation-network-reddit-crunchyrollvalorant-and-other-services-are-facing-issues.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "unknown"
   },
   {
     "subject_key": "aws | list-price | bedrock-gpt-price-cut-2026-07",
@@ -1195,7 +1255,8 @@
       "method": "substring",
       "fetched_at": "2026-08-04",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "aws | launch | bedrock-web-search-gpt-2026-08",
@@ -1223,9 +1284,11 @@
         "source_url": "https://aws.amazon.com/blogs/machine-learning/introducing-web-search-on-amazon-bedrock-for-foundation-model-grounding/",
         "source_tier": "primary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "company_statement"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "google-cloud | customer-win | verizon-gemini-enterprise-2026-08",
@@ -1253,9 +1316,11 @@
         "source_url": "https://www.lightreading.com/ai-machine-learning/verizon-taps-into-google-cloud-to-bring-ai-to-the-enterprise",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "id": "c_28bf85fdf157",
@@ -1292,7 +1357,8 @@
       "method": "substring",
       "fetched_at": "2026-08-28",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "id": "c_91e27e807872",
@@ -1335,15 +1401,18 @@
         "source_url": "https://aws.amazon.com/blogs/aws/aws-weekly-roundup-welcome-ducklabs-to-the-team-agentic-resource-discovery-ard-and-more-august-31-2026/",
         "source_tier": "primary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "company_statement"
       },
       {
         "source_url": "https://siliconangle.com/2026/08/26/aws-buys-ducklabs-to-bring-duckdbs-embeddable-analytics-to-more-enterprises/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "google-cloud | model-launch | gemini-3-8-flash-2026-09",
@@ -1371,9 +1440,11 @@
         "source_url": "https://deepmind.google/models/model-cards/gemini-3-8-flash/",
         "source_tier": "primary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "company_statement"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "id": "c_c5be284bfc39",
@@ -1416,8 +1487,10 @@
         "source_url": "https://aws.amazon.com/blogs/aws/aws-weekly-roundup-gpt-6-sol-and-luna-claude-opus-5-5-on-amazon-bedrock-strands-harness-and-more-september-28-2026/",
         "source_tier": "primary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "company_statement"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   }
 ]

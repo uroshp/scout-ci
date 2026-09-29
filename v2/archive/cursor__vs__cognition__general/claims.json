@@ -47,7 +47,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "cursor | adverse-objections-readiness | current",
@@ -83,7 +84,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "cognition | valuation | current",
@@ -111,9 +113,11 @@
         "source_url": "https://techcrunch.com/2026/09/08/cognition-hits-48b-valuation-signaling-investors-believe-ai-coding-is-far-from-a-winner-take-all-market/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "cognition | funding-total | current",
@@ -135,7 +139,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "cognition | revenue-run-rate | current",
@@ -171,7 +176,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "cognition | flagship-product | current",
@@ -193,7 +199,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "cognition | acquisition | windsurf",
@@ -215,7 +222,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-05",
       "detail": "partial_ratio 0.941"
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "cognition | productivity-guarantee | launch",
@@ -237,7 +245,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "cognition | windsurf-rebrand | launch",
@@ -259,7 +268,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "cognition | latest-funding-round | series-d",
@@ -287,9 +297,11 @@
         "source_url": "https://techcrunch.com/2026/09/08/cognition-hits-48b-valuation-signaling-investors-believe-ai-coding-is-far-from-a-winner-take-all-market/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "cognition | pricing-change | self-serve-2026",
@@ -311,7 +323,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "cognition | windsurf-layoffs | 2025",
@@ -333,7 +346,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-05",
       "detail": "partial_ratio 0.991"
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "cognition | positioning | cloud-agent-vs-local",
@@ -369,7 +383,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "cognition | positioning | model-independence",
@@ -419,7 +434,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "cursor | pricing-model | teams-2026",
@@ -448,9 +464,11 @@
         "source_url": "https://www.startuphub.ai/ai-news/technology/2026/cursor-teams-upgrades-pricing-for-predictability",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "cursor | pricing-model | individual-2026",
@@ -472,7 +490,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "devin | battlecard-strength | autonomous-delegation",
@@ -510,7 +529,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "security_regulated"
+    "persona": "security_regulated",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "cursor-vs-cognition | battlecard-contested | developer-adoption",
@@ -533,7 +553,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "eng_led"
+    "persona": "eng_led",
+    "source_class": "unknown"
   },
   {
     "subject_key": "cursor-vs-cognition | battlecard-contested | enterprise-overlap",
@@ -556,7 +577,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "source_class": "news"
   },
   {
     "subject_key": "devin | battlecard-weakness | reliability",
@@ -579,7 +601,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "technical_evaluator"
+    "persona": "technical_evaluator",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "cursor | battlecard-strength | revenue-scale",
@@ -616,7 +639,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "forum"
   },
   {
     "subject_key": "devin | sentiment | reliability-doubt",
@@ -638,7 +662,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "windsurf | sentiment | post-acquisition-trust",
@@ -660,7 +685,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "cursor | sentiment | pricing-backlash",
@@ -682,7 +708,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "objection | devin-autonomy | competitor-strength",
@@ -770,10 +797,12 @@
         "source_url": "https://techcrunch.com/2026/06/16/spacex-to-acquire-cursor-for-60b-in-stock-days-after-blockbuster-ipo/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
     ],
-    "updated_on": "2026-06-16"
+    "updated_on": "2026-06-16",
+    "source_class": "news"
   },
   {
     "subject_key": "cognition | devin-fusion | launch",
@@ -801,9 +830,11 @@
         "source_url": "https://x.com/cognition/status/2071624568465490170",
         "source_tier": "primary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "forum"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "cognition | security-swarm | launch",
@@ -831,9 +862,11 @@
         "source_url": "https://devin.ai/security/",
         "source_tier": "primary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "company_statement"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "id": "c_a8b7804db9a3",
@@ -854,7 +887,8 @@
       "source_tier": "primary",
       "as_of": "2026-07-01",
       "fact_id": "c_8a5372ca0015",
-      "stamped_on": "2026-09-28"
+      "stamped_on": "2026-09-28",
+      "source_class": "company_statement"
     }
   },
   {
@@ -883,9 +917,11 @@
         "source_url": "https://cursor.com/changelog/ios-mobile-app",
         "source_tier": "primary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "company_statement"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "cursor | security-incident | duneslide-rce",
@@ -913,9 +949,11 @@
         "source_url": "https://thehackernews.com/2026/07/critical-cursor-flaws-could-let-prompt.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "unknown"
   },
   {
     "id": "c_3523c0386157",
@@ -958,9 +996,11 @@
         "source_url": "https://www.siliconreport.com/cognition-releases-swe-1-7-a-specialized-coding-model-aimed-at-undercutting-openai-and-ant-77242459",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "cursor | product-launch | grok-4-5",
@@ -988,9 +1028,11 @@
         "source_url": "https://thenextweb.com/news/spacexai-grok-4-5-cursor-opus-class-coding-model",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "id": "c_5856022ff14a",
@@ -1076,9 +1118,11 @@
         "source_url": "https://thehackernews.com/2026/07/cursor-flaw-lets-malicious-cloned-repositories-trigger-windows-code-execution.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "unknown"
   },
   {
     "id": "c_10a653d2c194",
@@ -1121,15 +1165,18 @@
         "source_url": "https://www.cursor.com/changelog",
         "source_tier": "primary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "company_statement"
       },
       {
         "source_url": "https://www.marktechpost.com/2026/07/22/cursor-releases-cursor-router-a-request-level-classifier/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "id": "c_157ca8aebc52",
@@ -1187,9 +1234,11 @@
         "source_url": "https://techcrunch.com/2026/07/24/why-cognition-bought-poke-ai-personality-is-becoming-a-competitive-advantage/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "cursor | spacex-integration-plan",
@@ -1217,9 +1266,11 @@
         "source_url": "https://dealroom.co/news/info-1jfa89-cursor-maps-out-branding-other-changes-as-spacex-acquisition-nears/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "cognition | revenue-run-rate",
@@ -1247,9 +1298,11 @@
         "source_url": "https://techcrunch.com/2026/08/12/ai-coding-startup-cognition-reportedly-already-in-talks-to-raise-at-40b-valuation/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "cognition | valuation",
@@ -1277,9 +1330,11 @@
         "source_url": "https://ca.finance.yahoo.com/news/ai-startup-cognition-set-raise-002937258.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "cursor | openai-partnership-termination",
@@ -1307,9 +1362,12 @@
         "source_url": "https://www.thenews.com.pk/latest/1414065-openai-to-cut-off-cursor-after-spacex-acquisitionheres-why",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "forum",
+    "source_class_conflict": "forum"
   },
   {
     "id": "c_aba9ac1ba26e",
@@ -1352,15 +1410,18 @@
         "source_url": "https://cursor.com/changelog",
         "source_tier": "primary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "company_statement"
       },
       {
         "source_url": "https://alphasignal.ai/news/cursor-s-projects-lets-a-coordinator-agent-direct-thousands-of-subagents",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "id": "c_8e12b5f7b2c1",

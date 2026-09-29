@@ -31,7 +31,8 @@
       "source_tier": "primary",
       "as_of": "2026-06-01",
       "fact_id": "c_52b822fdf6ea",
-      "stamped_on": "2026-09-28"
+      "stamped_on": "2026-09-28",
+      "source_class": "unknown"
     }
   },
   {
@@ -54,7 +55,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-04",
       "detail": "partial_ratio 0.993"
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "anthropic | adverse-exposure | current",
@@ -104,7 +106,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "anthropic | revenue-run-rate | current",
@@ -126,7 +129,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "openai | revenue-run-rate | current",
@@ -148,7 +152,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "anthropic | flagship-model | current",
@@ -198,7 +203,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "anthropic | ipo-filing | 2026",
@@ -220,7 +226,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "github-copilot | pricing-model | 2026-06",
@@ -242,7 +249,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai-codex | enterprise-expansion | 2026-06",
@@ -264,7 +272,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | competitive-switch-offer | 2026-06",
@@ -286,7 +295,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "microsoft | in-house-coding-model | 2026-06",
@@ -308,7 +318,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai-codex | security-exploit-discovery | 2026-06",
@@ -330,7 +341,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "microsoft-openai | partnership-restructure | 2026-04",
@@ -352,7 +364,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | gpt-5-5-launch | 2026-04",
@@ -374,7 +387,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-04",
       "detail": "partial_ratio 0.979"
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | si-partner-network | 2026",
@@ -396,7 +410,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "anthropic | coding-positioning | current",
@@ -418,7 +433,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-04",
       "detail": "partial_ratio 0.991"
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "claude-code | dynamic-workflows | 2026-05",
@@ -468,7 +484,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-04",
       "detail": "partial_ratio 0.988"
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "anthropic | api-list-price | current",
@@ -504,7 +521,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "anthropic | agent-billing-change | 2026-06",
@@ -526,7 +544,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "battlecard | developer-loyalty-adoption | where_we_win",
@@ -549,7 +568,8 @@
       "fetched_at": "2026-06-04",
       "detail": "partial_ratio 0.992"
     },
-    "persona": "eng_led"
+    "persona": "eng_led",
+    "source_class": "unknown"
   },
   {
     "subject_key": "battlecard | business-customer-lead | where_we_win",
@@ -587,7 +607,8 @@
       "fetched_at": "2026-06-04",
       "detail": null
     },
-    "persona": "technical_evaluator"
+    "persona": "technical_evaluator",
+    "source_class": "unknown"
   },
   {
     "subject_key": "battlecard | agentic-self-verification | where_we_win",
@@ -610,7 +631,8 @@
       "fetched_at": "2026-06-04",
       "detail": null
     },
-    "persona": "security_regulated"
+    "persona": "security_regulated",
+    "source_class": "news"
   },
   {
     "subject_key": "battlecard | swe-bench-verified-headline | contested",
@@ -637,7 +659,8 @@
     "status": "retired",
     "retired_on": "2026-09-04",
     "retired_reason": "superseded: still cites GPT-5.5, replaced per the linked update (c_95433de0d222)",
-    "derived_from": "c_95433de0d222"
+    "derived_from": "c_95433de0d222",
+    "source_class": "unknown"
   },
   {
     "subject_key": "battlecard | codex-scale-distribution | where_they_win",
@@ -672,7 +695,8 @@
       "source_tier": "primary",
       "as_of": "2026-06-01",
       "fact_id": "c_52b822fdf6ea",
-      "stamped_on": "2026-09-28"
+      "stamped_on": "2026-09-28",
+      "source_class": "unknown"
     }
   },
   {
@@ -696,7 +720,8 @@
       "fetched_at": "2026-06-04",
       "detail": null
     },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "source_class": "unknown"
   },
   {
     "subject_key": "objection | uber-cost-roi-cap | current",
@@ -719,7 +744,8 @@
       "fetched_at": "2026-06-04",
       "detail": "partial_ratio 0.985"
     },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "source_class": "news"
   },
   {
     "subject_key": "objection | claude-outage-capacity | current",
@@ -757,7 +783,8 @@
       "fetched_at": "2026-06-04",
       "detail": null
     },
-    "persona": "security_regulated"
+    "persona": "security_regulated",
+    "source_class": "news"
   },
   {
     "subject_key": "objection | federal-blacklisting | current",
@@ -815,9 +842,11 @@
         "source_url": "https://thetechportal.com/2026/06/26/openai-could-delay-ipo-until-2027-uncertainty-triggers-us-stock-sell-off/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai-state-ag-investigation",
@@ -845,9 +874,11 @@
         "source_url": "https://www.engadget.com/2193666/openai-investigation-state-attorneys-general/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "anthropic | government-foreign-access-ban",
@@ -875,16 +906,19 @@
         "source_url": "https://www.cnn.com/2026/06/13/business/anthropic-mythos-model-national-security",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       },
       {
         "source_url": "https://www.aljazeera.com/news/2026/6/13/us-orders-anthropic-to-disable-ai-models-for-all-foreign-nationals",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
     ],
-    "updated_on": "2026-06-15"
+    "updated_on": "2026-06-15",
+    "source_class": "company_statement"
   },
   {
     "id": "c_6728a60059ae",
@@ -927,10 +961,12 @@
         "source_url": "https://finance.yahoo.com/sectors/technology/articles/openai-acquires-ona-cloud-startup-172504079.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
     ],
-    "updated_on": "2026-06-16"
+    "updated_on": "2026-06-16",
+    "source_class": "news"
   },
   {
     "subject_key": "anthropic | export-ban-customer-defection",
@@ -958,10 +994,12 @@
         "source_url": "https://www.japantimes.co.jp/business/2026/06/16/anthropic-crackdown-ai-alarm/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
     ],
-    "updated_on": "2026-06-17"
+    "updated_on": "2026-06-17",
+    "source_class": "news"
   },
   {
     "id": "c_d77edb839591",
@@ -1004,10 +1042,12 @@
         "source_url": "https://www.benzinga.com/markets/tech/26/06/53269428/google-gemini-co-lead-noam-shazeer-joins-openai-sam-altman-says-its-10-years-in-the-making",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
     ],
-    "updated_on": "2026-06-18"
+    "updated_on": "2026-06-18",
+    "source_class": "news"
   },
   {
     "subject_key": "openai-si-partner-network",
@@ -1035,9 +1075,11 @@
         "source_url": "https://www.techtimes.com/articles/318436/20260615/openai-launches-partner-network-150m-bet-that-implementation-beats-model-power.htm",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "unknown"
   },
   {
     "subject_key": "anthropic | government-relations-thaw",
@@ -1065,9 +1107,11 @@
         "source_url": "https://finance.yahoo.com/technology/ai/articles/trump-tells-axios-doesn-t-194923418.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | api-list-price | current",
@@ -1109,9 +1153,11 @@
         "source_url": "https://www.testingcatalog.com/openai-launches-new-security-tools-and-updates-gpt-5-5-cyber/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "anthropic | service-outage | 2026-06",
@@ -1139,15 +1185,18 @@
         "source_url": "https://www.techtimes.com/articles/318925/20260623/claude-outage-tops-8000-reports-agentic-pipeline-failures-mount-before-anthropic-ipo.htm",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       },
       {
         "source_url": "https://www.techradar.com/news/live/claude-down-june-23-2026",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "battlecard | token-price-undercut | contested",
@@ -1185,7 +1234,8 @@
       "fetched_at": "2026-06-23",
       "detail": null
     },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "source_class": "unknown"
   },
   {
     "subject_key": "battlecard | chatgpt-enterprise-install-base | where_they_win",
@@ -1208,7 +1258,8 @@
       "fetched_at": "2026-06-23",
       "detail": null
     },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "source_class": "unknown"
   },
   {
     "subject_key": "openai-broadcom-jalapeno-chip",
@@ -1236,9 +1287,11 @@
         "source_url": "https://techcrunch.com/2026/06/24/openai-unveils-its-first-custom-chip-built-by-broadcom/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | gpt-5-6-government-restricted-release",
@@ -1266,9 +1319,11 @@
         "source_url": "https://simonwillison.net/2026/Jul/9/gpt-5-6/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "anthropic | mythos-5-government-partial-lift",
@@ -1296,15 +1351,18 @@
         "source_url": "https://www.cnbc.com/2026/06/26/us-government-anthropic-claude-mythos5-ai.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       },
       {
         "source_url": "https://fortune.com/2026/06/27/anthropic-mythos-5-ai-model-us-commerce-department-clearance-fable/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "anthropic | azure-foundry-distribution | 2026-06",
@@ -1332,9 +1390,11 @@
         "source_url": "https://azure.microsoft.com/en-us/blog/claude-in-microsoft-foundry-is-now-generally-available/",
         "source_tier": "primary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "id": "c_bc366e80d315",
@@ -1377,9 +1437,11 @@
         "source_url": "https://techcrunch.com/2026/06/30/anthropic-launches-claude-sonnet-5-as-a-cheaper-way-to-run-agents/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "github-copilot | billing-backlash",
@@ -1408,10 +1470,12 @@
         "source_tier": "reputable_secondary",
         "note": "the $29 to $750 and $50 to $3,000 figures, stated as developers' projections",
         "grounded": true,
-        "evidence_excerpt": "while they currently only pay around $29 per month, the new rate will balloon their costs to nearly $750 a month."
+        "evidence_excerpt": "while they currently only pay around $29 per month, the new rate will balloon their costs to nearly $750 a month.",
+        "source_class": "news"
       }
     ],
-    "updated_on": "2026-09-28"
+    "updated_on": "2026-09-28",
+    "source_class": "unknown"
   },
   {
     "subject_key": "openai | government-equity-proposal | 2026-07",
@@ -1439,9 +1503,11 @@
         "source_url": "https://www.forbes.com/sites/siladityaray/2026/07/02/openai-reportedly-pitches-granting-us-government-5-stake/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai-apple-trade-secret-suit",
@@ -1469,9 +1535,11 @@
         "source_url": "https://www.engadget.com/2230042/apple-claims-that-even-more-ex-employees-may-have-given-trade-secrets-to-openai/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | gpt56-usage-limits | 2026-07",
@@ -1499,9 +1567,11 @@
         "source_url": "https://www.digitaltrends.com/computing/openai-just-took-the-handcuffs-off-your-chatgpt-work-and-codex-usage-limits-at-least-for-now/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "anthropic | copyright-settlement-final-approval",
@@ -1529,15 +1599,18 @@
         "source_url": "https://www.euronews.com/next/2026/07/21/anthropic-to-pay-13bn-in-biggest-copyright-settlement-on-record",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       },
       {
         "source_url": "https://www.engadget.com/2219475/judge-approves-anthropic-1-5-billion-settlement-authors/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "id": "c_142f31e2bda8",
@@ -1580,9 +1653,11 @@
         "source_url": "https://fortune.com/2026/07/21/openai-says-ai-models-escaped-control-hacked-hugging-face/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "id": "c_fd1ea37d8117",
@@ -1625,15 +1700,18 @@
         "source_url": "https://finance.yahoo.com/technology/ai/articles/openai-plans-30-billion-ai-191515652.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       },
       {
         "source_url": "https://www.techradar.com/pro/openai-is-spending-usd30-billion-on-a-new-mega-3-2-gw-data-center-in-georgia-and-its-trying-really-hard-to-quell-local-opposition",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "unknown"
   },
   {
     "subject_key": "anthropic | flagship-model",
@@ -1661,9 +1739,11 @@
         "source_url": "https://venturebeat.com/orchestration/anthropic-launches-claude-opus-5-a-cheaper-ai-model-for-coding-agents-and-enterprise-workflows",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "battlecard | token-price-undercut",
@@ -1691,9 +1771,11 @@
         "source_url": "https://www.marktechpost.com/2026/09/22/openai-releases-gpt-6-sol-and-luna-50-cheaper-api-pricing-and-benchmarks/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "anthropic-claude-external-containment-breach",
@@ -1721,9 +1803,11 @@
         "source_url": "https://techcrunch.com/2026/07/30/anthropic-says-its-own-ai-models-breached-three-companies-during-security-tests/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "id": "c_7d3b50d77e94",
@@ -1766,9 +1850,11 @@
         "source_url": "https://www.csoonline.com/article/4207311/openai-says-astra-could-reach-critical-cyber-capability-tightens-safeguards.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "anthropic | service-outage",
@@ -1796,15 +1882,18 @@
         "source_url": "https://www.androidauthority.com/claude-outage-august-5-2026-3694847/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       },
       {
         "source_url": "https://www.benzinga.com/markets/tech/26/08/60943268/is-claude-down-anthropic-says-its-working-on-a-fix-after-users-report-widespread-issues",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "claude-code | feature-release",
@@ -1832,9 +1921,11 @@
         "source_url": "https://releasebot.io/updates/anthropic/claude-code",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "unknown"
   },
   {
     "id": "c_48d8cfa189a7",
@@ -1871,7 +1962,8 @@
       "method": "substring",
       "fetched_at": "2026-08-11",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "openai-executive-shakeup",
@@ -1899,9 +1991,11 @@
         "source_url": "https://finance.yahoo.com/technology/ai/articles/openai-replaces-cro-denise-dresser-123916429.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "anthropic | api-list-price",
@@ -1929,15 +2023,18 @@
         "source_url": "https://www.thestack.technology/anthropic-follows-openai-with-frontier-model-price-cuts/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       },
       {
         "source_url": "https://blockonomi.com/openai-and-anthropic-slash-ai-prices-as-chinese-competitors-disrupt-the-market/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "anthropic | outage-frequency-pattern",
@@ -1965,15 +2062,18 @@
         "source_url": "https://www.unite.ai/anthropic-outage-disrupts-claude-services-fix-deployed-after-login-failures/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       },
       {
         "source_url": "https://www.bleepingcomputer.com/news/artificial-intelligence/anthropic-confirms-claude-is-down-in-major-outage-affecting-multiple-services/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "openai-nvidia-ohio-datacenter-financing",
@@ -2001,9 +2101,11 @@
         "source_url": "https://www.scmp.com/tech/big-tech/article/3364341/nvidia-provide-us105-billion-guarantee-openais-ohio-data-centre",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai-private-safety-processing",
@@ -2031,9 +2133,11 @@
         "source_url": "https://www.theregister.com/ai-and-ml/2026/08/20/openai-chases-anthropics-biz-customers-with-zero-data-retention-pledge/5290609",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "battlecard | business-customer-lead",
@@ -2055,7 +2159,8 @@
       "method": "substring",
       "fetched_at": "2026-08-26",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "anthropic | bain-global-premier-partnership",
@@ -2083,9 +2188,11 @@
         "source_url": "https://www.unite.ai/bain-joins-anthropics-claude-partner-network-at-global-premier-tier/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "unknown"
   },
   {
     "id": "c_24a14ed52638",
@@ -2128,9 +2235,11 @@
         "source_url": "https://www.cnn.com/2026/09/25/tech/anthropic-pentagon-blacklist-dc-ruling",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "anthropic | infostealer-session-hijacking",
@@ -2158,15 +2267,18 @@
         "source_url": "https://cybersecuritynews.com/hackers-steal-claude-login-sessions/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       },
       {
         "source_url": "https://securityaffairs.com/198166/ai/infostealers-are-hijacking-claude-sessions-and-draining-subscriptions.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "id": "c_c691c0fb6389",
@@ -2209,15 +2321,18 @@
         "source_url": "https://venturebeat.com/technology/anthropics-claude-fable-5-1-and-mythos-5-1-arrive-with-a-75-cost-reduction-for-fable-cache-reads",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       },
       {
         "source_url": "https://www.macrumors.com/2026/09/01/anthropic-claude-fable-5-1/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "id": "c_7e7881a21f9c",
@@ -2260,9 +2375,11 @@
         "source_url": "https://www.cnbc.com/2026/09/01/anthropic-data-retention.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "id": "c_10b16b0b0a48",
@@ -2299,7 +2416,8 @@
       "method": "substring",
       "fetched_at": "2026-09-05",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "id": "c_e02f3441c5ce",
@@ -2342,9 +2460,11 @@
         "source_url": "https://www.vellum.ai/blog/gpt-6-astra-benchmarks-explained",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "unknown"
   },
   {
     "id": "c_cde33845e2b7",
@@ -2365,7 +2485,8 @@
       "source_tier": "reputable_secondary",
       "as_of": "2026-09-03",
       "fact_id": "c_65573cf583db",
-      "stamped_on": "2026-09-23"
+      "stamped_on": "2026-09-23",
+      "source_class": "unknown"
     }
   },
   {
@@ -2394,9 +2515,11 @@
         "source_url": "https://techcrunch.com/2026/09/12/openais-sam-altman-says-it-would-be-ill-advised-to-go-public-in-2026/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "anthropic | google-antigravity-access",
@@ -2424,9 +2547,11 @@
         "source_url": "https://en.sedaily.com/international/2026/09/15/google-lets-engineers-use-rival-anthropics-claude",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "unknown"
   },
   {
     "id": "c_4e493f221e28",
@@ -2469,9 +2594,11 @@
         "source_url": "https://www.artificiallawyer.com/2026/09/18/openai-launches-astra-for-law/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "id": "c_6c4aa7ca7709",
@@ -2529,9 +2656,11 @@
         "source_url": "https://www.marktechpost.com/2026/09/22/openai-releases-gpt-6-sol-and-luna-50-cheaper-api-pricing-and-benchmarks/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | softbank-junk-bond-financing",
@@ -2553,6 +2682,7 @@
       "method": "substring",
       "fetched_at": "2026-09-29",
       "detail": null
-    }
+    },
+    "source_class": "news"
   }
 ]
