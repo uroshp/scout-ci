@@ -1,0 +1,41 @@
+# Keep the `rc` branch current with main (2026-09-28, the RC environment).
+#
+# WHY: battlecards are files in this repo, committed to main by the monitor Action every morning
+# and baked into each Cloud Run image. The RC service is built from `rc`, so unless main flows
+# into rc, RC would show yesterday's cards. This merges main into rc on every push to main; the
+# RC Cloud Build trigger then rebuilds RC with the same cards production just got.
+#
+# SAFE BY DESIGN: a plain merge, never a force-push, never a rebase. rc only ever ADDS code on top
+# of main (rc-guard.yml refuses card edits on rc), so a conflict means a human changed the same
+# code on both sides; the job fails loudly (GitHub emails the failed run) and leaves rc untouched.
+name: sync-rc
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+concurrency:
+  group: sync-rc
+  cancel-in-progress: false
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: rc
+          fetch-depth: 0
+      - name: Merge main into rc
+        run: |
+          git config user.name "scout-sync[bot]"
+          git config user.email "scout-sync[bot]@users.noreply.github.com"
+          git fetch origin main
+          if git merge --no-edit origin/main; then
+            git push origin rc
+            echo "rc now at $(git rev-parse --short HEAD)"
+          else
+            echo "::error::main -> rc merge CONFLICT; rc left untouched. Resolve by hand: git checkout rc && git merge main"
+            git merge --abort
+            exit 1
+          fi
