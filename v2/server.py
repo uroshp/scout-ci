@@ -524,6 +524,20 @@ def askui_dir() -> str:
     return "ask"
 
 
+# --- soft limits on the paid endpoints (scout/ratelimit.py; the engine's ledger is the hard bound)
+from scout import ratelimit  # noqa: E402
+_ASK_IP = ratelimit.Limiter(per_minute=config.ASK_IP_PER_MIN)
+_ASK_CID = ratelimit.Limiter(per_day=config.ASK_VISITOR_QUOTA)
+_REQ_IP = ratelimit.Limiter(per_minute=config.REQUEST_IP_PER_MIN, per_day=config.REQUEST_IP_PER_DAY)
+
+
+def _client_ip() -> str:
+    """The LAST X-Forwarded-For entry: Cloud Run appends the connecting client's address after
+    anything the client sent itself, so the last one is the only one it could not choose."""
+    xff = [p.strip() for p in (request.headers.get("X-Forwarded-For") or "").split(",") if p.strip()]
+    return xff[-1] if xff else (request.remote_addr or "?")
+
+
 @app.get("/api/answers/<aid>")
 def api_answer(aid):
     a = _load_answer(aid)
@@ -564,6 +578,14 @@ def api_ask():
         # proves it came through a rendered page (the engine verifies it with the shared secret)
         from scout.asktoken import page_token, record_id_for
         cid = request.cookies.get("scout_cid") or uuid.uuid4().hex[:16]
+        ip, exempt = _client_ip(), cid in config.ASK_QUOTA_BYPASS_CIDS
+        if not _ASK_IP.check(ip)[0]:
+            return jsonify({"message": "Too many questions from your network right now. Try again in a minute."}), 429
+        if not exempt and not _ASK_CID.check(cid)[0]:
+            return jsonify({"message": f"You've used today's {config.ASK_VISITOR_QUOTA} questions. Browse the answers so far, or come back tomorrow."}), 429
+        _ASK_IP.hit(ip)                                  # count only a request both limits allowed
+        if not exempt:
+            _ASK_CID.hit(cid)
         rid = str(body.get("rid") or "")
         # the panel's request token fixes the answer id up front (recovery after a dropped stream
         # or a reload polls /api/answers/<id> until the record lands)
@@ -728,6 +750,10 @@ _FORM_JS = """
 
 @app.post("/api/request")
 def api_request():
+    ok, why = _REQ_IP.hit(_client_ip())
+    if not ok:
+        return jsonify(error=("Too many requests from your network right now. Try again in a minute." if why == "minute"
+                              else "That's the daily limit of requests from your network. Come back tomorrow.")), 429
     data = request.get_json(silent=True) or {}
     competitor = (data.get("competitor") or "").strip()
     my_company = (data.get("my_company") or "").strip()

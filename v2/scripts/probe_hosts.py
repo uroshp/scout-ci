@@ -91,6 +91,25 @@ def probe_host(browser, name, url):
         context.close()
 
 
+def probe_engine(url):
+    """The Ask engine (2026-09-29): /healthcheck answers "ok" and /ask/dry replays a stored answer as
+    SSE ending in a done frame, at $0. Skipped when no engine URL is set (Ask not deployed)."""
+    import httpx
+    url = url.rstrip("/")
+    try:
+        r = httpx.get(url + "/healthcheck", timeout=30, headers={"User-Agent": PROBE_UA})
+        if r.status_code != 200 or r.text.strip() != "ok":
+            return f"engine {url}: /healthcheck -> {r.status_code} {r.text[:80]!r}"
+        r = httpx.get(url + "/ask/dry", timeout=60, headers={"User-Agent": PROBE_UA})
+        if r.status_code == 503:
+            return None                                # no stored answer configured yet: not a failure
+        if r.status_code != 200 or '"done": true' not in r.text:
+            return f"engine {url}: /ask/dry -> {r.status_code}, no done frame ({r.text[:120]!r})"
+    except Exception as e:
+        return f"engine {url}: {type(e).__name__}: {e}"
+    return None
+
+
 def run_probe():
     failures = []
     with sync_playwright() as p:
@@ -102,6 +121,13 @@ def run_probe():
             if err:
                 failures.append(err)
         browser.close()
+    engine = os.environ.get("SCOUT_ASK_ENGINE_URL", "").strip()
+    if engine:
+        err = probe_engine(engine) or None
+        if err:
+            err = probe_engine(engine)                 # one retry: min-instances 0 cold start
+        if err:
+            failures.append(err)
     return failures
 
 
@@ -120,7 +146,7 @@ def main():
             dry_run=False,
         )
     if not failures:
-        print("OK both hosts render card content")
+        print("OK both hosts render card content" + (" + engine answers" if os.environ.get("SCOUT_ASK_ENGINE_URL") else ""))
     sys.exit(1 if failures else 0)
 
 

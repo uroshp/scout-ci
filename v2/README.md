@@ -21,6 +21,12 @@
   and a per-persona view (`?persona=`). It never generates or monitors; self-serve requests are handed to
   an Action. Every change is reviewed on a release-candidate service before it reaches the main domain
   (`docs/cloud-run-setup.md`, "The RC environment").
+- **Ask Scout** (the chat panel on every card; `scout/ask.py`, `scout/askui.py`, `engine/`) answers a
+  rep's question in about a minute from everything Scout has already verified about the companies
+  named, through the same verifier the cards go through, and offers "Research deeper" (web research,
+  a few minutes) as the next turn. Every sentence shown was fact-checked or it is not shown; what
+  was cut is listed. It runs in a separate Cloud Run service with a hard daily spend ceiling
+  (`docs/cloud-run-setup.md`, "The Ask Scout engine").
 - **Self-serve** ("create your own") runs **out-of-band**: the app commits a request, a GitHub
   Action runs the same pipeline headless and commits a private result to a private repo visible only to the author.
 

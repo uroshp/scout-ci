@@ -16,7 +16,7 @@ except Exception:   # pragma: no cover
     _HAVE_PW = False
 
 import server
-from scout import askui, asktoken, config, display
+from scout import askui, asktoken, config, display, ratelimit
 
 ORIGIN = "http://scout.test"
 ANSWER = {"id": "a_0123456789ab", "question": "What is X's revenue?", "slug": None, "competitor": "X",
@@ -160,6 +160,7 @@ class Recovery(unittest.TestCase):
                  mock.patch.object(config, "ASK_ENABLED", True), mock.patch.object(config, "ASK_CANNED_ID", ""),
                  mock.patch.object(config, "ASK_ENGINE_URL", "http://engine.test"), mock.patch.object(config, "ASK_VIEWER_SECRET", "shh"),
                  mock.patch.object(askui, "POLL_MS", 250), mock.patch.object(askui, "POLL_MAX_MS", 60000),
+                 mock.patch.object(server, "_ASK_IP", ratelimit.Limiter(per_minute=10_000)), mock.patch.object(server, "_ASK_CID", ratelimit.Limiter(per_day=10_000)),
                  mock.patch.object(server, "_load_answer", side_effect=lambda aid: cls.RECORDS.get(aid))]
         for p in cls.p:
             p.start()
