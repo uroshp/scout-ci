@@ -70,7 +70,7 @@ ORIGINS="$VIEWER_URL"; [ "$VIEWER_URL2" != "$VIEWER_URL" ] && ORIGINS="$ORIGINS,
 [ "$DATA_PREFIX" = "" ] && ORIGINS="$ORIGINS,https://agent-scout.ai,https://www.agent-scout.ai"
 gcloud run deploy "$ENGINE_SERVICE" --image "$IMAGE" --region "$REGION" --allow-unauthenticated --quiet \
   --min-instances 0 --max-instances 2 --memory 1Gi --cpu 1 --concurrency 1 --timeout 600 --port 8081 \
-  --set-env-vars "^|^SCOUT_SELFSERVE_DATA_PREFIX=${DATA_PREFIX}|SCOUT_SELFSERVE_DATA_READ_FALLBACK=1|SELFSERVE_REPO=${DATA_REPO}|SCOUT_ASK_DAILY_CEILING_USD=${CEILING}|SCOUT_CALL_CAPTURE=${CALL_CAPTURE:-0}|SCOUT_ASK_CANNED=${ASK_CANNED:-}|ASK_ALLOWED_ORIGINS=${ORIGINS}" \
+  --set-env-vars "^|^SCOUT_SELFSERVE_DATA_PREFIX=${DATA_PREFIX}|SCOUT_SELFSERVE_DATA_READ_FALLBACK=1|SELFSERVE_REPO=${DATA_REPO}|SCOUT_ASK_DAILY_CEILING_USD=${CEILING}|SCOUT_CALL_CAPTURE=${CALL_CAPTURE:-0}|SCOUT_ASK_CANNED=${ASK_CANNED:-}|SCOUT_MCP=${MCP_ENABLED:-0}|ASK_ALLOWED_ORIGINS=${ORIGINS}" \
   --set-secrets "ANTHROPIC_API_KEY=scout-anthropic-key:latest,ASK_VIEWER_SECRET=scout-ask-viewer-secret:latest,ASK_API_KEYS=scout-ask-api-keys:latest,SELFSERVE_GH_TOKEN=scout-gh-token:latest" >/dev/null
 ENGINE_URL=$(gcloud run services describe "$ENGINE_SERVICE" --region "$REGION" --format='value(status.url)')
 echo "  ✓ $ENGINE_SERVICE at $ENGINE_URL (origins: $ORIGINS)"

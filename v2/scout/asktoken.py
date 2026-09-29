@@ -34,3 +34,12 @@ def record_id_for(rid: str) -> str:
     stream or a reload. The client cannot pick the id itself: it is a hash of the token."""
     import hashlib
     return "a_" + hashlib.sha256(f"rid:{rid}".encode()).hexdigest()[:12]
+
+
+def owner_key_ok(authorization: str | None) -> bool:
+    """True when the bearer matches one of ASK_API_KEYS (the owner). Constant-time compare."""
+    import hmac
+    import os
+    tok = (authorization or "").removeprefix("Bearer ").strip()
+    keys = [k.strip() for k in os.environ.get("ASK_API_KEYS", "").split(",") if k.strip()]
+    return bool(tok) and any(hmac.compare_digest(tok, k) for k in keys)

@@ -4,6 +4,7 @@ my_company about-tag normalization (company-name tags must not slip through the 
 and window-hold semantics (an unrelated alert or one empty re-scan must never erase a held
 window; abandonment is bounded and loud). Run from v2/:  python -m unittest discover -s tests
 """
+import json
 import unittest
 from unittest import mock
 
@@ -218,3 +219,84 @@ class LiveApplyGate(unittest.TestCase):
         self.assertIn("refresh_anchor_facts(", block); self.assertIn("provenance_issues(", block)
         self.assertIn("new_claims = pre_claims", block)                      # gate failed: card keeps its state
         self.assertIn('result["propagation"]["provenance_issues"] = issues', block)
+
+
+class SignalsInTheRun(unittest.TestCase):
+    """WS3: open signals and the hiring context reach triage and materiality; alerts from a
+    signal's document carry `triggered_by`; a write consumes the signals."""
+
+    def test_block_and_stamp(self):
+        from scout import monitor, config
+        opened = [{"kind": "filing", "summary": "New 8-K filed 2026-09-29", "source_url": "https://www.sec.gov/Archives/edgar/data/1108524/000110852426000205/x.htm",
+                   "accession": "0001108524-26-000205", "source_class": "filing", "filed": "2026-09-29", "fingerprint": "f1", "detected_at": "t"}]
+        with mock.patch.object(config, "SIGNALS_ENABLED", True), mock.patch("scout.signals.open_signals", return_value=opened), \
+             mock.patch("scout.signals.context_block", return_value="\n\nHIRING CONTEXT (…): - ashby board: 40 open roles, net +2"):
+            block, got = monitor._signals_block("s")
+            ctx = monitor._hiring_context("s")
+        self.assertIn("SIGNALS TO INVESTIGATE FIRST", block); self.assertIn("New 8-K", block); self.assertEqual(got, opened)
+        self.assertNotIn("HIRING CONTEXT", block)                                     # hiring never reaches triage
+        self.assertIn("HIRING CONTEXT", ctx)                                          # it goes to materiality / the own-side pass
+        with mock.patch.object(config, "SIGNALS_ENABLED", False):
+            self.assertEqual(monitor._signals_block("s"), ("", []))
+        alerts = [{"source_url": "https://www.sec.gov/Archives/edgar/data/1108524/000110852426000205/x.htm", "headline": "a"},
+                  {"source_url": "https://www.cnbc.com/x", "headline": "b"}]
+        out = monitor._stamp_triggers(alerts, opened)
+        self.assertEqual(out[0]["triggered_by"]["kind"], "filing"); self.assertNotIn("triggered_by", out[1])
+        with mock.patch("scout.signals.consume") as c:
+            monitor._consume_signals("s", opened, "2026-09-29T11:00:00"); c.assert_called_once_with("s", "2026-09-29T11:00:00", ["f1"])
+
+
+class DispatchedRun(unittest.TestCase):
+    """A signal-dispatched run is QUIET (no emails of its own; findings ride the next scheduled
+    FYI) and counts as the day's check for the due gate."""
+
+    def _res(self, slug, alerts=()):
+        return {"slug": slug, "alerts": list(alerts), "material": [], "cost": {"triage": 0.4}, "no_change": not alerts, "my_company_error": None,
+                "pipeline_health": None, "last_checked": "t", "propagation": {"decisions": [], "applied": [], "held": [], "skipped": [], "gated": None, "run_verdict": None}}
+
+    def test_quiet_run_stashes_and_the_next_run_sends_it(self):
+        from scout import monitor, config
+        files = {}
+        st_read = lambda p: files.get(p)
+        st_update = lambda p, tx, msg, **kw: files.__setitem__(p, tx(files.get(p))) or True
+        res_a = self._res("a", alerts=[{"headline": "8-K: guidance raised", "triggered_by": {"kind": "filing", "summary": "New 8-K"}}])
+        common = [mock.patch("scout.display.list_battlecards", return_value=["a"]), mock.patch.object(monitor.store, "load_meta", return_value={"monitored": True, "competitor": "X", "my_company": "Y"}),
+                  mock.patch.object(monitor, "_persist_run_cost"), mock.patch("scout.conseq.maybe_notify_ready"),
+                  mock.patch.object(config, "PROPAGATE_MODE", "live"), mock.patch.object(config, "CONSEQUENTIAL_FILTER", "off"),
+                  mock.patch("scout.selfserve.read_data", side_effect=st_read), mock.patch("scout.selfserve.update_data", side_effect=st_update)]
+        from contextlib import ExitStack
+        with ExitStack() as es:
+            for c in common:
+                es.enter_context(c)
+            es.enter_context(mock.patch.object(monitor, "check", side_effect=lambda slug, write=False: res_a))
+            fyi = es.enter_context(mock.patch("scout.notify.send_run_fyi")); iss = es.enter_context(mock.patch("scout.notify.send_run_issues"))
+            urg = es.enter_context(mock.patch("scout.notify.send_urgent_material"))
+            es.enter_context(mock.patch.dict(monitor.os.environ, {"SCOUT_MONITOR_REASON": "New 8-K filed"}))
+            monitor._run_all_impl(write=True, send=True, email_dry_run=True, force=True, slugs=["a"], quiet=True)
+        fyi.assert_not_called(); iss.assert_not_called(); urg.assert_not_called()
+        stash = json.loads(files["signals/_pending_fyi.json"])
+        self.assertEqual(len(stash), 1); self.assertEqual(stash[0]["fyi_cards"][0]["slug"], "a"); self.assertEqual(stash[0]["reason"], "New 8-K filed")
+        self.assertNotIn("meta", stash[0]["fyi_cards"][0])
+        sent = {}
+        with ExitStack() as es:
+            for c in common:
+                es.enter_context(c)
+            es.enter_context(mock.patch.object(monitor, "check", side_effect=lambda slug, write=False: self._res("a")))
+            es.enter_context(mock.patch("scout.notify.send_run_fyi", side_effect=lambda cards, cost, dry_run=True: sent.__setitem__("fyi", (cards, cost)) or {"sent": True}))
+            es.enter_context(mock.patch("scout.notify.send_run_issues", return_value={"sent": False}))
+            monitor._run_all_impl(write=True, send=True, email_dry_run=True, force=True)               # the scheduled run
+        cards, cost = sent["fyi"]
+        self.assertEqual([c["slug"] for c in cards], ["a"]); self.assertEqual(cards[0]["alerts"][0]["headline"], "8-K: guidance raised")
+        self.assertEqual(cards[0]["meta"]["competitor"], "X")                                              # meta re-attached
+        self.assertAlmostEqual(cost, 0.8)                                                                 # both runs' cost in one line
+        self.assertEqual(json.loads(files["signals/_pending_fyi.json"]), [])                                # cleared once taken
+
+    def test_due_gate_counts_a_signal_run(self):
+        from scout import monitor, config
+        from datetime import datetime
+        now = datetime(2026, 9, 29, 11, 2)                                                               # 2 min after the 11:00 UTC anchor
+        with mock.patch.object(config, "MONITOR_SKIP_WEEKDAYS", []), mock.patch.object(config, "MONITOR_ANCHORS_UTC", ["11:00"]):
+            self.assertTrue(monitor._is_due({"last_checked": "2026-09-28T21:00:00"}, now))                # a plain check last evening: due
+            self.assertFalse(monitor._is_due({"last_checked": "2026-09-28T21:00:00", "last_check_reason": "signal"}, now))   # a signal run 14 h ago serves this anchor
+            self.assertTrue(monitor._is_due({"last_checked": "2026-09-28T09:00:00", "last_check_reason": "signal"}, now))    # 26 h ago: due again
+            self.assertFalse(monitor._is_due({"last_checked": "2026-09-29T11:00:30", "last_check_reason": "scheduled"}, now))

@@ -27,6 +27,13 @@
   a few minutes) as the next turn. Every sentence shown was fact-checked or it is not shown; what
   was cut is listed. It runs in a separate Cloud Run service with a hard daily spend ceiling
   (`docs/cloud-run-setup.md`, "The Ask Scout engine").
+- **Signals** (`scout/signals.py`, the mini's hourly poller): a new SEC filing on a watched company
+  starts that card's check within the hour and shows as "Triggered by: new filing" on the alert; a
+  brand-new hiring department is queued for the next run; other hiring deltas are context for the
+  judgment, never a trigger. A triggered run never emails on its own; its findings ride the next
+  morning's FYI (`docs/signals-and-mcp-build-plan.md`).
+- **MCP** (`scout/mcp_server.py`): the cards and Ask as tools for other agents, over stdio or the
+  engine's `/mcp` (`docs/mcp.md`).
 - **Self-serve** ("create your own") runs **out-of-band**: the app commits a request, a GitHub
   Action runs the same pipeline headless and commits a private result to a private repo visible only to the author.
 
