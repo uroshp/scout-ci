@@ -833,14 +833,35 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
                            if str(d.get("judged_by") or "").startswith("fallback:")}
                 auto_ops = [o for o in prop["confirmed"]
                             if (o.get("subject_key"), o.get("operation")) not in fb_keys]
-                ap = apply_ops(new_claims, auto_ops, change_facts + strength_facts, slug, today)
-                new_claims = ap["claims"]
-                result["propagation"]["applied"] = ap["applied"]
-                result["propagation"]["skipped"] = ap["skipped"]
-                result["propagation"]["held"] = ap.get("held", [])
-                # SURFACE RETIREMENTS in the updates feed: an applied retire writes its feed_note as an
-                # alert so the left panel shows the removal, never a silent disappearance.
-                new_alerts.extend(_retire_feed_alerts(prop["confirmed"], ap["applied"]))
+                # The same protections the review path runs on approval (2026-09-29, the live
+                # flip): refresh the anchor facts the ops derive from, apply, then the PROVENANCE
+                # GATE. If citations regressed or disagree with what the judge confirmed, nothing
+                # from this card's propagation is written and the ops go to the "needs you" email.
+                from scout.review import provenance_issues, refresh_anchor_facts
+                facts_all = change_facts + strength_facts
+                fb = {f.get("id"): f for f in facts_all if f.get("id")}
+                pre_claims = new_claims
+                claims_in = refresh_anchor_facts(pre_claims, [fb[f] for f in {o.get("derived_from") for o in auto_ops} if f in fb])
+                ap = apply_ops(claims_in, auto_ops, facts_all, slug, today)
+                landed = {(a.get("subject_key"), a.get("operation")) for a in ap["applied"]}
+                issues = provenance_issues(claims_in, ap["claims"],
+                                           [o for o in auto_ops if (o.get("subject_key"), o.get("operation")) in landed], facts_all)
+                if issues:
+                    for i in issues:
+                        print(f"[monitor] PROVENANCE GATE ({slug}): {i}", file=sys.stderr)
+                    result["propagation"]["applied"] = []
+                    result["propagation"]["skipped"] = ap["skipped"]
+                    result["propagation"]["held"] = ap.get("held", [])
+                    result["propagation"]["provenance_issues"] = issues
+                    new_claims = pre_claims                     # the card keeps its pre-propagation state
+                else:
+                    new_claims = ap["claims"]
+                    result["propagation"]["applied"] = ap["applied"]
+                    result["propagation"]["skipped"] = ap["skipped"]
+                    result["propagation"]["held"] = ap.get("held", [])
+                    # SURFACE RETIREMENTS in the updates feed: an applied retire writes its feed_note as an
+                    # alert so the left panel shows the removal, never a silent disappearance.
+                    new_alerts.extend(_retire_feed_alerts(prop["confirmed"], ap["applied"]))
             # LEAD ELECTION auto-apply (2026-08-08): a promoted angle reorders the exec-summary lead
             # in review AND live (owner: auto-apply + monitor, no approval gate; shadow never applies).
             # The reorder rides the existing write path below (regenerates current.md + writes the
@@ -1080,6 +1101,7 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
     run_started = datetime.now()
     summary = []
     cost_rows = []
+    fyi_cards, issue_cards = [], []          # LIVE mode: one FYI + one "needs you" per run
     wanted = set(slugs) if slugs else None
     for slug in list_battlecards():
         if wanted is not None and slug not in wanted:
@@ -1111,6 +1133,8 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
                 # cards' checks (or the workflow committing their results). __main__ exits
                 # non-zero when any card errored, so the Actions run still notifies.
                 summary.append({"slug": slug, "error": f"{type(e).__name__}: {e}"})
+                if send and config.PROPAGATE_MODE == "live":     # a failed card is a "needs you" item
+                    issue_cards.append({"slug": slug, "meta": store.load_meta(slug) or {}, "errors": [f"check failed twice: {type(e).__name__}: {e}"]})
                 continue
         # $/claim (2026-07-08, his metric): claims this run = direct material patches + judge-
         # CONFIRMED proposals (confirmed = produced and sent for approval; a later human decline
@@ -1124,7 +1148,45 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
                      f"${card_cost / claims_n:.2f}/claim" if claims_n
                      else f"Run cost: ${card_cost:.2f} — no claims shipped")
         emailed = prop_emailed = None
-        if send:
+        live_batch = send and config.PROPAGATE_MODE == "live"
+        if live_batch:
+            # LIVE (2026-09-29): nothing per card. Collect what happened and what needs him; the
+            # run sends one cumulative FYI and, only when needed, one "needs you" email (below).
+            meta = store.load_meta(slug) or {}
+            prop0 = res.get("propagation") or {}
+            decisions = prop0.get("decisions", [])
+            applied_keys = {(a.get("subject_key"), a.get("operation")) for a in prop0.get("applied", [])}
+            applied = [d for d in decisions if (d.get("subject_key"), d.get("operation")) in applied_keys]
+            gated_n = sum(1 for d in decisions if d.get("judge_verdict") == "gated_routine") if prop0.get("gated") == "routine" else 0
+            el_rec = next((d for d in decisions if d.get("judge_verdict") == "lead_election" and d.get("lead_promoted")), None)
+            if res["alerts"] or applied or gated_n or el_rec:
+                fyi_cards.append({"slug": slug, "meta": meta, "alerts": res["alerts"], "applied": applied,
+                                  "deferred_n": gated_n, "election": el_rec if config.LEAD_ELECTION else None})
+            held = [d for d in decisions if d.get("held_for_format")]
+            confirmed_not_applied = [d for d in decisions if d.get("judge_verdict") == "confirm" and not d.get("held_for_format")
+                                     and (d.get("subject_key"), d.get("operation")) not in applied_keys
+                                     and str(d.get("judged_by") or "").startswith("fallback:")]
+            issue = {"slug": slug, "meta": meta, "held": held + [dict(d, held_reason="confirmed by the fallback judge only; not applied unattended") for d in confirmed_not_applied],
+                     "unjudged": [d for d in decisions if d.get("judge_verdict") == "judge_unavailable"],
+                     "exhausted": [d for d in decisions if d.get("rewrite_exhausted")],
+                     "provenance_issues": prop0.get("provenance_issues") or [],
+                     "pipeline_health": res.get("pipeline_health"),
+                     "errors": [res["my_company_error"]] if res.get("my_company_error") else []}
+            if any(issue[k] for k in ("held", "unjudged", "exhausted", "provenance_issues", "pipeline_health", "errors")):
+                issue_cards.append(issue)
+            urgent = [d for d in decisions if d.get("material_uncured")]
+            if urgent and config.PROPAGATE_URGENT_EMAIL:
+                try:
+                    notify.send_urgent_material(slug, meta, urgent, dry_run=email_dry_run)
+                except Exception as e:
+                    print(f"[monitor] urgent-material alert skipped ({type(e).__name__}: {e})", file=sys.stderr)
+            if prop0 and config.CONSEQUENTIAL_FILTER != "off" and prop0.get("run_verdict"):
+                shadow.filter_capture(slug, run_ts=res.get("last_checked"), verdict=prop0["run_verdict"],
+                                      act_subject_keys=[m["subject_key"] for m in res.get("material", [])],
+                                      competitor=meta.get("competitor"), my_company=meta.get("my_company"),
+                                      mode=config.CONSEQUENTIAL_FILTER)
+            emailed = {"batched": True}
+        if send and not live_batch:
             meta = store.load_meta(slug) or {}
             # Consequentiality-gate audit line (a deferral is never silent): rides the digest when
             # one goes out; a routine set with no alerts gets its own one-liner below.
@@ -1225,6 +1287,17 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
             "phases": {k: round(v, 6) for k, v in (cost or {}).items() if v is not None},
             "total": _run_total(cost),
         })
+    if send and config.PROPAGATE_MODE == "live":
+        try:
+            fyi = notify.send_run_fyi(fyi_cards, sum(float(r.get("cost_usd") or _run_total(r.get("phases") or {}) or 0) for r in cost_rows), dry_run=email_dry_run)
+            print(f"[monitor] run FYI: {fyi}")
+        except Exception as e:
+            print(f"[monitor] run FYI skipped ({type(e).__name__}: {e})", file=sys.stderr)
+        try:
+            iss = notify.send_run_issues(issue_cards, dry_run=email_dry_run)
+            print(f"[monitor] run issues email: {iss}")
+        except Exception as e:
+            print(f"[monitor] run issues email skipped ({type(e).__name__}: {e})", file=sys.stderr)
     _persist_run_cost(run_started, cost_rows, write)
     # CONSEQ. TRACK: once enough shadow verdicts have accumulated, email a one-time "ready to review"
     # spot-check digest (so the owner knows when to evaluate the filter for production). Best-effort.

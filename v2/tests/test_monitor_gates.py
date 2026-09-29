@@ -149,3 +149,72 @@ class RunControls(unittest.TestCase):
              mock.patch("scout.notify.send_digest"):
             monitor._run_all_impl(write=False, send=False, email_dry_run=True, force=True)
         self.assertEqual(seen, ["a", "b"])
+
+
+class LiveMode(unittest.TestCase):
+    """The authorship judge goes LIVE (decided 2026-09-28, wired 2026-09-29): confirmed ops apply
+    through the review path's protections (anchor refresh + provenance gate), and the run sends ONE
+    cumulative FYI plus ONE "needs you" email only when something needs him. Nothing per card."""
+
+    @staticmethod
+    def _res(slug, alerts=(), decisions=(), applied=(), provenance=(), health=None, gated=None):
+        return {"slug": slug, "alerts": list(alerts), "material": [], "cost": {"triage": 0.1, "materiality": 0.2},
+                "no_change": not alerts, "my_company_error": None, "pipeline_health": health, "last_checked": "t",
+                "propagation": {"decisions": list(decisions), "applied": list(applied), "held": [], "skipped": [],
+                                "provenance_issues": list(provenance), "gated": gated, "run_verdict": None}}
+
+    def test_one_fyi_and_one_issues_email_per_run(self):
+        from scout import monitor, config
+        ok_op = {"subject_key": "x | y", "operation": "revise", "judge_verdict": "confirm", "new_text": "n", "old_text": "o", "feed_note": "moved"}
+        held_op = {"subject_key": "h | h", "operation": "add", "judge_verdict": "confirm", "held_for_format": True, "new_text": "long", "held_reason": "over cap"}
+        results = {
+            "a": self._res("a", alerts=[{"headline": "price", "old_value": "1", "new_value": "2"}], decisions=[ok_op, held_op], applied=[{"subject_key": "x | y", "operation": "revise"}]),
+            "b": self._res("b", decisions=[{"subject_key": "q | q", "operation": "revise", "judge_verdict": "gated_routine"}], gated="routine"),
+            "c": self._res("c", provenance=["citation mismatch on z"], health="judge unavailable on c"),
+            "d": self._res("d"),
+        }
+        sent = {}
+        with mock.patch("scout.display.list_battlecards", return_value=list(results)), \
+             mock.patch.object(monitor, "check", side_effect=lambda slug, write=False: results[slug]), \
+             mock.patch.object(monitor.store, "load_meta", return_value={"monitored": True, "competitor": "X", "my_company": "Y"}), \
+             mock.patch.object(monitor, "_persist_run_cost"), mock.patch("scout.conseq.maybe_notify_ready"), \
+             mock.patch.object(config, "PROPAGATE_MODE", "live"), mock.patch.object(config, "CONSEQUENTIAL_FILTER", "off"), \
+             mock.patch("scout.notify.send_digest") as digest, mock.patch("scout.notify.send_propagation_proposals") as props, \
+             mock.patch("scout.notify.send_lead_election_fyi") as lead, mock.patch("scout.notify._dispatch") as disp, \
+             mock.patch("scout.notify.send_run_fyi", side_effect=lambda cards, cost, dry_run=True: sent.__setitem__("fyi", (cards, cost)) or {"sent": True}) as fyi, \
+             mock.patch("scout.notify.send_run_issues", side_effect=lambda cards, dry_run=True: sent.__setitem__("issues", cards) or {"sent": True}) as iss:
+            monitor._run_all_impl(write=False, send=True, email_dry_run=True, force=True)
+        digest.assert_not_called(); props.assert_not_called(); lead.assert_not_called(); disp.assert_not_called()
+        fyi.assert_called_once(); iss.assert_called_once()
+        cards, cost = sent["fyi"]
+        self.assertEqual([c["slug"] for c in cards], ["a", "b"])                       # d was quiet, c had only issues
+        self.assertEqual([d["subject_key"] for d in cards[0]["applied"]], ["x | y"])   # the held op is NOT in "applied"
+        self.assertEqual(cards[1]["deferred_n"], 1); self.assertAlmostEqual(cost, 1.2)
+        issues = sent["issues"]
+        self.assertEqual([c["slug"] for c in issues], ["a", "c"])
+        self.assertEqual([d["subject_key"] for d in issues[0]["held"]], ["h | h"])
+        self.assertEqual(issues[1]["provenance_issues"], ["citation mismatch on z"]); self.assertIn("judge unavailable", issues[1]["pipeline_health"])
+
+    def test_review_mode_emails_are_unchanged(self):
+        from scout import monitor, config
+        res = self._res("a", alerts=[{"headline": "price"}], decisions=[{"subject_key": "x | y", "operation": "revise", "judge_verdict": "confirm", "new_text": "n"}])
+        with mock.patch("scout.display.list_battlecards", return_value=["a"]), \
+             mock.patch.object(monitor, "check", side_effect=lambda slug, write=False: res), \
+             mock.patch.object(monitor.store, "load_meta", return_value={"monitored": True}), \
+             mock.patch.object(monitor, "_persist_run_cost"), mock.patch("scout.conseq.maybe_notify_ready"), \
+             mock.patch.object(config, "PROPAGATE_MODE", "review"), mock.patch.object(config, "CONSEQUENTIAL_FILTER", "off"), \
+             mock.patch("scout.notify.send_digest") as digest, mock.patch("scout.notify.send_propagation_proposals") as props, \
+             mock.patch("scout.notify.send_run_fyi") as fyi, mock.patch("scout.notify.send_run_issues") as iss:
+            monitor._run_all_impl(write=False, send=True, email_dry_run=True, force=True)
+        digest.assert_called_once(); props.assert_called_once(); fyi.assert_not_called(); iss.assert_not_called()
+
+
+class LiveApplyGate(unittest.TestCase):
+    def test_provenance_failure_writes_nothing_and_is_reported(self):
+        from scout import monitor
+        src = __import__("inspect").getsource(monitor)
+        i = src.find('config.PROPAGATE_MODE == "live" and prop["confirmed"]')
+        block = src[i:i + 2600]
+        self.assertIn("refresh_anchor_facts(", block); self.assertIn("provenance_issues(", block)
+        self.assertIn("new_claims = pre_claims", block)                      # gate failed: card keeps its state
+        self.assertIn('result["propagation"]["provenance_issues"] = issues', block)
