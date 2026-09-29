@@ -466,7 +466,8 @@ def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = N
             toc.append(f'<a href="#{sid}">{_html.escape(title)}</a>')
     # the verification trail: its own group, set off from the brief by a rule and a muted face,
     # so lineage / Cut Log / freshness do not read as more brief sections
-    toc.append(f'<div class="grp trail">{_TRAIL_TITLE}</div>')
+    toc.append(f'<div class="grp trail">{_TRAIL_TITLE}</div>'
+               f'<div class="grpsub">{_TRAIL_SUB}</div>')
     for sid, title, n in present:
         if sid in _TRAIL_IDS:
             toc.append(f'<a class="tr" href="#{sid}">{_html.escape(title)}</a>')
@@ -886,6 +887,7 @@ _OVERRIDES = """
    with a subtitle closes the brief before them. */
 #scout-page .toc .grp.trail{margin-top:18px;padding-top:12px;border-top:1px solid var(--line);
   color:var(--faint);}
+#scout-page .toc .grpsub{padding:0 10px 4px;font-size:11px;color:var(--faint);}
 #scout-page .toc a.tr{color:var(--faint);font-size:11.5px;}
 #scout-page .toc a.tr:hover,#scout-page .toc a.tr.on{color:var(--ink);}
 #scout-page .divider.trail{margin:38px 0 12px;flex-wrap:wrap;gap:6px 12px;}
@@ -1147,7 +1149,7 @@ def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retir
 # checked (lineage, Cut Log, claim freshness). Own group in the rail, own divider in the body.
 _TRAIL_IDS = ("lineage", "cut", "claims")
 _TRAIL_TITLE = "Verification trail"
-_TRAIL_SUB = "what Scout checked, cut and retired, and when"
+_TRAIL_SUB = "Check Scout's work"                    # Uroš 2026-09-29: the group's tag line
 
 
 def _trail_divider() -> str:
