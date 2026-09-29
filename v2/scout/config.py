@@ -334,6 +334,17 @@ ASK_QUICK_MAX_USD = float(os.environ.get("SCOUT_ASK_QUICK_MAX_USD", "1.50"))
 # Viewer-side soft limits (scout/ratelimit.py): per visitor id per day, per client IP per minute;
 # the engine's ledger is the hard bound. RC sets the quota high for review; a comma list of visitor
 # ids (the scout_cid cookie) is exempt, for the owner.
+# --- Signals (WS3, 2026-09-29): event-driven monitoring. A new SEC filing on a watched company
+# dispatches that card's check within the hour; a brand-new hiring department is queued for the
+# next scheduled run; routine hiring deltas are CONTEXT for materiality and the router, never a
+# trigger (Uroš: "hiring is a footnote"). Off by default on main.
+SIGNALS_ENABLED = os.environ.get("SCOUT_SIGNALS", "0") == "1"
+SIGNAL_FORMS = tuple(x.strip() for x in os.environ.get("SCOUT_SIGNAL_FORMS", "8-K,10-Q,10-K,D").split(",") if x.strip())
+SIGNAL_NEW_DEPT_MIN_ROLES = int(os.environ.get("SCOUT_SIGNAL_NEW_DEPT_MIN_ROLES", "3"))
+SIGNAL_NEW_DEPT_LOOKBACK_DAYS = int(os.environ.get("SCOUT_SIGNAL_NEW_DEPT_LOOKBACK_DAYS", "90"))
+SIGNAL_MAX_DISPATCHES_PER_DAY = int(os.environ.get("SCOUT_SIGNAL_MAX_DISPATCHES_PER_DAY", "2"))
+SIGNAL_MIN_HOURS_SINCE_CHECK = float(os.environ.get("SCOUT_SIGNAL_MIN_HOURS_SINCE_CHECK", "6"))
+MONITOR_DISPATCH_WORKFLOW = os.environ.get("SCOUT_MONITOR_DISPATCH_WORKFLOW", "monitor.yml")
 ASK_VISITOR_QUOTA = int(os.environ.get("SCOUT_ASK_VISITOR_QUOTA", "6"))
 ASK_IP_PER_MIN = int(os.environ.get("SCOUT_ASK_IP_PER_MIN", "6"))
 ASK_QUOTA_BYPASS_CIDS = [c.strip() for c in os.environ.get("SCOUT_ASK_QUOTA_BYPASS_CIDS", "").split(",") if c.strip()]

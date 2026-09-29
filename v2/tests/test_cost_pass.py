@@ -45,7 +45,7 @@ class MyCompanyCutoff(unittest.TestCase):
     def _capture_cutoffs(self, meta):
         captured = {}
 
-        async def fake_triage(m, since, claims, my_since=None):
+        async def fake_triage(m, since, claims, my_since=None, extra=""):
             captured["since"], captured["my_since"] = since, my_since
             return {"text": '```json\n{"has_candidates": false, "candidates": []}\n```',
                     "cost_usd": 0.0}
