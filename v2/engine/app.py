@@ -65,9 +65,7 @@ if ASK_ALLOWED_ORIGINS:
                        allow_headers=["Authorization", "Content-Type"], max_age=600)
 
 
-if MCP_ENABLED:
-    # auth for the metered tool is inside the tool (scout/mcp_server.py); reads are free
-    app.mount("/mcp", mcp_server.mcp.streamable_http_app())
+
 
 
 # --- auth (page tokens live in scout/asktoken.py, shared with the viewer) -------------------
@@ -231,3 +229,10 @@ def ask_dry():
         yield _sse({"done": True, "id": rec["id"], "html": askui.answer_html(rec, show_question=False, chat=True),
                     "cost_usd": 0.0, "seconds": rec.get("seconds"), "verified": rec.get("verified"), "dry": True})
     return StreamingResponse(events(), media_type="text/event-stream")
+
+
+if MCP_ENABLED:
+    # Mounted LAST at the root so /mcp is served at exactly that path (a mount at "/mcp" would
+    # redirect POST /mcp to /mcp/, which MCP clients do not follow) without shadowing the routes
+    # above. Auth for the metered tool is inside the tool (scout/mcp_server.py); reads are free.
+    app.mount("", mcp_server.mcp.streamable_http_app())
