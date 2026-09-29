@@ -20,23 +20,30 @@ import re
 from scout import config
 from scout.sources import classify
 
-# (key, label, time hint shown while the stage is live). Measured 2026-09-28: research 110-250 s,
-# verify 30-60 s, the optional rewrite + second verify 30-100 s.
+# (key, modes, reader-facing label, time hint while live: {mode: hint}). Reader-facing on purpose
+# (Uroš, 2026-09-28): what is happening and why it is worth the wait, never the pipeline's names.
+# Measured: quick draft ~15 s + verify ~20 s; deep research 110-250 s, verify 30-60 s, the
+# optional repair + second check 30-100 s.
 STAGES = [
-    ("facts", "Reading the card's verified facts", ""),
-    ("search", "Searching and reading sources", "the longest step, usually 1 to 3 min"),
-    ("ground", "Checking every quote against its page", "about 15 s"),
-    ("floor", "Checking every number against the evidence", ""),
-    ("verify", "Verifying each sentence", "30 to 60 s; a rewrite adds a second pass"),
-    ("rewrite", "Rewriting what the verifier rejected", "30 s, then a second check"),
-    ("done", "Done", ""),
+    ("facts", "qd", "Starting from what Scout already verified", {}),
+    ("draft", "q", "Writing an answer from what Scout knows", {"q": "about 15 s"}),
+    ("search", "d", "Finding and reading sources", {"d": "Scout reads the pages itself, usually 1 to 3 min"}),
+    ("ground", "d", "Confirming each quote is really on its page", {"d": "about 15 s"}),
+    ("floor", "qd", "Matching every number to its source", {}),
+    ("verify", "qd", "Fact-checking each sentence before you see it",
+     {"q": "a second model checks every claim; anything it can't confirm is cut, about 20 s",
+      "d": "a second model checks every claim; anything it can't confirm is cut, about a minute"}),
+    ("rewrite", "d", "Fixing sentences that didn't hold up", {"d": "rewritten and checked again rather than kept"}),
+    ("done", "qd", "Ready", {}),
 ]
+WHY_WAIT = "Scout answers, then fact-checks every sentence before showing it. What can't be verified is cut, not shown."
 POLL_MS = 8000          # recovery poll interval after a dropped stream
 POLL_MAX_MS = 12 * 60 * 1000
+# The three example chips (Uroš, 2026-09-28): what a rep actually asks, filled in per card.
 EXAMPLES = {
-    "default": ["What changed in their pricing this quarter?",
-                "What is their latest reported quarterly revenue?",
-                "What are they hiring for right now?"],
+    "default": ["The buyer says {competitor} is cheaper. Is it?",
+                "What has {competitor} shipped or changed in the last 30 days?",
+                "What will a {competitor} rep say against us, and is it true?"],
 }
 _TIER_TITLE = {"primary": "Primary source: the document itself, or the company's own statement",
                "reputable_secondary": "Reputable secondary source",
@@ -44,6 +51,8 @@ _TIER_TITLE = {"primary": "Primary source: the document itself, or the company's
 
 
 def _chip(cls, tier=None) -> str:
+    if cls == "scout_take":
+        return '<span class="srcclass srcclass-scout_take" title="Scout\'s own battlecard judgment, not a source">Scout\'s take</span>'
     label = classify.CLASS_LABEL.get(cls or "unknown", "Web")
     title = _TIER_TITLE.get(tier or classify.CLASS_TIER.get(cls or "") or "", "")
     return (f'<span class="srcclass srcclass-{_html.escape(str(cls or "unknown"))}"'
@@ -56,9 +65,10 @@ def _cites(text: str, cites: list) -> str:
     return f"{body} {marks}" if marks else body
 
 
-def answer_html(a: dict, permalink: bool = True, show_question: bool = True) -> str:
+def answer_html(a: dict, permalink: bool = True, show_question: bool = True, chat: bool = False) -> str:
     """Server-rendered answer body (one renderer for the panel and the permalink page). In the
-    thread the reader's own bubble carries the question, so the echo is off there."""
+    thread the reader's own bubble carries the question, so the echo is off there; `chat` collapses
+    sources / could-not-verify / cut log behind a summary line and offers Research deeper."""
     if a.get("failed"):
         return f'<div class="ask-answer ask-failed"><p class="ask-p ask-none">{_html.escape(str(a.get("error") or "Scout could not answer that."))}</p></div>'
     paras = "".join(f'<p class="ask-p">{_cites(p.get("text", ""), p.get("cites", []))}</p>' for p in a.get("paragraphs") or [])
@@ -66,31 +76,48 @@ def answer_html(a: dict, permalink: bool = True, show_question: bool = True) -> 
         paras = '<p class="ask-p ask-none">Scout could not verify an answer to this question. What it tried is in the Cut Log.</p>'
     srcs = ""
     for s in a.get("sources") or []:
-        dom = re.sub(r"^www\\.", "", (re.sub(r"^https?://", "", s.get("url") or "").split("/")[0]))
+        url = s.get("url") or "#"
+        if s.get("take") or s.get("class") == "scout_take":
+            # a battlecard judgment: linked to its card, never dressed as a page
+            label, target = f'{s.get("card") or "battlecard"}', ' target="_blank" rel="noopener"' if url.startswith("http") else ""
+        else:
+            label, target = re.sub(r"^www\.", "", (re.sub(r"^https?://", "", url).split("/")[0])), ' target="_blank" rel="noopener"'
         quotes = [x for x in (s.get("excerpts") or [s.get("excerpt")]) if x]
         exc = "".join(f"<blockquote>{_html.escape(str(x))}</blockquote>" for x in quotes)
         srcs += (f'<li id="ask-src-{s["n"]}" class="ask-src"><span class="ask-n">{s["n"]}</span>'
-                 f'<a href="{_html.escape(s.get("url") or "#")}" target="_blank" rel="noopener">{_html.escape(dom)}</a>'
+                 f'<a href="{_html.escape(url)}"{target}>{_html.escape(label)}</a>'
                  f'{_chip(s.get("class"), s.get("tier"))}'
                  + (f'<span class="ask-asof">{_html.escape(str(s.get("as_of")))}</span>' if s.get("as_of") else "")
                  + (f'<details class="ask-exc"><summary>quote{"s" if len(quotes) > 1 else ""}</summary>{exc}</details>' if exc else "")
                  + "</li>")
     unans = "".join(f"<li>{_html.escape(u)}</li>" for u in a.get("unanswered") or [])
     cuts = "".join(f'<li><b>{_html.escape(str(c.get("label") or ""))}</b> {_html.escape(str(c.get("reason") or ""))}</li>' for c in a.get("cut_log") or [])
-    t = a.get("trajectory") or {}
-    n_cut = len(a.get("cut_log") or [])
-    foot = (f'verified in {a.get("seconds", 0):g} s · {len(a.get("sources") or [])} source{"s" if len(a.get("sources") or []) != 1 else ""}'
-            f' · {n_cut} cut' + (f' · {t.get("rewritten", 0)} rewritten' if t.get("rewritten") else ""))
-    link = f'<a class="ask-link" href="/answers/{_html.escape(a["id"])}">Copy link</a>' if permalink and a.get("id") else ""
+    n_src, n_un, n_cut = len(a.get("sources") or []), len(a.get("unanswered") or []), len(a.get("cut_log") or [])
+    quick = a.get("kind") == "quick"
+    aid = _html.escape(str(a.get("id") or ""))
+    # the chat shows the answer and one quiet line of links; sources, what could not be verified and the
+    # cut log open in place (Uroš, 2026-09-28: "this is a chat bot, not the battlecard")
+    hid = " hidden" if chat else ""               # the permalink page has no toggles: everything open
+    more = "" if not chat else "".join(x for x in [
+        (f'<button type="button" class="ask-tgl" data-for="src-{aid}">{n_src} source{"s" if n_src != 1 else ""}</button>' if n_src else ""),
+        (f'<button type="button" class="ask-tgl" data-for="un-{aid}">{n_un} could not verify</button>' if n_un else ""),
+        (f'<button type="button" class="ask-tgl" data-for="cut-{aid}">{n_cut} cut</button>' if n_cut else "")])
+    secs = ((f'<div class="ask-sec" id="src-{aid}"{hid}><span class="ey">Sources</span><ol class="ask-srcs">{srcs}</ol></div>' if srcs else "")
+            + (f'<div class="ask-sec ask-unans" id="un-{aid}"{hid}><span class="ey">Could not verify</span><ul>{unans}</ul></div>' if unans else "")
+            + (f'<div class="ask-sec ask-cut" id="cut-{aid}"{hid}><span class="ey">Cut log</span><ul>{cuts}</ul></div>' if cuts else ""))
+    how = ("answered from what Scout already knew" if quick else "researched and fact-checked")
+    foot = f'<span class="ask-vmark">Verified</span> · {how} · {float(a.get("seconds") or 0):.0f}&nbsp;s'
+    deeper = (f'<button type="button" class="ask-deeper" data-q="{_html.escape(a.get("question") or "")}">Research deeper · 2 to 5 min</button>'
+              if quick and chat else "")
+    link = f'<a class="ask-link" href="/answers/{aid}">Copy link</a>' if permalink and a.get("id") else ""
     q_echo = f'<div class="ask-q">{_html.escape(a.get("question") or "")}</div>' if show_question else ""
     scope = a.get("card") or a.get("competitor")
     about = f'<div class="ask-about">About {_html.escape(str(scope))}</div>' if scope else ""
-    return (f'<div class="ask-answer" data-id="{_html.escape(str(a.get("id") or ""))}">'
+    return (f'<div class="ask-answer{" ask-quick" if quick else ""}" data-id="{aid}">'
             f'{q_echo}{about}{paras}'
-            + (f'<div class="ask-sec"><span class="ey">Sources</span><ol class="ask-srcs">{srcs}</ol></div>' if srcs else "")
-            + (f'<div class="ask-sec ask-unans"><span class="ey">Could not verify</span><ul>{unans}</ul></div>' if unans else "")
-            + (f'<details class="ask-sec ask-cut"><summary><span class="ey">Cut log</span> {n_cut}</summary><ul>{cuts}</ul></details>' if cuts else "")
-            + f'<div class="ask-foot"><span>{foot}</span>{link}</div></div>')
+            + (f'<div class="ask-more">{more}</div>' if more else "")
+            + secs
+            + f'<div class="ask-foot"><span>{foot}</span>{deeper}{link}</div></div>')
 
 
 def button_and_panel_html(slug: str | None, meta: dict | None, persona: str | None) -> str:
@@ -105,17 +132,16 @@ def button_and_panel_html(slug: str | None, meta: dict | None, persona: str | No
     meta = meta or {}
     comp = (meta.get("competitor") or "").strip()
     # One thread across every card (Uroš, 2026-09-28): the scope comes from the question; the card
-    # the reader is on is only a hint, shown as "currently on".
-    about = "Any tracked competitor" + (f" · currently on {comp}" if comp else "")
+    # the reader is on is only a hint (never shown in the header).
     plabel = {"eng_led": "an eng-led champion", "technical_evaluator": "a technical evaluator", "economic_buyer": "an economic buyer",
               "security_regulated": "a security & regulated buyer", "exec_top_down": "an exec / top-down buyer"}.get(persona or "", "")
-    ctx = about + (f" · for {plabel}" if plabel else "")
-    examples = [e.replace("their", f"{comp}'s") if comp else e for e in EXAMPLES["default"]]
+    ctx = "Ask Scout about any competitor" + (f" · for {plabel}" if plabel else "")
+    examples = [e.replace("{competitor}", comp or "the competitor") for e in EXAMPLES["default"]]
     ex_html = "".join(f'<button type="button" class="ask-ex">{_html.escape(e)}</button>' for e in examples)
-    stages_js = json.dumps([{"k": k, "t": t, "h": h} for k, t, h in STAGES])
+    stages_js = json.dumps([{"k": k, "m": m, "t": t, "h": h} for k, m, t, h in STAGES])
     canned = bool(config.ASK_CANNED_ID)
     cfg = json.dumps({"slug": slug, "competitor": comp, "my_company": meta.get("my_company") or "", "persona": persona or "",
-                      "canned": canned, "poll_ms": POLL_MS, "poll_max_ms": POLL_MAX_MS})
+                      "canned": canned, "poll_ms": POLL_MS, "poll_max_ms": POLL_MAX_MS, "why": WHY_WAIT})
     review = ('<div class="ask-review">Review build: every question replays one stored answer.</div>' if canned else "")
     # The script is a RAW template, not part of the f-string: an f-string turned the JS `'\n\n'`
     # into two real newlines inside a string literal (a syntax error that silently killed every
@@ -126,13 +152,13 @@ def button_and_panel_html(slug: str | None, meta: dict | None, persona: str | No
 <button type="button" class="ask-fab" id="ask-fab" aria-haspopup="dialog" aria-controls="ask-panel">
   <span class="ask-fab-dot"></span>Ask Scout<span class="ask-fab-n" id="ask-fab-n" hidden></span></button>
 <aside class="ask-panel" id="ask-panel" role="dialog" aria-labelledby="ask-title" hidden>
-  <div class="ask-head"><div><div class="ey">Ask Scout</div><h3 id="ask-title">{_html.escape(ctx)}</h3></div>
+  <div class="ask-head"><div><h3 id="ask-title" class="ask-name">Ask Scout <span class="ask-beta">Beta</span></h3><div class="ask-sub">{_html.escape(ctx)}</div></div>
     <div class="ask-headbtns"><button type="button" class="ask-clear" id="ask-clear" title="Start a new thread" hidden>New thread</button>
     <button type="button" class="ask-close" id="ask-close" aria-label="Minimize" title="Minimize">–</button></div></div>
   <div class="ask-thread" id="ask-thread" aria-live="polite">
     {review}
     <div class="ask-intro" id="ask-intro">
-      <p>Ask about any competitor Scout tracks{(" (you are on " + _html.escape(comp) + ")") if comp else ""}. Every sentence in the answer cites a verified source, or it is not in the answer. Answers take one to three minutes. The thread stays with you across cards and visits.</p>
+      <p>Every sentence in an answer was fact-checked against a verified source, or it is not in the answer. A quick answer from what Scout already knows takes about half a minute; "Research deeper" searches the web and takes a few minutes. The thread stays with you across cards and visits.</p>
       <div class="ask-exs">{ex_html}</div>
     </div>
   </div>
@@ -154,7 +180,7 @@ var form=document.getElementById('ask-form'), q=document.getElementById('ask-q')
 var thread=document.getElementById('ask-thread'), intro=document.getElementById('ask-intro'), clearBtn=document.getElementById('ask-clear');
 var fabN=document.getElementById('ask-fab-n');
 var KEY='scout_ask_thread_v1', OPEN_KEY='scout_ask_open_v1', PEND_KEY='scout_ask_pending_v1', MAX=20;
-var history=[], pending=null, busy=false, lastFocus=null, timer=null, t0=0, acts=[], cur=null;
+var history=[], pending=null, busy=false, lastFocus=null, timer=null, t0=0, acts=[], cur=null, mode='q';
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch(e){}}
 function load(){try{var arr=JSON.parse(lsGet(KEY)||'[]');return Array.isArray(arr)?arr.slice(-MAX):[];}catch(e){return [];}}
@@ -179,39 +205,47 @@ q.addEventListener('input',function(){q.style.height='auto';q.style.height=Math.
 form.addEventListener('submit',function(e){e.preventDefault();submit();});
 function add(html,cls){var d=document.createElement('div');d.className='ask-msg '+(cls||'');d.innerHTML=html;thread.appendChild(d);scrollEnd();return d;}
 function stageHtml(k,extra,note){
-  var i=STAGES.findIndex(function(s){return s.k===k;});
-  var h=STAGES.map(function(s,j){
+  var list=STAGES.filter(function(s){return s.m.indexOf(mode)>=0;});
+  var i=list.findIndex(function(s){return s.k===k;});
+  var h=list.map(function(s,j){
     var st=j<i?'done':(j===i?'on':'');
     if(s.k==='rewrite'&&st!=='on'&&st!=='done')return '';
-    var line='<div class="ask-st '+st+'"><span class="ask-st-dot"></span><span>'+s.t+(j===i&&extra?(' · '+esc(extra)):'')+(j===i&&s.h?('<span class="ask-hint">'+s.h+'</span>'):'')+'</span></div>';
+    var hint=(j===i&&s.h&&s.h[mode])?('<span class="ask-hint">'+esc(s.h[mode])+'</span>'):'';
+    var line='<div class="ask-st '+st+'"><span class="ask-st-dot"></span><span>'+s.t+(j===i&&extra?(' · '+esc(extra)):'')+hint+'</span></div>';
     if(j===i&&acts.length)line+='<div class="ask-acts">'+acts.map(function(a){return '<div class="ask-act">'+esc(a)+'</div>';}).join('')+'</div>';
     return line;}).join('');
-  return h+'<div class="ask-elapsed"><span id="ask-elapsed">0 s</span>'+(note?' · <span class="ask-note">'+esc(note)+'</span>':'')+'</div>';}
+  return '<div class="ask-why">'+CFG.why+'</div>'+h+'<div class="ask-elapsed"><span id="ask-elapsed">0 s</span>'+(note?' · <span class="ask-note">'+esc(note)+'</span>':'')+'</div>';}
 function tick(){var s=Math.round((Date.now()-t0)/1000);var el=document.getElementById('ask-elapsed');if(el)el.textContent=(s>=60?Math.floor(s/60)+' min '+(s%60)+' s':s+' s');}
-function show(prog,k,extra,note){if(k)cur=k;prog.innerHTML=stageHtml(cur||'facts',extra||'',note||'');tick();scrollEnd();}
+function show(prog,k,extra,note){if(k){cur=k;var s=STAGES.filter(function(x){return x.k===k;})[0];if(s&&s.m.indexOf(mode)<0)mode=s.m[0];}prog.innerHTML=stageHtml(cur||'facts',extra||'',note||'');tick();scrollEnd();}
 function wire(box){
-  // [n] scrolls the THREAD to the source line (never the page: scrollIntoView would move the document too)
-  Array.prototype.forEach.call(box.querySelectorAll('.ask-cite'),function(a){a.addEventListener('click',function(e){e.preventDefault();var t=box.querySelector('#ask-src-'+a.getAttribute('data-n'));if(t){t.classList.add('lit');thread.scrollTop=Math.max(0,t.offsetTop-thread.offsetTop-thread.clientHeight/2+t.offsetHeight/2);setTimeout(function(){t.classList.remove('lit');},1600);}});});
+  // the sections behind the summary line open in place
+  Array.prototype.forEach.call(box.querySelectorAll('.ask-tgl'),function(b){b.addEventListener('click',function(){var t=box.querySelector('#'+b.getAttribute('data-for'));if(!t)return;t.hidden=!t.hidden;b.classList.toggle('open',!t.hidden);if(!t.hidden)thread.scrollTop=Math.max(0,t.offsetTop-thread.offsetTop-12);});});
+  // [n] opens the sources and scrolls the THREAD to the line (never the page: scrollIntoView would move the document too)
+  Array.prototype.forEach.call(box.querySelectorAll('.ask-cite'),function(a){a.addEventListener('click',function(e){e.preventDefault();var t=box.querySelector('#ask-src-'+a.getAttribute('data-n'));if(!t)return;var sec=t.closest('.ask-sec');if(sec&&sec.hidden){sec.hidden=false;var b=box.querySelector('.ask-tgl[data-for="'+sec.id+'"]');if(b)b.classList.add('open');}t.classList.add('lit');thread.scrollTop=Math.max(0,t.offsetTop-thread.offsetTop-thread.clientHeight/2+t.offsetHeight/2);setTimeout(function(){t.classList.remove('lit');},1600);});});
+  var d=box.querySelector('.ask-deeper');if(d)d.addEventListener('click',function(){if(busy)return;d.disabled=true;ask(d.getAttribute('data-q')||'','d');});
   var l=box.querySelector('.ask-link');if(l)l.addEventListener('click',function(e){e.preventDefault();var u=location.origin+l.getAttribute('href');try{navigator.clipboard.writeText(u);l.textContent='Link copied';}catch(err){location.href=u;}});
 }
 function setBusy(b){busy=b;go.disabled=b;q.disabled=b;q.placeholder=b?'Scout is working…':(history.length?'Ask a follow-up':'Ask a question');}
 function fail(prog,question,text){done(prog,'<p class="ask-p ask-none">'+esc(text)+'</p>',null,question);}
-function begin(question){
-  if(intro)intro.hidden=true;q.value='';q.style.height='auto';setBusy(true);acts=[];cur='facts';
-  add('<div class="ask-bubble">'+esc(question)+'</div>','ask-user');
+function begin(question,m){
+  if(intro)intro.hidden=true;q.value='';q.style.height='auto';setBusy(true);acts=[];cur='facts';mode=m||'q';
+  add('<div class="ask-bubble">'+(mode==='d'?'<span class="ask-deep-tag">Research deeper</span>':'')+esc(question)+'</div>','ask-user');
   var prog=add('','ask-scout ask-working');t0=Date.now();clearInterval(timer);timer=setInterval(tick,1000);show(prog,'facts');
   return prog;}
 function submit(){
   if(busy)return;var question=q.value.trim();if(!question)return;
-  var prog=begin(question), rid=token();
-  var payload={question:question,rid:rid,slug:CFG.slug,competitor:CFG.competitor,my_company:CFG.my_company,persona:CFG.persona,
+  ask(question,'q');}
+// m: 'q' = quick (from what Scout already verified, ~30 s), 'd' = Research deeper (searches, minutes)
+function ask(question,m){
+  var prog=begin(question,m), rid=token();
+  var payload={question:question,rid:rid,mode:(m==='d'?'deep':'quick'),slug:CFG.slug,competitor:CFG.competitor,my_company:CFG.my_company,persona:CFG.persona,
                history:history.slice(-6).map(function(h){return {question:h.question,answer_id:h.answer_id};})};
   fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
   .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
   .then(function(x){
     if(!x.ok||!x.j){fail(prog,question,(x.j&&x.j.message)||'Ask Scout is not available right now.');return;}
     if(x.j.mode==='engine'){
-      if(x.j.id)savePending({question:question,answer_id:x.j.id,rid:rid,started:t0});
+      if(x.j.id)savePending({question:question,answer_id:x.j.id,rid:rid,started:t0,mode:mode});
       stream(x.j.engine,x.j.token,payload,prog,question);return;}
     if(!x.j.id){fail(prog,question,x.j.message||'Ask Scout is not available right now.');return;}
     var plan=x.j.stages||[],i=0;
@@ -231,6 +265,7 @@ function stream(engine,tok,payload,prog,question){
     if(!r.ok){finished=true;return r.json().then(function(j){fail(prog,question,(j&&j.message)||('Ask Scout returned '+r.status));}).catch(function(){fail(prog,question,'Ask Scout returned '+r.status+'.');});}
     var reader=r.body.getReader(),dec=new TextDecoder(),buf='';
     function handle(ev){
+      if(ev.kind)mode=(ev.kind==='deep'?'d':'q');
       if(ev.activity){acts.push(ev.activity);if(acts.length>5)acts.shift();show(prog,null,'');}
       else if(ev.stage){acts=[];show(prog,ev.stage,ev.extra||'');}
       else if(ev.done){finished=true;done(prog,ev.html||'',ev.id,question);}
@@ -268,7 +303,7 @@ function recover(prog,question,note){
 }
 function done(box,html,id,question){
   clearInterval(timer);box.className='ask-msg ask-scout';box.innerHTML=html;wire(box);
-  if(id){history.push({question:question,answer_id:id,html:html});save();clearBtn.hidden=false;}
+  if(id){history.push({question:question,answer_id:id,html:html,mode:mode});save();clearBtn.hidden=false;}
   if(pending&&pending.question===question)savePending(null);
   badge();setBusy(false);scrollEnd();if(!panel.hidden)setTimeout(focusQ,20);
 }
@@ -276,11 +311,11 @@ clearBtn.addEventListener('click',function(){history=[];save();savePending(null)
 // restore the thread this browser already has (across cards and visits), whether it was open, and
 // a question still in flight
 history=load();
-if(history.length){if(intro)intro.hidden=true;clearBtn.hidden=false;history.forEach(function(h){add('<div class="ask-bubble">'+esc(h.question)+'</div>','ask-user');var b=add(h.html||'','ask-scout');wire(b);});}
+if(history.length){if(intro)intro.hidden=true;clearBtn.hidden=false;history.forEach(function(h){add('<div class="ask-bubble">'+(h.mode==='d'?'<span class="ask-deep-tag">Research deeper</span>':'')+esc(h.question)+'</div>','ask-user');var b=add(h.html||'','ask-scout');wire(b);});}
 badge();setBusy(false);
 if(lsGet(OPEN_KEY)==='1'){panel.hidden=false;fab.hidden=true;scrollEnd();}
 pending=loadPending();
-if(pending){var pr=begin(pending.question);t0=pending.started||Date.now();cur='search';recover(pr,pending.question,'Still working on this from before; reconnecting');}
+if(pending){var pr=begin(pending.question,pending.mode||'q');t0=pending.started||Date.now();cur=(mode==='d'?'search':'draft');recover(pr,pending.question,'Still working on this from before; reconnecting');}
 })();"""
 
 
@@ -293,7 +328,10 @@ PANEL_CSS = """
 .ask-fab-n{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#7ed0a6;color:#12301f;font:700 11px/18px system-ui,sans-serif;text-align:center}
 .ask-panel{position:fixed;right:18px;bottom:18px;width:min(440px,calc(100vw - 24px));height:min(640px,calc(100vh - 36px));z-index:80;background:#fbfaf6;border:1px solid #e3ded2;border-radius:14px;box-shadow:0 18px 48px rgba(20,18,10,.22);display:flex;flex-direction:column;overflow:hidden;font-family:system-ui,-apple-system,sans-serif;color:#2b2a26}
 .ask-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px 18px 12px;border-bottom:1px solid #e3ded2}
-.ask-head h3{margin:2px 0 0;font-size:15px;font-weight:600}.ask-head .ey{font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#8a877c}
+.ask-head h3.ask-name{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.ask-beta{font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#7a2e0e;background:#f9ece6;border:1px solid #ecc9bb;border-radius:4px;padding:2px 6px;font-weight:600}
+.ask-sub{margin-top:3px;font-size:12.5px;color:#5f5e54}
+.ask-why{font-size:12px;color:#5f5e54;margin:0 0 8px;padding-bottom:8px;border-bottom:1px dashed #e3ded2}
 .ask-close{border:0;background:transparent;font-size:26px;line-height:1;color:#8a877c;cursor:pointer;padding:0 4px}.ask-close:hover{color:#2b2a26}
 .ask-headbtns{display:flex;align-items:center;gap:8px}
 .ask-clear{border:1px solid #dfdbcf;background:#fff;border-radius:999px;padding:4px 10px;font-size:11.5px;color:#5f5e54;cursor:pointer;white-space:nowrap}.ask-clear:hover{border-color:#34566b;color:#2a4658}
@@ -334,10 +372,19 @@ PANEL_CSS = """
 .ask-unans ul,.ask-cut ul{margin:6px 0 0;padding-left:18px;font-size:13px;color:#5f5e54}.ask-cut summary{cursor:pointer;font-size:12px;color:#5f5e54}
 .ask-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:10px;border-top:1px solid #e3ded2;font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#8a877c}
 .ask-link{color:#2a4658}
+.ask-more{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px}
+.ask-tgl{border:0;background:transparent;padding:0;font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#2a4658;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.ask-tgl.open{text-decoration:none;color:#2b2a26}
+.ask-vmark{color:#1f4d2a;font-weight:600}
+.ask-deeper{border:1px solid #34566b;background:#fff;color:#2a4658;border-radius:999px;padding:5px 11px;font:600 12px system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.ask-deeper:hover{background:#eef3f6}.ask-deeper:disabled{opacity:.5;cursor:default}
+.ask-deep-tag{display:block;font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;opacity:.75;margin-bottom:3px}
+
 .ask-answer .srcclass{font-family:ui-monospace,Menlo,monospace;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#2a4658;background:#eef3f6;border:1px solid #cfdce5;border-radius:4px;padding:2px 6px;white-space:nowrap}
 .ask-answer .srcclass-unknown{color:#8a877c;background:transparent;border-color:#dfdbcf}
 .ask-answer .srcclass-filing,.ask-answer .srcclass-court,.ask-answer .srcclass-government{color:#1f4d2a;background:#e6f1e8;border-color:#bcd8c2}
 .ask-answer .srcclass-review_site,.ask-answer .srcclass-forum{color:#6b5a1e;background:#f7f0dc;border-color:#e2d3a3}
+.ask-answer .srcclass-scout_take{color:#4a3a7a;background:#eeeaf8;border-color:#cfc4ea}
 
 .ask-permalink{max-width:720px;margin:8px auto 0;padding:18px 20px;background:#fbfaf6;border:1px solid #e3ded2;border-radius:10px;font-family:system-ui,-apple-system,sans-serif;color:#2b2a26}
 .ask-back{max-width:720px;margin:12px auto;font-family:ui-monospace,Menlo,monospace;font-size:11px}
