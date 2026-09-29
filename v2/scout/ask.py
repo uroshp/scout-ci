@@ -49,6 +49,7 @@ ASK_REWRITE_BUDGET_USD = config.ASK_REWRITE_BUDGET_USD
 ASK_MAX_USD = config.ASK_MAX_USD
 ASK_QUICK_DRAFT_BUDGET_USD = config.ASK_QUICK_DRAFT_BUDGET_USD
 MAX_SENTENCES = 4        # a first answer is short; a follow-up goes deeper (2026-09-28, latency)
+QUICK_CLAIM_CHARS, QUICK_TAKE_CHARS = 400, 500   # the quick draft's digest (see quick_call)
 # Turns are the SDK's structural stop (one per tool round plus the answer); the tool allowance in
 # the prompt (4 searches + 3 reads) and the dollar cap are the real bounds. 8 was too tight: a
 # follow-up on RC (2026-09-28) hit it after 18 messages and returned nothing for its spend.
@@ -513,10 +514,15 @@ def quick_call(question: str, known: list, context: str | None, history: list | 
         convo = "\nCONVERSATION SO FAR:\n" + "\n".join(f"- Q: {h.get('question')}" for h in history if h.get("question")) + "\n"
     facts = [f for f in known if not f.get("take")]
     takes = [f for f in known if f.get("take")]
+    # the draft reads a LEAN digest (card claims run to 1,100+ characters of prose; the floor and the
+    # verifier still hold the sentences to the full excerpts): ~35k tokens for two cards otherwise
+    clip = lambda t, n: (t if len(t) <= n else t[:n - 1].rsplit(" ", 1)[0] + "\u2026")
+    fd = [{"id": f["id"], "claim": clip(str(f.get("claim") or ""), QUICK_CLAIM_CHARS), "source_class": f.get("source_class"),
+           "as_of": f.get("as_of"), "evidence_excerpt": f.get("evidence_excerpt")} for f in facts]
     user = (f"QUESTION: {question}\n" + (f"CONTEXT: {context}\n" if context else "") + convo
-            + "\nKNOWN FACTS (verified; cite by id):\n" + json.dumps(_digest(facts), ensure_ascii=False, indent=1)
+            + "\nKNOWN FACTS (verified; cite by id):\n" + json.dumps(fd, ensure_ascii=False)
             + ("\n\nSCOUT'S TAKES (battlecard judgments; cite by id and say \"Scout's take\"):\n"
-               + json.dumps([{"id": t["id"], "card": t.get("card"), "text": t["claim"], "as_of": t.get("as_of")} for t in takes], ensure_ascii=False, indent=1) if takes else ""))
+               + json.dumps([{"id": t["id"], "card": t.get("card"), "text": clip(t["claim"], QUICK_TAKE_CHARS), "as_of": t.get("as_of")} for t in takes], ensure_ascii=False) if takes else ""))
     return asyncio.run(_drive(user, _judge_options(QUICK_CONTRACT + "\n\n" + WRITING_STYLE, ASK_QUICK_DRAFT_BUDGET_USD, config.SUBAGENT_MODEL), "ask_quick"))
 
 
