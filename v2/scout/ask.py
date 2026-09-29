@@ -104,6 +104,53 @@ def _find_slug(competitor: str | None, my_company: str | None = None) -> str | N
     return None
 
 
+def infer_competitor(question: str) -> tuple[str | None, str | None]:
+    """(competitor, slug) named in the question itself, from the roster's company names; the thread
+    is one conversation across every card (2026-09-28), so the question decides the scope and the
+    card the reader is on is only a hint."""
+    qt = classify._company_tokens(question)
+    if not qt:
+        return None, None
+    for slug in display.list_battlecards():
+        meta = store.load_meta(slug) or {}
+        for who in (meta.get("competitor"), meta.get("my_company")):
+            if who and (qt & classify._company_tokens(who)):
+                return who, slug
+    return None, None
+
+
+def history_facts(history: list) -> list[dict]:
+    """The sources of the thread's previous answers (already verified) as known facts, so a
+    follow-up reuses them before searching. Records are re-read from the store by id; a missing
+    or malformed turn is skipped."""
+    from scout import selfserve
+    out, seen = [], set()
+    for h in history or []:
+        aid = str((h or {}).get("answer_id") or "")
+        if not re.fullmatch(r"a_[0-9a-f]{12}", aid):
+            continue
+        try:
+            rec = None
+            for month in sorted(selfserve.list_data(ASK_DIR, include_dirs=True) or [], reverse=True):
+                if "." in month:
+                    continue
+                raw = selfserve.read_data(f"{ASK_DIR}/{month}/{aid}.json")
+                if raw:
+                    rec = json.loads(raw)
+                    break
+        except Exception:
+            rec = None
+        for src in (rec or {}).get("sources") or []:
+            fid = str(src.get("id") or "")
+            if not fid or fid in seen or not (src.get("url") and src.get("excerpt")):
+                continue
+            seen.add(fid)
+            out.append({"id": fid, "claim": "", "source_url": src["url"], "source_tier": src.get("tier"),
+                        "source_class": src.get("class"), "evidence_excerpt": src["excerpt"], "as_of": src.get("as_of"),
+                        "from_thread": True})
+    return out
+
+
 def card_facts(slug: str | None, limit: int = MAX_CARD_FACTS) -> list[dict]:
     """The card's grounded FACTS (own source, grounding.match), newest first. Interpretations (plays,
     objections, summaries) are NOT evidence here (C19): they were judged once by a model."""
@@ -258,7 +305,7 @@ def _digest(facts: list) -> list:
              "source_tier": f.get("source_tier"), "as_of": f.get("as_of"), "evidence_excerpt": f.get("evidence_excerpt")} for f in facts]
 
 
-def research_call(question: str, known: list, context: str | None) -> dict:
+def research_call(question: str, known: list, context: str | None, history: list | None = None) -> dict:
     """The tools-on research pass (role ask_research). Returns _drive's dict (text, cost_usd, ...)."""
     from claude_agent_sdk import ClaudeAgentOptions
     from scout.fetch_tool import FETCH_SERVER, FETCH_TOOL_NAME
@@ -266,7 +313,11 @@ def research_call(question: str, known: list, context: str | None) -> dict:
     from scout import sources_tool
     system = ANSWER_CONTRACT + "\n\nCLAIM CONTRACT (for each NEW fact):\n" + CLAIM_CONTRACT + "\n\n" + SOURCE_HIERARCHY \
         + sources_tool.PROMPT_NOTE + "\n\n" + WRITING_STYLE
-    user = (f"QUESTION: {question}\n" + (f"CONTEXT: {context}\n" if context else "") + "\nKNOWN FACTS (verified; cite by id):\n"
+    convo = ""
+    if history:
+        convo = "\nCONVERSATION SO FAR (answer the new question in this context; earlier answers' sources are in KNOWN FACTS):\n" + \
+            "\n".join(f"- Q: {h.get('question')}" for h in history if h.get("question")) + "\n"
+    user = (f"QUESTION: {question}\n" + (f"CONTEXT: {context}\n" if context else "") + convo + "\nKNOWN FACTS (verified; cite by id):\n"
             + json.dumps(_digest(known), ensure_ascii=False, indent=1))
     options = ClaudeAgentOptions(
         model=config.SUBAGENT_MODEL,
@@ -311,19 +362,27 @@ def _scrub_digits(s: str) -> str:
 
 
 def ask(question: str, *, competitor: str | None = None, my_company: str | None = None, context: str | None = None,
-        persona: str | None = None, slug: str | None = None, research=research_call, verify=verify_call, rewrite=rewrite_call,
-        grounder=ground_claims, persist: bool = False) -> dict:
+        persona: str | None = None, slug: str | None = None, history: list | None = None, research=research_call,
+        verify=verify_call, rewrite=rewrite_call, grounder=ground_claims, persist: bool = False) -> dict:
     t0 = datetime.now()
+    # scope: the question names the company first; the caller's competitor / card is the hint
+    named, named_slug = infer_competitor(question)
+    if named:
+        competitor, slug = named, named_slug
     slug = slug or _find_slug(competitor, my_company)
     meta = (store.load_meta(slug) or {}) if slug else {"competitor": competitor, "my_company": my_company}
-    known = card_facts(slug)
+    known = history_facts(history) + card_facts(slug)
     ctx = " ".join(x for x in [context, f"Reader: {persona.replace('_', ' ')} buyer." if persona else ""] if x) or None
     cost = 0.0
-    trajectory = {"rounds": 0, "research_turns": None, "cut": 0, "floor_dropped": 0, "judge_rejected": 0, "rewritten": 0}
+    trajectory = {"rounds": 0, "research_turns": None, "cut": 0, "floor_dropped": 0, "judge_rejected": 0, "rewritten": 0,
+                  "thread_turns": len(history or [])}
     cut_log: list = []
 
     # 2. research
-    r = research(question, known, ctx)
+    try:
+        r = research(question, known, ctx, history)
+    except TypeError:                        # an injected research fake with the old 3-arg signature
+        r = research(question, known, ctx)
     cost += float(r.get("cost_usd") or 0.0)
     trajectory["research_turns"] = r.get("num_turns")
     data = _json_or_none(r.get("text") or "") or {}
@@ -397,7 +456,9 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
                 cited_ids.append(c)
     sources = [{"n": i + 1, "id": c, "url": facts_by_id[c].get("source_url"), "class": facts_by_id[c].get("source_class"),
                 "tier": facts_by_id[c].get("source_tier"), "as_of": facts_by_id[c].get("as_of"),
-                "excerpt": facts_by_id[c].get("evidence_excerpt"), "from_card": c in {f["id"] for f in known}} for i, c in enumerate(cited_ids)]
+                "excerpt": facts_by_id[c].get("evidence_excerpt"),
+                "from_card": c in {f["id"] for f in known if not f.get("from_thread")},
+                "from_thread": bool(facts_by_id[c].get("from_thread"))} for i, c in enumerate(cited_ids)]
     num = {s["id"]: s["n"] for s in sources}
     answer = {
         "id": "a_" + hashlib.sha256(f"{question}|{slug}|{t0.isoformat()}".encode()).hexdigest()[:12],

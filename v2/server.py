@@ -248,7 +248,7 @@ def _chrome_with_actions(cards: list, right_html: str) -> str:
               f'{_control_bar(True, None, cards, right_html=right_html)}</div>')
 
 
-def _doc(body_inner: str, *, title: str, page_type: str = None) -> str:
+def _doc(body_inner: str, *, title: str, page_type: str = None, ask: tuple | None = None) -> str:
     """Wrap inner HTML in a full document: viewport + GA + fonts + the card CSS + control CSS.
     page_type flows to the GA content_group (home | card | print | create) so analytics can tell a
     default homepage landing from a deliberately-selected card (2026-07-29)."""
@@ -267,7 +267,19 @@ def _doc(body_inner: str, *, title: str, page_type: str = None) -> str:
         + '</head><body style="background:#f4f2ec;margin:0;padding:6px 0 24px">'
         + (_RC_RIBBON if rc else "")
         + body_inner
+        + _ask_panel(ask)
         + '</body></html>')
+
+
+def _ask_panel(ask: tuple | None) -> str:
+    """The Ask Scout thread on every page (one thread across cards; the card is only a hint)."""
+    if not config.ASK_ENABLED:
+        return ""
+    slug, meta, persona = ask if ask else (None, None, None)
+    try:
+        return askui.button_and_panel_html(slug, meta, persona)
+    except Exception:
+        return ""
 
 
 # --- RC environment (2026-09-28) -----------------------------------------------------------
@@ -467,9 +479,9 @@ def _card_page(slug: str, cards: list, page_type: str = "card") -> str:
     inner = (_chrome(False, slug, cards)
              + page.title_html(slug)
              + page.content_html(slug, persona=persona)
-             + _countdown_js()
-             + askui.button_and_panel_html(slug, store.load_meta(slug), persona))
-    return _doc(inner, title=f"{_card_label(slug)} — Agent Scout", page_type=page_type)
+             + _countdown_js())
+    return _doc(inner, title=f"{_card_label(slug)} — Agent Scout", page_type=page_type,
+                ask=(slug, store.load_meta(slug), persona))
 
 
 @app.get("/c/<slug>/sources")
@@ -479,7 +491,8 @@ def card_sources(slug):
     if slug not in cards:
         abort(404)
     inner = _chrome(False, slug, cards) + page.title_html(slug) + page.sources_html(slug)
-    return _doc(inner, title=f"Sources — {_card_label(slug)} — Agent Scout", page_type="card")
+    return _doc(inner, title=f"Sources — {_card_label(slug)} — Agent Scout", page_type="card",
+                ask=(slug, store.load_meta(slug), None))
 
 
 # --- Ask Scout (WS2, 2026-09-28) -----------------------------------------------------------
@@ -516,7 +529,7 @@ def api_answer(aid):
     if not a:
         return jsonify({"error": "not found"}), 404
     return jsonify({"id": a["id"], "question": a.get("question"), "verified": a.get("verified"),
-                    "seconds": a.get("seconds"), "html": askui.answer_html(a)})
+                    "seconds": a.get("seconds"), "html": askui.answer_html(a, show_question=False)})
 
 
 @app.post("/api/ask")
@@ -529,6 +542,10 @@ def api_ask():
     question = str(body.get("question") or "").strip()
     if not question or len(question) > 400:
         return jsonify({"message": "Ask a question of up to 400 characters."}), 400
+    # the thread so far: [{question, answer_id}], newest last, at most six turns (engine mode uses
+    # it to answer in context and to reuse the facts it already verified; canned mode ignores it)
+    history = [h for h in (body.get("history") or [])[-6:]
+               if isinstance(h, dict) and isinstance(h.get("question"), str) and re.fullmatch(r"a_[0-9a-f]{12}", str(h.get("answer_id") or ""))]
     if config.ASK_CANNED_ID:
         a = _load_answer(config.ASK_CANNED_ID)
         if not a:
