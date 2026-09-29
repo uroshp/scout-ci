@@ -45,7 +45,10 @@ ASK_RESEARCH_BUDGET_USD = config.ASK_RESEARCH_BUDGET_USD
 ASK_VERIFY_BUDGET_USD = config.ASK_VERIFY_BUDGET_USD
 ASK_REWRITE_BUDGET_USD = config.ASK_REWRITE_BUDGET_USD
 ASK_MAX_USD = config.ASK_MAX_USD
-ASK_RESEARCH_MAX_TURNS = 8
+# Turns are the SDK's structural stop (one per tool round plus the answer); the tool allowance in
+# the prompt (4 searches + 3 reads) and the dollar cap are the real bounds. 8 was too tight: a
+# follow-up on RC (2026-09-28) hit it after 18 messages and returned nothing for its spend.
+ASK_RESEARCH_MAX_TURNS = 16
 MAX_ROUNDS = 2
 MAX_CARD_FACTS = 24
 ASK_DIR = "ask"
