@@ -114,6 +114,9 @@ _PROPERTIES = {
                 "method": {"enum": ["substring", "fuzzy"]},
                 "fetched_at": {"type": "string", "format": "date"},
                 "detail": {"type": ["string", "null"]},
+                # "xbrl" when the source is an EDGAR companyconcept JSON and the excerpt matched a
+                # canonical fact line (a number code verified), else absent (a live page).
+                "fetched_via": {"enum": ["live", "xbrl", None]},
             },
         },
         "corroboration": {
