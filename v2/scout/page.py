@@ -437,7 +437,9 @@ def _cut_log(md: str):
         return "", 0
     rows, n = [], 0
     for line in m.group(1).splitlines():
-        mm = re.match(r"-\s+\*\*(CUT|REVISED)\s+—\s+(.*?):\*\*\s*(.*)$", line.strip())
+        # both shapes the pipeline writes: the generator's "- **CUT — …:**" bullets and the review
+        # path's / pull_contaminated's bare "**CUT — …:**" paragraphs (invisible before 2026-09-29)
+        mm = re.match(r"(?:-\s+)?\*\*(CUT|REVISED)\s+—\s+(.*?):\*\*\s*(.*)$", line.strip())
         if not mm:
             continue
         n += 1
