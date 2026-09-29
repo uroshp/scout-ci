@@ -198,3 +198,15 @@ class AskPanel(unittest.TestCase):
         with mock.patch.object(config, "ASK_ENABLED", True), mock.patch.object(config, "ASK_CANNED_ID", ""):
             r = c.post("/api/ask", json={"question": "x"})
             self.assertEqual(r.status_code, 503); self.assertIn("wired up", r.get_json()["message"])
+
+
+class KeyClause(unittest.TestCase):
+    def test_the_marked_clause_is_bold_only_when_verbatim(self):
+        from scout import askui
+        h = askui._cites("GPT-6 Luna at $0.10 input undercuts Mistral's rate.", [1], "undercuts Mistral's rate")
+        self.assertIn("<b>undercuts Mistral&#x27;s rate</b>", h)
+        self.assertNotIn("<b>", askui._cites("GPT-6 Luna undercuts.", [1], "not in the sentence"))
+        from scout import ask
+        p = ask._para({"text": "A costs $10, B costs $2.", "cites": ["c1"], "key": "B costs $2"}, {"c1": 1})
+        self.assertEqual(p["key"], "B costs $2")
+        self.assertNotIn("key", ask._para({"text": "A costs $10.", "cites": ["c1"], "key": "A costs $10."}, {"c1": 1}))   # the whole sentence is not a key

@@ -93,6 +93,10 @@ class Widget(unittest.TestCase):
         self.assertTrue(panel.is_visible()); self.assertTrue(fab.is_hidden())
         page.wait_for_function("document.activeElement && document.activeElement.id === 'ask-q'")
         self.assertEqual(page.evaluate("window.scrollY"), y0)
+        # 2b. clicking into the composer holds the page in place too (his report, 2026-09-29)
+        page.mouse.click(1000, 800)                                          # somewhere over the page, then the field
+        q.click(); page.wait_for_timeout(450)
+        self.assertEqual(page.evaluate("window.scrollY"), y0)
         # 3. Enter sends (Shift+Enter is a newline), the question stays in the thread, the page never navigates
         url0 = page.url
         q.fill("line one"); q.press("Shift+Enter")
