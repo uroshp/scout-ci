@@ -25,7 +25,7 @@ SIZE_BUCKETS = ((0, 4000, "<4k"), (4000, 8000, "4-8k"), (8000, 16000, "8-16k"), 
 # judge wrong confirm; gate_judge false pass; challenger slop (kept a bad claim); route missed
 # consequential; materiality missed material; triage local quiet on a live escalation.
 COSTLY_LABEL = {"judge": "confirm", "gate_judge": "confirm", "challenger": "keep", "route": "routine",
-                "materiality": "immaterial", "triage": "quiet"}
+                "materiality": "immaterial", "triage": "quiet", "ask_verify": "confirm"}
 
 
 def delta_id(call_id: str, item_id: str) -> str:

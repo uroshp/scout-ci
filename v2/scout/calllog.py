@@ -41,7 +41,7 @@ PART_MAX_BYTES = 900_000            # the Contents API returns empty content abo
 TRANSCRIPT_ROW_MAX = 4_000          # generation transcripts only (tools-on monitor roles stay whole)
 TRANSCRIPT_CALL_MAX = 300_000
 BUFFER_MAX_CALLS = 2_000            # drop-on-overflow, never grow without bound
-WHOLE_TRANSCRIPT_ROLES = ("triage", "materiality", "my_facts")
+WHOLE_TRANSCRIPT_ROLES = ("triage", "materiality", "my_facts", "ask_research")
 
 _RUN: dict | None = None
 _CTX: dict = {}
