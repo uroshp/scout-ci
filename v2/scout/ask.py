@@ -838,10 +838,10 @@ def quick_ask(question: str, *, competitor: str | None = None, my_company: str |
     return answer
 
 
-def persist_failure(record_id: str, question: str, error: str, cost_usd: float, asked_at: str | None = None) -> None:
+def persist_failure(record_id: str, question: str, error: str, cost_usd: float, asked_at: str | None = None, kind: str = "deep") -> None:
     """A failed run leaves a small record at the id the panel is waiting on, so a reader who lost
     the stream sees the honest message instead of polling into silence. Never raises."""
-    rec = {"id": record_id, "question": question, "asked_at": asked_at or datetime.now().isoformat(timespec="seconds"),
+    rec = {"id": record_id, "kind": kind, "question": question, "asked_at": asked_at or datetime.now().isoformat(timespec="seconds"),
            "failed": True, "error": error, "cost_usd": round(float(cost_usd or 0.0), 4),
            "paragraphs": [], "sources": [], "cut_log": [], "unanswered": [], "verified": False, "seconds": 0, "trajectory": {}}
     _persist(rec)
