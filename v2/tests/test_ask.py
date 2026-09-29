@@ -208,6 +208,26 @@ class Thread(unittest.TestCase):
             self.assertEqual((a["competitor"], a["slug"]), ("Mistral", "mistral__vs__openai__z"))
 
 
+class FactIdRepair(unittest.TestCase):
+    """RC 2026-09-28: the research model returned four facts without an "id" field; all four were
+    cut as malformed, every sentence lost its cites, and $1.03 bought an empty answer."""
+
+    def test_missing_or_aliased_ids_and_loose_cites_are_repaired(self):
+        facts = [{"claim": "a", "source_url": "https://x/1"}, {"fact_id": "z9", "claim": "b"}, {"id": "n1", "claim": "collides with a known id"}]
+        entries = [{"text": "one", "cites": ["1"]}, {"text": "two", "cites": ["[z9]", "N1"]}, {"text": "three", "cites": ["c_known", "F3"]}]
+        ask.repair_fact_ids(facts, entries, {"n1", "c_known"})
+        self.assertEqual([f["id"] for f in facts], ["f1", "z9", "f3"])
+        self.assertEqual([e["cites"] for e in entries], [["f1"], ["z9", "n1"], ["c_known", "f3"]])
+
+    def test_end_to_end_a_fact_without_an_id_still_reaches_the_answer(self):
+        facts = [{"claim": "c", "claim_type": "fact", "source_url": "https://www.cnbc.com/x", "source_tier": "reputable_secondary",
+                  "evidence_excerpt": NEWS, "as_of": "2026-07-31"}]   # no "id"
+        answer = [{"text": "Agentforce passed 1,000 paid deals.", "cites": ["1"]}]
+        a = ask.ask("q", research=_research(facts, answer), verify=_verify({0: ("confirm", "none", "ok")}), grounder=_grounder({"f1"}))
+        self.assertEqual(len(a["paragraphs"]), 1); self.assertEqual(a["cut_log"], [])
+        self.assertEqual(a["sources"][0]["id"], "f1")
+
+
 class Restatements(unittest.TestCase):
     A = "So today, Claude Tag is limited to Team and Enterprise plans, with no Pro or Free access, while OpenAI's workspace agents launched on ChatGPT Business at $20 per user a month plus variably priced Enterprise, Edu and Teachers plans."
     B = "OpenAI's workspace agents, which plug into Slack, rolled out on ChatGPT Business at $20 per user a month, plus variably priced Enterprise, Edu and Teachers plans."
