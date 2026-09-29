@@ -59,8 +59,10 @@ def _chip(cls, tier=None) -> str:
             + (f' title="{_html.escape(title)}"' if title else "") + f'>{_html.escape(label)}</span>')
 
 
-def _cites(text: str, cites: list) -> str:
+def _cites(text: str, cites: list, key: str | None = None) -> str:
     body = _html.escape(text)
+    if key and key in text:                          # the clause the model marked, verbatim: bold it
+        body = body.replace(_html.escape(key), f"<b>{_html.escape(key)}</b>", 1)
     marks = "".join(f'<a class="ask-cite" href="#ask-src-{n}" data-n="{n}">{n}</a>' for n in cites)
     return f"{body} {marks}" if marks else body
 
@@ -71,7 +73,7 @@ def answer_html(a: dict, permalink: bool = True, show_question: bool = True, cha
     sources / could-not-verify / cut log behind a summary line and offers Research deeper."""
     if a.get("failed"):
         return f'<div class="ask-answer ask-failed"><p class="ask-p ask-none">{_html.escape(str(a.get("error") or "Scout could not answer that."))}</p></div>'
-    paras = "".join(f'<p class="ask-p">{_cites(p.get("text", ""), p.get("cites", []))}</p>' for p in a.get("paragraphs") or [])
+    paras = "".join(f'<p class="ask-p">{_cites(p.get("text", ""), p.get("cites", []), p.get("key"))}</p>' for p in a.get("paragraphs") or [])
     if not paras:
         paras = '<p class="ask-p ask-none">Scout could not verify an answer to this question. What it tried is in the Cut Log.</p>'
     srcs = ""
@@ -193,8 +195,24 @@ function badge(){var n=history.length;fabN.hidden=!n;fabN.textContent=n?String(n
 function focusQ(){try{q.focus({preventScroll:true});}catch(e){q.focus();}}
 function scrollEnd(){thread.scrollTop=thread.scrollHeight;}
 // open / minimize: the widget is NOT modal (the page stays usable behind it); Esc minimizes.
-function open(){lastFocus=document.activeElement;panel.hidden=false;fab.hidden=true;lsSet(OPEN_KEY,'1');scrollEnd();setTimeout(focusQ,30);}
-function minimize(){panel.hidden=true;fab.hidden=false;badge();lsSet(OPEN_KEY,'0');if(lastFocus&&lastFocus.focus&&lastFocus!==document.body){try{lastFocus.focus({preventScroll:true});}catch(e){}}}
+function open(){lastFocus=document.activeElement;panel.hidden=false;fab.hidden=true;lsSet(OPEN_KEY,'1');fit();scrollEnd();setTimeout(focusQ,30);}
+function minimize(){panel.hidden=true;fab.hidden=false;badge();lsSet(OPEN_KEY,'0');fit();if(lastFocus&&lastFocus.focus&&lastFocus!==document.body){try{lastFocus.focus({preventScroll:true});}catch(e){}}}
+// The on-screen keyboard (iPad, phone) shrinks the VISUAL viewport and Safari scrolls the page to
+// reveal the field, dragging a bottom-fixed panel with it. Keep the panel inside the visual
+// viewport instead, and hold the page's scroll when the composer takes focus.
+var vv=window.visualViewport;
+function fit(){
+  if(!vv||panel.hidden){panel.style.bottom='';panel.style.height='';return;}
+  var phone=window.matchMedia('(max-width:640px)').matches;
+  var hidden=Math.max(0,Math.round(window.innerHeight-vv.height-vv.offsetTop));   // layout px covered below (keyboard)
+  if(hidden<40&&!phone){panel.style.bottom='';panel.style.height='';return;}
+  panel.style.bottom=(hidden+(phone?0:18))+'px';
+  panel.style.height=Math.max(240,Math.round(phone?vv.height:Math.min(640,vv.height-36)))+'px';
+  scrollEnd();}
+if(vv){vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit);}
+var ySave=null;
+q.addEventListener('pointerdown',function(){ySave=window.scrollY;});
+q.addEventListener('focus',function(){var y=ySave;ySave=null;if(y===null)return;var hold=function(){if(Math.abs(window.scrollY-y)>1)window.scrollTo(0,y);};hold();requestAnimationFrame(hold);setTimeout(hold,120);setTimeout(hold,400);});
 fab.addEventListener('click',open);
 document.getElementById('ask-close').addEventListener('click',minimize);
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!panel.hidden)minimize();});
@@ -362,7 +380,7 @@ PANEL_CSS = """
 .ask-st.done{color:#5f5e54}.ask-st.done .ask-st-dot{background:#7ed0a6;border-color:#7ed0a6}
 @keyframes askpulse{0%{box-shadow:0 0 0 0 rgba(43,42,38,.35)}100%{box-shadow:0 0 0 8px rgba(43,42,38,0)}}
 .ask-answer .ask-q{font-size:12.5px;color:#8a877c;margin-bottom:10px;padding-bottom:10px;border-bottom:1px dashed #e3ded2}
-.ask-p{font-size:14.5px;line-height:1.55;margin:0 0 12px}.ask-none{color:#8a877c}
+.ask-p{font-size:14.5px;line-height:1.55;margin:0 0 12px}.ask-none{color:#8a877c}.ask-p b{font-weight:650;color:#151410}
 .ask-cite{display:inline-block;min-width:16px;padding:0 4px;margin-left:2px;border-radius:4px;background:#eef3f6;color:#2a4658;font:600 10.5px/16px ui-monospace,Menlo,monospace;text-decoration:none;vertical-align:super}
 .ask-sec{margin-top:14px}.ask-sec .ey{font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#8a877c}
 .ask-srcs{margin:6px 0 0;padding-left:0;list-style:none}.ask-src{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:7px 0;border-top:1px solid #efece4;font-size:13px;transition:background .3s}

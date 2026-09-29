@@ -65,7 +65,8 @@ and fetch only for what they do not cover. Then return ONLY a single fenced ```j
 {"facts": [ <new facts you found, each in the CLAIM CONTRACT shape below, each with an "id" field you
             assign: "f1", "f2", ... (never reuse a KNOWN FACT id); "claim_type" must be "fact";
             section "recent_moves"; zone null; order 0> ],
- "answer": [ {"text": "<one sentence or short paragraph>", "cites": ["<fact id>", ...]}, ... ],
+ "answer": [ {"text": "<one sentence or short paragraph>", "cites": ["<fact id>", ...],
+              "key": "<the one clause of text a reader must not miss, copied VERBATIM from text>"}, ... ],
  "unanswered": ["<a topic the question asked about that no source you could verify covers>", ...]}
 
 RULES. Every answer entry cites at least one fact id (a KNOWN FACT id exactly as listed, or one of your
@@ -91,7 +92,8 @@ neighbour). Put ids ONLY in "cites", never in the sentence text. Every number, d
 checks this and deletes what fails. If the question asks for something the facts do not cover, put that
 TOPIC (no numbers) in "unanswered" and answer only what they do cover; if they cover nothing, return an
 empty answer. Return ONLY a single fenced ```json block:
-{"answer": [{"text": "<one sentence>", "cites": ["<id>", ...]}, ...], "unanswered": ["<topic>", ...]}
+{"answer": [{"text": "<one sentence>", "cites": ["<id>", ...], "key": "<the clause a reader must not miss, VERBATIM from text>"}, ...],
+ "unanswered": ["<topic>", ...]}
 """
 
 VERIFY_SYSTEM = """You are the VERIFIER of an answer written from verified facts. You have no tools, on purpose:
@@ -113,7 +115,7 @@ REWRITE_SYSTEM = """Rewrite ONLY the sentences listed, so each says no more than
 same cites (drop a cite only if you also drop what it supported). Each rewrite is a standalone statement: no
 discourse opener (So, Today, In short, As noted), no reference to other sentences, and nothing that the
 OTHER SENTENCES already say. Return ONLY a fenced ```json block:
-{"answer": [{"index": <sentence number>, "text": "<rewritten>", "cites": [...]}]}
+{"answer": [{"index": <sentence number>, "text": "<rewritten>", "cites": [...], "key": "<verbatim clause to stress>"}]}
 """
 
 _FACT_KEYS = ("id", "claim", "source_url", "source_tier", "evidence_excerpt", "as_of")
@@ -694,7 +696,7 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
 
     # 4. floor, 5. verify, 6. one rewrite + second judge
     confirmed: list = []
-    pending = [dict(e, text=strip_inline_ids(e.get("text")), cites=[str(c) for c in (e.get("cites") or [])]) for e in entries]
+    pending = [dict(e, text=strip_inline_ids(e.get("text")), cites=[str(c) for c in (e.get("cites") or [])], key=_key(e)) for e in entries]
     for rnd in range(1, MAX_ROUNDS + 1):
         trajectory["rounds"] = rnd
         stage("floor", f"round {rnd}" if rnd > 1 else "")
@@ -745,7 +747,7 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
             if isinstance(item, dict) and item.get("index") in to_rewrite and str(item.get("text") or "").strip():
                 trajectory["rewritten"] += 1
                 returned.add(item["index"])
-                pending.append({"text": strip_inline_ids(item["text"]), "cites": [str(c) for c in (item.get("cites") or [])]})
+                pending.append({"text": strip_inline_ids(item["text"]), "cites": [str(c) for c in (item.get("cites") or [])], "key": _key(item)})
         for i in to_rewrite:
             if i not in returned:
                 cut_log.append({"label": passed[i]["text"][:80], "reason": "verifier: " + to_rewrite[i]["reason"] + " (no rewrite returned)"})
@@ -760,7 +762,7 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
         "question": question, "slug": slug, "competitor": meta.get("competitor") or competitor, "context": ctx,
         "card": (f"{meta.get('my_company')} vs {meta.get('competitor')}" if meta.get("my_company") and meta.get("competitor") else None),
         "asked_at": t0.isoformat(timespec="seconds"), "seconds": round((datetime.now() - t0).total_seconds(), 1),
-        "paragraphs": [{"text": e["text"], "cites": sorted({num[c] for c in e["cites"] if c in num})} for e in confirmed],
+        "paragraphs": [_para(e, num) for e in confirmed],
         "sources": sources, "cut_log": cut_log, "unanswered": unanswered,
         "verified": bool(confirmed), "cost_usd": round(cost, 4), "trajectory": trajectory,
         "models": {"research": config.SUBAGENT_MODEL, "verify": config.ORCHESTRATOR_MODEL},
@@ -769,6 +771,20 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
         answer["path"] = _persist(answer)
     stage("done")
     return answer
+
+
+def _key(e: dict) -> str:
+    return strip_inline_ids(e.get("key")) if isinstance(e.get("key"), str) else ""
+
+
+def _para(e: dict, num: dict) -> dict:
+    """A rendered paragraph; `key` (the clause to stress) survives only if it is verbatim in the
+    text, so the renderer can bold it without a model in the loop."""
+    p = {"text": e["text"], "cites": sorted({num[c] for c in e["cites"] if c in num})}
+    k = str(e.get("key") or "").strip()
+    if k and k in e["text"] and len(k) < len(e["text"]):
+        p["key"] = k
+    return p
 
 
 def _sources(confirmed: list, facts_by_id: dict, known: list) -> tuple[list, dict]:
@@ -845,7 +861,7 @@ def quick_ask(question: str, *, competitor: str | None = None, my_company: str |
     repair_fact_ids([], entries, {f["id"] for f in known})          # normalizes cite spellings; no new facts exist
     unanswered = [_scrub_digits(u) for u in (data.get("unanswered") or []) if isinstance(u, str) and u.strip()]
     facts_by_id = {f["id"]: f for f in known}
-    pending = [dict(e, text=strip_inline_ids(e.get("text")), cites=[str(c) for c in (e.get("cites") or [])]) for e in entries][:MAX_SENTENCES]
+    pending = [dict(e, text=strip_inline_ids(e.get("text")), cites=[str(c) for c in (e.get("cites") or [])], key=_key(e)) for e in entries][:MAX_SENTENCES]
     stage("floor")
     passed = []
     for e in pending:
@@ -879,7 +895,7 @@ def quick_ask(question: str, *, competitor: str | None = None, my_company: str |
         "question": question, "slug": slug, "competitor": meta.get("competitor") or competitor, "context": ctx,
         "card": (f"{meta.get('my_company')} vs {meta.get('competitor')}" if meta.get("my_company") and meta.get("competitor") else None),
         "asked_at": t0.isoformat(timespec="seconds"), "seconds": round((datetime.now() - t0).total_seconds(), 1),
-        "paragraphs": [{"text": e["text"], "cites": sorted({num[c] for c in e["cites"] if c in num})} for e in confirmed],
+        "paragraphs": [_para(e, num) for e in confirmed],
         "sources": sources, "cut_log": cut_log, "unanswered": unanswered,
         "verified": bool(confirmed), "cost_usd": round(cost, 4), "trajectory": trajectory,
         "models": {"draft": config.SUBAGENT_MODEL, "verify": config.ORCHESTRATOR_MODEL},
