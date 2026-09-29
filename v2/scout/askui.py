@@ -205,8 +205,12 @@ function scrollEnd(){thread.scrollTop=thread.scrollHeight;}
 // The freeze is needed only while the KEYBOARD is up (it is what Safari scrolls for), so it
 // happens on focus, not on open: no full-page repaint when the panel opens (his "flicker"),
 // and the page stays scrollable behind an open panel.
+// PHONES ONLY (Uroš, iPad, 2026-09-29: "the panel shouldn't rise at all; it's not on other
+// websites"): on a tablet or desktop the panel stays in its corner and the page is never touched,
+// exactly like every other site's chat box; Safari handles the keyboard natively there.
+function phone(){return window.matchMedia('(max-width:640px)').matches;}
 var lockY=null;
-function lockPage(){if(!COARSE||lockY!==null)return;lockY=window.scrollY;document.body.style.top=(-lockY)+'px';document.body.classList.add('ask-lock');sizeDoc();}
+function lockPage(){if(!COARSE||!phone()||lockY!==null)return;lockY=window.scrollY;document.body.style.top=(-lockY)+'px';document.body.classList.add('ask-lock');sizeDoc();}
 function unlockPage(){if(lockY===null)return;document.body.classList.remove('ask-lock');document.body.style.top='';document.documentElement.style.height='';var y=lockY;lockY=null;window.scrollTo(0,y);}
 // while frozen, the document is exactly the visible area: Safari has no room left to shift the
 // page to "reveal" the field (the blank band under the content)
@@ -218,17 +222,14 @@ function minimize(){if(document.activeElement===q)q.blur();panel.hidden=true;fab
 // viewport instead, and hold the page's scroll when the composer takes focus.
 var vv=window.visualViewport, fitTimer=null, yKeep=null;
 function fitNow(){
-  if(panel.hidden||!vv){panel.style.top='';panel.style.bottom='';panel.style.height='';return;}
-  var phone=window.matchMedia('(max-width:640px)').matches;
-  if(!COARSE&&!phone){panel.style.top='';panel.style.bottom='';panel.style.height='';return;}   // desktop: the CSS corner
+  if(panel.hidden||!vv||!phone()){panel.style.top='';panel.style.bottom='';panel.style.height='';return;}   // tablet/desktop: the CSS corner, untouched
   sizeDoc();
-  // anchor to the VISIBLE area (the part of the screen the keyboard leaves), in layout coordinates
-  var h=Math.max(240,Math.round(phone?vv.height:Math.min(640,vv.height-36)));
-  var top=Math.max(0,Math.round(vv.offsetTop+vv.height-h-(phone?0:18)));
+  // phone: the sheet fills the VISIBLE area (the part of the screen the keyboard leaves)
+  var h=Math.max(240,Math.round(vv.height));
+  var top=Math.max(0,Math.round(vv.offsetTop));
   var T=top+'px',H=h+'px';
   if(panel.style.top!==T){panel.style.top=T;panel.style.bottom='auto';}             // write only on change: no reflow churn
-  if(panel.style.height!==H)panel.style.height=H;
-  if(yKeep!==null&&lockY===null&&Math.abs(window.scrollY-yKeep)>2)window.scrollTo(0,yKeep);}
+  if(panel.style.height!==H)panel.style.height=H;}
 // follow the keyboard frame by frame (one write per animation frame): the composer never leaves
 // the visible area, so Safari has no reason to shift the page to reveal it
 var fitRaf=0;
@@ -236,6 +237,8 @@ function fit(){if(fitRaf)return;fitRaf=requestAnimationFrame(function(){fitRaf=0
 if(vv){vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit);}
 q.addEventListener('focus',function(){yKeep=window.scrollY;lockPage();fitNow();if(FINE){var y=yKeep;requestAnimationFrame(function(){if(Math.abs(window.scrollY-y)>1)window.scrollTo(0,y);});}});
 q.addEventListener('blur',function(){yKeep=null;setTimeout(function(){if(document.activeElement!==q)unlockPage();},50);});
+// a tablet or desktop never reacts to the visual viewport at all
+if(vv&&!phone()){vv.removeEventListener('resize',fit);vv.removeEventListener('scroll',fit);}
 fab.addEventListener('click',open);
 document.getElementById('ask-close').addEventListener('click',minimize);
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!panel.hidden)minimize();});

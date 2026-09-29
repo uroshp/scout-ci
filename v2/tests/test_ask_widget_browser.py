@@ -144,6 +144,18 @@ class Widget(unittest.TestCase):
         self.assertEqual(self.errors, [])
         page.context.close()
 
+    def test_phone_freezes_the_page_only_while_the_composer_has_focus(self):
+        ctx = self.browser.new_context(viewport={"width": 390, "height": 844}, has_touch=True, is_mobile=True)
+        page = ctx.new_page(); page.route("**/*", _serve); page.goto(f"{ORIGIN}/c/{self.slugs[0]}")
+        page.evaluate("window.scrollTo(0, 300)"); y0 = page.evaluate("window.scrollY")
+        page.tap("#ask-fab"); page.wait_for_timeout(200)
+        self.assertFalse(page.evaluate("document.body.classList.contains('ask-lock')"))
+        page.tap("#ask-q"); page.wait_for_timeout(200)
+        self.assertTrue(page.evaluate("document.body.classList.contains('ask-lock')")); self.assertEqual(page.evaluate("document.body.style.top"), f"-{y0}px")
+        page.tap("#ask-close"); page.wait_for_timeout(200)
+        self.assertFalse(page.evaluate("document.body.classList.contains('ask-lock')")); self.assertEqual(page.evaluate("window.scrollY"), y0)
+        ctx.close()
+
 
 @unittest.skipUnless(_HAVE_PW, "playwright not installed")
 class Recovery(unittest.TestCase):
@@ -343,7 +355,7 @@ class Touch(unittest.TestCase):
         self.assertNotEqual(page.evaluate("document.activeElement && document.activeElement.id"), "ask-q")   # no auto-focus on touch
         page.tap("#ask-q"); page.wait_for_timeout(250)                                   # ONE tap focuses
         self.assertEqual(page.evaluate("document.activeElement.id"), "ask-q")
-        self.assertEqual(page.evaluate("document.body.style.top"), f"-{y0}px")           # the page is frozen where it was
+        self.assertEqual(page.evaluate("window.scrollY"), y0)                            # and the page is left alone
         page.keyboard.type("Is X cheaper?"); page.keyboard.press("Enter")
         self.assertEqual(page.locator(".ask-user").count(), 1)
         page.wait_for_selector(".ask-answer", timeout=15000); page.wait_for_timeout(300)
@@ -364,16 +376,15 @@ class Touch(unittest.TestCase):
         box = page.locator("#ask-panel").bounding_box()
         self.assertAlmostEqual(box["x"] + box["width"], 1024 - 18, delta=2)              # bottom-right corner
         self.assertAlmostEqual(box["y"] + box["height"], 768 - 18, delta=2)
-        page.tap("#ask-q"); page.wait_for_timeout(200)                                   # focus: NOW the page freezes (keyboard time)
-        self.assertTrue(page.evaluate("document.body.classList.contains('ask-lock')"))
-        self.assertEqual(page.evaluate("getComputedStyle(document.body).position"), "fixed")
-        self.assertEqual(page.evaluate("document.body.style.top"), f"-{y0}px")
+        page.tap("#ask-q"); page.wait_for_timeout(200)                                   # focus on a TABLET: nothing is touched
+        self.assertFalse(page.evaluate("document.body.classList.contains('ask-lock')"))
+        self.assertEqual(page.evaluate("document.body.style.top"), "")
+        self.assertEqual(page.evaluate("document.documentElement.style.height"), "")
+        self.assertEqual(page.evaluate("window.scrollY"), y0)
         page.keyboard.type("hello"); page.wait_for_timeout(300)
         self.assertEqual(page.locator("#ask-panel").bounding_box()["y"], box["y"])       # focus + typing: no move
-        page.mouse.wheel(0, 400); page.wait_for_timeout(200)                             # the page cannot scroll under it
-        self.assertEqual(page.locator("#ask-panel").bounding_box()["y"], box["y"])
+        self.assertEqual(page.locator("#ask-panel").evaluate("e => e.style.top + '|' + e.style.height"), "|")   # no inline positioning at all
         page.tap("#ask-close"); page.wait_for_timeout(200)
-        self.assertFalse(page.evaluate("document.body.classList.contains('ask-lock')"))
         self.assertEqual(page.evaluate("window.scrollY"), y0)                            # exactly where it was
         page.tap("#ask-fab"); page.wait_for_timeout(300)
         self.assertEqual(page.locator("#ask-panel").bounding_box()["y"], box["y"])       # reopen: same corner
