@@ -1,0 +1,22 @@
+# Are the structured sources reachable from a GitHub runner? (WS1, 2026-09-28)
+# Manual only, read-only, keyless, $0. sec.gov is known to block datacenter IPs; this answers
+# whether the monitor Action can ground EDGAR facts itself or the mini's poller must verify them.
+name: probe-sources
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: v2
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -q httpx beautifulsoup4 pypdf rapidfuzz jsonschema python-dotenv
+      - run: python scripts/probe_sources.py
