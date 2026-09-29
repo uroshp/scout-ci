@@ -111,6 +111,13 @@ class Engine(unittest.TestCase):
         self.assertNotIn("Nothing was charged", e["error"])
         self.assertEqual(json.loads(self.st.files["ask/state.json"])["spend_usd"], 1.47)
 
+    def test_turn_cap_failure_says_so(self):
+        err = RuntimeError("Claude Code returned an error result: Reached maximum number of turns (16)"); err.scout_cost_usd = 0.9
+        with mock.patch.object(eng.ask, "ask", side_effect=err):
+            r = self.c.post("/ask", json={"question": "q"}, headers={"Authorization": "Bearer owner-key"})
+        e = [x for x in _events(r) if "error" in x][0]
+        self.assertIn("ran out of research steps", e["error"]); self.assertNotIn("Exception", e["error"]); self.assertEqual(e["cost_usd"], 0.9)
+
     def test_failure_cost_known_zero_vs_unknown(self):
         # a process that died before its first message is a KNOWN $0 (the Cloud Run root-user
         # ProcessError); a failure with no figure at all settles the research cap (fail closed)

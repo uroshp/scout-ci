@@ -111,8 +111,10 @@ async def ask_route(request: Request, authorization: str | None = Header(default
             # settles the research cap, so the ledger fails closed.
             spent = getattr(e, "scout_cost_usd", None)
             spent = config.ASK_RESEARCH_BUDGET_USD if spent is None else float(spent)
-            msg = ("Scout ran out of research budget on that question before it could verify an answer"
-                   if "budget" in str(e).lower() else f"Scout hit a problem answering that ({type(e).__name__})")
+            low = str(e).lower()
+            msg = ("Scout ran out of research budget on that question before it could verify an answer" if "budget" in low
+                   else "Scout ran out of research steps on that question before it could verify an answer" if "maximum number of turns" in low
+                   else "Scout hit a problem answering that")
             q.put({"error": f"{msg}. Try a narrower question, or one about a single company.", "cost_usd": round(spent, 2)})
             LEDGER.settle(spent)
         finally:
