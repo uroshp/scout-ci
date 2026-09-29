@@ -33,7 +33,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "salesforce | exec-summary | adverse-ammunition",
@@ -69,7 +70,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "salesforce | agentforce-arr | current",
@@ -91,7 +93,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "hubspot | customer-count | current",
@@ -113,7 +116,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "hubspot-breeze | adoption | q1-2026",
@@ -123,7 +127,7 @@
     "zone": null,
     "order": 0,
     "source_url": "https://www.fool.com/earnings/call-transcripts/2026/05/07/hubspot-hubs-q1-2026-earnings-transcript/",
-    "source_tier": "primary",
+    "source_tier": "reputable_secondary",
     "evidence_excerpt": "Customer Agent at 53% of credits consumed, Prospecting Agent at 17%, Data Agent at 16%",
     "as_of": "2026-05-07",
     "confidence": "high",
@@ -135,7 +139,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "hubspot-breeze | launch | outcome-based-pricing",
@@ -157,7 +162,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "agentforce | positioning | enterprise-depth",
@@ -207,7 +213,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "agentforce | pricing-model | current",
@@ -243,7 +250,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "salesforce | agentforce-expansion | q4-fy2026",
@@ -266,7 +274,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "agentforce | differentiator | governance",
@@ -321,7 +330,7 @@
     "zone": "contested",
     "order": 1,
     "source_url": "https://www.fool.com/earnings/call-transcripts/2026/05/07/hubspot-hubs-q1-2026-earnings-transcript/",
-    "source_tier": "primary",
+    "source_tier": "reputable_secondary",
     "evidence_excerpt": "In the near term, these changes may extend sales cycles as customers evaluate our agents and AEO as part of broader purchases",
     "as_of": "2026-05-07",
     "confidence": "high",
@@ -334,7 +343,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "source_class": "news"
   },
   {
     "subject_key": "hubspot-breeze | adoption-breadth | current",
@@ -357,7 +367,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "agentforce | complexity | services-heavy",
@@ -380,7 +391,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "technical_evaluator"
+    "persona": "technical_evaluator",
+    "source_class": "news"
   },
   {
     "subject_key": "agentforce | user-sentiment | reliability",
@@ -402,7 +414,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "salesforce | layoffs | agentforce-2026",
@@ -442,7 +455,7 @@
     "zone": null,
     "order": 2,
     "source_url": "https://www.salesforceben.com/are-agentforce-hallucinations-a-problem-or-is-it-just-your-bad-data/",
-    "source_tier": "reputable_secondary",
+    "source_tier": "primary",
     "evidence_excerpt": "we actually thought that the agent was hallucinating because the responses were coming back inconsistently. We quickly shut it down",
     "as_of": "2025-12-10",
     "confidence": "high",
@@ -455,7 +468,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "technical_evaluator"
+    "persona": "technical_evaluator",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "salesforce | pricing-fatigue | einstein-transition",
@@ -498,10 +512,12 @@
         "source_url": "https://www.businesstoday.in/technology/news/story/salesforce-cuts-more-jobs-across-agentforce-and-mulesoft-teams-536102-2026-06-10",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
     ],
-    "updated_on": "2026-06-15"
+    "updated_on": "2026-06-15",
+    "source_class": "unknown"
   },
   {
     "subject_key": "salesforce | acquisition | fin",
@@ -529,9 +545,11 @@
         "source_url": "https://techcrunch.com/2026/06/15/salesforce-acquires-ai-customer-service-platform-fin-for-3-6b/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "agentforce-help-agent | launch | pay-per-resolution",
@@ -559,15 +577,18 @@
         "source_url": "https://www.cio.com/article/4189183/salesforce-unveils-ai-help-agent-with-pay-per-resolution-pricing.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       },
       {
         "source_url": "https://www.salesforceben.com/huge-agentforce-pricing-shift-salesforce-introduces-pay-per-resolution/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "company_statement"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "hubspot-revenue-hub | launch | quote-to-cash",
@@ -595,9 +616,11 @@
         "source_url": "https://www.martechnotes.com/hubspot-renames-commerce-hub-to-revenue-hub-expanding-to-full-quote-to-cash/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "id": "c_51128f4d7a8c",
@@ -639,9 +662,11 @@
         "source_url": "https://247wallst.com/investing/2026/07/22/morgan-stanley-slashes-salesforce-price-target-by-35/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "hubspot-agent-hub | launch | agent-builder-beta",
@@ -669,9 +694,11 @@
         "source_url": "https://www.cmswire.com/customer-experience/hubspot-debuts-agent-hub-to-unify-ai-agents/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "id": "c_73139c459226",
@@ -714,9 +741,11 @@
         "source_url": "https://ppc.land/hubspot-kills-contact-discovery-terms-after-customer-backlash/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "id": "c_4ffc26b74d69",
@@ -759,15 +788,18 @@
         "source_url": "https://thenextweb.com/news/salesforce-anthropic-claudeforce-partnership",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       },
       {
         "source_url": "https://www.tradingkey.com/news/market-movers/262138963-market-movers-crm-20260828",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "id": "c_4d0a1ebc5237",
@@ -825,9 +857,11 @@
         "source_url": "https://www.salesforceben.com/salesforce-announces-3-replacement-editions-bundling-ai-slack-and-security/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "company_statement"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "id": "c_e0955acd31f5",
@@ -870,9 +904,11 @@
         "source_url": "https://siliconangle.com/2026/09/11/salesforce-introduces-new-ai-agents-to-automate-sales-support-tasks/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "id": "c_9f888af25de8",
@@ -945,9 +981,11 @@
         "source_url": "https://thecybersecguru.com/news/salesforce-down-outage-september-2026/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "id": "c_5af179046756",
@@ -990,14 +1028,17 @@
         "source_url": "https://finance.yahoo.com/technology/ai/articles/fall-26-spotlight-hubspot-just-133000556.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       },
       {
         "source_url": "https://completeaitraining.com/news/hubspot-launches-breeze-assistant-self-updating-smart-crm/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   }
 ]

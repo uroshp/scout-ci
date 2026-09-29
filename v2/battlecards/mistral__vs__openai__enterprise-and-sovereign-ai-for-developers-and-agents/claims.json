@@ -47,7 +47,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "mistral | scale-gap-risk | current",
@@ -67,7 +68,8 @@
       "source_tier": "primary",
       "as_of": "2026-09-08",
       "fact_id": "c_3286dcad6727",
-      "stamped_on": "2026-09-28"
+      "stamped_on": "2026-09-28",
+      "source_class": "company_statement"
     }
   },
   {
@@ -111,9 +113,11 @@
         "source_url": "https://techcrunch.com/2026/09/08/mistral-raises-e3b-as-sovereign-ai-becomes-big-business/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "mistral | latest-funding-round | 2025-series-c",
@@ -133,7 +137,8 @@
       "source_tier": "primary",
       "as_of": "2026-09-08",
       "fact_id": "c_3286dcad6727",
-      "stamped_on": "2026-09-28"
+      "stamped_on": "2026-09-28",
+      "source_class": "company_statement"
     }
   },
   {
@@ -156,7 +161,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "mistral | headcount | current",
@@ -178,7 +184,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "mistral | flagship-product | developer-agents",
@@ -200,7 +207,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "openai | valuation | current",
@@ -222,7 +230,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | funding-total | current",
@@ -242,7 +251,8 @@
       "source_tier": "primary",
       "as_of": "2026-09-08",
       "fact_id": "c_3286dcad6727",
-      "stamped_on": "2026-09-28"
+      "stamped_on": "2026-09-28",
+      "source_class": "company_statement"
     }
   },
   {
@@ -271,9 +281,11 @@
         "source_url": "https://9to5mac.com/2026/09/03/openai-releasing-major-upgrade-to-chatgpt-and-codex-with-gpt-6-astra-details-here/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | partnership | partner-network-2026",
@@ -295,7 +307,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | legal-action | florida-ag-2026",
@@ -317,7 +330,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | pricing-model | price-cut-consideration-2026",
@@ -345,13 +359,15 @@
         "source_url": "https://enterprisedna.co/resources/news/openai-gpt-56-sol-price-cut-20-percent-frontier-model-august-2026/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
     ],
     "status": "retired",
     "retired_on": "2026-09-04",
     "retired_reason": "superseded: still cites GPT-5.6, replaced per the linked update (c_77b7261b1764)",
-    "derived_from": "c_77b7261b1764"
+    "derived_from": "c_77b7261b1764",
+    "source_class": "unknown"
   },
   {
     "subject_key": "openai | ipo-filing | 2026",
@@ -379,9 +395,11 @@
         "source_url": "https://techcrunch.com/2026/09/12/openais-sam-altman-says-it-would-be-ill-advised-to-go-public-in-2026/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | security-incident | codex-outages-2026-06",
@@ -403,7 +421,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "openai | partnership | microsoft-restructure-2026",
@@ -425,7 +444,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-17",
       "detail": "partial_ratio 0.989"
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "mistral | positioning | sovereign-ownership",
@@ -447,7 +467,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "mistral | differentiator | on-prem-self-host",
@@ -467,7 +488,8 @@
       "source_tier": "primary",
       "as_of": "2026-07-21",
       "fact_id": "c_21be6aaf4116",
-      "stamped_on": "2026-09-28"
+      "stamped_on": "2026-09-28",
+      "source_class": "company_statement"
     }
   },
   {
@@ -532,7 +554,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "mistral | list-price | open-weight-license-gate",
@@ -554,7 +577,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "openai | list-price | data-residency-surcharge",
@@ -576,7 +600,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-17",
       "detail": "partial_ratio 0.990"
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "openai | list-price | codex-api",
@@ -598,7 +623,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "mistral | battlecard-sovereignty | where-we-win",
@@ -622,7 +648,8 @@
       "fetched_at": "2026-06-17",
       "detail": null
     },
-    "updated_on": "2026-06-17"
+    "updated_on": "2026-06-17",
+    "source_class": "news"
   },
   {
     "subject_key": "mistral | battlecard-self-host | where-we-win",
@@ -690,7 +717,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "mistral | battlecard-si-channel | contested",
@@ -713,7 +741,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | battlecard-frontier-quality | where-they-win",
@@ -751,7 +780,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "mistral | sentiment-sovereignty-praise | current",
@@ -773,7 +803,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "mistral | sentiment-multifile-weakness | current",
@@ -795,7 +826,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "mistral | sentiment-support-quality | current",
@@ -817,7 +849,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "openai | sentiment-lockin-fear | current",
@@ -839,7 +872,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "openai | sentiment-quality-regression | current",
@@ -861,7 +895,8 @@
       "method": "substring",
       "fetched_at": "2026-06-17",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "mistral | objection-model-quality | current",
@@ -897,7 +932,8 @@
       "source_tier": "primary",
       "as_of": "2026-09-08",
       "fact_id": "c_3286dcad6727",
-      "stamped_on": "2026-09-28"
+      "stamped_on": "2026-09-28",
+      "source_class": "company_statement"
     }
   },
   {
@@ -919,7 +955,8 @@
       "source_tier": "primary",
       "as_of": "2026-07-21",
       "fact_id": "c_21be6aaf4116",
-      "stamped_on": "2026-09-28"
+      "stamped_on": "2026-09-28",
+      "source_class": "company_statement"
     }
   },
   {
@@ -941,7 +978,8 @@
       "source_tier": "reputable_secondary",
       "as_of": "2026-09-26",
       "fact_id": "c_c5adb8a4334e",
-      "stamped_on": "2026-09-28"
+      "stamped_on": "2026-09-28",
+      "source_class": "news"
     }
   },
   {
@@ -970,10 +1008,12 @@
         "source_url": "https://the-decoder.com/mistral-rebrands-lechat-as-vibe-betting-its-chatbots-future-is-as-a-full-blown-work-agent/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
     ],
-    "updated_on": "2026-06-19"
+    "updated_on": "2026-06-19",
+    "source_class": "company_statement"
   },
   {
     "id": "c_cc3a85867bab",
@@ -994,7 +1034,8 @@
       "source_tier": "reputable_secondary",
       "as_of": "2026-09-03",
       "fact_id": "c_77b7261b1764",
-      "stamped_on": "2026-09-28"
+      "stamped_on": "2026-09-28",
+      "source_class": "news"
     }
   },
   {
@@ -1023,9 +1064,11 @@
         "source_url": "https://techcrunch.com/2026/08/10/as-ai-led-attacks-multiply-openai-launches-a-new-cyber-model/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | hardware | jalapeno-chip-2026",
@@ -1053,9 +1096,11 @@
         "source_url": "https://techcrunch.com/2026/06/24/openai-unveils-its-first-custom-chip-built-by-broadcom/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "id": "c_aea351606f4e",
@@ -1085,9 +1130,11 @@
         "source_url": "https://venturebeat.com/data/mistral-launches-ocr-4-turning-document-extraction-into-a-full-enterprise-ai-play",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "openai | model-release-restriction | gpt-5.6-2026",
@@ -1115,9 +1162,11 @@
         "source_url": "https://the-decoder.com/openais-gpt-5-6-launches-thursday-after-a-delay-forced-by-the-u-s-government/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | government-stake-proposal",
@@ -1145,9 +1194,11 @@
         "source_url": "https://techcrunch.com/2026/07/02/openai-proposed-donating-5-of-its-equity-to-a-us-sovereign-wealth-fund/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | usage-limits | shared-pool-cap-lift-2026-07",
@@ -1175,9 +1226,11 @@
         "source_url": "https://www.digitaltrends.com/computing/openai-just-took-the-handcuffs-off-your-chatgpt-work-and-codex-usage-limits-at-least-for-now/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | security-incident | gpt-5-6-file-deletion-2026",
@@ -1205,9 +1258,11 @@
         "source_url": "https://techcrunch.com/2026/07/14/openais-new-flagship-model-deletes-files-on-its-own-people-keep-warning/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "openai | legal-action | nyt-copyright-sanctions-2026",
@@ -1235,9 +1290,11 @@
         "source_url": "https://techcrunch.com/2026/07/09/new-york-times-says-openai-hid-evidence-in-chatgpt-copyright-trial/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | security-incident | huggingface-agentic-breach-2026",
@@ -1265,9 +1322,11 @@
         "source_url": "https://blog.redwoodresearch.org/p/brief-independent-investigation-of",
         "source_tier": "primary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "unknown"
   },
   {
     "id": "c_21be6aaf4116",
@@ -1297,9 +1356,11 @@
         "source_url": "https://www.cio.com/article/4199721/microsoft-doubles-down-on-sovereign-ai-with-expanded-mistral-partnership.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "openai | product-launch | presence-2026",
@@ -1327,15 +1388,18 @@
         "source_url": "https://www.helpnetsecurity.com/2026/07/22/openai-presence-ai-agent-platform/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       },
       {
         "source_url": "https://siliconangle.com/2026/07/22/openai-introduces-presence-help-enterprises-build-ai-agents/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | infrastructure-spend | capex-2030",
@@ -1363,9 +1427,11 @@
         "source_url": "https://www.marketscreener.com/news/openai-raises-planned-ai-infrastructure-spending-to-750-billion-ce7f51d9df8af120",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | product-launch | health-chatgpt-2026",
@@ -1393,9 +1459,11 @@
         "source_url": "https://siliconangle.com/2026/07/23/openai-launches-health-chatgpt-day-lawsuit-seeks-block/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | frontier-research | astra-2026",
@@ -1423,9 +1491,11 @@
         "source_url": "https://www.securityweek.com/openais-astra-becomes-first-model-to-cross-critical-cybersecurity-threshold/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "mistral | partnership | abn-amro-2026",
@@ -1453,15 +1523,18 @@
         "source_url": "https://www.amlintelligence.com/2026/08/abn-amro-signs-ai-partnership-with-mistral-to-cut-reliance-on-non-european-tech/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       },
       {
         "source_url": "https://amsterdamai.com/news/abn-amro-partners-with-french-ai-company-mistral/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "unknown"
   },
   {
     "subject_key": "openai | monetization-ads-aug-2026",
@@ -1489,15 +1562,18 @@
         "source_url": "https://www.mmm-online.com/news/openai-kicks-off-test-phase-for-chatgpt-ads/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       },
       {
         "source_url": "https://www.ghacks.net/2026/08/13/openai-expands-chatgpt-ads-test-to-uk-mexico-brazil-japan-and-south-korea/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | revenue-run-rate",
@@ -1525,9 +1601,11 @@
         "source_url": "https://investinglive.com/stocks/openai-s-annualized-revenue-run-rate-has-surpassed-40-billion-says-a-bloomberg-report/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | product-launch | ultrafast-tier",
@@ -1555,9 +1633,11 @@
         "source_url": "https://www.techtimes.com/articles/324514/20260814/gpt-56-sol-now-runs-real-time-speed-openais-ultrafast-preview-offers-no-price-date.htm",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | executive-change | cro",
@@ -1585,9 +1665,11 @@
         "source_url": "https://www.ibtimes.com/openai-loses-second-senior-executive-this-week-revenue-chief-denise-dresser-leaving-3806396",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "mistral | partnership | european-compute-coalition",
@@ -1615,15 +1697,18 @@
         "source_url": "https://thenextweb.com/news/mistral-data-centre-buildout-asml-compute-units",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       },
       {
         "source_url": "https://europeanbusinessmagazine.com/mistral-compute/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "openai | model-development-pace-2026-08",
@@ -1651,9 +1736,11 @@
         "source_url": "https://www.aljazeera.com/economy/2026/9/29/openai-scraps-release-of-latest-ai-model-over-safety-concerns",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | executive-change | exodus-2026",
@@ -1681,9 +1768,11 @@
         "source_url": "https://www.cnbc.com/2026/08/25/openais-head-of-data-centers-chris-malone-is-out-in-latest-exec-exit.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | customer-cutoff | cursor-spacex-2026",
@@ -1711,9 +1800,11 @@
         "source_url": "https://www.ibtimes.sg/openai-cutting-cursor-off-after-spacex-acquisition-93077",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | market-program | daybreak-defenders-2026",
@@ -1741,9 +1832,11 @@
         "source_url": "https://www.helpnetsecurity.com/2026/09/04/openai-daybreak-frontline-defenders-access/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | list-price | gpt-6-astra",
@@ -1771,9 +1864,11 @@
         "source_url": "https://explainx.ai/blog/gpt-6-astra-launch-benchmarks-pricing-2026",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "unknown"
   },
   {
     "subject_key": "openai | security-incident | german-wiki-breakout-2026",
@@ -1801,9 +1896,11 @@
         "source_url": "https://www.cnbc.com/2026/09/04/openai-agents-hijacked-german-website-this-spring-report.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | model-safety | astra-monitorability-2026",
@@ -1831,9 +1928,11 @@
         "source_url": "https://www.npr.org/2026/09/17/g-s1-143774/openai-concerning-ai-behavior",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | product-launch | agents-api-2026",
@@ -1861,9 +1960,11 @@
         "source_url": "https://www.datastudios.org/post/openai-agents-api-cloud-agents-subagents-hosted-sandboxes-codex-harness",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | funding-structure | softbank-debt-2026",
@@ -1891,9 +1992,11 @@
         "source_url": "https://www.business-standard.com/world-news/softbank-group-gets-upsized-11-9-billion-loan-in-openai-funding-push-126091400091_1.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "id": "c_8db071d5b524",
@@ -1914,7 +2017,8 @@
       "source_tier": "reputable_secondary",
       "as_of": "2026-09-26",
       "fact_id": "c_c5adb8a4334e",
-      "stamped_on": "2026-09-28"
+      "stamped_on": "2026-09-28",
+      "source_class": "news"
     }
   },
   {
@@ -1943,9 +2047,11 @@
         "source_url": "https://www.pymnts.com/news/artificial-intelligence/2026/openai-eyes-1-2-trillion-valuation-in-pre-ipo-funding-round/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "openai | security-incident | federal-agencies-2026",
@@ -1973,8 +2079,10 @@
         "source_url": "https://abc3340.com/news/nation-world/openai-says-ai-agents-interacted-with-education-commerce-sec-websites-in-us",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "unknown"
   }
 ]

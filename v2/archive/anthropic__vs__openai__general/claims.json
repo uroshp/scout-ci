@@ -7,7 +7,7 @@
     "zone": null,
     "order": 0,
     "source_url": "https://www.globenewswire.com/news-release/2025/12/09/3202258/0/en/Menlo-Ventures-2025-State-of-Generative-AI-Report-Enterprise-Investment-Hit-37B-in-2025-Tripling-in-One-Year.html",
-    "source_tier": "reputable_secondary",
+    "source_tier": "primary",
     "evidence_excerpt": "Anthropic now commands 40% of the enterprise LLM API market share, more than triple its 12% share in 2023, driven by its dominant performance in coding. OpenAI's share fell to 27%, losing nearly half of its market since 2023 (50%)",
     "as_of": "2025-12-09",
     "confidence": "high",
@@ -19,7 +19,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-04",
       "detail": "partial_ratio 0.987"
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "anthropic | exec-summary | coding-wedge",
@@ -41,7 +42,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | exec-summary | governance-opening",
@@ -63,7 +65,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | exec-summary | capital-intensity",
@@ -85,7 +88,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | exec-summary | distribution-default",
@@ -107,7 +111,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | valuation | latest",
@@ -129,7 +134,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | revenue-run-rate | 2026-q1",
@@ -151,7 +157,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | chatgpt-wau | latest",
@@ -173,7 +180,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | paying-business-users | latest",
@@ -195,7 +203,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | flagship-model | current",
@@ -217,7 +226,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "openai | key-investor | microsoft",
@@ -239,7 +249,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "openai | headcount | latest",
@@ -261,7 +272,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "anthropic | revenue-run-rate | latest",
@@ -283,7 +295,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "anthropic | valuation | latest",
@@ -305,7 +318,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "openai | corporate-structure | pbc-conversion",
@@ -327,7 +341,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | launch | gpt-5",
@@ -349,7 +364,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "openai | acquisition | io-jony-ive",
@@ -371,7 +387,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | partnership | cloud-diversification",
@@ -393,7 +410,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | partnership | microsoft-renegotiation",
@@ -415,7 +433,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | infrastructure | stargate-strategy",
@@ -437,7 +456,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-04",
       "detail": "partial_ratio 0.993"
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | failed-acquisition | windsurf",
@@ -459,7 +479,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-04",
       "detail": "partial_ratio 0.996"
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | positioning | mission",
@@ -481,7 +502,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | positioning | product-breadth",
@@ -503,7 +525,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "anthropic | positioning | safety-research",
@@ -525,7 +548,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "anthropic | differentiator | coding",
@@ -547,7 +571,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "anthropic | differentiator | interpretability",
@@ -569,7 +594,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "openai | list-price | chatgpt-consumer-tiers",
@@ -591,7 +617,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "openai | list-price | api-gpt-5.5",
@@ -613,7 +640,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "anthropic | list-price | claude-pro",
@@ -635,7 +663,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "anthropic | list-price | claude-max",
@@ -657,7 +686,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "anthropic | list-price | api-opus",
@@ -679,7 +709,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "anthropic | list-price | api-sonnet-haiku",
@@ -701,7 +732,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "openai | battlecard | consumer-scale",
@@ -723,7 +755,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "openai | battlecard | product-breadth",
@@ -745,7 +778,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "frontier-model | battlecard | quality-parity",
@@ -767,7 +801,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "anthropic | battlecard | enterprise-api-share",
@@ -777,7 +812,7 @@
     "zone": "where_we_win",
     "order": 0,
     "source_url": "https://www.globenewswire.com/news-release/2025/12/09/3202258/0/en/Menlo-Ventures-2025-State-of-Generative-AI-Report-Enterprise-Investment-Hit-37B-in-2025-Tripling-in-One-Year.html",
-    "source_tier": "reputable_secondary",
+    "source_tier": "primary",
     "evidence_excerpt": "Anthropic now commands 40% of the enterprise LLM API market share, more than triple its 12% share in 2023, driven by its dominant performance in coding. OpenAI's share fell to 27%, losing nearly half of its market since 2023 (50%)",
     "as_of": "2025-12-09",
     "confidence": "high",
@@ -789,7 +824,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-04",
       "detail": "partial_ratio 0.987"
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "anthropic | battlecard | coding-leadership",
@@ -811,7 +847,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "anthropic | battlecard | multi-cloud-trust",
@@ -833,7 +870,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "openai | sentiment | rating-divergence",
@@ -855,7 +893,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "openai | sentiment | hallucination",
@@ -877,7 +916,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "openai | sentiment | model-regression",
@@ -899,7 +939,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "unknown"
   },
   {
     "subject_key": "openai | sentiment | support-failures",
@@ -909,7 +950,7 @@
     "zone": null,
     "order": 3,
     "source_url": "https://openai.pissedconsumer.com/customer-service.html",
-    "source_tier": "sentiment_only",
+    "source_tier": "primary",
     "evidence_excerpt": "Issue Resolution Rate Low (4% reported full resolution)",
     "as_of": "2026-05-30",
     "confidence": "medium",
@@ -921,7 +962,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "anthropic | objection | chatgpt-is-default",
@@ -931,7 +973,7 @@
     "zone": null,
     "order": 0,
     "source_url": "https://www.globenewswire.com/news-release/2025/12/09/3202258/0/en/Menlo-Ventures-2025-State-of-Generative-AI-Report-Enterprise-Investment-Hit-37B-in-2025-Tripling-in-One-Year.html",
-    "source_tier": "reputable_secondary",
+    "source_tier": "primary",
     "evidence_excerpt": "Anthropic now commands 40% of the enterprise LLM API market share, more than triple its 12% share in 2023, driven by its dominant performance in coding. OpenAI's share fell to 27%, losing nearly half of its market since 2023 (50%)",
     "as_of": "2025-12-09",
     "confidence": "high",
@@ -943,7 +985,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-04",
       "detail": "partial_ratio 0.987"
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "anthropic | objection | openai-cheaper",
@@ -965,7 +1008,8 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "anthropic | objection | openai-more-features",
@@ -987,6 +1031,7 @@
       "method": "substring",
       "fetched_at": "2026-06-04",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   }
 ]

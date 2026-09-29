@@ -33,7 +33,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "atlassian | restructuring-verdict | 2026",
@@ -55,7 +56,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-05",
       "detail": "partial_ratio 0.987"
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "notion-vs-atlassian | ai-pricing-verdict | current",
@@ -105,7 +107,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "atlassian | rovo-adoption-claim | current",
@@ -127,7 +130,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "notion | valuation | 2026",
@@ -149,7 +153,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "notion | revenue-mix-ai | 2025",
@@ -171,7 +176,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "atlassian | flagship-ai-product | current",
@@ -193,7 +199,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "notion | flagship-ai-product | current",
@@ -213,7 +220,8 @@
       "source_tier": "primary",
       "as_of": "2026-07-01",
       "fact_id": "c_b04857cc4138",
-      "stamped_on": "2026-09-28"
+      "stamped_on": "2026-09-28",
+      "source_class": "company_statement"
     }
   },
   {
@@ -236,7 +244,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "atlassian | team26-rovo-launch | 2026-05",
@@ -258,7 +267,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "atlassian | rovo-arr-retention | q3-fy2026",
@@ -280,7 +290,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "atlassian | google-gemini-partnership | 2026-04",
@@ -302,7 +313,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "atlassian | ai-data-training-policy | 2026-04",
@@ -324,7 +336,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "atlassian | layoffs-restructuring | 2026-03",
@@ -346,7 +359,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-05",
       "detail": "partial_ratio 0.987"
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "atlassian | ai-positioning | current",
@@ -368,7 +382,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "notion-vs-atlassian | context-graph-contrast | current",
@@ -390,7 +405,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "notion | ai-positioning | current",
@@ -412,7 +428,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "notion | developer-platform-positioning | current",
@@ -435,7 +452,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-07-04",
       "detail": "partial_ratio 0.984"
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "atlassian | rovo-overage-billing | current",
@@ -457,7 +475,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "atlassian | rovo-dev-pricing-compliance | current",
@@ -479,7 +498,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "notion | ai-pricing | current",
@@ -516,7 +536,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "battlecard | data-governance | where-we-win",
@@ -554,7 +575,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "economic_buyer"
+    "persona": "economic_buyer",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "battlecard | agent-orchestration | contested",
@@ -575,7 +597,8 @@
       "source_tier": "primary",
       "as_of": "2026-07-01",
       "fact_id": "c_b04857cc4138",
-      "stamped_on": "2026-09-28"
+      "stamped_on": "2026-09-28",
+      "source_class": "company_statement"
     }
   },
   {
@@ -614,7 +637,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "eng_led"
+    "persona": "eng_led",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "battlecard | vendor-scale | where-they-win",
@@ -637,7 +661,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "objection | atlassian-ubiquity | current",
@@ -660,7 +685,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "objection | notion-security-vuln | current",
@@ -711,7 +737,8 @@
       "source_tier": "primary",
       "as_of": "2026-07-01",
       "fact_id": "c_b04857cc4138",
-      "stamped_on": "2026-09-28"
+      "stamped_on": "2026-09-28",
+      "source_class": "company_statement"
     }
   },
   {
@@ -735,7 +762,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "exec_top_down"
+    "persona": "exec_top_down",
+    "source_class": "company_statement"
   },
   {
     "subject_key": "objection | notion-db-scale | current",
@@ -758,7 +786,8 @@
       "fetched_at": "2026-06-05",
       "detail": null
     },
-    "persona": "technical_evaluator"
+    "persona": "technical_evaluator",
+    "source_class": "unknown"
   },
   {
     "subject_key": "atlassian | rovo-write-reliability-sentiment | current",
@@ -780,7 +809,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "forum"
   },
   {
     "subject_key": "atlassian | rovo-hallucination-sentiment | current",
@@ -802,7 +832,8 @@
       "method": "substring",
       "fetched_at": "2026-06-05",
       "detail": null
-    }
+    },
+    "source_class": "forum"
   },
   {
     "subject_key": "atlassian | executive-departures | 2026",
@@ -824,7 +855,8 @@
       "method": "fuzzy",
       "fetched_at": "2026-06-06",
       "detail": "partial_ratio 0.998"
-    }
+    },
+    "source_class": "news"
   },
   {
     "subject_key": "atlassian | executive-departures",
@@ -852,15 +884,18 @@
         "source_url": "https://www.cfodive.com/news/linkedin-cfo-jumps-atlassian-compensation/812758/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       },
       {
         "source_url": "https://www.accountingtimes.com.au/profession/atlassian-welcomes-former-linkedin-exec-as-cfo",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "unknown"
   },
   {
     "subject_key": "notion | mail-discontinuation",
@@ -888,15 +923,18 @@
         "source_url": "https://techcrunch.com/2026/06/25/notion-mail-shuts-down-amid-agent-takeover/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       },
       {
         "source_url": "https://9to5mac.com/2026/06/25/notion-shutting-down-its-ai-powered-email-client-including-mac-and-ios-apps/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "id": "c_d0dceb3d11be",
@@ -933,7 +971,8 @@
       "method": "substring",
       "fetched_at": "2026-07-30",
       "detail": null
-    }
+    },
+    "source_class": "company_statement"
   },
   {
     "subject_key": "atlassian | ai-data-training-policy",
@@ -961,9 +1000,11 @@
         "source_url": "https://www.theregister.com/off-prem/2026/04/18/atlassian-to-train-ai-on-user-data-unless-law-or-cash-say-no/5222760",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "atlassian | mcp-tg-adoption",
@@ -991,9 +1032,11 @@
         "source_url": "https://www.tradingkey.com/news/earnings/262085237-tradingkey",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "notion | workers-pricing",
@@ -1021,9 +1064,11 @@
         "source_url": "https://www.notion.com/releases/2026-07-24",
         "source_tier": "primary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "company_statement"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "atlassian | rovo-security-vuln | current",
@@ -1051,9 +1096,11 @@
         "source_url": "https://www.csoonline.com/article/4207306/one-click-flaw-in-atlassian-rovo-exposed-enterprise-data-via-prompt-injection-attack.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "news"
   },
   {
     "subject_key": "atlassian | automation-usage-pricing",
@@ -1081,9 +1128,11 @@
         "source_url": "https://www.praecipio.com/resources/articles/atlassian-pricing-changes-usage-based-pricing-september-2026",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "unknown"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "atlassian | jira-agent-loops",
@@ -1111,9 +1160,11 @@
         "source_url": "https://www.itpro.com/software/development/atlassian-introduces-always-on-capabilities-for-agentic-development-workflows",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "atlassian | public-sector-il5-timeline | 2026-09",
@@ -1141,8 +1192,10 @@
         "source_url": "https://www.marketscreener.com/news/atlassian-accelerates-public-sector-cloud-investments-pulls-forward-il5-timelines-ce785ad9d08af620",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
-        "grounded": false
+        "grounded": false,
+        "source_class": "news"
       }
-    ]
+    ],
+    "source_class": "unknown"
   }
 ]
