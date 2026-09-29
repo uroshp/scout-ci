@@ -54,10 +54,10 @@ secret_ensure scout-ask-api-keys
 
 # 2. build + deploy the image (Cloud Build, the engine's cloudbuild file)
 SHA=$(git -C "$REPO_ROOT" rev-parse --short HEAD)
-echo "  building ${ENGINE_SERVICE}:${SHA} ..."
-gcloud builds submit "$REPO_ROOT" --config "$REPO_ROOT/v2/cloudbuild-engine.yaml" \
-  --substitutions "_SERVICE=${ENGINE_SERVICE},_TAG=${SHA}" --quiet >/dev/null
 IMAGE="us-west1-docker.pkg.dev/${GCP_PROJECT_ID}/cloud-run-source-deploy/${ENGINE_SERVICE}:${SHA}"
+echo "  building ${IMAGE} ..."
+gcloud builds submit "$REPO_ROOT" --config "$REPO_ROOT/v2/cloudbuild-engine.yaml" \
+  --substitutions "_SERVICE=${ENGINE_SERVICE},_IMAGE=${IMAGE}" --quiet >/dev/null
 
 # 3. the service config (the build's deploy step only swapped the image; this sets the rest)
 VIEWER_URL=$(gcloud run services describe "$VIEWER_SERVICE" --region "$REGION" --format='value(status.url)')
