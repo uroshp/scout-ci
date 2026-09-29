@@ -8,7 +8,7 @@ from unittest import mock
 from fastapi.testclient import TestClient
 
 from engine import app as eng
-from scout import asktoken, ledger, selfserve
+from scout import asktoken, config, ledger, selfserve
 
 
 class _Store:
@@ -110,6 +110,20 @@ class Engine(unittest.TestCase):
         self.assertIn("ran out of research budget", e["error"]); self.assertEqual(e["cost_usd"], 1.47)
         self.assertNotIn("Nothing was charged", e["error"])
         self.assertEqual(json.loads(self.st.files["ask/state.json"])["spend_usd"], 1.47)
+
+    def test_failure_cost_known_zero_vs_unknown(self):
+        # a process that died before its first message is a KNOWN $0 (the Cloud Run root-user
+        # ProcessError); a failure with no figure at all settles the research cap (fail closed)
+        for attached, expect in ((0.0, 0.0), (None, config.ASK_RESEARCH_BUDGET_USD)):
+            self.st.files.pop("ask/state.json", None)
+            err = RuntimeError("Command failed with exit code 1")
+            if attached is not None:
+                err.scout_cost_usd = attached
+            with mock.patch.object(eng.ask, "ask", side_effect=err):
+                r = self.c.post("/ask", json={"question": "q"}, headers={"Authorization": "Bearer owner-key"})
+            e = [x for x in _events(r) if "error" in x][0]
+            self.assertIn("hit a problem", e["error"]); self.assertEqual(e["cost_usd"], expect)
+            self.assertEqual(json.loads(self.st.files["ask/state.json"])["spend_usd"], expect)
 
     def test_ceiling_refuses_with_429(self):
         self.st.files["ask/state.json"] = json.dumps({"day": ledger.Ledger._today(), "spend_usd": 9.0, "in_flight_usd": 0, "questions": 5, "refused": 0})

@@ -571,9 +571,11 @@ async def _drive(prompt: str, options, top_role: str) -> dict:
             cap.fail(e, by_role)
         # The SDK yields the error ResultMessage (with the cost so far) BEFORE it raises on the
         # CLI's non-zero exit, so a budget-exhausted run still knows what it spent (2026-09-28):
-        # callers with a ledger settle the real number instead of guessing.
+        # callers with a ledger settle the real number instead of guessing. A process that died
+        # before its first message did no billable work (the Cloud Run root-user ProcessError), so
+        # that is a KNOWN zero; None stays "unknown" and the ledger fails closed on it.
         try:
-            e.scout_cost_usd = getattr(result, "total_cost_usd", None)
+            e.scout_cost_usd = 0.0 if (result is None and msgs == 0) else getattr(result, "total_cost_usd", None)
         except Exception:
             pass
         raise
