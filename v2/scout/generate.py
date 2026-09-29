@@ -25,7 +25,7 @@ from datetime import date
 
 from claude_agent_sdk import AgentDefinition, ClaudeAgentOptions, query
 
-from scout import config, shadow, calllog
+from scout import config, shadow, calllog, sources_tool
 from scout.prompts import SOURCE_HIERARCHY, WRITING_STYLE, load_methodology
 from scout.schema import (
     SECTIONS, ZONES, claim_id, pregrounding_errors, validation_errors,
@@ -69,7 +69,7 @@ RESEARCHER = AgentDefinition(
         "excluded. Prefer sources a plain HTTP client can fetch over hard-paywalled ones. Return "
         "concise, sourced findings — not prose."
     ),
-    tools=["WebSearch", FETCH_TOOL_NAME],
+    tools=["WebSearch", FETCH_TOOL_NAME, *sources_tool.names()],
     model=config.SUBAGENT_MODEL,
 )
 
@@ -95,7 +95,7 @@ VERIFIER = AgentDefinition(
         "revision. Your support judgment is separate from the later mechanical grounding check — "
         "do your job even though grounding will re-check the excerpt."
     ),
-    tools=["WebSearch", FETCH_TOOL_NAME],
+    tools=["WebSearch", FETCH_TOOL_NAME, *sources_tool.names()],
     model=config.SUBAGENT_MODEL,
 )
 
@@ -377,9 +377,9 @@ async def _run_retry(payload):
         model=config.SUBAGENT_MODEL,            # mechanical repair — Sonnet
         # Free lever N: the static repair contract goes in the (cached) system prompt.
         system_prompt={"type": "preset", "preset": "claude_code",
-                       "append": RETRY_CONTRACT + "\n\n" + WRITING_STYLE},
-        mcp_servers={"scoutfetch": FETCH_SERVER},
-        allowed_tools=["WebSearch", FETCH_TOOL_NAME],  # re-source 'unreachable' claims via real fetch
+                       "append": RETRY_CONTRACT + sources_tool.note() + "\n\n" + WRITING_STYLE},
+        mcp_servers={"scoutfetch": FETCH_SERVER, **sources_tool.servers()},
+        allowed_tools=["WebSearch", FETCH_TOOL_NAME, *sources_tool.names()],  # re-source 'unreachable' claims via real fetch
         disallowed_tools=["WebFetch"],
         permission_mode="bypassPermissions",
         max_turns=config.MAX_TURNS,
@@ -571,10 +571,10 @@ async def _run_orchestrator(target, perspective, focus) -> dict:
         model=config.ORCHESTRATOR_MODEL,                  # Opus orchestrator
         # Free lever N: static instructions in the (cached) system prompt, appended
         # to the default preset; only the dynamic framing goes in the user prompt.
-        system_prompt={"type": "preset", "preset": "claude_code", "append": _orch_system()},
+        system_prompt={"type": "preset", "preset": "claude_code", "append": _orch_system() + sources_tool.note()},
         agents={"researcher": RESEARCHER, "verifier": VERIFIER},
-        mcp_servers={"scoutfetch": FETCH_SERVER},        # our httpx fetch tool, replaces WebFetch
-        allowed_tools=["Agent", "WebSearch", FETCH_TOOL_NAME],
+        mcp_servers={"scoutfetch": FETCH_SERVER, **sources_tool.servers()},   # our httpx fetch tool, replaces WebFetch
+        allowed_tools=["Agent", "WebSearch", FETCH_TOOL_NAME, *sources_tool.names()],
         disallowed_tools=["WebFetch"],                    # no model-mediated fetch anywhere
         permission_mode="bypassPermissions",
         max_turns=config.MAX_TURNS,

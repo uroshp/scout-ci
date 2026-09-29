@@ -194,6 +194,10 @@ GROUNDING_TIMEOUT_S = float(os.environ.get("SCOUT_GROUNDING_TIMEOUT_S", "20"))
 # needed to ground filings. Defaults to the public project URL so no personal email
 # ships in a public default; override with a real contact in .env if a service demands one.
 GROUNDING_CONTACT = os.environ.get("SCOUT_GROUNDING_CONTACT", "https://github.com/uroshp/scout-ci")
+# sec.gov's fair-access rule wants "Company Name email@domain" in the User-Agent and 403s anything
+# else (2026-09-28: the URL-style contact UA above was refused by www.sec.gov, which is why the
+# generation prompt warned against anchoring on SEC.gov). Sent to sec.gov hosts only.
+SEC_CONTACT = os.environ.get("SCOUT_SEC_CONTACT", "Agent Scout admin scout@agent-scout.ai")
 
 
 # --- Shadow-mode eval (v3.5 challenger qualification; docs/vnext-roadmap.md) --
@@ -303,6 +307,13 @@ ANALYTICS_HOSTNAMES = tuple(
 # RC service, 2026-09-28): the hostname allow-list already excludes an RC host from the client tag,
 # but the server-side Measurement Protocol event fires from any host, so RC needs an explicit off.
 ANALYTICS_ENABLED = os.environ.get("SCOUT_ANALYTICS", "1") != "0"
+
+# --- Structured sources (WS1, 2026-09-28) ---------------------------------------
+# SCOUT_SOURCES_TOOLS=1 adds the `scoutsources` MCP server (SEC EDGAR filings + XBRL facts, public
+# job boards, Wayback page history; scout/sources/) to the tools-on model calls. OFF by default on
+# main: the live prompts stay byte-identical until the flip, which is a new eval period for the
+# tools-on roles (the on-device lane mirrors the same tools in scout/localagent.py).
+SOURCES_TOOLS_ENABLED = os.environ.get("SCOUT_SOURCES_TOOLS", "") == "1"
 
 # --- RC environment (2026-09-28) ---------------------------------------------
 # A second deployment of the SAME code (branch `rc` -> service agent-scout-rc) where every new

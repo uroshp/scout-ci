@@ -65,7 +65,11 @@ FETCH_TOOL = {
                        "required": ["url", "query"]},
     },
 }
-TOOLS = [SEARCH_TOOL, FETCH_TOOL]
+# The structured-source tools (WS1) are declared once in scout/sources/toolspec.py; this list is
+# the OpenAI-shaped mirror so the local models get exactly the tools the paid model had.
+from scout.sources import toolspec as _toolspec  # noqa: E402
+
+TOOLS = [SEARCH_TOOL, FETCH_TOOL] + _toolspec.openai_tools()
 
 ACTION_SCHEMA = {
     "type": "object",
@@ -174,6 +178,15 @@ def _run_tool(name: str, args: dict) -> tuple[str, dict, bool]:
             return "TOOL_ARG_ERROR fetch_page needs an http(s) `url`", {"name": name, "status": "bad_args"}, False
         text, meta = tool_fetch(u.strip(), q if isinstance(q, str) else "")
         return text, meta, True
+    if name in _toolspec.BY_NAME:
+        spec = _toolspec.BY_NAME[name]
+        missing = [k for k in spec.required if not args.get(k)]
+        if missing:
+            return f"TOOL_ARG_ERROR {name} needs {missing}", {"name": name, "status": "bad_args"}, False
+        header, body = _toolspec.run(name, args)
+        meta = {"name": name, "args": {k: args.get(k) for k in spec.params}, "status": "ok" if header else "empty",
+                "hosts": [_host(header.split("url=", 1)[1].split()[0])] if "url=" in header else [], "chars": len(body)}
+        return _toolspec.joined(header, body), meta, True
     return f"TOOL_ERROR unknown tool {name!r}", {"name": name, "status": "unknown_tool"}, False
 
 

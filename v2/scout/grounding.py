@@ -52,6 +52,17 @@ _BROWSER_UA = (
 )
 _CONTACT_UA = f"ScoutGrounding/0.2 (+https://github.com/uroshp/ci-agent; contact: {config.GROUNDING_CONTACT})"
 _UAS = [_BROWSER_UA, _CONTACT_UA]
+# sec.gov (www / data / efts) answers only a "Company Name email@domain" UA (fair-access policy);
+# the browser UA and the URL-style contact UA are both 403'd there, so those hosts get this one.
+_SEC_UA = config.SEC_CONTACT
+_SEC_HOSTS = ("sec.gov",)
+
+
+def _uas_for(url: str) -> list:
+    host = (urlparse(url).hostname or "").lower()
+    if any(host == h or host.endswith("." + h) for h in _SEC_HOSTS):
+        return [_SEC_UA]
+    return _UAS
 
 _BASE_HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/pdf,application/xml;q=0.9,*/*;q=0.8",
@@ -148,7 +159,7 @@ def _fetch_response(url: str) -> httpx.Response:
     Returns the response (which may still be 4xx — caller categorizes). Raises only
     on a genuine connection/timeout failure. NO model involved."""
     last = None
-    for ua in _UAS:
+    for ua in _uas_for(url):
         headers = {**_BASE_HEADERS, "User-Agent": ua}
         for attempt in range(2):  # allow one 429 backoff-retry per UA
             resp = _safe_get(url, headers, config.GROUNDING_TIMEOUT_S)
@@ -256,10 +267,21 @@ def _fetch_text(url: str):
     if resp is None or resp.status_code >= 400:
         return None, getattr(resp, "status_code", None), None, f"HTTP {getattr(resp, 'status_code', '?')}"
     try:
+        if _is_xbrl_url(url):
+            # An EDGAR XBRL fact is a NUMBER code can verify (2026-09-28, WS1): render every reported
+            # value to the same canonical line the sec_fact tool handed the model, so the ordinary
+            # substring check proves number, period, unit, form and fiscal tag exactly. No prose,
+            # nothing to paraphrase. Kind "xbrl" is recorded on the claim as grounding.fetched_via.
+            from scout.sources.edgar import canonical_lines
+            return _normalize("\n".join(canonical_lines(resp.json()))), resp.status_code, "xbrl", None
         text, kind = _extract_text(resp)
     except Exception as e:
         return None, resp.status_code, None, f"extract error: {type(e).__name__}"
     return _normalize(text), resp.status_code, kind, None
+
+
+def _is_xbrl_url(url) -> bool:
+    return bool(re.match(r"^https?://data\.sec\.gov/api/xbrl/(companyconcept|companyfacts)/", str(url or ""), re.I))
 
 
 def _prefetch(urls: list[str]) -> dict:
@@ -294,6 +316,12 @@ def ground_claim(claim: dict, fetched=None) -> GroundingResult:
         return GroundingResult(cid, skey, url, "grounded", "substring", 1.0,
                                http_status, kind, substituted, excerpt, fetched_at, None,
                                excerpt_offset=page.find(ex), page_len=len(page))
+    if kind == "xbrl":
+        # a number is exact or it is wrong: no fuzzy credit for an XBRL line (one digit off in a
+        # long canonical line still scores > 0.92 on partial_ratio)
+        return GroundingResult(cid, skey, url, "absent", None, best_ratio,
+                               http_status, kind, substituted, excerpt, fetched_at,
+                               "xbrl: the excerpt is not exactly one of the SEC's reported fact lines")
     if best_ratio >= config.GROUNDING_FUZZY_THRESHOLD:
         return GroundingResult(cid, skey, url, "grounded", "fuzzy", best_ratio,
                                http_status, kind, substituted, excerpt, fetched_at,
@@ -342,6 +370,8 @@ def ground_claims(claims: list[dict]) -> dict:
                 "checked": True, "match": True, "method": res.method,
                 "fetched_at": res.fetched_at, "detail": res.detail,
             }
+            if res.content_kind == "xbrl":
+                claim["grounding"]["fetched_via"] = "xbrl"
             kept.append(claim)
         else:
             reason = CUT_ABSENT if res.status == "absent" else CUT_UNREACHABLE
