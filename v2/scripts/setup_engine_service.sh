@@ -25,7 +25,7 @@ set -euo pipefail
 REGION="${GCP_REGION:-us-west1}"
 ENGINE_SERVICE="${ENGINE_SERVICE:-scout-engine-rc}"
 VIEWER_SERVICE="${VIEWER_SERVICE:-agent-scout-rc}"
-DATA_PREFIX="${DATA_PREFIX:-rc}"
+DATA_PREFIX="${DATA_PREFIX-rc}"     # unset -> rc; EMPTY means production (":-" would turn "" into rc)
 DATA_REPO="${SELFSERVE_REPO:-uroshp/scout-user-data}"
 CEILING="${ASK_DAILY_CEILING_USD:-10}"
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
