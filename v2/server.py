@@ -14,17 +14,21 @@ Run locally:
     cd v2 && ./.venv/bin/python -m flask --app server run --debug --port 8080
 Deploy: see v2/docs/cloud-run-setup.md
 """
+import hashlib
+import hmac
 import html as _html
 import json as _json
 import os
+import re
 import threading
+import time
 import urllib.parse
 import uuid
 from datetime import datetime
 
-from flask import Flask, Response, abort, jsonify, request, send_from_directory, url_for
+from flask import Flask, Response, abort, jsonify, redirect, request, send_from_directory, url_for
 
-from scout import analytics, config, display, page, selfserve, store
+from scout import analytics, askui, config, display, page, selfserve, store
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS_DIR = os.path.join(HERE, "assets")
@@ -161,7 +165,7 @@ def _ga_head(page_type: str = None) -> str:
     default landing from a deliberate card view — content_group can. Queryable as the `contentGroup`
     dimension. Values: home | card | print | create."""
     mid = config.GA_MEASUREMENT_ID
-    if not mid:
+    if not mid or not config.ANALYTICS_ENABLED:
         return ""
     host_guard = (f"if({analytics._hosts_js()}.indexOf(location.hostname)===-1)return;"
                   if config.ANALYTICS_HOSTNAMES else "")
@@ -209,13 +213,15 @@ def _countdown_js() -> str:
         "</script>")
 
 
-def _control_bar(is_create: bool, slug, cards: list, right_html: str = "") -> str:
+def _control_bar(is_create: bool, slug, cards: list, right_html: str = "", mode: str | None = None) -> str:
     """The mode tabs + card dropdown + print link, ported to real routes (no query params).
     `right_html` overrides the right-aligned slot (the .scout-bar is flex space-between) — the
-    result page puts its Print/Download actions there, on the same row as the tabs."""
+    result page puts its Print/Download actions there, on the same row as the tabs.
+    `mode` (2026-09-28) names the active tab: cards | create."""
+    mode = mode or ("create" if is_create else "cards")
     tabs = ('<div class="scout-tabs">'
-            f'<a class="{"" if is_create else "on"}" href="/">Living battlecards</a>'
-            f'<a class="{"on" if is_create else ""}" href="/create">Create your own</a></div>')
+            f'<a class="{"on" if mode == "cards" else ""}" href="/">Living battlecards</a>'
+            f'<a class="{"on" if mode == "create" else ""}" href="/create">Create your own</a></div>')
     left = tabs
     print_btn = ""
     if not is_create and slug:
@@ -242,22 +248,110 @@ def _chrome_with_actions(cards: list, right_html: str) -> str:
               f'{_control_bar(True, None, cards, right_html=right_html)}</div>')
 
 
-def _doc(body_inner: str, *, title: str, page_type: str = None) -> str:
+def _doc(body_inner: str, *, title: str, page_type: str = None, ask: tuple | None | bool = None) -> str:
     """Wrap inner HTML in a full document: viewport + GA + fonts + the card CSS + control CSS.
     page_type flows to the GA content_group (home | card | print | create) so analytics can tell a
     default homepage landing from a deliberately-selected card (2026-07-29)."""
+    rc = config.RC_MODE
     return (
         '<!doctype html><html lang="en"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width, initial-scale=1">'
-        f'<title>{_html.escape(title)}</title>'
+        f'<title>{("[RC] " if rc else "") + _html.escape(title)}</title>'
         '<link rel="icon" href="/favicon.ico">'
         + _ga_head(page_type)
         + _FONT_LINKS
         + page.style_block()
         + f'<style>{_CTRL_CSS}</style>'
+        + (f'<style>{askui.PANEL_CSS}</style>' if config.ASK_ENABLED else "")
+        + (f'<style>{_RC_CSS}</style>' if rc else "")
         + '</head><body style="background:#f4f2ec;margin:0;padding:6px 0 24px">'
+        + (_RC_RIBBON if rc else "")
         + body_inner
+        + _ask_panel(ask)
         + '</body></html>')
+
+
+def _ask_panel(ask: tuple | None | bool) -> str:
+    """The Ask Scout thread on every page (one thread across cards; the card is only a hint).
+    `ask=False` leaves it off (the RC gate page: nothing to ask before you are in)."""
+    if not config.ASK_ENABLED or ask is False:
+        return ""
+    slug, meta, persona = ask if ask else (None, None, None)
+    try:
+        return askui.button_and_panel_html(slug, meta, persona)
+    except Exception:
+        return ""
+
+
+# --- RC environment (2026-09-28) -----------------------------------------------------------
+# The same code deployed twice: agent-scout.ai from `main`, the RC service from `rc`. On RC every
+# page carries a ribbon and sits behind a cookie gate, so a half-built screen can be reviewed on a
+# real URL (desktop + iPad) without ever touching production. All of it is inert unless SCOUT_RC /
+# SCOUT_RC_PASSWORD are set, which they are not on the production service.
+_RC_RIBBON = ('<div class="rc-ribbon" role="note">RC · release candidate · not production</div>')
+_RC_CSS = (
+    ".rc-ribbon{position:sticky;top:0;z-index:50;background:#7a2e0e;color:#fff;"
+    "font:600 12px/1.6 system-ui,sans-serif;letter-spacing:.04em;text-transform:uppercase;"
+    "text-align:center;padding:4px 12px;margin:-6px 0 6px}"
+    ".rc-login{max-width:420px;margin:12vh auto;padding:28px 28px 24px;background:#fff;"
+    "border:1px solid #e3ded2;border-radius:10px;font:15px/1.5 system-ui,sans-serif;color:#2b2a26}"
+    ".rc-login h1{font-size:18px;margin:0 0 6px}.rc-login p{margin:0 0 16px;color:#6b675e}"
+    ".rc-login input{width:100%;box-sizing:border-box;padding:10px 12px;font-size:15px;"
+    "border:1px solid #cfc8b8;border-radius:6px}"
+    ".rc-login button{margin-top:12px;width:100%;padding:10px;font-size:15px;border:0;"
+    "border-radius:6px;background:#2b2a26;color:#fff;cursor:pointer}"
+    ".rc-login .err{color:#9b2c1a;margin:8px 0 0}"
+)
+_RC_OPEN_PATHS = ("/healthcheck", "/robots.txt", "/favicon.ico", "/rc-login")
+
+
+def _rc_token(password: str) -> str:
+    return hashlib.sha256(("scout-rc|" + password).encode("utf-8")).hexdigest()[:32]
+
+
+def _rc_authorized() -> bool:
+    tok = request.cookies.get("scout_rc", "")
+    return bool(tok) and hmac.compare_digest(tok, _rc_token(config.RC_PASSWORD))
+
+
+def _rc_login_page(error: str = "", nxt: str = "/") -> str:
+    body = ('<div id="scout-page"><form class="rc-login" method="post" action="/rc-login">'
+            '<h1>Agent Scout · release candidate</h1>'
+            '<p>This is the review build. Enter the RC password to continue.</p>'
+            f'<input type="hidden" name="next" value="{_html.escape(nxt)}">'
+            '<input type="password" name="password" autocomplete="current-password" autofocus '
+            'placeholder="RC password" aria-label="RC password">'
+            + (f'<div class="err">{_html.escape(error)}</div>' if error else "")
+            + '<button type="submit">Open RC</button></form></div>')
+    return _doc(body, title="Agent Scout RC", page_type=None, ask=False)
+
+
+@app.before_request
+def _rc_gate():
+    if not config.RC_PASSWORD:
+        return None
+    if request.path in _RC_OPEN_PATHS or request.path.startswith("/assets/"):
+        return None
+    if _rc_authorized():
+        return None
+    nxt = request.full_path if request.query_string else request.path
+    return Response(_rc_login_page(nxt=nxt), status=401, mimetype="text/html")
+
+
+@app.post("/rc-login")
+def rc_login():
+    if not config.RC_PASSWORD:
+        abort(404)
+    pw = request.form.get("password", "")
+    nxt = request.form.get("next") or "/"
+    if not nxt.startswith("/") or nxt.startswith("//"):
+        nxt = "/"
+    if not hmac.compare_digest(pw, config.RC_PASSWORD):
+        return Response(_rc_login_page("That password did not match.", nxt), status=403, mimetype="text/html")
+    resp = redirect(nxt, code=303)
+    resp.set_cookie("scout_rc", _rc_token(pw), max_age=2592000, httponly=True, samesite="Lax",
+                    secure=request.is_secure)
+    return resp
 
 
 def _chrome(is_create: bool, slug, cards: list) -> str:
@@ -295,6 +389,8 @@ def _noindex(resp):
 @app.after_request
 def _server_visit(resp):
     try:
+        if not config.ANALYTICS_ENABLED:
+            return resp                                    # RC / preview: no GA at all
         if (request.method != "GET" or request.path == "/healthcheck"
                 or resp.status_code != 200
                 or not (resp.content_type or "").startswith("text/html")):
@@ -339,6 +435,9 @@ def robots():
     # Deliberately PERMISSIVE, counterintuitively: to DROP already-indexed pages, crawlers must be
     # able to fetch them and see the X-Robots-Tag noindex header above. A "Disallow: /" here would
     # block the crawl, hide the noindex, and leave stale entries in the index indefinitely.
+    # The RC service was never indexed, so there it is a plain Disallow.
+    if config.RC_MODE:
+        return Response("User-agent: *\nDisallow: /\n", mimetype="text/plain")
     return Response("User-agent: *\nAllow: /\n", mimetype="text/plain")
 
 
@@ -377,18 +476,149 @@ def card(slug):
 
 
 def _card_page(slug: str, cards: list, page_type: str = "card") -> str:
+    persona = page.persona_or_none(request.args.get("persona"))
     inner = (_chrome(False, slug, cards)
              + page.title_html(slug)
-             + page.content_html(slug)
+             + page.content_html(slug, persona=persona)
              + _countdown_js())
-    return _doc(inner, title=f"{_card_label(slug)} — Agent Scout", page_type=page_type)
+    return _doc(inner, title=f"{_card_label(slug)} — Agent Scout", page_type=page_type,
+                ask=(slug, store.load_meta(slug), persona))
+
+
+@app.get("/c/<slug>/sources")
+def card_sources(slug):
+    """Every citation on the card by kind of source (2026-09-28, WS0)."""
+    cards = _ordered_cards()
+    if slug not in cards:
+        abort(404)
+    inner = _chrome(False, slug, cards) + page.title_html(slug) + page.sources_html(slug)
+    return _doc(inner, title=f"Sources — {_card_label(slug)} — Agent Scout", page_type="card",
+                ask=(slug, store.load_meta(slug), None))
+
+
+# --- Ask Scout (WS2, 2026-09-28) -----------------------------------------------------------
+_ANSWER_CACHE: dict = {}
+
+
+def _load_answer(aid: str) -> dict | None:
+    if not re.fullmatch(r"a_[0-9a-f]{12}", aid or ""):
+        return None
+    hit = _ANSWER_CACHE.get(aid)
+    if hit and time.time() - hit[0] < 600:
+        return hit[1]
+    try:
+        for month in sorted(selfserve.list_data(askui_dir(), include_dirs=True) or [], reverse=True):
+            if "." in month:
+                continue
+            raw = selfserve.read_data(f"{askui_dir()}/{month}/{aid}.json")
+            if raw:
+                a = _json.loads(raw)
+                _ANSWER_CACHE[aid] = (time.time(), a)
+                return a
+    except Exception:
+        return None
+    return None
+
+
+def askui_dir() -> str:
+    return "ask"
+
+
+# --- soft limits on the paid endpoints (scout/ratelimit.py; the engine's ledger is the hard bound)
+from scout import ratelimit  # noqa: E402
+_ASK_IP = ratelimit.Limiter(per_minute=config.ASK_IP_PER_MIN)
+_ASK_CID = ratelimit.Limiter(per_day=config.ASK_VISITOR_QUOTA)
+_REQ_IP = ratelimit.Limiter(per_minute=config.REQUEST_IP_PER_MIN, per_day=config.REQUEST_IP_PER_DAY)
+
+
+def _client_ip() -> str:
+    """The LAST X-Forwarded-For entry: Cloud Run appends the connecting client's address after
+    anything the client sent itself, so the last one is the only one it could not choose."""
+    xff = [p.strip() for p in (request.headers.get("X-Forwarded-For") or "").split(",") if p.strip()]
+    return xff[-1] if xff else (request.remote_addr or "?")
+
+
+@app.get("/api/answers/<aid>")
+def api_answer(aid):
+    a = _load_answer(aid)
+    if not a:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"id": a["id"], "question": a.get("question"), "verified": a.get("verified"), "failed": bool(a.get("failed")),
+                    "error": a.get("error") if a.get("failed") else None,
+                    "seconds": a.get("seconds"), "html": askui.answer_html(a, show_question=False, chat=True)})
+
+
+@app.post("/api/ask")
+def api_ask():
+    """The panel's submit. Canned mode (RC): replay the stored answer with staged timing, $0.
+    Engine mode: relay to the engine service (WS2 step 4b)."""
+    if not config.ASK_ENABLED:
+        return jsonify({"message": "Ask Scout is not enabled here."}), 404
+    body = request.get_json(silent=True) or {}
+    question = str(body.get("question") or "").strip()
+    if not question or len(question) > 400:
+        return jsonify({"message": "Ask a question of up to 400 characters."}), 400
+    # the thread so far: [{question, answer_id}], newest last, at most six turns (engine mode uses
+    # it to answer in context and to reuse the facts it already verified; canned mode ignores it)
+    history = [h for h in (body.get("history") or [])[-6:]
+               if isinstance(h, dict) and isinstance(h.get("question"), str) and re.fullmatch(r"a_[0-9a-f]{12}", str(h.get("answer_id") or ""))]
+    if config.ASK_CANNED_ID:
+        a = _load_answer(config.ASK_CANNED_ID)
+        if not a:
+            return jsonify({"message": "The review answer is not available."}), 503
+        t = a.get("trajectory") or {}
+        n_src = len(a.get("sources") or [])
+        stages = [{"k": "facts", "ms": 1500}, {"k": "search", "ms": 2600, "extra": f"{n_src} sources"},
+                  {"k": "ground", "ms": 1800}, {"k": "floor", "ms": 1200},
+                  {"k": "verify", "ms": 2000, "extra": (f"{t.get('rewritten')} rewritten" if t.get("rewritten") else "")},
+                  {"k": "done", "ms": 500}]
+        return jsonify({"id": a["id"], "stages": stages, "mode": "canned"})
+    if config.ASK_ENGINE_URL and config.ASK_VIEWER_SECRET:
+        # engine mode: the panel streams from the engine directly, with a one-hour page token that
+        # proves it came through a rendered page (the engine verifies it with the shared secret)
+        from scout.asktoken import page_token, record_id_for
+        cid = request.cookies.get("scout_cid") or uuid.uuid4().hex[:16]
+        ip, exempt = _client_ip(), cid in config.ASK_QUOTA_BYPASS_CIDS
+        if not _ASK_IP.check(ip)[0]:
+            return jsonify({"message": "Too many questions from your network right now. Try again in a minute."}), 429
+        if not exempt and not _ASK_CID.check(cid)[0]:
+            return jsonify({"message": f"You've used today's {config.ASK_VISITOR_QUOTA} questions. Browse the answers so far, or come back tomorrow."}), 429
+        _ASK_IP.hit(ip)                                  # count only a request both limits allowed
+        if not exempt:
+            _ASK_CID.hit(cid)
+        rid = str(body.get("rid") or "")
+        # the panel's request token fixes the answer id up front (recovery after a dropped stream
+        # or a reload polls /api/answers/<id> until the record lands)
+        resp = jsonify({"mode": "engine", "engine": config.ASK_ENGINE_URL.rstrip("/"),
+                        "token": page_token(cid, config.ASK_VIEWER_SECRET),
+                        "id": record_id_for(rid) if re.fullmatch(r"[A-Za-z0-9_-]{8,64}", rid) else None})
+        if not request.cookies.get("scout_cid"):
+            resp.set_cookie("scout_cid", cid, max_age=63072000, samesite="Lax")
+        return resp
+    return jsonify({"message": "Ask Scout is being wired up. Come back soon."}), 503
+
+
+@app.get("/answers/<aid>")
+def answer_page(aid):
+    """The permalink: the durable artifact, never the place to ask."""
+    a = _load_answer(aid)
+    if not a:
+        abort(404)
+    cards = _ordered_cards()
+    slug = a.get("slug") if a.get("slug") in cards else None
+    inner = (_chrome(False, slug, cards)
+             + (page.title_html(slug) if slug else "")
+             + '<div id="scout-page"><div class="wrap"><div class="ask-permalink">' + askui.answer_html(a, permalink=False)
+             + (f'<p class="ask-back"><a href="/c/{_html.escape(slug)}">Back to the card</a></p>' if slug else "")
+             + "</div></div></div>")
+    return _doc(inner, title=f"Ask Scout — {(a.get('question') or '')[:60]} — Agent Scout", page_type="answers")
 
 
 @app.get("/print/<slug>")
 def print_sheet(slug):
     if slug not in display.list_battlecards():
         abort(404)
-    sheet = page.call_sheet_html(slug)
+    sheet = page.call_sheet_html(slug, persona=page.persona_or_none(request.args.get("persona")))
     autoprint = ("<script>window.addEventListener('load',function(){"
                  "setTimeout(function(){try{window.print();}catch(e){}},500);});</script>")
     return sheet.replace("</body>", autoprint + "</body>", 1)
@@ -520,6 +750,10 @@ _FORM_JS = """
 
 @app.post("/api/request")
 def api_request():
+    ok, why = _REQ_IP.hit(_client_ip())
+    if not ok:
+        return jsonify(error=("Too many requests from your network right now. Try again in a minute." if why == "minute"
+                              else "That's the daily limit of requests from your network. Come back tomorrow.")), 429
     data = request.get_json(silent=True) or {}
     competitor = (data.get("competitor") or "").strip()
     my_company = (data.get("my_company") or "").strip()

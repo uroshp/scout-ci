@@ -47,6 +47,12 @@ ZONES = ["where_we_win", "contested", "where_they_win"]
 # claims run 95-115 words (2026-07-02 audit); 170 leaves room for a genuinely layered story.
 RENDER_MAX_WORDS = int(os.environ.get("SCOUT_RENDER_MAX_WORDS", "170"))
 SOURCE_TIERS = ["primary", "reputable_secondary", "sentiment_only"]
+# SOURCE CLASS (2026-09-28, WS0): what KIND of source a URL is, decided by code from the host
+# (scout/sources/classify.py) and shown to the reader as a chip. Optional and additive: the tier
+# stays the 3-value enum above; the class refines it and, where code can know it, normalizes it.
+# Kept in sync with classify.SOURCE_CLASSES by a test.
+SOURCE_CLASSES = ["filing", "court", "government", "company_statement", "job_posting",
+                  "page_snapshot", "news", "research", "review_site", "forum", "unknown"]
 # Primary buyer persona a play is aimed at / that tends to raise an objection. Optional, and
 # meaningful ONLY for the rep-facing prose sections (battlecard + objection_handling); null
 # everywhere else. Lets the viewer badge plays/objections by audience (see docs/claim-object.md).
@@ -71,6 +77,10 @@ _PROPERTIES = {
         "order": {"type": "integer", "minimum": 0},
         "source_url": {"type": "string", "format": "uri"},
         "source_tier": {"enum": SOURCE_TIERS},
+        "source_class": {"enum": SOURCE_CLASSES + [None]},
+        # set only when the class's tier would have made the claim invalid (a fact on a forum):
+        # the model's tier stands and the reader sees the conflict on the sources page
+        "source_class_conflict": {"enum": SOURCE_CLASSES + [None]},
         "evidence_excerpt": {"type": "string", "minLength": 40},
         "as_of": {"type": ["string", "null"], "format": "date"},
         # PROVENANCE BY VALUE (2026-09-26): the source a propagated claim was judge-confirmed
@@ -84,6 +94,7 @@ _PROPERTIES = {
             "properties": {
                 "source_url": {"type": "string", "format": "uri"},
                 "source_tier": {"enum": SOURCE_TIERS + [None]},
+                "source_class": {"enum": SOURCE_CLASSES + [None]},
                 "as_of": {"type": ["string", "null"]},
                 "fact_id": {"type": ["string", "null"]},
                 "stamped_on": {"type": ["string", "null"]},
@@ -103,6 +114,9 @@ _PROPERTIES = {
                 "method": {"enum": ["substring", "fuzzy"]},
                 "fetched_at": {"type": "string", "format": "date"},
                 "detail": {"type": ["string", "null"]},
+                # "xbrl" when the source is an EDGAR companyconcept JSON and the excerpt matched a
+                # canonical fact line (a number code verified), else absent (a live page).
+                "fetched_via": {"enum": ["live", "xbrl", None]},
             },
         },
         "corroboration": {
@@ -114,6 +128,7 @@ _PROPERTIES = {
                 "properties": {
                     "source_url": {"type": "string", "format": "uri"},
                     "source_tier": {"enum": SOURCE_TIERS},
+                    "source_class": {"enum": SOURCE_CLASSES + [None]},
                     "note": {"type": "string", "minLength": 1},
                     "grounded": {"const": False},
                 },
