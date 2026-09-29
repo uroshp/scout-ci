@@ -21,8 +21,31 @@ import os
 import re
 from datetime import datetime, timedelta, timezone
 
+import contextvars
+
 from scout import config, display, store
 from scout.sources import classify as _classify
+from scout.schema import PERSONAS as _PERSONAS
+
+# The persona the reader chose (?persona=<key>, WS0 2026-09-28): that persona's plays and
+# objections render first and the rest dim; None = the default order. A context variable so the
+# choice is scoped to one request and never leaks between concurrent renders.
+_PERSONA = contextvars.ContextVar("scout_persona", default=None)
+
+
+def persona_or_none(value) -> str | None:
+    return value if value in _PERSONAS else None
+
+
+def _pkey(c: dict):
+    """Sort key: the chosen persona's items first, then the stored order."""
+    p = _PERSONA.get()
+    return (0 if (p and c.get("persona") == p) else 1, c.get("order", 0))
+
+
+def _pdim(c: dict) -> str:
+    p = _PERSONA.get()
+    return " pdim" if (p and c.get("persona") and c.get("persona") != p) else ""
 
 # Rotating build-status copy for the self-serve wait (originally the v1 app's progress lines).
 # ONE shared source (2026-07-19): the Flask viewer serializes these into its progress JS and the
@@ -275,6 +298,118 @@ def sources_html(slug: str) -> str:
             + warn + "".join(secs) + "</div></div>")
 
 
+# --- "What changed and why it matters" (WS0, 2026-09-28) ---------------------------------------
+# Deterministic: every row is an alerts.jsonl entry the monitor or an approved edit already wrote
+# (headline + so_what + severity + source + old/new), grouped by week. No generated prose
+# (ROADMAP.md: a written digest only once it can cite each claim).
+_KIND_OF = {("prior version", "updated"): "Updated", ("on the card", "removed"): "Retired",
+            (None, "new"): "Added", ("prior angle", "now leading"): "Angle changed"}
+
+
+def _alert_kind(a: dict) -> str:
+    return _KIND_OF.get((a.get("old_value"), a.get("new_value")), "Change detected")
+
+
+def _week_of(date_s: str) -> str:
+    try:
+        d = datetime.fromisoformat(str(date_s)[:10])
+    except ValueError:
+        return str(date_s)[:10]
+    monday = d - timedelta(days=d.weekday())
+    return monday.strftime("%Y-%m-%d")
+
+
+def _week_label(monday: str) -> str:
+    try:
+        d = datetime.fromisoformat(monday)
+    except ValueError:
+        return monday
+    end = d + timedelta(days=6)
+    same_month = d.month == end.month
+    return (f"Week of {d.strftime('%b %-d')}" if same_month else f"Week of {d.strftime('%b %-d')}") + f" \u2013 {end.strftime('%b %-d') if not same_month else end.strftime('%-d')}, {end.year}"
+
+
+def _change_row(a: dict, meta: dict, slug: str, show_card: bool = False) -> str:
+    kind = _alert_kind(a)
+    sev = str(a.get("severity") or "").lower()
+    sev_chip = f'<span class="sev {sev}">{sev.upper()}</span>' if sev in ("act", "watch") else ""
+    head = _inline(str(a.get("headline") or a.get("so_what") or "").strip())
+    why = str(a.get("so_what") or "").strip()
+    why_html = (f'<div class="chwhy"><span class="k">Why it matters</span> {_inline(why)}</div>'
+                if why and why != str(a.get("headline") or "").strip() else "")
+    ov, nv = a.get("old_value"), a.get("new_value")
+    diff = ""
+    if kind == "Change detected" and (ov or nv):
+        diff = (f'<div class="chdiff"><span class="was">{_inline(str(ov or "\u2014"))}</span>'
+                f'<span class="arrow">\u2192</span><span class="now">{_inline(str(nv or "\u2014"))}</span></div>')
+    src = ""
+    if a.get("source_url"):
+        cls = _classify.classify(a["source_url"], meta.get("competitor"), meta.get("my_company"))
+        src = (f'<a href="{_html.escape(a["source_url"])}" target="_blank" rel="noopener">'
+               f'{_html.escape(_domain(a["source_url"]))}</a>{_class_chip(cls)}')
+    link = f'<a class="chlink" href="/c/{_html.escape(slug)}#{_anchor(a.get("subject_key", ""))}">on the card</a>' if a.get("subject_key") else ""
+    card = f'<a class="chcard" href="/c/{_html.escape(slug)}">{_html.escape(_card_title(meta))}</a>' if show_card else ""
+    date = _html.escape(str(a.get("date") or str(a.get("detected_at") or "")[:10]))
+    return (f'<div class="chrow"><div class="chmeta">{date}{sev_chip}<span class="chkind">{kind}</span>{card}</div>'
+            f'<div class="chhead">{head}</div>{diff}{why_html}'
+            f'<div class="srcline chsrc">{src}{("<span class=sep>·</span>" if src and link else "")}{link}</div></div>')
+
+
+def _card_title(meta: dict) -> str:
+    comp, mine = (meta.get("competitor") or "").strip(), (meta.get("my_company") or "").strip()
+    return f"{mine} vs {comp}" if mine and comp else comp or mine or meta.get("slug", "")
+
+
+def changes_html(slug: str) -> str:
+    """Per-card 'what changed and why it matters', grouped by week, newest first."""
+    meta = store.load_meta(slug) or {}
+    alerts = sorted(display.load_alerts(slug), key=lambda a: str(a.get("detected_at") or a.get("date") or ""), reverse=True)
+    weeks: dict = {}
+    for a in alerts:
+        weeks.setdefault(_week_of(a.get("date") or str(a.get("detected_at") or "")[:10]), []).append(a)
+    head = (f'<div class="srchead"><div class="srctitle"><span class="ey">What changed</span>'
+            f'<h2>{_html.escape(_card_title(meta))}: changes and why they matter</h2>'
+            f'<p class="srclede">{len(alerts)} recorded changes. Every row is something the monitor detected or an '
+            f'approved edit that landed, with the so-what it shipped with. Nothing here is summarized by a model.</p></div>'
+            f'<a class="srcback" href="/c/{_html.escape(slug)}">Back to the card</a></div>')
+    secs = []
+    for wk, rows in weeks.items():
+        secs.append(_section(f"wk-{wk}", _week_label(wk), f"{len(rows)}", "".join(_change_row(a, meta, slug) for a in rows)))
+    body = "".join(secs) if secs else '<div class="empty">No changes recorded yet.</div>'
+    return '<div id="scout-page"><div class="wrap srcpage">' + head + body + "</div></div>"
+
+
+def changes_all_html(slugs: list, days: int = 14) -> str:
+    """The roll-up across cards: the last `days` days, grouped by day, newest first."""
+    cutoff = (datetime.now() - timedelta(days=days)).date().isoformat()
+    rows = []
+    for slug in slugs:
+        meta = store.load_meta(slug) or {}
+        for a in display.load_alerts(slug):
+            d = str(a.get("date") or str(a.get("detected_at") or "")[:10])
+            if d >= cutoff:
+                rows.append((str(a.get("detected_at") or d), a, meta, slug))
+    rows.sort(key=lambda r: r[0], reverse=True)
+    days_: dict = {}
+    for ts, a, meta, slug in rows:
+        days_.setdefault(ts[:10], []).append((a, meta, slug))
+    head = (f'<div class="srchead"><div class="srctitle"><span class="ey">What changed</span>'
+            f'<h2>Across every card, last {days} days</h2>'
+            f'<p class="srclede">{len(rows)} changes across {len(slugs)} cards. Detected by the monitor or landed by an '
+            f'approved edit; each with the so-what it shipped with.</p></div>'
+            f'<a class="srcback" href="/">Back to the cards</a></div>')
+    secs = []
+    for day, items in days_.items():
+        try:
+            label = datetime.fromisoformat(day).strftime("%A, %b %-d")
+        except ValueError:
+            label = day
+        secs.append(_section(f"day-{day}", label, f"{len(items)}",
+                             "".join(_change_row(a, meta, slug, show_card=True) for a, meta, slug in items)))
+    body = "".join(secs) if secs else f'<div class="empty">No changes in the last {days} days.</div>'
+    return '<div id="scout-page"><div class="wrap srcpage">' + head + body + "</div></div>"
+
+
 _TIER_TITLE = {
     "primary": "Primary source: the document itself, or the company's own statement",
     "reputable_secondary": "Reputable secondary source",
@@ -333,7 +468,7 @@ def _prose_item(c: dict, *, callout_label=None, callout_kind="sw", badge_prefix=
         call = _callout("sb", "Soundbite", p["soundbite"])
     elif p["so_what"] and callout_label:
         call = _callout(callout_kind, callout_label, p["so_what"])
-    return (f'<div class="item" id="{_anchor(c.get("subject_key"))}">'
+    return (f'<div class="item{_pdim(c)}" id="{_anchor(c.get("subject_key"))}">'
             f'{head}{body}{call}{_vsrc(c)}</div>')
 
 
@@ -388,7 +523,7 @@ def _battlecard(claims: list, recent_keys: set | None = None) -> str:
     recent_keys = recent_keys or set()
     subs = []
     for zid, zlabel, zcls in _ZONES:
-        zc = sorted([c for c in claims if c.get("zone") == zid], key=lambda c: c.get("order", 0))
+        zc = sorted([c for c in claims if c.get("zone") == zid], key=_pkey)
         if not zc:
             continue
         items = [_prose_item(c, badge_prefix="Best for",
@@ -514,6 +649,19 @@ def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = N
                    f'rel="noopener">GitHub</a>')
     # Sources (2026-09-28): what kinds of sources the active card rests on, decided by code from
     # the host, with the full per-source listing one click away.
+    # View as (2026-09-28): the personas present on this card; the chosen one's plays and objections
+    # lead and the others dim. A plain link per persona, so it works on the iPad and in print.
+    view_panel = ""
+    if sources:
+        slug, _counts = sources
+        present_p = [p for p in _PERSONAS if any(c.get("persona") == p for c in (status.get("_claims") or []))]
+        if present_p:
+            cur = _PERSONA.get()
+            links = [f'<a class="pv{" on" if not cur else ""}" href="/c/{_html.escape(slug)}">All</a>']
+            for p in present_p:
+                links.append(f'<a class="pv{" on" if cur == p else ""}" href="/c/{_html.escape(slug)}?persona={p}">'
+                             f'{_html.escape(_PERSONA_LABELS.get(p, p))}</a>')
+            view_panel = panel("View as", '<div class="pviews">' + "".join(links) + "</div>")
     src_panel = ""
     if sources:
         slug, counts = sources
@@ -523,7 +671,9 @@ def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = N
         body = (f'<div class="srcchips">{chips}</div>'
                 f'<a class="srcall" href="/c/{_html.escape(slug)}/sources">All sources by kind</a>')
         src_panel = panel("Sources", body, f'<span class="ph-n">{total}</span>')
-    return ('<div class="rail">' + nav
+    if sources:
+        mc += f'<a class="srcall" href="/c/{_html.escape(sources[0])}/changes">All changes by week</a>'
+    return ('<div class="rail">' + nav + view_panel
             + panel("Material changes", mc, f'<span class="ph-n">{len(mc_rows)}</span>')
             + panel("Recently updated", ru_html, f'<span class="ph-n">{len(ru)}</span>')
             + src_panel
@@ -583,7 +733,7 @@ def _briefing(claims: list, label: str = "Your Daily Briefing",
             + _vsrc(angle, _fmt_asof(angle.get("as_of"))) + "</div>")
 
     wins = sorted([c for c in claims if c.get("section") == "battlecard"
-                   and c.get("zone") == "where_we_win"], key=lambda c: c.get("order", 0))[:3]
+                   and c.get("zone") == "where_we_win"], key=_pkey)[:3]
     plays = []
     for i, c in enumerate(wins, 1):
         p = _parse_claim(c)
@@ -691,6 +841,25 @@ _OVERRIDES = """
 #scout-page .srcclass-unknown{color:var(--faint);background:transparent;border-color:var(--line)}
 #scout-page .srcclass-filing,#scout-page .srcclass-court,#scout-page .srcclass-government{color:#1f4d2a;background:#e6f1e8;border-color:#bcd8c2}
 #scout-page .srcclass-review_site,#scout-page .srcclass-forum{color:#6b5a1e;background:#f7f0dc;border-color:#e2d3a3}
+#scout-page .chrow{padding:10px 0;border-top:1px solid var(--line)}
+#scout-page .chmeta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+#scout-page .chkind{color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-size:9px;font-weight:600}
+#scout-page .chcard{margin-left:auto;font-size:10.5px;color:var(--accent-deep)}
+#scout-page .chhead{margin:4px 0 0;font-size:14px;line-height:1.45;color:var(--ink)}
+#scout-page .chdiff{margin:4px 0 0;font-size:13px;display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
+#scout-page .chdiff .was{color:var(--faint);text-decoration:line-through}
+#scout-page .chdiff .arrow{color:var(--faint)}
+#scout-page .chdiff .now{color:var(--ink);font-weight:600}
+#scout-page .chwhy{margin:4px 0 0;font-size:13px;color:var(--muted);line-height:1.45}
+#scout-page .chwhy .k{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-deep);margin-right:6px}
+#scout-page .chsrc{margin-top:5px}
+#scout-page .chlink{color:var(--accent-deep)}
+#scout-page .item.pdim{opacity:.55}
+#scout-page .item.pdim:hover{opacity:1}
+#scout-page .pviews{display:flex;flex-wrap:wrap;gap:6px}
+#scout-page .pviews .pv{font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--line);border-radius:999px;color:var(--muted)}
+#scout-page .pviews .pv.on{color:var(--accent-deep);background:var(--accent-soft);border-color:var(--accent-line);font-weight:600}
+#scout-page .pviews .pv:hover{text-decoration:none;color:var(--ink)}
 #scout-page .srcchips{display:flex;flex-wrap:wrap;gap:6px 10px;margin:2px 0 8px}
 #scout-page .srcrow{display:inline-flex;align-items:center;gap:5px}
 #scout-page .srcn{font-family:var(--mono);font-size:10px;color:var(--faint)}
@@ -1022,7 +1191,7 @@ def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retir
             secs.append(_section(sid, title, f"{len(cs)} objections",
                                  "".join(_prose_item(c, callout_label="So what",
                                                      badge_prefix="Raised by",
-                                                     new=_new(c)) for c in cs)))
+                                                     new=_new(c)) for c in sorted(cs, key=_pkey))))
         elif sid in _PREVIEW_SECTIONS:   # recent_moves, positioning, pricing
             label = {"recent_moves": "moves"}.get(sid, "items")
             secs.append(_preview_section(sid, title, f"{len(cs)} {label}",
@@ -1068,14 +1237,24 @@ def static_brief_html(claims: list, md: str, meta: dict | None = None,
     return '<div id="scout-page"><div class="wrap">' + inner + '</div></div>'
 
 
-def content_html(slug: str) -> str:
+def content_html(slug: str, persona: str | None = None) -> str:
     """The card body below the title: rule → metric strip + 5-min briefing → full brief →
-    freshness, plus the left rail. CSS + masthead + title are injected separately."""
+    freshness, plus the left rail. CSS + masthead + title are injected separately.
+    `persona` (2026-09-28): the reader's chosen buyer persona; its plays and objections lead."""
+    token = _PERSONA.set(persona_or_none(persona))
+    try:
+        return _content_html(slug)
+    finally:
+        _PERSONA.reset(token)
+
+
+def _content_html(slug: str) -> str:
     status = display.card_status(slug)
     cp = status["checkpoints"]
     # Split retired off the active card (lineage view) and resolve propagated source links once, so
     # every downstream consumer (rail, briefing, sections) sees only active claims with live sources.
     claims, retired = _prepare_display(store.load_claims(slug), store.load_meta(slug))
+    status["_claims"] = claims                      # the rail's persona switcher reads what is present
     md = _read_current(slug)
     rows = status["claim_timestamps"]
     secs, cut_html, present = _brief_sections(claims, md, set(status["recent_keys"]), retired=retired)
@@ -1134,11 +1313,15 @@ body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;color:#1c
 """
 
 
-def call_sheet_html(slug: str) -> str:
+def call_sheet_html(slug: str, persona: str | None = None) -> str:
     """A self-contained, print-optimized one-pager (the pitch + the rebuttals). The print button
     opens this in a fresh window and prints it — so it never touches Streamlit's layout and can't
-    be clipped by the scroll container."""
-    return call_sheet_from_claims(store.load_claims(slug), store.load_meta(slug))
+    be clipped by the scroll container. `persona` puts that buyer's plays and objections first."""
+    token = _PERSONA.set(persona_or_none(persona))
+    try:
+        return call_sheet_from_claims(store.load_claims(slug), store.load_meta(slug))
+    finally:
+        _PERSONA.reset(token)
 
 
 def call_sheet_from_claims(claims: list, meta: dict | None) -> str:
@@ -1164,7 +1347,7 @@ def call_sheet_from_claims(claims: list, meta: dict | None) -> str:
                       f'<div class="angle"><p>{_inline(text)}</p>{sw}</div>')
 
     wins = sorted([c for c in claims if c.get("section") == "battlecard"
-                   and c.get("zone") == "where_we_win"], key=lambda c: c.get("order", 0))[:3]
+                   and c.get("zone") == "where_we_win"], key=_pkey)[:3]
     plays = []
     for i, c in enumerate(wins, 1):
         p = _parse_claim(c)
@@ -1175,8 +1358,7 @@ def call_sheet_from_claims(claims: list, meta: dict | None) -> str:
     plays_lbl = "Top play" if len(plays) == 1 else f"Top {len(plays)} plays"
     plays_html = (f'<div class="lbl">{plays_lbl}</div>' + "".join(plays)) if plays else ""
 
-    objs = sorted([c for c in claims if c.get("section") == "objection_handling"],
-                  key=lambda c: c.get("order", 0))
+    objs = sorted([c for c in claims if c.get("section") == "objection_handling"], key=_pkey)
     obj_items = []
     for c in objs:
         p = _parse_claim(c)

@@ -211,13 +211,16 @@ def _countdown_js() -> str:
         "</script>")
 
 
-def _control_bar(is_create: bool, slug, cards: list, right_html: str = "") -> str:
+def _control_bar(is_create: bool, slug, cards: list, right_html: str = "", mode: str | None = None) -> str:
     """The mode tabs + card dropdown + print link, ported to real routes (no query params).
     `right_html` overrides the right-aligned slot (the .scout-bar is flex space-between) — the
-    result page puts its Print/Download actions there, on the same row as the tabs."""
+    result page puts its Print/Download actions there, on the same row as the tabs.
+    `mode` (2026-09-28) names the active tab: cards | create | changes (the roll-up)."""
+    mode = mode or ("create" if is_create else "cards")
     tabs = ('<div class="scout-tabs">'
-            f'<a class="{"" if is_create else "on"}" href="/">Living battlecards</a>'
-            f'<a class="{"on" if is_create else ""}" href="/create">Create your own</a></div>')
+            f'<a class="{"on" if mode == "cards" else ""}" href="/">Living battlecards</a>'
+            f'<a class="{"on" if mode == "changes" else ""}" href="/changes">What changed</a>'
+            f'<a class="{"on" if mode == "create" else ""}" href="/create">Create your own</a></div>')
     left = tabs
     print_btn = ""
     if not is_create and slug:
@@ -458,9 +461,10 @@ def card(slug):
 
 
 def _card_page(slug: str, cards: list, page_type: str = "card") -> str:
+    persona = page.persona_or_none(request.args.get("persona"))
     inner = (_chrome(False, slug, cards)
              + page.title_html(slug)
-             + page.content_html(slug)
+             + page.content_html(slug, persona=persona)
              + _countdown_js())
     return _doc(inner, title=f"{_card_label(slug)} — Agent Scout", page_type=page_type)
 
@@ -475,11 +479,31 @@ def card_sources(slug):
     return _doc(inner, title=f"Sources — {_card_label(slug)} — Agent Scout", page_type="card")
 
 
+@app.get("/c/<slug>/changes")
+def card_changes(slug):
+    """What changed on this card and why it matters, by week (2026-09-28, WS0)."""
+    cards = _ordered_cards()
+    if slug not in cards:
+        abort(404)
+    inner = _chrome(False, slug, cards) + page.title_html(slug) + page.changes_html(slug)
+    return _doc(inner, title=f"What changed — {_card_label(slug)} — Agent Scout", page_type="card")
+
+
+@app.get("/changes")
+def changes_all():
+    """The roll-up across every card, last 14 days (2026-09-28, WS0)."""
+    cards = _ordered_cards()
+    inner = (page.masthead_html()
+             + f'<div class="wrap" style="padding:0 0 16px">{_control_bar(False, None, cards, mode="changes")}</div>'
+             + page.changes_all_html(cards))
+    return _doc(inner, title="What changed — Agent Scout", page_type="home")
+
+
 @app.get("/print/<slug>")
 def print_sheet(slug):
     if slug not in display.list_battlecards():
         abort(404)
-    sheet = page.call_sheet_html(slug)
+    sheet = page.call_sheet_html(slug, persona=page.persona_or_none(request.args.get("persona")))
     autoprint = ("<script>window.addEventListener('load',function(){"
                  "setTimeout(function(){try{window.print();}catch(e){}},500);});</script>")
     return sheet.replace("</body>", autoprint + "</body>", 1)
