@@ -124,12 +124,12 @@ class RunControls(unittest.TestCase):
             seen.append(slug)
             return {"slug": slug, "alerts": [], "material": [], "cost": {"triage": 0.1, "materiality": 0.0},
                     "decisions": [], "no_change": True, "my_company_error": None}
-        with mock.patch.object(monitor, "list_battlecards", return_value=["a", "b", "c"]), \
+        with mock.patch("scout.display.list_battlecards", return_value=["a", "b", "c"]), \
              mock.patch.object(monitor, "check", side_effect=fake_check), \
              mock.patch.object(monitor.store, "load_meta", return_value={"monitored": True}), \
              mock.patch.object(monitor, "_persist_run_cost"), \
              mock.patch("scout.conseq.maybe_notify_ready"), \
-             mock.patch.object(monitor.notify, "send_digest"):
+             mock.patch("scout.notify.send_digest"):
             out = monitor._run_all_impl(write=False, send=False, email_dry_run=True, force=True, slugs=["b"])
         self.assertEqual(seen, ["b"])
         self.assertEqual([r.get("skipped") for r in out if r["slug"] != "b"], ["not selected", "not selected"])
@@ -141,11 +141,11 @@ class RunControls(unittest.TestCase):
             seen.append(slug)
             return {"slug": slug, "alerts": [], "material": [], "cost": {"triage": 0.1, "materiality": 0.0},
                     "decisions": [], "no_change": True, "my_company_error": None}
-        with mock.patch.object(monitor, "list_battlecards", return_value=["a", "b"]), \
+        with mock.patch("scout.display.list_battlecards", return_value=["a", "b"]), \
              mock.patch.object(monitor, "check", side_effect=fake_check), \
              mock.patch.object(monitor.store, "load_meta", return_value={"monitored": True}), \
              mock.patch.object(monitor, "_persist_run_cost"), \
              mock.patch("scout.conseq.maybe_notify_ready"), \
-             mock.patch.object(monitor.notify, "send_digest"):
+             mock.patch("scout.notify.send_digest"):
             monitor._run_all_impl(write=False, send=False, email_dry_run=True, force=True)
         self.assertEqual(seen, ["a", "b"])
