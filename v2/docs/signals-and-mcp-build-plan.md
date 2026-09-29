@@ -29,10 +29,17 @@ monitor-side; neither touches the Ask panel. Source of the design: `~/.claude/pl
 
 ## WS3: event-driven monitoring (signals)
 
-Goal: a new SEC filing or a meaningful hiring delta triggers that card's check within the hour,
-with the signal put in front of triage, and "Triggered by: new 8-K" on the alert. Pages are NOT
-triggers (nonces and dates flip page digests). Caps: 2 triggered runs a day across all cards,
-fingerprint dedupe, a triggered run counts as the day's check.
+Goal: a new SEC filing triggers that card's check within the hour, with the filing put in front
+of triage, and "Triggered by: new 8-K" on the alert. Pages are NOT triggers (nonces and dates flip
+page digests). **Hiring is not a trigger** (Uroš, 2026-09-29: "hiring is a footnote; ten roles is
+nothing; I don't want to over-index on it; it is one pillar that feeds strategy and should be
+interpreted through strategy"): job-board deltas are CONTEXT handed to materiality and the router
+(a one-line "hiring: +N net, departments: …" block), never a dispatch. The one hiring event that
+is a signal is a **brand-new department** (a department name not seen on that board in the prior
+90 days, with at least 3 open roles): it is written to the card's open signals and put in front of
+the NEXT scheduled run's triage, still not a dispatch. Caps: 2 triggered runs a day across all
+cards (filings only), fingerprint dedupe, a triggered run counts as the day's check, and a
+triggered run never emails on its own: what it finds lands in the next morning's FYI.
 
 ### Files
 
@@ -41,16 +48,19 @@ fingerprint dedupe, a triggered run counts as the day's check.
   - `poll_edgar(cik, state) -> [Signal]`: `edgar.filings(cik, forms=("8-K","10-Q","10-K","D"),
     since=state.last_accession)`; a Signal per new accession: `{kind: "filing", form, accession,
     filed, source_url, source_class: "filing", summary, fingerprint: sha(cik|accession)}`.
-  - `poll_jobs(host, token, state) -> [Signal]`: `jobs.postings` then `jobs.diff(state.rows, cur)`;
-    a Signal when net-new ≥ `SIGNAL_JOBS_MIN_DELTA` (10) or a new department appears:
-    `{kind: "hiring", added, removed, departments, source_url: board_url, source_class:
-    "job_posting", fingerprint: sha(host|token|sorted new ids)}`.
+  - `poll_jobs(host, token, state) -> (context: dict, signals: [Signal])`: `jobs.postings` then
+    `jobs.diff(state.rows, cur)`; `context` = `{net_new, removed, by_department}` for the prompts
+    (always); a Signal ONLY for a brand-new department (`kind: "new_department", department, roles,
+    source_url: board_url, source_class: "job_posting", fingerprint: sha(host|token|department)`),
+    which is queued for the next scheduled run, never dispatched.
   - `state_path(slug) = f"signals/{slug}/state.json"`, `events_path = f"signals/{slug}/events.jsonl"`;
     `load_state`, `save_state` (via `selfserve.update_data`, optimistic), `append_events`.
   - `open_signals(slug) -> [Signal]` (events with `consumed_by` empty), `consume(slug, run_ts)`.
-  - `dispatch(slug, reason) -> bool`: POST `workflow_dispatch` to `monitor.yml` with inputs
-    `{slugs: slug, force: "true", reason}`; refuses when `dispatches_today >= SIGNAL_MAX_DISPATCHES_PER_DAY`
-    (state in `signals/_dispatch.json`) or when the card was checked in the last 6 h.
+  - `dispatch(slug, reason) -> bool` (filings only): POST `workflow_dispatch` to `monitor.yml` with
+    inputs `{slugs: slug, force: "true", reason}`; refuses when `dispatches_today >=
+    SIGNAL_MAX_DISPATCHES_PER_DAY` (state in `signals/_dispatch.json`) or when the card was checked
+    in the last 6 h. A dispatched run sends no email of its own (the live-mode FYI is per scheduled
+    run; a triggered run's results ride the next FYI).
 - `scripts/poll_signals.py` (new; runs on the mini hourly, $0): for every card with `meta.watch`,
   poll, append events, dispatch at most twice a day; prints a one-line summary per card; never emails.
 - `scripts/set_watch.py` (new): `--slug --edgar-cik --job-board host:token` writes `meta.watch`
@@ -67,8 +77,8 @@ fingerprint dedupe, a triggered run counts as the day's check.
 - `.github/workflows/monitor.yml`: input `reason` (string, optional) → env `SCOUT_MONITOR_REASON`.
 - `scout/page.py` / `server.py`: the alert row shows a "Triggered by: new 8-K / hiring +14" chip
   when `triggered_by` is set (rail alerts + the card's updates panel).
-- `scout/config.py`: `SIGNALS_ENABLED` (flag, default off on main), `SIGNAL_JOBS_MIN_DELTA=10`,
-  `SIGNAL_MAX_DISPATCHES_PER_DAY=2`, `SIGNAL_MIN_HOURS_SINCE_CHECK=6`.
+- `scout/config.py`: `SIGNALS_ENABLED` (flag, default off on main), `SIGNAL_NEW_DEPT_MIN_ROLES=3`,
+  `SIGNAL_NEW_DEPT_LOOKBACK_DAYS=90`, `SIGNAL_MAX_DISPATCHES_PER_DAY=2`, `SIGNAL_MIN_HOURS_SINCE_CHECK=6`.
 - Mini: `~/Library/LaunchAgents/com.urosh.scout-signals.plist` (hourly, `~/scout-replay/env`),
   logs under `~/scout-signals/`. GitHub fallback: the 4 AM run also calls the poller in
   read-only mode (so a home outage only delays, never loses, a signal).
@@ -135,10 +145,9 @@ Effort: 6 to 8 hours. Spend: reads $0; `ask_scout` metered by the existing ledge
 1. WS3 first (10 to 14 h): it changes what the cards know; WS4 exposes what they know.
 2. Both behind flags on `main` (`SCOUT_SIGNALS`, and the `/mcp` mount only when `SCOUT_MCP=1`),
    built on `rc`, reviewed on the RC services, promoted in one merge as before.
-3. Decisions for Uroš before WS3 starts: (a) which cards get `watch` first (proposed: OpenAI,
-   Anthropic, Notion, Perplexity on job boards; Salesforce on EDGAR); (b) the hiring threshold
-   (10 net-new roles, or a new department); (c) whether a triggered run may email outside the
-   morning FYI (proposed: no; it lands in the next FYI, and only a material change shows as an
-   alert, as today).
-4. Decision before WS4: whether `ask_scout` over `/mcp` is owner-key only (proposed: yes at first;
-   public MCP would need the quota work the viewer has, re-done for bearer-less callers).
+3. Decided by Uroš 2026-09-29: hiring is context, not a trigger (a brand-new department is the one
+   hiring signal, queued for the next run); a triggered run never emails on its own; `ask_scout`
+   over `/mcp` is owner-key only.
+4. Still open (his call): which cards get `watch` first. Proposed: EDGAR on every public company on
+   the roster or its my_company side (Salesforce archived card; Microsoft/Slack via Salesforce;
+   Google, Amazon, Atlassian), job boards as context on OpenAI, Anthropic, Notion, Perplexity.
