@@ -60,19 +60,33 @@ gcloud run services update "$RC_SERVICE" --region "$REGION" --quiet \
   --update-env-vars "SCOUT_SELFSERVE_APP_URL=${RC_URL}"
 echo "  ✓ $RC_SERVICE at $RC_URL"
 
-# 3. The RC Cloud Build trigger: same build file, branch rc, _SERVICE=agent-scout-rc.
-if gcloud builds triggers describe "$TRIGGER" --region=global >/dev/null 2>&1; then
-  gcloud builds triggers update github "$TRIGGER" --region=global \
-    --branch-pattern='^rc$' --build-config=v2/cloudbuild.yaml --included-files='v2/**' \
-    --substitutions="_SERVICE=${RC_SERVICE}" >/dev/null
-  echo "  ✓ trigger $TRIGGER updated"
-else
-  gcloud builds triggers create github --name="$TRIGGER" --region=global \
-    --repo-owner="$REPO_OWNER" --repo-name="$REPO_NAME" --branch-pattern='^rc$' \
-    --build-config=v2/cloudbuild.yaml --included-files='v2/**' \
-    --substitutions="_SERVICE=${RC_SERVICE}" >/dev/null
-  echo "  ✓ trigger $TRIGGER created"
-fi
+# 3. The RC Cloud Build trigger: a mirror of the production trigger (same repo connection, same
+#    deploy service account, same include/ignore globs), on branch rc, with _SERVICE set.
+#    Imported from YAML because `triggers create github` rejects the substitution + service-account
+#    combination the production trigger uses (INVALID_ARGUMENT on first attempt, 2026-09-28).
+DEPLOY_SA=$(gcloud builds triggers describe "${PROD_TRIGGER:-agent-scout-deploy}" --region=global \
+              --format='value(serviceAccount)')
+TMP=$(mktemp)
+cat > "$TMP" <<YAML
+name: ${TRIGGER}
+description: RC viewer deploy (branch rc -> ${RC_SERVICE}); mirrors agent-scout-deploy
+filename: v2/cloudbuild.yaml
+github:
+  name: ${REPO_NAME}
+  owner: ${REPO_OWNER}
+  push:
+    branch: ^rc$
+includedFiles:
+- v2/**
+ignoredFiles:
+- v2/docs/**
+substitutions:
+  _SERVICE: ${RC_SERVICE}
+serviceAccount: ${DEPLOY_SA}
+YAML
+gcloud builds triggers import --region=global --source="$TMP" >/dev/null
+rm -f "$TMP"
+echo "  ✓ trigger $TRIGGER imported (branch ^rc$, _SERVICE=${RC_SERVICE}, sa=${DEPLOY_SA##*/})"
 
 echo
 echo "RC is up: $RC_URL  (gate: the password you just set; ribbon + Disallow + analytics off)"
