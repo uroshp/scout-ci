@@ -85,7 +85,9 @@ Return ONLY a single fenced ```json block:
 """
 
 REWRITE_SYSTEM = """Rewrite ONLY the sentences listed, so each says no more than the facts it cites state, keeping the
-same cites (drop a cite only if you also drop what it supported). Return ONLY a fenced ```json block:
+same cites (drop a cite only if you also drop what it supported). Each rewrite is a standalone statement: no
+discourse opener (So, Today, In short, As noted), no reference to other sentences, and nothing that the
+OTHER SENTENCES already say. Return ONLY a fenced ```json block:
 {"answer": [{"index": <sentence number>, "text": "<rewritten>", "cites": [...]}]}
 """
 
@@ -121,12 +123,11 @@ def infer_competitor(question: str) -> tuple[str | None, str | None]:
     return None, None
 
 
-def history_facts(history: list) -> list[dict]:
-    """The sources of the thread's previous answers (already verified) as known facts, so a
-    follow-up reuses them before searching. Records are re-read from the store by id; a missing
-    or malformed turn is skipped."""
+def history_records(history: list) -> list[dict]:
+    """The stored answer records behind a thread's turns, oldest first. Records are re-read from
+    the store by id; a missing or malformed turn is skipped."""
     from scout import selfserve
-    out, seen = [], set()
+    out = []
     for h in history or []:
         aid = str((h or {}).get("answer_id") or "")
         if not re.fullmatch(r"a_[0-9a-f]{12}", aid):
@@ -142,6 +143,26 @@ def history_facts(history: list) -> list[dict]:
                     break
         except Exception:
             rec = None
+        if isinstance(rec, dict):
+            out.append(rec)
+    return out
+
+
+def history_scope(records: list) -> tuple[str | None, str | None]:
+    """The scope of the thread so far: (competitor, slug) of the latest previous answer. A
+    follow-up that names no company stays on what the thread was about, not on whichever card the
+    reader happens to be reading now (one thread across cards)."""
+    for rec in reversed(records or []):
+        if rec.get("competitor") or rec.get("slug"):
+            return rec.get("competitor"), rec.get("slug")
+    return None, None
+
+
+def history_facts(history: list, records: list | None = None) -> list[dict]:
+    """The sources of the thread's previous answers (already verified) as known facts, so a
+    follow-up reuses them before searching."""
+    out, seen = [], set()
+    for rec in (records if records is not None else history_records(history)):
         for src in (rec or {}).get("sources") or []:
             fid = str(src.get("id") or "")
             if not fid or fid in seen or not (src.get("url") and src.get("excerpt")):
@@ -267,6 +288,37 @@ def _supported(value: float, sig: int, kind: str, evidence_nums: list) -> bool:
     return False
 
 
+RESTATEMENT_PARTIAL, RESTATEMENT_SORTED = 85, 90
+
+
+def drop_restatements(confirmed: list, cut_log: list, trajectory: dict | None = None) -> list:
+    """Model-free: a sentence that restates another (a rewrite tends to absorb its neighbour's
+    content) is dropped, keeping the longer of the two; the drop is logged. Measured (tests): the
+    real restating pair scores partial 89.5, a reordered restatement token_sort 100, while a
+    sentence that shares the subject but ADDS a fact stays at partial 68 (token_set would flag
+    it at 88, so it is not used)."""
+    from rapidfuzz import fuzz
+    norm = lambda t: re.sub(r"[^a-z0-9 ]+", " ", str(t).lower()).strip()
+    keep: list = []
+    for e in confirmed:
+        dup = None
+        for k in keep:
+            a, b = norm(e["text"]), norm(k["text"])
+            if fuzz.partial_ratio(a, b) >= RESTATEMENT_PARTIAL or fuzz.token_sort_ratio(a, b) >= RESTATEMENT_SORTED:
+                dup = k
+                break
+        if dup is None:
+            keep.append(e)
+            continue
+        loser, winner = (e, dup) if len(e["text"]) <= len(dup["text"]) else (dup, e)
+        if winner is e:
+            keep[keep.index(dup)] = e
+        cut_log.append({"label": loser["text"][:80], "reason": "restates another sentence of the answer"})
+        if trajectory is not None:
+            trajectory["restated"] = trajectory.get("restated", 0) + 1
+    return keep
+
+
 def floor_check(entry: dict, facts_by_id: dict) -> list[str]:
     """Model-free: cites resolve to surviving facts; every number / percent / money amount / year in
     the text appears in the cited excerpts. Returns violations ([] = passes)."""
@@ -353,7 +405,9 @@ def rewrite_call(entries: list, verdicts: dict, facts_by_id: dict) -> dict:
     todo = [{"index": i, "text": e["text"], "cites": e.get("cites", []), "judge_reason": verdicts[i]["reason"]}
             for i, e in enumerate(entries) if i in verdicts]
     cited = sorted({c for t in todo for c in t["cites"] if c in facts_by_id})
+    others = [e["text"] for i, e in enumerate(entries) if i not in verdicts]
     user = ("FACTS:\n" + json.dumps(_digest([facts_by_id[c] for c in cited]), ensure_ascii=False, indent=1)
+            + ("\n\nOTHER SENTENCES already in the answer (do not repeat their content):\n" + json.dumps(others, ensure_ascii=False, indent=1) if others else "")
             + "\n\nREWRITE THESE:\n" + json.dumps(todo, ensure_ascii=False, indent=1))
     return asyncio.run(_drive(user, _judge_options(REWRITE_SYSTEM + "\n\n" + WRITING_STYLE, ASK_REWRITE_BUDGET_USD, config.SUBAGENT_MODEL), "ask_rewrite"))
 
@@ -375,14 +429,20 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
             except Exception:
                 pass
     t0 = datetime.now()
-    # scope: the question names the company first; the caller's competitor / card is the hint
+    # scope: a company named in the question first; then the thread so far (a follow-up that names
+    # nobody stays on what the thread was about); the caller's competitor / card is only the hint
+    records = history_records(history)
     named, named_slug = infer_competitor(question)
     if named:
         competitor, slug = named, named_slug
+    elif records:
+        prev_comp, prev_slug = history_scope(records)
+        if prev_comp or prev_slug:
+            competitor, slug = prev_comp or competitor, prev_slug
     slug = slug or _find_slug(competitor, my_company)
     meta = (store.load_meta(slug) or {}) if slug else {"competitor": competitor, "my_company": my_company}
     stage("facts")
-    known = history_facts(history) + card_facts(slug)
+    known = history_facts(history, records) + card_facts(slug)
     ctx = " ".join(x for x in [context, f"Reader: {persona.replace('_', ' ')} buyer." if persona else ""] if x) or None
     stage("search", f"{len(known)} known facts" if known else "")
     cost = 0.0
@@ -465,6 +525,7 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
         for i in to_rewrite:
             if i not in returned:
                 cut_log.append({"label": passed[i]["text"][:80], "reason": "verifier: " + to_rewrite[i]["reason"] + " (no rewrite returned)"})
+    confirmed = drop_restatements(confirmed, cut_log, trajectory)
     # sources: one number per PAGE (two facts quoted from the same page share a number); every
     # quote is kept under it
     cited_ids = []

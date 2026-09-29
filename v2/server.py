@@ -248,7 +248,7 @@ def _chrome_with_actions(cards: list, right_html: str) -> str:
               f'{_control_bar(True, None, cards, right_html=right_html)}</div>')
 
 
-def _doc(body_inner: str, *, title: str, page_type: str = None, ask: tuple | None = None) -> str:
+def _doc(body_inner: str, *, title: str, page_type: str = None, ask: tuple | None | bool = None) -> str:
     """Wrap inner HTML in a full document: viewport + GA + fonts + the card CSS + control CSS.
     page_type flows to the GA content_group (home | card | print | create) so analytics can tell a
     default homepage landing from a deliberately-selected card (2026-07-29)."""
@@ -271,9 +271,10 @@ def _doc(body_inner: str, *, title: str, page_type: str = None, ask: tuple | Non
         + '</body></html>')
 
 
-def _ask_panel(ask: tuple | None) -> str:
-    """The Ask Scout thread on every page (one thread across cards; the card is only a hint)."""
-    if not config.ASK_ENABLED:
+def _ask_panel(ask: tuple | None | bool) -> str:
+    """The Ask Scout thread on every page (one thread across cards; the card is only a hint).
+    `ask=False` leaves it off (the RC gate page: nothing to ask before you are in)."""
+    if not config.ASK_ENABLED or ask is False:
         return ""
     slug, meta, persona = ask if ask else (None, None, None)
     try:
@@ -322,7 +323,7 @@ def _rc_login_page(error: str = "", nxt: str = "/") -> str:
             'placeholder="RC password" aria-label="RC password">'
             + (f'<div class="err">{_html.escape(error)}</div>' if error else "")
             + '<button type="submit">Open RC</button></form></div>')
-    return _doc(body, title="Agent Scout RC", page_type=None)
+    return _doc(body, title="Agent Scout RC", page_type=None, ask=False)
 
 
 @app.before_request

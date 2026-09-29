@@ -45,6 +45,8 @@ class Gate(unittest.TestCase):
         self.assertEqual(r.status_code, 401)
         self.assertIn(b"RC password", r.data)
         self.assertIn(b"rc-ribbon", r.data)                     # the login page is ribboned too
+        with mock.patch.object(config, "ASK_ENABLED", True):
+            self.assertNotIn(b'id="ask-fab"', self.c.get("/").data)   # no Ask widget before you are in
         for path in ("/healthcheck", "/robots.txt", "/favicon.ico"):
             self.assertNotEqual(self.c.get(path).status_code, 401, path)
 
