@@ -41,11 +41,14 @@ from scout.asktoken import record_id_for  # noqa: F401  (shared with the viewer)
 from scout.grounding import _normalize, ground_claims
 from scout.prompts import SOURCE_HIERARCHY, WRITING_STYLE
 from scout.sources import classify
+from scout.schema import ZONES
 
 ASK_RESEARCH_BUDGET_USD = config.ASK_RESEARCH_BUDGET_USD
 ASK_VERIFY_BUDGET_USD = config.ASK_VERIFY_BUDGET_USD
 ASK_REWRITE_BUDGET_USD = config.ASK_REWRITE_BUDGET_USD
 ASK_MAX_USD = config.ASK_MAX_USD
+ASK_QUICK_DRAFT_BUDGET_USD = config.ASK_QUICK_DRAFT_BUDGET_USD
+MAX_SENTENCES = 4        # a first answer is short; a follow-up goes deeper (2026-09-28, latency)
 # Turns are the SDK's structural stop (one per tool round plus the answer); the tool allowance in
 # the prompt (4 searches + 3 reads) and the dollar cap are the real bounds. 8 was too tight: a
 # follow-up on RC (2026-09-28) hit it after 18 messages and returned nothing for its spend.
@@ -74,7 +77,19 @@ Write for the reader named in CONTEXT when one is given.
 TOOL BUDGET: at most 4 web searches and 3 page reads in total. Read the KNOWN FACTS before any search;
 if the budget runs out, answer from what you have verified and put the rest in "unanswered".
 SPEED: the reader is waiting. Issue your searches TOGETHER in one turn (several tool calls in one
-message), then the page reads together in the next turn; never one tool per turn.
+message), then ALL your page reads together in the next turn (several fetch calls in one message);
+never one tool per turn. LENGTH: at most FOUR answer entries; the reader asks a follow-up for more.
+"""
+
+QUICK_CONTRACT = """You are Scout, a competitive-intelligence analyst answering ONE question in a chat, quickly, from
+what Scout has already verified. You have NO tools and may add NO facts: answer ONLY from the KNOWN FACTS
+and SCOUT'S TAKES below (takes are Scout's own battlecard judgments; a sentence resting on one must say
+"Scout's take"). Two or three sentences, each citing at least one id; lead with what a sales rep should
+say first. Every number, date and name in a sentence must appear in the text of a fact it cites; code
+checks this and deletes what fails. If the question asks for something the facts do not cover, put that
+TOPIC (no numbers) in "unanswered" and answer only what they do cover; if they cover nothing, return an
+empty answer. Return ONLY a single fenced ```json block:
+{"answer": [{"text": "<one sentence>", "cites": ["<id>", ...]}, ...], "unanswered": ["<topic>", ...]}
 """
 
 VERIFY_SYSTEM = """You are the VERIFIER of an answer written from verified facts. You have no tools, on purpose:
@@ -207,6 +222,56 @@ def card_facts(slug: str | None, limit: int = MAX_CARD_FACTS) -> list[dict]:
         out.append(d)
     out.sort(key=lambda f: str(f.get("as_of") or ""), reverse=True)
     return out[:limit]
+
+
+def named_companies(question: str) -> list[str]:
+    """Every tracked company the question names (competitor or my_company of any card)."""
+    qt = classify._company_tokens(question)
+    if not qt:
+        return []
+    out = []
+    for slug in display.list_battlecards():
+        meta = store.load_meta(slug) or {}
+        for who in (meta.get("competitor"), meta.get("my_company")):
+            if who and who not in out and (qt & classify._company_tokens(who)):
+                out.append(who)
+    return out
+
+
+def known_facts_for(companies: list, takes: bool = True) -> list[dict]:
+    """Everything Scout already holds about these companies (2026-09-28, the quick path): the
+    grounded facts of EVERY card that tracks any of them, no per-card cap, plus the battlecards'
+    judgments (plays, objections, contested zones) as SCOUT'S TAKES: labelled, linked to the card,
+    never passed off as a source. Newest first, deduplicated by id."""
+    from scout import page as _page
+    want = set()
+    for c in companies or []:
+        want |= classify._company_tokens(c)
+    if not want:
+        return []
+    out, seen = [], set()
+    for slug in display.list_battlecards():
+        meta = store.load_meta(slug) or {}
+        names = [w for w in (meta.get("competitor"), meta.get("my_company")) if w]
+        if not any(want & classify._company_tokens(w) for w in names):
+            continue
+        label = f"{meta.get('my_company')} vs {meta.get('competitor')}" if meta.get("my_company") and meta.get("competitor") else slug
+        for f in card_facts(slug, limit=10_000):
+            if f["id"] not in seen:
+                seen.add(f["id"]); out.append(dict(f, card=label))
+        if not takes:
+            continue
+        for c in store.load_claims(slug):
+            if c.get("status") == "retired" or c.get("claim_type") == "fact" or not c.get("claim") or c["id"] in seen:
+                continue
+            if c.get("zone") not in ZONES and c.get("section") not in ("objection_handling", "battlecard"):
+                continue
+            seen.add(c["id"])
+            out.append({"id": c["id"], "claim": c["claim"], "source_url": f"/c/{slug}#{_page._anchor(c.get('subject_key') or '')}",
+                        "source_tier": None, "source_class": "scout_take", "evidence_excerpt": c["claim"], "as_of": c.get("as_of"),
+                        "subject_key": c.get("subject_key"), "take": True, "card": label})
+    out.sort(key=lambda f: str(f.get("as_of") or ""), reverse=True)
+    return out
 
 
 # --- 3. gates -----------------------------------------------------------------------------------------
@@ -439,6 +504,22 @@ def research_call(question: str, known: list, context: str | None, history: list
     return asyncio.run(_drive(user, options, "ask_research"))
 
 
+def quick_call(question: str, known: list, context: str | None, history: list | None = None) -> dict:
+    """The tools-off draft of the quick path (role ask_quick, Sonnet): prose from KNOWN FACTS and
+    SCOUT'S TAKES only."""
+    from scout.generate import _drive
+    convo = ""
+    if history:
+        convo = "\nCONVERSATION SO FAR:\n" + "\n".join(f"- Q: {h.get('question')}" for h in history if h.get("question")) + "\n"
+    facts = [f for f in known if not f.get("take")]
+    takes = [f for f in known if f.get("take")]
+    user = (f"QUESTION: {question}\n" + (f"CONTEXT: {context}\n" if context else "") + convo
+            + "\nKNOWN FACTS (verified; cite by id):\n" + json.dumps(_digest(facts), ensure_ascii=False, indent=1)
+            + ("\n\nSCOUT'S TAKES (battlecard judgments; cite by id and say \"Scout's take\"):\n"
+               + json.dumps([{"id": t["id"], "card": t.get("card"), "text": t["claim"], "as_of": t.get("as_of")} for t in takes], ensure_ascii=False, indent=1) if takes else ""))
+    return asyncio.run(_drive(user, _judge_options(QUICK_CONTRACT + "\n\n" + WRITING_STYLE, ASK_QUICK_DRAFT_BUDGET_USD, config.SUBAGENT_MODEL), "ask_quick"))
+
+
 def _judge_options(system: str, budget: float, model: str | None = None):
     from claude_agent_sdk import ClaudeAgentOptions
     return ClaudeAgentOptions(model=model or config.ORCHESTRATOR_MODEL, system_prompt=system, mcp_servers={},
@@ -471,11 +552,11 @@ def rewrite_call(entries: list, verdicts: dict, facts_by_id: dict) -> dict:
 # --- the loop ------------------------------------------------------------------------------------------
 def _scrub_digits(s: str) -> str:
     """Unanswered topics may not smuggle a quantity (C18): money, percentages, scaled or grouped
-    numbers become "a figure". A digit glued to a name (GPT-6, Opus 4.8, Q2) is a name, not a claim,
-    and stays; so does a bare year."""
+    numbers and bare counts of three digits or more ("500 seats") become "a figure". A digit glued
+    to a name (GPT-6, Opus 4.8, Q2) is a name, not a claim, and stays; so does a bare year."""
     pat = (r"(?<![A-Za-z0-9.-])(?:[\$€£]\s?\d[\d,.]*(?:\s*(?:percent|billion|million|thousand|bn|mn|[mbk])\b)?"
            r"|\d[\d,.]*\s*(?:%|(?:percent|billion|million|thousand|bn|mn)\b)"
-           r"|\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d{5,})(?![A-Za-z0-9-])")
+           r"|\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d{5,}|(?!(?:19|20)\d\d\b)\d{3,4})(?![A-Za-z0-9.-])")
     return re.sub(pat, "a figure", str(s or ""), flags=re.I).strip()
 
 
@@ -613,8 +694,30 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
             if i not in returned:
                 cut_log.append({"label": passed[i]["text"][:80], "reason": "verifier: " + to_rewrite[i]["reason"] + " (no rewrite returned)"})
     confirmed = drop_restatements(confirmed, cut_log, trajectory)
-    # sources: one number per PAGE (two facts quoted from the same page share a number); every
-    # quote is kept under it
+    if len(confirmed) > MAX_SENTENCES:            # the contract asks for four; code keeps the first four
+        trajectory["trimmed"] = len(confirmed) - MAX_SENTENCES
+        confirmed = confirmed[:MAX_SENTENCES]
+    sources, num = _sources(confirmed, facts_by_id, known)
+    answer = {
+        "id": record_id or "a_" + hashlib.sha256(f"{question}|{slug}|{t0.isoformat()}".encode()).hexdigest()[:12],
+        "kind": "deep",
+        "question": question, "slug": slug, "competitor": meta.get("competitor") or competitor, "context": ctx,
+        "card": (f"{meta.get('my_company')} vs {meta.get('competitor')}" if meta.get("my_company") and meta.get("competitor") else None),
+        "asked_at": t0.isoformat(timespec="seconds"), "seconds": round((datetime.now() - t0).total_seconds(), 1),
+        "paragraphs": [{"text": e["text"], "cites": sorted({num[c] for c in e["cites"] if c in num})} for e in confirmed],
+        "sources": sources, "cut_log": cut_log, "unanswered": unanswered,
+        "verified": bool(confirmed), "cost_usd": round(cost, 4), "trajectory": trajectory,
+        "models": {"research": config.SUBAGENT_MODEL, "verify": config.ORCHESTRATOR_MODEL},
+    }
+    if persist:
+        answer["path"] = _persist(answer)
+    stage("done")
+    return answer
+
+
+def _sources(confirmed: list, facts_by_id: dict, known: list) -> tuple[list, dict]:
+    """Sources: one number per PAGE (two facts quoted from the same page share a number); every
+    quote is kept under it. Returns (sources, fact id -> number)."""
     cited_ids = []
     for e in confirmed:
         for c in e["cites"]:
@@ -634,19 +737,94 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
             src = {"n": len(sources) + 1, "id": c, "ids": [c], "url": url, "class": f.get("source_class"),
                    "tier": f.get("source_tier"), "as_of": f.get("as_of"), "excerpt": f.get("evidence_excerpt"),
                    "excerpts": [f.get("evidence_excerpt")] if f.get("evidence_excerpt") else [],
-                   "from_card": c in card_ids, "from_thread": bool(f.get("from_thread"))}
+                   "from_card": c in card_ids, "from_thread": bool(f.get("from_thread")),
+                   "take": bool(f.get("take")), "card": f.get("card")}
             sources.append(src)
             by_url[url] = src
         num[c] = src["n"]
+    return sources, num
+
+
+def quick_ask(question: str, *, competitor: str | None = None, my_company: str | None = None, context: str | None = None,
+              persona: str | None = None, slug: str | None = None, history: list | None = None, draft=quick_call,
+              verify=verify_call, persist: bool = False, on_stage=None, record_id: str | None = None) -> dict:
+    """The QUICK path (2026-09-28): no tools, no new facts. Everything Scout already holds about the
+    companies the question names (every card, plus the thread, plus labelled takes) -> one draft ->
+    the code floor -> the SAME verifier as the deep path -> rejects CUT, never rewritten. The
+    promise is the same ("every sentence you see was verified"); only the search is missing, and
+    "Research deeper" adds it as the next turn."""
+    def stage(k, extra=""):
+        if on_stage:
+            try:
+                on_stage(k, extra)
+            except Exception:
+                pass
+    t0 = datetime.now()
+    # scope, as on the deep path: a company named in the question > the thread so far > the card
+    records = history_records(history)
+    named, named_slug = infer_competitor(question)
+    if named:
+        competitor, slug = named, named_slug
+    elif records:
+        prev_comp, prev_slug = history_scope(records)
+        if prev_comp or prev_slug:
+            competitor, slug = prev_comp or competitor, prev_slug
+    slug = slug or _find_slug(competitor, my_company)
+    meta = (store.load_meta(slug) or {}) if slug else {"competitor": competitor, "my_company": my_company}
+    # the fact base is wider than the scope card: every company the question names, on every card
+    companies = named_companies(question) or [w for w in (meta.get("competitor"), meta.get("my_company")) if w]
+    stage("facts")
+    known = history_facts(history, records) + known_facts_for(companies)
+    ctx = " ".join(x for x in [context, f"Reader: {persona.replace('_', ' ')} buyer." if persona else ""] if x) or None
+    n_facts = sum(1 for f in known if not f.get("take")); n_takes = len(known) - n_facts
+    stage("draft", f"{n_facts} verified facts" + (f", {n_takes} takes" if n_takes else ""))
+    cost = 0.0
+    trajectory = {"rounds": 1, "cut": 0, "floor_dropped": 0, "judge_rejected": 0, "rewritten": 0, "thread_turns": len(history or []),
+                  "known_facts": n_facts, "takes": n_takes, "companies": companies}
+    cut_log: list = []
+    r = draft(question, known, ctx, history)
+    cost += float(r.get("cost_usd") or 0.0)
+    data = _json_or_none(r.get("text") or "") or {}
+    entries = [e for e in (data.get("answer") if isinstance(data.get("answer"), list) else []) if isinstance(e, dict)]
+    repair_fact_ids([], entries, {f["id"] for f in known})          # normalizes cite spellings; no new facts exist
+    unanswered = [_scrub_digits(u) for u in (data.get("unanswered") or []) if isinstance(u, str) and u.strip()]
+    facts_by_id = {f["id"]: f for f in known}
+    pending = [dict(e, text=str(e.get("text") or ""), cites=[str(c) for c in (e.get("cites") or [])]) for e in entries][:MAX_SENTENCES]
+    stage("floor")
+    passed = []
+    for e in pending:
+        errs = floor_check(e, facts_by_id)
+        if errs:
+            trajectory["floor_dropped"] += 1
+            cut_log.append({"label": e["text"][:80], "reason": "floor: " + "; ".join(errs)})
+        else:
+            passed.append(e)
+    confirmed: list = []
+    if passed:
+        stage("verify", f"{len(passed)} sentence{'s' if len(passed) != 1 else ''}")
+        v = verify(passed, facts_by_id)
+        cost += float(v.get("cost_usd") or 0.0)
+        from scout.propagate import _parse_verdicts
+        verdicts = _parse_verdicts(v.get("text") or "")
+        for i, e in enumerate(passed):
+            vd = verdicts.get(i)
+            if vd and vd.get("verdict") == "confirm":
+                confirmed.append(e)
+            else:
+                trajectory["judge_rejected"] += 1
+                cut_log.append({"label": e["text"][:80], "reason": "verifier: " + ((vd or {}).get("reason") or "no parseable verdict (fail-closed)")})
+    confirmed = drop_restatements(confirmed, cut_log, trajectory)
+    sources, num = _sources(confirmed, facts_by_id, known)
     answer = {
-        "id": record_id or "a_" + hashlib.sha256(f"{question}|{slug}|{t0.isoformat()}".encode()).hexdigest()[:12],
+        "id": record_id or "a_" + hashlib.sha256(f"{question}|quick|{t0.isoformat()}".encode()).hexdigest()[:12],
+        "kind": "quick",
         "question": question, "slug": slug, "competitor": meta.get("competitor") or competitor, "context": ctx,
         "card": (f"{meta.get('my_company')} vs {meta.get('competitor')}" if meta.get("my_company") and meta.get("competitor") else None),
         "asked_at": t0.isoformat(timespec="seconds"), "seconds": round((datetime.now() - t0).total_seconds(), 1),
         "paragraphs": [{"text": e["text"], "cites": sorted({num[c] for c in e["cites"] if c in num})} for e in confirmed],
         "sources": sources, "cut_log": cut_log, "unanswered": unanswered,
         "verified": bool(confirmed), "cost_usd": round(cost, 4), "trajectory": trajectory,
-        "models": {"research": config.SUBAGENT_MODEL, "verify": config.ORCHESTRATOR_MODEL},
+        "models": {"draft": config.SUBAGENT_MODEL, "verify": config.ORCHESTRATOR_MODEL},
     }
     if persist:
         answer["path"] = _persist(answer)

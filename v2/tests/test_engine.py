@@ -50,6 +50,12 @@ class Ledger(unittest.TestCase):
             ok, s = L.start(); self.assertTrue(ok); self.assertEqual(s["questions"], 1)
 
 
+def _quick(question, kw):
+    return {"id": kw.get("record_id") or "a_0123456789ab", "kind": "quick", "cost_usd": 0.2, "seconds": 20.0, "verified": True, "question": question,
+            "paragraphs": [{"text": "X grew.", "cites": [1]}], "sources": [{"n": 1, "url": "https://www.cnbc.com/x", "class": "news", "tier": "reputable_secondary"}],
+            "cut_log": [], "unanswered": [], "trajectory": {}, "competitor": "X", "card": None}
+
+
 def _events(resp):
     out = []
     for chunk in resp.text.split("\n\n"):
@@ -91,7 +97,7 @@ class Engine(unittest.TestCase):
                     "cut_log": [], "unanswered": [], "trajectory": {}, "competitor": "X", "card": None}
         tok = asktoken.page_token("visitor1", "shh")
         with mock.patch.object(eng.ask, "ask", side_effect=fake_ask) as fa:
-            r = self.c.post("/ask", json={"question": "Did X grow?", "persona": "economic_buyer", "history": [{"question": "q", "answer_id": "a_ffffffffffff"}, {"x": 1}]},
+            r = self.c.post("/ask", json={"question": "Did X grow?", "mode": "deep", "persona": "economic_buyer", "history": [{"question": "q", "answer_id": "a_ffffffffffff"}, {"x": 1}]},
                             headers={"Authorization": "Bearer " + tok})
         self.assertEqual(r.status_code, 200); self.assertTrue(r.headers["content-type"].startswith("text/event-stream"))
         ev = _events(r)
@@ -105,7 +111,7 @@ class Engine(unittest.TestCase):
     def test_failure_is_honest_and_settles_the_real_cost(self):
         err = RuntimeError("Claude Code returned an error result: Reached maximum budget ($1.5)"); err.scout_cost_usd = 1.47
         with mock.patch.object(eng.ask, "ask", side_effect=err):
-            r = self.c.post("/ask", json={"question": "broad"}, headers={"Authorization": "Bearer owner-key"})
+            r = self.c.post("/ask", json={"question": "broad", "mode": "deep"}, headers={"Authorization": "Bearer owner-key"})
         ev = _events(r); e = [x for x in ev if "error" in x][0]
         self.assertIn("ran out of research budget", e["error"]); self.assertEqual(e["cost_usd"], 1.47)
         self.assertNotIn("Nothing was charged", e["error"])
@@ -121,7 +127,7 @@ class Engine(unittest.TestCase):
                     "paragraphs": [{"text": "X grew.", "cites": [1]}], "sources": [{"n": 1, "url": "https://www.cnbc.com/x", "class": "news", "tier": "reputable_secondary"}],
                     "cut_log": [], "unanswered": [], "trajectory": {}, "competitor": "X", "card": None}
         with mock.patch.object(eng.ask, "ask", side_effect=fake_ask):
-            r = self.c.post("/ask", json={"question": "q", "rid": rid}, headers={"Authorization": "Bearer owner-key"})
+            r = self.c.post("/ask", json={"question": "q", "mode": "deep", "rid": rid}, headers={"Authorization": "Bearer owner-key"})
         ev = _events(r)
         self.assertEqual(ev[0].get("id"), want)                                   # the first frame carries the id
         self.assertEqual([e["activity"] for e in ev if "activity" in e], ["Searching: X pricing"])   # empty lines are not sent
@@ -129,7 +135,7 @@ class Engine(unittest.TestCase):
         # a bad token gets no id (and still works)
         with mock.patch.object(eng.ask, "ask", side_effect=fake_ask) as fa:
             fa.side_effect = lambda question, **kw: dict(fake_ask(question, **dict(kw, record_id=want)), id="a_0123456789ab")
-            r = self.c.post("/ask", json={"question": "q", "rid": "x y"}, headers={"Authorization": "Bearer owner-key"})
+            r = self.c.post("/ask", json={"question": "q", "mode": "deep", "rid": "x y"}, headers={"Authorization": "Bearer owner-key"})
         self.assertIsNone(_events(r)[0].get("id"))
 
     def test_same_token_replays_the_finished_record_for_free(self):
@@ -137,7 +143,7 @@ class Engine(unittest.TestCase):
         self.st.files["ask/2026-09/" + aid + ".json"] = json.dumps({"id": aid, "question": "q", "seconds": 5, "verified": True, "cost_usd": 1.0,
                                                                    "paragraphs": [{"text": "X grew.", "cites": [1]}], "sources": [{"n": 1, "url": "https://www.cnbc.com/x", "class": "news", "tier": "reputable_secondary"}], "cut_log": [], "unanswered": [], "trajectory": {}})
         with mock.patch.object(selfserve, "list_data", return_value=["2026-09"]), mock.patch.object(eng.ask, "ask") as fa:
-            r = self.c.post("/ask", json={"question": "q", "rid": rid}, headers={"Authorization": "Bearer owner-key"})
+            r = self.c.post("/ask", json={"question": "q", "mode": "deep", "rid": rid}, headers={"Authorization": "Bearer owner-key"})
         ev = _events(r); self.assertTrue(ev[-1]["done"]); self.assertTrue(ev[-1]["replay"]); self.assertIn("X grew", ev[-1]["html"])
         fa.assert_not_called(); self.assertNotIn("ask/state.json", self.st.files)   # no run, no ledger entry
 
@@ -146,20 +152,20 @@ class Engine(unittest.TestCase):
         err = RuntimeError("Command failed with exit code 1"); err.scout_cost_usd = 0.4
         written = {}
         with mock.patch.object(eng.ask, "ask", side_effect=err), mock.patch.object(selfserve, "write_data", side_effect=lambda path, text, msg: written.__setitem__(path, text)):
-            r = self.c.post("/ask", json={"question": "q", "rid": rid}, headers={"Authorization": "Bearer owner-key"})
+            r = self.c.post("/ask", json={"question": "q", "mode": "deep", "rid": rid}, headers={"Authorization": "Bearer owner-key"})
         e = [x for x in _events(r) if "error" in x][0]; self.assertEqual(e["id"], aid)
         path = [k for k in written if k.endswith(aid + ".json")][0]
         rec = json.loads(written[path]); self.assertTrue(rec["failed"]); self.assertIn("hit a problem", rec["error"]); self.assertEqual(rec["cost_usd"], 0.4)
         # and the replay of a failed record is the honest error, not a second run
         self.st.files["ask/2026-09/" + aid + ".json"] = written[path]
         with mock.patch.object(selfserve, "list_data", return_value=["2026-09"]), mock.patch.object(eng.ask, "ask") as fa:
-            r = self.c.post("/ask", json={"question": "q", "rid": rid}, headers={"Authorization": "Bearer owner-key"})
+            r = self.c.post("/ask", json={"question": "q", "mode": "deep", "rid": rid}, headers={"Authorization": "Bearer owner-key"})
         self.assertIn("hit a problem", _events(r)[-1]["error"]); fa.assert_not_called()
 
     def test_turn_cap_failure_says_so(self):
         err = RuntimeError("Claude Code returned an error result: Reached maximum number of turns (16)"); err.scout_cost_usd = 0.9
         with mock.patch.object(eng.ask, "ask", side_effect=err):
-            r = self.c.post("/ask", json={"question": "q"}, headers={"Authorization": "Bearer owner-key"})
+            r = self.c.post("/ask", json={"question": "q", "mode": "deep"}, headers={"Authorization": "Bearer owner-key"})
         e = [x for x in _events(r) if "error" in x][0]
         self.assertIn("ran out of research steps", e["error"]); self.assertNotIn("Exception", e["error"]); self.assertEqual(e["cost_usd"], 0.9)
 
@@ -172,15 +178,37 @@ class Engine(unittest.TestCase):
             if attached is not None:
                 err.scout_cost_usd = attached
             with mock.patch.object(eng.ask, "ask", side_effect=err):
-                r = self.c.post("/ask", json={"question": "q"}, headers={"Authorization": "Bearer owner-key"})
+                r = self.c.post("/ask", json={"question": "q", "mode": "deep"}, headers={"Authorization": "Bearer owner-key"})
             e = [x for x in _events(r) if "error" in x][0]
             self.assertIn("hit a problem", e["error"]); self.assertEqual(e["cost_usd"], expect)
             self.assertEqual(json.loads(self.st.files["ask/state.json"])["spend_usd"], expect)
 
     def test_ceiling_refuses_with_429(self):
         self.st.files["ask/state.json"] = json.dumps({"day": ledger.Ledger._today(), "spend_usd": 9.0, "in_flight_usd": 0, "questions": 5, "refused": 0})
-        r = self.c.post("/ask", json={"question": "x"}, headers={"Authorization": "Bearer owner-key"})
+        r = self.c.post("/ask", json={"question": "x", "mode": "deep"}, headers={"Authorization": "Bearer owner-key"})
         self.assertEqual(r.status_code, 429); self.assertIn("budget is spent", r.json()["message"])
+        # the quick path reserves its own, smaller cap ($1), so it still fits where the deep one ($3) did not
+        with mock.patch.object(eng.ask, "quick_ask", side_effect=lambda question, **kw: _quick(question, kw)):
+            r = self.c.post("/ask", json={"question": "x"}, headers={"Authorization": "Bearer owner-key"})
+        self.assertEqual(r.status_code, 200)
+        s = json.loads(self.st.files["ask/state.json"]); self.assertEqual((s["spend_usd"], s["in_flight_usd"]), (9.2, 0.0))
+
+    def test_quick_is_the_default_and_streams_its_own_stages(self):
+        seen = {}
+        def fake_quick(question, **kw):
+            seen["kw"] = kw
+            kw["on_stage"]("draft", "61 verified facts, 9 takes"); kw["on_stage"]("verify", "3 sentences")
+            return _quick(question, kw)
+        with mock.patch.object(eng.ask, "quick_ask", side_effect=fake_quick), mock.patch.object(eng.ask, "ask") as deep:
+            r = self.c.post("/ask", json={"question": "Is X cheaper?", "rid": "browser-token-0123456789", "history": [{"question": "q", "answer_id": "a_ffffffffffff"}]},
+                            headers={"Authorization": "Bearer owner-key"})
+        deep.assert_not_called()
+        ev = _events(r)
+        self.assertEqual(ev[0]["kind"], "quick")
+        self.assertEqual([e.get("stage") for e in ev if "stage" in e], ["facts", "draft", "verify"])
+        done = [e for e in ev if e.get("done")][0]; self.assertEqual(done["kind"], "quick"); self.assertIn("X grew", done["html"])
+        self.assertEqual(seen["kw"]["record_id"], asktoken.record_id_for("browser-token-0123456789"))
+        self.assertEqual(seen["kw"]["history"], [{"question": "q", "answer_id": "a_ffffffffffff"}])
 
     def test_dry_replays_a_stored_answer(self):
         self.st.files["ask/2026-09/a_0123456789ab.json"] = json.dumps({"id": "a_0123456789ab", "question": "q", "seconds": 5, "verified": True, "paragraphs": [], "sources": [], "cut_log": [], "unanswered": [], "trajectory": {}})

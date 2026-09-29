@@ -1,8 +1,9 @@
 """Ask Scout engine (WS2 step 4b, 2026-09-28).
 
-    POST /ask            bearer-authenticated; body {question, slug?, competitor?, my_company?, persona?,
-                         history?}; streams Server-Sent Events: {"stage": k, "extra": ...} as the loop
-                         moves, then {"done": true, "id", "html", "cost_usd", "seconds"} (or {"error"}).
+    POST /ask            bearer-authenticated; body {question, mode? ("quick" default | "deep"), rid?,
+                         slug?, competitor?, my_company?, persona?, history?}; streams Server-Sent
+                         Events: {"stage": k, "extra": ...} and {"activity": ...} as the loop moves,
+                         then {"done": true, "id", "kind", "html", "cost_usd", "seconds"} (or {"error"}).
                          The request stays open for the whole answer (45-120 s), so Cloud Run never
                          throttles the CPU under it (plan C11); a comment ping every 15 s keeps proxies
                          from closing an idle stream.
@@ -98,7 +99,11 @@ async def ask_route(request: Request, authorization: str | None = Header(default
         if prior:
             return StreamingResponse(_replay(prior), media_type="text/event-stream",
                                      headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
-    ok, state = LEDGER.start()
+    # quick (default): no tools, from what Scout already verified, ~30-40 s; deep: today's research
+    # loop, minutes. Same verifier on both; the ledger reserves each path's own cap.
+    mode = "deep" if (body or {}).get("mode") == "deep" else "quick"
+    reserve = config.ASK_MAX_USD if mode == "deep" else config.ASK_QUICK_MAX_USD
+    ok, state = LEDGER.start(reserve)
     if not ok:
         return JSONResponse({"message": "Today's question budget is spent. Come back tomorrow, or browse the answers so far.",
                              "room_usd": LEDGER.room(state)}, status_code=429)
@@ -116,26 +121,27 @@ async def ask_route(request: Request, authorization: str | None = Header(default
     def run():
         calllog.begin_run("ask")
         try:
-            a = ask.ask(question, slug=(body or {}).get("slug") or None, competitor=(body or {}).get("competitor") or None,
-                        my_company=(body or {}).get("my_company") or None, persona=persona, history=history, persist=True,
-                        on_stage=on_stage, record_id=record_id)
+            fn = ask.ask if mode == "deep" else ask.quick_ask
+            a = fn(question, slug=(body or {}).get("slug") or None, competitor=(body or {}).get("competitor") or None,
+                   my_company=(body or {}).get("my_company") or None, persona=persona, history=history, persist=True,
+                   on_stage=on_stage, record_id=record_id)
             a["asked_by"] = kind
-            q.put({"done": True, "id": a["id"], "html": askui.answer_html(a, show_question=False),
+            q.put({"done": True, "id": a["id"], "kind": a.get("kind", mode), "html": askui.answer_html(a, show_question=False, chat=True),
                    "cost_usd": a["cost_usd"], "seconds": a["seconds"], "verified": a["verified"]})
-            LEDGER.settle(a["cost_usd"])
+            LEDGER.settle(a["cost_usd"], reserve)
         except Exception as e:
             # honest failure: a crashed run is NOT free. generate._drive attaches the cost so far
             # (a known 0.0 when the process died before its first message); an UNKNOWN cost (None)
             # settles the research cap, so the ledger fails closed.
             spent = getattr(e, "scout_cost_usd", None)
-            spent = config.ASK_RESEARCH_BUDGET_USD if spent is None else float(spent)
+            spent = (config.ASK_RESEARCH_BUDGET_USD if mode == "deep" else config.ASK_QUICK_DRAFT_BUDGET_USD) if spent is None else float(spent)
             low = str(e).lower()
             msg = ("Scout ran out of research budget on that question before it could verify an answer" if "budget" in low
                    else "Scout ran out of research steps on that question before it could verify an answer" if "maximum number of turns" in low
                    else "Scout hit a problem answering that")
             text = f"{msg}. Try a narrower question, or one about a single company."
             q.put({"error": text, "cost_usd": round(spent, 2), "id": record_id})
-            LEDGER.settle(spent)
+            LEDGER.settle(spent, reserve)
             if record_id:
                 ask.persist_failure(record_id, question, text, spent, asked_at)
         finally:
@@ -148,7 +154,7 @@ async def ask_route(request: Request, authorization: str | None = Header(default
     threading.Thread(target=run, daemon=True).start()
 
     def events():
-        yield _sse({"stage": "facts", "extra": "", "id": record_id})
+        yield _sse({"stage": "facts", "extra": "", "id": record_id, "kind": mode})
         while True:
             try:
                 item = q.get(timeout=PING_S)
@@ -185,7 +191,7 @@ def _replay(rec: dict):
     if rec.get("failed"):
         yield _sse({"error": rec.get("error") or "Scout could not answer that.", "cost_usd": rec.get("cost_usd", 0), "id": rec["id"], "replay": True})
     else:
-        yield _sse({"done": True, "id": rec["id"], "html": askui.answer_html(rec, show_question=False),
+        yield _sse({"done": True, "id": rec["id"], "kind": rec.get("kind", "deep"), "html": askui.answer_html(rec, show_question=False, chat=True),
                     "cost_usd": rec.get("cost_usd", 0), "seconds": rec.get("seconds", 0), "verified": rec.get("verified", False), "replay": True})
 
 
@@ -199,6 +205,6 @@ def ask_dry():
     def events():
         for k in ("facts", "search", "ground", "floor", "verify"):
             yield _sse({"stage": k, "extra": ""})
-        yield _sse({"done": True, "id": rec["id"], "html": askui.answer_html(rec, show_question=False),
+        yield _sse({"done": True, "id": rec["id"], "html": askui.answer_html(rec, show_question=False, chat=True),
                     "cost_usd": 0.0, "seconds": rec.get("seconds"), "verified": rec.get("verified"), "dry": True})
     return StreamingResponse(events(), media_type="text/event-stream")

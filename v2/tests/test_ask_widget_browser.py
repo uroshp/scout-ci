@@ -175,20 +175,29 @@ class Recovery(unittest.TestCase):
         for p in cls.p:
             p.stop()
 
-    def _page(self):
-        self.RECORDS.clear(); self.ids = []
+    def _page(self, finish=False):
+        self.RECORDS.clear(); self.ids = []; self.finish = finish
         ctx = self.browser.new_context(viewport={"width": 1200, "height": 900})
         page = ctx.new_page()
         page.route("**/*", _serve)
         cors = {"Access-Control-Allow-Origin": ORIGIN, "Access-Control-Allow-Headers": "authorization,content-type", "Access-Control-Allow-Methods": "POST"}
 
+        self.modes = []
         def engine(route):
             if route.request.method == "OPTIONS":
                 return route.fulfill(status=200, headers=cors, body="")
-            rid = (route.request.post_data_json or {}).get("rid")
+            body_in = route.request.post_data_json or {}
+            rid = body_in.get("rid"); self.modes.append(body_in.get("mode"))
             aid = asktoken.record_id_for(rid); self.ids.append(aid)
-            body = ('data: {"stage": "facts", "id": "%s"}\n\n' % aid + 'data: {"stage": "search", "extra": "24 known facts"}\n\n'
-                    + 'data: {"activity": "Searching: X pricing"}\n\n')          # ...and the connection drops here
+            if self.finish:                                                     # a complete answer, quick or deep
+                kind = "deep" if body_in.get("mode") == "deep" else "quick"
+                rec = dict(ANSWER, id=aid, kind=kind, question=body_in.get("question"), unanswered=["a figure of headcount"],
+                           cut_log=[{"label": "dropped", "reason": "verifier: overreaches"}])
+                body = ('data: {"stage": "facts", "id": "%s", "kind": "%s"}\n\n' % (aid, kind) + 'data: {"stage": "%s"}\n\n' % ("search" if kind == "deep" else "draft")
+                        + "data: " + json.dumps({"done": True, "id": aid, "kind": kind, "html": askui.answer_html(rec, show_question=False, chat=True), "cost_usd": 0.2, "seconds": 21, "verified": True}) + "\n\n")
+            else:
+                body = ('data: {"stage": "facts", "id": "%s"}\n\n' % aid + 'data: {"stage": "search", "extra": "24 known facts"}\n\n'
+                        + 'data: {"activity": "Searching: X pricing"}\n\n')      # ...and the connection drops here
             route.fulfill(status=200, headers=cors, content_type="text/event-stream", body=body)
         page.route("http://engine.test/ask", engine)
         self.errors = []
@@ -210,7 +219,8 @@ class Recovery(unittest.TestCase):
         page.wait_for_selector(".ask-note", timeout=10000)
         self.assertIn("Connection dropped", page.locator(".ask-note").inner_text())
         self.assertIn("Searching: X pricing", page.locator(".ask-acts").inner_text())      # what it was doing stays visible
-        self.assertIn("longest step", page.locator(".ask-hint").inner_text())
+        self.assertIn("1 to 3 min", page.locator(".ask-hint").inner_text())
+        self.assertIn("fact-checks every sentence", page.locator(".ask-why").inner_text())
         self.assertIsNotNone(page.evaluate("localStorage.getItem('scout_ask_pending_v1')"))
         page.wait_for_timeout(600)                                                          # a few 404 polls
         self._record(self.ids[-1])
@@ -246,4 +256,38 @@ class Recovery(unittest.TestCase):
         self.assertIn("research steps", page.locator(".ask-none").inner_text())
         self.assertTrue(page.locator("#ask-fab-n").is_hidden())
         self.assertIsNone(page.evaluate("localStorage.getItem('scout_ask_pending_v1')"))
+        self.assertEqual(self.errors, []); page.context.close()
+
+
+    def test_quick_answer_layout_then_research_deeper(self):
+        page = self._page(finish=True)
+        # header: the name is the headline, Beta beside it, one line under it, no "currently on"
+        head = page.locator(".ask-head").inner_text()
+        self.assertIn("Ask Scout", head); self.assertIn("BETA", head.upper()); self.assertIn("Ask Scout about any competitor", head); self.assertNotIn("currently on", head)
+        chips = page.locator(".ask-ex").all_inner_texts()
+        self.assertEqual(len(chips), 3); self.assertTrue(any("is cheaper" in c for c in chips)); self.assertFalse(any("hiring" in c for c in chips))
+        self.assertTrue(all("{competitor}" not in c for c in chips))
+        page.locator("#ask-q").fill("Is X cheaper?"); page.locator("#ask-q").press("Enter")
+        page.wait_for_selector(".ask-answer", timeout=10000)
+        self.assertEqual(self.modes, ["quick"])                                            # Enter asks the quick path
+        box = page.locator(".ask-answer").first
+        self.assertIn("42.2", box.inner_text())
+        # collapsed: the summary line shows, the sections do not
+        self.assertEqual([b.strip() for b in page.locator(".ask-tgl").all_inner_texts()], ["1 source", "1 could not verify", "1 cut"])
+        self.assertTrue(page.locator(".ask-srcs").is_hidden()); self.assertTrue(page.locator(".ask-unans").is_hidden())
+        self.assertIn("answered from what Scout already knew", page.locator(".ask-foot").inner_text())
+        page.locator(".ask-tgl").nth(1).click(); self.assertTrue(page.locator(".ask-unans").is_visible())
+        page.locator(".ask-cite").first.click(); self.assertTrue(page.locator(".ask-srcs").is_visible())   # [n] opens the sources
+        page.locator(".ask-tgl").first.click(); self.assertTrue(page.locator(".ask-srcs").is_hidden())
+        # Research deeper runs the deep path as its own turn on the same question
+        page.locator(".ask-deeper").click()
+        self.assertEqual(page.locator(".ask-user").count(), 2); self.assertIn("RESEARCH DEEPER", page.locator(".ask-user").last.inner_text().upper())
+        page.wait_for_function("document.querySelectorAll('.ask-answer').length === 2", timeout=10000)
+        self.assertEqual(self.modes, ["quick", "deep"])
+        self.assertIn("researched and fact-checked", page.locator(".ask-foot").last.inner_text())
+        self.assertEqual(page.locator(".ask-deeper").count(), 1)                              # the deep answer offers no further deepening
+        self.assertEqual(page.locator("#ask-fab-n").inner_text(), "2")
+        page.reload(); page.wait_for_selector(".ask-answer", timeout=10000)
+        self.assertEqual(page.locator(".ask-answer").count(), 2); self.assertEqual(page.locator(".ask-tgl").count(), 6)   # restored with its toggles
+        page.locator(".ask-tgl").first.click(); self.assertTrue(page.locator(".ask-srcs").first.is_visible())          # ...and they work after restore
         self.assertEqual(self.errors, []); page.context.close()

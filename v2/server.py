@@ -531,7 +531,7 @@ def api_answer(aid):
         return jsonify({"error": "not found"}), 404
     return jsonify({"id": a["id"], "question": a.get("question"), "verified": a.get("verified"), "failed": bool(a.get("failed")),
                     "error": a.get("error") if a.get("failed") else None,
-                    "seconds": a.get("seconds"), "html": askui.answer_html(a, show_question=False)})
+                    "seconds": a.get("seconds"), "html": askui.answer_html(a, show_question=False, chat=True)})
 
 
 @app.post("/api/ask")

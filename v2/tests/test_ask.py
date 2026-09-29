@@ -128,7 +128,8 @@ class Loop(unittest.TestCase):
         cases = {"benchmark results between Mistral's latest model and GPT-6 Astra": "benchmark results between Mistral's latest model and GPT-6 Astra",
                  "Opus 4.8 pricing at $10 per million tokens": "Opus 4.8 pricing at a figure per million tokens",
                  "growth of 35% and 1,200 seats in Q2": "growth of a figure and a figure seats in Q2",
-                 "€20/user, 3x faster, 12000 employees": "a figure/user, 3x faster, a figure employees"}
+                 "€20/user, 3x faster, 12000 employees": "a figure/user, 3x faster, a figure employees",
+                 "a price for 500 seats in 2027": "a price for a figure seats in 2027"}
         for src, want in cases.items():
             self.assertEqual(ask._scrub_digits(src), want, src)
 
@@ -305,3 +306,91 @@ class Restatements(unittest.TestCase):
         kept = ask.drop_restatements([{"text": "On ChatGPT Business, workspace agents cost $20 per user a month.", "cites": []},
                                       {"text": "Workspace agents on ChatGPT Business cost $20 per user a month.", "cites": []}], cut)
         self.assertEqual(len(kept), 1); self.assertEqual(len(cut), 1)
+
+
+class Quick(unittest.TestCase):
+    """The quick path (2026-09-28): everything Scout holds about the named companies across every
+    card, labelled takes, one draft, the code floor, the SAME verifier, rejects cut (never rewritten)."""
+    METAS = {"anthropic__vs__openai__x": {"competitor": "OpenAI", "my_company": "Anthropic"},
+             "mistral__vs__openai__y": {"competitor": "OpenAI", "my_company": "Mistral"},
+             "google-cloud__vs__aws__z": {"competitor": "AWS", "my_company": "Google Cloud"}}
+    CLAIMS = {
+        "anthropic__vs__openai__x": [
+            {"id": "c_a1", "claim_type": "fact", "claim": "OpenAI set GPT-6 Astra's price at $10 per million input tokens.", "source_url": "https://openai.com/pricing",
+             "source_tier": "primary", "evidence_excerpt": "GPT-6 Astra: $10 per million input tokens, $50 per million output tokens", "as_of": "2026-09-03",
+             "grounding": {"match": True}, "subject_key": "openai | api-list-price"},
+            {"id": "c_a2", "claim_type": "interpretation", "claim": "OpenAI is often already in the building.", "zone": "where_they_win", "section": "battlecard",
+             "as_of": "2026-06-24", "subject_key": "battlecard | install-base"}],
+        "mistral__vs__openai__y": [
+            {"id": "c_m1", "claim_type": "fact", "claim": "Mistral closed a €3 billion Series D on September 8, 2026.", "source_url": "https://mistral.ai/news/d",
+             "source_tier": "primary", "evidence_excerpt": "Mistral AI announced a €3 billion Series D on September 8, 2026 at a valuation above €21 billion", "as_of": "2026-09-08",
+             "grounding": {"match": True}, "subject_key": "mistral | valuation"},
+            {"id": "c_m2", "claim_type": "fact", "claim": "retired", "status": "retired", "source_url": "https://x/y", "source_tier": "primary", "evidence_excerpt": "z" * 50, "grounding": {"match": True}}],
+        "google-cloud__vs__aws__z": [
+            {"id": "c_g1", "claim_type": "fact", "claim": "AWS thing", "source_url": "https://aws.amazon.com/x", "source_tier": "primary", "evidence_excerpt": "a" * 50, "as_of": "2026-09-01", "grounding": {"match": True}}]}
+
+    def setUp(self):
+        self.p = [mock.patch.object(ask.display, "list_battlecards", return_value=list(self.METAS)),
+                  mock.patch.object(ask.store, "load_meta", side_effect=lambda s: self.METAS.get(s)),
+                  mock.patch.object(ask.store, "load_claims", side_effect=lambda s: self.CLAIMS.get(s, []))]
+        for p in self.p:
+            p.start()
+
+    def tearDown(self):
+        for p in self.p:
+            p.stop()
+
+    def test_fact_base_is_every_card_naming_the_companies_plus_labelled_takes(self):
+        known = ask.known_facts_for(["OpenAI"])
+        ids = [f["id"] for f in known]
+        self.assertEqual(sorted(ids), ["c_a1", "c_a2", "c_m1"])              # both OpenAI cards; AWS card and the retired fact excluded
+        take = [f for f in known if f["id"] == "c_a2"][0]
+        self.assertTrue(take["take"]); self.assertEqual(take["source_class"], "scout_take"); self.assertEqual(take["card"], "Anthropic vs OpenAI")
+        self.assertTrue(take["source_url"].startswith("/c/anthropic__vs__openai__x#"))
+        self.assertEqual(ask.named_companies("My client wants Mistral instead of OpenAI"), ["OpenAI", "Mistral"])
+        self.assertEqual([f["id"] for f in ask.known_facts_for(["Mistral"], takes=False)], ["c_m1"])
+
+    def test_quick_answer_verifies_and_cuts_instead_of_rewriting(self):
+        calls = {"verify": 0, "draft": []}
+        def draft(q, known, ctx, history=None):
+            calls["draft"].append([f["id"] for f in known])
+            return {"text": "```json\n" + json.dumps({"answer": [
+                {"text": "OpenAI's GPT-6 Astra lists at $10 per million input tokens.", "cites": ["c_a1"]},
+                {"text": "Mistral closed a €3 billion Series D on September 8, 2026.", "cites": ["C_M1"]},        # cite spelling normalized
+                {"text": "Scout's take: OpenAI is often already in the building.", "cites": ["c_a2"]},
+                {"text": "OpenAI charges $12 per million.", "cites": ["c_a1"]}],                                # floor: 12 not in evidence
+                "unanswered": ["a head-to-head price for 500 seats"]}) + "\n```", "cost_usd": 0.12}
+        def verify(entries, facts_by_id):
+            calls["verify"] += 1
+            self.assertEqual(len(entries), 3)                                                                  # the floor failure never reached the judge
+            return _verify({0: ("confirm", "none", "ok"), 1: ("confirm", "none", "ok"), 2: ("reject", "prose", "overreaches")})(entries, facts_by_id)
+        seen = []
+        a = ask.quick_ask("Is OpenAI or Mistral the better bet?", slug="google-cloud__vs__aws__z", draft=draft, verify=verify, on_stage=lambda k, e="": seen.append(k))
+        self.assertEqual(a["kind"], "quick"); self.assertEqual(calls["verify"], 1)
+        self.assertEqual(sorted(calls["draft"][0]), ["c_a1", "c_a2", "c_m1"])                                    # both companies, every card
+        self.assertEqual([p["text"][:20] for p in a["paragraphs"]], ["OpenAI's GPT-6 Astra", "Mistral closed a €3 "])
+        self.assertEqual(a["trajectory"]["rewritten"], 0); self.assertEqual(a["trajectory"]["judge_rejected"], 1); self.assertEqual(a["trajectory"]["floor_dropped"], 1)
+        reasons = " | ".join(c["reason"] for c in a["cut_log"]); self.assertIn("verifier: overreaches", reasons); self.assertIn("floor:", reasons)
+        self.assertEqual(a["unanswered"], ["a head-to-head price for a figure seats"])
+        self.assertEqual((a["competitor"], a["slug"]), ("OpenAI", "mistral__vs__openai__y"))                    # scope: the card naming both
+        self.assertEqual(seen, ["facts", "draft", "floor", "verify", "done"])
+        self.assertTrue(a["verified"]); self.assertLess(a["cost_usd"], 1.0)
+
+    def test_quick_take_renders_as_a_take_and_all_cut_is_honest(self):
+        draft = lambda q, known, ctx, history=None: {"text": "```json\n" + json.dumps({"answer": [{"text": "Scout's take: OpenAI is often already in the building.", "cites": ["c_a2"]}], "unanswered": []}) + "\n```", "cost_usd": 0.1}
+        a = ask.quick_ask("Where does OpenAI win?", draft=draft, verify=_verify({0: ("confirm", "none", "ok")}))
+        self.assertTrue(a["sources"][0]["take"]); self.assertEqual(a["sources"][0]["class"], "scout_take"); self.assertEqual(a["sources"][0]["card"], "Anthropic vs OpenAI")
+        a = ask.quick_ask("Where does OpenAI win?", draft=draft, verify=_verify({}))
+        self.assertEqual(a["paragraphs"], []); self.assertFalse(a["verified"]); self.assertEqual(a["trajectory"]["judge_rejected"], 1)
+
+
+class DeepCap(unittest.TestCase):
+    def test_a_deep_answer_keeps_its_first_four_confirmed_sentences(self):
+        facts = [_fact("n1", "https://www.cnbc.com/x", NEWS, "reputable_secondary")]
+        answer = [{"text": t, "cites": ["n1"]} for t in (
+            "Agentforce closed more than 1,000 paid deals.", "That is up from 200 in the prior quarter.",
+            "Salesforce reported the figures for the quarter.", "The count refers to paid deals only.",
+            "Growth was fivefold quarter over quarter.", "Agentforce is Salesforce's agent product.")]
+        a = ask.ask("q", research=_research(facts, answer), verify=_verify({i: ("confirm", "none", "ok") for i in range(6)}), grounder=_grounder({"n1"}))
+        self.assertEqual(len(a["paragraphs"]), 4); self.assertEqual(a["trajectory"]["trimmed"], 2); self.assertEqual(a["kind"], "deep")
+        self.assertFalse(any("restates" in c["reason"] for c in a["cut_log"]))   # numbered distinct sentences are not restatements

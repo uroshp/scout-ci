@@ -247,6 +247,19 @@ def _ask_rewrite_schema():
     return {"type": "object", "properties": {"answer": {"type": "array"}}, "required": ["answer"]}
 
 
+def _ask_quick_schema():
+    return {"type": "object", "properties": {"answer": {"type": "array"}, "unanswered": {"type": "array"}}, "required": ["answer"]}
+
+
+def parse_ask_quick(text):
+    d = _extract(text)
+    if not isinstance(d, dict):
+        return None
+    answer = [a for a in (d.get("answer") if isinstance(d.get("answer"), list) else []) if isinstance(a, dict)]
+    return {"items": {}, "abstain": {}, "extra": {"answer": answer, "texts": {str(a.get("cites") or i): str(a.get("text") or "") for i, a in enumerate(answer)},
+                                                "unanswered": d.get("unanswered") if isinstance(d.get("unanswered"), list) else []}}
+
+
 def parse_ask_research(text):
     d = _extract(text)
     if not isinstance(d, dict):
@@ -327,6 +340,10 @@ ROLE_SPECS = {
     "ask_rewrite": {"family": GENERATIVE, "unit": "sentence", "label_set": (), "costly": "sentence broader than its facts",
                     "parse": parse_ask_rewrite, "schema": _ask_rewrite_schema,
                     "primary_model": lambda: config.SUBAGENT_MODEL, "output_reserve": 1024},
+    # the quick path's draft (2026-09-28): tools off, prose from known facts + labelled takes only
+    "ask_quick": {"family": GENERATIVE, "unit": "sentence", "label_set": (), "costly": "sentence broader than its facts",
+                  "parse": parse_ask_quick, "schema": _ask_quick_schema,
+                  "primary_model": lambda: config.SUBAGENT_MODEL, "output_reserve": 1024},
 }
 
 EXACT_ROLES = tuple(r for r, s in ROLE_SPECS.items() if not s.get("tools_on"))

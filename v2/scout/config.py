@@ -325,6 +325,10 @@ ASK_RESEARCH_BUDGET_USD = float(os.environ.get("SCOUT_ASK_RESEARCH_BUDGET_USD", 
 ASK_VERIFY_BUDGET_USD = float(os.environ.get("SCOUT_ASK_VERIFY_BUDGET_USD", "0.75"))
 ASK_REWRITE_BUDGET_USD = float(os.environ.get("SCOUT_ASK_REWRITE_BUDGET_USD", "0.50"))
 ASK_MAX_USD = float(os.environ.get("SCOUT_ASK_MAX_USD", "3.00"))
+# The QUICK path (2026-09-28): no tools, answers from what Scout already verified, the same Opus
+# verifier, rejects cut. One draft call + one judge call; the ledger reserves ASK_QUICK_MAX_USD.
+ASK_QUICK_DRAFT_BUDGET_USD = float(os.environ.get("SCOUT_ASK_QUICK_DRAFT_BUDGET_USD", "0.40"))
+ASK_QUICK_MAX_USD = float(os.environ.get("SCOUT_ASK_QUICK_MAX_USD", "1.00"))
 # The in-page Ask panel renders only when SCOUT_ASK=1 (production stays byte-identical until the
 # flip). SCOUT_ASK_CANNED=<answer id> puts the panel in review mode: every question replays that
 # stored answer with realistic stage timing, $0 (RC only). SCOUT_ASK_ENGINE_URL wires the engine.

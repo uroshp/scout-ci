@@ -41,17 +41,19 @@ class Ledger:
         s = state or self.read()
         return round(self.ceiling - s["spend_usd"] - s["in_flight_usd"], 4)
 
-    def start(self) -> tuple[bool, dict]:
-        """Reserve one question's cap. (True, state) if it fits under the ceiling, else (False, state)."""
+    def start(self, reserve: float | None = None) -> tuple[bool, dict]:
+        """Reserve one question's cap (the default, or a smaller one for a cheaper path). (True,
+        state) if it fits under the ceiling, else (False, state)."""
         out: dict = {}
+        reserve = self.reserve if reserve is None else float(reserve)
 
         def tx(cur_text):
             s = self._fresh(json.loads(cur_text) if cur_text else None)
-            if s["spend_usd"] + s["in_flight_usd"] + self.reserve > self.ceiling:
+            if s["spend_usd"] + s["in_flight_usd"] + reserve > self.ceiling:
                 s["refused"] += 1
                 out["ok"] = False
             else:
-                s["in_flight_usd"] = round(s["in_flight_usd"] + self.reserve, 4)
+                s["in_flight_usd"] = round(s["in_flight_usd"] + reserve, 4)
                 s["questions"] += 1
                 out["ok"] = True
             out["state"] = s
@@ -64,11 +66,13 @@ class Ledger:
             return False, self._fresh(None)
         return bool(out.get("ok")), out.get("state", {})
 
-    def settle(self, actual_usd: float) -> None:
+    def settle(self, actual_usd: float, reserve: float | None = None) -> None:
         """Replace this question's reservation with what it actually cost. Never raises."""
+        reserve = self.reserve if reserve is None else float(reserve)
+
         def tx(cur_text):
             s = self._fresh(json.loads(cur_text) if cur_text else None)
-            s["in_flight_usd"] = round(max(0.0, s["in_flight_usd"] - self.reserve), 4)
+            s["in_flight_usd"] = round(max(0.0, s["in_flight_usd"] - reserve), 4)
             s["spend_usd"] = round(s["spend_usd"] + float(actual_usd or 0.0), 4)
             return json.dumps(s, indent=1)
         try:
