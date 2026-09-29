@@ -331,6 +331,14 @@ ASK_MAX_USD = float(os.environ.get("SCOUT_ASK_MAX_USD", "3.00"))
 # Anthropic) and the SDK bills it across two messages plus the cache write, so $0.40 was too low.
 ASK_QUICK_DRAFT_BUDGET_USD = float(os.environ.get("SCOUT_ASK_QUICK_DRAFT_BUDGET_USD", "1.00"))
 ASK_QUICK_MAX_USD = float(os.environ.get("SCOUT_ASK_QUICK_MAX_USD", "1.50"))
+# Viewer-side soft limits (scout/ratelimit.py): per visitor id per day, per client IP per minute;
+# the engine's ledger is the hard bound. RC sets the quota high for review; a comma list of visitor
+# ids (the scout_cid cookie) is exempt, for the owner.
+ASK_VISITOR_QUOTA = int(os.environ.get("SCOUT_ASK_VISITOR_QUOTA", "6"))
+ASK_IP_PER_MIN = int(os.environ.get("SCOUT_ASK_IP_PER_MIN", "6"))
+ASK_QUOTA_BYPASS_CIDS = [c.strip() for c in os.environ.get("SCOUT_ASK_QUOTA_BYPASS_CIDS", "").split(",") if c.strip()]
+REQUEST_IP_PER_MIN = int(os.environ.get("SCOUT_REQUEST_IP_PER_MIN", "3"))
+REQUEST_IP_PER_DAY = int(os.environ.get("SCOUT_REQUEST_IP_PER_DAY", "10"))
 # The in-page Ask panel renders only when SCOUT_ASK=1 (production stays byte-identical until the
 # flip). SCOUT_ASK_CANNED=<answer id> puts the panel in review mode: every question replays that
 # stored answer with realistic stage timing, $0 (RC only). SCOUT_ASK_ENGINE_URL wires the engine.

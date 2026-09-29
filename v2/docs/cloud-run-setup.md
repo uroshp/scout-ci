@@ -146,3 +146,43 @@ then promoted with a PR `rc -> main`.
   (idempotent). **Rollback** on either service: `gcloud run deploy <service> --image <prior tag>`.
 - **Promotion:** PR `rc -> main` (squash). Features that change engine behaviour ship behind an
   env flag that defaults OFF on main and is flipped only after the RC review.
+
+## The Ask Scout engine (2026-09-28)
+
+The viewer stays read-only and key-less. Anything that spends money runs in a second Cloud Run
+service, `scout-engine` (RC: `scout-engine-rc`), built from `v2/engine/Dockerfile` (the Agent SDK
+with its bundled CLI, run as a non-root user: the CLI refuses `bypassPermissions` under root) and
+`v2/cloudbuild-engine.yaml`.
+
+- **Routes.** `POST /ask` streams Server-Sent Events (stages, activity lines, then the answer or
+  an honest error with the real cost); `GET /ask/dry` replays a stored answer at $0 for the
+  post-deploy probe; `GET /healthcheck`. Two paths behind one route: **quick** (default; no
+  tools; everything Scout already verified about the named companies across every card, plus the
+  thread, plus the battlecards' judgments labelled "Scout's take"; one draft; the code floor; the
+  same Opus verifier; rejects cut) and **deep** (`mode: "deep"`, "Research deeper" in the panel:
+  web research with the structured-source tools, grounding, the floor, verify, one repair round).
+- **Auth.** A page token minted by the viewer (`scout/asktoken.py`, HMAC over the visitor id with
+  the shared `ASK_VIEWER_SECRET`, one hour) or an owner key from `ASK_API_KEYS`. CORS is an
+  allowlist (`ASK_ALLOWED_ORIGINS`; both `run.app` hostnames of the viewer plus the domain).
+- **Spend.** `scout/ledger.py` is a hard daily ceiling in the private store (`ask/state.json`,
+  `SCOUT_ASK_DAILY_CEILING_USD`, default $10): a question that could cross it is refused before
+  it starts (quick reserves $1.50, deep $3.00, settled to the real cost). The viewer adds soft
+  limits (`scout/ratelimit.py`): `SCOUT_ASK_VISITOR_QUOTA` per visitor per day (default 6),
+  `SCOUT_ASK_IP_PER_MIN` (6), `SCOUT_REQUEST_IP_PER_MIN` / `_PER_DAY` on self-serve requests,
+  `SCOUT_ASK_QUOTA_BYPASS_CIDS` for the owner's own `scout_cid`.
+- **Recovery.** The panel sends a request token; viewer and engine derive the answer id from it
+  up front, so a dropped stream or a reload polls `/api/answers/<id>` until the record lands
+  (`ask/<YYYY-MM>/<id>.json`; failures leave a record too). The same token replays a finished
+  record for free.
+- **Setup / update** (idempotent; secrets `scout-anthropic-key`, `scout-ask-viewer-secret`,
+  `scout-ask-api-keys`):
+  `GCP_PROJECT_ID=… ENGINE_SERVICE=scout-engine VIEWER_SERVICE=agent-scout DATA_PREFIX="" ASK_DAILY_CEILING_USD=10 CALL_CAPTURE=1 bash v2/scripts/setup_engine_service.sh`
+  (RC: `ENGINE_SERVICE=scout-engine-rc VIEWER_SERVICE=agent-scout-rc DATA_PREFIX=rc`). The script's
+  last step points the viewer at the engine and sets `SCOUT_ASK=1`; to keep the panel off in
+  production until the flip, remove that one variable afterwards
+  (`gcloud run services update agent-scout --region us-west1 --remove-env-vars SCOUT_ASK`).
+  Set `SCOUT_ASK_CANNED=<a stored answer id>` on the engine and the repo variable
+  `SCOUT_ASK_ENGINE_URL` so `postdeploy.yml` probes `/healthcheck` and `/ask/dry` after every deploy.
+- **Flags on `main`.** `SCOUT_ASK` (the panel and `/api/ask`) and `SCOUT_SOURCES_TOOLS` (the
+  monitor's structured-source tools) default OFF: a merge of `rc` changes nothing visible until
+  the flag is set on the service.
