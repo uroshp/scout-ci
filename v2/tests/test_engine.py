@@ -184,14 +184,14 @@ class Engine(unittest.TestCase):
             self.assertEqual(json.loads(self.st.files["ask/state.json"])["spend_usd"], expect)
 
     def test_ceiling_refuses_with_429(self):
-        self.st.files["ask/state.json"] = json.dumps({"day": ledger.Ledger._today(), "spend_usd": 9.0, "in_flight_usd": 0, "questions": 5, "refused": 0})
+        self.st.files["ask/state.json"] = json.dumps({"day": ledger.Ledger._today(), "spend_usd": 8.5, "in_flight_usd": 0, "questions": 5, "refused": 0})
         r = self.c.post("/ask", json={"question": "x", "mode": "deep"}, headers={"Authorization": "Bearer owner-key"})
         self.assertEqual(r.status_code, 429); self.assertIn("budget is spent", r.json()["message"])
-        # the quick path reserves its own, smaller cap ($1), so it still fits where the deep one ($3) did not
+        # the quick path reserves its own, smaller cap ($1.50), so it still fits where the deep one ($3) did not
         with mock.patch.object(eng.ask, "quick_ask", side_effect=lambda question, **kw: _quick(question, kw)):
             r = self.c.post("/ask", json={"question": "x"}, headers={"Authorization": "Bearer owner-key"})
         self.assertEqual(r.status_code, 200)
-        s = json.loads(self.st.files["ask/state.json"]); self.assertEqual((s["spend_usd"], s["in_flight_usd"]), (9.2, 0.0))
+        s = json.loads(self.st.files["ask/state.json"]); self.assertEqual((s["spend_usd"], s["in_flight_usd"]), (8.7, 0.0))
 
     def test_quick_is_the_default_and_streams_its_own_stages(self):
         seen = {}
