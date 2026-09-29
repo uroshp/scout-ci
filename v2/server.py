@@ -557,6 +557,16 @@ def api_ask():
                   {"k": "verify", "ms": 2000, "extra": (f"{t.get('rewritten')} rewritten" if t.get("rewritten") else "")},
                   {"k": "done", "ms": 500}]
         return jsonify({"id": a["id"], "stages": stages, "mode": "canned"})
+    if config.ASK_ENGINE_URL and config.ASK_VIEWER_SECRET:
+        # engine mode: the panel streams from the engine directly, with a one-hour page token that
+        # proves it came through a rendered page (the engine verifies it with the shared secret)
+        from scout.asktoken import page_token
+        cid = request.cookies.get("scout_cid") or uuid.uuid4().hex[:16]
+        resp = jsonify({"mode": "engine", "engine": config.ASK_ENGINE_URL.rstrip("/"),
+                        "token": page_token(cid, config.ASK_VIEWER_SECRET)})
+        if not request.cookies.get("scout_cid"):
+            resp.set_cookie("scout_cid", cid, max_age=63072000, samesite="Lax")
+        return resp
     return jsonify({"message": "Ask Scout is being wired up. Come back soon."}), 503
 
 

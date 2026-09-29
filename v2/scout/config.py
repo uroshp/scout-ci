@@ -318,16 +318,20 @@ SOURCES_TOOLS_ENABLED = os.environ.get("SCOUT_SOURCES_TOOLS", "") == "1"
 # --- Ask Scout (WS2, 2026-09-28) -----------------------------------------------
 # Per-call caps are the Agent SDK's native max_budget_usd; ASK_MAX_USD is the ceiling one question
 # may reach in total (research + verify + one rewrite + a second verify). Measured target ~$1-1.75.
-ASK_RESEARCH_BUDGET_USD = float(os.environ.get("SCOUT_ASK_RESEARCH_BUDGET_USD", "1.00"))
+# 2026-09-28: a broad question ("how do Slack agents from Claude and ChatGPT compare?") blew the
+# $1.00 research cap on search results alone (16 messages, 235k tokens), so the cap is $1.50 and the
+# contract limits the tool budget (4 searches, 3 page reads); ASK_MAX_USD bounds one question end to end.
+ASK_RESEARCH_BUDGET_USD = float(os.environ.get("SCOUT_ASK_RESEARCH_BUDGET_USD", "1.50"))
 ASK_VERIFY_BUDGET_USD = float(os.environ.get("SCOUT_ASK_VERIFY_BUDGET_USD", "0.75"))
 ASK_REWRITE_BUDGET_USD = float(os.environ.get("SCOUT_ASK_REWRITE_BUDGET_USD", "0.50"))
-ASK_MAX_USD = float(os.environ.get("SCOUT_ASK_MAX_USD", "2.50"))
+ASK_MAX_USD = float(os.environ.get("SCOUT_ASK_MAX_USD", "3.00"))
 # The in-page Ask panel renders only when SCOUT_ASK=1 (production stays byte-identical until the
 # flip). SCOUT_ASK_CANNED=<answer id> puts the panel in review mode: every question replays that
 # stored answer with realistic stage timing, $0 (RC only). SCOUT_ASK_ENGINE_URL wires the engine.
 ASK_ENABLED = os.environ.get("SCOUT_ASK", "") == "1"
 ASK_CANNED_ID = os.environ.get("SCOUT_ASK_CANNED", "")
 ASK_ENGINE_URL = os.environ.get("SCOUT_ASK_ENGINE_URL", "")
+ASK_VIEWER_SECRET = os.environ.get("ASK_VIEWER_SECRET", "")     # shared with the engine; mints page tokens
 
 # --- RC environment (2026-09-28) ---------------------------------------------
 # A second deployment of the SAME code (branch `rc` -> service agent-scout-rc) where every new

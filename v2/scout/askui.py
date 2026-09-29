@@ -60,12 +60,13 @@ def answer_html(a: dict, permalink: bool = True, show_question: bool = True) -> 
     srcs = ""
     for s in a.get("sources") or []:
         dom = re.sub(r"^www\\.", "", (re.sub(r"^https?://", "", s.get("url") or "").split("/")[0]))
-        exc = _html.escape(str(s.get("excerpt") or ""))
+        quotes = [x for x in (s.get("excerpts") or [s.get("excerpt")]) if x]
+        exc = "".join(f"<blockquote>{_html.escape(str(x))}</blockquote>" for x in quotes)
         srcs += (f'<li id="ask-src-{s["n"]}" class="ask-src"><span class="ask-n">{s["n"]}</span>'
                  f'<a href="{_html.escape(s.get("url") or "#")}" target="_blank" rel="noopener">{_html.escape(dom)}</a>'
                  f'{_chip(s.get("class"), s.get("tier"))}'
                  + (f'<span class="ask-asof">{_html.escape(str(s.get("as_of")))}</span>' if s.get("as_of") else "")
-                 + (f'<details class="ask-exc"><summary>quote</summary><blockquote>{exc}</blockquote></details>' if exc else "")
+                 + (f'<details class="ask-exc"><summary>quote{"s" if len(quotes) > 1 else ""}</summary>{exc}</details>' if exc else "")
                  + "</li>")
     unans = "".join(f"<li>{_html.escape(u)}</li>" for u in a.get("unanswered") or [])
     cuts = "".join(f'<li><b>{_html.escape(str(c.get("label") or ""))}</b> {_html.escape(str(c.get("reason") or ""))}</li>' for c in a.get("cut_log") or [])
@@ -75,7 +76,8 @@ def answer_html(a: dict, permalink: bool = True, show_question: bool = True) -> 
             f' · {n_cut} cut' + (f' · {t.get("rewritten", 0)} rewritten' if t.get("rewritten") else ""))
     link = f'<a class="ask-link" href="/answers/{_html.escape(a["id"])}">Copy link</a>' if permalink and a.get("id") else ""
     q_echo = f'<div class="ask-q">{_html.escape(a.get("question") or "")}</div>' if show_question else ""
-    about = f'<div class="ask-about">About {_html.escape(str(a.get("competitor")))}</div>' if a.get("competitor") else ""
+    scope = a.get("card") or a.get("competitor")
+    about = f'<div class="ask-about">About {_html.escape(str(scope))}</div>' if scope else ""
     return (f'<div class="ask-answer" data-id="{_html.escape(str(a.get("id") or ""))}">'
             f'{q_echo}{about}{paras}'
             + (f'<div class="ask-sec"><span class="ey">Sources</span><ol class="ask-srcs">{srcs}</ol></div>' if srcs else "")
@@ -107,20 +109,18 @@ def button_and_panel_html(slug: str | None, meta: dict | None, persona: str | No
     canned = bool(config.ASK_CANNED_ID)
     cfg = json.dumps({"slug": slug, "competitor": comp, "my_company": meta.get("my_company") or "", "persona": persona or "",
                       "canned": canned})
-    review = ('<div class="ask-review">Review build: every question replays one stored answer, so the reply will not match '
-              'what you asked. The thread, the stages and the answer layout are what is under review.</div>' if canned else "")
+    review = ('<div class="ask-review">Review build: every question replays one stored answer.</div>' if canned else "")
     return f'''
 <button type="button" class="ask-fab" id="ask-fab" aria-haspopup="dialog" aria-controls="ask-panel">
-  <span class="ask-fab-dot"></span>Ask Scout</button>
-<div class="ask-backdrop" id="ask-backdrop" hidden></div>
+  <span class="ask-fab-dot"></span>Ask Scout<span class="ask-fab-n" id="ask-fab-n" hidden></span></button>
 <aside class="ask-panel" id="ask-panel" role="dialog" aria-modal="true" aria-labelledby="ask-title" hidden>
   <div class="ask-head"><div><div class="ey">Ask Scout</div><h3 id="ask-title">{_html.escape(ctx)}</h3></div>
     <div class="ask-headbtns"><button type="button" class="ask-clear" id="ask-clear" title="Start a new thread" hidden>New thread</button>
-    <button type="button" class="ask-close" id="ask-close" aria-label="Close">×</button></div></div>
+    <button type="button" class="ask-close" id="ask-close" aria-label="Minimize" title="Minimize">–</button></div></div>
   <div class="ask-thread" id="ask-thread" aria-live="polite">
     {review}
     <div class="ask-intro" id="ask-intro">
-      <p>Ask about any competitor Scout tracks{(" (you are on " + _html.escape(comp) + ")") if comp else ""}. Every sentence in the answer cites a verified source, or it is not in the answer. The thread stays with you across cards and visits.</p>
+      <p>Ask about any competitor Scout tracks{(" (you are on " + _html.escape(comp) + ")") if comp else ""}. Every sentence in the answer cites a verified source, or it is not in the answer. Answers take one to three minutes. The thread stays with you across cards and visits.</p>
       <div class="ask-exs">{ex_html}</div>
     </div>
   </div>
@@ -131,17 +131,19 @@ def button_and_panel_html(slug: str | None, meta: dict | None, persona: str | No
 </aside>
 <script>(function(){{
 var CFG={cfg}, STAGES={stages_js};
-var fab=document.getElementById('ask-fab'), panel=document.getElementById('ask-panel'), bd=document.getElementById('ask-backdrop');
+var fab=document.getElementById('ask-fab'), panel=document.getElementById('ask-panel');
 var form=document.getElementById('ask-form'), q=document.getElementById('ask-q'), go=document.getElementById('ask-go');
 var thread=document.getElementById('ask-thread'), intro=document.getElementById('ask-intro'), clearBtn=document.getElementById('ask-clear');
-var history=[], busy=false, lastFocus=null, timer=null, t0=0, KEY='scout_ask_thread_v1', MAX=20;
+var history=[], busy=false, lastFocus=null, timer=null, t0=0, KEY='scout_ask_thread_v1', OPEN_KEY='scout_ask_open_v1', MAX=20;
+var fabN=document.getElementById('ask-fab-n');
 function load(){{try{{var raw=localStorage.getItem(KEY);var arr=raw?JSON.parse(raw):[];if(!Array.isArray(arr))return [];return arr.slice(-MAX);}}catch(e){{return [];}}}}
 function save(){{try{{localStorage.setItem(KEY,JSON.stringify(history.slice(-MAX)));}}catch(e){{}}}}
 function esc(s){{return String(s).replace(/[&<>"]/g,function(c){{return {{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}}[c];}});}}
-function open(){{lastFocus=document.activeElement;panel.hidden=false;bd.hidden=false;document.body.classList.add('ask-open');setTimeout(function(){{q.focus();}},30);}}
-function close(){{panel.hidden=true;bd.hidden=true;document.body.classList.remove('ask-open');if(lastFocus&&lastFocus.focus)lastFocus.focus();}}
-fab.addEventListener('click',open);document.getElementById('ask-close').addEventListener('click',close);bd.addEventListener('click',close);
-document.addEventListener('keydown',function(e){{if(e.key==='Escape'&&!panel.hidden)close();}});
+function badge(){{var n=history.length;fabN.hidden=!n;fabN.textContent=n?String(n):'';}}
+function open(){{lastFocus=document.activeElement;panel.hidden=false;fab.hidden=true;try{{localStorage.setItem(OPEN_KEY,'1');}}catch(e){{}}scrollEnd();setTimeout(function(){{q.focus();}},30);}}
+function minimize(){{panel.hidden=true;fab.hidden=false;badge();try{{localStorage.setItem(OPEN_KEY,'0');}}catch(e){{}}if(lastFocus&&lastFocus.focus)lastFocus.focus();}}
+fab.addEventListener('click',open);document.getElementById('ask-close').addEventListener('click',minimize);
+document.addEventListener('keydown',function(e){{if(e.key==='Escape'&&!panel.hidden)minimize();}});
 panel.addEventListener('keydown',function(e){{if(e.key!=='Tab')return;var f=panel.querySelectorAll('button:not([disabled]),textarea,a[href],summary,[tabindex]:not([tabindex="-1"])');if(!f.length)return;var a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){{z.focus();e.preventDefault();}}else if(!e.shiftKey&&document.activeElement===z){{a.focus();e.preventDefault();}}}});
 Array.prototype.forEach.call(document.querySelectorAll('.ask-ex'),function(b){{b.addEventListener('click',function(){{q.value=b.textContent;submit();}});}});
 q.addEventListener('keydown',function(e){{if(e.key==='Enter'&&!e.shiftKey){{e.preventDefault();submit();}}}});
@@ -159,28 +161,47 @@ function submit(){{if(busy)return;var question=q.value.trim();if(!question)retur
   var payload={{question:question,slug:CFG.slug,competitor:CFG.competitor,my_company:CFG.my_company,persona:CFG.persona,history:history.slice(-6).map(function(h){{return {{question:h.question,answer_id:h.answer_id}};}})}};
   fetch('/api/ask',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify(payload)}})
   .then(function(r){{return r.json().then(function(j){{return {{ok:r.ok,j:j}};}});}})
-  .then(function(x){{if(!x.ok||!x.j||!x.j.id){{done(prog,'<p class="ask-p ask-none">'+esc((x.j&&x.j.message)||'Ask Scout is not available right now.')+'</p>',null,question);return;}}
+  .then(function(x){{if(!x.ok||!x.j){{done(prog,'<p class="ask-p ask-none">'+esc((x.j&&x.j.message)||'Ask Scout is not available right now.')+'</p>',null,question);return;}}
+    if(x.j.mode==='engine'){{stream(x.j.engine,x.j.token,payload,prog,question);return;}}
+    if(!x.j.id){{done(prog,'<p class="ask-p ask-none">'+esc(x.j.message||'Ask Scout is not available right now.')+'</p>',null,question);return;}}
     var plan=x.j.stages||[],i=0;
     function next(){{if(i>=plan.length){{fetch('/api/answers/'+x.j.id).then(function(r){{return r.json();}}).then(function(a){{done(prog,a.html||'',x.j.id,question);}}).catch(function(){{done(prog,'<p class="ask-p ask-none">The answer could not be loaded.</p>',null,question);}});return;}}
       prog.innerHTML=stageHtml(plan[i].k,plan[i].extra||'');scrollEnd();var d=plan[i].ms||1200;i++;setTimeout(next,d);}}
     next();}})
   .catch(function(){{done(prog,'<p class="ask-p ask-none">Ask Scout is not reachable right now.</p>',null,question);}});
 }}
-function done(box,html,id,question){{clearInterval(timer);box.className='ask-msg ask-scout';box.innerHTML=html;wire(box);if(id){{history.push({{question:question,answer_id:id,html:html}});save();clearBtn.hidden=false;}}setBusy(false);scrollEnd();setTimeout(function(){{q.focus();}},20);}}
+function stream(engine,token,payload,prog,question){{
+  fetch(engine+'/ask',{{method:'POST',headers:{{'Content-Type':'application/json','Authorization':'Bearer '+token}},body:JSON.stringify(payload)}})
+  .then(function(r){{
+    if(!r.ok){{return r.json().then(function(j){{done(prog,'<p class="ask-p ask-none">'+esc((j&&j.message)||('Ask Scout returned '+r.status))+'</p>',null,question);}}).catch(function(){{done(prog,'<p class="ask-p ask-none">Ask Scout returned '+r.status+'.</p>',null,question);}});}}
+    var reader=r.body.getReader(),dec=new TextDecoder(),buf='';
+    function pump(){{return reader.read().then(function(c){{
+      if(c.done){{if(!prog.classList.contains('ask-done'))done(prog,'<p class="ask-p ask-none">The connection closed before the answer arrived.</p>',null,question);return;}}
+      buf+=dec.decode(c.value,{{stream:true}});var parts=buf.split('\n\n');buf=parts.pop();
+      parts.forEach(function(p){{var line=p.split('\n').filter(function(l){{return l.indexOf('data: ')===0;}})[0];if(!line)return;var ev;try{{ev=JSON.parse(line.slice(6));}}catch(e){{return;}}
+        if(ev.stage){{prog.innerHTML=stageHtml(ev.stage,ev.extra||'');scrollEnd();}}
+        else if(ev.done){{prog.classList.add('ask-done');done(prog,ev.html||'',ev.id,question);}}
+        else if(ev.error){{prog.classList.add('ask-done');done(prog,'<p class="ask-p ask-none">'+esc(ev.error)+'</p>',null,question);}}}});
+      return pump();}});}}
+    return pump();}})
+  .catch(function(){{done(prog,'<p class="ask-p ask-none">Ask Scout is not reachable right now.</p>',null,question);}});
+}}
+function done(box,html,id,question){{clearInterval(timer);box.className='ask-msg ask-scout';box.innerHTML=html;wire(box);if(id){{history.push({{question:question,answer_id:id,html:html}});save();clearBtn.hidden=false;}}badge();setBusy(false);scrollEnd();if(!panel.hidden)setTimeout(function(){{q.focus();}},20);}}
 form.addEventListener('submit',function(e){{e.preventDefault();submit();}});
-clearBtn.addEventListener('click',function(){{history=[];save();Array.prototype.forEach.call(thread.querySelectorAll('.ask-msg'),function(m){{m.remove();}});if(intro)intro.hidden=false;clearBtn.hidden=true;setBusy(false);q.focus();}});
-// restore the thread this browser already has (across cards and visits)
+clearBtn.addEventListener('click',function(){{history=[];save();Array.prototype.forEach.call(thread.querySelectorAll('.ask-msg'),function(m){{m.remove();}});if(intro)intro.hidden=false;clearBtn.hidden=true;badge();setBusy(false);q.focus();}});
+// restore the thread this browser already has (across cards and visits), and whether it was open
 history=load();
 if(history.length){{if(intro)intro.hidden=true;clearBtn.hidden=false;history.forEach(function(h){{add('<div class="ask-bubble">'+esc(h.question)+'</div>','ask-user');var b=add(h.html||'','ask-scout');wire(b);}});}}
-setBusy(false);
+badge();setBusy(false);
+try{{if(localStorage.getItem(OPEN_KEY)==='1'){{panel.hidden=false;fab.hidden=true;scrollEnd();}}}}catch(e){{}}
 }})();</script>'''
 
 
 PANEL_CSS = """
 .ask-fab{position:fixed;right:18px;bottom:18px;z-index:60;display:inline-flex;align-items:center;gap:8px;padding:11px 16px;border:0;border-radius:999px;background:#2b2a26;color:#fff;font:600 14px/1 system-ui,-apple-system,sans-serif;box-shadow:0 6px 20px rgba(20,18,10,.22);cursor:pointer}
 .ask-fab:hover{background:#151410}.ask-fab-dot{width:8px;height:8px;border-radius:50%;background:#7ed0a6;box-shadow:0 0 0 3px rgba(126,208,166,.28)}
-.ask-backdrop{position:fixed;inset:0;background:rgba(20,18,10,.28);z-index:70}
-.ask-panel{position:fixed;top:0;right:0;bottom:0;width:min(520px,100vw);z-index:80;background:#fbfaf6;border-left:1px solid #e3ded2;box-shadow:-12px 0 32px rgba(20,18,10,.16);display:flex;flex-direction:column;font-family:system-ui,-apple-system,sans-serif;color:#2b2a26}
+.ask-fab-n{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#7ed0a6;color:#12301f;font:700 11px/18px system-ui,sans-serif;text-align:center}
+.ask-panel{position:fixed;right:18px;bottom:18px;width:min(440px,calc(100vw - 24px));height:min(640px,calc(100vh - 36px));z-index:80;background:#fbfaf6;border:1px solid #e3ded2;border-radius:14px;box-shadow:0 18px 48px rgba(20,18,10,.22);display:flex;flex-direction:column;overflow:hidden;font-family:system-ui,-apple-system,sans-serif;color:#2b2a26}
 .ask-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px 18px 12px;border-bottom:1px solid #e3ded2}
 .ask-head h3{margin:2px 0 0;font-size:15px;font-weight:600}.ask-head .ey{font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#8a877c}
 .ask-close{border:0;background:transparent;font-size:26px;line-height:1;color:#8a877c;cursor:pointer;padding:0 4px}.ask-close:hover{color:#2b2a26}
@@ -221,9 +242,9 @@ PANEL_CSS = """
 .ask-answer .srcclass-unknown{color:#8a877c;background:transparent;border-color:#dfdbcf}
 .ask-answer .srcclass-filing,.ask-answer .srcclass-court,.ask-answer .srcclass-government{color:#1f4d2a;background:#e6f1e8;border-color:#bcd8c2}
 .ask-answer .srcclass-review_site,.ask-answer .srcclass-forum{color:#6b5a1e;background:#f7f0dc;border-color:#e2d3a3}
-body.ask-open{overflow:hidden}
+
 .ask-permalink{max-width:720px;margin:8px auto 0;padding:18px 20px;background:#fbfaf6;border:1px solid #e3ded2;border-radius:10px;font-family:system-ui,-apple-system,sans-serif;color:#2b2a26}
 .ask-back{max-width:720px;margin:12px auto;font-family:ui-monospace,Menlo,monospace;font-size:11px}
-@media (max-width:640px){.ask-panel{width:100vw}.ask-fab{right:12px;bottom:12px}}
+@media (max-width:640px){.ask-panel{right:0;bottom:0;width:100vw;height:100vh;border-radius:0;border:0}.ask-fab{right:12px;bottom:12px}}
 @media (prefers-reduced-motion:reduce){.ask-st.on .ask-st-dot{animation:none}}
 """
