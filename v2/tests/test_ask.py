@@ -424,3 +424,15 @@ class CiteRepair(unittest.TestCase):
             a = ask.quick_ask("Is OpenAI cheaper?", draft=draft, verify=verify)
         self.assertEqual(seen["cites"], ["c1", "c2"])                     # the judge saw both facts
         self.assertEqual(len(a["paragraphs"]), 1); self.assertEqual(a["paragraphs"][0]["cites"], [1, 2]); self.assertEqual(a["trajectory"]["cites_repaired"], 1)
+
+
+class InlineIds(unittest.TestCase):
+    def test_ids_written_into_prose_are_stripped(self):
+        self.assertEqual(ask.strip_inline_ids("Self-hosted at zero per-token cost on the buyer's own compute (c_e3a700218641)."),
+                         "Self-hosted at zero per-token cost on the buyer's own compute.")
+        self.assertEqual(ask.strip_inline_ids("Astra costs $10 [f1, f2], and Sol $2 (n3)."), "Astra costs $10, and Sol $2.")
+        self.assertEqual(ask.strip_inline_ids("Plain sentence with a year 2026 and $4/$20."), "Plain sentence with a year 2026 and $4/$20.")
+        facts = [_fact("n1", "https://www.cnbc.com/x", NEWS, "reputable_secondary")]
+        a = ask.ask("q", research=_research(facts, [{"text": "Agentforce passed 1,000 paid deals (n1).", "cites": ["n1"]}]),
+                    verify=_verify({0: ("confirm", "none", "ok")}), grounder=_grounder({"n1"}))
+        self.assertEqual(a["paragraphs"][0]["text"], "Agentforce passed 1,000 paid deals.")

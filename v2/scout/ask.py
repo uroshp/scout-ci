@@ -86,7 +86,8 @@ QUICK_CONTRACT = """You are Scout, a competitive-intelligence analyst answering 
 what Scout has already verified. You have NO tools and may add NO facts: answer ONLY from the KNOWN FACTS
 and SCOUT'S TAKES below (takes are Scout's own battlecard judgments; a sentence resting on one must say
 "Scout's take"). Two or three sentences, each citing at least one id; lead with what a sales rep should
-say first. Every number, date and name in a sentence must appear in the text of a fact it cites; code
+say first. Each sentence stands alone (no "also", "however", "in addition": the checks may cut its
+neighbour). Put ids ONLY in "cites", never in the sentence text. Every number, date and name in a sentence must appear in the text of a fact it cites; code
 checks this and deletes what fails. If the question asks for something the facts do not cover, put that
 TOPIC (no numbers) in "unanswered" and answer only what they do cover; if they cover nothing, return an
 empty answer. Return ONLY a single fenced ```json block:
@@ -467,6 +468,17 @@ def floor_check(entry: dict, facts_by_id: dict) -> list[str]:
     return errs
 
 
+_INLINE_ID = re.compile(r"\s*[\(\[]?\b(?:c_[0-9a-f]{12}|[fn]\d{1,3}|t_[0-9a-f]{12})\b(?:\s*,\s*(?:c_[0-9a-f]{12}|[fn]\d{1,3}))*[\)\]]?")
+
+
+def strip_inline_ids(text: str) -> str:
+    """The model sometimes writes a fact id into the prose ("... on the buyer's own compute
+    (c_e3a700218641)."); the cites list carries the ids, the reader never sees them."""
+    out = _INLINE_ID.sub("", str(text or ""))
+    out = re.sub(r"\s+([.,;:!?])", r"\1", out)
+    return re.sub(r"\s{2,}", " ", out).strip()
+
+
 def _fact_evidence(f: dict) -> str:
     return _normalize(str(f.get("evidence_excerpt") or "")) + " " + _normalize(str(f.get("claim") or ""))
 
@@ -682,7 +694,7 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
 
     # 4. floor, 5. verify, 6. one rewrite + second judge
     confirmed: list = []
-    pending = [dict(e, text=str(e.get("text") or ""), cites=[str(c) for c in (e.get("cites") or [])]) for e in entries]
+    pending = [dict(e, text=strip_inline_ids(e.get("text")), cites=[str(c) for c in (e.get("cites") or [])]) for e in entries]
     for rnd in range(1, MAX_ROUNDS + 1):
         trajectory["rounds"] = rnd
         stage("floor", f"round {rnd}" if rnd > 1 else "")
@@ -733,7 +745,7 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
             if isinstance(item, dict) and item.get("index") in to_rewrite and str(item.get("text") or "").strip():
                 trajectory["rewritten"] += 1
                 returned.add(item["index"])
-                pending.append({"text": str(item["text"]), "cites": [str(c) for c in (item.get("cites") or [])]})
+                pending.append({"text": strip_inline_ids(item["text"]), "cites": [str(c) for c in (item.get("cites") or [])]})
         for i in to_rewrite:
             if i not in returned:
                 cut_log.append({"label": passed[i]["text"][:80], "reason": "verifier: " + to_rewrite[i]["reason"] + " (no rewrite returned)"})
@@ -833,7 +845,7 @@ def quick_ask(question: str, *, competitor: str | None = None, my_company: str |
     repair_fact_ids([], entries, {f["id"] for f in known})          # normalizes cite spellings; no new facts exist
     unanswered = [_scrub_digits(u) for u in (data.get("unanswered") or []) if isinstance(u, str) and u.strip()]
     facts_by_id = {f["id"]: f for f in known}
-    pending = [dict(e, text=str(e.get("text") or ""), cites=[str(c) for c in (e.get("cites") or [])]) for e in entries][:MAX_SENTENCES]
+    pending = [dict(e, text=strip_inline_ids(e.get("text")), cites=[str(c) for c in (e.get("cites") or [])]) for e in entries][:MAX_SENTENCES]
     stage("floor")
     passed = []
     for e in pending:
