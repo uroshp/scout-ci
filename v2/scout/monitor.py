@@ -1045,19 +1045,20 @@ def _persist_run_cost(started, rows: list, write: bool) -> None:
 
 
 def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
-            force: bool = False) -> list[dict]:
+            force: bool = False, slugs: list | None = None) -> list[dict]:
     """Thin wrapper (2026-09-28): opens the call-capture run and guarantees it is flushed even when a
-    run crashes (a crashed run still captured billable calls). The body is _run_all_impl, unchanged."""
+    run crashes (a crashed run still captured billable calls). The body is _run_all_impl, unchanged.
+    `slugs` (2026-09-28, WS1/WS3): check only these cards (a dry test run, a signal-triggered run)."""
     from scout import calllog
     calllog.begin_run("monitor")          # no-op unless SCOUT_CALL_CAPTURE=1
     try:
-        return _run_all_impl(write=write, send=send, email_dry_run=email_dry_run, force=force)
+        return _run_all_impl(write=write, send=send, email_dry_run=email_dry_run, force=force, slugs=slugs)
     finally:
         calllog.flush_run(write)
 
 
 def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = True,
-            force: bool = False) -> list[dict]:
+            force: bool = False, slugs: list | None = None) -> list[dict]:
     """Cron entrypoint: check every DUE battlecard, write per policy, email digests.
 
     Due-gate (_is_due): by default a card is only checked when it hasn't been checked
@@ -1077,7 +1078,11 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
     run_started = datetime.now()
     summary = []
     cost_rows = []
+    wanted = set(slugs) if slugs else None
     for slug in list_battlecards():
+        if wanted is not None and slug not in wanted:
+            summary.append({"slug": slug, "skipped": "not selected"})
+            continue
         meta = store.load_meta(slug) or {}
         # Showcase cards can opt out of monitoring (e.g. the Batman vs Superman
         # stress-test card): it still renders in the viewer but never burns a check.
@@ -1247,7 +1252,13 @@ if __name__ == "__main__":
     # LIVE only when the cron sets SCOUT_MONITOR_LIVE=1: then write the store and send real
     # email. Default (any other context) is fully dry: compute, no writes, no email sent.
     live = os.environ.get("SCOUT_MONITOR_LIVE") == "1"
-    out = run_all(write=live, send=True, email_dry_run=not live)
+    # Run controls (2026-09-28): SCOUT_MONITOR_SLUGS (comma list) checks only those cards;
+    # SCOUT_MONITOR_FORCE=1 ignores the due gate. Both empty on the scheduled run.
+    slugs = [x.strip() for x in os.environ.get("SCOUT_MONITOR_SLUGS", "").split(",") if x.strip()] or None
+    force = os.environ.get("SCOUT_MONITOR_FORCE") == "1"
+    if not live:
+        print(f"[monitor] DRY run: no writes, no email (slugs={slugs or 'all'}, force={force})")
+    out = run_all(write=live, send=True, email_dry_run=not live, force=force, slugs=slugs)
     print(_json.dumps(out, indent=2, default=str))
     # Partial failure still exits 1 (after the full summary prints) so the Actions run
     # notifies — but only after every card had its chance to check and write.
