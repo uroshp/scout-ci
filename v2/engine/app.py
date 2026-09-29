@@ -143,7 +143,7 @@ async def ask_route(request: Request, authorization: str | None = Header(default
             q.put({"error": text, "cost_usd": round(spent, 2), "id": record_id})
             LEDGER.settle(spent, reserve)
             if record_id:
-                ask.persist_failure(record_id, question, text, spent, asked_at)
+                ask.persist_failure(record_id, question, text, spent, asked_at, kind=mode)
         finally:
             try:
                 calllog.flush_run(True)
