@@ -1,0 +1,22 @@
+# Build + deploy the Ask Scout engine image (WS2 step 4b, 2026-09-28). Same shape as cloudbuild.yaml
+# (the viewer), with the engine's Dockerfile and a _SERVICE substitution (scout-engine-rc on rc,
+# scout-engine on main). Run by scripts/setup_engine_service.sh today; a trigger can point at it later.
+steps:
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    dir: v2
+    args: ['build', '-f', 'engine/Dockerfile', '-t', '${_IMAGE}', '.']
+  - id: push
+    name: gcr.io/cloud-builders/docker
+    args: ['push', '${_IMAGE}']
+  - id: deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args: ['run', 'deploy', '${_SERVICE}', '--image=${_IMAGE}', '--region=us-west1', '--quiet']
+images:
+  - '${_IMAGE}'
+substitutions:
+  _SERVICE: 'scout-engine'
+  _IMAGE: 'us-west1-docker.pkg.dev/${PROJECT_ID}/cloud-run-source-deploy/${_SERVICE}:${SHORT_SHA}'
+options:
+  logging: CLOUD_LOGGING_ONLY
