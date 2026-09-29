@@ -1,5 +1,13 @@
 # WS3 signals + WS4 MCP: build plan (2026-09-29)
 
+**Status 2026-09-29 11:20 PT: BUILT on rc, reviewed by four adversarial critics (12 findings,
+all folded in), proven on RC.** What differs from the plan below is recorded in the commit
+messages of a6a1948, f021cd0 and 4c1c284: a dispatched run is quiet and its findings ride the
+next FYI via `signals/_pending_fyi.json`; a signal run within 18 h serves the next anchor; signals
+are consumed on every written check; UTC in the poller; dispatch from the store with retry;
+hiring context reaches materiality only; MCP's metered tool authenticates inside the tool and
+runs the ask in a worker thread.
+
 Prepared after the Ask Scout promotion landed (main `98365b2`). Both workstreams are engine- and
 monitor-side; neither touches the Ask panel. Source of the design: `~/.claude/plans/…biscuit.md`
 (the plan Uroš approved 2026-09-28), narrowed here to the files and functions in the code as it is.
