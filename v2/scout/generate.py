@@ -495,6 +495,9 @@ ROLE_TOTALS: dict = {}
 # a stage-callback failure can NEVER break a paid generation — and None (the default) keeps every
 # other caller (monitor, scripts) byte-identical.
 _ON_STAGE = None
+# Same contract for tool calls (2026-09-28): Ask Scout streams "Searching: …" / "Reading: …" lines
+# to the reader while the research pass runs, so a two-minute step is not one frozen line.
+_ON_TOOL = None
 
 
 def _emit_stage(stage: str) -> None:
@@ -505,6 +508,16 @@ def _emit_stage(stage: str) -> None:
         cb(stage)
     except Exception as e:
         print(f"[generate] stage hook skipped ({type(e).__name__}: {e})", file=sys.stderr)
+
+
+def _emit_tool(name: str, inp: dict) -> None:
+    cb = _ON_TOOL
+    if cb is None:
+        return
+    try:
+        cb(name, inp)
+    except Exception as e:
+        print(f"[generate] tool hook skipped ({type(e).__name__}: {e})", file=sys.stderr)
 
 
 def reset_role_totals() -> None:
@@ -550,9 +563,11 @@ async def _drive(prompt: str, options, top_role: str) -> dict:
                 bump(role, getattr(message, "usage", None))
                 for b in getattr(message, "content", []) or []:
                     bk = type(b).__name__
-                    if bk == "ToolUseBlock" and getattr(b, "name", "") == "Agent":
+                    if bk == "ToolUseBlock":
                         inp = getattr(b, "input", {}) or {}
-                        agent_names[getattr(b, "id", "")] = inp.get("subagent_type") or "subagent"
+                        if getattr(b, "name", "") == "Agent":
+                            agent_names[getattr(b, "id", "")] = inp.get("subagent_type") or "subagent"
+                        _emit_tool(getattr(b, "name", "") or "", inp if isinstance(inp, dict) else {})
                     elif bk == "TextBlock":
                         last_text = getattr(b, "text", "") or last_text
             elif kind == "ResultMessage":

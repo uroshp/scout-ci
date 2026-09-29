@@ -20,14 +20,19 @@ import re
 from scout import config
 from scout.sources import classify
 
+# (key, label, time hint shown while the stage is live). Measured 2026-09-28: research 110-250 s,
+# verify 30-60 s, the optional rewrite + second verify 30-100 s.
 STAGES = [
-    ("facts", "Reading the card's verified facts"),
-    ("search", "Searching and reading sources"),
-    ("ground", "Checking every quote against its page"),
-    ("floor", "Checking every number against the evidence"),
-    ("verify", "Verifying each sentence"),
-    ("done", "Done"),
+    ("facts", "Reading the card's verified facts", ""),
+    ("search", "Searching and reading sources", "the longest step, usually 1 to 3 min"),
+    ("ground", "Checking every quote against its page", "about 15 s"),
+    ("floor", "Checking every number against the evidence", ""),
+    ("verify", "Verifying each sentence", "30 to 60 s; a rewrite adds a second pass"),
+    ("rewrite", "Rewriting what the verifier rejected", "30 s, then a second check"),
+    ("done", "Done", ""),
 ]
+POLL_MS = 8000          # recovery poll interval after a dropped stream
+POLL_MAX_MS = 12 * 60 * 1000
 EXAMPLES = {
     "default": ["What changed in their pricing this quarter?",
                 "What is their latest reported quarterly revenue?",
@@ -54,6 +59,8 @@ def _cites(text: str, cites: list) -> str:
 def answer_html(a: dict, permalink: bool = True, show_question: bool = True) -> str:
     """Server-rendered answer body (one renderer for the panel and the permalink page). In the
     thread the reader's own bubble carries the question, so the echo is off there."""
+    if a.get("failed"):
+        return f'<div class="ask-answer ask-failed"><p class="ask-p ask-none">{_html.escape(str(a.get("error") or "Scout could not answer that."))}</p></div>'
     paras = "".join(f'<p class="ask-p">{_cites(p.get("text", ""), p.get("cites", []))}</p>' for p in a.get("paragraphs") or [])
     if not paras:
         paras = '<p class="ask-p ask-none">Scout could not verify an answer to this question. What it tried is in the Cut Log.</p>'
@@ -105,10 +112,10 @@ def button_and_panel_html(slug: str | None, meta: dict | None, persona: str | No
     ctx = about + (f" · for {plabel}" if plabel else "")
     examples = [e.replace("their", f"{comp}'s") if comp else e for e in EXAMPLES["default"]]
     ex_html = "".join(f'<button type="button" class="ask-ex">{_html.escape(e)}</button>' for e in examples)
-    stages_js = json.dumps([{"k": k, "t": t} for k, t in STAGES])
+    stages_js = json.dumps([{"k": k, "t": t, "h": h} for k, t, h in STAGES])
     canned = bool(config.ASK_CANNED_ID)
     cfg = json.dumps({"slug": slug, "competitor": comp, "my_company": meta.get("my_company") or "", "persona": persona or "",
-                      "canned": canned})
+                      "canned": canned, "poll_ms": POLL_MS, "poll_max_ms": POLL_MAX_MS})
     review = ('<div class="ask-review">Review build: every question replays one stored answer.</div>' if canned else "")
     # The script is a RAW template, not part of the f-string: an f-string turned the JS `'\n\n'`
     # into two real newlines inside a string literal (a syntax error that silently killed every
@@ -146,17 +153,22 @@ var fab=document.getElementById('ask-fab'), panel=document.getElementById('ask-p
 var form=document.getElementById('ask-form'), q=document.getElementById('ask-q'), go=document.getElementById('ask-go');
 var thread=document.getElementById('ask-thread'), intro=document.getElementById('ask-intro'), clearBtn=document.getElementById('ask-clear');
 var fabN=document.getElementById('ask-fab-n');
-var history=[], busy=false, lastFocus=null, timer=null, t0=0, KEY='scout_ask_thread_v1', OPEN_KEY='scout_ask_open_v1', MAX=20;
-function load(){try{var raw=localStorage.getItem(KEY);var arr=raw?JSON.parse(raw):[];if(!Array.isArray(arr))return [];return arr.slice(-MAX);}catch(e){return [];}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(history.slice(-MAX)));}catch(e){}}
-function remember(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+var KEY='scout_ask_thread_v1', OPEN_KEY='scout_ask_open_v1', PEND_KEY='scout_ask_pending_v1', MAX=20;
+var history=[], pending=null, busy=false, lastFocus=null, timer=null, t0=0, acts=[], cur=null;
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch(e){}}
+function load(){try{var arr=JSON.parse(lsGet(KEY)||'[]');return Array.isArray(arr)?arr.slice(-MAX):[];}catch(e){return [];}}
+function save(){lsSet(KEY,JSON.stringify(history.slice(-MAX)));}
+function loadPending(){try{var p=JSON.parse(lsGet(PEND_KEY)||'null');return (p&&p.answer_id&&p.question&&(Date.now()-(p.started||0))<CFG.poll_max_ms)?p:null;}catch(e){return null;}}
+function savePending(p){pending=p;lsSet(PEND_KEY,p?JSON.stringify(p):null);}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function token(){var a=new Uint8Array(16);try{crypto.getRandomValues(a);}catch(e){for(var i=0;i<16;i++)a[i]=Math.floor(Math.random()*256);}return Array.prototype.map.call(a,function(b){return ('0'+b.toString(16)).slice(-2);}).join('');}
 function badge(){var n=history.length;fabN.hidden=!n;fabN.textContent=n?String(n):'';}
 function focusQ(){try{q.focus({preventScroll:true});}catch(e){q.focus();}}
 function scrollEnd(){thread.scrollTop=thread.scrollHeight;}
 // open / minimize: the widget is NOT modal (the page stays usable behind it); Esc minimizes.
-function open(){lastFocus=document.activeElement;panel.hidden=false;fab.hidden=true;remember(OPEN_KEY,'1');scrollEnd();setTimeout(focusQ,30);}
-function minimize(){panel.hidden=true;fab.hidden=false;badge();remember(OPEN_KEY,'0');if(lastFocus&&lastFocus.focus&&lastFocus!==document.body){try{lastFocus.focus({preventScroll:true});}catch(e){}}}
+function open(){lastFocus=document.activeElement;panel.hidden=false;fab.hidden=true;lsSet(OPEN_KEY,'1');scrollEnd();setTimeout(focusQ,30);}
+function minimize(){panel.hidden=true;fab.hidden=false;badge();lsSet(OPEN_KEY,'0');if(lastFocus&&lastFocus.focus&&lastFocus!==document.body){try{lastFocus.focus({preventScroll:true});}catch(e){}}}
 fab.addEventListener('click',open);
 document.getElementById('ask-close').addEventListener('click',minimize);
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!panel.hidden)minimize();});
@@ -166,8 +178,17 @@ q.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.prev
 q.addEventListener('input',function(){q.style.height='auto';q.style.height=Math.min(q.scrollHeight,140)+'px';});
 form.addEventListener('submit',function(e){e.preventDefault();submit();});
 function add(html,cls){var d=document.createElement('div');d.className='ask-msg '+(cls||'');d.innerHTML=html;thread.appendChild(d);scrollEnd();return d;}
-function stageHtml(k,extra){var i=STAGES.findIndex(function(s){return s.k===k;});return STAGES.map(function(s,j){var st=j<i?'done':(j===i?'on':'');return '<div class="ask-st '+st+'"><span class="ask-st-dot"></span><span>'+s.t+(j===i&&extra?(' · '+esc(extra)):'')+'</span></div>';}).join('')+'<div class="ask-elapsed" id="ask-elapsed">0 s</div>';}
-function tick(){var s=Math.round((Date.now()-t0)/1000);var el=document.getElementById('ask-elapsed');if(el)el.textContent=s+' s';}
+function stageHtml(k,extra,note){
+  var i=STAGES.findIndex(function(s){return s.k===k;});
+  var h=STAGES.map(function(s,j){
+    var st=j<i?'done':(j===i?'on':'');
+    if(s.k==='rewrite'&&st!=='on'&&st!=='done')return '';
+    var line='<div class="ask-st '+st+'"><span class="ask-st-dot"></span><span>'+s.t+(j===i&&extra?(' · '+esc(extra)):'')+(j===i&&s.h?('<span class="ask-hint">'+s.h+'</span>'):'')+'</span></div>';
+    if(j===i&&acts.length)line+='<div class="ask-acts">'+acts.map(function(a){return '<div class="ask-act">'+esc(a)+'</div>';}).join('')+'</div>';
+    return line;}).join('');
+  return h+'<div class="ask-elapsed"><span id="ask-elapsed">0 s</span>'+(note?' · <span class="ask-note">'+esc(note)+'</span>':'')+'</div>';}
+function tick(){var s=Math.round((Date.now()-t0)/1000);var el=document.getElementById('ask-elapsed');if(el)el.textContent=(s>=60?Math.floor(s/60)+' min '+(s%60)+' s':s+' s');}
+function show(prog,k,extra,note){if(k)cur=k;prog.innerHTML=stageHtml(cur||'facts',extra||'',note||'');tick();scrollEnd();}
 function wire(box){
   // [n] scrolls the THREAD to the source line (never the page: scrollIntoView would move the document too)
   Array.prototype.forEach.call(box.querySelectorAll('.ask-cite'),function(a){a.addEventListener('click',function(e){e.preventDefault();var t=box.querySelector('#ask-src-'+a.getAttribute('data-n'));if(t){t.classList.add('lit');thread.scrollTop=Math.max(0,t.offsetTop-thread.offsetTop-thread.clientHeight/2+t.offsetHeight/2);setTimeout(function(){t.classList.remove('lit');},1600);}});});
@@ -175,59 +196,91 @@ function wire(box){
 }
 function setBusy(b){busy=b;go.disabled=b;q.disabled=b;q.placeholder=b?'Scout is working…':(history.length?'Ask a follow-up':'Ask a question');}
 function fail(prog,question,text){done(prog,'<p class="ask-p ask-none">'+esc(text)+'</p>',null,question);}
+function begin(question){
+  if(intro)intro.hidden=true;q.value='';q.style.height='auto';setBusy(true);acts=[];cur='facts';
+  add('<div class="ask-bubble">'+esc(question)+'</div>','ask-user');
+  var prog=add('','ask-scout ask-working');t0=Date.now();clearInterval(timer);timer=setInterval(tick,1000);show(prog,'facts');
+  return prog;}
 function submit(){
   if(busy)return;var question=q.value.trim();if(!question)return;
-  if(intro)intro.hidden=true;q.value='';q.style.height='auto';setBusy(true);
-  add('<div class="ask-bubble">'+esc(question)+'</div>','ask-user');
-  var prog=add(stageHtml('facts'),'ask-scout ask-working');t0=Date.now();timer=setInterval(tick,1000);
-  var payload={question:question,slug:CFG.slug,competitor:CFG.competitor,my_company:CFG.my_company,persona:CFG.persona,
+  var prog=begin(question), rid=token();
+  var payload={question:question,rid:rid,slug:CFG.slug,competitor:CFG.competitor,my_company:CFG.my_company,persona:CFG.persona,
                history:history.slice(-6).map(function(h){return {question:h.question,answer_id:h.answer_id};})};
   fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
   .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
   .then(function(x){
     if(!x.ok||!x.j){fail(prog,question,(x.j&&x.j.message)||'Ask Scout is not available right now.');return;}
-    if(x.j.mode==='engine'){stream(x.j.engine,x.j.token,payload,prog,question);return;}
+    if(x.j.mode==='engine'){
+      if(x.j.id)savePending({question:question,answer_id:x.j.id,rid:rid,started:t0});
+      stream(x.j.engine,x.j.token,payload,prog,question);return;}
     if(!x.j.id){fail(prog,question,x.j.message||'Ask Scout is not available right now.');return;}
     var plan=x.j.stages||[],i=0;
     function next(){
       if(i>=plan.length){fetch('/api/answers/'+x.j.id).then(function(r){return r.json();}).then(function(a){done(prog,a.html||'',x.j.id,question);}).catch(function(){fail(prog,question,'The answer could not be loaded.');});return;}
-      prog.innerHTML=stageHtml(plan[i].k,plan[i].extra||'');scrollEnd();var d=plan[i].ms||1200;i++;setTimeout(next,d);
+      show(prog,plan[i].k,plan[i].extra||'');var d=plan[i].ms||1200;i++;setTimeout(next,d);
     }
     next();
   })
   .catch(function(){fail(prog,question,'Ask Scout is not reachable right now.');});
 }
-function stream(engine,token,payload,prog,question){
-  fetch(engine+'/ask',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(payload)})
+function stream(engine,tok,payload,prog,question){
+  var finished=false;
+  function lost(){if(finished)return;finished=true;if(pending&&pending.question===question)recover(prog,question,'Connection dropped. Scout is still working on it; reconnecting');else fail(prog,question,'The connection dropped before the answer arrived.');}
+  fetch(engine+'/ask',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify(payload)})
   .then(function(r){
-    if(!r.ok){return r.json().then(function(j){fail(prog,question,(j&&j.message)||('Ask Scout returned '+r.status));}).catch(function(){fail(prog,question,'Ask Scout returned '+r.status+'.');});}
-    var reader=r.body.getReader(),dec=new TextDecoder(),buf='',finished=false;
+    if(!r.ok){finished=true;return r.json().then(function(j){fail(prog,question,(j&&j.message)||('Ask Scout returned '+r.status));}).catch(function(){fail(prog,question,'Ask Scout returned '+r.status+'.');});}
+    var reader=r.body.getReader(),dec=new TextDecoder(),buf='';
     function handle(ev){
-      if(ev.stage){prog.innerHTML=stageHtml(ev.stage,ev.extra||'');scrollEnd();}
+      if(ev.activity){acts.push(ev.activity);if(acts.length>5)acts.shift();show(prog,null,'');}
+      else if(ev.stage){acts=[];show(prog,ev.stage,ev.extra||'');}
       else if(ev.done){finished=true;done(prog,ev.html||'',ev.id,question);}
       else if(ev.error){finished=true;fail(prog,question,ev.error);}
     }
     function pump(){return reader.read().then(function(c){
-      if(c.done){if(!finished)fail(prog,question,'The connection closed before the answer arrived.');return;}
+      if(c.done){lost();return;}
       buf+=dec.decode(c.value,{stream:true});var parts=buf.split('\n\n');buf=parts.pop();
       parts.forEach(function(p){var line=p.split('\n').filter(function(l){return l.indexOf('data: ')===0;})[0];if(!line)return;var ev;try{ev=JSON.parse(line.slice(6));}catch(e){return;}handle(ev);});
       return pump();
     });}
     return pump();
   })
-  .catch(function(){fail(prog,question,'Ask Scout is not reachable right now.');});
+  .catch(function(){if(!finished)lost();});
+}
+// the stream is gone but the engine is not: the answer lands in the store under the id the
+// viewer gave us, so poll for it (also how a reload mid-question picks the answer back up)
+function recover(prog,question,note){
+  var p=pending;if(!p){fail(prog,question,'The connection dropped before the answer arrived.');return;}
+  show(prog,null,'',note);
+  var deadline=(p.started||Date.now())+CFG.poll_max_ms;
+  function poll(){
+    if(Date.now()>deadline){savePending(null);fail(prog,question,'Scout did not finish that one. Ask it again.');return;}
+    fetch('/api/answers/'+p.answer_id,{cache:'no-store'}).then(function(r){
+      if(r.status===404)return null;
+      if(!r.ok)return null;
+      return r.json();
+    }).then(function(a){
+      if(!a){setTimeout(poll,CFG.poll_ms);return;}
+      if(a.failed){fail(prog,question,a.error||'Scout could not answer that.');}
+      else done(prog,a.html||'',a.id,question);
+    }).catch(function(){setTimeout(poll,CFG.poll_ms);});
+  }
+  setTimeout(poll,CFG.poll_ms);
 }
 function done(box,html,id,question){
   clearInterval(timer);box.className='ask-msg ask-scout';box.innerHTML=html;wire(box);
   if(id){history.push({question:question,answer_id:id,html:html});save();clearBtn.hidden=false;}
+  if(pending&&pending.question===question)savePending(null);
   badge();setBusy(false);scrollEnd();if(!panel.hidden)setTimeout(focusQ,20);
 }
-clearBtn.addEventListener('click',function(){history=[];save();Array.prototype.forEach.call(thread.querySelectorAll('.ask-msg'),function(m){m.remove();});if(intro)intro.hidden=false;clearBtn.hidden=true;badge();setBusy(false);focusQ();});
-// restore the thread this browser already has (across cards and visits), and whether it was open
+clearBtn.addEventListener('click',function(){history=[];save();savePending(null);Array.prototype.forEach.call(thread.querySelectorAll('.ask-msg'),function(m){m.remove();});if(intro)intro.hidden=false;clearBtn.hidden=true;badge();setBusy(false);focusQ();});
+// restore the thread this browser already has (across cards and visits), whether it was open, and
+// a question still in flight
 history=load();
 if(history.length){if(intro)intro.hidden=true;clearBtn.hidden=false;history.forEach(function(h){add('<div class="ask-bubble">'+esc(h.question)+'</div>','ask-user');var b=add(h.html||'','ask-scout');wire(b);});}
 badge();setBusy(false);
-try{if(localStorage.getItem(OPEN_KEY)==='1'){panel.hidden=false;fab.hidden=true;scrollEnd();}}catch(e){}
+if(lsGet(OPEN_KEY)==='1'){panel.hidden=false;fab.hidden=true;scrollEnd();}
+pending=loadPending();
+if(pending){var pr=begin(pending.question);t0=pending.started||Date.now();cur='search';recover(pr,pending.question,'Still working on this from before; reconnecting');}
 })();"""
 
 
@@ -260,6 +313,11 @@ PANEL_CSS = """
 .ask-ex{border:1px solid #dfdbcf;background:#fff;border-radius:999px;padding:5px 10px;font-size:12px;color:#5f5e54;cursor:pointer;text-align:left}.ask-ex:hover{border-color:#34566b;color:#2a4658}
 .ask-go{border:0;border-radius:10px;background:#2b2a26;color:#fff;font:600 14px system-ui,sans-serif;padding:10px 16px;cursor:pointer;min-height:40px}.ask-go:hover{background:#151410}.ask-go:disabled{background:#a9a69b;cursor:default}
 .ask-elapsed{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#8a877c;padding:4px 0 0 20px}
+.ask-note{color:#7a2e0e}
+.ask-hint{display:block;font-weight:400;font-size:11.5px;color:#8a877c;margin-top:1px}
+.ask-acts{margin:0 0 4px 20px;border-left:2px solid #e3ded2;padding-left:10px}
+.ask-act{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#5f5e54;padding:2px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ask-act:last-child{color:#2b2a26}
 .ask-st{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13.5px;color:#8a877c}
 .ask-st-dot{width:10px;height:10px;border-radius:50%;border:2px solid #cfc8b8;box-sizing:border-box}
 .ask-st.on{color:#2b2a26;font-weight:600}.ask-st.on .ask-st-dot{border-color:#2b2a26;animation:askpulse 1s infinite}

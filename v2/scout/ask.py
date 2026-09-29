@@ -37,6 +37,7 @@ import sys
 from datetime import date, datetime
 
 from scout import config, display, store
+from scout.asktoken import record_id_for  # noqa: F401  (shared with the viewer)
 from scout.grounding import _normalize, ground_claims
 from scout.prompts import SOURCE_HIERARCHY, WRITING_STYLE
 from scout.sources import classify
@@ -72,6 +73,8 @@ evidence_excerpt. If the question asks for something you cannot verify, put the 
 Write for the reader named in CONTEXT when one is given.
 TOOL BUDGET: at most 4 web searches and 3 page reads in total. Read the KNOWN FACTS before any search;
 if the budget runs out, answer from what you have verified and put the rest in "unanswered".
+SPEED: the reader is waiting. Issue your searches TOGETHER in one turn (several tool calls in one
+message), then the page reads together in the next turn; never one tool per turn.
 """
 
 VERIFY_SYSTEM = """You are the VERIFIER of an answer written from verified facts. You have no tools, on purpose:
@@ -120,12 +123,19 @@ def infer_competitor(question: str) -> tuple[str | None, str | None]:
     qt = classify._company_tokens(question)
     if not qt:
         return None, None
+    best, best_score = (None, None), 0
     for slug in display.list_battlecards():
         meta = store.load_meta(slug) or {}
-        for who in (meta.get("competitor"), meta.get("my_company")):
-            if who and (qt & classify._company_tokens(who)):
-                return meta.get("competitor") or who, slug        # the card's competitor names the scope
-    return None, None
+        names = [w for w in (meta.get("competitor"), meta.get("my_company")) if w]
+        hits = [w for w in names if qt & classify._company_tokens(w)]
+        if not hits:
+            continue
+        # the card matching the most named companies wins ("Mistral instead of OpenAI" is the
+        # Mistral vs OpenAI card, not the first card that mentions OpenAI); ties keep card order
+        score = len(hits) + (0.5 if hits[0] == meta.get("competitor") else 0)
+        if score > best_score:
+            best, best_score = (meta.get("competitor") or hits[0], slug), score
+    return best
 
 
 def history_records(history: list) -> list[dict]:
@@ -460,12 +470,37 @@ def rewrite_call(entries: list, verdicts: dict, facts_by_id: dict) -> dict:
 
 # --- the loop ------------------------------------------------------------------------------------------
 def _scrub_digits(s: str) -> str:
-    return re.sub(r"[\$€£]?\d[\d,.]*(?:\s*(?:%|(?:percent|billion|million|thousand|bn|mn|[mbk])\b))?", "a figure", str(s or ""), flags=re.I).strip()
+    """Unanswered topics may not smuggle a quantity (C18): money, percentages, scaled or grouped
+    numbers become "a figure". A digit glued to a name (GPT-6, Opus 4.8, Q2) is a name, not a claim,
+    and stays; so does a bare year."""
+    pat = (r"(?<![A-Za-z0-9.-])(?:[\$€£]\s?\d[\d,.]*(?:\s*(?:percent|billion|million|thousand|bn|mn|[mbk])\b)?"
+           r"|\d[\d,.]*\s*(?:%|(?:percent|billion|million|thousand|bn|mn)\b)"
+           r"|\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d{5,})(?![A-Za-z0-9-])")
+    return re.sub(pat, "a figure", str(s or ""), flags=re.I).strip()
+
+
+def activity_text(name: str, inp: dict) -> str:
+    """One short line per tool call, for the panel: what Scout is doing right now."""
+    from urllib.parse import urlsplit
+    inp = inp if isinstance(inp, dict) else {}
+    n = (name or "").rsplit("__", 1)[-1]
+    if n == "WebSearch":
+        return f"Searching: {str(inp.get('query') or '')[:90]}"
+    if n in ("WebFetch", "fetch_page", "page_history"):
+        host = urlsplit(str(inp.get("url") or "")).netloc.removeprefix("www.")
+        return f"Reading: {host or 'a page'}" + (" (archived copy)" if n == "page_history" else "")
+    if n in ("sec_filings", "sec_fact"):
+        who = inp.get("company") or inp.get("name") or inp.get("ticker") or inp.get("cik") or ""
+        return f"Checking SEC EDGAR{': ' + str(who)[:40] if who else ''}"
+    if n == "job_postings":
+        return f"Checking job postings: {str(inp.get('host') or inp.get('board') or '')[:40]}".rstrip(": ")
+    return ""
 
 
 def ask(question: str, *, competitor: str | None = None, my_company: str | None = None, context: str | None = None,
         persona: str | None = None, slug: str | None = None, history: list | None = None, research=research_call,
-        verify=verify_call, rewrite=rewrite_call, grounder=ground_claims, persist: bool = False, on_stage=None) -> dict:
+        verify=verify_call, rewrite=rewrite_call, grounder=ground_claims, persist: bool = False, on_stage=None,
+        record_id: str | None = None) -> dict:
     """`on_stage(key, extra)` is called as the loop moves (facts, search, ground, floor, verify, rewrite,
     done); the engine streams it to the panel. Never lets a hook exception stop the loop."""
     def stage(k, extra=""):
@@ -496,11 +531,16 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
                   "thread_turns": len(history or [])}
     cut_log: list = []
 
-    # 2. research
+    # 2. research (every tool call the model makes becomes an "activity" line for the reader)
+    from scout import generate as _gen
+    _gen._ON_TOOL = lambda name, inp: stage("activity", activity_text(name, inp))
     try:
-        r = research(question, known, ctx, history)
-    except TypeError:                        # an injected research fake with the old 3-arg signature
-        r = research(question, known, ctx)
+        try:
+            r = research(question, known, ctx, history)
+        except TypeError:                        # an injected research fake with the old 3-arg signature
+            r = research(question, known, ctx)
+    finally:
+        _gen._ON_TOOL = None
     cost += float(r.get("cost_usd") or 0.0)
     trajectory["research_turns"] = r.get("num_turns")
     data = _json_or_none(r.get("text") or "") or {}
@@ -599,7 +639,7 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
             by_url[url] = src
         num[c] = src["n"]
     answer = {
-        "id": "a_" + hashlib.sha256(f"{question}|{slug}|{t0.isoformat()}".encode()).hexdigest()[:12],
+        "id": record_id or "a_" + hashlib.sha256(f"{question}|{slug}|{t0.isoformat()}".encode()).hexdigest()[:12],
         "question": question, "slug": slug, "competitor": meta.get("competitor") or competitor, "context": ctx,
         "card": (f"{meta.get('my_company')} vs {meta.get('competitor')}" if meta.get("my_company") and meta.get("competitor") else None),
         "asked_at": t0.isoformat(timespec="seconds"), "seconds": round((datetime.now() - t0).total_seconds(), 1),
@@ -612,6 +652,15 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
         answer["path"] = _persist(answer)
     stage("done")
     return answer
+
+
+def persist_failure(record_id: str, question: str, error: str, cost_usd: float, asked_at: str | None = None) -> None:
+    """A failed run leaves a small record at the id the panel is waiting on, so a reader who lost
+    the stream sees the honest message instead of polling into silence. Never raises."""
+    rec = {"id": record_id, "question": question, "asked_at": asked_at or datetime.now().isoformat(timespec="seconds"),
+           "failed": True, "error": error, "cost_usd": round(float(cost_usd or 0.0), 4),
+           "paragraphs": [], "sources": [], "cut_log": [], "unanswered": [], "verified": False, "seconds": 0, "trajectory": {}}
+    _persist(rec)
 
 
 def _persist(answer: dict) -> str | None:

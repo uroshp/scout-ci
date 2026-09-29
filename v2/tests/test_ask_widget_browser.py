@@ -16,7 +16,7 @@ except Exception:   # pragma: no cover
     _HAVE_PW = False
 
 import server
-from scout import config, display
+from scout import askui, asktoken, config, display
 
 ORIGIN = "http://scout.test"
 ANSWER = {"id": "a_0123456789ab", "question": "What is X's revenue?", "slug": None, "competitor": "X",
@@ -139,3 +139,111 @@ class Widget(unittest.TestCase):
         self.assertGreaterEqual(round(box["height"]), 800)
         self.assertEqual(self.errors, [])
         page.context.close()
+
+
+@unittest.skipUnless(_HAVE_PW, "playwright not installed")
+class Recovery(unittest.TestCase):
+    """Engine mode in the browser: the stream drops (Safari did, 2026-09-28, on a 6-minute run), the
+    reader reloads mid-question, the run fails. The engine is a route stub; the record the engine
+    would have written appears in RECORDS when the test says so, and the panel polls it in."""
+    RECORDS: dict = {}
+
+    @classmethod
+    def setUpClass(cls):
+        cls.slugs = display.list_battlecards()[:2]
+        cls.p = [mock.patch.object(config, "RC_PASSWORD", ""), mock.patch.object(config, "RC_MODE", False),
+                 mock.patch.object(config, "ANALYTICS_ENABLED", False), mock.patch.object(display, "_commits_via_api", return_value=[]),
+                 mock.patch.object(config, "ASK_ENABLED", True), mock.patch.object(config, "ASK_CANNED_ID", ""),
+                 mock.patch.object(config, "ASK_ENGINE_URL", "http://engine.test"), mock.patch.object(config, "ASK_VIEWER_SECRET", "shh"),
+                 mock.patch.object(askui, "POLL_MS", 250), mock.patch.object(askui, "POLL_MAX_MS", 60000),
+                 mock.patch.object(server, "_load_answer", side_effect=lambda aid: cls.RECORDS.get(aid))]
+        for p in cls.p:
+            p.start()
+        server.app.config["TESTING"] = True
+        cls.pw = sync_playwright().start()
+        try:
+            cls.browser = cls.pw.chromium.launch()
+        except Exception as e:   # pragma: no cover
+            cls.pw.stop()
+            for p in cls.p:
+                p.stop()
+            raise unittest.SkipTest(f"chromium not available: {e}")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.browser.close(); cls.pw.stop()
+        for p in cls.p:
+            p.stop()
+
+    def _page(self):
+        self.RECORDS.clear(); self.ids = []
+        ctx = self.browser.new_context(viewport={"width": 1200, "height": 900})
+        page = ctx.new_page()
+        page.route("**/*", _serve)
+        cors = {"Access-Control-Allow-Origin": ORIGIN, "Access-Control-Allow-Headers": "authorization,content-type", "Access-Control-Allow-Methods": "POST"}
+
+        def engine(route):
+            if route.request.method == "OPTIONS":
+                return route.fulfill(status=200, headers=cors, body="")
+            rid = (route.request.post_data_json or {}).get("rid")
+            aid = asktoken.record_id_for(rid); self.ids.append(aid)
+            body = ('data: {"stage": "facts", "id": "%s"}\n\n' % aid + 'data: {"stage": "search", "extra": "24 known facts"}\n\n'
+                    + 'data: {"activity": "Searching: X pricing"}\n\n')          # ...and the connection drops here
+            route.fulfill(status=200, headers=cors, content_type="text/event-stream", body=body)
+        page.route("http://engine.test/ask", engine)
+        self.errors = []
+        page.on("pageerror", lambda e: self.errors.append(str(e)))
+        page.goto(f"{ORIGIN}/c/{self.slugs[0]}")
+        page.locator("#ask-fab").click()
+        return page
+
+    def _record(self, aid, failed=False):
+        rec = dict(ANSWER, id=aid, question="What is X's revenue?")
+        if failed:
+            rec = {"id": aid, "question": "q", "failed": True, "error": "Scout ran out of research steps on that question.", "cost_usd": 0.7,
+                   "paragraphs": [], "sources": [], "cut_log": [], "unanswered": [], "verified": False, "seconds": 0, "trajectory": {}}
+        self.RECORDS[aid] = rec
+
+    def test_dropped_stream_recovers_the_answer(self):
+        page = self._page()
+        page.locator("#ask-q").fill("What is X's revenue?"); page.locator("#ask-q").press("Enter")
+        page.wait_for_selector(".ask-note", timeout=10000)
+        self.assertIn("Connection dropped", page.locator(".ask-note").inner_text())
+        self.assertIn("Searching: X pricing", page.locator(".ask-acts").inner_text())      # what it was doing stays visible
+        self.assertIn("longest step", page.locator(".ask-hint").inner_text())
+        self.assertIsNotNone(page.evaluate("localStorage.getItem('scout_ask_pending_v1')"))
+        page.wait_for_timeout(600)                                                          # a few 404 polls
+        self._record(self.ids[-1])
+        page.wait_for_selector(".ask-answer", timeout=10000)
+        self.assertIn("42.2", page.locator(".ask-answer").inner_text())
+        self.assertEqual(page.locator("#ask-fab-n").inner_text(), "1")
+        self.assertIsNone(page.evaluate("localStorage.getItem('scout_ask_pending_v1')"))
+        self.assertFalse(page.locator("#ask-go").is_disabled())
+        self.assertEqual(self.errors, []); page.context.close()
+
+    def test_reload_mid_question_picks_the_answer_up(self):
+        page = self._page()
+        page.locator("#ask-q").fill("What is X's revenue?"); page.locator("#ask-q").press("Enter")
+        page.wait_for_selector(".ask-note", timeout=10000)
+        page.goto(f"{ORIGIN}/c/{self.slugs[-1]}")                                            # another card, mid-question
+        page.wait_for_selector(".ask-note", timeout=10000)
+        self.assertIn("Still working", page.locator(".ask-note").inner_text())
+        self.assertEqual(page.locator(".ask-user").count(), 1)                              # the question is back in the thread
+        self.assertTrue(page.locator("#ask-go").is_disabled())
+        self._record(self.ids[-1])
+        page.wait_for_selector(".ask-answer", timeout=10000)
+        self.assertEqual(page.locator("#ask-fab-n").inner_text(), "1")
+        page.reload(); page.wait_for_selector(".ask-answer", timeout=10000)                  # and it is a normal turn now
+        self.assertIsNone(page.evaluate("localStorage.getItem('scout_ask_pending_v1')"))
+        self.assertEqual(self.errors, []); page.context.close()
+
+    def test_failed_run_shows_the_honest_message_and_is_not_a_turn(self):
+        page = self._page()
+        page.locator("#ask-q").fill("What is X's revenue?"); page.locator("#ask-q").press("Enter")
+        page.wait_for_selector(".ask-note", timeout=10000)
+        self._record(self.ids[-1], failed=True)
+        page.wait_for_selector(".ask-none", timeout=10000)
+        self.assertIn("research steps", page.locator(".ask-none").inner_text())
+        self.assertTrue(page.locator("#ask-fab-n").is_hidden())
+        self.assertIsNone(page.evaluate("localStorage.getItem('scout_ask_pending_v1')"))
+        self.assertEqual(self.errors, []); page.context.close()

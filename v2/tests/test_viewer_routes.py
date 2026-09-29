@@ -178,6 +178,21 @@ class AskPanel(unittest.TestCase):
             p = subprocess.run([node, "--check", "-"], input=js.encode(), capture_output=True)
             self.assertEqual(p.returncode, 0, p.stderr.decode()[:400])
 
+    def test_engine_mode_returns_the_record_id_and_answers_api_serves_failures(self):
+        from scout.asktoken import record_id_for
+        c = _client()
+        failed = {"id": "a_ffffffffff01", "question": "q", "failed": True, "error": "Scout ran out of research steps on that question.", "cost_usd": 0.7,
+                  "paragraphs": [], "sources": [], "cut_log": [], "unanswered": [], "verified": False, "seconds": 0, "trajectory": {}}
+        with mock.patch.object(config, "ASK_ENABLED", True), mock.patch.object(config, "ASK_CANNED_ID", ""), \
+             mock.patch.object(config, "ASK_ENGINE_URL", "https://engine.test"), mock.patch.object(config, "ASK_VIEWER_SECRET", "shh"), \
+             mock.patch.object(server, "_load_answer", side_effect=lambda aid: failed if aid == "a_ffffffffff01" else None):
+            j = c.post("/api/ask", json={"question": "q", "rid": "browser-token-0123456789"}).get_json()
+            self.assertEqual(j["mode"], "engine"); self.assertEqual(j["id"], record_id_for("browser-token-0123456789"))
+            self.assertIsNone(c.post("/api/ask", json={"question": "q", "rid": "bad token!"}).get_json()["id"])
+            j = c.get("/api/answers/a_ffffffffff01").get_json()
+            self.assertTrue(j["failed"]); self.assertIn("research steps", j["error"]); self.assertIn("ask-failed", j["html"])
+            self.assertEqual(c.get("/api/answers/a_ffffffffff02").status_code, 404)
+
     def test_engine_mode_without_engine_is_an_honest_503(self):
         c = _client()
         with mock.patch.object(config, "ASK_ENABLED", True), mock.patch.object(config, "ASK_CANNED_ID", ""):

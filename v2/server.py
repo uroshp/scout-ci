@@ -529,7 +529,8 @@ def api_answer(aid):
     a = _load_answer(aid)
     if not a:
         return jsonify({"error": "not found"}), 404
-    return jsonify({"id": a["id"], "question": a.get("question"), "verified": a.get("verified"),
+    return jsonify({"id": a["id"], "question": a.get("question"), "verified": a.get("verified"), "failed": bool(a.get("failed")),
+                    "error": a.get("error") if a.get("failed") else None,
                     "seconds": a.get("seconds"), "html": askui.answer_html(a, show_question=False)})
 
 
@@ -561,10 +562,14 @@ def api_ask():
     if config.ASK_ENGINE_URL and config.ASK_VIEWER_SECRET:
         # engine mode: the panel streams from the engine directly, with a one-hour page token that
         # proves it came through a rendered page (the engine verifies it with the shared secret)
-        from scout.asktoken import page_token
+        from scout.asktoken import page_token, record_id_for
         cid = request.cookies.get("scout_cid") or uuid.uuid4().hex[:16]
+        rid = str(body.get("rid") or "")
+        # the panel's request token fixes the answer id up front (recovery after a dropped stream
+        # or a reload polls /api/answers/<id> until the record lands)
         resp = jsonify({"mode": "engine", "engine": config.ASK_ENGINE_URL.rstrip("/"),
-                        "token": page_token(cid, config.ASK_VIEWER_SECRET)})
+                        "token": page_token(cid, config.ASK_VIEWER_SECRET),
+                        "id": record_id_for(rid) if re.fullmatch(r"[A-Za-z0-9_-]{8,64}", rid) else None})
         if not request.cookies.get("scout_cid"):
             resp.set_cookie("scout_cid", cid, max_age=63072000, samesite="Lax")
         return resp
