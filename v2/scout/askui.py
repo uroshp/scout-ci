@@ -202,11 +202,17 @@ function scrollEnd(){thread.scrollTop=thread.scrollHeight;}
 // panel rides along. So while the panel is open on a touch device the PAGE is frozen in place
 // (body fixed at its scroll position, restored exactly on minimize) and the panel is anchored to
 // the VISIBLE area: when the keyboard comes up it glides above it once; nothing else moves.
+// The freeze is needed only while the KEYBOARD is up (it is what Safari scrolls for), so it
+// happens on focus, not on open: no full-page repaint when the panel opens (his "flicker"),
+// and the page stays scrollable behind an open panel.
 var lockY=null;
-function lockPage(){if(!COARSE||lockY!==null)return;lockY=window.scrollY;document.body.style.top=(-lockY)+'px';document.body.classList.add('ask-lock');}
-function unlockPage(){if(lockY===null)return;document.body.classList.remove('ask-lock');document.body.style.top='';var y=lockY;lockY=null;window.scrollTo(0,y);}
-function open(){lastFocus=document.activeElement;panel.hidden=false;fab.hidden=true;lsSet(OPEN_KEY,'1');lockPage();fitNow();scrollEnd();setTimeout(focusQ,30);}
-function minimize(){if(document.activeElement===q)q.blur();panel.hidden=true;fab.hidden=false;badge();lsSet(OPEN_KEY,'0');fitNow();unlockPage();if(lastFocus&&lastFocus.focus&&lastFocus!==document.body){try{lastFocus.focus({preventScroll:true});}catch(e){}}}
+function lockPage(){if(!COARSE||lockY!==null)return;lockY=window.scrollY;document.body.style.top=(-lockY)+'px';document.body.classList.add('ask-lock');sizeDoc();}
+function unlockPage(){if(lockY===null)return;document.body.classList.remove('ask-lock');document.body.style.top='';document.documentElement.style.height='';var y=lockY;lockY=null;window.scrollTo(0,y);}
+// while frozen, the document is exactly the visible area: Safari has no room left to shift the
+// page to "reveal" the field (the blank band under the content)
+function sizeDoc(){if(lockY===null||!vv)return;var h=Math.round(vv.height)+'px';if(document.documentElement.style.height!==h)document.documentElement.style.height=h;}
+function open(){lastFocus=document.activeElement;panel.hidden=false;fab.hidden=true;lsSet(OPEN_KEY,'1');fitNow();scrollEnd();setTimeout(focusQ,30);}
+function minimize(){if(document.activeElement===q)q.blur();panel.hidden=true;fab.hidden=false;badge();lsSet(OPEN_KEY,'0');unlockPage();fitNow();if(lastFocus&&lastFocus.focus&&lastFocus!==document.body){try{lastFocus.focus({preventScroll:true});}catch(e){}}}
 // The on-screen keyboard (iPad, phone) shrinks the VISUAL viewport and Safari scrolls the page to
 // reveal the field, dragging a bottom-fixed panel with it. Keep the panel inside the visual
 // viewport instead, and hold the page's scroll when the composer takes focus.
@@ -215,6 +221,7 @@ function fitNow(){
   if(panel.hidden||!vv){panel.style.top='';panel.style.bottom='';panel.style.height='';return;}
   var phone=window.matchMedia('(max-width:640px)').matches;
   if(!COARSE&&!phone){panel.style.top='';panel.style.bottom='';panel.style.height='';return;}   // desktop: the CSS corner
+  sizeDoc();
   // anchor to the VISIBLE area (the part of the screen the keyboard leaves), in layout coordinates
   var h=Math.max(240,Math.round(phone?vv.height:Math.min(640,vv.height-36)));
   var top=Math.max(0,Math.round(vv.offsetTop+vv.height-h-(phone?0:18)));
@@ -222,11 +229,13 @@ function fitNow(){
   if(panel.style.top!==T){panel.style.top=T;panel.style.bottom='auto';}             // write only on change: no reflow churn
   if(panel.style.height!==H)panel.style.height=H;
   if(yKeep!==null&&lockY===null&&Math.abs(window.scrollY-yKeep)>2)window.scrollTo(0,yKeep);}
-// the keyboard animates for ~300 ms and fires resize on every frame; fit once it has settled
-function fit(){clearTimeout(fitTimer);fitTimer=setTimeout(fitNow,FINE?0:180);}
+// follow the keyboard frame by frame (one write per animation frame): the composer never leaves
+// the visible area, so Safari has no reason to shift the page to reveal it
+var fitRaf=0;
+function fit(){if(fitRaf)return;fitRaf=requestAnimationFrame(function(){fitRaf=0;fitNow();});}
 if(vv){vv.addEventListener('resize',fit);vv.addEventListener('scroll',fit);}
-q.addEventListener('focus',function(){yKeep=window.scrollY;if(FINE){var y=yKeep;requestAnimationFrame(function(){if(Math.abs(window.scrollY-y)>1)window.scrollTo(0,y);});}});
-q.addEventListener('blur',function(){yKeep=null;});
+q.addEventListener('focus',function(){yKeep=window.scrollY;lockPage();fitNow();if(FINE){var y=yKeep;requestAnimationFrame(function(){if(Math.abs(window.scrollY-y)>1)window.scrollTo(0,y);});}});
+q.addEventListener('blur',function(){yKeep=null;setTimeout(function(){if(document.activeElement!==q)unlockPage();},50);});
 fab.addEventListener('click',open);
 document.getElementById('ask-close').addEventListener('click',minimize);
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!panel.hidden)minimize();});
@@ -357,7 +366,7 @@ PANEL_CSS = """
    hidden attribute (the script's only show/hide mechanism) authoritative */
 .ask-fab[hidden],.ask-panel[hidden],.ask-fab-n[hidden],.ask-clear[hidden],.ask-intro[hidden]{display:none!important}
 body.ask-lock{position:fixed;left:0;right:0;width:100%;overflow:hidden}
-@media (pointer: coarse){.ask-panel{transition:top .18s ease-out,height .18s ease-out}}
+@media (pointer: coarse){.ask-panel{transition:none}}
 .ask-fab{position:fixed;right:18px;bottom:18px;z-index:60;display:inline-flex;align-items:center;gap:8px;padding:11px 16px;border:0;border-radius:999px;background:#2b2a26;color:#fff;font:600 14px/1 system-ui,-apple-system,sans-serif;box-shadow:0 6px 20px rgba(20,18,10,.22);cursor:pointer}
 .ask-fab-dot{width:8px;height:8px;border-radius:50%;background:#7ed0a6;box-shadow:0 0 0 3px rgba(126,208,166,.28)}
 .ask-fab-n{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#7ed0a6;color:#12301f;font:700 11px/18px system-ui,sans-serif;text-align:center}
