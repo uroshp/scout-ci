@@ -106,3 +106,60 @@ class Helpers(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AskPanel(unittest.TestCase):
+    """The in-page Ask dialog (WS2): off by default (byte-identical production), on with SCOUT_ASK=1,
+    canned replay on RC, the permalink, and the answer renderer."""
+    ANSWER = {"id": "a_0123456789ab", "question": "What is X's revenue?", "slug": None, "competitor": "X",
+              "asked_at": "2026-09-28T20:00:00", "seconds": 61.2, "verified": True, "cost_usd": 1.1,
+              "paragraphs": [{"text": "X reported $42.2 billion in Q2 2026.", "cites": [1]}],
+              "sources": [{"n": 1, "id": "n1", "url": "https://www.cnbc.com/x", "class": "news", "tier": "reputable_secondary",
+                           "as_of": "2026-07-30", "excerpt": "X: $42.2 billion vs. $40.54 billion expected", "from_card": False}],
+              "cut_log": [{"label": "dropped", "reason": "floor: number 1e+06 not in the cited evidence"}],
+              "unanswered": ["a figure of headcount"], "trajectory": {"rounds": 2, "rewritten": 1}}
+
+    def setUp(self):
+        self.slug = display.list_battlecards()[0]
+        self.p = [mock.patch.object(config, "RC_PASSWORD", ""), mock.patch.object(config, "RC_MODE", False),
+                  mock.patch.object(config, "ANALYTICS_ENABLED", False), mock.patch.object(display, "_commits_via_api", return_value=[]),
+                  mock.patch.object(server, "_load_answer", side_effect=lambda aid: self.ANSWER if aid == "a_0123456789ab" else None)]
+        for p in self.p:
+            p.start()
+
+    def tearDown(self):
+        for p in self.p:
+            p.stop()
+
+    def test_off_by_default(self):
+        c = _client()
+        with mock.patch.object(config, "ASK_ENABLED", False):
+            self.assertNotIn('id="ask-panel"', c.get(f"/c/{self.slug}").data.decode())
+            self.assertEqual(c.post("/api/ask", json={"question": "x"}).status_code, 404)
+
+    def test_panel_canned_replay_and_permalink(self):
+        c = _client()
+        with mock.patch.object(config, "ASK_ENABLED", True), mock.patch.object(config, "ASK_CANNED_ID", "a_0123456789ab"):
+            h = c.get(f"/c/{self.slug}?persona=security_regulated").data.decode()
+            self.assertIn('id="ask-panel"', h); self.assertIn("for a security &amp; regulated buyer", h)
+            self.assertIn('role="dialog"', h); self.assertIn("ask-fab", h)
+            r = c.post("/api/ask", json={"question": "What is X's revenue?"})
+            self.assertEqual(r.status_code, 200); j = r.get_json()
+            self.assertEqual(j["mode"], "canned"); self.assertEqual([s["k"] for s in j["stages"]][0], "facts")
+            self.assertEqual(c.post("/api/ask", json={"question": ""}).status_code, 400)
+            self.assertEqual(c.post("/api/ask", json={"question": "x" * 401}).status_code, 400)
+            j = c.get("/api/answers/a_0123456789ab").get_json()
+            self.assertIn("srcclass-news", j["html"]); self.assertIn('class="ask-cite"', j["html"])
+            self.assertIn("Could not verify", j["html"]); self.assertIn("Cut log", j["html"]); self.assertIn("1 cut", j["html"])
+            self.assertIn("&#36;42.2", j["html"]) if "&#36;" in j["html"] else self.assertIn("$42.2", j["html"])
+            self.assertEqual(c.get("/api/answers/a_ffffffffffff").status_code, 404)
+            self.assertEqual(c.get("/api/answers/../etc").status_code, 404)
+            r = c.get("/answers/a_0123456789ab"); self.assertEqual(r.status_code, 200)
+            self.assertIn("ask-permalink", r.data.decode()); self.assertNotIn("Copy link", r.data.decode())
+            self.assertEqual(c.get("/answers/a_ffffffffffff").status_code, 404)
+
+    def test_engine_mode_without_engine_is_an_honest_503(self):
+        c = _client()
+        with mock.patch.object(config, "ASK_ENABLED", True), mock.patch.object(config, "ASK_CANNED_ID", ""):
+            r = c.post("/api/ask", json={"question": "x"})
+            self.assertEqual(r.status_code, 503); self.assertIn("wired up", r.get_json()["message"])

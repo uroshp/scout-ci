@@ -19,14 +19,16 @@ import hmac
 import html as _html
 import json as _json
 import os
+import re
 import threading
+import time
 import urllib.parse
 import uuid
 from datetime import datetime
 
 from flask import Flask, Response, abort, jsonify, redirect, request, send_from_directory, url_for
 
-from scout import analytics, config, display, page, selfserve, store
+from scout import analytics, askui, config, display, page, selfserve, store
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS_DIR = os.path.join(HERE, "assets")
@@ -260,6 +262,7 @@ def _doc(body_inner: str, *, title: str, page_type: str = None) -> str:
         + _FONT_LINKS
         + page.style_block()
         + f'<style>{_CTRL_CSS}</style>'
+        + (f'<style>{askui.PANEL_CSS}</style>' if config.ASK_ENABLED else "")
         + (f'<style>{_RC_CSS}</style>' if rc else "")
         + '</head><body style="background:#f4f2ec;margin:0;padding:6px 0 24px">'
         + (_RC_RIBBON if rc else "")
@@ -464,7 +467,8 @@ def _card_page(slug: str, cards: list, page_type: str = "card") -> str:
     inner = (_chrome(False, slug, cards)
              + page.title_html(slug)
              + page.content_html(slug, persona=persona)
-             + _countdown_js())
+             + _countdown_js()
+             + askui.button_and_panel_html(slug, store.load_meta(slug), persona))
     return _doc(inner, title=f"{_card_label(slug)} — Agent Scout", page_type=page_type)
 
 
@@ -476,6 +480,83 @@ def card_sources(slug):
         abort(404)
     inner = _chrome(False, slug, cards) + page.title_html(slug) + page.sources_html(slug)
     return _doc(inner, title=f"Sources — {_card_label(slug)} — Agent Scout", page_type="card")
+
+
+# --- Ask Scout (WS2, 2026-09-28) -----------------------------------------------------------
+_ANSWER_CACHE: dict = {}
+
+
+def _load_answer(aid: str) -> dict | None:
+    if not re.fullmatch(r"a_[0-9a-f]{12}", aid or ""):
+        return None
+    hit = _ANSWER_CACHE.get(aid)
+    if hit and time.time() - hit[0] < 600:
+        return hit[1]
+    try:
+        for month in sorted(selfserve.list_data(askui_dir(), include_dirs=True) or [], reverse=True):
+            if "." in month:
+                continue
+            raw = selfserve.read_data(f"{askui_dir()}/{month}/{aid}.json")
+            if raw:
+                a = _json.loads(raw)
+                _ANSWER_CACHE[aid] = (time.time(), a)
+                return a
+    except Exception:
+        return None
+    return None
+
+
+def askui_dir() -> str:
+    return "ask"
+
+
+@app.get("/api/answers/<aid>")
+def api_answer(aid):
+    a = _load_answer(aid)
+    if not a:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"id": a["id"], "question": a.get("question"), "verified": a.get("verified"),
+                    "seconds": a.get("seconds"), "html": askui.answer_html(a)})
+
+
+@app.post("/api/ask")
+def api_ask():
+    """The panel's submit. Canned mode (RC): replay the stored answer with staged timing, $0.
+    Engine mode: relay to the engine service (WS2 step 4b)."""
+    if not config.ASK_ENABLED:
+        return jsonify({"message": "Ask Scout is not enabled here."}), 404
+    body = request.get_json(silent=True) or {}
+    question = str(body.get("question") or "").strip()
+    if not question or len(question) > 400:
+        return jsonify({"message": "Ask a question of up to 400 characters."}), 400
+    if config.ASK_CANNED_ID:
+        a = _load_answer(config.ASK_CANNED_ID)
+        if not a:
+            return jsonify({"message": "The review answer is not available."}), 503
+        t = a.get("trajectory") or {}
+        n_src = len(a.get("sources") or [])
+        stages = [{"k": "facts", "ms": 1500}, {"k": "search", "ms": 2600, "extra": f"{n_src} sources"},
+                  {"k": "ground", "ms": 1800}, {"k": "floor", "ms": 1200},
+                  {"k": "verify", "ms": 2000, "extra": (f"{t.get('rewritten')} rewritten" if t.get("rewritten") else "")},
+                  {"k": "done", "ms": 500}]
+        return jsonify({"id": a["id"], "stages": stages, "mode": "canned"})
+    return jsonify({"message": "Ask Scout is being wired up. Come back soon."}), 503
+
+
+@app.get("/answers/<aid>")
+def answer_page(aid):
+    """The permalink: the durable artifact, never the place to ask."""
+    a = _load_answer(aid)
+    if not a:
+        abort(404)
+    cards = _ordered_cards()
+    slug = a.get("slug") if a.get("slug") in cards else None
+    inner = (_chrome(False, slug, cards)
+             + (page.title_html(slug) if slug else "")
+             + '<div id="scout-page"><div class="wrap"><div class="ask-permalink">' + askui.answer_html(a, permalink=False)
+             + (f'<p class="ask-back"><a href="/c/{_html.escape(slug)}">Back to the card</a></p>' if slug else "")
+             + "</div></div></div>")
+    return _doc(inner, title=f"Ask Scout — {(a.get('question') or '')[:60]} — Agent Scout", page_type="answers")
 
 
 @app.get("/print/<slug>")
