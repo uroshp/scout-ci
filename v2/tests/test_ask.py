@@ -106,7 +106,7 @@ class Loop(unittest.TestCase):
         a = ask.ask("q", research=_research(facts, answer), verify=verify, rewrite=rewrite, grounder=_grounder({"n1"}))
         self.assertEqual(calls["verify"], 2)
         self.assertEqual(a["paragraphs"][0]["text"], "Salesforce said Agentforce had closed more than 1,000 paid deals.")
-        self.assertEqual(a["trajectory"], {"rounds": 2, "research_turns": 3, "cut": 0, "floor_dropped": 0, "judge_rejected": 1, "rewritten": 1})
+        self.assertEqual(a["trajectory"], {"rounds": 2, "research_turns": 3, "cut": 0, "floor_dropped": 0, "judge_rejected": 1, "rewritten": 1, "thread_turns": 0})
         self.assertAlmostEqual(a["cost_usd"], 0.6 + 0.3 + 0.2 + 0.3)
 
     def test_root_or_none_cure_is_dropped_and_unparseable_judge_is_a_reject(self):
@@ -155,3 +155,32 @@ class Floor(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Thread(unittest.TestCase):
+    """One conversation across every card (2026-09-28): the question names the scope, previous
+    answers' sources are reused as known facts, the research prompt gets the thread."""
+
+    def test_question_names_the_competitor_over_the_card_hint(self):
+        with mock.patch.object(ask, "infer_competitor", return_value=("OpenAI", "anthropic__vs__openai__x")), \
+             mock.patch.object(ask, "card_facts", return_value=[]) as cf, \
+             mock.patch.object(ask.store, "load_meta", return_value={"competitor": "OpenAI", "my_company": "Anthropic"}):
+            a = ask.ask("What is OpenAI hiring for?", slug="google-cloud__vs__aws__y", research=_research([], []), verify=_verify({}), grounder=_grounder(set()))
+        self.assertEqual(a["competitor"], "OpenAI"); self.assertEqual(a["slug"], "anthropic__vs__openai__x")
+        cf.assert_called_with("anthropic__vs__openai__x")
+
+    def test_history_sources_become_known_facts_and_reach_the_prompt(self):
+        prior = {"id": "a_0123456789ab", "sources": [{"id": "n7", "url": "https://www.cnbc.com/x", "excerpt": NEWS, "tier": "reputable_secondary", "class": "news", "as_of": "2026-07-30"}]}
+        seen = {}
+        def research(q, known, ctx, history=None):
+            seen["known_ids"] = [k["id"] for k in known]; seen["history"] = history
+            return _research([], [{"text": "Agentforce passed 1,000 paid deals.", "cites": ["n7"]}])(q, known, ctx)
+        with mock.patch.object(ask.selfserve if hasattr(ask, "selfserve") else __import__("scout.selfserve", fromlist=["x"]), "list_data", return_value=["2026-09"]), \
+             mock.patch("scout.selfserve.read_data", return_value=json.dumps(prior)), \
+             mock.patch.object(ask, "infer_competitor", return_value=(None, None)):
+            a = ask.ask("and how many deals?", history=[{"question": "What is Agentforce?", "answer_id": "a_0123456789ab"}, {"question": "bad", "answer_id": "zzz"}],
+                        research=research, verify=_verify({0: ("confirm", "none", "ok")}), grounder=_grounder(set()))
+        self.assertEqual(seen["known_ids"], ["n7"])
+        self.assertEqual([h["question"] for h in seen["history"]], ["What is Agentforce?", "bad"])
+        self.assertEqual(len(a["paragraphs"]), 1); self.assertTrue(a["sources"][0]["from_thread"]); self.assertFalse(a["sources"][0]["from_card"])
+        self.assertEqual(a["trajectory"]["thread_turns"], 2)
