@@ -61,12 +61,16 @@ gcloud builds submit "$REPO_ROOT" --config "$REPO_ROOT/v2/cloudbuild-engine.yaml
 
 # 3. the service config (the build's deploy step only swapped the image; this sets the rest)
 VIEWER_URL=$(gcloud run services describe "$VIEWER_SERVICE" --region "$REGION" --format='value(status.url)')
-VIEWER_URL2=$(gcloud run services describe "$VIEWER_SERVICE" --region "$REGION" --format='value(status.address.url)' 2>/dev/null || true)
-ORIGINS="$VIEWER_URL"; [ -n "$VIEWER_URL2" ] && [ "$VIEWER_URL2" != "$VIEWER_URL" ] && ORIGINS="$ORIGINS,$VIEWER_URL2"
+# Cloud Run serves every service at two hostnames: the hashed one (`status.url`) and the
+# deterministic `<service>-<project number>.<region>.run.app`. The browser's Origin is whichever
+# the reader typed, so both go on the allowlist.
+PROJECT_NUMBER=$(gcloud run services describe "$VIEWER_SERVICE" --region "$REGION" --format='value(metadata.namespace)')   # = the project number; `projects describe` needs an API the deploy account lacks
+VIEWER_URL2="https://${VIEWER_SERVICE}-${PROJECT_NUMBER}.${REGION}.run.app"
+ORIGINS="$VIEWER_URL"; [ "$VIEWER_URL2" != "$VIEWER_URL" ] && ORIGINS="$ORIGINS,$VIEWER_URL2"
 [ "$DATA_PREFIX" = "" ] && ORIGINS="$ORIGINS,https://agent-scout.ai,https://www.agent-scout.ai"
 gcloud run deploy "$ENGINE_SERVICE" --image "$IMAGE" --region "$REGION" --allow-unauthenticated --quiet \
   --min-instances 0 --max-instances 2 --memory 1Gi --cpu 1 --concurrency 1 --timeout 600 --port 8081 \
-  --set-env-vars "SCOUT_SELFSERVE_DATA_PREFIX=${DATA_PREFIX},SCOUT_SELFSERVE_DATA_READ_FALLBACK=1,SELFSERVE_REPO=${DATA_REPO},SCOUT_ASK_DAILY_CEILING_USD=${CEILING},SCOUT_CALL_CAPTURE=${CALL_CAPTURE:-0},SCOUT_ASK_CANNED=${ASK_CANNED:-},ASK_ALLOWED_ORIGINS=${ORIGINS}" \
+  --set-env-vars "^|^SCOUT_SELFSERVE_DATA_PREFIX=${DATA_PREFIX}|SCOUT_SELFSERVE_DATA_READ_FALLBACK=1|SELFSERVE_REPO=${DATA_REPO}|SCOUT_ASK_DAILY_CEILING_USD=${CEILING}|SCOUT_CALL_CAPTURE=${CALL_CAPTURE:-0}|SCOUT_ASK_CANNED=${ASK_CANNED:-}|ASK_ALLOWED_ORIGINS=${ORIGINS}" \
   --set-secrets "ANTHROPIC_API_KEY=scout-anthropic-key:latest,ASK_VIEWER_SECRET=scout-ask-viewer-secret:latest,ASK_API_KEYS=scout-ask-api-keys:latest,SELFSERVE_GH_TOKEN=scout-gh-token:latest" >/dev/null
 ENGINE_URL=$(gcloud run services describe "$ENGINE_SERVICE" --region "$REGION" --format='value(status.url)')
 echo "  ✓ $ENGINE_SERVICE at $ENGINE_URL (origins: $ORIGINS)"
