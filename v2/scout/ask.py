@@ -467,6 +467,42 @@ def floor_check(entry: dict, facts_by_id: dict) -> list[str]:
     return errs
 
 
+def _fact_evidence(f: dict) -> str:
+    return _normalize(str(f.get("evidence_excerpt") or "")) + " " + _normalize(str(f.get("claim") or ""))
+
+
+def repair_cites(entry: dict, facts_by_id: dict, max_added: int = 2) -> list[str]:
+    """Model-free (2026-09-28): a number or year the cited facts do not support, but ANOTHER known
+    fact does, is a mis-cite rather than an invention: add that fact's id (at most two) and let
+    the floor and the verifier judge the sentence against the fuller set. Returns the ids added.
+    Facts that were never cited and support nothing needed are never added."""
+    text = _CITE_MARK.sub(" ", str(entry.get("text") or ""))
+    cites = [str(c) for c in (entry.get("cites") or [])]
+    cited = " ".join(_fact_evidence(facts_by_id[c]) for c in cites if c in facts_by_id)
+    have = _numbers(cited)
+    years = {m.group(0) for m in _YEAR.finditer(text)}
+    needs = [(v, dec, kind) for v, dec, kind in _numbers(text)
+             if not (kind == "plain" and v == int(v) and str(int(v)) in years) and not _supported(v, dec, kind, have)]
+    needs_years = [y for y in years if y not in cited]
+    added: list[str] = []
+    for fid, f in facts_by_id.items():
+        if not needs and not needs_years or len(added) >= max_added:
+            break
+        if fid in cites or fid in added:
+            continue
+        ev = _fact_evidence(f)
+        nums = _numbers(ev)
+        got = [n for n in needs if _supported(n[0], n[1], n[2], nums)]
+        got_y = [y for y in needs_years if y in ev]
+        if got or got_y:
+            added.append(fid)
+            needs = [n for n in needs if n not in got]
+            needs_years = [y for y in needs_years if y not in got_y]
+    if added:
+        entry["cites"] = cites + added
+    return added
+
+
 # --- 5/6. model calls (injectable) -------------------------------------------------------------------
 def _json_or_none(text: str):
     from scout.generate import _extract_json
@@ -652,6 +688,8 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
         stage("floor", f"round {rnd}" if rnd > 1 else "")
         passed, floor_failed = [], []
         for e in pending:
+            if floor_check(e, facts_by_id) and repair_cites(e, facts_by_id):
+                trajectory["cites_repaired"] = trajectory.get("cites_repaired", 0) + 1
             errs = floor_check(e, facts_by_id)
             if errs:
                 trajectory["floor_dropped"] += 1
@@ -799,6 +837,8 @@ def quick_ask(question: str, *, competitor: str | None = None, my_company: str |
     stage("floor")
     passed = []
     for e in pending:
+        if floor_check(e, facts_by_id) and repair_cites(e, facts_by_id):
+            trajectory["cites_repaired"] = trajectory.get("cites_repaired", 0) + 1
         errs = floor_check(e, facts_by_id)
         if errs:
             trajectory["floor_dropped"] += 1
