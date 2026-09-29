@@ -249,7 +249,7 @@ def _supersede_hunt_targets(claims: list, today=None) -> list[dict]:
     return out
 
 
-async def _run_triage(meta, since, claims, my_since=None):
+async def _run_triage(meta, since, claims, my_since=None, extra: str = ""):
     comp, me = meta.get("competitor"), meta.get("my_company")
     scope = (f"Scan BOTH sides and tag each candidate's 'about': the competitor {comp} AND your own "
              f"company {me}." if me else f"Scan the competitor {comp}.")
@@ -275,7 +275,7 @@ async def _run_triage(meta, since, claims, my_since=None):
             f"strict filters)."
             + my_cut + "\n\n"
             f"TRACKED SUBJECTS (subject_key — current value already known):\n"
-            + _tracked_digest(claims) + hunt_block)
+            + _tracked_digest(claims) + hunt_block + (extra or ""))
     options = ClaudeAgentOptions(
         model=config.FAST_MODEL,
         system_prompt={"type": "preset", "preset": "claude_code", "append": _TRIAGE_SYSTEM + sources_tool.note("triage")},
@@ -343,12 +343,35 @@ Return ONLY a single fenced ```json block (the claim object includes "candidate_
  "immaterial": [ {"signal": "<...>", "why_not": "<...>"} ]}"""
 
 
-async def _run_materiality(meta, since, candidates, claims):
+def _signals_block(slug: str) -> tuple[str, list[dict]]:
+    """(prompt block, open signals) for this check: the open structured signals in front of triage
+    (a new filing, a brand-new hiring department) plus the hiring CONTEXT line. Empty when signals
+    are off or the store has nothing. Never raises: signals are an aid, never a dependency."""
+    if not config.SIGNALS_ENABLED:
+        return "", []
+    try:
+        from scout import signals
+        opened = signals.open_signals(slug)
+        block = ""
+        if opened:
+            rows = [{"kind": s.get("kind"), "summary": s.get("summary"), "source_url": s.get("source_url"),
+                     "source_class": s.get("source_class"), "filed": s.get("filed"), "detected_at": s.get("detected_at")} for s in opened[:8]]
+            block += ("\n\nSIGNALS TO INVESTIGATE FIRST (structured, verified by code, newer than any search result): "
+                      "read each source and surface what it changes as a candidate; a filing's own text is the "
+                      "primary source (tier primary, class filing):\n" + json.dumps(rows, ensure_ascii=False, indent=1))
+        block += signals.context_block(slug)
+        return block, opened
+    except Exception as e:
+        print(f"[monitor] signals skipped ({type(e).__name__}: {e})", file=sys.stderr)
+        return "", []
+
+
+async def _run_materiality(meta, since, candidates, claims, extra: str = ""):
     comp, me = meta.get("competitor"), meta.get("my_company")
     user = (f"Competitor: {comp}" + (f" (we are {me})" if me else "") +
             f"\nChanges SINCE {since}.\n\nTRACKED SUBJECTS (subject_key — current value):\n"
             + _tracked_digest(claims) +
-            "\n\nCANDIDATE SIGNALS FROM TRIAGE:\n" + json.dumps(candidates, ensure_ascii=False))
+            "\n\nCANDIDATE SIGNALS FROM TRIAGE:\n" + json.dumps(candidates, ensure_ascii=False) + (extra or ""))
     options = ClaudeAgentOptions(
         model=config.ORCHESTRATOR_MODEL,
         system_prompt={"type": "preset", "preset": "claude_code",
@@ -627,12 +650,12 @@ def _lead_election_alert(election: dict, when: datetime | None = None) -> dict:
     }
 
 
-def _competitor_arm(slug, meta, since, substantial, claims, result):
+def _competitor_arm(slug, meta, since, substantial, claims, result, sig_block: str = ""):
     """Competitor materiality (Opus) -> tier-ranked MULTI-SOURCE grounding -> bounded feedback
     retry -> material_grounded. Logic is UNCHANGED from the pre-my_company flow; extracted verbatim
     so check() can run it conditionally now that the my_company arm can fire on its own. Returns
     (material_grounded, grounded)."""
-    mat = asyncio.run(_run_materiality(meta, since, substantial, claims))
+    mat = asyncio.run(_run_materiality(meta, since, substantial, claims, extra=sig_block))
     result["cost"]["materiality"] = mat.get("cost_usd")
     try:
         mdata = _extract_json(mat["text"])
@@ -705,8 +728,11 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     calllog.set_context(slug=slug, phase="monitor")
     reset_log()
 
+    # Structured signals (WS3): open filings / new-department events in front of triage, and the
+    # hiring context line; `sig_open` is consumed (marked) once this check has written.
+    sig_block, sig_open = _signals_block(slug)
     # Stage 1: triage (cheap)
-    triage = asyncio.run(_run_triage(meta, since, claims, my_since=my_since))
+    triage = asyncio.run(_run_triage(meta, since, claims, my_since=my_since, extra=sig_block))
     try:
         tdata = _extract_json(triage["text"])
     except Exception:
@@ -760,7 +786,7 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     # COMPETITOR ARM: Opus materiality -> multi-source grounding -> bounded retry. Runs only when
     # competitor signals are substantial; otherwise the my_company arm is why we escalated.
     if substantial:
-        material_grounded, grounded, immaterial = _competitor_arm(slug, meta, since, substantial, claims, result)
+        material_grounded, grounded, immaterial = _competitor_arm(slug, meta, since, substantial, claims, result, sig_block=sig_block)
     else:
         material_grounded, grounded, immaterial = [], {"kept": [], "cut": [], "results": []}, []
     new_claims, new_alerts = _apply_updates(
@@ -919,7 +945,8 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
             body = body.rstrip() + "\n\n" + cut_log
         current_md = format_report(clean_output(body))
         store.write_baseline(slug, new_claims, meta, current_md)
-        _append_alerts(slug, new_alerts)
+        _append_alerts(slug, _stamp_triggers(new_alerts, sig_open))
+        _consume_signals(slug, sig_open, checked_at)
     elif write and (substantial or (do_my and not my_grounded)):
         # SUBSTANTIAL development detected on EITHER arm, but nothing landed (competitor: nothing
         # survived grounding+retry; my_company: the arm escalated and grounded nothing). Do NOT
@@ -947,6 +974,31 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
 def _current_md(slug):
     path = os.path.join(store.battlecard_dir(slug), "current.md")
     return open(path).read() if os.path.exists(path) else ""
+
+
+def _stamp_triggers(alerts: list, opened: list) -> list:
+    """An alert whose source is a signal's document (the filing's accession in the URL, or the job
+    board) carries `triggered_by`, so the viewer can show "Triggered by: new 8-K". Deterministic."""
+    if not opened:
+        return alerts
+    for a in alerts or []:
+        url = str(a.get("source_url") or "")
+        for sg in opened:
+            acc = str(sg.get("accession") or "").replace("-", "")
+            if (acc and acc in url.replace("-", "")) or (sg.get("source_url") and url.startswith(str(sg["source_url"]))):
+                a["triggered_by"] = {"kind": sg.get("kind"), "summary": sg.get("summary"), "fingerprint": sg.get("fingerprint")}
+                break
+    return alerts
+
+
+def _consume_signals(slug: str, opened: list, run_ts: str) -> None:
+    if not opened:
+        return
+    try:
+        from scout import signals
+        signals.consume(slug, run_ts, [s.get("fingerprint") for s in opened])
+    except Exception as e:
+        print(f"[monitor] signals consume skipped ({type(e).__name__}: {e})", file=sys.stderr)
 
 
 def _append_alerts(slug, alerts):
@@ -1331,6 +1383,9 @@ if __name__ == "__main__":
     # SCOUT_MONITOR_FORCE=1 ignores the due gate. Both empty on the scheduled run.
     slugs = [x.strip() for x in os.environ.get("SCOUT_MONITOR_SLUGS", "").split(",") if x.strip()] or None
     force = os.environ.get("SCOUT_MONITOR_FORCE") == "1"
+    reason = os.environ.get("SCOUT_MONITOR_REASON", "").strip()
+    if reason:   # a signal poller's hint only; the run reads the open signals from the store
+        print(f"[monitor] dispatched: {reason}")
     if not live:
         print(f"[monitor] DRY run: no writes, no email (slugs={slugs or 'all'}, force={force})")
     out = run_all(write=live, send=True, email_dry_run=not live, force=force, slugs=slugs)

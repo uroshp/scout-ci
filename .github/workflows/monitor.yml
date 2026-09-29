@@ -49,6 +49,10 @@ on:
         description: "SCOUT_SOURCES_TOOLS=1 (scoutsources MCP server on)"
         type: boolean
         default: false
+      reason:
+        description: "why this run was dispatched (a signal poller's hint; the store is the truth)"
+        type: string
+        default: ""
 
 concurrency:
   group: scout-monitor
@@ -77,6 +81,10 @@ jobs:
           SCOUT_MONITOR_FORCE: ${{ inputs.force && '1' || '0' }}
           SCOUT_SOURCES_TOOLS: ${{ inputs.sources_tools && '1' || '0' }}
           SCOUT_MONITOR_TRACE: ${{ inputs.dry_run && '1' || '0' }}
+          SCOUT_MONITOR_REASON: ${{ inputs.reason }}
+          # Signals (WS3): the run reads open filings / new-department events from the store and
+          # puts them in front of triage, with the hiring context line. Off until promoted.
+          SCOUT_SIGNALS: ${{ vars.SCOUT_SIGNALS || '0' }}
           # Propagation (spec §17) in REVIEW (human-approval gate): on an act-grade grounded
           # development (ours or the competitor's), run propose->judge, LOG the decisions + grounding
           # facts to the PRIVATE data repo, and EMAIL the proposed change (where/what/how/verdict).

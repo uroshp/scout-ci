@@ -111,3 +111,12 @@ def load_meta(slug: str) -> dict | None:
         return None
     with open(p["meta"]) as f:
         return json.load(f)
+
+
+def save_meta(slug: str, meta: dict) -> None:
+    """Write meta.json alone (the watch config, scripts/set_watch.py). The card's claims and
+    current.md are untouched; the caller commits."""
+    p = _paths(slug)
+    with open(p["meta"], "w") as f:
+        json.dump(meta, f, indent=2, ensure_ascii=False)
+        f.write("\n")

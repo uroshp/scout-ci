@@ -210,3 +210,16 @@ class KeyClause(unittest.TestCase):
         p = ask._para({"text": "A costs $10, B costs $2.", "cites": ["c1"], "key": "B costs $2"}, {"c1": 1})
         self.assertEqual(p["key"], "B costs $2")
         self.assertNotIn("key", ask._para({"text": "A costs $10.", "cites": ["c1"], "key": "A costs $10."}, {"c1": 1}))   # the whole sentence is not a key
+
+
+class TriggeredBy(unittest.TestCase):
+    def test_alert_row_shows_the_signal_chip(self):
+        from scout import display as _d
+        slug = _d.list_battlecards()[0]
+        rows = _d.load_alerts(slug)
+        with mock.patch.object(config, "RC_PASSWORD", ""), mock.patch.object(config, "RC_MODE", False), mock.patch.object(config, "ANALYTICS_ENABLED", False), \
+             mock.patch.object(_d, "_commits_via_api", return_value=[]), \
+             mock.patch.object(_d, "load_alerts", return_value=rows + [{"detected_at": "2026-09-29T11:05:00", "headline": "Q3 8-K: revenue guidance raised", "severity": "act",
+                                                                         "source_url": "https://www.sec.gov/x", "triggered_by": {"kind": "filing", "summary": "New 8-K filed 2026-09-29"}}]):
+            h = _client().get(f"/c/{slug}").data.decode()
+        self.assertIn('class="trig"', h); self.assertIn("Triggered by: new filing", h); self.assertIn('title="New 8-K filed 2026-09-29"', h)

@@ -218,3 +218,25 @@ class LiveApplyGate(unittest.TestCase):
         self.assertIn("refresh_anchor_facts(", block); self.assertIn("provenance_issues(", block)
         self.assertIn("new_claims = pre_claims", block)                      # gate failed: card keeps its state
         self.assertIn('result["propagation"]["provenance_issues"] = issues', block)
+
+
+class SignalsInTheRun(unittest.TestCase):
+    """WS3: open signals and the hiring context reach triage and materiality; alerts from a
+    signal's document carry `triggered_by`; a write consumes the signals."""
+
+    def test_block_and_stamp(self):
+        from scout import monitor, config
+        opened = [{"kind": "filing", "summary": "New 8-K filed 2026-09-29", "source_url": "https://www.sec.gov/Archives/edgar/data/1108524/000110852426000205/x.htm",
+                   "accession": "0001108524-26-000205", "source_class": "filing", "filed": "2026-09-29", "fingerprint": "f1", "detected_at": "t"}]
+        with mock.patch.object(config, "SIGNALS_ENABLED", True), mock.patch("scout.signals.open_signals", return_value=opened), \
+             mock.patch("scout.signals.context_block", return_value="\n\nHIRING CONTEXT (…): - ashby board: 40 open roles, net +2"):
+            block, got = monitor._signals_block("s")
+        self.assertIn("SIGNALS TO INVESTIGATE FIRST", block); self.assertIn("New 8-K", block); self.assertIn("HIRING CONTEXT", block); self.assertEqual(got, opened)
+        with mock.patch.object(config, "SIGNALS_ENABLED", False):
+            self.assertEqual(monitor._signals_block("s"), ("", []))
+        alerts = [{"source_url": "https://www.sec.gov/Archives/edgar/data/1108524/000110852426000205/x.htm", "headline": "a"},
+                  {"source_url": "https://www.cnbc.com/x", "headline": "b"}]
+        out = monitor._stamp_triggers(alerts, opened)
+        self.assertEqual(out[0]["triggered_by"]["kind"], "filing"); self.assertNotIn("triggered_by", out[1])
+        with mock.patch("scout.signals.consume") as c:
+            monitor._consume_signals("s", opened, "2026-09-29T11:00:00"); c.assert_called_once_with("s", "2026-09-29T11:00:00", ["f1"])
