@@ -2,6 +2,8 @@
 has had. Runs against the committed roster (whichever card lists first), so it asserts shapes,
 never counts. No network (the GitHub-backed change feed is mocked empty)."""
 import re
+import shutil
+import subprocess
 import unittest
 from unittest import mock
 
@@ -157,6 +159,24 @@ class AskPanel(unittest.TestCase):
             r = c.get("/answers/a_0123456789ab"); self.assertEqual(r.status_code, 200)
             self.assertIn("ask-permalink", r.data.decode()); self.assertNotIn("Copy link", r.data.decode())
             self.assertEqual(c.get("/answers/a_ffffffffffff").status_code, 404)
+
+    def test_widget_script_is_valid_javascript(self):
+        # the f-string once turned the JS '\n\n' into two real newlines inside a string literal:
+        # a syntax error that killed every handler on RC (2026-09-28). Parse what we ship.
+        with mock.patch.object(config, "ASK_ENABLED", True), mock.patch.object(config, "ASK_CANNED_ID", ""):
+            h = _client().get(f"/c/{self.slug}").data.decode()
+        k = h.find("var CFG=")
+        self.assertGreater(k, 0)
+        js = h[h.rfind("<script>", 0, k) + len("<script>"):h.find("</script>", k)]
+        for lit in re.findall(r"'(?:[^'\\\n]|\\.)*'|\"(?:[^\"\\\n]|\\.)*\"", js):
+            self.assertNotIn("\n", lit)
+        self.assertNotIn("{{", js)   # no leftover f-string doubling
+        self.assertNotIn("__CFG__", js); self.assertNotIn("__STAGES__", js)
+        self.assertIn("split('\\n\\n')", js)   # the SSE frame separator reaches the browser as an escape
+        node = shutil.which("node")
+        if node:
+            p = subprocess.run([node, "--check", "-"], input=js.encode(), capture_output=True)
+            self.assertEqual(p.returncode, 0, p.stderr.decode()[:400])
 
     def test_engine_mode_without_engine_is_an_honest_503(self):
         c = _client()
