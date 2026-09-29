@@ -38,8 +38,9 @@ class Routes(unittest.TestCase):
             self.assertIn("Living battlecards", h)
             self.assertRegex(h, r'srcclass srcclass-[a-z_]+')          # a class chip on a citation
             self.assertIn("All sources by kind", h)                       # rail Sources panel
-            self.assertIn("All changes by week", h)                       # rail link to /changes
-            self.assertIn('href="/changes"', h)                           # the tab
+            self.assertIn("Pick your audience", h)                        # the persona picker
+            self.assertIn('class="rail-history"', h)                      # git feed demoted to History
+            self.assertNotIn("Change feed", h)
 
     def test_tabs_mark_the_active_page(self):
         c = _client()
@@ -48,7 +49,6 @@ class Routes(unittest.TestCase):
             i = h.find('<div class="scout-tabs">')
             return [href for cls, href in re.findall(r'<a class="(on|)" href="([^"]+)"', h[i:i + 400]) if cls == "on"][:1]
         self.assertEqual(on("/"), ["/"])
-        self.assertEqual(on("/changes"), ["/changes"])
         self.assertEqual(on("/create"), ["/create"])
 
     def test_sources_page(self):
@@ -62,19 +62,6 @@ class Routes(unittest.TestCase):
         self.assertIn("Back to the card", h)
         self.assertEqual(c.get("/c/not-a-card/sources").status_code, 404)
 
-    def test_changes_pages(self):
-        c = _client()
-        r = c.get(f"/c/{self.slug}/changes")
-        self.assertEqual(r.status_code, 200)
-        h = r.data.decode()
-        self.assertIn("changes and why they matter", h)
-        self.assertRegex(h, r"Week of [A-Z][a-z]{2} \d")
-        self.assertIn('class="chrow"', h)
-        r = c.get("/changes")
-        self.assertEqual(r.status_code, 200)
-        self.assertIn("Across every card", r.data.decode())
-        self.assertEqual(c.get("/c/not-a-card/changes").status_code, 404)
-
     def test_persona_view_reorders_and_dims(self):
         c = _client()
         base = c.get(f"/c/{self.slug}").data.decode()
@@ -83,7 +70,8 @@ class Routes(unittest.TestCase):
         self.assertTrue(present, "the rail lists the personas present on the card")
         p = present[-1]
         h = c.get(f"/c/{self.slug}?persona={p}").data.decode()
-        self.assertIn(f'class="pv on" href="/c/{self.slug}?persona={p}"', h)
+        self.assertIn(f'class="pv p-{p} on" href="/c/{self.slug}?persona={p}"', h)
+        self.assertIn(f'class="persona p-{p}"', h)                          # badge carries the colour class
         first = re.search(r'id="bc".*?<div class="item[^"]*" id="(u-[^"]+)"', h, re.S)
         self.assertIsNotNone(first)
         # the first play in the battlecard carries the chosen persona (when that persona has plays)
@@ -101,22 +89,6 @@ class Routes(unittest.TestCase):
 
 
 class Helpers(unittest.TestCase):
-    def test_week_grouping_and_kinds(self):
-        self.assertEqual(page._week_of("2026-09-30"), "2026-09-28")
-        self.assertEqual(page._week_of("2026-09-28"), "2026-09-28")
-        self.assertIn("Sep 28", page._week_label("2026-09-28"))
-        self.assertEqual(page._alert_kind({"old_value": "prior version", "new_value": "updated"}), "Updated")
-        self.assertEqual(page._alert_kind({"old_value": "on the card", "new_value": "removed"}), "Retired")
-        self.assertEqual(page._alert_kind({"old_value": None, "new_value": "new"}), "Added")
-        self.assertEqual(page._alert_kind({"old_value": "$10", "new_value": "$12"}), "Change detected")
-
-    def test_change_row_shows_diff_and_chip(self):
-        row = page._change_row({"date": "2026-09-01", "severity": "act", "headline": "Price up", "so_what": "Quote it",
-                                "old_value": "$10", "new_value": "$12", "source_url": "https://www.cnbc.com/x",
-                                "subject_key": "acme | price"}, {"competitor": "Acme"}, "acme__vs__x__y")
-        self.assertIn('class="sev act"', row); self.assertIn("&#36;10", row); self.assertIn("&#36;12", row)
-        self.assertIn("Why it matters", row); self.assertIn("srcclass-news", row); self.assertIn("#u-acme-price", row)
-
     def test_prepare_display_resolves_class_for_derived_claims(self):
         fact = {"id": "c_0123456789ab", "claim": "f", "claim_type": "fact", "source_url": "https://www.sec.gov/x",
                 "source_tier": "primary", "section": "recent_moves"}

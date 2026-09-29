@@ -17,7 +17,7 @@
   material* (with a per-card cadence and a cheap triage gate to keep cost down).
 - **The viewer** (`server.py`, Flask on Cloud Run at agent-scout.ai; `app_v2.py` is the retired Streamlit
   stub) is **read-only and holds no model key**: it renders committed cards, the freshness/updates
-  indicators, every citation's source kind (`/c/<slug>/sources`), what changed and why (`/changes`),
+  indicators, every citation's source kind (`/c/<slug>/sources`),
   and a per-persona view (`?persona=`). It never generates or monitors; self-serve requests are handed to
   an Action. Every change is reviewed on a release-candidate service before it reaches the main domain
   (`docs/cloud-run-setup.md`, "The RC environment").
