@@ -36,5 +36,16 @@
     "google | distribution-api-restriction | 2026"
   ],
   "unresolved_since": "2026-09-28",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 1,
+  "watch": {
+    "edgar_ciks": [
+      "1652044"
+    ],
+    "job_boards": [
+      {
+        "host": "ashby",
+        "token": "perplexity"
+      }
+    ]
+  }
 }

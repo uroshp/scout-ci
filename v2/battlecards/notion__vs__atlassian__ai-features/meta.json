@@ -22,5 +22,16 @@
   "lead_election": {
     "last_promoted_on": "2026-09-04",
     "lead_subject_key": "notion-vs-atlassian | ai-pricing-verdict | current"
+  },
+  "watch": {
+    "edgar_ciks": [
+      "1650372"
+    ],
+    "job_boards": [
+      {
+        "host": "ashby",
+        "token": "notion"
+      }
+    ]
   }
 }

@@ -17,5 +17,12 @@
     "f_f7505ff1c70e",
     "f_c69a4234687d"
   ],
-  "monitored": true
+  "monitored": true,
+  "watch": {
+    "edgar_ciks": [
+      "789019",
+      "1108524"
+    ],
+    "job_boards": []
+  }
 }

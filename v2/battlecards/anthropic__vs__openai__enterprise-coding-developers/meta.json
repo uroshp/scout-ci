@@ -49,5 +49,17 @@
   "lead_election": {
     "last_promoted_on": "2026-08-17",
     "lead_subject_key": "anthropic | adverse-exposure | current"
+  },
+  "watch": {
+    "job_boards": [
+      {
+        "host": "ashby",
+        "token": "openai"
+      },
+      {
+        "host": "greenhouse",
+        "token": "anthropic"
+      }
+    ]
   }
 }
