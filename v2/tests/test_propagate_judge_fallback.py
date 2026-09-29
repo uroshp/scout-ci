@@ -183,3 +183,23 @@ class AdjudicateExclusions(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BracketShortVerdicts(unittest.TestCase):
+    """2026-09-28: ~1 in 5 propagation runs had Opus close the verdicts array but not the outer
+    object, sending two Opus calls to the bin and the verdict to the Sonnet fallback. The shared
+    extractor now appends ONLY the missing closers; anything else still fails."""
+
+    def test_missing_outer_brace_parses(self):
+        from scout.generate import _extract_json
+        from scout.propagate import _parse_verdicts
+        text = ('```json\n{"verdicts": [\n  {"op_index": 0, "verdict": "confirm", "material": true, "cure": "none",\n'
+                '   "rewritable": false, "reason": "Keep the play as-is (retire); a } in prose is fine."}\n]\n```')
+        self.assertEqual(_extract_json(text)["verdicts"][0]["verdict"], "confirm")
+        self.assertEqual(_parse_verdicts(text)[0]["verdict"], "confirm")
+
+    def test_truncated_or_prose_still_fails(self):
+        from scout.generate import _extract_json
+        for bad in ('```json\n{"verdicts": [{"op_index": 0, "verdict": "conf\n```', "Looking at the three ops, all derive from c_1.", ""):
+            with self.assertRaises(ValueError):
+                _extract_json(bad)
