@@ -383,9 +383,15 @@ class Touch(unittest.TestCase):
         self.assertEqual(page.evaluate("window.scrollY"), y0)
         page.keyboard.type("hello"); page.wait_for_timeout(300)
         self.assertEqual(page.locator("#ask-panel").bounding_box()["y"], box["y"])       # focus + typing: no move
-        self.assertEqual(page.locator("#ask-panel").evaluate("e => e.style.top + '|' + e.style.height"), "|")   # no inline positioning at all
+        self.assertEqual(page.locator("#ask-panel").evaluate("e => e.style.height"), "")                        # height untouched
         page.tap("#ask-close"); page.wait_for_timeout(200)
         self.assertEqual(page.evaluate("window.scrollY"), y0)                            # exactly where it was
         page.tap("#ask-fab"); page.wait_for_timeout(300)
         self.assertEqual(page.locator("#ask-panel").bounding_box()["y"], box["y"])       # reopen: same corner
+        # a hardware-keyboard bar shrinks the window by ~55 px: the box holds still (pinned by its top edge)
+        page.set_viewport_size({"width": 1024, "height": 713}); page.wait_for_timeout(200)
+        self.assertEqual(page.locator("#ask-panel").bounding_box()["y"], box["y"])
+        # a real change (rotation) re-pins it into view
+        page.set_viewport_size({"width": 1024, "height": 560}); page.wait_for_timeout(200)
+        b2 = page.locator("#ask-panel").bounding_box(); self.assertLessEqual(round(b2["y"] + b2["height"]), 560)
         self.assertEqual(errors, []); ctx.close()
