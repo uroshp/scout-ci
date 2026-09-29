@@ -343,13 +343,11 @@ class Touch(unittest.TestCase):
         self.assertNotEqual(page.evaluate("document.activeElement && document.activeElement.id"), "ask-q")   # no auto-focus on touch
         page.tap("#ask-q"); page.wait_for_timeout(250)                                   # ONE tap focuses
         self.assertEqual(page.evaluate("document.activeElement.id"), "ask-q")
-        held = lambda: page.evaluate("document.body.style.top")                        # the page is frozen where it was
-        self.assertEqual(held(), f"-{y0}px")
+        self.assertEqual(page.evaluate("document.body.style.top"), f"-{y0}px")           # the page is frozen where it was
         page.keyboard.type("Is X cheaper?"); page.keyboard.press("Enter")
         self.assertEqual(page.locator(".ask-user").count(), 1)
         page.wait_for_selector(".ask-answer", timeout=15000); page.wait_for_timeout(300)
         self.assertNotEqual(page.evaluate("document.activeElement && document.activeElement.id"), "ask-q")   # keyboard stays down after an answer
-        self.assertEqual(held(), f"-{y0}px")
         page.tap(".ask-tgl >> nth=0"); self.assertTrue(page.locator(".ask-srcs").first.is_visible())   # ONE tap on a link
         page.tap("#ask-close"); self.assertTrue(page.locator("#ask-panel").is_hidden())              # ONE tap minimizes
         self.assertEqual(page.evaluate("window.scrollY"), y0)                                          # and the page is back where it was
@@ -362,15 +360,18 @@ class Touch(unittest.TestCase):
         page.goto(f"{ORIGIN}/c/{self.slug}")
         page.evaluate("window.scrollTo(0, 640)"); y0 = page.evaluate("window.scrollY")
         page.tap("#ask-fab"); page.wait_for_timeout(300)
-        self.assertTrue(page.evaluate("document.body.classList.contains('ask-lock')"))
-        self.assertEqual(page.evaluate("getComputedStyle(document.body).position"), "fixed")
+        self.assertFalse(page.evaluate("document.body.classList.contains('ask-lock')"))   # open alone does not freeze (no repaint flicker)
         box = page.locator("#ask-panel").bounding_box()
         self.assertAlmostEqual(box["x"] + box["width"], 1024 - 18, delta=2)              # bottom-right corner
         self.assertAlmostEqual(box["y"] + box["height"], 768 - 18, delta=2)
+        page.tap("#ask-q"); page.wait_for_timeout(200)                                   # focus: NOW the page freezes (keyboard time)
+        self.assertTrue(page.evaluate("document.body.classList.contains('ask-lock')"))
+        self.assertEqual(page.evaluate("getComputedStyle(document.body).position"), "fixed")
+        self.assertEqual(page.evaluate("document.body.style.top"), f"-{y0}px")
+        page.keyboard.type("hello"); page.wait_for_timeout(300)
+        self.assertEqual(page.locator("#ask-panel").bounding_box()["y"], box["y"])       # focus + typing: no move
         page.mouse.wheel(0, 400); page.wait_for_timeout(200)                             # the page cannot scroll under it
         self.assertEqual(page.locator("#ask-panel").bounding_box()["y"], box["y"])
-        page.tap("#ask-q"); page.keyboard.type("hello"); page.wait_for_timeout(300)
-        self.assertEqual(page.locator("#ask-panel").bounding_box()["y"], box["y"])       # focus + typing: no move
         page.tap("#ask-close"); page.wait_for_timeout(200)
         self.assertFalse(page.evaluate("document.body.classList.contains('ask-lock')"))
         self.assertEqual(page.evaluate("window.scrollY"), y0)                            # exactly where it was
