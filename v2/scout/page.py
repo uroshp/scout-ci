@@ -462,8 +462,16 @@ def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = N
            f'<a href="#brief2">{plays_lbl}</a>',
            '<div class="grp">The full brief</div>']
     for sid, title, n in present:
-        toc.append(f'<a href="#{sid}">{_html.escape(title)}</a>')
-    toc.append('<a href="#claims">Claim freshness</a>')
+        if sid not in _TRAIL_IDS:
+            toc.append(f'<a href="#{sid}">{_html.escape(title)}</a>')
+    # the verification trail: its own group, set off from the brief by a rule and a muted face,
+    # so lineage / Cut Log / freshness do not read as more brief sections
+    toc.append(f'<div class="grp trail">{_TRAIL_TITLE}</div>'
+               f'<div class="grpsub">{_TRAIL_SUB}</div>')
+    for sid, title, n in present:
+        if sid in _TRAIL_IDS:
+            toc.append(f'<a class="tr" href="#{sid}">{_html.escape(title)}</a>')
+    toc.append('<a class="tr" href="#claims">Claim freshness</a>')
     nav = '<div class="toc" id="toc">' + "".join(toc) + "</div>"
 
     feed = status["change_feed"]
@@ -868,6 +876,26 @@ _OVERRIDES = """
 #scout-page .bsub{font-family:var(--display);font-size:17px;font-weight:600;
   letter-spacing:-.005em;text-transform:none;color:var(--ink);}
 #scout-page .play h4{font-size:17px;}
+/* the angle's headline is the same rank as a play's title (it inherited the 14px body size) */
+#scout-page .angle .ah{font-family:var(--display);font-size:17px;line-height:1.22;
+  letter-spacing:-.01em;margin:0 0 6px;}
+#scout-page .angle .ah strong{font-weight:600;}
+
+/* --- Verification trail (2026-09-29) --------------------------------------------------------
+   Lineage, Cut Log and claim freshness are the record of how the card was checked, not more of
+   the brief. In the rail they sit under a rule as a muted group; in the body a quieter divider
+   with a subtitle closes the brief before them. */
+#scout-page .toc .grp.trail{margin-top:18px;padding-top:12px;border-top:1px solid var(--line);
+  color:var(--faint);}
+#scout-page .toc .grpsub{padding:0 10px 4px;font-size:11px;color:var(--faint);}
+#scout-page .toc a.tr{color:var(--faint);font-size:11.5px;}
+#scout-page .toc a.tr:hover,#scout-page .toc a.tr.on{color:var(--ink);}
+#scout-page .divider.trail{margin:38px 0 12px;flex-wrap:wrap;gap:6px 12px;}
+#scout-page .divider.trail .t{font-size:15px;color:var(--muted);}
+#scout-page .divider.trail .s{font-family:var(--mono);font-size:10.5px;letter-spacing:.02em;
+  color:var(--faint);}
+#scout-page .divider.trail .ln{min-width:40px;}
+#scout-page .divider.trail ~ .sec .stitle{color:var(--muted);}
 
 /* --- Preview sections (snapshot / recent moves / positioning / pricing) ----------------------
    A .sec.preview is a DIV (not <details>), so it needs the card chrome the mockup pins to
@@ -1055,9 +1083,11 @@ def _lineage(retired: list) -> str:
 def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retired: list | None = None):
     """The full-brief body rendered from claim objects (+ Cut Log parsed from md) — the
     part SHARED by the live viewer and the static self-serve render. Returns
-    (sections_html, cut_html, present) where `present` is the section-nav list. `claims` are the
-    ACTIVE claims (callers pre-split via _prepare_display); `retired`, if given, renders a lineage
-    view after the regular sections. recent_keys: subject_keys a monitor run touched recently."""
+    (sections_html, trail_html, present) where `present` is the section-nav list and `trail_html`
+    is the VERIFICATION TRAIL (lineage + Cut Log): the record of what Scout checked, cut and
+    retired, which reads under its own divider, not as part of the brief (Uroš 2026-09-29: "anything
+    below objection handling is how this functions"). `claims` are the ACTIVE claims (callers
+    pre-split via _prepare_display); recent_keys: subject_keys a monitor run touched recently."""
     recent_keys = recent_keys or set()
     by_sec = {}
     for c in claims:
@@ -1103,14 +1133,28 @@ def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retir
             label = {"sentiment": "signal"}.get(sid, "items")
             secs.append(_section(sid, title, f"{len(cs)} {label}",
                                  "".join(_bullet_item(c, _new(c)) for c in cs)))
+    trail = []
     lineage_html = _lineage(retired or [])
     if lineage_html:
-        secs.append(lineage_html)
+        trail.append(lineage_html)
         present.append(("lineage", "Lineage", str(len(retired))))
     cut_html, cut_n = _cut_log(md)
     if cut_html:
+        trail.append(cut_html)
         present.append(("cut", "Cut Log", str(cut_n)))
-    return "".join(secs), cut_html, present
+    return "".join(secs), "".join(trail), present
+
+
+# The verification trail: the sections below the brief that record how the card was built and
+# checked (lineage, Cut Log, claim freshness). Own group in the rail, own divider in the body.
+_TRAIL_IDS = ("lineage", "cut", "claims")
+_TRAIL_TITLE = "Verification trail"
+_TRAIL_SUB = "Check Scout's work"                    # Uroš 2026-09-29: the group's tag line
+
+
+def _trail_divider() -> str:
+    return (f'<div class="divider trail" id="trail"><span class="t">{_TRAIL_TITLE}</span>'
+            f'<span class="s">{_TRAIL_SUB}</span><span class="ln"></span></div>')
 
 
 def static_brief_html(claims: list, md: str, meta: dict | None = None,
@@ -1127,7 +1171,7 @@ def static_brief_html(claims: list, md: str, meta: dict | None = None,
     2-minute payoff after a long generation wait); label/tag default to the live viewer's
     header so the monitored-card path renders byte-identically."""
     active, retired = _prepare_display(claims, meta)
-    secs, cut_html, _present = _brief_sections(active, md, retired=retired)
+    secs, trail, _present = _brief_sections(active, md, retired=retired)
     title = _title_block(meta) if meta else ""
     brief = _briefing(active, label=briefing_label, tag=briefing_tag) if briefing else ""
     inner = (title
@@ -1135,7 +1179,7 @@ def static_brief_html(claims: list, md: str, meta: dict | None = None,
              + brief
              + '<div class="divider"><span class="t">The full brief</span>'
                '<span class="ln"></span></div>'
-             + secs + cut_html
+             + secs + (_trail_divider() + trail if trail else "")
              + '</div>')
     return '<div id="scout-page"><div class="wrap">' + inner + '</div></div>'
 
@@ -1160,7 +1204,7 @@ def _content_html(slug: str) -> str:
     status["_claims"] = claims                      # the rail's persona switcher reads what is present
     md = _read_current(slug)
     rows = status["claim_timestamps"]
-    secs, cut_html, present = _brief_sections(claims, md, set(status["recent_keys"]), retired=retired)
+    secs, trail, present = _brief_sections(claims, md, set(status["recent_keys"]), retired=retired)
 
     try:
         remaining = int((datetime.fromisoformat(cp["next_check"]) - datetime.now()).total_seconds())
@@ -1179,7 +1223,7 @@ def _content_html(slug: str) -> str:
                    sum(1 for r in rows if r.get("is_new")))
         + _briefing(claims)
         + '<div class="divider"><span class="t">The full brief</span><span class="ln"></span></div>'
-        + secs + cut_html + _freshness(rows)
+        + secs + _trail_divider() + trail + _freshness(rows)
         + '</div></div>')
     return '<div id="scout-page"><div class="wrap">' + inner + '</div></div>'
 
