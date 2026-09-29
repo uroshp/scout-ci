@@ -75,7 +75,7 @@ class Loop(unittest.TestCase):
         def rewrite(entries, verdicts, facts_by_id):
             seen["rewrite"] = {i: v["reason"] for i, v in verdicts.items()}
             # the rewriter drops the unsupported figure from one, returns nothing for the other
-            return {"text": "```json\n" + json.dumps({"answer": [{"index": 1, "text": "Agentforce passed 1,000 paid deals, per Salesforce.", "cites": ["n1"]}]}) + "\n```", "cost_usd": 0.2}
+            return {"text": "```json\n" + json.dumps({"answer": [{"index": 1, "text": "Agentforce closed more than 1,000 paid deals, up from 200 the prior quarter.", "cites": ["n1"]}]}) + "\n```", "cost_usd": 0.2}
         a = ask.ask("q", research=_research(facts, answer), verify=verify, rewrite=rewrite, grounder=_grounder({"n1"}))
         self.assertEqual(seen["entries"][0], ["Agentforce passed 1,000 paid deals."])   # the judge never saw the bad ones
         self.assertTrue(all(r.startswith("floor:") for r in seen["rewrite"].values()))   # floor failures got ONE rewrite
@@ -184,3 +184,53 @@ class Thread(unittest.TestCase):
         self.assertEqual([h["question"] for h in seen["history"]], ["What is Agentforce?", "bad"])
         self.assertEqual(len(a["paragraphs"]), 1); self.assertTrue(a["sources"][0]["from_thread"]); self.assertFalse(a["sources"][0]["from_card"])
         self.assertEqual(a["trajectory"]["thread_turns"], 2)
+
+    def test_follow_up_naming_nobody_keeps_the_thread_scope_not_the_card(self):
+        # RC 2026-09-28: "Which of the two is GA today?" asked from the Batman card, after a turn about
+        # Anthropic vs OpenAI, came back headed "About Batman vs Superman"
+        prior = {"id": "a_0123456789ab", "competitor": "OpenAI", "slug": "anthropic__vs__openai__x", "sources": []}
+        metas = {"anthropic__vs__openai__x": {"competitor": "OpenAI", "my_company": "Anthropic"},
+                 "batman__vs__superman__general": {"competitor": "Superman", "my_company": "Batman"}}
+        with mock.patch("scout.selfserve.list_data", return_value=["2026-09"]), \
+             mock.patch("scout.selfserve.read_data", return_value=json.dumps(prior)), \
+             mock.patch.object(ask, "card_facts", return_value=[]) as cf, \
+             mock.patch.object(ask.store, "load_meta", side_effect=lambda s: metas.get(s)):
+            a = ask.ask("Which of the two is generally available today?", slug="batman__vs__superman__general",
+                        history=[{"question": "How do their Slack agents compare?", "answer_id": "a_0123456789ab"}],
+                        research=_research([], []), verify=_verify({}), grounder=_grounder(set()))
+            self.assertEqual((a["competitor"], a["slug"]), ("OpenAI", "anthropic__vs__openai__x"))
+            cf.assert_called_with("anthropic__vs__openai__x")
+            # a follow-up that names a company still switches
+            with mock.patch.object(ask, "infer_competitor", return_value=("Mistral", "mistral__vs__openai__z")):
+                a = ask.ask("And what is Mistral hiring for?", slug="batman__vs__superman__general",
+                            history=[{"question": "q", "answer_id": "a_0123456789ab"}],
+                            research=_research([], []), verify=_verify({}), grounder=_grounder(set()))
+            self.assertEqual((a["competitor"], a["slug"]), ("Mistral", "mistral__vs__openai__z"))
+
+
+class Restatements(unittest.TestCase):
+    A = "So today, Claude Tag is limited to Team and Enterprise plans, with no Pro or Free access, while OpenAI's workspace agents launched on ChatGPT Business at $20 per user a month plus variably priced Enterprise, Edu and Teachers plans."
+    B = "OpenAI's workspace agents, which plug into Slack, rolled out on ChatGPT Business at $20 per user a month, plus variably priced Enterprise, Edu and Teachers plans."
+    C = "Anthropic's Slack agent, Claude Tag, launched in beta on June 23, 2026 for Enterprise and Team customers on Opus 4.8."
+    D = "Both vendors gate a standing Slack presence with admin controls: Claude Tag caps token spend per organization and per channel with a full activity log."
+
+    def test_the_shorter_restatement_is_dropped_and_logged(self):
+        cut, tr = [], {}
+        kept = ask.drop_restatements([{"text": self.C, "cites": ["1"]}, {"text": self.A, "cites": ["1", "2"]}, {"text": self.B, "cites": ["2"]}, {"text": self.D, "cites": ["1"]}], cut, tr)
+        self.assertEqual([k["text"] for k in kept], [self.C, self.A, self.D])
+        self.assertEqual(len(cut), 1); self.assertIn("restates", cut[0]["reason"]); self.assertEqual(tr["restated"], 1)
+
+    def test_distinct_sentences_are_untouched(self):
+        cut = []
+        kept = ask.drop_restatements([{"text": self.C, "cites": []}, {"text": self.B, "cites": []}, {"text": self.D, "cites": []}], cut)
+        self.assertEqual(len(kept), 3); self.assertEqual(cut, [])
+        # sharing the subject while ADDING a fact is not a restatement
+        kept = ask.drop_restatements([{"text": "Agentforce passed 1,000 paid deals.", "cites": []},
+                                      {"text": "Agentforce closed more than 1,000 paid deals, up from 200 the prior quarter.", "cites": []}], cut)
+        self.assertEqual(len(kept), 2); self.assertEqual(cut, [])
+
+    def test_a_reordered_restatement_is_caught(self):
+        cut = []
+        kept = ask.drop_restatements([{"text": "On ChatGPT Business, workspace agents cost $20 per user a month.", "cites": []},
+                                      {"text": "Workspace agents on ChatGPT Business cost $20 per user a month.", "cites": []}], cut)
+        self.assertEqual(len(kept), 1); self.assertEqual(len(cut), 1)
