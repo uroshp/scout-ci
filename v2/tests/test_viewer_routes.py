@@ -224,3 +224,13 @@ class TriggeredBy(unittest.TestCase):
                                                                          "source_url": "https://www.sec.gov/x", "triggered_by": {"kind": "filing", "summary": "New 8-K filed 2026-09-29"}}]):
             h = _client().get(f"/c/{slug}").data.decode()
         self.assertIn('class="trig"', h); self.assertIn("Triggered by: new filing", h); self.assertIn('title="New 8-K filed 2026-09-29"', h)
+
+
+class CutLogShapes(unittest.TestCase):
+    def test_both_entry_shapes_render(self):
+        md = ("# Card\n\n## Cut Log\n\n- **CUT — analyst 3x estimate:** unverifiable.\n\n"
+              "**REVISED — Copilot cost play (Executive Summary):** figures now quoted as projections.\n\n"
+              "**CUT — GitHub Copilot moved every plan to usage-based billing:** removed as contamination. Human-labelled unsupported.\n")
+        html, n = page._cut_log(md)
+        self.assertEqual(n, 3)
+        self.assertIn("removed as contamination", html); self.assertIn("quoted as projections", html); self.assertIn("unverifiable", html)
