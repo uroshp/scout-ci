@@ -64,7 +64,7 @@ class Routes(unittest.TestCase):
         self.assertIn("Back to the card", h)
         self.assertEqual(c.get("/c/not-a-card/sources").status_code, 404)
 
-    def test_persona_view_reorders_and_dims(self):
+    def test_persona_view_reorders_and_never_dims(self):
         c = _client()
         base = c.get(f"/c/{self.slug}").data.decode()
         self.assertNotIn(" pdim", base)
@@ -81,6 +81,7 @@ class Routes(unittest.TestCase):
                   if x.get("zone") == "where_we_win"]
         if any(x.get("persona") == p for x in claims):
             self.assertTrue(any(page._anchor(x.get("subject_key", "")) == first.group(1) and x.get("persona") == p for x in claims))
+        self.assertNotIn(" pdim", h); self.assertNotIn(".pdim", h)                    # no greyed-out items in the audience view (Uroš 2026-09-29)
         self.assertEqual(c.get(f"/c/{self.slug}?persona=hacker").status_code, 200)   # unknown = default
         self.assertEqual(c.get(f"/print/{self.slug}?persona={p}").status_code, 200)
 
