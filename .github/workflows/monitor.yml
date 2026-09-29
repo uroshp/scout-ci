@@ -82,6 +82,9 @@ jobs:
           SCOUT_SOURCES_TOOLS: ${{ inputs.sources_tools && '1' || '0' }}
           SCOUT_MONITOR_TRACE: ${{ inputs.dry_run && '1' || '0' }}
           SCOUT_MONITOR_REASON: ${{ inputs.reason }}
+          # The store follows the ref: a run from `rc` reads and writes under rc/ (signals, ask
+          # ledger, capture), never production's paths, and never falls back to them.
+          SCOUT_SELFSERVE_DATA_PREFIX: ${{ github.ref_name == 'main' && '' || 'rc' }}
           # Signals (WS3): the run reads open filings / new-department events from the store and
           # puts them in front of triage, with the hiring context line. Off until promoted.
           SCOUT_SIGNALS: ${{ vars.SCOUT_SIGNALS || '0' }}

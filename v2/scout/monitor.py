@@ -354,16 +354,31 @@ def _signals_block(slug: str) -> tuple[str, list[dict]]:
         opened = signals.open_signals(slug)
         block = ""
         if opened:
+            print(f"[monitor] signals: {len(opened)} open for {slug}: " + "; ".join(str(s.get('summary'))[:60] for s in opened[:3]))
             rows = [{"kind": s.get("kind"), "summary": s.get("summary"), "source_url": s.get("source_url"),
                      "source_class": s.get("source_class"), "filed": s.get("filed"), "detected_at": s.get("detected_at")} for s in opened[:8]]
             block += ("\n\nSIGNALS TO INVESTIGATE FIRST (structured, verified by code, newer than any search result): "
-                      "read each source and surface what it changes as a candidate; a filing's own text is the "
-                      "primary source (tier primary, class filing):\n" + json.dumps(rows, ensure_ascii=False, indent=1))
-        block += signals.context_block(slug)
+                      "a FILING: read the document itself and surface what it changes as a candidate (the filing is "
+                      "the primary source, tier primary, class filing). A NEW HIRING DEPARTMENT: the board listing is "
+                      "NOT a source for a claim; look for the company's own announcement or reporting that explains "
+                      "the investment and surface THAT (subject_key new); if nothing explains it, surface nothing:\n"
+                      + json.dumps(rows, ensure_ascii=False, indent=1))
         return block, opened
     except Exception as e:
         print(f"[monitor] signals skipped ({type(e).__name__}: {e})", file=sys.stderr)
         return "", []
+
+
+def _hiring_context(slug: str) -> str:
+    """The hiring CONTEXT line for materiality and the own-side pass only (never triage: a headcount
+    delta must not become a candidate on its own)."""
+    if not config.SIGNALS_ENABLED:
+        return ""
+    try:
+        from scout import signals
+        return signals.context_block(slug)
+    except Exception:
+        return ""
 
 
 async def _run_materiality(meta, since, candidates, claims, extra: str = ""):
@@ -724,6 +739,8 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     # stories every day a window stays open (2026-07-02 cost pass; Uroš's design).
     my_since = _since_date(since_override or meta.get("last_checked") or meta.get("baseline_date"))
     checked_at = datetime.now().isoformat(timespec="seconds")  # full timestamp, not just a date
+    # a signal-dispatched run counts as the day's check for the due gate (WS3): the reason rides meta
+    check_reason = "signal" if os.environ.get("SCOUT_MONITOR_REASON", "").strip() else "scheduled"
     from scout import calllog
     calllog.set_context(slug=slug, phase="monitor")
     reset_log()
@@ -731,6 +748,7 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     # Structured signals (WS3): open filings / new-department events in front of triage, and the
     # hiring context line; `sig_open` is consumed (marked) once this check has written.
     sig_block, sig_open = _signals_block(slug)
+    ctx_block = _hiring_context(slug)
     # Stage 1: triage (cheap)
     triage = asyncio.run(_run_triage(meta, since, claims, my_since=my_since, extra=sig_block))
     try:
@@ -769,6 +787,7 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
         "material": [], "alerts": [],
         "cost": {"triage": triage.get("cost_usd"), "materiality": 0.0},
         "last_checked": checked_at,
+        "last_check_reason": check_reason,
     }
 
     if not substantial and not do_my:
@@ -777,7 +796,7 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
         # (retrieval variance: the Fable lift was found 1-of-4 runs on the same window) — it stays
         # open, bounded, and abandons loudly at the retry bound.
         if write:
-            meta["last_checked"] = checked_at
+            meta["last_checked"] = checked_at; meta["last_check_reason"] = check_reason
             if meta.get("unresolved_since"):
                 _hold_window(meta, meta["unresolved_since"], result)
             store.write_baseline(slug, claims, meta, _current_md(slug))
@@ -786,7 +805,7 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     # COMPETITOR ARM: Opus materiality -> multi-source grounding -> bounded retry. Runs only when
     # competitor signals are substantial; otherwise the my_company arm is why we escalated.
     if substantial:
-        material_grounded, grounded, immaterial = _competitor_arm(slug, meta, since, substantial, claims, result, sig_block=sig_block)
+        material_grounded, grounded, immaterial = _competitor_arm(slug, meta, since, substantial, claims, result, sig_block=sig_block + ctx_block)
     else:
         material_grounded, grounded, immaterial = [], {"kept": [], "cut": [], "results": []}, []
     new_claims, new_alerts = _apply_updates(
@@ -931,7 +950,7 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
             competitor=meta.get("competitor"), my_company=meta.get("my_company"))
 
     if write and new_alerts:
-        meta["last_checked"] = checked_at
+        meta["last_checked"] = checked_at; meta["last_check_reason"] = check_reason
         # A landed alert resolves the held window ONLY if it matches a held subject — an unrelated
         # catch keeps the window open (the 7/1 miss: Copilot's alert erased the Fable window).
         _resolve_or_hold(meta, new_alerts, result)
@@ -946,7 +965,6 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
         current_md = format_report(clean_output(body))
         store.write_baseline(slug, new_claims, meta, current_md)
         _append_alerts(slug, _stamp_triggers(new_alerts, sig_open))
-        _consume_signals(slug, sig_open, checked_at)
     elif write and (substantial or (do_my and not my_grounded)):
         # SUBSTANTIAL development detected on EITHER arm, but nothing landed (competitor: nothing
         # survived grounding+retry; my_company: the arm escalated and grounded nothing). Do NOT
@@ -954,7 +972,7 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
         # but HOLD the detection window open at `since` so the next check re-attempts it — bounded,
         # so a genuinely ungroundable item can't make us re-escalate the Opus judge forever.
         # Record WHICH subjects the window is held for, so only a matching later alert resolves it.
-        meta["last_checked"] = checked_at
+        meta["last_checked"] = checked_at; meta["last_check_reason"] = check_reason
         failed = substantial + (my_substantial if (do_my and not my_grounded) else [])
         subs = {str(c.get("subject_key")) for c in failed if c.get("subject_key")}
         meta["unresolved_subjects"] = sorted(set(meta.get("unresolved_subjects") or []) | subs)
@@ -966,8 +984,10 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     elif write:
         # Escalated for the my_company arm only (SHADOW grounds + proposes but writes no card change,
         # or LIVE produced no new alert). No competitor window to hold open: just advance the gate.
-        meta["last_checked"] = checked_at
+        meta["last_checked"] = checked_at; meta["last_check_reason"] = check_reason
         store.write_baseline(slug, claims, meta, _current_md(slug))
+    if write and sig_open:                       # every written check consumes what it was shown
+        _consume_signals(slug, sig_open, checked_at)
     return result
 
 
@@ -1055,6 +1075,10 @@ def _is_due(meta: dict, now: datetime | None = None) -> bool:
         last = datetime.fromisoformat(raw)
     except ValueError:
         return True
+    # A signal-dispatched check inside the last MONITOR_SIGNAL_GAP_H hours serves the next anchor
+    # (WS3): the trigger was the day's check, not an extra one.
+    if meta.get("last_check_reason") == "signal" and (now - last) < timedelta(hours=config.MONITOR_SIGNAL_GAP_H):
+        return False
     anchor = _latest_passed_anchor(now)
     if anchor is not None:
         if last >= anchor:
@@ -1118,14 +1142,14 @@ def _persist_run_cost(started, rows: list, write: bool) -> None:
 
 
 def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
-            force: bool = False, slugs: list | None = None) -> list[dict]:
+            force: bool = False, slugs: list | None = None, quiet: bool = False) -> list[dict]:
     """Thin wrapper (2026-09-28): opens the call-capture run and guarantees it is flushed even when a
     run crashes (a crashed run still captured billable calls). The body is _run_all_impl, unchanged.
     `slugs` (2026-09-28, WS1/WS3): check only these cards (a dry test run, a signal-triggered run)."""
     from scout import calllog
     calllog.begin_run("monitor")          # no-op unless SCOUT_CALL_CAPTURE=1
     try:
-        return _run_all_impl(write=write, send=send, email_dry_run=email_dry_run, force=force, slugs=slugs)
+        return _run_all_impl(write=write, send=send, email_dry_run=email_dry_run, force=force, slugs=slugs, quiet=quiet)
     finally:
         if not write and os.environ.get("SCOUT_MONITOR_TRACE") == "1":
             print(calllog.trace_summary(), flush=True)      # dry test runs: show the tool calls
@@ -1133,7 +1157,7 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
 
 
 def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = True,
-            force: bool = False, slugs: list | None = None) -> list[dict]:
+            force: bool = False, slugs: list | None = None, quiet: bool = False) -> list[dict]:
     """Cron entrypoint: check every DUE battlecard, write per policy, email digests.
 
     Due-gate (_is_due): by default a card is only checked when it hasn't been checked
@@ -1227,11 +1251,16 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
             if any(issue[k] for k in ("held", "unjudged", "exhausted", "provenance_issues", "pipeline_health", "errors")):
                 issue_cards.append(issue)
             urgent = [d for d in decisions if d.get("material_uncured")]
-            if urgent and config.PROPAGATE_URGENT_EMAIL:
+            if urgent and config.PROPAGATE_URGENT_EMAIL and not quiet:
                 try:
                     notify.send_urgent_material(slug, meta, urgent, dry_run=email_dry_run)
                 except Exception as e:
                     print(f"[monitor] urgent-material alert skipped ({type(e).__name__}: {e})", file=sys.stderr)
+            elif urgent and quiet:
+                issue["exhausted"] = list(issue["exhausted"]) + [dict(d, held_reason="urgent, from a dispatched run") for d in urgent
+                                                                 if d not in issue["exhausted"]]
+                if issue not in issue_cards:
+                    issue_cards.append(issue)
             if prop0 and config.CONSEQUENTIAL_FILTER != "off" and prop0.get("run_verdict"):
                 shadow.filter_capture(slug, run_ts=res.get("last_checked"), verdict=prop0["run_verdict"],
                                       act_subject_keys=[m["subject_key"] for m in res.get("material", [])],
@@ -1340,16 +1369,29 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
             "total": _run_total(cost),
         })
     if send and config.PROPAGATE_MODE == "live":
-        try:
-            fyi = notify.send_run_fyi(fyi_cards, sum(float(r.get("cost_usd") or _run_total(r.get("phases") or {}) or 0) for r in cost_rows), dry_run=email_dry_run)
-            print(f"[monitor] run FYI: {fyi}")
-        except Exception as e:
-            print(f"[monitor] run FYI skipped ({type(e).__name__}: {e})", file=sys.stderr)
-        try:
-            iss = notify.send_run_issues(issue_cards, dry_run=email_dry_run)
-            print(f"[monitor] run issues email: {iss}")
-        except Exception as e:
-            print(f"[monitor] run issues email skipped ({type(e).__name__}: {e})", file=sys.stderr)
+        run_cost = sum(float(r.get("cost_usd") or _run_total(r.get("phases") or {}) or 0) for r in cost_rows)
+        if quiet:
+            # a DISPATCHED run never emails on its own (Uroš 2026-09-29): what it found waits in the
+            # store and rides the next scheduled run's FYI / needs-you email
+            if write:
+                _stash_pending_fyi(run_started, fyi_cards, issue_cards, run_cost)
+            print(f"[monitor] quiet run: {len(fyi_cards)} FYI card(s), {len(issue_cards)} issue card(s) stashed for the next FYI")
+        else:
+            prior = _take_pending_fyi() if write else []
+            for p_ in prior:
+                fyi_cards = [dict(c, meta=store.load_meta(c["slug"]) or {}) for c in p_.get("fyi_cards", [])] + fyi_cards
+                issue_cards = [dict(c, meta=store.load_meta(c["slug"]) or {}) for c in p_.get("issue_cards", [])] + issue_cards
+                run_cost += float(p_.get("cost_usd") or 0)
+            try:
+                fyi = notify.send_run_fyi(fyi_cards, run_cost, dry_run=email_dry_run)
+                print(f"[monitor] run FYI: {fyi}")
+            except Exception as e:
+                print(f"[monitor] run FYI skipped ({type(e).__name__}: {e})", file=sys.stderr)
+            try:
+                iss = notify.send_run_issues(issue_cards, dry_run=email_dry_run)
+                print(f"[monitor] run issues email: {iss}")
+            except Exception as e:
+                print(f"[monitor] run issues email skipped ({type(e).__name__}: {e})", file=sys.stderr)
     _persist_run_cost(run_started, cost_rows, write)
     # CONSEQ. TRACK: once enough shadow verdicts have accumulated, email a one-time "ready to review"
     # spot-check digest (so the owner knows when to evaluate the filter for production). Best-effort.
@@ -1357,6 +1399,53 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
         from scout import conseq
         conseq.maybe_notify_ready(send=not email_dry_run)
     return summary
+
+
+PENDING_FYI = "signals/_pending_fyi.json"
+
+
+def _strip_meta(cards: list) -> list:
+    return [{k: v for k, v in c.items() if k != "meta"} for c in cards]
+
+
+def _stash_pending_fyi(run_started, fyi_cards: list, issue_cards: list, cost_usd: float) -> None:
+    """A dispatched run's would-be emails, appended to the store for the next scheduled run."""
+    if not fyi_cards and not issue_cards:
+        return
+    from scout import selfserve
+    entry = {"run_ts": run_started.isoformat(timespec="seconds"), "reason": os.environ.get("SCOUT_MONITOR_REASON", "")[:200],
+             "fyi_cards": _strip_meta(fyi_cards), "issue_cards": _strip_meta(issue_cards), "cost_usd": round(cost_usd, 4)}
+    def tx(cur):
+        try:
+            arr = json.loads(cur) if cur else []
+        except Exception:
+            arr = []
+        arr = [a for a in arr if isinstance(a, dict)][-20:] + [entry]
+        return json.dumps(arr, indent=1, ensure_ascii=False, default=str)
+    try:
+        selfserve.update_data(PENDING_FYI, tx, "monitor: pending FYI from a dispatched run")
+    except Exception as e:
+        print(f"[monitor] pending FYI stash failed ({type(e).__name__}: {e})", file=sys.stderr)
+
+
+def _take_pending_fyi() -> list:
+    """The stashed entries (oldest first), cleared once taken; [] when none or the store is down."""
+    from scout import selfserve
+    out: list = []
+    def tx(cur):
+        try:
+            arr = json.loads(cur) if cur else []
+        except Exception:
+            arr = []
+        out.extend(a for a in arr if isinstance(a, dict))
+        return "[]"
+    try:
+        if selfserve.read_data(PENDING_FYI):
+            selfserve.update_data(PENDING_FYI, tx, "monitor: pending FYI taken by the scheduled run")
+    except Exception as e:
+        print(f"[monitor] pending FYI read failed ({type(e).__name__}: {e})", file=sys.stderr)
+        return []
+    return out
 
 
 def _print_check(res):
@@ -1384,11 +1473,11 @@ if __name__ == "__main__":
     slugs = [x.strip() for x in os.environ.get("SCOUT_MONITOR_SLUGS", "").split(",") if x.strip()] or None
     force = os.environ.get("SCOUT_MONITOR_FORCE") == "1"
     reason = os.environ.get("SCOUT_MONITOR_REASON", "").strip()
-    if reason:   # a signal poller's hint only; the run reads the open signals from the store
-        print(f"[monitor] dispatched: {reason}")
+    if reason:   # a signal poller's hint only; the run reads the open signals from the store; QUIET
+        print(f"[monitor] dispatched: {reason} (quiet: no emails of its own; findings ride the next FYI)")
     if not live:
         print(f"[monitor] DRY run: no writes, no email (slugs={slugs or 'all'}, force={force})")
-    out = run_all(write=live, send=True, email_dry_run=not live, force=force, slugs=slugs)
+    out = run_all(write=live, send=True, email_dry_run=not live, force=force, slugs=slugs, quiet=bool(reason))
     print(_json.dumps(out, indent=2, default=str))
     # Partial failure still exits 1 (after the full summary prints) so the Actions run
     # notifies — but only after every card had its chance to check and write.

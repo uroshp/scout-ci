@@ -26,6 +26,7 @@ import queue
 import re
 import threading
 import time
+from contextlib import asynccontextmanager
 from datetime import datetime
 
 from fastapi import FastAPI, Header, Request
@@ -41,10 +42,32 @@ ASK_ALLOWED_ORIGINS = [o.strip() for o in os.environ.get("ASK_ALLOWED_ORIGINS", 
 LEDGER = ledger.Ledger("ask/state.json", ASK_DAILY_CEILING_USD, config.ASK_MAX_USD)
 PING_S = 15
 
-app = FastAPI(title="Ask Scout engine", docs_url=None, redoc_url=None, openapi_url=None)
+# --- MCP (WS4, 2026-09-29): the same tools as `python -m scout.mcp_server`, over Streamable HTTP at
+# /mcp. Reads are free; `ask_scout` spends, so a tools/call for it needs an owner key (Uroš:
+# owner-key only). Mounted only with SCOUT_MCP=1; its session manager runs in the app lifespan.
+MCP_ENABLED = os.environ.get("SCOUT_MCP", "0") == "1"
+if MCP_ENABLED:
+    from scout import mcp_server
+
+
+@asynccontextmanager
+async def _lifespan(_app):
+    if MCP_ENABLED:
+        async with mcp_server.mcp.session_manager.run():
+            yield
+    else:
+        yield
+
+
+app = FastAPI(title="Ask Scout engine", docs_url=None, redoc_url=None, openapi_url=None, lifespan=_lifespan)
 if ASK_ALLOWED_ORIGINS:
     app.add_middleware(CORSMiddleware, allow_origins=ASK_ALLOWED_ORIGINS, allow_methods=["POST", "GET"],
                        allow_headers=["Authorization", "Content-Type"], max_age=600)
+
+
+if MCP_ENABLED:
+    # auth for the metered tool is inside the tool (scout/mcp_server.py); reads are free
+    app.mount("/mcp", mcp_server.mcp.streamable_http_app())
 
 
 # --- auth (page tokens live in scout/asktoken.py, shared with the viewer) -------------------

@@ -48,7 +48,8 @@ def main():
             continue
         if slug in overrides:
             meta = dict(meta, watch=overrides[slug])
-        r = signals.poll_card(slug, meta, write=not a.no_write, allow_dispatch=not a.no_dispatch)
+        # one dispatch per pass: a second filing card waits an hour (the cap is 2 a day anyway)
+        r = signals.poll_card(slug, meta, write=not a.no_write, allow_dispatch=(not a.no_dispatch and n_dispatched == 0))
         if r.get("skipped"):
             continue
         ctx = "; ".join(f"{c['host']} {c['open']} open net {c['net']:+d}" for c in r.get("context") or [])
