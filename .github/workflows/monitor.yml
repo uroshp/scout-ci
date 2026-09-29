@@ -27,6 +27,28 @@ name: monitor
 
 on:
   workflow_dispatch:               # ONLY trigger — Cloud Scheduler at 7am ET, Mon–Sat
+    # Optional inputs (2026-09-28). Cloud Scheduler posts {"ref":"main"} with none, so every
+    # default below is the scheduled run's behaviour. A manual dispatch with dry_run=true runs the
+    # check with NO writes, NO email and NO commit (the commit step is skipped), on the cards named
+    # in `slugs` (comma list; empty = all due cards), ignoring the due gate when force=true, with the
+    # structured-source tools on when sources_tools=true. Used to test rc before promotion.
+    inputs:
+      dry_run:
+        description: "no writes, no email, no commit"
+        type: boolean
+        default: false
+      slugs:
+        description: "comma list of card slugs (empty = all due)"
+        type: string
+        default: ""
+      force:
+        description: "ignore the due gate"
+        type: boolean
+        default: false
+      sources_tools:
+        description: "SCOUT_SOURCES_TOOLS=1 (scoutsources MCP server on)"
+        type: boolean
+        default: false
 
 concurrency:
   group: scout-monitor
@@ -50,7 +72,10 @@ jobs:
       - name: Run monitoring checks (live)
         id: monitor
         env:
-          SCOUT_MONITOR_LIVE: "1"
+          SCOUT_MONITOR_LIVE: ${{ inputs.dry_run && '0' || '1' }}
+          SCOUT_MONITOR_SLUGS: ${{ inputs.slugs }}
+          SCOUT_MONITOR_FORCE: ${{ inputs.force && '1' || '0' }}
+          SCOUT_SOURCES_TOOLS: ${{ inputs.sources_tools && '1' || '0' }}
           # Propagation (spec §17) in REVIEW (human-approval gate): on an act-grade grounded
           # development (ours or the competitor's), run propose->judge, LOG the decisions + grounding
           # facts to the PRIVATE data repo, and EMAIL the proposed change (where/what/how/verdict).
@@ -90,7 +115,7 @@ jobs:
         # continues past a single bad card and exits non-zero only after every card ran),
         # so the cards that DID check successfully still get their results committed.
         # Skipped only if the monitor never ran (checkout/pip failure) or was cancelled.
-        if: ${{ !cancelled() && steps.monitor.outcome != 'skipped' }}
+        if: ${{ !cancelled() && steps.monitor.outcome != 'skipped' && !inputs.dry_run }}
         run: |
           git config user.name "scout-monitor[bot]"
           git config user.email "scout-monitor@users.noreply.github.com"
