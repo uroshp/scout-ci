@@ -46,7 +46,7 @@ ASK_REWRITE_BUDGET_USD = config.ASK_REWRITE_BUDGET_USD
 ASK_MAX_USD = config.ASK_MAX_USD
 ASK_RESEARCH_MAX_TURNS = 8
 MAX_ROUNDS = 2
-MAX_CARD_FACTS = 40
+MAX_CARD_FACTS = 24
 ASK_DIR = "ask"
 
 ANSWER_CONTRACT = """You are Scout, a competitive-intelligence analyst who answers ONE question with prose that
@@ -65,6 +65,8 @@ what fails. Never paraphrase a filing figure: the sec_fact tool gives you the ex
 evidence_excerpt. If the question asks for something you cannot verify, put the TOPIC in
 "unanswered" (no numbers) instead of guessing. Do not pad: three tight, well-cited entries beat eight.
 Write for the reader named in CONTEXT when one is given.
+TOOL BUDGET: at most 4 web searches and 3 page reads in total. Read the KNOWN FACTS before any search;
+if the budget runs out, answer from what you have verified and put the rest in "unanswered".
 """
 
 VERIFY_SYSTEM = """You are the VERIFIER of an answer written from verified facts. You have no tools, on purpose:
@@ -115,7 +117,7 @@ def infer_competitor(question: str) -> tuple[str | None, str | None]:
         meta = store.load_meta(slug) or {}
         for who in (meta.get("competitor"), meta.get("my_company")):
             if who and (qt & classify._company_tokens(who)):
-                return who, slug
+                return meta.get("competitor") or who, slug        # the card's competitor names the scope
     return None, None
 
 
@@ -363,7 +365,15 @@ def _scrub_digits(s: str) -> str:
 
 def ask(question: str, *, competitor: str | None = None, my_company: str | None = None, context: str | None = None,
         persona: str | None = None, slug: str | None = None, history: list | None = None, research=research_call,
-        verify=verify_call, rewrite=rewrite_call, grounder=ground_claims, persist: bool = False) -> dict:
+        verify=verify_call, rewrite=rewrite_call, grounder=ground_claims, persist: bool = False, on_stage=None) -> dict:
+    """`on_stage(key, extra)` is called as the loop moves (facts, search, ground, floor, verify, rewrite,
+    done); the engine streams it to the panel. Never lets a hook exception stop the loop."""
+    def stage(k, extra=""):
+        if on_stage:
+            try:
+                on_stage(k, extra)
+            except Exception:
+                pass
     t0 = datetime.now()
     # scope: the question names the company first; the caller's competitor / card is the hint
     named, named_slug = infer_competitor(question)
@@ -371,8 +381,10 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
         competitor, slug = named, named_slug
     slug = slug or _find_slug(competitor, my_company)
     meta = (store.load_meta(slug) or {}) if slug else {"competitor": competitor, "my_company": my_company}
+    stage("facts")
     known = history_facts(history) + card_facts(slug)
     ctx = " ".join(x for x in [context, f"Reader: {persona.replace('_', ' ')} buyer." if persona else ""] if x) or None
+    stage("search", f"{len(known)} known facts" if known else "")
     cost = 0.0
     trajectory = {"rounds": 0, "research_turns": None, "cut": 0, "floor_dropped": 0, "judge_rejected": 0, "rewritten": 0,
                   "thread_turns": len(history or [])}
@@ -391,6 +403,7 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
     unanswered = [_scrub_digits(u) for u in (data.get("unanswered") or []) if isinstance(u, str) and u.strip()]
 
     # 3. gates
+    stage("ground", f"{len(new_facts)} new facts" if new_facts else "")
     survivors, cut = gate_facts(new_facts, meta, grounder)
     cut_log.extend(cut)
     trajectory["cut"] = len(cut)
@@ -402,6 +415,7 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
     pending = [dict(e, text=str(e.get("text") or ""), cites=[str(c) for c in (e.get("cites") or [])]) for e in entries]
     for rnd in range(1, MAX_ROUNDS + 1):
         trajectory["rounds"] = rnd
+        stage("floor", f"round {rnd}" if rnd > 1 else "")
         passed, floor_failed = [], []
         for e in pending:
             errs = floor_check(e, facts_by_id)
@@ -415,6 +429,7 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
                 passed.append(e)
         verdicts = {}
         if passed:
+            stage("verify", f"{len(passed)} sentence{'s' if len(passed) != 1 else ''}")
             v = verify(passed, facts_by_id)
             cost += float(v.get("cost_usd") or 0.0)
             from scout.propagate import _parse_verdicts
@@ -437,6 +452,7 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
             to_rewrite[len(passed) - 1] = {"reason": why + ". Remove or correct the unsupported figure; keep only what the cited facts state."}
         if not to_rewrite:
             break
+        stage("rewrite", f"{len(to_rewrite)} to fix")
         rw = rewrite(passed, to_rewrite, facts_by_id)
         cost += float(rw.get("cost_usd") or 0.0)
         rdata = _json_or_none(rw.get("text") or "") or {}
@@ -449,28 +465,44 @@ def ask(question: str, *, competitor: str | None = None, my_company: str | None 
         for i in to_rewrite:
             if i not in returned:
                 cut_log.append({"label": passed[i]["text"][:80], "reason": "verifier: " + to_rewrite[i]["reason"] + " (no rewrite returned)"})
+    # sources: one number per PAGE (two facts quoted from the same page share a number); every
+    # quote is kept under it
     cited_ids = []
     for e in confirmed:
         for c in e["cites"]:
             if c in facts_by_id and c not in cited_ids:
                 cited_ids.append(c)
-    sources = [{"n": i + 1, "id": c, "url": facts_by_id[c].get("source_url"), "class": facts_by_id[c].get("source_class"),
-                "tier": facts_by_id[c].get("source_tier"), "as_of": facts_by_id[c].get("as_of"),
-                "excerpt": facts_by_id[c].get("evidence_excerpt"),
-                "from_card": c in {f["id"] for f in known if not f.get("from_thread")},
-                "from_thread": bool(facts_by_id[c].get("from_thread"))} for i, c in enumerate(cited_ids)]
-    num = {s["id"]: s["n"] for s in sources}
+    sources, num, by_url = [], {}, {}
+    card_ids = {f["id"] for f in known if not f.get("from_thread")}
+    for c in cited_ids:
+        f = facts_by_id[c]
+        url = f.get("source_url")
+        if url in by_url:
+            src = by_url[url]
+            src["ids"].append(c)
+            if f.get("evidence_excerpt") and f["evidence_excerpt"] not in src["excerpts"]:
+                src["excerpts"].append(f["evidence_excerpt"])
+        else:
+            src = {"n": len(sources) + 1, "id": c, "ids": [c], "url": url, "class": f.get("source_class"),
+                   "tier": f.get("source_tier"), "as_of": f.get("as_of"), "excerpt": f.get("evidence_excerpt"),
+                   "excerpts": [f.get("evidence_excerpt")] if f.get("evidence_excerpt") else [],
+                   "from_card": c in card_ids, "from_thread": bool(f.get("from_thread"))}
+            sources.append(src)
+            by_url[url] = src
+        num[c] = src["n"]
     answer = {
         "id": "a_" + hashlib.sha256(f"{question}|{slug}|{t0.isoformat()}".encode()).hexdigest()[:12],
         "question": question, "slug": slug, "competitor": meta.get("competitor") or competitor, "context": ctx,
+        "card": (f"{meta.get('my_company')} vs {meta.get('competitor')}" if meta.get("my_company") and meta.get("competitor") else None),
         "asked_at": t0.isoformat(timespec="seconds"), "seconds": round((datetime.now() - t0).total_seconds(), 1),
-        "paragraphs": [{"text": e["text"], "cites": [num[c] for c in e["cites"] if c in num]} for e in confirmed],
+        "paragraphs": [{"text": e["text"], "cites": sorted({num[c] for c in e["cites"] if c in num})} for e in confirmed],
         "sources": sources, "cut_log": cut_log, "unanswered": unanswered,
         "verified": bool(confirmed), "cost_usd": round(cost, 4), "trajectory": trajectory,
         "models": {"research": config.SUBAGENT_MODEL, "verify": config.ORCHESTRATOR_MODEL},
     }
     if persist:
-        _persist(answer)
+        answer["path"] = _persist(answer)
+    stage("done")
     return answer
 
 

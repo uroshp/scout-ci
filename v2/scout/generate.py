@@ -569,6 +569,13 @@ async def _drive(prompt: str, options, top_role: str) -> dict:
               f"Error: {type(e).__name__}: {e}", file=sys.stderr, flush=True)
         if cap is not None:
             cap.fail(e, by_role)
+        # The SDK yields the error ResultMessage (with the cost so far) BEFORE it raises on the
+        # CLI's non-zero exit, so a budget-exhausted run still knows what it spent (2026-09-28):
+        # callers with a ledger settle the real number instead of guessing.
+        try:
+            e.scout_cost_usd = getattr(result, "total_cost_usd", None)
+        except Exception:
+            pass
         raise
 
     _merge_role_totals(by_role)
