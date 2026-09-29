@@ -17,6 +17,7 @@ images:
   - '${_IMAGE}'
 substitutions:
   _SERVICE: 'scout-engine'
-  _IMAGE: 'us-west1-docker.pkg.dev/${PROJECT_ID}/cloud-run-source-deploy/${_SERVICE}:${SHORT_SHA}'
+  _TAG: 'dev'
+  _IMAGE: 'us-west1-docker.pkg.dev/${PROJECT_ID}/cloud-run-source-deploy/${_SERVICE}:${_TAG}'
 options:
   logging: CLOUD_LOGGING_ONLY
