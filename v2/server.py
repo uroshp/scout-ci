@@ -465,6 +465,16 @@ def _card_page(slug: str, cards: list, page_type: str = "card") -> str:
     return _doc(inner, title=f"{_card_label(slug)} — Agent Scout", page_type=page_type)
 
 
+@app.get("/c/<slug>/sources")
+def card_sources(slug):
+    """Every citation on the card by kind of source (2026-09-28, WS0)."""
+    cards = _ordered_cards()
+    if slug not in cards:
+        abort(404)
+    inner = _chrome(False, slug, cards) + page.title_html(slug) + page.sources_html(slug)
+    return _doc(inner, title=f"Sources — {_card_label(slug)} — Agent Scout", page_type="card")
+
+
 @app.get("/print/<slug>")
 def print_sheet(slug):
     if slug not in display.list_battlecards():

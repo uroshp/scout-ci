@@ -371,6 +371,8 @@ def save_result(job_id: str, record: dict, markdown: str | None = None,
     if markdown is not None:
         _write(f"{RESULTS_DIR}/{job_id}/card.md", markdown, f"selfserve: card {job_id}")
     if claims is not None:
+        from scout.sources import classify as _classify          # source class on user cards too
+        _classify.stamp_all(claims, {"competitor": record.get("competitor"), "my_company": record.get("my_company")})
         _write(f"{RESULTS_DIR}/{job_id}/claims.json",
                json.dumps(claims, indent=2, ensure_ascii=False), f"selfserve: claims {job_id}")
     _write(f"{RESULTS_DIR}/{job_id}/result.json",
