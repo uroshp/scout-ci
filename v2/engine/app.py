@@ -106,10 +106,11 @@ async def ask_route(request: Request, authorization: str | None = Header(default
                    "cost_usd": a["cost_usd"], "seconds": a["seconds"], "verified": a["verified"]})
             LEDGER.settle(a["cost_usd"])
         except Exception as e:
-            # honest failure: a crashed run is NOT free. The SDK reports the cost so far on a
-            # budget-exhausted run (generate._drive attaches it); otherwise settle the research cap.
+            # honest failure: a crashed run is NOT free. generate._drive attaches the cost so far
+            # (a known 0.0 when the process died before its first message); an UNKNOWN cost (None)
+            # settles the research cap, so the ledger fails closed.
             spent = getattr(e, "scout_cost_usd", None)
-            spent = float(spent) if spent else config.ASK_RESEARCH_BUDGET_USD
+            spent = config.ASK_RESEARCH_BUDGET_USD if spent is None else float(spent)
             msg = ("Scout ran out of research budget on that question before it could verify an answer"
                    if "budget" in str(e).lower() else f"Scout hit a problem answering that ({type(e).__name__})")
             q.put({"error": f"{msg}. Try a narrower question, or one about a single company.", "cost_usd": round(spent, 2)})
