@@ -1389,5 +1389,35 @@
     "confidence": "medium",
     "derived_from": "c_37405faa45f0",
     "persona": "technical_evaluator"
+  },
+  {
+    "subject_key": "aws | launch | bedrock-gpt6-2026-09",
+    "claim": "On September 22, 2026, AWS made OpenAI's GPT-6 Sol and GPT-6 Luna generally available on Amazon Bedrock, extending the GPT-6 family (alongside Astra) with two models that support up to 1M tokens of context and ship at lower prices than their GPT-5.6 predecessors. This lands the same week AWS also added Claude Opus 5.5 to Bedrock.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://aws.amazon.com/about-aws/whats-new/2026/09/openai-gpt-6-sol-luna-on-amazon-bedrock/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Today, AWS announces the general availability of GPT-6 Sol and GPT-6 Luna from OpenAI on Amazon Bedrock.",
+    "as_of": "2026-09-22",
+    "confidence": "high",
+    "id": "c_3ab746b48536",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-29",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://aws.amazon.com/blogs/aws/aws-weekly-roundup-gpt-6-sol-and-luna-claude-opus-5-5-on-amazon-bedrock-strands-harness-and-more-september-28-2026/",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false
+      }
+    ]
   }
 ]
