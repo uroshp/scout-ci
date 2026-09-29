@@ -1468,40 +1468,6 @@
     "source_class": "company_statement"
   },
   {
-    "subject_key": "github-copilot | billing-backlash",
-    "claim": "GitHub Copilot moved every plan to usage-based token billing on June 1, 2026, and GitHub's own announcement warned that users with intense agentic usage would likely see an increase in costs. Developers projected the jump before the switch: TechCrunch on May 30 quoted one Copilot user expecting a roughly $29 monthly plan to balloon to nearly $750 a month and another expecting $50 to reach some $3,000. On June 1, users on GitHub's forum reported single agent requests consuming about half of a month's credit allotment, and one estimated needing to pay around ten times as much for the same output. GitHub has not reversed course. No published invoice data confirms these figures; they are projections and user estimates.",
-    "claim_type": "fact",
-    "section": "recent_moves",
-    "zone": null,
-    "order": 2,
-    "source_url": "https://github.com/orgs/community/discussions/192948",
-    "source_tier": "primary",
-    "evidence_excerpt": "Users with intense agentic usage will likely see an increase in costs because those features consume more compute.",
-    "as_of": "2026-06-01",
-    "confidence": "high",
-    "id": "c_52b822fdf6ea",
-    "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-07-02",
-      "detail": null
-    },
-    "corroboration": [
-      {
-        "source_url": "https://techcrunch.com/2026/05/30/what-a-joke-github-copilots-new-token-based-billing-spurs-consternation-among-devs/",
-        "source_tier": "reputable_secondary",
-        "note": "the $29 to $750 and $50 to $3,000 figures, stated as developers' projections",
-        "grounded": true,
-        "evidence_excerpt": "while they currently only pay around $29 per month, the new rate will balloon their costs to nearly $750 a month.",
-        "source_class": "news"
-      }
-    ],
-    "updated_on": "2026-09-28",
-    "source_class": "unknown"
-  },
-  {
     "subject_key": "openai | government-equity-proposal | 2026-07",
     "claim": "On July 2, 2026, OpenAI proposed giving the US government a 5% equity stake, worth roughly $42.6 billion at its $852 billion valuation, as a way to defuse mounting political pressure in Washington. CEO Sam Altman raised it in conceptual talks with the Trump administration as part of a broader plan for Washington to hold 5% of each leading US AI developer through a sovereign-wealth-fund vehicle modeled on the Alaska Permanent Fund. The proposal envisions Anthropic, Google and Meta ceding similar stakes, but a source said the administration and Anthropic have not discussed any government stake, and the plan could require an act of Congress.",
     "claim_type": "fact",
