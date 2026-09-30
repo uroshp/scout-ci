@@ -25,8 +25,12 @@ could hold that role. Nothing here changes the older lanes' bars.
 - The Ollama arms (one backend NAME per model, each its own results folder, scorecard column and
   streak; run one after another, each alone on the box, unloaded before the next loads; the order
   rotates by weekday; per-arm cap 45 min inside the 05:00-08:30 window). Registry:
-  `replaybackends.OLLAMA_MODELS`. All thinking on where the model supports it, `num_ctx` 49152
-  (raised from 16384 on 2026-09-29: Scout's largest prompt is ~15.6k tokens), temperature 0, seed.
+  `replaybackends.OLLAMA_MODELS`. Temperature 0, seed, generation bounded by the role's output
+  reserve plus the arm's thinking reserve (`num_predict`). Magistral: thinking on, `num_ctx`
+  49152 (raised from 16384 on 2026-09-29: Scout's largest prompt is ~15.6k tokens). Gemma 4 and
+  Nemotron: thinking OFF (with it on, both looped through 8192 reasoning tokens on a research
+  prompt and answered nothing, three tries on 2026-09-30); Gemma at `num_ctx` 32768 (the 48k KV
+  cache spilled off the GPU), Nemotron at 49152.
   - `ollama` = Mistral AI, Magistral Small 1.2 24B q4_K_M (the original arm; the name stays so
     its labels and streaks hold).
   - `ollama_nemotron` = NVIDIA, Nemotron 3 Nano 4B q8_0 (added 2026-09-30). NVIDIA's 30B MoE
