@@ -213,7 +213,7 @@ def _ollama_turn(messages: list[dict], *, tools: bool, schema: dict | None, time
     cfg = rb.ollama_cfg(backend)
     body = {"model": cfg["tag"], "stream": False, "think": cfg["think"], "keep_alive": "20m", "messages": messages,
             "options": {"num_ctx": cfg["num_ctx"], "temperature": 0, "seed": rb.OLLAMA_SEED,
-                        "num_predict": 1024 + rb.OLLAMA_THINK_RESERVE}}   # a turn cannot run away
+                        "num_predict": 1024 + cfg["think_reserve"]}}   # a turn cannot run away
     if tools:
         body["tools"] = TOOLS
     if schema:

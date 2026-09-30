@@ -35,10 +35,15 @@ from scout import config, rolespecs
 # SCOUT_OLLAMA_TAG_<KEY>, SCOUT_OLLAMA_NUM_CTX_<KEY> where KEY = the name upper-cased minus
 # "OLLAMA_" ("MAGISTRAL" for the legacy name; the legacy SCOUT_OLLAMA_TAG/NUM_CTX still apply to it).
 def _arm(key: str, tag: str, vendor: str, num_ctx: int = 49152, chars_per_token: float = 3.0,
-         think: bool = True) -> dict:
+         think: bool = True, think_reserve: int = 2048) -> dict:
+    # think_reserve: output tokens a model may spend reasoning before its answer, on top of the
+    # role's output reserve; together they bound generation (num_predict) and feed the fit check.
+    # Magistral answers within 2048; Gemma 4 and Nemotron spent all of 4096 thinking on a research
+    # prompt and returned nothing (2026-09-30 smoke), so they get room, still bounded (~5 min).
     return {"tag": os.environ.get(f"SCOUT_OLLAMA_TAG_{key}", tag), "vendor": vendor,
             "num_ctx": int(os.environ.get(f"SCOUT_OLLAMA_NUM_CTX_{key}", num_ctx)),
-            "chars_per_token": chars_per_token, "think": think}
+            "chars_per_token": chars_per_token, "think": think,
+            "think_reserve": int(os.environ.get(f"SCOUT_OLLAMA_THINK_RESERVE_{key}", think_reserve))}
 
 
 OLLAMA_MODELS = {
@@ -46,9 +51,9 @@ OLLAMA_MODELS = {
                    num_ctx=int(os.environ.get("SCOUT_OLLAMA_NUM_CTX", "16384"))),
     # NVIDIA's 30B MoE builds (Lightning, Cascade 2, Nano 30B) are 23-25 GB on disk at Q4 and cannot
     # sit fully on a 24 GB box; Nano 4B (q8, 4 GB, 256k ctx) is NVIDIA's edge-class model and fits.
-    "ollama_nemotron": _arm("NEMOTRON", "nemotron-3-nano:4b-q8_0", "NVIDIA"),
+    "ollama_nemotron": _arm("NEMOTRON", "nemotron-3-nano:4b-q8_0", "NVIDIA", think_reserve=6144),
     # Gemma 4 26B is a 26B/4B-active MoE; the QAT build is 16 GB, Magistral's footprint.
-    "ollama_gemma4": _arm("GEMMA4", "gemma4:26b-a4b-it-qat", "Google"),
+    "ollama_gemma4": _arm("GEMMA4", "gemma4:26b-a4b-it-qat", "Google", think_reserve=6144),
 }
 BACKENDS = ("apple_ondevice", *OLLAMA_MODELS, "anthropic")
 LOCAL_BACKENDS = ("apple_ondevice", *OLLAMA_MODELS)
@@ -135,7 +140,7 @@ def fits(record: dict, backend: str, system: str, user: str) -> tuple[bool, str 
     if is_ollama(backend):
         cfg = ollama_cfg(backend)
         est = int(len(system + user) / cfg["chars_per_token"])
-        ok = est + reserve + OLLAMA_THINK_RESERVE <= cfg["num_ctx"]
+        ok = est + reserve + cfg["think_reserve"] <= cfg["num_ctx"]
         return ok, (None if ok else "context_exceeded"), est
     return True, None, None
 
@@ -287,7 +292,7 @@ def _ollama(record: dict, system: str, user: str, timeout: float = 900.0, backen
     body = {"model": cfg["tag"], "stream": False, "think": cfg["think"], "keep_alive": "20m",
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
             "options": {"num_ctx": cfg["num_ctx"], "temperature": 0, "seed": OLLAMA_SEED,
-                        "num_predict": rolespecs.output_reserve(role) + OLLAMA_THINK_RESERVE}}
+                        "num_predict": rolespecs.output_reserve(role) + cfg["think_reserve"]}}
     if schema:
         body["format"] = schema
     reasoning = "thinking" if cfg["think"] else "none"
