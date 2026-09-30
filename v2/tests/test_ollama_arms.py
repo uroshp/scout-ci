@@ -53,7 +53,7 @@ class Registry(unittest.TestCase):
             sent = post.call_args.kwargs["json"]
             self.assertEqual(sent["model"], rb.ollama_cfg(name)["tag"])
             self.assertEqual(sent["options"]["num_ctx"], rb.ollama_cfg(name)["num_ctx"])
-            self.assertEqual(sent["options"]["num_predict"], rb.rolespecs.output_reserve("gate_judge") + rb.OLLAMA_THINK_RESERVE)   # bounded generation
+            self.assertEqual(sent["options"]["num_predict"], rb.rolespecs.output_reserve("gate_judge") + rb.ollama_cfg(name)["think_reserve"])   # bounded generation
             self.assertEqual(r["status"], "ok"); self.assertEqual(r["backend_model"], rb.ollama_cfg(name)["tag"])
             self.assertIsNone(r["thinking"])       # a model with no `thinking` field still parses
 
