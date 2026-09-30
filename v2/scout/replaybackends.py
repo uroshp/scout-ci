@@ -51,9 +51,12 @@ OLLAMA_MODELS = {
                    num_ctx=int(os.environ.get("SCOUT_OLLAMA_NUM_CTX", "16384"))),
     # NVIDIA's 30B MoE builds (Lightning, Cascade 2, Nano 30B) are 23-25 GB on disk at Q4 and cannot
     # sit fully on a 24 GB box; Nano 4B (q8, 4 GB, 256k ctx) is NVIDIA's edge-class model and fits.
-    "ollama_nemotron": _arm("NEMOTRON", "nemotron-3-nano:4b-q8_0", "NVIDIA", think_reserve=6144),
+    # think=False for the two new arms: with thinking on, both looped through 8192 tokens of
+    # reasoning on a structured research prompt and returned nothing (2026-09-30, three tries);
+    # with the answer schema enforced they answer directly. Their period is defined this way.
+    "ollama_nemotron": _arm("NEMOTRON", "nemotron-3-nano:4b-q8_0", "NVIDIA", think=False, think_reserve=1024),
     # Gemma 4 26B is a 26B/4B-active MoE; the QAT build is 16 GB, Magistral's footprint.
-    "ollama_gemma4": _arm("GEMMA4", "gemma4:26b-a4b-it-qat", "Google", think_reserve=6144),
+    "ollama_gemma4": _arm("GEMMA4", "gemma4:26b-a4b-it-qat", "Google", think=False, think_reserve=1024),
 }
 BACKENDS = ("apple_ondevice", *OLLAMA_MODELS, "anthropic")
 LOCAL_BACKENDS = ("apple_ondevice", *OLLAMA_MODELS)
