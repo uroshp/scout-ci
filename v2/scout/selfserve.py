@@ -164,7 +164,11 @@ def _read(path: str) -> str | None:
 def _write(path: str, text: str, message: str) -> None:
     if use_github():
         # Re-fetch the sha so an update targets the live file (state.json especially).
-        _, sha = _gh_get(path)
+        cur, sha = _gh_get(path)
+        if cur is not None and cur == text:
+            # Identical content: the Contents API would still mint an EMPTY commit. The signals
+            # poller re-saved unchanged state every hour = 144 no-op commits a day (2026-09-30).
+            return
         _gh_put(path, text, message, sha)
         return
     p = _local(path)
@@ -423,7 +427,7 @@ def update_data(path: str, transform, message: str, *, retries: int = 8) -> bool
     for attempt in range(retries):
         cur, sha = _gh_get(path)
         new = transform(cur)
-        if new is None:
+        if new is None or new == cur:      # unchanged content: no PUT, no empty commit
             return False
         try:
             _gh_put(path, new, message, sha)
