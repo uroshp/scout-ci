@@ -1463,8 +1463,33 @@ def _print_check(res):
         print(f"  MATERIAL {m['subject_key']}: {a.get('old_value')} -> {a.get('new_value')}  | {a.get('so_what','')[:80]}")
 
 
+def preflight(env: dict | None = None) -> str | None:
+    """The run's own precondition check, BEFORE any write (2026-09-30). Returns None when the run
+    may proceed, else the one-line reason it must not. Today: the store prefix must match the
+    ref this run executes from: main writes to the production paths (empty prefix), rc writes
+    under rc/. The 2026-09-30 4 AM run wrote 14 files under rc/ from main because a workflow
+    expression resolved wrong; this check turns that class of mistake into a refusal + an email
+    instead of a silent misfiled run. GITHUB_REF_NAME is unset outside Actions -> no opinion."""
+    env = os.environ if env is None else env
+    ref = (env.get("GITHUB_REF_NAME") or "").strip()
+    prefix = (env.get("SCOUT_SELFSERVE_DATA_PREFIX") or "").strip().strip("/")
+    if ref == "main" and prefix:
+        return f"store prefix {prefix!r} on main (production runs write to the root paths)"
+    if ref == "rc" and prefix != "rc":
+        return f"store prefix {prefix!r} on rc (rc runs write under rc/ only)"
+    return None
+
+
 if __name__ == "__main__":
     import json as _json
+    _refusal = preflight()
+    if _refusal:
+        from scout import notify as _notify
+        print(f"[monitor] REFUSED: {_refusal}", file=sys.stderr)
+        _notify.send_could_not_run("monitor", _refusal,
+                                   f"ref={os.environ.get('GITHUB_REF_NAME')!r} prefix={os.environ.get('SCOUT_SELFSERVE_DATA_PREFIX')!r}",
+                                   dry_run=os.environ.get("SCOUT_MONITOR_LIVE") != "1")
+        raise SystemExit(2)
     # LIVE only when the cron sets SCOUT_MONITOR_LIVE=1: then write the store and send real
     # email. Default (any other context) is fully dry: compute, no writes, no email sent.
     live = os.environ.get("SCOUT_MONITOR_LIVE") == "1"
