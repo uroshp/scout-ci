@@ -33,6 +33,11 @@ BACKENDS = ("apple_ondevice", "ollama", "anthropic")
 LOCAL_BACKENDS = ("apple_ondevice", "ollama")
 
 APPLE_CONTEXT = 8192
+# The bridge counts prompt tokens exactly, but the session transcript the model keeps (system +
+# user + its own output, plus schema framing) ran past the window on a prompt the count said fit
+# (2026-09-30, an ask_verify call: the bridge then shut down and took the arm with it). Keep a
+# margin below the window on top of the role's output reserve.
+APPLE_SAFETY_MARGIN = int(os.environ.get("SCOUT_APPLE_SAFETY_MARGIN", "1024"))
 FM_URL = os.environ.get("SCOUT_FM_URL", "http://127.0.0.1:18765")
 OLLAMA_URL = os.environ.get("SCOUT_OLLAMA_URL", "http://127.0.0.1:11435")
 OLLAMA_TAG = os.environ.get("SCOUT_OLLAMA_TAG", "magistral:24b")
@@ -96,7 +101,8 @@ def fits(record: dict, backend: str, system: str, user: str) -> tuple[bool, str 
         n = fm_count_tokens(system, user)
         if n is None:
             return False, "token_count_failed", None
-        return (n + reserve <= APPLE_CONTEXT), ("context_exceeded" if n + reserve > APPLE_CONTEXT else None), n
+        limit = APPLE_CONTEXT - APPLE_SAFETY_MARGIN
+        return (n + reserve <= limit), ("context_exceeded" if n + reserve > limit else None), n
     if backend == "ollama":
         est = int(len(system + user) / OLLAMA_CHARS_PER_TOKEN)
         ok = est + reserve + OLLAMA_THINK_RESERVE <= OLLAMA_NUM_CTX

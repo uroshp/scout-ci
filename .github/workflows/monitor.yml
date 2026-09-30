@@ -82,6 +82,7 @@ jobs:
           SCOUT_SOURCES_TOOLS: ${{ inputs.sources_tools && '1' || '0' }}
           SCOUT_MONITOR_TRACE: ${{ inputs.dry_run && '1' || '0' }}
           SCOUT_MONITOR_REASON: ${{ inputs.reason }}
+          SCOUT_LANE_ALERTS: "1"        # the lane's own runner: a refusal (preflight) may email
           # The store follows the ref: a run from `rc` reads and writes under rc/ (signals, ask
           # ledger, capture), never production's paths, and never falls back to them.
           # The truthy branch must be the NON-empty value: `cond && '' || 'rc'` yields 'rc' on

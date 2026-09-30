@@ -157,6 +157,27 @@ def main():
         plan = plan[:args.limit]
     print(f"bundles={len(paths)} since={since or 'all'}  calls={len(calls)}  planned={len(plan)}  "
           f"backends={args.backend}  modes={modes}")
+    # Freshness (2026-09-30): the lane exists to score TODAY's production calls. If the newest
+    # bundle is older than the monitor's cadence allows, the scorecard would be a backlog dressed
+    # as the day's result (that morning's capture had landed under rc/ and nobody was told). Say
+    # so by email, print the bundle dates it will score, and carry on with what exists.
+    newest = max((os.path.basename(p).split("_")[1] for p in paths if "_" in os.path.basename(p)), default=None)
+    print(f"newest bundle: {newest or 'none'}")
+    if run and not args.since and not os.environ.get("SCOUT_REPLAY_NO_FRESH_CHECK"):
+        fresh_h = float(os.environ.get("SCOUT_REPLAY_FRESH_HOURS", "30"))
+        age_h = None
+        try:
+            age_h = (datetime.now() - datetime.strptime(newest, "%Y%m%dT%H%M%S")).total_seconds() / 3600 if newest else None
+        except ValueError:
+            pass
+        if age_h is None or age_h > fresh_h:
+            from scout import notify
+            why = "no capture bundle at all" if newest is None else f"newest capture is {age_h:.0f} h old (limit {fresh_h:.0f} h)"
+            print(f"  NO FRESH CAPTURE: {why}; scoring the backlog and emailing", file=sys.stderr)
+            notify.send_could_not_run("on-device replay", f"no fresh capture: {why}",
+                                      f"newest bundle {newest or 'none'}; {len(paths)} bundle(s) since {since}. "
+                                      "Check the monitor ran and wrote calls/ at the production path.",
+                                      dry_run=os.environ.get("SCOUT_REPLAY_LIVE") != "1")
     by_role = {}
     for mode, c in plan:
         by_role[(mode, c["role"])] = by_role.get((mode, c["role"]), 0) + 1
@@ -196,6 +217,7 @@ def main():
                 print(f"  SEARXNG DOWN at {localagent.SEARXNG_URL}: loop-mode calls will be skipped (not persisted)")
         print(f"\n--- {backend} ---")
         n_done = n_skip = 0
+        transport_stop = False
         if backend == "ollama":
             res = replaybackends.ollama_resident()
             if res is None:
@@ -224,6 +246,13 @@ def main():
                 if ps and ps.get("size_vram") is not None and ps.get("size") is not None and ps["size_vram"] != ps["size"]:
                     print(f"  ollama: model NOT fully on Metal (size_vram={ps['size_vram']} size={ps['size']}); aborting arm")
                     break
+            if replay.get("reason") == "transport":
+                # The backend server is gone (the Apple bridge exits on a context overflow):
+                # infrastructure, not a model result. Never persisted; the arm stops with exit 3
+                # so run.sh restarts the server and resumes (results are idempotent).
+                print(f"  {mode:6} {c['role']:14} {str(c.get('slug'))[:26]:26} TRANSPORT: {str(replay.get('text'))[:100]}; arm stops for a restart")
+                transport_stop = True
+                break
             cmp_ = modelcompare.compare_call(c, {**replay, "backend": backend})
             result = modelcompare.result_record(c, replay, cmp_, backend=backend, mode=mode, rep=args.repeat,
                                                 call_ref=c.get("_call_ref"))
@@ -232,10 +261,20 @@ def main():
                   f"{(replay.get('reason') or ''):16} agree={s.get('agree')}/{s.get('judged')} "
                   f"k={s.get('kappa')} {replay.get('duration_ms') or 0}ms")
             if args.write:
-                modelcompare.persist(result)
+                # A store hiccup (a GitHub 500 took the Apple arm down on 2026-09-30 after its
+                # first call) must not end the arm: retry once, then log and move on.
+                for attempt in (1, 2):
+                    try:
+                        modelcompare.persist(result); break
+                    except Exception as e:
+                        print(f"  persist failed ({type(e).__name__}: {str(e)[:120]}) attempt {attempt}", file=sys.stderr)
+                        if attempt == 1:
+                            time.sleep(5)
             n_done += 1
         print(f"{backend}: {n_done} replayed, {n_skip} already done")
         done_total += n_done
+        if transport_stop:
+            raise SystemExit(3)
         if backend == "ollama":
             replaybackends.ollama_unload()
     if args.write:

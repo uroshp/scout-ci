@@ -5,6 +5,7 @@ SAFE BY DEFAULT: send_digest is a no-op (returns the rendered payload without se
 unless RESEND_API_KEY + SCOUT_ALERT_TO are configured AND dry_run is False. So dev/test
 runs and unconfigured environments can never email anyone.
 """
+import os
 import difflib
 import html as _htmlmod
 import smtplib
@@ -824,4 +825,23 @@ def send_run_issues(cards: list[dict], dry_run: bool = True) -> dict:
     if not cards:
         return {"sent": False, "reason": "no issues"}
     subject, text, html = render_run_issues(cards)
+    return _dispatch(subject, text, dry_run=dry_run, html=html)
+
+
+def send_could_not_run(lane: str, reason: str, detail: str = "", dry_run: bool = True) -> dict:
+    """An unattended lane (monitor, replay, poller, canary) that cannot do its job says so by
+    email instead of exiting green (2026-09-30: the first live production run wrote under rc/
+    and the replay scored a backlog with no fresh capture; both exited 0 and nobody was told).
+    `lane` names the job, `reason` is one line for the subject, `detail` the evidence."""
+    # Two locks, not one (2026-09-30: a unit test drove the replay runner with --write against a
+    # fake store and this sent 20 real emails in a minute): a real send needs dry_run=False AND
+    # SCOUT_LANE_ALERTS=1, which only the lanes' own runners set (run.sh, monitor.yml, canary).
+    if not dry_run and os.environ.get("SCOUT_LANE_ALERTS") != "1":
+        dry_run = True
+    subject = f"Scout could not run: {lane}: {reason}"
+    text = (f"{subject}\n\nWhat happened: {reason}\n{detail}\n\n"
+            "Nothing was written by this lane. Fix the cause, then re-run or wait for the next scheduled run.")
+    html = _hdoc(_hblock(f"{lane} did not do its job: {reason}"),
+                 _hcard(_hblock(detail or "no further detail"), accent="#b5473b"),
+                 _hblock("Nothing was written by this lane. Fix the cause, then re-run or wait for the next scheduled run."))
     return _dispatch(subject, text, dry_run=dry_run, html=html)
