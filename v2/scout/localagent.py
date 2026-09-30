@@ -42,7 +42,7 @@ LOOP_BUDGET = {"search_hits": 5, "hit_chars": 200, "fetch_chars": 4000, "max_too
 SEARCH_MIN_SPACING_S = 3.0      # a small model looping on one query rate-limited Brave in 30 s (smoke, 2026-09-28)
 _last_search_at = 0.0
 
-TOOL_PROTOCOL = {"ollama": "native", "apple_ondevice": "action_json"}
+TOOL_PROTOCOL = {**{name: "native" for name in rb.OLLAMA_MODELS}, "apple_ondevice": "action_json"}
 
 SEARCH_TOOL = {
     "type": "function",
@@ -208,9 +208,11 @@ def turn_cap(record: dict) -> int:
 
 
 # --- backend chat turns -------------------------------------------------------------------------------
-def _ollama_turn(messages: list[dict], *, tools: bool, schema: dict | None, timeout: float = 900.0) -> dict:
-    body = {"model": rb.OLLAMA_TAG, "stream": False, "think": True, "keep_alive": "20m", "messages": messages,
-            "options": {"num_ctx": rb.OLLAMA_NUM_CTX, "temperature": 0, "seed": rb.OLLAMA_SEED}}
+def _ollama_turn(messages: list[dict], *, tools: bool, schema: dict | None, timeout: float = 900.0,
+                 backend: str = "ollama") -> dict:
+    cfg = rb.ollama_cfg(backend)
+    body = {"model": cfg["tag"], "stream": False, "think": cfg["think"], "keep_alive": "20m", "messages": messages,
+            "options": {"num_ctx": cfg["num_ctx"], "temperature": 0, "seed": rb.OLLAMA_SEED}}
     if tools:
         body["tools"] = TOOLS
     if schema:
@@ -321,8 +323,8 @@ def run_loop(record: dict, backend: str, *, rep: int = 0) -> dict:
         r = rb._result(status=status, reason=reason, text=final_text, duration_ms=int((time.monotonic() - t0) * 1000),
                        tokens={"input": tokens_in, "output": tokens_out, "thinking": None},
                        thinking="\n---\n".join(thinking_parts) or None,
-                       backend_model="SystemLanguageModel" if backend == "apple_ondevice" else rb.OLLAMA_TAG,
-                       backend_version=(rb.apple_version() if backend == "apple_ondevice" else rb.ollama_version()),
+                       backend_model="SystemLanguageModel" if backend == "apple_ondevice" else rb.ollama_cfg(backend)["tag"],
+                       backend_version=(rb.apple_version() if backend == "apple_ondevice" else rb.ollama_version(backend)),
                        schema_enforced=protocol == "action_json",
                        reasoning="unsupported" if backend == "apple_ondevice" else "thinking")
         r.update(kw)
@@ -342,7 +344,7 @@ def run_loop(record: dict, backend: str, *, rep: int = 0) -> dict:
                 return _finish(observed_token_count=n)
             step = _apple_turn(messages, schema=ACTION_SCHEMA)
         else:
-            step = _ollama_turn(messages, tools=True, schema=None)
+            step = _ollama_turn(messages, tools=True, schema=None, backend=backend)
         if step.get("status") != "ok":
             status, reason = step.get("status", "error"), step.get("reason", "error")
             final_text = step.get("text")
@@ -405,7 +407,7 @@ def run_loop(record: dict, backend: str, *, rep: int = 0) -> dict:
         messages.append({"role": "user", "content": "Turn limit reached. Give the final answer now, in exactly "
                                                     "the format the task asks for."})
         step = (_apple_turn(messages, schema=None) if backend == "apple_ondevice"
-                else _ollama_turn(messages, tools=False, schema=rolespecs.role_schema(role)))
+                else _ollama_turn(messages, tools=False, schema=rolespecs.role_schema(role), backend=backend))
         loop["turns"] = cap + 1
         if step.get("status") != "ok":
             status, reason = step.get("status", "error"), step.get("reason", "error")
@@ -414,13 +416,13 @@ def run_loop(record: dict, backend: str, *, rep: int = 0) -> dict:
         final_text = step.get("text") or ""
 
     # Ollama: a plain-text final that does not parse gets ONE schema-constrained re-ask (recorded).
-    if backend == "ollama" and final_text is not None:
+    if rb.is_ollama(backend) and final_text is not None:
         parse = (rolespecs.spec(role) or {}).get("parse")
         if parse and parse(final_text) is None:
             loop["format_retry"] = True
             messages.append({"role": "assistant", "content": final_text})
             messages.append({"role": "user", "content": "Return that final answer again as the JSON the task specifies, nothing else."})
-            step = _ollama_turn(messages, tools=False, schema=rolespecs.role_schema(role))
+            step = _ollama_turn(messages, tools=False, schema=rolespecs.role_schema(role), backend=backend)
             if step.get("status") == "ok":
                 final_text = step.get("text") or final_text
                 tk = step.get("tokens") or {}

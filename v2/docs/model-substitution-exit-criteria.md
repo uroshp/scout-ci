@@ -22,8 +22,19 @@ could hold that role. Nothing here changes the older lanes' bars.
   until the optional paid re-run is authorised).
 - `apple_ondevice`: Apple's on-device `SystemLanguageModel` (macOS 27, one fixed setting, no
   reasoning level, guardrails default), via `fm serve`, temperature 0, schema-constrained JSON.
-- `ollama` = Magistral Small 1.2 24B q4_K_M, thinking on, `num_ctx` 16384, temperature 0, seed.
-  Mistral Small 3.2 is the named fallback; a swap is a new period, never silent.
+- The Ollama arms (one backend NAME per model, each its own results folder, scorecard column and
+  streak; run one after another, each alone on the box, unloaded before the next loads; the order
+  rotates by weekday; per-arm cap 45 min inside the 05:00-08:30 window). Registry:
+  `replaybackends.OLLAMA_MODELS`. All thinking on where the model supports it, `num_ctx` 49152
+  (raised from 16384 on 2026-09-29: Scout's largest prompt is ~15.6k tokens), temperature 0, seed.
+  - `ollama` = Mistral AI, Magistral Small 1.2 24B q4_K_M (the original arm; the name stays so
+    its labels and streaks hold).
+  - `ollama_nemotron` = NVIDIA, Nemotron 3 Nano 4B q8_0 (added 2026-09-30). NVIDIA's 30B MoE
+    builds are 23-25 GB on Ollama and cannot sit fully on a 24 GB box, so the edge-class model
+    represents the vendor; its arm is read as "edge model vs 24B-class", like Apple's.
+  - `ollama_gemma4` = Google, Gemma 4 26B (26B/4B-active MoE, QAT build, 16 GB; added 2026-09-30).
+  A swap of any arm's tag is a new period, never silent. An arm joins the `common` population
+  once it has attempted 20 calls in the period; until then it reports `full` only ("warming up").
 
 ## Ground truth and the metric (same as the older lanes)
 
@@ -76,7 +87,10 @@ streak.
 ## What this lane does NOT do
 
 No production switch, no fallback-to-local, no auto-promotion. The first 14 nights produce a
-BASELINE at most. This lane is blinded; the two older lanes were not.
+BASELINE at most. This lane is blinded; the two older lanes were not. What "blinded" covers: the
+labelling surface (`adjudicate_models` show/label/prefer) never names an arm; outputs are shown
+without their source and prose pairs sit in A/B slots by pair-id parity. The scorecard and the
+1st/15th email name arms, because they report outcomes after labelling, not during it.
 
 ## Addendum 2026-09-28: Ask Scout roles (pre-registered before the first capture)
 

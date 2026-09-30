@@ -71,15 +71,34 @@ def check_replay(day: date) -> list[str]:
         log = open(os.path.join(REPLAY_DIR, "launchd.out.log")).read()
     except OSError:
         return problems + ["replay: launchd.out.log unreadable"]
-    today_log = log[log.rfind(f"{day.isoformat()} ") :] if f"{day.isoformat()} " in log else ""
+    today_log = log[log.find(f"{day.isoformat()} ") :] if f"{day.isoformat()} " in log else ""
     newest = re.findall(r"newest bundle: (\S+)", today_log)
     if not newest:
         problems.append("replay: today's run printed no 'newest bundle' line (old runner or aborted before listing)")
     elif not any(n.startswith(day.strftime("%Y%m%d")) for n in newest):
         problems.append(f"replay: scored a backlog, newest bundle {newest[-1]} is not today's")
+    problems += arm_problems(today_log)
     if "=== replay end ===" not in today_log:
         problems.append("replay: no '=== replay end ===' today (aborted or still running)")
     return problems
+
+
+def arm_problems(today_log: str) -> list[str]:
+    """Every configured Ollama arm must leave a trace in today's log: an "<arm> arm exit" line, or
+    the runner's explicit skip ("ollama arms skipped ..."). A silent arm is a finding (2026-09-30:
+    one oversize call zeroed the Apple arm for days and nothing said so)."""
+    from scout import replaybackends
+    if not today_log:
+        return []
+    if "ollama arms skipped" in today_log:
+        return []
+    out = []
+    for name in replaybackends.OLLAMA_MODELS:
+        if f"{name} arm exit" not in today_log:
+            out.append(f"replay: arm {name} left no exit line today (never started, or the runner predates it)")
+    if "apple arm exit" not in today_log and "apple arm skipped" not in today_log:
+        out.append("replay: the Apple arm left no exit line today")
+    return out
 
 
 def check_app() -> list[str]:

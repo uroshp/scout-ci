@@ -218,8 +218,8 @@ def main():
         print(f"\n--- {backend} ---")
         n_done = n_skip = 0
         transport_stop = False
-        if backend == "ollama":
-            res = replaybackends.ollama_resident()
+        if replaybackends.is_ollama(backend):
+            res = replaybackends.ollama_resident(backend)
             if res is None:
                 print("  ollama: model not loaded yet; the first call loads it")
         for mode, c in plan:
@@ -241,8 +241,8 @@ def main():
                 replay = localagent.run_loop(c, backend, rep=args.repeat)
             else:
                 replay = replaybackends.drive_replay(c, backend, mode=mode, allow_spend=args.allow_spend)
-            if backend == "ollama" and replay.get("status") == "ok":
-                ps = replaybackends.ollama_resident()
+            if replaybackends.is_ollama(backend) and replay.get("status") == "ok":
+                ps = replaybackends.ollama_resident(backend)
                 if ps and ps.get("size_vram") is not None and ps.get("size") is not None and ps["size_vram"] != ps["size"]:
                     print(f"  ollama: model NOT fully on Metal (size_vram={ps['size_vram']} size={ps['size']}); aborting arm")
                     break
@@ -275,8 +275,8 @@ def main():
         done_total += n_done
         if transport_stop:
             raise SystemExit(3)
-        if backend == "ollama":
-            replaybackends.ollama_unload()
+        if replaybackends.is_ollama(backend):
+            replaybackends.ollama_unload(backend)
     if args.write:
         st["last_run"] = datetime.now().isoformat(timespec="seconds")
         st["last_backends"] = args.backend

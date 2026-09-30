@@ -288,7 +288,9 @@ def result_record(record: dict, replay: dict, comparison: dict, *, backend: str,
     return {
         "schema_version": SCHEMA_VERSION, "call_id": record["call_id"], "call_ref": call_ref,
         "backend": backend, "backend_model": replay.get("backend_model"),
-        "backend_version": replay.get("backend_version"), "role": record.get("role"),
+        "backend_version": replay.get("backend_version"),
+        "vendor": (replay.get("backend_version") or {}).get("vendor") if isinstance(replay.get("backend_version"), dict) else None,
+        "role": record.get("role"),
         "slug": record.get("slug"), "run_ts": record.get("run_ts"), "source": record.get("source"),
         "fidelity": record.get("fidelity"), "mode": mode, "rep": rep,
         "replayed_at": datetime.now().isoformat(timespec="seconds"),
@@ -442,6 +444,9 @@ def _score_cell(rows: list, labels: dict) -> dict:
     }
 
 
+COMMON_MIN_RESULTS = 20   # an arm joins the `common` population once it has attempted this many calls
+
+
 def scorecard(results: list, labels: dict | None = None) -> dict:
     """Per (backend, role): the cell above on `full` (all that backend's results) and on `common`
     (call_ids every enabled backend attempted, i.e. not context_exceeded/truncated)."""
@@ -455,8 +460,15 @@ def scorecard(results: list, labels: dict | None = None) -> dict:
         by_cell[(r["backend"], r["role"])].append(r)
         if r.get("reason") not in ("context_exceeded", "truncated"):
             attempted_by_backend[r["backend"]].add(r["call_id"])
-    common_ids = set.intersection(*(attempted_by_backend[b] for b in backends)) if backends else set()
-    out = {"backends": backends, "common_n": len(common_ids), "cells": {}}
+    # `common` spans the arms that have really run (>= COMMON_MIN_RESULTS attempted calls in this
+    # period); an arm still warming up (a model added mid-period, or one the window cut short)
+    # reports `full` only, so it cannot shrink the established arms' common population (2026-09-30).
+    established = [b for b in backends if len(attempted_by_backend[b]) >= COMMON_MIN_RESULTS]
+    if not established:                 # early in a period every arm is small: plain intersection
+        established = list(backends)
+    common_ids = set.intersection(*(attempted_by_backend[b] for b in established)) if established else set()
+    out = {"backends": backends, "common_n": len(common_ids), "cells": {},
+           "warming_up": [b for b in backends if b not in established]}
     for (b, role), rows in sorted(by_cell.items()):
         out["cells"][f"{b}|{role}"] = {
             "backend": b, "role": role, "family": (rolespecs.spec(role) or {}).get("family"),
