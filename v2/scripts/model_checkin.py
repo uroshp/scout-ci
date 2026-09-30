@@ -83,6 +83,21 @@ def build(now: datetime) -> tuple[dict, str]:
                  f"common population n={sc['common_n']}  bar={BAR - MARGIN} "
                  f"({'parity' if not MARGIN else f'margin -{MARGIN}'}); metric = candidate-right vs the live model on "
                  f"human-adjudicated disagreements\n")
+    # Arms (2026-09-30): every configured local arm, its vendor + tag, how many results it left
+    # TODAY, and whether it is still warming up (below the common-population threshold). An arm
+    # with nothing today reads "did not run"; the lanes canary looks for that line.
+    from scout import replaybackends as _rb
+    today = now.date().isoformat()
+    lines.append("## Arms")
+    arms = [("apple_ondevice", "Apple", "SystemLanguageModel")] + \
+           [(name, cfg["vendor"], cfg["tag"]) for name, cfg in _rb.OLLAMA_MODELS.items()]
+    for name, vendor, tag in arms:
+        n_all = sum(1 for r in results if r.get("backend") == name)
+        n_today = sum(1 for r in results if r.get("backend") == name and str(r.get("replayed_at", ""))[:10] == today)
+        state = "did not run today" if n_today == 0 else f"{n_today} today"
+        warm = "  (warming up: below the common-population threshold)" if name in (sc.get("warming_up") or []) else ""
+        lines.append(f"- {name}: {vendor} {tag}: {n_all} results, {state}{warm}")
+    lines.append("")
     lines.append(f"| backend | role | pop | n | coverage | parse_ok | refusal | agree | kappa | disagreements | "
                  f"adjudicated | precision | CI95 | costly (cand/ref) | p50 ms | verdict |")
     lines.append("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")

@@ -29,8 +29,37 @@ import httpx
 
 from scout import config, rolespecs
 
-BACKENDS = ("apple_ondevice", "ollama", "anthropic")
-LOCAL_BACKENDS = ("apple_ondevice", "ollama")
+# Ollama arms (2026-09-30): one backend NAME per model, each its own results folder, scorecard
+# column and streak. "ollama" stays Magistral's name so its labels, snapshots and streaks hold.
+# Names carry no dot (modelcompare.load_results skips dotted folders). Per-arm env overrides:
+# SCOUT_OLLAMA_TAG_<KEY>, SCOUT_OLLAMA_NUM_CTX_<KEY> where KEY = the name upper-cased minus
+# "OLLAMA_" ("MAGISTRAL" for the legacy name; the legacy SCOUT_OLLAMA_TAG/NUM_CTX still apply to it).
+def _arm(key: str, tag: str, vendor: str, num_ctx: int = 49152, chars_per_token: float = 3.0,
+         think: bool = True) -> dict:
+    return {"tag": os.environ.get(f"SCOUT_OLLAMA_TAG_{key}", tag), "vendor": vendor,
+            "num_ctx": int(os.environ.get(f"SCOUT_OLLAMA_NUM_CTX_{key}", num_ctx)),
+            "chars_per_token": chars_per_token, "think": think}
+
+
+OLLAMA_MODELS = {
+    "ollama": _arm("MAGISTRAL", os.environ.get("SCOUT_OLLAMA_TAG", "magistral:24b"), "Mistral AI",
+                   num_ctx=int(os.environ.get("SCOUT_OLLAMA_NUM_CTX", "16384"))),
+    # NVIDIA's 30B MoE builds (Lightning, Cascade 2, Nano 30B) are 23-25 GB on disk at Q4 and cannot
+    # sit fully on a 24 GB box; Nano 4B (q8, 4 GB, 256k ctx) is NVIDIA's edge-class model and fits.
+    "ollama_nemotron": _arm("NEMOTRON", "nemotron-3-nano:4b-q8_0", "NVIDIA"),
+    # Gemma 4 26B is a 26B/4B-active MoE; the QAT build is 16 GB, Magistral's footprint.
+    "ollama_gemma4": _arm("GEMMA4", "gemma4:26b-a4b-it-qat", "Google"),
+}
+BACKENDS = ("apple_ondevice", *OLLAMA_MODELS, "anthropic")
+LOCAL_BACKENDS = ("apple_ondevice", *OLLAMA_MODELS)
+
+
+def is_ollama(backend: str) -> bool:
+    return backend in OLLAMA_MODELS
+
+
+def ollama_cfg(backend: str) -> dict:
+    return OLLAMA_MODELS[backend]
 
 APPLE_CONTEXT = 8192
 # The bridge counts prompt tokens exactly, but the session transcript the model keeps (system +
@@ -40,8 +69,8 @@ APPLE_CONTEXT = 8192
 APPLE_SAFETY_MARGIN = int(os.environ.get("SCOUT_APPLE_SAFETY_MARGIN", "1024"))
 FM_URL = os.environ.get("SCOUT_FM_URL", "http://127.0.0.1:18765")
 OLLAMA_URL = os.environ.get("SCOUT_OLLAMA_URL", "http://127.0.0.1:11435")
-OLLAMA_TAG = os.environ.get("SCOUT_OLLAMA_TAG", "magistral:24b")
-OLLAMA_NUM_CTX = int(os.environ.get("SCOUT_OLLAMA_NUM_CTX", "16384"))
+OLLAMA_TAG = OLLAMA_MODELS["ollama"]["tag"]            # Magistral's (legacy aliases; arms read ollama_cfg)
+OLLAMA_NUM_CTX = OLLAMA_MODELS["ollama"]["num_ctx"]
 OLLAMA_THINK_RESERVE = 2048
 OLLAMA_SEED = 7
 OLLAMA_CHARS_PER_TOKEN = 3.0
@@ -103,9 +132,10 @@ def fits(record: dict, backend: str, system: str, user: str) -> tuple[bool, str 
             return False, "token_count_failed", None
         limit = APPLE_CONTEXT - APPLE_SAFETY_MARGIN
         return (n + reserve <= limit), ("context_exceeded" if n + reserve > limit else None), n
-    if backend == "ollama":
-        est = int(len(system + user) / OLLAMA_CHARS_PER_TOKEN)
-        ok = est + reserve + OLLAMA_THINK_RESERVE <= OLLAMA_NUM_CTX
+    if is_ollama(backend):
+        cfg = ollama_cfg(backend)
+        est = int(len(system + user) / cfg["chars_per_token"])
+        ok = est + reserve + OLLAMA_THINK_RESERVE <= cfg["num_ctx"]
         return ok, (None if ok else "context_exceeded"), est
     return True, None, None
 
@@ -215,60 +245,66 @@ def _apple_http(record: dict, system: str, user: str, timeout: float = 180.0) ->
                    observed_token_count=usage.get("prompt_tokens"), reasoning="unsupported")
 
 
-def ollama_version() -> dict:
+def ollama_version(backend: str = "ollama") -> dict:
+    cfg = ollama_cfg(backend)
+    base = {"tag": cfg["tag"], "num_ctx": cfg["num_ctx"], "thinking": cfg["think"], "vendor": cfg["vendor"]}
     try:
-        r = httpx.post(f"{OLLAMA_URL}/api/show", json={"model": OLLAMA_TAG}, timeout=30).json()
+        r = httpx.post(f"{OLLAMA_URL}/api/show", json={"model": cfg["tag"]}, timeout=30).json()
         det = r.get("details") or {}
-        return {"tag": OLLAMA_TAG, "digest": (r.get("modelinfo") or {}).get("general.uuid") or r.get("digest"),
+        return {**base, "digest": (r.get("modelinfo") or {}).get("general.uuid") or r.get("digest"),
                 "quant": det.get("quantization_level"), "family": det.get("family"),
-                "parameter_size": det.get("parameter_size"), "num_ctx": OLLAMA_NUM_CTX, "thinking": True}
+                "parameter_size": det.get("parameter_size")}
     except Exception:
-        return {"tag": OLLAMA_TAG, "num_ctx": OLLAMA_NUM_CTX, "thinking": True}
+        return base
 
 
-def ollama_resident() -> dict | None:
-    """/api/ps row for the tag (None if not loaded). The arm aborts unless size_vram == size."""
+def ollama_resident(backend: str = "ollama") -> dict | None:
+    """/api/ps row for the arm's tag (None if not loaded). The arm aborts unless size_vram == size."""
+    tag = ollama_cfg(backend)["tag"]
     try:
         for m in (httpx.get(f"{OLLAMA_URL}/api/ps", timeout=15).json().get("models") or []):
-            if m.get("name") == OLLAMA_TAG or m.get("model") == OLLAMA_TAG:
+            if m.get("name") == tag or m.get("model") == tag:
                 return m
     except Exception:
         return None
     return None
 
 
-def ollama_unload() -> None:
+def ollama_unload(backend: str = "ollama") -> None:
     try:
-        httpx.post(f"{OLLAMA_URL}/api/generate", json={"model": OLLAMA_TAG, "keep_alive": 0}, timeout=60)
+        httpx.post(f"{OLLAMA_URL}/api/generate", json={"model": ollama_cfg(backend)["tag"], "keep_alive": 0}, timeout=60)
     except Exception:
         pass
 
 
-def _ollama(record: dict, system: str, user: str, timeout: float = 900.0) -> dict:
+def _ollama(record: dict, system: str, user: str, timeout: float = 900.0, backend: str = "ollama") -> dict:
     role = record.get("role")
     schema = rolespecs.role_schema(role)
-    body = {"model": OLLAMA_TAG, "stream": False, "think": True, "keep_alive": "20m",
+    cfg = ollama_cfg(backend)
+    body = {"model": cfg["tag"], "stream": False, "think": cfg["think"], "keep_alive": "20m",
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
-            "options": {"num_ctx": OLLAMA_NUM_CTX, "temperature": 0, "seed": OLLAMA_SEED}}
+            "options": {"num_ctx": cfg["num_ctx"], "temperature": 0, "seed": OLLAMA_SEED}}
     if schema:
         body["format"] = schema
+    reasoning = "thinking" if cfg["think"] else "none"
     t0 = time.monotonic()
     try:
         r = httpx.post(f"{OLLAMA_URL}/api/chat", json=body, timeout=timeout)
     except Exception as e:
         return _result(status="error", reason="transport", text=f"{type(e).__name__}: {e}",
-                       backend_model=OLLAMA_TAG, backend_version=ollama_version(), reasoning="thinking")
+                       backend_model=cfg["tag"], backend_version=ollama_version(backend), reasoning=reasoning)
     ms = int((time.monotonic() - t0) * 1000)
     if r.status_code != 200:
         return _result(status="error", reason="error", text=r.text[:500], duration_ms=ms,
-                       backend_model=OLLAMA_TAG, backend_version=ollama_version(), reasoning="thinking")
+                       backend_model=cfg["tag"], backend_version=ollama_version(backend), reasoning=reasoning)
     data = r.json()
     msg = data.get("message") or {}
+    # a model that returns no `thinking` field (or thinks inline) still yields its content
     return _result(text=msg.get("content") or "", thinking=msg.get("thinking"), duration_ms=ms,
                    tokens={"input": data.get("prompt_eval_count"), "output": data.get("eval_count"),
                            "thinking": None},
-                   backend_model=OLLAMA_TAG, backend_version=ollama_version(), schema_enforced=bool(schema),
-                   observed_token_count=data.get("prompt_eval_count"), reasoning="thinking")
+                   backend_model=cfg["tag"], backend_version=ollama_version(backend), schema_enforced=bool(schema),
+                   observed_token_count=data.get("prompt_eval_count"), reasoning=reasoning)
 
 
 def _anthropic(record: dict, system: str, user: str, allow_spend: bool) -> dict:
@@ -302,12 +338,16 @@ def drive_replay(record: dict, backend: str, *, mode: str = "exact", allow_spend
     if backend in LOCAL_BACKENDS:
         ok, reason, n = fits(record, backend, system, user)
         if not ok:
+            if backend == "apple_ondevice":
+                return _result(status="skipped", reason=reason, observed_token_count=n,
+                               backend_model="SystemLanguageModel", backend_version=apple_version(),
+                               reasoning="unsupported")
+            cfg = ollama_cfg(backend)
             return _result(status="skipped", reason=reason, observed_token_count=n,
-                           backend_model="SystemLanguageModel" if backend == "apple_ondevice" else OLLAMA_TAG,
-                           backend_version=apple_version() if backend == "apple_ondevice" else ollama_version(),
-                           reasoning="unsupported" if backend == "apple_ondevice" else "thinking")
+                           backend_model=cfg["tag"], backend_version=ollama_version(backend),
+                           reasoning="thinking" if cfg["think"] else "none")
     if backend == "apple_ondevice":
         return _apple(record, system, user)
-    if backend == "ollama":
-        return _ollama(record, system, user)
+    if is_ollama(backend):
+        return _ollama(record, system, user, backend=backend)
     return _anthropic(record, system, user, allow_spend)

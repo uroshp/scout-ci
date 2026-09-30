@@ -189,7 +189,7 @@ def _print_digest(backend=None, role=None):
     print(f"labels so far: {len(labels)}   pending items: {len(pend)}")
     for p in pend[:40]:
         print(f"  [{p['delta_id']}] {p['role']:14} {str(p['slug'])[:28]:28} item={str(p['item_id'])[:30]}  "
-              f"(disagreed by: {', '.join(sorted(p['candidates']))})")
+              f"(disagreed by {len(p['candidates'])} arm{'s' if len(p['candidates']) != 1 else ''})")   # never the arms' names: this surface is blind
     if len(pend) > 40:
         print(f"  ... {len(pend) - 40} more")
     print("\nshow:   python -m scout.adjudicate_models show <delta_id>")
