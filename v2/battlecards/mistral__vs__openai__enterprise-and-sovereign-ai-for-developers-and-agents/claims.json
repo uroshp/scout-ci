@@ -683,42 +683,50 @@
   },
   {
     "subject_key": "mistral | battlecard-cost | where-we-win",
-    "claim": "**Open weights cut your real monthly bill, the part the sticker price hides.**\n\nOpenAI's new flagship, GPT-6 Astra, now lists at $10 per million input tokens and $50 per million output, 2.5x what its predecessor GPT-5.6 Sol charged. Mistral Medium 3.5 runs $1.50 input and $7.50 output, and Devstral 2 is rated up to 7x more cost-efficient than Claude on real tasks. Self-host the Apache 2.0 models and per-token cost drops to your own compute entirely. For high-volume agentic workloads that gap compounds every month, and OpenAI's own price jump shows their sticker price can move against you at any time while Mistral's stays flat.\n\n**Soundbite:** OpenAI's flagship just jumped to $10 and $50 per million tokens, 2.5x its old rate, while Mistral Medium 3.5 holds at $1.50 and $7.50, and our open-weight models cost nothing per token on hardware you already own.",
+    "claim": "**Open weights still beat OpenAI on price, though the gap just got narrower.**\n\nOpenAI's flagship GPT-6 Astra still lists at $10 per million input tokens and $50 output, 2.5x what GPT-5.6 Sol charged. Its new GPT-6.1 Sol undercuts that by a fifth, at $2 input and $10 output, for coding, computer use and professional work. Mistral Medium 3.5 still beats Sol's price at $1.50 input and $7.50 output, and self-hosting Devstral 2 and our other Apache 2.0 models drops per-token cost to your own compute entirely. For high-volume agentic workloads, Mistral remains the cheaper path even against OpenAI's new low-cost model.\n\n**Soundbite:** OpenAI's cheapest new coding model still costs more per token than Mistral Medium 3.5, and self-hosting our open-weight models means you pay nothing per token at all.",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_we_win",
     "order": 3,
-    "as_of": "2026-09-03",
+    "as_of": "2026-09-29",
     "confidence": "medium",
     "persona": "economic_buyer",
     "id": "c_6e6506d5fa0d",
     "verified": true,
-    "derived_from": "c_1fd852144e20",
-    "updated_on": "2026-09-05"
+    "derived_from": "c_133a8256d887",
+    "updated_on": "2026-09-30",
+    "provenance": {
+      "source_url": "https://thenextweb.com/news/openai-gpt-6-1-sol-price-astra-devday",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-09-29",
+      "fact_id": "c_133a8256d887",
+      "stamped_on": "2026-09-30",
+      "source_class": "news"
+    }
   },
   {
     "subject_key": "mistral | battlecard-coding-capability | contested",
-    "claim": "**On coding capability it's a genuine fight, and closing.**\n\nMistral Medium 3.5 scores 77.6% on SWE-Bench Verified, strong and improving, while OpenAI's closed frontier models still lead the very top of the benchmark. These deals come down to a simple choice: the model you can deploy, or the one with the top score.\n\n**Soundbite:** *\"For most enterprise coding work our quality clears the bar. The deciding factor then becomes where it runs and what it costs.\"*",
+    "claim": "**On coding capability it's a genuine fight, and OpenAI just got a cheaper way to compete.**\n\nMistral Medium 3.5 scores 77.6% on SWE-Bench Verified, strong and improving, while OpenAI's closed frontier models still lead the very top of the benchmark. OpenAI's new GPT-6.1 Sol adds a cheaper route into that contest: it lists at $2 per million input tokens and $10 per million output, a fifth of its Astra flagship's rate, and OpenAI says it nearly matches Astra on agentic coding, shipping now in Codex. Astra is still the top scorer and Sol is the near-top, lower-priced option, so these deals come down to the same choice: the model you can deploy, or the one with the top score.\n\n**Soundbite:** *\"For most enterprise coding work our quality clears the bar. The deciding factor then becomes where it runs and what it costs.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
     "order": 0,
-    "source_url": "https://www.marktechpost.com/2026/05/02/mistral-ai-launches-remote-agents-in-vibe-and-mistral-medium-3-5-with-77-6-swe-bench-verified-score/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Mistral Medium 3.5 scores 77.6% on SWE-Bench Verified, ahead of Devstral 2",
-    "as_of": "2026-05-02",
+    "as_of": "2026-09-29",
     "confidence": "high",
     "persona": "technical_evaluator",
     "id": "c_a1c1ea0f1169",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-17",
-      "detail": null
-    },
-    "source_class": "news"
+    "source_class": "news",
+    "updated_on": "2026-09-30",
+    "derived_from": "c_133a8256d887",
+    "provenance": {
+      "source_url": "https://thenextweb.com/news/openai-gpt-6-1-sol-price-astra-devday",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-09-29",
+      "fact_id": "c_133a8256d887",
+      "stamped_on": "2026-09-30",
+      "source_class": "news"
+    }
   },
   {
     "subject_key": "mistral | battlecard-si-channel | contested",
@@ -2023,15 +2031,15 @@
   },
   {
     "subject_key": "openai | funding-round | pre-ipo-1-2t-2026",
-    "claim": "OpenAI is holding early talks with investors about a fresh pre-IPO funding round that would value it at more than $1.2 trillion, roughly 40% above the $852 billion post-money mark from its closed March 2026 round. The talks were initiated by investors, not the company, and OpenAI has said it needs the capital after burning through billions on training. Sam Altman has said any IPO is unlikely before 2027.",
+    "claim": "OpenAI is in talks to raise at least $30 billion in a pre-IPO round at a valuation of about $1.4 trillion excluding the new capital, Bloomberg reported on September 29, 2026. That is up from the more-than-$1.2 trillion figure floated in earlier talks and roughly 40% above the $852 billion March valuation. Altman has ruled out a 2026 IPO citing AI safety, so the raise would serve as a bridge round to an eventual listing. OpenAI's annualized revenue run rate has passed $40 billion.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 4,
-    "source_url": "https://finance.yahoo.com/technology/ai/articles/openai-weighing-funding-round-over-223133303.html",
+    "order": 3,
+    "source_url": "https://techcrunch.com/2026/09/29/openai-repotedly-in-talks-to-raise-30b-round-at-1-4t-valuation/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "OpenAI is holding early talks with investors about a fresh funding round that would value the ChatGPT creator at more than $1.2 trillion",
-    "as_of": "2026-09-16",
+    "evidence_excerpt": "OpenAI is in talks with investors to raise at least $30 billion in a pre-IPO funding round at a valuation of roughly $1.4 trillion, Bloomberg reported on Tuesday.",
+    "as_of": "2026-09-29",
     "confidence": "medium",
     "id": "c_8792d2fc70a1",
     "verified": true,
@@ -2039,16 +2047,16 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-09-17",
+      "fetched_at": "2026-09-30",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://www.pymnts.com/news/artificial-intelligence/2026/openai-eyes-1-2-trillion-valuation-in-pre-ipo-funding-round/",
+        "source_url": "https://www.coindesk.com/markets/2026/09/30/openai-targets-usd1-4-trillion-valuation-and-unveils-dots-ai-agent",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false,
-        "source_class": "news"
+        "source_class": "unknown"
       }
     ],
     "source_class": "news"
@@ -2084,5 +2092,99 @@
       }
     ],
     "source_class": "unknown"
+  },
+  {
+    "subject_key": "openai | model-release | gpt-6-1-sol-2026",
+    "claim": "OpenAI released GPT-6.1 Sol at DevDay on September 29, 2026, an upgrade to GPT-6 Sol that it says nearly matches its GPT-6 Astra flagship on agentic coding, computer use and professional work at one fifth of Astra's standard token prices. In the API it lists at $2 per million input tokens and $10 per million output tokens, with cached input at $0.10 per million. It is available now in ChatGPT Work, Codex and the API as gpt-6.1-sol, though not yet in the main ChatGPT chat.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://thenextweb.com/news/openai-gpt-6-1-sol-price-astra-devday",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "In the API, GPT-6.1 Sol costs $2 per million input tokens and $10 per million output tokens.",
+    "as_of": "2026-09-29",
+    "confidence": "high",
+    "id": "c_133a8256d887",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-30",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.unite.ai/openai-unveils-gpt-6-1-sol-at-devday-with-new-codex-and-chatgpt-tools/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "news"
+      },
+      {
+        "source_url": "https://gulfnews.com/technology/openai-launches-gpt-61-sol-at-one-fifth-the-price-after-scrapping-astra-upgrade-1.500691483",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "news"
+  },
+  {
+    "subject_key": "openai | product-launch | dots-agents-2026",
+    "claim": "OpenAI launched Dots at DevDay on September 29, 2026, always-on agents powered by GPT-6 Astra that each get their own cloud computer and browser, connect to more than 4,000 apps through plugins and pursue user goals around the clock. They roll out in ChatGPT to Pro and Business Premium users in eligible markets, but Pro users in the European Economic Area, Switzerland and the UK cannot get them for now. The first dot is included at no extra cost, and OpenAI is previewing specialist Dots for enterprise roles, working with Microsoft to bring them to Agent 365.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 2,
+    "source_url": "https://thenextweb.com/news/openai-dots-always-on-ai-agents-cloud-computers-devday",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI has launched dots, AI agents that run all the time on their own cloud computers and work on a user’s behalf.",
+    "as_of": "2026-09-29",
+    "confidence": "high",
+    "id": "c_963cae2aa0b9",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-09-30",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/09/29/openai-launches-dots-its-bubbly-agentic-avatar/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "news"
+      }
+    ],
+    "source_class": "news"
+  },
+  {
+    "id": "c_87f1a0361b7f",
+    "subject_key": "openai | list-price | gpt-6-1-sol",
+    "claim": "OpenAI added GPT-6.1 Sol at DevDay on September 29, 2026, priced at $2 per million input tokens and $10 per million output, with cached input at $0.10 per million, about a fifth of Astra's rate. OpenAI says it nearly matches its GPT-6 Astra flagship on agentic coding, computer use and professional work, and it is live now in ChatGPT Work, Codex and the API, though not yet in the main ChatGPT chat.",
+    "claim_type": "interpretation",
+    "section": "pricing",
+    "zone": null,
+    "order": 5,
+    "as_of": "2026-09-29",
+    "updated_on": "2026-09-30",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_133a8256d887",
+    "persona": "economic_buyer",
+    "provenance": {
+      "source_url": "https://thenextweb.com/news/openai-gpt-6-1-sol-price-astra-devday",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-09-29",
+      "fact_id": "c_133a8256d887",
+      "stamped_on": "2026-09-30",
+      "source_class": "news"
+    }
   }
 ]
