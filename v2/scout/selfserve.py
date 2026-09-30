@@ -77,7 +77,10 @@ def _gh_read(url: str) -> httpx.Response:
     PERSISTENT outage still raises after the retries exhaust (so the canary can still catch a real
     one). Non-transient statuses (401/403/404/422…) return immediately for the caller to handle."""
     last = None
-    for attempt in range(4):
+    # 6 attempts, ~60 s total (2/4/8/16/30 s): the unattended lanes must ride out a network blip
+    # longer than a few seconds (2026-09-30: four SSL handshake timeouts in a row on the mini killed
+    # a replay arm mid-run; the old 3.6 s of backoff was too short for an unattended job).
+    for attempt in range(6):
         try:
             r = httpx.get(url, headers=_headers(), params={"ref": config.SELFSERVE_BRANCH}, timeout=20)
             if r.status_code not in _TRANSIENT_STATUS:
@@ -85,8 +88,8 @@ def _gh_read(url: str) -> httpx.Response:
             last = httpx.HTTPStatusError(f"transient {r.status_code}", request=r.request, response=r)
         except (httpx.TimeoutException, httpx.TransportError) as e:
             last = e
-        if attempt < 3:
-            time.sleep(0.6 * (attempt + 1))               # 0.6 / 1.2 / 1.8s backoff
+        if attempt < 5:
+            time.sleep(min(2 ** (attempt + 1), 30))
     if isinstance(last, httpx.HTTPStatusError):
         last.response.raise_for_status()                  # persistent 5xx: surface it (canary catches)
     raise last
