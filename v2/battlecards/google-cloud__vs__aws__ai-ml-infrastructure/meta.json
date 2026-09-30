@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-09-29T11:11:52",
+  "last_checked": "2026-09-30T11:16:46",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -31,5 +31,6 @@
       "1018724"
     ],
     "job_boards": []
-  }
+  },
+  "last_check_reason": "scheduled"
 }

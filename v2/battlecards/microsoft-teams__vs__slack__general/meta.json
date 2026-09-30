@@ -4,7 +4,7 @@
   "competitor": "Slack",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-09-29T11:14:48",
+  "last_checked": "2026-09-30T11:17:39",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7e46a6f50a55",
@@ -24,5 +24,6 @@
       "1108524"
     ],
     "job_boards": []
-  }
+  },
+  "last_check_reason": "scheduled"
 }
