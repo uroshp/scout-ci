@@ -281,9 +281,13 @@ def _ollama(record: dict, system: str, user: str, timeout: float = 900.0, backen
     role = record.get("role")
     schema = rolespecs.role_schema(role)
     cfg = ollama_cfg(backend)
+    # num_predict bounds a runaway generation (2026-09-30: Gemma 4 spent 15+ min on one
+    # ask_rewrite call): the role's output reserve plus the thinking reserve, the same budget the
+    # fit check already assumed. A cut-off output fails to parse and is scored as such.
     body = {"model": cfg["tag"], "stream": False, "think": cfg["think"], "keep_alive": "20m",
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
-            "options": {"num_ctx": cfg["num_ctx"], "temperature": 0, "seed": OLLAMA_SEED}}
+            "options": {"num_ctx": cfg["num_ctx"], "temperature": 0, "seed": OLLAMA_SEED,
+                        "num_predict": rolespecs.output_reserve(role) + OLLAMA_THINK_RESERVE}}
     if schema:
         body["format"] = schema
     reasoning = "thinking" if cfg["think"] else "none"
