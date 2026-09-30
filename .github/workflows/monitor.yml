@@ -84,7 +84,10 @@ jobs:
           SCOUT_MONITOR_REASON: ${{ inputs.reason }}
           # The store follows the ref: a run from `rc` reads and writes under rc/ (signals, ask
           # ledger, capture), never production's paths, and never falls back to them.
-          SCOUT_SELFSERVE_DATA_PREFIX: ${{ github.ref_name == 'main' && '' || 'rc' }}
+          # The truthy branch must be the NON-empty value: `cond && '' || 'rc'` yields 'rc' on
+          # main too, because '' is falsy and the || takes over (the 2026-09-30 4 AM production
+          # run wrote its whole store output under rc/ that way).
+          SCOUT_SELFSERVE_DATA_PREFIX: ${{ github.ref_name == 'rc' && 'rc' || '' }}
           # Signals (WS3): the run reads open filings / new-department events from the store and
           # puts them in front of triage, with the hiring context line. Off until promoted.
           SCOUT_SIGNALS: ${{ vars.SCOUT_SIGNALS || '0' }}
