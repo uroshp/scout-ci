@@ -40,3 +40,41 @@ class Verdict(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Brief(unittest.TestCase):
+    """The check-in opens with the executive brief (2026-10-01); detail is the appendix."""
+
+    def test_brief_leads_with_number_meaning_next_step(self):
+        import importlib.util, os
+        spec = importlib.util.spec_from_file_location("eval_checkin", os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scripts", "eval_checkin.py"))
+        ec = importlib.util.module_from_spec(spec); spec.loader.exec_module(ec)
+        ver = {"precision": 0.417, "adjudicated": 12, "pending": 1, "right": 5, "wrong": 7,
+               "slices": {"fix_stamp": "2026-09-28T00:00:00", "period": {"pre_fix": {"precision": 0.417, "adjudicated": 12, "disagreements": 12},
+                                                                       "post_fix": {"precision": None, "adjudicated": 0, "disagreements": 1}}}}
+        auth = {"precision": 0.991, "adjudicated": 230, "pending": 59, "right": 228, "wrong": 2}
+        model = {"brief": {"results": 268, "labels": 0, "common_n": 31, "arms": [
+            {"backend": "ollama_nemotron", "vendor": "NVIDIA", "tag": "nemotron-3-nano:4b-q8_0", "results": 89, "today": 12,
+             "exact_coverage": 1.0, "judge_agree": 0.739, "judge_n": 11, "judge_p50_ms": 68586, "warming_up": False}]}}
+        text = ec.brief({}, ver, auth, {"status": "ACCUMULATE"}, {"status": "ELIGIBLE"}, model)
+        self.assertTrue(text.startswith("# Scout evals: the brief"))
+        for needle in ("## 1.", "## 2.", "## 3.", "Next step", "What it means", "0 human labels", "NVIDIA nemotron-3-nano:4b-q8_0", "74%", "68 s", "LIVE"):
+            self.assertIn(needle, text)
+        for noise in ("|---|", "kappa=None", "tool_protocol"):
+            self.assertNotIn(noise, text)
+
+    def test_html_brief_is_cards_not_tables_of_none(self):
+        import importlib.util, os
+        from datetime import datetime
+        spec = importlib.util.spec_from_file_location("eval_checkin", os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scripts", "eval_checkin.py"))
+        ec = importlib.util.module_from_spec(spec); spec.loader.exec_module(ec)
+        ver = {"precision": 0.417, "adjudicated": 12, "pending": 1, "right": 5, "wrong": 7, "slices": {"fix_stamp": "2026-09-28", "period": {
+            "pre_fix": {"precision": 0.417, "adjudicated": 12, "disagreements": 12}, "post_fix": {"precision": None, "adjudicated": 0, "disagreements": 1}}}}
+        auth = {"precision": 0.991, "adjudicated": 230, "pending": 59, "right": 228, "wrong": 2}
+        model = {"brief": {"results": 268, "labels": 0, "common_n": 31, "arms": [
+            {"backend": "ollama_gemma4", "vendor": "Google", "tag": "gemma4:26b-a4b-it-qat", "results": 116, "today": 39,
+             "exact_coverage": 1.0, "judge_agree": 0.739, "judge_n": 11, "judge_p50_ms": 48314, "warming_up": False}]}}
+        html = ec.brief_html(datetime(2026, 10, 1), ver, auth, {"status": "ACCUMULATE"}, {"status": "ELIGIBLE"}, model)
+        for needle in ("Scout evals, 1 October 2026", "ACCUMULATE", "ELIGIBLE", "Google</b> gemma4:26b-a4b-it-qat", "74%", "48 s", "Next step", "What it means"):
+            self.assertIn(needle, html)
+        self.assertNotIn("None", html.replace("none", ""))      # no raw None cells
