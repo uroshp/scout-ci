@@ -251,6 +251,18 @@ def main():
                 # infrastructure, not a model result. Never persisted; the arm stops with exit 3
                 # so run.sh restarts the server and resumes (results are idempotent).
                 print(f"  {mode:6} {c['role']:14} {str(c.get('slug'))[:26]:26} TRANSPORT: {str(replay.get('text'))[:100]}; arm stops for a restart")
+                if backend == "apple_ondevice" and args.write:
+                    # Apple's bridge exits on the call itself (a context overflow the count said
+                    # would fit): persist it as skipped/bridge_crash so it is never retried
+                    # (2026-10-01: three restarts burned on one call). Ollama transport = the
+                    # server is lost, not the call: nothing persisted, the restart resumes.
+                    crash = {**replay, "status": "skipped", "reason": "bridge_crash"}
+                    cmp_ = modelcompare.compare_call(c, {**crash, "backend": backend})
+                    try:
+                        modelcompare.persist(modelcompare.result_record(c, crash, cmp_, backend=backend, mode=mode,
+                                                                       rep=args.repeat, call_ref=c.get("_call_ref")))
+                    except Exception as e:
+                        print(f"  persist of the crash skip failed ({type(e).__name__})", file=sys.stderr)
                 transport_stop = True
                 break
             cmp_ = modelcompare.compare_call(c, {**replay, "backend": backend})
