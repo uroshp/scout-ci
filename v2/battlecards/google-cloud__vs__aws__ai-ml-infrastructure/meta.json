@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-09-30T11:16:46",
+  "last_checked": "2026-10-01T11:09:56",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -32,5 +32,11 @@
     ],
     "job_boards": []
   },
-  "last_check_reason": "scheduled"
+  "last_check_reason": "scheduled",
+  "unresolved_subjects": [
+    "aws | list-price | gpu-reserve-hike-2026-10",
+    "google-cloud | geographic-expansion | gemini-enterprise-brazil-2026-10"
+  ],
+  "unresolved_since": "2026-09-30",
+  "unresolved_attempts": 1
 }
