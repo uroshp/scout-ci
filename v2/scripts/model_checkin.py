@@ -23,6 +23,7 @@ CHECKIN_DIR = "model_checkin"
 BAR = 0.50
 MARGIN = 0.0                      # a $0-justified margin is a number Uroš writes here (e.g. 0.10)
 MIN_ADJUDICATED = 15
+ELIGIBLE_COVERAGE = 0.9     # an arm must run at least this share of the exact calls to be compared
 
 
 def _load_env():
@@ -104,14 +105,21 @@ def build(now: datetime) -> tuple[dict, str]:
         rows = [r for r in results if r.get("backend") == name]
         exact = [r for r in rows if r.get("mode", "exact") == "exact" and not r.get("rep")]
         ok = [r for r in exact if r.get("status") == "ok"]
-        judge = sc["cells"].get(f"{name}|judge", {}).get("full") or {}
+        # Comparable numbers come from the COMMON population (the calls every established arm
+        # attempted, one settings period each); an arm that ran under ELIGIBLE_COVERAGE of them is
+        # ineligible for comparison (Uroš 2026-10-01: "different dates, different sets are not
+        # eligible"; Apple, at ~38%, is out until Private Cloud Compute).
+        judge = sc["cells"].get(f"{name}|judge", {}).get("common") or {}
+        cov = round(len(ok) / len(exact), 2) if exact else None
         brief_arms.append({"backend": name, "vendor": vendor, "tag": tag, "results": len(rows),
                            "today": sum(1 for r in rows if str(r.get("replayed_at", ""))[:10] == today),
-                           "exact_coverage": round(len(ok) / len(exact), 2) if exact else None,
+                           "exact_coverage": cov,
                            "judge_agree": judge.get("agreement_rate"), "judge_n": judge.get("n_results"),
                            "judge_p50_ms": judge.get("latency_ms_p50"),
-                           "warming_up": name in (sc.get("warming_up") or [])})
-    brief = {"results": len(results), "labels": len(labels), "common_n": sc["common_n"], "arms": brief_arms}
+                           "warming_up": name in (sc.get("warming_up") or []),
+                           "eligible": bool(cov is not None and cov >= ELIGIBLE_COVERAGE and name not in (sc.get("warming_up") or []))})
+    brief = {"results": len(results), "labels": len(labels), "common_n": sc["common_n"], "arms": brief_arms,
+             "eligible_coverage": ELIGIBLE_COVERAGE}
     lines.append(f"| backend | role | pop | n | coverage | parse_ok | refusal | agree | kappa | disagreements | "
                  f"adjudicated | precision | CI95 | costly (cand/ref) | p50 ms | verdict |")
     lines.append("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")

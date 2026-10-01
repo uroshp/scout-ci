@@ -168,8 +168,8 @@ def brief(snapshot: dict, ver: dict, auth: dict, v_ver: dict, v_auth: dict, mode
         for a in b.get("arms") or []:
             ja = a.get("judge_agree"); p50 = a.get("judge_p50_ms")
             out.append(f"  - {a['vendor']} {a['tag']}: {a['results']} replays ({a['today']} today); runs {_fmt(a.get('exact_coverage'), pct=True)} of exact calls; "
-                       f"judge agreement {_fmt(ja, pct=True)} on {a.get('judge_n') or 0}; judge p50 {int(p50 / 1000) if p50 else 'n/a'} s"
-                       + ("; warming up" if a.get("warming_up") else ""))
+                       f"judge agreement {_fmt(ja, pct=True)} on {a.get('judge_n') or 0}; judge p50 {int(p50 / 1000) if p50 else 'n/a'} s; "
+                       + ("comparable" if a.get("eligible") else "warming up" if a.get("warming_up") else "NOT comparable (ran too few of the set)"))
         out += ["- What it means: the metric (was the local model right when it disagreed) needs blind labels; nothing here is a verdict yet.",
                 "- Next step: label 15 judge disagreements blind (`python -m scout.adjudicate_models`), then read precision at the next check-in.", ""]
     out += ["Detail for every number is in the appendix below and in the stored snapshot.", ""]
@@ -237,19 +237,26 @@ def brief_html(now: datetime, ver: dict, auth: dict, v_ver: dict, v_auth: dict, 
     b = (model_snap or {}).get("brief") or {}
     if b:
         head = ('<tr>' + "".join(f'<th style="text-align:left;padding:6px 8px;border-bottom:1px solid #e4e1d5;font-size:12px;color:#5f5e54">{e(h)}</th>'
-                                 for h in ("Model", "Replays", "Runs the call", "Agrees with Claude (judge)", "Judge speed", "")) + '</tr>')
+                                 for h in ("Model", "Replays", "Runs the call", "Agrees with Claude (judge)", "Judge speed", "Comparable")) + '</tr>')
         trs = []
         for a in b.get("arms") or []:
             p50 = a.get("judge_p50_ms"); cov = a.get("exact_coverage"); ja = a.get("judge_agree")
-            note = "warming up" if a.get("warming_up") else ""
+            if a.get("eligible"):
+                note = '<span style="color:#2f7d4f;font-weight:700">yes</span>'
+            elif a.get("warming_up"):
+                note = '<span style="color:#8a6322">not yet, warming up</span>'
+            else:
+                note = f'<span style="color:#b5473b">no, ran {_fmt(cov, pct=True)} of the set</span>'
             trs.append('<tr>' + "".join(f'<td style="padding:6px 8px;border-bottom:1px solid #f0eee6;font-size:13px">{c}</td>' for c in (
                 f"<b>{e(a['vendor'])}</b> {e(a['tag'])}", f"{a['results']} ({a['today']} today)",
                 e(_fmt(cov, pct=True)), f"{e(_fmt(ja, pct=True))} on {a.get('judge_n') or 0}",
-                f"{int(p50 / 1000)} s" if p50 else "n/a", e(note))) + '</tr>')
+                f"{int(p50 / 1000)} s" if p50 else "n/a", note)) + '</tr>')
         table = f'<table style="border-collapse:collapse;width:100%;margin:6px 0 2px">{head}{"".join(trs)}</table>'
         cards.append(_lane_card("3. On-device models", "Could a model running on the Mac mini take over a Scout role from Claude?",
                                 "ACCUMULATE" if not b.get("labels") else "BASELINE",
-                                [("The number", f"<b>{b.get('labels')}</b> human labels across {b.get('results')} replays, so there is no verdict yet. The table shows whether each model ran the calls, how often it agreed with Claude when judging, and its speed."),
+                                [("The number", f"<b>{b.get('labels')}</b> human labels across {b.get('results')} replays, so there is no verdict yet. "
+                                                f"Agreement and speed below are on the comparable set: the {b.get('common_n')} calls every established arm ran under one setting. "
+                                                f"An arm that ran under {int((b.get('eligible_coverage') or 0.9) * 100)}% of the calls is not comparable."),
                                  ("", table),
                                  ("What it means", e("Agreement is a sanity check, not the metric. The metric is whether the local model was right when it disagreed, and that needs blind labels.")),
                                  ("Next step", "Label 15 judge disagreements blind with <code>python -m scout.adjudicate_models</code>; precision appears at the next check-in.")],
