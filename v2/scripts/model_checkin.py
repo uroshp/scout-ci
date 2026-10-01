@@ -98,6 +98,20 @@ def build(now: datetime) -> tuple[dict, str]:
         warm = "  (warming up: below the common-population threshold)" if name in (sc.get("warming_up") or []) else ""
         lines.append(f"- {name}: {vendor} {tag}: {n_all} results, {state}{warm}")
     lines.append("")
+    # brief-ready summary (2026-10-01): what the executive brief needs, without re-reading results
+    brief_arms = []
+    for name, vendor, tag in arms:
+        rows = [r for r in results if r.get("backend") == name]
+        exact = [r for r in rows if r.get("mode", "exact") == "exact" and not r.get("rep")]
+        ok = [r for r in exact if r.get("status") == "ok"]
+        judge = sc["cells"].get(f"{name}|judge", {}).get("full") or {}
+        brief_arms.append({"backend": name, "vendor": vendor, "tag": tag, "results": len(rows),
+                           "today": sum(1 for r in rows if str(r.get("replayed_at", ""))[:10] == today),
+                           "exact_coverage": round(len(ok) / len(exact), 2) if exact else None,
+                           "judge_agree": judge.get("agreement_rate"), "judge_n": judge.get("n_results"),
+                           "judge_p50_ms": judge.get("latency_ms_p50"),
+                           "warming_up": name in (sc.get("warming_up") or [])})
+    brief = {"results": len(results), "labels": len(labels), "common_n": sc["common_n"], "arms": brief_arms}
     lines.append(f"| backend | role | pop | n | coverage | parse_ok | refusal | agree | kappa | disagreements | "
                  f"adjudicated | precision | CI95 | costly (cand/ref) | p50 ms | verdict |")
     lines.append("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
@@ -149,7 +163,7 @@ def build(now: datetime) -> tuple[dict, str]:
     lines.append(f"\nreference self-agreement ceiling: unmeasured (optional paid re-run, on Uroš's go only)")
     lines.append("Verdict vocabulary shared with the other lanes; ELIGIBLE = non-inferior and sustained; "
                  "no production switch exists. Bars: docs/model-substitution-exit-criteria.md")
-    snapshot = {"stamp": now.isoformat(timespec="seconds"), "bar": BAR - MARGIN, "margin": MARGIN,
+    snapshot = {"brief": brief, "stamp": now.isoformat(timespec="seconds"), "bar": BAR - MARGIN, "margin": MARGIN,
                 "results": len(results), "labels": len(labels), "common_n": sc["common_n"],
                 "cells": cells_out, "modes": sc.get("modes"), "repeat_floor": floor, "cost": cost}
     return snapshot, "\n".join(lines)

@@ -133,6 +133,49 @@ def build(now: datetime) -> tuple[dict, str]:
     return snapshot, body
 
 
+def _fmt(x, pct=False):
+    if x is None:
+        return "n/a"
+    return f"{x:.0%}" if pct else str(x)
+
+
+def brief(snapshot: dict, ver: dict, auth: dict, v_ver: dict, v_auth: dict, model_snap: dict | None) -> str:
+    """The executive brief (Uroš, 2026-10-01: "what it is, what it means, proposed next steps").
+    One block per lane: the one number that matters, what it means in words, the next step. The
+    full tables follow as an appendix and live in the snapshot; this is what gets read."""
+    out = ["# Scout evals: the brief", ""]
+    sl = ver.get("slices") or {}
+    post = (sl.get("period") or {}).get("post_fix") or {}
+    pre = (sl.get("period") or {}).get("pre_fix") or {}
+    out += ["## 1. Verification challenger: is the second model right when it overrules the code grader?",
+            f"- Number: precision **{_fmt(ver.get('precision'))}** of {ver.get('adjudicated')} labelled overrules (bar {PRECISION_BAR}). Verdict: **{v_ver['status']}**."]
+    if sl:
+        out += [f"- What it means: every labelled item so far is from before the {str(sl.get('fix_stamp', ''))[:10]} fix "
+                f"(pre-fix {_fmt(pre.get('precision'))} on {pre.get('adjudicated')}; post-fix {_fmt(post.get('precision'))} on {post.get('adjudicated')} "
+                f"with {post.get('disagreements')} disagreement(s) waiting). The number cannot move until post-fix items are labelled."]
+    out += [f"- Next step: label the {ver.get('pending')} pending item(s) (`python -m scout.adjudicate_challenger`); read the post-fix line only.", ""]
+    out += ["## 2. Authorship judge: when it overrules the proposed update, is it right?",
+            f"- Number: precision **{_fmt(auth.get('precision'))}** ({auth.get('right')} right, {auth.get('wrong')} wrong of {auth.get('adjudicated')}). Verdict: **{v_auth['status']}**.",
+            ("- What it means: this judge has been LIVE (auto-applying confirmed updates) since 2026-09-29; the number is its running report card, at or above the bar."
+             if v_auth["status"] == "ELIGIBLE" else
+             "- What it means: below the bar or not yet sustained; the live judge's decisions deserve a look."),
+            f"- Next step: {auth.get('pending')} items await labels; label them when convenient, nothing to change otherwise.", ""]
+    b = (model_snap or {}).get("brief") or {}
+    if b:
+        out += ["## 3. On-device models: could a local model do a Scout role?",
+                f"- Numbers: {b.get('results')} replays across {len(b.get('arms') or [])} arms, **{b.get('labels')} human labels**, so no verdict exists yet; "
+                f"below: did it run the call, agreement with Claude on the judge role (a sanity number), and speed."]
+        for a in b.get("arms") or []:
+            ja = a.get("judge_agree"); p50 = a.get("judge_p50_ms")
+            out.append(f"  - {a['vendor']} {a['tag']}: {a['results']} replays ({a['today']} today); runs {_fmt(a.get('exact_coverage'), pct=True)} of exact calls; "
+                       f"judge agreement {_fmt(ja, pct=True)} on {a.get('judge_n') or 0}; judge p50 {int(p50 / 1000) if p50 else 'n/a'} s"
+                       + ("; warming up" if a.get("warming_up") else ""))
+        out += ["- What it means: the metric (was the local model right when it disagreed) needs blind labels; nothing here is a verdict yet.",
+                "- Next step: label 15 judge disagreements blind (`python -m scout.adjudicate_models`), then read precision at the next check-in.", ""]
+    out += ["Detail for every number is in the appendix below and in the stored snapshot.", ""]
+    return "\n".join(out)
+
+
 def _model_lane(now: datetime) -> tuple[dict | None, str | None]:
     """The on-device model comparison lane (2026-09-28, scripts/model_checkin.py) rides this
     check-in: same 1st/15th cadence, same email, its own snapshot dir and bars. Fail-soft: any
@@ -157,6 +200,14 @@ def main() -> None:
     model_snap, model_body = _model_lane(now)
     if model_body:
         body += "\n\n---\n\n" + model_body
+    try:
+        ver, auth = verification_metrics(), authorship_metrics()
+        prior = _load_prior()
+        head = brief(snapshot, ver, auth, verdict("verification", ver, (prior or {}).get("verification")),
+                     verdict("authorship", auth, (prior or {}).get("authorship")), model_snap)
+        body = head + "\n\n---\n\n# Appendix: full detail\n\n" + body
+    except Exception as e:                      # the brief must never block the check-in
+        print(f"[eval] brief skipped ({type(e).__name__}: {e})", file=sys.stderr)
     print(body)
 
     if args.snapshot:
