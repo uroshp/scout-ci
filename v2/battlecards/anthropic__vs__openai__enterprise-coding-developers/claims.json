@@ -804,18 +804,26 @@
   },
   {
     "subject_key": "objection | federal-blacklisting | current",
-    "claim": "**\"The federal government banned Anthropic. Is it a risky vendor to standardize on?\"**\n\nThe picture is now split. A federal judge struck down one Pentagon supply chain risk designation in August as unlawful retaliation, and that ruling stands. On September 25, the DC Circuit upheld a second, separate Pentagon designation litigated under a different statute, so Claude remains barred from use inside the Department of Defense specifically. Anthropic disagrees with that ruling and is weighing an en banc rehearing or a Supreme Court appeal. Outside the DoD, nothing changes: other federal agencies and contractors can still work with Anthropic under the unreversed August ruling, and commercial access via AWS Bedrock or Google Vertex AI was never part of either case.\n\n**So what:** For a DoD buyer, be direct: that designation stands and Claude cannot be used there today. For every other federal agency, contractor or commercial buyer, the procurement path through Bedrock or Vertex is untouched by either ruling.",
+    "claim": "**\"The federal government banned Anthropic. Is it a risky vendor to standardize on?\"**\n\nThe picture is split, and outside the Pentagon it just got stronger. An August ruling struck down one Pentagon designation as unlawful retaliation, but on September 25 the DC Circuit upheld a second one, so Claude stays barred inside the Department of Defense while Anthropic weighs an appeal. Commercial access via Bedrock or Vertex was never touched by either case. And as of September 30, Claude for Government is generally available to federal and state agencies in a FedRAMP High environment, with no seat fees and usage billed in fixed increments under a hard spending cap.\n\n**So what:** For a DoD buyer, be direct: that designation stands and Claude cannot be used there today. For every other federal or state agency, point to Claude for Government's GA status as a live procurement path available now.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 4,
-    "as_of": "2026-09-25",
+    "as_of": "2026-09-30",
     "confidence": "high",
     "id": "c_85c75d8b22dd",
     "verified": true,
     "persona": "security_regulated",
-    "derived_from": "c_95fd0a2ee0fa",
-    "updated_on": "2026-09-26"
+    "derived_from": "c_c8dbdd44b397",
+    "updated_on": "2026-10-01",
+    "provenance": {
+      "source_url": "https://claude.com/blog/claude-for-government-is-now-generally-available",
+      "source_tier": "primary",
+      "as_of": "2026-09-30",
+      "fact_id": "c_c8dbdd44b397",
+      "stamped_on": "2026-10-01",
+      "source_class": "company_statement"
+    }
   },
   {
     "subject_key": "objection | billing-instability | current",
@@ -2839,6 +2847,61 @@
       "fact_id": "c_8bac5dd4914d",
       "stamped_on": "2026-09-30",
       "source_class": "news"
+    }
+  },
+  {
+    "subject_key": "anthropic | claude-for-government-ga",
+    "claim": "Anthropic made Claude for Government generally available to federal and state agencies on September 30, 2026, moving it out of the public beta that began in July 2026. The platform runs in a FedRAMP High authorized environment and agencies pay no seat fees, instead buying usage in fixed increments under a hard not-to-exceed spending cap. Claude Code CLI and Claude for Microsoft 365 are also rolling out in early access through the same environment.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://claude.com/blog/claude-for-government-is-now-generally-available",
+    "source_tier": "primary",
+    "evidence_excerpt": "Today, Claude for Government is generally available for federal and state agencies.",
+    "as_of": "2026-09-30",
+    "confidence": "high",
+    "id": "c_c8dbdd44b397",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-01",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.unite.ai/anthropic-makes-claude-for-government-generally-available-to-agencies/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "news"
+      }
+    ],
+    "source_class": "company_statement"
+  },
+  {
+    "id": "c_e92e67ebd7e3",
+    "subject_key": "battlecard | claude-for-government-ga | where_we_win",
+    "claim": "**Claude for Government is now generally available, with no seat fees and a hard spending cap.**\n\nAs of September 30, 2026, Claude for Government moved out of its July public beta into full GA for federal and state agencies, running in a FedRAMP High authorized environment. Agencies buy usage in fixed increments under a hard not-to-exceed spending cap instead of paying per seat. Claude Code CLI and Claude for Microsoft 365 are rolling out in early access through the same environment, giving a security-conscious government buyer a cleared path to coding tools today, not a future roadmap item.\n\n**Soundbite:** Claude for Government is live today in a FedRAMP High environment, you buy usage in fixed blocks under a hard spending cap instead of paying per seat.",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 12,
+    "as_of": "2026-09-30",
+    "updated_on": "2026-10-01",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_c8dbdd44b397",
+    "persona": "security_regulated",
+    "provenance": {
+      "source_url": "https://claude.com/blog/claude-for-government-is-now-generally-available",
+      "source_tier": "primary",
+      "as_of": "2026-09-30",
+      "fact_id": "c_c8dbdd44b397",
+      "stamped_on": "2026-10-01",
+      "source_class": "company_statement"
     }
   }
 ]

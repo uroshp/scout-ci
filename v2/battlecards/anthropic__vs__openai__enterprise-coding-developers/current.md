@@ -185,6 +185,12 @@ On Anthropic's own benchmarks, Opus 5.5 beats GPT-6 Astra on FrontierCode at rou
 
 **Soundbite:** "Opus 5.5 beats GPT-6 Astra on FrontierCode at a fifth of the cost per task and beats GPT-5.6 Sol on CursorBench by 11 points at a third of the cost. You get a stronger result and a smaller bill." ([anthropic.com](https://www.anthropic.com/news/claude-opus-5))
 
+**Claude for Government is now generally available, with no seat fees and a hard spending cap.**
+
+As of September 30, 2026, Claude for Government moved out of its July public beta into full GA for federal and state agencies, running in a FedRAMP High authorized environment. Agencies buy usage in fixed increments under a hard not-to-exceed spending cap instead of paying per seat. Claude Code CLI and Claude for Microsoft 365 are rolling out in early access through the same environment, giving a security-conscious government buyer a cleared path to coding tools today, not a future roadmap item.
+
+**Soundbite:** Claude for Government is live today in a FedRAMP High environment, you buy usage in fixed blocks under a hard spending cap instead of paying per seat. ([claude.com](https://claude.com/blog/claude-for-government-is-now-generally-available))
+
 ### Where it's a fight
 
 **OpenAI's new mid tier matches Claude's price, but cost per finished task still favors Claude at every tier.**
@@ -245,9 +251,9 @@ Both have a real basis. Anthropic acknowledged three engineering missteps degrad
 
 **"The federal government banned Anthropic. Is it a risky vendor to standardize on?"**
 
-The picture is now split. A federal judge struck down one Pentagon supply chain risk designation in August as unlawful retaliation, and that ruling stands. On September 25, the DC Circuit upheld a second, separate Pentagon designation litigated under a different statute, so Claude remains barred from use inside the Department of Defense specifically. Anthropic disagrees with that ruling and is weighing an en banc rehearing or a Supreme Court appeal. Outside the DoD, nothing changes: other federal agencies and contractors can still work with Anthropic under the unreversed August ruling, and commercial access via AWS Bedrock or Google Vertex AI was never part of either case.
+The picture is split, and outside the Pentagon it just got stronger. An August ruling struck down one Pentagon designation as unlawful retaliation, but on September 25 the DC Circuit upheld a second one, so Claude stays barred inside the Department of Defense while Anthropic weighs an appeal. Commercial access via Bedrock or Vertex was never touched by either case. And as of September 30, Claude for Government is generally available to federal and state agencies in a FedRAMP High environment, with no seat fees and usage billed in fixed increments under a hard spending cap.
 
-**So what:** For a DoD buyer, be direct: that designation stands and Claude cannot be used there today. For every other federal agency, contractor or commercial buyer, the procurement path through Bedrock or Vertex is untouched by either ruling. ([cnbc.com](https://www.cnbc.com/2026/09/25/pentagon-anthropic-ai-risk-appeals-court.html))
+**So what:** For a DoD buyer, be direct: that designation stands and Claude cannot be used there today. For every other federal or state agency, point to Claude for Government's GA status as a live procurement path available now. ([claude.com](https://claude.com/blog/claude-for-government-is-now-generally-available))
 
 **"Anthropic keeps changing its pricing. How do I budget against a moving target?"**
 
