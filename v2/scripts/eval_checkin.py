@@ -176,6 +176,89 @@ def brief(snapshot: dict, ver: dict, auth: dict, v_ver: dict, v_auth: dict, mode
     return "\n".join(out)
 
 
+_VERDICT_COLOR = {"ELIGIBLE": ("#2f7d4f", "#e8f3ec"), "ACCUMULATE": ("#8a6322", "#f7efe0"),
+                  "BASELINE": ("#34566b", "#e9eff3"), "NOT_ELIGIBLE": ("#b5473b", "#f9e9e7"), "KILL": ("#b5473b", "#f9e9e7")}
+
+
+def _pill(status: str) -> str:
+    fg, bg = _VERDICT_COLOR.get(status, ("#5f5e54", "#f1efe8"))
+    return (f'<span style="display:inline-block;padding:2px 9px;border-radius:999px;background:{bg};color:{fg};'
+            f'font-weight:700;font-size:12px;letter-spacing:.04em">{notify._esc(status)}</span>')
+
+
+def _row(label: str, value_html: str) -> str:
+    if not label:                                   # a full-width row (the per-model table)
+        return f'<tr><td colspan="2" style="padding:6px 0;vertical-align:top">{value_html}</td></tr>'
+    return (f'<tr><td style="padding:6px 10px 6px 0;color:#5f5e54;white-space:nowrap;vertical-align:top;width:34%">{notify._esc(label)}</td>'
+            f'<td style="padding:6px 0;vertical-align:top">{value_html}</td></tr>')
+
+
+def _lane_card(title: str, question: str, status: str, rows: list[tuple[str, str]], accent: str) -> str:
+    inner = (f'<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">'
+             f'<div style="font-weight:700;font-size:16px;color:{accent}">{notify._esc(title)}</div>{_pill(status)}</div>'
+             f'<div style="color:#5f5e54;font-size:13px;margin:2px 0 8px">{notify._esc(question)}</div>'
+             f'<table style="border-collapse:collapse;width:100%;font-size:14px">' + "".join(_row(k, v) for k, v in rows) + '</table>')
+    return notify._hcard(inner, accent=accent)
+
+
+def brief_html(now: datetime, ver: dict, auth: dict, v_ver: dict, v_auth: dict, model_snap: dict | None) -> str:
+    """The brief as the email body (Uroš, 2026-10-01: legible, tables and bullets, colour, only what
+    deserves to be there, plain full sentences). One card per lane: what it checks, the number that
+    matters, what the number means, the next step. The plain-text part keeps the full appendix."""
+    e = notify._esc
+    lead = (f'<div style="font-size:20px;font-weight:700;margin:4px 0 2px">Scout evals, {now.strftime("%-d %B %Y")}</div>'
+            f'<div style="color:#5f5e54;font-size:14px;margin-bottom:14px">Three evaluation lanes. Each card says what the lane checks, '
+            f'the one number that matters, what that number means right now, and the next step.</div>')
+    cards = []
+    # lane 1
+    sl = ver.get("slices") or {}
+    post = (sl.get("period") or {}).get("post_fix") or {}
+    pre = (sl.get("period") or {}).get("pre_fix") or {}
+    meaning = (f"Every labelled item so far predates the {str(sl.get('fix_stamp', ''))[:10]} fix: before it the challenger judged "
+               f"interpretations without their parent facts, and it was right only {_fmt(pre.get('precision'))} of the time on those "
+               f"{pre.get('adjudicated')} items. Since the fix there are {post.get('disagreements')} new disagreement(s) and none labelled, "
+               f"so the number cannot move yet.") if sl else "Waiting on labelled disagreements."
+    cards.append(_lane_card("1. Verification challenger", "When a second model overrules the code grader on a verification verdict, is the second model right?",
+                            v_ver["status"],
+                            [("The number", f"<b>{e(_fmt(ver.get('precision')))}</b> precision on {ver.get('adjudicated')} labelled overrules (bar {PRECISION_BAR})"),
+                             ("What it means", e(meaning)),
+                             ("Next step", f"Label the {ver.get('pending')} pending item(s) with <code>python -m scout.adjudicate_challenger</code>, then judge this lane on the post-fix line only.")],
+                            "#8a6322" if v_ver["status"] == "ACCUMULATE" else "#34566b"))
+    # lane 2
+    live = v_auth["status"] == "ELIGIBLE"
+    cards.append(_lane_card("2. Authorship judge", "When the judge overrules a proposed card update, is it right?",
+                            v_auth["status"],
+                            [("The number", f"<b>{e(_fmt(auth.get('precision')))}</b> precision: {auth.get('right')} right, {auth.get('wrong')} wrong, of {auth.get('adjudicated')} labelled"),
+                             ("What it means", e("This judge has been live since 29 September, applying confirmed updates without approval. The number is its running report card and it is above the bar." if live
+                                                 else "The judge is below the bar or not yet sustained; its live decisions deserve a look.")),
+                             ("Next step", e(f"{auth.get('pending')} items await your labels. Label them when convenient; nothing needs changing otherwise."))],
+                            "#2f7d4f" if live else "#b5473b"))
+    # lane 3
+    b = (model_snap or {}).get("brief") or {}
+    if b:
+        head = ('<tr>' + "".join(f'<th style="text-align:left;padding:6px 8px;border-bottom:1px solid #e4e1d5;font-size:12px;color:#5f5e54">{e(h)}</th>'
+                                 for h in ("Model", "Replays", "Runs the call", "Agrees with Claude (judge)", "Judge speed", "")) + '</tr>')
+        trs = []
+        for a in b.get("arms") or []:
+            p50 = a.get("judge_p50_ms"); cov = a.get("exact_coverage"); ja = a.get("judge_agree")
+            note = "warming up" if a.get("warming_up") else ""
+            trs.append('<tr>' + "".join(f'<td style="padding:6px 8px;border-bottom:1px solid #f0eee6;font-size:13px">{c}</td>' for c in (
+                f"<b>{e(a['vendor'])}</b> {e(a['tag'])}", f"{a['results']} ({a['today']} today)",
+                e(_fmt(cov, pct=True)), f"{e(_fmt(ja, pct=True))} on {a.get('judge_n') or 0}",
+                f"{int(p50 / 1000)} s" if p50 else "n/a", e(note))) + '</tr>')
+        table = f'<table style="border-collapse:collapse;width:100%;margin:6px 0 2px">{head}{"".join(trs)}</table>'
+        cards.append(_lane_card("3. On-device models", "Could a model running on the Mac mini take over a Scout role from Claude?",
+                                "ACCUMULATE" if not b.get("labels") else "BASELINE",
+                                [("The number", f"<b>{b.get('labels')}</b> human labels across {b.get('results')} replays, so there is no verdict yet. The table shows whether each model ran the calls, how often it agreed with Claude when judging, and its speed."),
+                                 ("", table),
+                                 ("What it means", e("Agreement is a sanity check, not the metric. The metric is whether the local model was right when it disagreed, and that needs blind labels.")),
+                                 ("Next step", "Label 15 judge disagreements blind with <code>python -m scout.adjudicate_models</code>; precision appears at the next check-in.")],
+                                "#34566b"))
+    footer = ('<div style="color:#5f5e54;font-size:12px;margin-top:6px">The full tables for every lane are in the plain-text part of this email and in the stored snapshot. '
+              'Bars and rules: docs/eval-exit-criteria.md and docs/model-substitution-exit-criteria.md.</div>')
+    return notify._hdoc(lead, "".join(cards), footer)
+
+
 def _model_lane(now: datetime) -> tuple[dict | None, str | None]:
     """The on-device model comparison lane (2026-09-28, scripts/model_checkin.py) rides this
     check-in: same 1st/15th cadence, same email, its own snapshot dir and bars. Fail-soft: any
@@ -200,12 +283,14 @@ def main() -> None:
     model_snap, model_body = _model_lane(now)
     if model_body:
         body += "\n\n---\n\n" + model_body
+    html = None
     try:
         ver, auth = verification_metrics(), authorship_metrics()
         prior = _load_prior()
-        head = brief(snapshot, ver, auth, verdict("verification", ver, (prior or {}).get("verification")),
-                     verdict("authorship", auth, (prior or {}).get("authorship")), model_snap)
+        v1, v2 = verdict("verification", ver, (prior or {}).get("verification")), verdict("authorship", auth, (prior or {}).get("authorship"))
+        head = brief(snapshot, ver, auth, v1, v2, model_snap)
         body = head + "\n\n---\n\n# Appendix: full detail\n\n" + body
+        html = brief_html(now, ver, auth, v1, v2, model_snap)
     except Exception as e:                      # the brief must never block the check-in
         print(f"[eval] brief skipped ({type(e).__name__}: {e})", file=sys.stderr)
     print(body)
@@ -232,7 +317,7 @@ def main() -> None:
     if args.email:
         v = snapshot["verdicts"]
         subject = f"Scout eval check-in {now.date()} — verif {v['verification']} / authorship {v['authorship']}"
-        res = notify._dispatch(subject, body, dry_run=False)
+        res = notify._dispatch(subject, body, dry_run=False, html=html)
         print(f"[eval] email: {res.get('sent')} ({res.get('via') or res.get('reason')})")
 
 
