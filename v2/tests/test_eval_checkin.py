@@ -73,8 +73,10 @@ class Brief(unittest.TestCase):
         auth = {"precision": 0.991, "adjudicated": 230, "pending": 59, "right": 228, "wrong": 2}
         model = {"brief": {"results": 268, "labels": 0, "common_n": 31, "arms": [
             {"backend": "ollama_gemma4", "vendor": "Google", "tag": "gemma4:26b-a4b-it-qat", "results": 116, "today": 39,
-             "exact_coverage": 1.0, "judge_agree": 0.739, "judge_n": 11, "judge_p50_ms": 48314, "warming_up": False}]}}
+             "exact_coverage": 1.0, "judge_agree": 0.739, "judge_n": 11, "judge_p50_ms": 48314, "warming_up": False, "eligible": True},
+            {"backend": "apple_ondevice", "vendor": "Apple", "tag": "SystemLanguageModel", "results": 35, "today": 0,
+             "exact_coverage": 0.38, "judge_agree": None, "judge_n": 4, "judge_p50_ms": None, "warming_up": True, "eligible": False}], "eligible_coverage": 0.9}}
         html = ec.brief_html(datetime(2026, 10, 1), ver, auth, {"status": "ACCUMULATE"}, {"status": "ELIGIBLE"}, model)
-        for needle in ("Scout evals, 1 October 2026", "ACCUMULATE", "ELIGIBLE", "Google</b> gemma4:26b-a4b-it-qat", "74%", "48 s", "Next step", "What it means"):
+        for needle in ("Scout evals, 1 October 2026", "ACCUMULATE", "ELIGIBLE", "Google</b> gemma4:26b-a4b-it-qat", "74%", "48 s", "Next step", "What it means", "Comparable", ">yes<", "warming up"):
             self.assertIn(needle, html)
         self.assertNotIn("None", html.replace("none", ""))      # no raw None cells
