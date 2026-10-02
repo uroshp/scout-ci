@@ -412,15 +412,23 @@ def assets(fname):
 
 @app.get("/")
 def index():
-    """The home page is the collection (2026-10-02): every brief as a card. A direct link to a
-    brief (/c/<slug>) is unchanged."""
+    """The home page is the latest brief (the brief is the star, 2026-10-02 evening); the
+    collection lives at /briefs behind the app bar's Briefs item. page_type='home' marks a
+    default landing in GA, as before."""
     cards = _ordered_cards()
     if not cards:
         return _doc(_chrome(False, None, cards)
                     + '<div class="wrap"><p>No briefs have been generated yet.</p></div>',
                     title="Agent Scout — Competitive briefs", page_type="home")
+    return _card_page(cards[0], cards, page_type="home")
+
+
+@app.get("/briefs")
+def briefs():
+    """Every brief as a card, most recently updated first."""
+    cards = _ordered_cards()
     return _doc(_chrome(False, None, cards) + page.index_html(cards),
-                title="Agent Scout — Competitive briefs", page_type="home")
+                title="All briefs — Agent Scout", page_type="briefs")
 
 
 @app.get("/c/<slug>")
