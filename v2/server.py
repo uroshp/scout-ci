@@ -442,7 +442,7 @@ def card(slug):
 def _card_page(slug: str, cards: list, page_type: str = "card") -> str:
     persona = page.persona_or_none(request.args.get("persona"))
     inner = (_chrome(False, slug, cards)
-             + page.title_html(slug)
+             + page.title_html(slug, persona)
              + page.content_html(slug, persona=persona)
              + _countdown_js())
     return _doc(inner, title=f"{_card_label(slug)} — Agent Scout", page_type=page_type,
