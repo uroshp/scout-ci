@@ -33,8 +33,8 @@ CRASH_MARKERS = [
 # counts, and so does the product masthead (the stub meta-refreshes to agent-scout.ai, so a probe
 # that lingers past the redirect legitimately sees the new home's content).
 HOST_MARKERS = {
-    "agent-scout.ai": ("Living battlecards",),
-    "old address": ("Scout has moved", "Living battlecards"),
+    "agent-scout.ai": ("Deal-moving and always-fresh",),
+    "old address": ("Scout has moved", "Deal-moving and always-fresh"),
 }
 
 HOSTS = {
