@@ -1462,7 +1462,7 @@ def masthead_html(cards: list | None = None, slug: str | None = None, mode: str 
     except Exception:
         panel = ""
     n = len(cards)
-    how = ('<a href="#how" class="sc-navlink" data-how aria-expanded="false" aria-controls="how">How it works</a>'
+    how = ('<a href="#how" class="sc-navlink" data-how aria-expanded="false" aria-controls="how">How Scout works</a>'
            if panel else "")
     items = []
     for c in cards:
@@ -1475,7 +1475,7 @@ def masthead_html(cards: list | None = None, slug: str | None = None, mode: str 
                   f'<span class="sc-cnt">{n}</span><span class="cv">&#9662;</span></summary>'
                   '<div class="sc-dd">' + "".join(items)
                   + '<a class="sc-see" href="/briefs">See all briefs as cards</a>'
-                  + ('<a class="sc-phone-only" href="#how" data-how aria-expanded="false">How it works</a>' if panel else "")
+                  + ('<a class="sc-phone-only" href="#how" data-how aria-expanded="false">How Scout works</a>' if panel else "")
                   + '</div></details>')
     bar = ('<div class="sc-bar"><a class="sc-brand" href="/"><span class="d"></span><span class="nm">Agent Scout</span></a>'
            '<nav class="sc-nav" aria-label="Site">'
@@ -1710,7 +1710,13 @@ def _content_html(slug: str) -> str:
     nav_ids = set(re.findall(r'id="(u-[a-z0-9-]+)"', secs))   # anchors that actually render
     _OBAR.set("")
     rail = _rail(status, present, plays_n, nav_ids, sources=(slug, _classify.class_counts(claims)))
-    obar = f'<div class="sc-obar">{_OBAR.get()}</div>' if _OBAR.get() else ""
+    obar = (f'<div class="sc-obar">{_OBAR.get()}</div>'
+            "<script>(function(){var b=document.querySelector('.sc-obar');if(!b)return;"
+            "b.addEventListener('click',function(e){var a=e.target.closest('a');if(!a)return;"
+            "[].forEach.call(b.querySelectorAll('details[open]'),function(d){d.removeAttribute('open');});});"
+            "document.addEventListener('click',function(e){if(b.contains(e.target))return;"
+            "[].forEach.call(b.querySelectorAll('details[open]'),function(d){d.removeAttribute('open');});});"
+            "})();</script>") if _OBAR.get() else ""
     inner = (
         '<hr class="rule">' + obar
         + '<div class="cols">' + rail
