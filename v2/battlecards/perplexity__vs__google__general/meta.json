@@ -4,7 +4,7 @@
   "competitor": "Google",
   "focus": null,
   "baseline_date": "2026-06-06",
-  "last_checked": "2026-10-01T11:18:21",
+  "last_checked": "2026-10-02T11:24:43",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_9ea436272f2a",
@@ -25,7 +25,8 @@
     "f_1d62c3f865c1",
     "f_ff903bafd6d1",
     "f_7f74d84b90c8",
-    "f_c47cab622c25"
+    "f_c47cab622c25",
+    "f_1bfefd745900"
   ],
   "monitored": true,
   "lead_election": {

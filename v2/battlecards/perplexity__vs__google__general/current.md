@@ -12,11 +12,11 @@ Google AI Mode is free to 1B+ users and Gemini rides inside paid Workspace seats
 
 **Pick the best model for each task, and keep the freedom to switch vendors.**
 
-Gemini 3.5 Pro just slipped to July and Google lost four senior Gemini and AlphaFold researchers in two weeks. Perplexity runs across 19 models including Claude and GPT, so each task goes to the model that handles it best.
+Google shipped Gemini 4 Argon on September 30, its first flagship frontier model since February, but it is locked to vetted cyber defenders in Google's Fairwind Program with no public release date, so no buyer can evaluate or buy it yet. Google also lost four senior Gemini and AlphaFold researchers in two weeks. Perplexity runs across 19 models including Claude and GPT, so each task goes to the model that handles it best, Gemini included once it is actually available.
 
 **Soundbite:** "Use the best model for each task, and switch the moment a better one ships. No vendor lock-in."
 
-**So what:** Ask which models their teams rely on today, then show all of them available through Perplexity, so a slip or price hike from any single vendor never stalls their work. ([techcrunch.com](https://techcrunch.com/2026/06/24/ai-researchers-continue-to-leave-google-deepmind/))
+**So what:** Ask which models their teams rely on today, then show all of them available through Perplexity, so a slip or price hike from any single vendor never stalls their work. ([blog.google](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon/))
 
 **Perplexity is growing fast but small and legally exposed, so go in with the litigation answer already loaded.**
 
@@ -61,6 +61,7 @@ Hybrid Compute masks sensitive data like names, addresses and account numbers on
 
 ## Recent Strategic Moves
 
+- On September 30, 2026 Google launched Gemini 4 Argon, its first flagship frontier model since February, saying it leads benchmarks in long-horizon coding, finance and legal work and lifting the output limit to 1 million tokens. Access is restricted to vetted cyber defenders in Google's Fairwind Program with no public release date; broader access begins later with paid API customers and Google AI Ultra subscribers, at an introductory \$2 per million input and \$10 per million output tokens (rising to \$4 and \$20). ([blog.google](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon/))
 - Google launched an 'AI contribution pilot' revealed on September 17, 2026 that pays some websites when their content shapes an AI answer in the Gemini app, AI Overviews or AI Mode. Earnings show up as a monthly panel in Search Console. It reaches at least dozens of mostly small and mid-sized publishers, the payout math is undisclosed (one exec called it 'quite black box'), and publishers in the pilot say the early money is 'peanuts' next to ad revenue. ([9to5google.com](https://9to5google.com/2026/09/17/google-ai-contribution-pilot-tests-paying-websites-when-theyre-used-in-ai-results/))
 - Google set Googlebook pre-orders to open September 21, 2026 at 9AM ET, with the first models shipping this fall from Acer, Asus, Dell, HP and Lenovo. Googlebooks are flagship laptops running a version of ChromeOS built on Android, with Gemini Intelligence in the OS powering features like Magic Pointer and Create My Widget, plus deep Android-phone integration. Google has not published prices yet. ([googlebook.google](https://googlebook.google/))
 - On September 2, 2026, US Judge Leonie Brinkema rejected the DOJ's bid to force Google to sell its AdX ad exchange, imposing behavioral remedies instead. It is the third straight time a court has refused to break up Big Tech, and it clears the ad-tech breakup off Google's live antitrust risks. The search default-placement bar and the EU DMA fines still stand. ([aljazeera.com](https://www.aljazeera.com/economy/2026/9/2/us-judge-rejects-bid-to-break-up-googles-ad-business))
@@ -154,11 +155,11 @@ AI Mode hit 1B monthly users free inside Search, Chrome and Android in a single 
 
 **Soundbite:** *"Google wins the default. We win the deliberate choice: the teams who care enough about accuracy and neutrality to pick the right tool, not just the pre-installed one."* ([blog.google](https://blog.google/products-and-platforms/products/search/search-io-2026/))
 
-**Gemini 3 is a genuinely top-tier model: concede the benchmark fight and win the trust fight.**
+**Gemini is a genuinely top-tier model family: concede the benchmark fight and win the trust fight.**
 
-Gemini 3 Pro topped LMArena at 1501 Elo with PhD-level reasoning scores; Perplexity builds no frontier model of its own. For benchmark-driven technical buyers this is Google's strongest card, so pivot from raw model scores to answer accuracy, citations and the freedom to use Gemini inside Perplexity when it's the best fit.
+Gemini 3 Pro topped LMArena at 1501 Elo with PhD-level reasoning scores, and Google's new Gemini 4 Argon claims benchmark leads in long-horizon coding, finance and legal work with a 1 million token output limit. Perplexity builds no frontier model of its own. But Argon ships only to vetted cyber defenders in Google's Fairwind Program with no public release date, so it is not yet something a buyer can evaluate or run. For benchmark-driven technical buyers this is still Google's strongest card, so pivot from raw model scores to answer accuracy, citations and the freedom to use Gemini inside Perplexity when it's the best fit.
 
-**Soundbite:** *"We pick the best model for each task, so you always get the strongest answer without managing any of it."* ([blog.google](https://blog.google/products/gemini/gemini-3/))
+**Soundbite:** "We pick the best model for each task, so you always get the strongest answer without managing any of it." ([blog.google](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon/))
 
 **Workspace lock-in is real: Gemini lives inside the Gmail, Docs and Meet that 3B people already use.**
 
@@ -217,6 +218,12 @@ A March 2026 class action alleges embedded trackers forwarded chat data to Googl
 Users did complain on Reddit about tighter rate limits in 2026, and it's a fair flag. Perplexity attributes the change to cracking down on promo-code resale fraud rather than degrading the product, and an executive publicly denied the free tier was being intentionally throttled. For business buyers the relevant tier is Enterprise, which carries its own SLAs separate from consumer Pro limits.
 
 **So what:** Steer the conversation to Enterprise SLAs, where consumer rate-limit noise doesn't apply. ([techcrunch.com](https://techcrunch.com/2026/02/27/perplexitys-new-computer-is-another-bet-that-users-need-many-ai-models/))
+
+**"Google says Gemini 4 Argon beats everything on benchmarks. Why not just wait for that?"**
+
+Argon is real, but it is not something your team can put hands on. Google is rolling it out only to vetted cyber defenders through its Fairwind Program, with no public release date, and broader access to paid API customers and Google AI Ultra subscribers comes later still at introductory pricing of \$2 per million input and \$10 per million output tokens. Whatever a buyer could evaluate yesterday is exactly what they can evaluate today. Perplexity already routes across 19 models including Gemini, so a team gets the strongest available model for each task without waiting on Google's rollout schedule.
+
+**So what:** Tell the buyer to run their evaluation on what is actually available now, Gemini included, inside Perplexity's multi-model routing, instead of waiting on Argon's undated rollout. ([blog.google](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon/))
 
 ## Cut Log
 

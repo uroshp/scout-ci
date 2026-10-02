@@ -1,27 +1,26 @@
 [
   {
     "subject_key": "perplexity-vs-google | competitive-frame | 2026",
-    "claim": "**Pick the best model for each task, and keep the freedom to switch vendors.**\n\nGemini 3.5 Pro just slipped to July and Google lost four senior Gemini and AlphaFold researchers in two weeks. Perplexity runs across 19 models including Claude and GPT, so each task goes to the model that handles it best.\n\n**Soundbite:** \"Use the best model for each task, and switch the moment a better one ships. No vendor lock-in.\"\n\n**So what:** Ask which models their teams rely on today, then show all of them available through Perplexity, so a slip or price hike from any single vendor never stalls their work.",
+    "claim": "**Pick the best model for each task, and keep the freedom to switch vendors.**\n\nGoogle shipped Gemini 4 Argon on September 30, its first flagship frontier model since February, but it is locked to vetted cyber defenders in Google's Fairwind Program with no public release date, so no buyer can evaluate or buy it yet. Google also lost four senior Gemini and AlphaFold researchers in two weeks. Perplexity runs across 19 models including Claude and GPT, so each task goes to the model that handles it best, Gemini included once it is actually available.\n\n**Soundbite:** \"Use the best model for each task, and switch the moment a better one ships. No vendor lock-in.\"\n\n**So what:** Ask which models their teams rely on today, then show all of them available through Perplexity, so a slip or price hike from any single vendor never stalls their work.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 1,
-    "source_url": "https://techcrunch.com/2026/06/24/ai-researchers-continue-to-leave-google-deepmind/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Just one year after its debut, AI Mode has surpassed one billion monthly users, with queries more than doubling every quarter since launch.",
-    "as_of": "2026-06-24",
+    "as_of": "2026-09-30",
     "confidence": "high",
     "id": "c_008fe507dba8",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-06",
-      "detail": null
-    },
-    "updated_on": "2026-06-27",
-    "source_class": "news"
+    "updated_on": "2026-10-02",
+    "source_class": "news",
+    "derived_from": "c_e8ae5a7a745d",
+    "provenance": {
+      "source_url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon/",
+      "source_tier": "primary",
+      "as_of": "2026-09-30",
+      "fact_id": "c_e8ae5a7a745d",
+      "stamped_on": "2026-10-02",
+      "source_class": "company_statement"
+    }
   },
   {
     "subject_key": "perplexity | legal-exposure | 2026",
@@ -853,27 +852,27 @@
   },
   {
     "subject_key": "google | battlecard | gemini-benchmark-strength",
-    "claim": "**Gemini 3 is a genuinely top-tier model: concede the benchmark fight and win the trust fight.**\n\nGemini 3 Pro topped LMArena at 1501 Elo with PhD-level reasoning scores; Perplexity builds no frontier model of its own. For benchmark-driven technical buyers this is Google's strongest card, so pivot from raw model scores to answer accuracy, citations and the freedom to use Gemini inside Perplexity when it's the best fit.\n\n**Soundbite:** *\"We pick the best model for each task, so you always get the strongest answer without managing any of it.\"*",
-    "claim_type": "fact",
+    "claim": "**Gemini is a genuinely top-tier model family: concede the benchmark fight and win the trust fight.**\n\nGemini 3 Pro topped LMArena at 1501 Elo with PhD-level reasoning scores, and Google's new Gemini 4 Argon claims benchmark leads in long-horizon coding, finance and legal work with a 1 million token output limit. Perplexity builds no frontier model of its own. But Argon ships only to vetted cyber defenders in Google's Fairwind Program with no public release date, so it is not yet something a buyer can evaluate or run. For benchmark-driven technical buyers this is still Google's strongest card, so pivot from raw model scores to answer accuracy, citations and the freedom to use Gemini inside Perplexity when it's the best fit.\n\n**Soundbite:** \"We pick the best model for each task, so you always get the strongest answer without managing any of it.\"",
+    "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_they_win",
     "order": 1,
-    "source_url": "https://blog.google/products/gemini/gemini-3/",
-    "source_tier": "primary",
-    "evidence_excerpt": "It tops the LMArena Leaderboard with a breakthrough score of 1501 Elo.",
-    "as_of": "2025-11-18",
+    "as_of": "2026-09-30",
     "confidence": "high",
     "persona": "technical_evaluator",
     "id": "c_49e406ca9a75",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-06",
-      "detail": null
-    },
-    "source_class": "company_statement"
+    "source_class": "company_statement",
+    "updated_on": "2026-10-02",
+    "derived_from": "c_e8ae5a7a745d",
+    "provenance": {
+      "source_url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon/",
+      "source_tier": "primary",
+      "as_of": "2026-09-30",
+      "fact_id": "c_e8ae5a7a745d",
+      "stamped_on": "2026-10-02",
+      "source_class": "company_statement"
+    }
   },
   {
     "subject_key": "google | battlecard | workspace-lockin",
@@ -1804,5 +1803,60 @@
       }
     ],
     "source_class": "company_statement"
+  },
+  {
+    "subject_key": "google | ai-model-release | gemini-4-argon",
+    "claim": "On September 30, 2026 Google launched Gemini 4 Argon, its first flagship frontier model since February, saying it leads benchmarks in long-horizon coding, finance and legal work and lifting the output limit to 1 million tokens. Access is restricted to vetted cyber defenders in Google's Fairwind Program with no public release date; broader access begins later with paid API customers and Google AI Ultra subscribers, at an introductory $2 per million input and $10 per million output tokens (rising to $4 and $20).",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon/",
+    "source_tier": "primary",
+    "evidence_excerpt": "announcing our new frontier model, Gemini 4 Argon, which is rolling out to a set of trusted cyber defenders through our Fairwind Program",
+    "as_of": "2026-09-30",
+    "confidence": "high",
+    "id": "c_e8ae5a7a745d",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-02",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://uk.finance.yahoo.com/news/google-unveils-gemini-4-argon-160500757.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "news"
+      }
+    ],
+    "source_class": "company_statement"
+  },
+  {
+    "id": "c_3ed2d25b7b4e",
+    "subject_key": "objection | google-gemini-4-argon-not-buyable",
+    "claim": "**\"Google says Gemini 4 Argon beats everything on benchmarks. Why not just wait for that?\"**\n\nArgon is real, but it is not something your team can put hands on. Google is rolling it out only to vetted cyber defenders through its Fairwind Program, with no public release date, and broader access to paid API customers and Google AI Ultra subscribers comes later still at introductory pricing of $2 per million input and $10 per million output tokens. Whatever a buyer could evaluate yesterday is exactly what they can evaluate today. Perplexity already routes across 19 models including Gemini, so a team gets the strongest available model for each task without waiting on Google's rollout schedule.\n\n**So what:** Tell the buyer to run their evaluation on what is actually available now, Gemini included, inside Perplexity's multi-model routing, instead of waiting on Argon's undated rollout.",
+    "claim_type": "interpretation",
+    "section": "objection_handling",
+    "zone": null,
+    "order": 7,
+    "as_of": "2026-09-30",
+    "updated_on": "2026-10-02",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_e8ae5a7a745d",
+    "persona": "technical_evaluator",
+    "provenance": {
+      "source_url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon/",
+      "source_tier": "primary",
+      "as_of": "2026-09-30",
+      "fact_id": "c_e8ae5a7a745d",
+      "stamped_on": "2026-10-02",
+      "source_class": "company_statement"
+    }
   }
 ]

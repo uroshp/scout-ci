@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-10-01T11:09:56",
+  "last_checked": "2026-10-02T11:07:23",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -38,5 +38,5 @@
     "google-cloud | geographic-expansion | gemini-enterprise-brazil-2026-10"
   ],
   "unresolved_since": "2026-09-30",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2
 }
