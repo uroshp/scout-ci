@@ -53,7 +53,9 @@ class Routes(unittest.TestCase):
 
     def test_app_bar_marks_the_active_page(self):
         c = _client()
-        self.assertIn('href="/briefs" class="sc-navlink on"', c.get("/").data.decode())
+        home = c.get("/").data.decode()
+        self.assertIn('All Briefs <span class="sc-cnt">', home)
+        self.assertIn('href="/briefs">See all briefs', home)
         self.assertIn('class="sc-btn sc-pri on" href="/create"', c.get("/create").data.decode())
         card = c.get(f"/c/{self.slug}").data.decode()
         self.assertIn(f'class="sc-tab on" href="/c/{self.slug}"', card)      # the current brief's tab
