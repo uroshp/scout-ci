@@ -961,10 +961,16 @@ _OVERRIDES = """
 #scout-page .sc-btn.sc-quiet{border-color:transparent;background:transparent;color:var(--accent-deep);padding:0 8px}
 #scout-page .sc-btn.sc-quiet:hover{background:var(--accent-soft);border-color:transparent}
 #scout-page .sc-btn svg{width:15px;height:15px;flex:none}
-#scout-page details.sc-menu{display:none;position:relative;margin-left:6px}
-#scout-page details.sc-menu>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+#scout-page details.sc-menu{display:block;position:relative}
+#scout-page details.sc-menu>summary{list-style:none;cursor:pointer}
+#scout-page details.sc-menu>summary .cv{font-family:var(--mono);font-size:11px;color:var(--accent-deep);margin-left:2px;transition:transform .15s}
+#scout-page details.sc-menu[open]>summary .cv{transform:rotate(180deg)}
+#scout-page details.sc-menu[open]>summary{background:var(--accent-soft)}
+#scout-page .sc-dd a.on{background:var(--accent-deep);color:#fff}
+#scout-page .sc-dd a.on small{color:rgba(255,255,255,.8)}
+#scout-page .sc-dd a.sc-see{border-top:1px solid var(--line2);margin-top:4px;padding-top:9px;color:var(--accent-deep);font-weight:600}
+#scout-page .sc-dd a.sc-phone-only{display:none}
 #scout-page details.sc-menu>summary::-webkit-details-marker{display:none}
-#scout-page details.sc-menu>summary svg{width:16px;height:16px}
 #scout-page .sc-dd{position:absolute;top:calc(100% + 6px);right:0;z-index:60;min-width:280px;max-height:70vh;overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:6px;box-shadow:0 8px 24px rgba(28,29,22,.10)}
 #scout-page .sc-dd .mh{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 10px 3px}
 #scout-page .sc-dd input{width:100%;font:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--paper2);margin-bottom:4px}
@@ -1008,9 +1014,15 @@ _OVERRIDES = """
 @media(max-width:760px){
   #scout-page .sc-bar{min-height:54px;gap:10px}
   #scout-page .sc-brand .nm{font-size:22px}
-  #scout-page .sc-nav .sc-navlink{display:none}
-  #scout-page .sc-btn.sc-pri{padding:0 12px;margin-left:0}
-  #scout-page details.sc-menu{display:block}
+  #scout-page .sc-nav > a.sc-navlink{display:none}
+  #scout-page .sc-btn.sc-pri{padding:0 10px;margin-left:0}
+  #scout-page .sc-btn.sc-pri .lbl{display:none}
+  #scout-page .sc-btn.sc-pri::after{content:"Create"}
+  #scout-page .sc-dd a.sc-phone-only{display:flex}
+  #scout-page .sc-dd{position:fixed;left:12px;right:12px;top:64px;min-width:0;max-height:72vh}
+  #scout-page .sc-dd a{flex-direction:column;align-items:flex-start;gap:1px;white-space:normal;padding:8px 10px}
+  #scout-page .sc-dd a small{font-size:12px}
+  #scout-page .sc-dd a.sc-see,#scout-page .sc-dd a.sc-phone-only{flex-direction:row}
   #scout-page .wrap.wrap{padding-left:14px;padding-right:14px}
   #scout-page .sc-lead{padding-top:8px}
   #scout-page .sc-statement{font-size:14px;max-width:none}
@@ -1387,21 +1399,25 @@ def masthead_html(cards: list | None = None, slug: str | None = None, mode: str 
     except Exception:
         panel = ""
     n = len(cards)
-    cnt = f' <span class="sc-cnt">{n}</span>' if n else ""
     how = ('<a href="#how" class="sc-navlink" data-how aria-expanded="false" aria-controls="how">How it works</a>'
            if panel else "")
-    menu_items = "".join(f'<a href="/c/{_html.escape(c)}">{_html.escape(_name(brief_parts(store.load_meta(c))[0]) or c)}'
-                         f'<small> for {_html.escape(_name(brief_parts(store.load_meta(c))[1]))}</small></a>'
-                         for c in cards)
-    phone_menu = ('<details class="sc-menu" id="sc-menu"><summary aria-label="Menu">' + _ICON_MENU + '</summary>'
-                  '<div class="sc-dd"><div class="mh">Briefs</div>' + menu_items
-                  + ('<div class="mh">About</div><a href="#how" data-how aria-expanded="false">How it works</a>' if panel else "")
+    items = []
+    for c in cards:
+        comp, mine, area = brief_parts(store.load_meta(c))
+        items.append(f'<a href="/c/{_html.escape(c)}"{" class=\"on\" aria-current=\"page\"" if c == slug else ""}>'
+                     f'{_html.escape(_name(comp) or c)}<small>for {_html.escape(_name(mine))} &middot; {_html.escape(area)}</small></a>')
+    # "All Briefs (N) ▾": the one control that says there are others, on every width (2026-10-02 evening)
+    all_briefs = ('<details class="sc-menu" id="sc-menu"><summary class="sc-navlink">All Briefs '
+                  f'<span class="sc-cnt">{n}</span><span class="cv">&#9662;</span></summary>'
+                  '<div class="sc-dd">' + "".join(items)
+                  + '<a class="sc-see" href="/briefs">See all briefs as cards</a>'
+                  + ('<a class="sc-phone-only" href="#how" data-how aria-expanded="false">How it works</a>' if panel else "")
                   + '</div></details>')
     bar = ('<div class="sc-bar"><a class="sc-brand" href="/"><span class="d"></span><span class="nm">Agent Scout</span></a>'
            '<nav class="sc-nav" aria-label="Site">'
-           f'<a href="/briefs" class="sc-navlink{" on" if mode == "cards" else ""}">Briefs{cnt}</a>{how}'
-           f'<a class="sc-btn sc-pri{" on" if mode == "create" else ""}" href="/create">{_ICON_PLUS}Create your own</a>'
-           f'{phone_menu}</nav></div>')
+           f'{all_briefs}{how}'
+           f'<a class="sc-btn sc-pri{" on" if mode == "create" else ""}" href="/create">{_ICON_PLUS}<span class="lbl">Create your own</span></a>'
+           '</nav></div>')
     lead = f'<div class="sc-lead"><div class="sc-statement">{_STATEMENT}</div></div>'
     strip = strip_html(cards, slug) if slug else ""
     return ('<div id="scout-page"><div class="wrap mast">' + bar + lead + panel + strip + '</div></div>'
