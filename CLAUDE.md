@@ -46,7 +46,7 @@ No build step, no linter. v2 has a focused stdlib-`unittest` suite in `v2/tests/
 The pipeline is a **fixed control flow written in code** (`research_competitor`): `generate_brief` → `verify_brief` → `save_report`. This is deliberate (v1 is a pipeline, not an agent — see Roadmap in README). Both passes are single `client.messages.create` calls with the Anthropic **web search tool** enabled.
 
 - **`v1/research.py`** — the engine. Two large prompts (`generate_brief`, `verify_brief`) that share three constants injected into both: `SOURCE_HIERARCHY` (a typed trust ladder — Tier 1A audited fact vs 1B self-positioning vs 2E analyst estimate vs 4 raw sentiment; the prompts forbid blurring fact / company-claim / estimate / sentiment), `FORMATTING_RULES`, and the contents of `v1/methodology.md`. `verify_brief` is adversarial by design — it re-searches the draft's claims and returns only survivors plus the Cut Log.
-- **`v1/methodology.md`** — the CI discipline the model is held to, kept as a plain-English spec **out of code on purpose** so it can be edited without touching the engine. Loaded at runtime by `load_methodology()` and embedded in the generate prompt.
+- **The methodology and every prompt** (v1 and v2) live in the PRIVATE judgment pack (`judgment/pack.json` in the private data repo), loaded through `v2/scout/judgment.py`. They are not in this repo. v1's `generate_brief` / `verify_brief` are retired stubs.
 - **`v1/app.py`** — Streamlit UI: password gate, two tabs (sample reports / run-your-own), daily run limit, fake progress messages. Calls the same engine functions.
 - **`v1/reports/`** — committed sample briefs. The in-app "Sample Reports" dropdown reads directly from this directory (`list_samples` parses the `Label_vs_Label_DATE_TIME.md` filename convention). New live runs also save here via `save_report`.
 
@@ -59,6 +59,16 @@ Anything **deterministically fixable is fixed in code; anything requiring judgme
 - `_from_title` / `_extract` (v1/research.py) — `_extract` rebuilds prose from response content blocks and appends **real** source links pulled from the web_search tool's citation objects (URLs the model cannot fabricate); `_from_title` guarantees the saved brief starts at the report title even if the model adds preamble.
 
 Don't ask the model to do work these functions already handle reliably, and don't move judgment work (analysis, sourcing, what to cut) into code.
+
+## The judgment pack (2026-10-02)
+
+Scout's instruction text is private. Modules name their blocks (`_JUDGE_SYSTEM = judgment.get("propagate._JUDGE_SYSTEM")`);
+the text is in `judgment/pack.json` (private repo; `rc/judgment/pack.json` for rc). Rules when editing:
+
+- NEVER paste prompt or methodology text into this repo (code, tests, docs, commit messages).
+- Edit a block in the private repo's checkout (`~/code/scout-user-data/judgment/pack.json`) via `python scripts/judgment_pack.py` (run from `v2/`); a changed pack version opens a new eval period.
+- `python scripts/judgment_pack.py verify` must report every block byte-identical to its frozen hash after any refactor that touches a block's call site.
+- Every model-call choke point calls `judgment.require()` and `judgment.assert_clean(...)`; keep that when adding one.
 
 ## Conventions specific to this repo
 

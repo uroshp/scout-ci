@@ -202,6 +202,7 @@ def record_from(prompt: str, options, top_role: str) -> dict:
     mcp = getattr(options, "mcp_servers", None) or {}
     return {
         "schema_version": SCHEMA_VERSION,
+        "judgment_version": _judgment_version(),          # which private pack produced this prompt
         "call_id": _call_id(run.get("run_ts", ""), seq, top_role, prompt),
         "seq": seq, "run_ts": run.get("run_ts"), "source": run.get("source"),
         "slug": _CTX.get("slug"), "phase": _CTX.get("phase"),
@@ -337,6 +338,14 @@ def start(top_role: str, prompt: str, options) -> _Capture | None:
         return _Capture(rec)
     except Exception as e:
         print(f"[calllog] start skipped ({type(e).__name__}: {e})", file=sys.stderr)
+        return None
+
+
+def _judgment_version():
+    try:
+        from scout import judgment
+        return judgment.version()
+    except Exception:
         return None
 
 

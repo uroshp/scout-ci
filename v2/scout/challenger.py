@@ -32,26 +32,14 @@ from claude_agent_sdk import ClaudeAgentOptions
 
 from scout import config, selfserve
 from scout.generate import _drive, _extract_json
+from scout import judgment
 
 SCHEMA_VERSION = 1
 SHADOW_EVAL_DIR = "shadow_eval"
 LABELS_PATH = "shadow_eval/challenger_labels.jsonl"   # human adjudication of disagreements (delta_id -> agree|disagree)
 
 _CHALLENGER_SYSTEM = (
-    "You are an independent verification judge for a competitive-intelligence pipeline. For each "
-    "CLAIM you are given, decide whether it should SURVIVE verification (keep) or be removed (cut), "
-    "judged ONLY on whether the supplied evidence credibly and specifically supports the claim from "
-    "a trustworthy source. Be adversarial about groundedness: cut a claim whose evidence is a weak "
-    "aggregator, second-hand/proxy attribution, an unverifiable figure, or an excerpt that does not "
-    "actually state what the claim asserts; keep a claim whose evidence is specific, on-point, and "
-    "from a credible (primary or tier-1) source. Judge each claim ON ITS OWN MERITS — do not defer "
-    "to any prior note about it. Reason only from what you are given; you have no tools and must not "
-    "assume facts not present."
-" Some items carry a supporting_fact: those are INTERPRETATIONS (plays, objections, summaries) grounded on that fact, not on an excerpt of their own — for them, judge whether the interpretation is SUPPORTED by the supporting_fact and its excerpt (cut if it asserts a number, entity, or causal claim the fact does not license; do not cut merely because the excerpt is a fragment of the fact). "
-    "Return ONLY a JSON object:\n"
-    '{"verdicts": [{"item_id": "<id>", "verdict": "keep" | "cut", '
-    '"reason": "<one sentence>", "confidence": "high" | "medium" | "low"}]}\n'
-    "Return exactly one verdict per item_id you were given."
+    judgment.get("challenger._CHALLENGER_SYSTEM")
 )
 
 # Neutral variant — used by the prompt-bias A/B (decision-log §11). Same task, but NOT adversarial,
@@ -59,19 +47,7 @@ _CHALLENGER_SYSTEM = (
 # snippets, so it should not cut merely because the excerpt is partial. If the slop count collapses
 # under this prompt, the adversarial framing + single-excerpt capture were driving the disagreements.
 _CHALLENGER_SYSTEM_NEUTRAL = (
-    "You are a verification judge for a competitive-intelligence pipeline. For each CLAIM, decide "
-    "whether it should SURVIVE verification (keep) or be removed (cut). KEEP a claim if the supplied "
-    "evidence reasonably supports its core assertion from a credible source. CUT only when the "
-    "evidence clearly fails to support the core assertion, or the source is untrustworthy. IMPORTANT: "
-    "the excerpt you are shown may be just ONE of several snippets that grounded the claim — do NOT "
-    "cut a claim merely because this single excerpt omits some sub-detail or figure; cut only if the "
-    "core assertion is clearly unsupported or contradicted. Reason only from what you are given; you "
-    "have no tools."
-" Some items carry a supporting_fact: those are INTERPRETATIONS (plays, objections, summaries) grounded on that fact, not on an excerpt of their own — for them, judge whether the interpretation is SUPPORTED by the supporting_fact and its excerpt (cut if it asserts a number, entity, or causal claim the fact does not license; do not cut merely because the excerpt is a fragment of the fact). "
-    "Return ONLY a JSON object:\n"
-    '{"verdicts": [{"item_id": "<id>", "verdict": "keep" | "cut", '
-    '"reason": "<one sentence>", "confidence": "high" | "medium" | "low"}]}\n'
-    "Return exactly one verdict per item_id you were given."
+    judgment.get("challenger._CHALLENGER_SYSTEM_NEUTRAL")
 )
 _SYSTEMS = {"adversarial": _CHALLENGER_SYSTEM, "neutral": _CHALLENGER_SYSTEM_NEUTRAL}
 

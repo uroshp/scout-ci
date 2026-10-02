@@ -21,24 +21,12 @@ import sys
 from datetime import datetime
 
 from scout import config, schema, selfserve
+from scout import judgment
 
 PENDING_DIR = "pending_publish"
 
 _REFORMAT_SYSTEM = (
-    "You reformat a competitive-battlecard claim so it renders correctly, WITHOUT changing its "
-    "substance. The claim has one or both of these render-contract problems:\n"
-    "- MISSING BLOCK: an objection_handling OR executive_summary claim must end with a block "
-    "beginning literally '**So what:**' that states the move/decision the claim implies (pull it "
-    "from the claim's closing sentences into that block); a where_we_win / where_they_win "
-    "battlecard play must end with a block beginning literally '**Soundbite:**' giving one "
-    "rep-ready sentence (derive it from the claim's own headline/body).\n"
-    "- OVER THE WORD CAP: the claim buries its answer in accreted history. CONDENSE it: lead with "
-    "the CURRENT state; keep every number, date, name, and source-anchored fact that is STILL true; "
-    "collapse resolved intermediate beats (an on-off saga, superseded interim rulings) into at most "
-    "one sentence of arc; keep the bold headline/question and the required block. NEVER invent "
-    "anything, never drop a still-true current fact — cut only redundancy and resolved history.\n"
-    "Return ONLY JSON: {\"claim\": \"<the reformatted claim text, including the bold "
-    "headline/question and the required block>\"}."
+    judgment.get("reformat._REFORMAT_SYSTEM")
 )
 
 
@@ -93,18 +81,7 @@ def reformat_claim(claim_text: str, section: str, zone=None, tries: int = 2,
 # -> the op is HELD (never published), mirroring the pipeline judge's posture.
 
 _CONDENSE_VERIFY_SYSTEM = (
-    "You are a fidelity judge. A competitive-battlecard claim that was ALREADY verified for factual "
-    "grounding has been CONDENSED to fit a word cap. Compare the CONDENSED text against the ORIGINAL "
-    "(the ground truth) and confirm ONLY if all hold:\n"
-    "- every number, date, name, and source-anchored fact still true in the original survives in the "
-    "condensed text (compressing resolved history into a one-line arc is CORRECT, deleting a "
-    "still-true current fact is not);\n"
-    "- nothing was invented: no number, mechanism, entity, or causal reason appears in the condensed "
-    "text that the original does not contain;\n"
-    "- the bold headline/question and any required '**So what:**' / '**Soundbite:**' block survive;\n"
-    "- the meaning and competitive direction of the claim are unchanged.\n"
-    "DEFAULT TO REJECT when not convinced. Return ONLY JSON: "
-    '{"verdict": "confirm|reject", "reason": "<one line>"}'
+    judgment.get("reformat._CONDENSE_VERIFY_SYSTEM")
 )
 
 
@@ -164,14 +141,14 @@ def classify_persona(claim_text: str, section: str, zone=None) -> str | None:
     import anthropic
     from scout import schema as _schema
     personas = list(_schema.PERSONAS)
-    sys_prompt = ("Tag a competitive-battlecard play or objection with the SINGLE buyer persona it is "
-                  "primarily aimed at (or that tends to raise the objection). Choose exactly one of: "
-                  + ", ".join(personas) + ". Use the assign_persona tool.")
+    sys_prompt = (judgment.text("reformat._PERSONA_SYSTEM", {"', '.join(personas)": ', '.join(personas)}))
     import time as _time
     from scout import calllog
     user = f"section={section} zone={zone}\n\n{claim_text}"
     t0 = _time.monotonic()
     try:
+        judgment.require()                          # no model call without the judgment pack
+        judgment.assert_clean(sys_prompt, user)
         client = anthropic.Anthropic()
         msg = client.messages.create(
             model=config.FAST_MODEL, max_tokens=200,

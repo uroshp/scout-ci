@@ -36,6 +36,7 @@ from scout.fetch_tool import (
 )
 from scout.render import claims_to_markdown, render_cut_log, clean_output, format_report
 from scout.store import make_slug, new_meta, write_baseline
+from scout import judgment
 
 # How much of a failed page's REAL (httpx) text to hand the retry agent to re-extract
 # a verbatim span from. Bounds tokens; a supporting span beyond this -> the claim drops.
@@ -45,29 +46,7 @@ RETRY_PAGE_CHARS = 18000
 RESEARCHER = AgentDefinition(
     description="Researches a company by searching and READING sources.",
     prompt=(
-        "You are a competitive-intelligence researcher. Use WebSearch to find recent, "
-        "reputable NEWS and the fetch_page tool to READ it (pass query = the specific thing "
-        "you're looking for). fetch_page returns the REAL page text, so copy a short VERBATIM "
-        "span from it that supports each finding, and report the exact URL you read. Do NOT use "
-        "any other web-fetch tool.\n"
-        "RECENCY SWEEP (do this FIRST and explicitly): the user prompt gives today's date. Search "
-        "for what has happened in roughly the LAST 2-3 WEEKS — IPO/funding/filings, launches, "
-        "partnership changes, pricing/limit changes, exec moves. Use date-scoped queries (e.g. "
-        "'<company> news <current month year>'). If the freshest thing you find is weeks old, "
-        "search harder — you are missing the story.\n"
-        "HUNT ADVERSE SIGNALS on BOTH companies, not just wins: deliberately search for the bad "
-        "news that moves the competitive picture — contract cancellations, customers "
-        "churning/defecting, budget caps or usage limits being hit, outages, layoffs, lawsuits, "
-        "lost deals, downgrades. Scan adverse developments for the COMPETITOR *and* for OUR OWN "
-        "side (the company we're selling for) — e.g. a major customer dropping OUR product is a "
-        "buyer objection the rep must be ready for, so surface it explicitly with its source. A "
-        "researcher who returns only positive announcements, or only the competitor's bad news, "
-        "has failed.\n"
-        "SOURCES: anchor on reputable news outlets (Reuters, Bloomberg, The Information, CNBC, "
-        "TechCrunch, major outlets) or primary documents. NEVER use Wikipedia, wikis, "
-        "encyclopedias (Britannica, Fandom), or promo/SEO listicles and aggregators — they are "
-        "excluded. Prefer sources a plain HTTP client can fetch over hard-paywalled ones. Return "
-        "concise, sourced findings — not prose."
+        judgment.get("generate.RESEARCHER.prompt")
     ),
     tools=["WebSearch", FETCH_TOOL_NAME, *sources_tool.names()],
     model=config.SUBAGENT_MODEL,
@@ -76,151 +55,21 @@ RESEARCHER = AgentDefinition(
 VERIFIER = AgentDefinition(
     description="Independently fact-checks each claim like a news editor.",
     prompt=(
-        "You are the verification layer — fact-check each candidate claim the way a news editor "
-        "would, not by confirming a string sits on some page. For each claim, independently "
-        "re-search and use fetch_page to READ the source (pass query = the claim's key fact). "
-        "fetch_page returns the REAL page text. Do NOT use any other web-fetch tool.\n"
-        "CHECK CURRENCY, not just support: actively search for the LATEST status and for "
-        "DISCONFIRMING reports — e.g. for any 'current / flagship / exists / ongoing' claim, "
-        "search '<thing> discontinued OR cancelled OR sunset OR shut down'. If recent reporting "
-        "supersedes or contradicts the claim, REVISE it to the current truth or CUT it. A claim "
-        "that was true months ago but is now stale must not survive.\n"
-        "SOURCE DISCIPLINE: every Recent-Strategic-Moves item and every status/current-state claim "
-        "must anchor on a reputable NEWS outlet (Reuters, Bloomberg, The Information, CNBC, "
-        "TechCrunch, major outlet) or a primary filing. REJECT and re-source anything anchored on "
-        "Wikipedia, a wiki, an encyclopedia (Britannica/Fandom), or a promo/SEO listicle or "
-        "aggregator — those are excluded; find the originating reputable source or cut.\n"
-        "Keep only what is verifiable, current, specific, and decision-relevant. Copy the exact "
-        "VERBATIM span (from fetch_page's output) backing each kept claim. Record every cut or "
-        "revision. Your support judgment is separate from the later mechanical grounding check — "
-        "do your job even though grounding will re-check the excerpt."
+        judgment.get("generate.VERIFIER.prompt")
     ),
     tools=["WebSearch", FETCH_TOOL_NAME, *sources_tool.names()],
     model=config.SUBAGENT_MODEL,
 )
 
 # --- The claim contract the orchestrator must emit ----------------------------
-SUBJECT_KEY_GUIDE = f"""SUBJECT_KEY (stable identity — read carefully, monitoring depends on it):
-Every claim has a `subject_key`: a canonical, value-INDEPENDENT description of WHAT THE
-CLAIM IS ABOUT, in the form `entity | attribute | qualifier`. It must be reproducible:
-the same fact must get the same subject_key on every run, so a later run can update it.
+SUBJECT_KEY_GUIDE = judgment.get("generate.SUBJECT_KEY_GUIDE")
 
-- Use this controlled attribute vocabulary where it fits (extend only when needed, in the
-  same lowercase-hyphen style): fy-revenue, q-revenue, revenue-run-rate, net-income,
-  operating-income, valuation, funding-total, latest-funding-round, market-share, headcount,
-  ceo, cto, key-hire, key-departure, flagship-model, flagship-product, list-price,
-  pricing-model, launch, partnership, acquisition, security-incident, legal-action,
-  positioning, differentiator, integration, certification.
-- Qualifier decides update-vs-new: use `current`/`latest` for the present holder of a role,
-  price, or flagship (so a change UPDATES in place — e.g. `aws | ceo | current`). Use a fixed
-  period only when a new period is genuinely a new fact (e.g. `aws | fy-revenue | 2025`).
-- NEVER put the value in the subject_key: `aws | fy-revenue | 2025`, never `...| 128.7b`.
-- subject_key must be UNIQUE within this brief — it is the dedup key. Two different claims
-  must never share one. If a subject belongs in two sections, it is ONE claim, rendered once.
-"""
-
-CLAIM_CONTRACT = f"""Emit each claim as a JSON object with EXACTLY these fields (no others):
-- "subject_key": see the SUBJECT_KEY guide.
-- "claim": the claim as it should read in the brief, including its current value/number.
-- "claim_type": one of "fact" | "interpretation" | "sentiment". A "fact" may NOT rest on a
-  sentiment-only source.
-- "section": one of {SECTIONS}.
-- "zone": for section "battlecard" ONLY, one of {ZONES}; for every other section, null.
-- "order": integer >= 0, the sort order within its section (and zone), most important first.
-- "source_url": the SINGLE load-bearing source for this claim (one source per claim).
-- "source_tier": "primary" (filings/transcripts/contracts) | "reputable_secondary"
-  (reputable news / analyst-estimate, labeled) | "sentiment_only" (reviews/forums).
-- "evidence_excerpt": a VERBATIM span (>= 40 characters) copied CHARACTER-FOR-CHARACTER from
-  the page at source_url — the span that backs the claim. This is non-negotiable: a
-  deterministic check will RE-FETCH source_url and require this excerpt to literally appear on
-  the page. If you paraphrase, tighten, or stitch it, the claim WILL BE CUT. Copy, do not write.
-- "as_of": the date the fact is true as-of / the source's date, "YYYY-MM-DD" (required for facts).
-- "persona" (battlecard + objection_handling ONLY — REQUIRED on EVERY claim in those two
-  sections; omit for every other section): the primary buyer persona this play is aimed at, or
-  that tends to raise this objection — one of "eng_led" | "technical_evaluator" |
-  "economic_buyer" | "security_regulated" | "exec_top_down". Every battlecard play and every
-  objection MUST carry one; pick the single best fit from the "for which buyer" reasoning you
-  already do — never leave it blank for these sections, and do not invent new values.
-- "confidence": "high" | "medium" | "low".
-- "corroboration" (optional): a list of secondary sources confirming the SAME value, each
-  {{"source_url","source_tier","note","grounded":false}}. Never grounded; never the anchor.
-- "anchor_substitution" (optional): include ONLY if the best (higher-tier) source is unfetchable
-  by a plain HTTP client (hard paywall, Cloudflare) AND you read both it and a
-  fetchable agreeing source. Then make the FETCHABLE source the anchor (source_url/excerpt),
-  put the unfetchable one in corroboration, and set
-  {{"preferred_url","preferred_tier","agreement_verified":true,"note"}}.
-  GUARD: substitution is for FETCH WEAKNESS ONLY. If the two sources CONFLICT, do NOT
-  substitute — revise per the hierarchy/recency rules or cut, and log it in the cut log.
-
-Do NOT include "id", "verified", or "grounding" — those are filled deterministically downstream.
-
-GROUNDABILITY: prefer source_url values a plain HTTP client can read. Avoid anchoring on hard
-paywalls or Cloudflare-walled pages; use a fetchable reputable source as the anchor and keep the
-stronger one as corroboration. SEC.gov IS fetchable (the fetcher sends the SEC's required contact
-User-Agent, 2026-09-28): a filing document or an EDGAR XBRL fact is the strongest anchor there is.
-
-SOURCING DISCIPLINE (enforced): every "recent_moves" claim and every status/current-state claim
-(current/flagship/latest, a launch, a cancellation, a price/limit change) MUST anchor source_url
-on a reputable NEWS outlet (Tier 2) or a primary filing/announcement (Tier 1). NEVER anchor any
-claim on Wikipedia, a wiki, an encyclopedia (Britannica/Fandom), or a promo/SEO listicle or
-aggregator — a deterministic check CUTS any claim anchored on a wiki/encyclopedia domain, so it
-will not survive. An ADVERSE fact about the competitor (a cancellation, a loss, churn) should
-trace to independent reporting, not only the affected company's own PR.
-
-Three sections — EXECUTIVE SUMMARY, COMPETITIVE BATTLECARD (every zone), and OBJECTION HANDLING —
-are authored as short PROSE BLOCKS inside the single "claim" string, NOT as bullets. Natural,
-human writing a person would actually say, not a terse spec-sheet line. Keep the analysis sharp and
-the "so what" intact; just warm the language (see the Voice and tone methodology section).
-
-EXACT BLOCK SHAPE — every such "claim" string is THREE visually separate parts, each separated by a
-genuine BLANK LINE (\\n\\n), never blended into one paragraph. Do NOT start the block with "- ":
-
-  **<bolded one-line title>**
-
-  <a 1-2 sentence paragraph in plain, human language>
-
-  **<label>:** <closing line>
-
-The parts by section:
-- EXECUTIVE SUMMARY: title = the verdict; paragraph = the supporting detail; closing = "**So what:**"
-  + the concrete decision it changes. Every exec point needs its So what.
-- BATTLECARD (section "battlecard"): title = the edge in one line; paragraph = why it holds and for
-  which buyer. For a where_we_win / where_they_win PLAY, the closing = "**Soundbite:**" + an
-  italicized line a rep could say out loud, e.g. *"..."* (evidence-backed, never combative
-  trash-talk). A "contested" entry is a neutral framing, not a play, and may omit the Soundbite.
-- OBJECTION HANDLING (section "objection_handling"): title = the objection a prospect raises — citing
-  EITHER the competitor's strength OR an adverse development on OUR OWN side (a customer dropping our
-  product, our usage limits, a public setback); paragraph = an honest, evidence-based response that
-  pivots to a genuine strength; closing = "**So what:**" + the implication. Ground every objection in
-  a REAL surfaced fact, never invented — and never omit a real adverse fact a buyer would raise.
-
-TONE (all three): direct, confident, and human. NO combative or zero-sum phrasing — never "you will
-lose", "crush", "dominate", "they're finished". Confidence is a clear verdict with evidence behind
-it, not trash talk. A reader should find it sharp AND pleasant to read.
-"""
+CLAIM_CONTRACT = judgment.get("generate.CLAIM_CONTRACT", {'SECTIONS': SECTIONS, 'ZONES': ZONES})
 
 
 # Battlecard routing — generic (no names, so the system prompt stays cache-stable; the
 # dynamic "us vs them" identity arrives in the per-run user framing).
-ROUTING_RULES = """BATTLECARD ROUTING — this brief is a SALES WEAPON for OUR side, not neutral coverage
-of two companies. The inclusion test for EVERY event is: "does this change how OUR side WINS, LOSES,
-or HANDLES AN OBJECTION?" Scan what is happening to BOTH companies (two-sided input), but route every
-item asymmetrically as a "so what for us" — nothing appears as neutral trivia.
-
-- THE COMPETITOR's moves -> "recent_moves" (newest-first) and the battlecard zones, filtered to those
-  with a real competitive implication for us. A competitor event with no consequence for our position
-  does not belong.
-- OUR OWN side's POSITIVE / NEUTRAL events (our funding, our IPO filing, our launch) are NOT standalone
-  "recent_moves" items — we already know our own moves; listing them is noise. Include one ONLY where
-  it carries a competitive implication, framed as a so-what (e.g. our IPO filing -> objection-handling
-  ammunition for "is this vendor financially stable enough to bet on?"). If an own-side event has no
-  competitive so-what, OMIT it.
-- OUR OWN side's ADVERSE events a buyer would raise (a major customer dropping our product, our product
-  hitting usage limits, a public setback) -> "objection_handling": state the objection honestly and
-  give the rep an evidence-based answer and a real so-what. NEVER omit or bury these — the rep WILL be
-  asked (e.g. "I heard Microsoft pulled Claude Code from its dev teams" needs a ready answer).
-- "recent_moves" is for THE COMPETITOR, not for us — do not file our own news there.
-"""
+ROUTING_RULES = judgment.get("generate.ROUTING_RULES")
 
 
 def _framing(target, perspective, focus):
@@ -228,24 +77,12 @@ def _framing(target, perspective, focus):
     if perspective:
         title = f"# Competitive Intelligence Brief: {perspective} vs {target}"
         return (
-            f"You are arming {perspective}'s sales team against {target}.{foc} This brief is a "
-            f"SALES WEAPON FOR {perspective} — NOT neutral coverage of two companies. The inclusion "
-            f"test for ANY event is not 'is this recent news about either company?' but: 'does this "
-            f"change how {perspective} WINS, LOSES, or HANDLES AN OBJECTION against {target}?' Scan "
-            f"everything happening to BOTH companies (two-sided input), but frame every item as a "
-            f"'so what for {perspective}' (asymmetric output), and route it per the BATTLECARD "
-            f"ROUTING rules: {target}'s moves drive Recent Strategic Moves and the battlecard zones; "
-            f"{perspective}'s OWN adverse news a buyer would raise (e.g. a key customer dropping "
-            f"{perspective}'s product) goes in Objection Handling with an honest answer; "
-            f"{perspective}'s own positive news appears ONLY if it carries a competitive so-what. Be "
-            f"honest in both directions — do not assume {perspective} is superior; a weakness the rep "
-            f"must defend is as valuable as a strength.",
+            judgment.text("generate._FRAMING_VS", {'perspective': perspective, 'target': target, 'foc': foc}),
             title,
         )
     title = f"# Competitive Intelligence Brief: {target}"
     return (
-        f"You are a competitive-intelligence analyst researching {target} to produce a "
-        f"specific, evidence-grounded competitive intelligence brief.{foc}",
+        judgment.text("generate._FRAMING_SOLO", {'target': target, 'foc': foc}),
         title,
     )
 
@@ -254,98 +91,16 @@ def _orch_system():
     """STATIC orchestrator instructions -> the system prompt, so they're prompt-CACHED
     across the run's turns and across runs (free lever N), not re-billed every turn.
     Only the dynamic framing/title lives in the per-run user prompt."""
-    return f"""You are a competitive-intelligence analyst. You research a competitor and emit an
-evidence-grounded brief as structured claim objects plus a cut log.
-
-Follow this methodology exactly:
-
-<methodology>
-{load_methodology()}
-</methodology>
-
-{SOURCE_HIERARCHY}
-
-{WRITING_STYLE}
-
-{SUBJECT_KEY_GUIDE}
-
-{CLAIM_CONTRACT}
-
-{ROUTING_RULES}
-
-PROCESS: Plan the brief. Delegate research to your 'researcher' subagent and verification to your
-'verifier' subagent. DISPATCH THE SECTION RESEARCHERS AS A SINGLE PARALLEL BATCH — issue multiple
-Agent calls in ONE step (one per section: {SECTIONS}) rather than one at a time — then verify and
-synthesize. Run a final consistency sweep: the same entity/product/version named identically
-everywhere; one value per metric; every surviving claim carries a real source link; nothing in
-the cut log is also asserted as fact.
-
-OUTPUT: Your FINAL message must be a single fenced ```json code block and NOTHING else:
-{{
-  "title": "<use EXACTLY the title given in the user message>",
-  "claims": [ {{ ...claim objects per the contract... }} ],
-  "cut_log": [ {{ "action": "CUT" | "REVISED", "claim": "<short statement>", "reason": "<why>" }} ]
-}}
-Fewer, solid, sharp, ranked claims beat many weak ones. Every claim must be groundable."""
+    return judgment.text("generate._ORCH_SYSTEM", {'load_methodology()': load_methodology(), 'SOURCE_HIERARCHY': SOURCE_HIERARCHY, 'WRITING_STYLE': WRITING_STYLE, 'SUBJECT_KEY_GUIDE': SUBJECT_KEY_GUIDE, 'CLAIM_CONTRACT': CLAIM_CONTRACT, 'ROUTING_RULES': ROUTING_RULES, 'SECTIONS': SECTIONS})
 
 
 def _build_user_prompt(target, perspective, focus):
     framing, title = _framing(target, perspective, focus)
     today = date.today().isoformat()
-    return f"""{framing}
-
-TODAY'S DATE IS {today}. This brief must reflect the world as of today.
-- Run a RECENCY SWEEP: dispatch researchers to find what happened in the last ~2-3 weeks
-  (IPO/funding/filings, launches, partnership changes, pricing/limit changes, exec moves).
-  "Recent Strategic Moves" must LEAD with the newest items and cover that window — if your
-  newest item is weeks old, you have missed the story.
-- Surface ADVERSE / competitive-threat signals on BOTH companies, not just wins: cancellations,
-  customer churn, budget caps / usage limits hit, outages, layoffs, lawsuits, lost deals. Per the
-  ROUTING rules: the COMPETITOR's moves go in Recent Strategic Moves; OUR OWN side's adverse news a
-  buyer would raise (a customer dropping our product, our usage limits) goes in Objection Handling
-  with an honest answer — never omit it. Our own positive news appears only with a competitive so-what.
-- SOURCING DISCIPLINE: every Recent-Strategic-Moves item and every status/current-state claim
-  must cite a reputable NEWS outlet (Tier 2) or a primary filing (Tier 1). NEVER Wikipedia, a
-  wiki, an encyclopedia, or a promo/SEO listicle/aggregator — those are excluded and will be cut.
-
-Produce the competitive intelligence brief now, per your system instructions.
-Use EXACTLY this title in the output JSON:
-{title}"""
+    return judgment.text("generate._USER_PROMPT", {'framing': framing, 'today': today, 'title': title})
 
 
-RETRY_CONTRACT = """You are REPAIRING claims that failed an independent grounding check (a
-deterministic re-fetch of source_url that requires evidence_excerpt to appear verbatim on the
-page). For each item below, do ONE of: repair it, or drop it. Two failure modes:
-
-- status "absent": your previous excerpt was NOT found verbatim on the page. A `page_text`
-  field gives the ACTUAL text of that page as an INDEPENDENT fetcher sees it. Copy a NEW
-  evidence_excerpt VERBATIM from `page_text`, character-for-character, that genuinely supports
-  the claim. Do NOT copy from memory — only from `page_text`. If `page_text` contains no span
-  that supports the claim, DROP the claim.
-
-- status "unreachable": an independent HTTP client could not fetch source_url (it is bot-walled
-  or IP-blocked to the grounding fetcher). Use WebSearch + fetch_page to find a DIFFERENT
-  reputable source that (a) a plain HTTP client can fetch and (b) you VERIFY agrees with the
-  claim. Make it the new source_url with a verbatim excerpt; put the original source in
-  `corroboration`; set `anchor_substitution` with `agreement_verified: true`.
-  If you cannot find a fetchable AGREEING source, or the sources conflict, DROP the claim — do
-  not substitute a conflicting source.
-
-- status "excluded": source_url is a banned wiki/encyclopedia (Wikipedia, Fandom, Britannica,
-  etc.) — NEVER permitted as a source here. Use WebSearch + fetch_page to find a REPUTABLE NEWS
-  source (Reuters, Bloomberg, The Information, CNBC, TechCrunch, a major outlet) or a primary
-  filing that you VERIFY supports the claim, and make THAT the new source_url with a verbatim
-  excerpt. Do NOT keep the wiki source anywhere, not even in corroboration. If no reputable news
-  source supports it, DROP the claim — a fact that only a wiki asserts is not good enough here.
-
-Keep each repaired claim's subject_key, section, zone, order, claim_type unchanged. Emit full
-claim objects per the original contract (NO "id", "verified", or "grounding" fields).
-
-OUTPUT: your final message must be a single fenced ```json block and nothing else:
-{
-  "revised": [ { ...full claim object... } ],
-  "dropped": [ { "action": "CUT", "claim": "<short statement>", "reason": "<why it could not be repaired>" } ]
-}"""
+RETRY_CONTRACT = judgment.get("generate.RETRY_CONTRACT")
 
 
 def _build_retry_payload(failed):
@@ -535,6 +290,8 @@ def _merge_role_totals(by_role: dict) -> None:
 async def _drive(prompt: str, options, top_role: str) -> dict:
     """Run a query loop and capture per-agent token usage (orchestrator vs each
     subagent), cache hits, cost, and wall/api time — the Phase-1 instrumentation."""
+    judgment.require()                          # no model call without the judgment pack
+    judgment.assert_clean(prompt, getattr(options, "system_prompt", None))
     by_role, agent_names = {}, {}
     final_text, last_text, result = None, "", None
 

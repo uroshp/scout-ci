@@ -22,6 +22,7 @@ import time
 from datetime import datetime
 
 from scout import adjudicate_models, config, modelcompare, rolespecs, selfserve
+from scout import judgment
 
 ARBITER_MODEL = os.environ.get("SCOUT_ARBITER_MODEL", "claude-opus-5-5")
 ARBITER_DIR = "research/arbiter"
@@ -44,31 +45,7 @@ FAILURE_MODES = {
     "fidelity_loss": "the edit drops or distorts a number, date or name the facts carry",
 }
 
-_SYSTEM = """You are the arbiter of a competitive-intelligence tool's evaluation: a research layer, not a product step.
-The tool keeps sales battlecards whose every claim must be grounded in verified facts. A PROPOSER drafts edits to the
-card from a list of GROUNDED FACTS; a JUDGE confirms or rejects each edit. The judge's rules: facts only (an edit may
-not say anything the facts do not say); no invented contrast with our company; the edit must sit in the right section;
-an edit must be deal-moving to be worth confirming; reject when not convinced.
-
-You receive: the facts the proposer had, the text currently on the card, one proposed edit, and the verdicts with
-reasons that several models gave (labelled A, B, C, ... in random order; you are not told which is which). Your job:
-1. Settle the TRUTH: should this edit be confirmed or rejected under the rules, given the facts? Decide from the facts.
-   Use web search only if a point cannot be settled from the facts and the decision turns on it (at most a few
-   searches); say what you searched and what you found. Name the decisive fact(s) by id.
-2. Grade each model's reasoning against the tool's goal (100% accuracy, deal-moving judgment, inside the rules):
-   which reasoned most correctly, and for each model whose verdict or reasoning fails, why, using ONLY these failure
-   modes: """ + ", ".join(f"{k} ({v})" for k, v in FAILURE_MODES.items()) + """.
-   A model can have the right verdict and still fail (right_for_wrong_reason). A model that is right needs no mode.
-3. Write for a product manager who will read only your output: plain full sentences, no hedging, no bullet fragments.
-   The resolution is at most 120 words: the ruling, the decisive fact(s), the one thing that settles it.
-   If no model reasoned correctly, say so: "best" is "none".
-
-Return ONLY a JSON object:
-{"verdict": "confirm"|"reject", "decisive_facts": ["fact id", ...], "resolution": "at most 120 words: the ruling and why",
- "searched": "what you searched and found, or an empty string",
- "best": "A"|"B"|...|"none", "best_why": "one or two sentences",
- "grades": {"A": {"right": true|false, "modes": ["overreach", ...], "diagnosis": "one or two sentences"}, ...},
- "confidence": 0.0-1.0}"""
+_SYSTEM = judgment.get("arbiter._SYSTEM", {"', '.join((f'{k} ({v})' for k, v in FAILURE_MODES.items()))": ', '.join((f'{k} ({v})' for k, v in FAILURE_MODES.items()))})
 
 
 # --- context assembly (from the captured judge call + the arms' results) ----------------------------
@@ -174,6 +151,8 @@ def call_arbiter(prompt: str, *, searches: int = ARBITER_SEARCHES, model: str = 
     """One arbitration: Opus 5.5, adaptive thinking (the default on 5.5), effort high, web search
     capped. Loops on pause_turn. Returns {parsed, text, cost_usd, duration_ms, searches_used}."""
     import anthropic
+    judgment.require()                              # no model call without the judgment pack
+    judgment.assert_clean(prompt, _SYSTEM)
     client = anthropic.Anthropic()
     tools = [{"type": "web_search_20260209", "name": "web_search", "max_uses": searches}] if searches > 0 else []
     messages = [{"role": "user", "content": prompt}]

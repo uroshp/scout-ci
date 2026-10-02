@@ -15,7 +15,7 @@ import math
 from collections import defaultdict
 from datetime import datetime
 
-from scout import challenger, evalrule, rolespecs, selfserve
+from scout import judgment, challenger, evalrule, rolespecs, selfserve
 
 SCHEMA_VERSION = 1
 SHADOW_MODELS_DIR = "shadow_models"
@@ -300,6 +300,7 @@ def result_record(record: dict, replay: dict, comparison: dict, *, backend: str,
         "duration_ms": replay.get("duration_ms"), "tokens": replay.get("tokens"),
         "cost_usd": replay.get("cost_usd") or 0.0, "schema_enforced": replay.get("schema_enforced"),
         "reasoning": replay.get("reasoning"), "text": replay.get("text"), "thinking": replay.get("thinking"),
+        "judgment_version": record.get("judgment_version"),
         "reference": {"model": record.get("model"), "cost_usd": (record.get("result") or {}).get("cost_usd"),
                       "duration_ms": (record.get("result") or {}).get("duration_ms"),
                       "eligible": rolespecs.reference_eligible(record)},
@@ -413,7 +414,10 @@ def _score_cell(rows: list, labels: dict) -> dict:
                         costly_r += int(it["reference"] == costly_label and truth != costly_label)
             if it["status"] == "disagree" and it.get("miss_kind"):
                 miss_kinds[it["miss_kind"]] += 1
-        period[(json.dumps(r.get("backend_version"), sort_keys=True), (r.get("reference") or {}).get("model"))] += 1
+        # a prompt edit (a new judgment pack version) is a new period, like a model or settings change
+        jv = judgment.period_tag(r.get("judgment_version"))
+        ref_model = (r.get("reference") or {}).get("model")
+        period[(json.dumps(r.get("backend_version"), sort_keys=True), ref_model if jv is None else f"{ref_model}+pack:{jv}")] += 1
     tool_failures = [r for r in ok if (r.get("comparison") or {}).get("summary", {}).get("candidate_parse") == "tool_failure"]
     right = sum(adjud_c)
     kappa_vs_human = (round(k, 3) if cand_on_adj and (k := challenger.cohens_kappa(cand_on_adj, truth_on_adj)) is not None
