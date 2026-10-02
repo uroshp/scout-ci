@@ -412,3 +412,12 @@ def require_api_key() -> str:
             "ANTHROPIC_API_KEY is not set. Copy .env.example to .env and add your key."
         )
     return key
+
+# Audience leads (Level 2, 2026-10-02): when a brief's lead changes, write Today's angle for each
+# buyer present on the card (>= AUDIENCE_MIN_PLAYS tagged plays), judged like every other edit and
+# stored as a tagged executive_summary claim. At most AUDIENCE_MAX_PER_CARD_RUN buyers per card per
+# run, so the first fill spreads over days. Needs the pack block audience._OP_BRIEF; without it the
+# step skips itself and says so. Kill: SCOUT_AUDIENCE_LEADS=0.
+AUDIENCE_LEADS = os.environ.get("SCOUT_AUDIENCE_LEADS", "1") == "1"
+AUDIENCE_MIN_PLAYS = int(os.environ.get("SCOUT_AUDIENCE_MIN_PLAYS", "2"))
+AUDIENCE_MAX_PER_CARD_RUN = int(os.environ.get("SCOUT_AUDIENCE_MAX_PER_CARD_RUN", "2"))

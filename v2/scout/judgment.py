@@ -116,6 +116,16 @@ def text(name: str, subs: dict | None = None) -> str:
     return render(pack["blocks"][name], subs)
 
 
+def optional(name: str, subs: dict | None = None) -> str | None:
+    """A block a feature may do without: None when the pack or the block is absent. Unlike `get`
+    it registers nothing, so `require()` never fails other model calls over a block that is not
+    there yet (audience leads, 2026-10-02: the feature skips itself instead)."""
+    pack = _load()
+    if pack is None or name not in (pack.get("blocks") or {}):
+        return None
+    return render(pack["blocks"][name], subs)
+
+
 def assert_clean(*texts) -> None:
     """No prompt carrying a placeholder may reach a model."""
     for t in texts:
