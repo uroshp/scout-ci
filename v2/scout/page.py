@@ -1399,7 +1399,7 @@ def masthead_html(cards: list | None = None, slug: str | None = None, mode: str 
                   + '</div></details>')
     bar = ('<div class="sc-bar"><a class="sc-brand" href="/"><span class="d"></span><span class="nm">Agent Scout</span></a>'
            '<nav class="sc-nav" aria-label="Site">'
-           f'<a href="/" class="sc-navlink{" on" if mode == "cards" else ""}">Briefs{cnt}</a>{how}'
+           f'<a href="/briefs" class="sc-navlink{" on" if mode == "cards" else ""}">Briefs{cnt}</a>{how}'
            f'<a class="sc-btn sc-pri{" on" if mode == "create" else ""}" href="/create">{_ICON_PLUS}Create your own</a>'
            f'{phone_menu}</nav></div>')
     lead = f'<div class="sc-lead"><div class="sc-statement">{_STATEMENT}</div></div>'
