@@ -218,8 +218,8 @@ def render(status: dict, brief_md: str, now: datetime) -> str:
   hr {{ border: none; border-top: 1px solid #8884; margin: 1.5rem 0; }}
 </style></head><body>
   <div class="brand">{logo_tag}<h1>Scout</h1></div>
-  <div class="cap">Living competitive battlecards — every claim verified against its source, and
-    kept current by an agent. &nbsp;·&nbsp; <b>{html.escape(_pretty(slug))}</b></div>
+  <div class="cap">Competitive briefs that stay fresh. AI agents prepare them before the start of
+    each work day. &nbsp;·&nbsp; <b>{html.escape(_pretty(slug))}</b></div>
 
   <div class="activity">{html.escape(act["line"])}</div>
   <div class="metrics">{metric_html}</div>

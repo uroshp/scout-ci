@@ -718,14 +718,165 @@ def _title_block(meta: dict) -> str:
             f'<div class="rt-sub">{sub}</div>{foc}</div>')
 
 
-_LIVE_BOX = (
-    '<div class="livebox"><div class="lb-live"><span class="live">'
-    '<span class="pulse"></span>LIVE</span></div>'
-    '<div class="lb-agents">Monitored by an orchestra of specialized agents (Sonnet &amp; Haiku) '
-    '+ 1 conductor (Opus).</div></div>')
+_LIVE_LINE = "Scout uses AI agents and human-calibrated model judgment, and evaluates every decision."
+_LIVE_HEAD = '<span class="lb-live"><span class="live"><span class="pulse"></span>LIVE</span></span>'
+# The fallback box (no panel available): the same line, not clickable.
+_LIVE_BOX = (f'<div class="livebox"><div class="lb-row">{_LIVE_HEAD}</div>'
+             f'<div class="lb-agents">{_LIVE_LINE}</div></div>')
+# The box as the door to the "How this works" panel (2026-10-02). A button, not a hover: hover does
+# not exist on a phone or an iPad.
+_LIVE_BUTTON = (
+    '<button type="button" class="livebox" id="how-btn" aria-expanded="false" aria-controls="how">'
+    f'<span class="lb-row">{_LIVE_HEAD}'
+    '<span class="lb-how">How this works<span class="chev">&#9662;</span></span></span>'
+    f'<span class="lb-agents">{_LIVE_LINE}</span></button>')
 
-_TAGLINE = ('<div class="tagline">Living competitive battlecards: Every claim verified for '
-            'accuracy and kept current by an orchestra of AI agents.</div>')
+_TAGLINE = ('<div class="tagline">Competitive briefs that stay fresh. AI agents prepare them '
+            'before the start of each work day.</div>')
+
+# The challenger lanes: company, then the model as a reader would name it. The registry of what
+# actually runs is scout/replaybackends.py (tests/test_how_panel.py keeps the two in step).
+_HOW_CHALLENGERS = (("Mistral", "Magistral 24B"), ("Google", "Gemma 4 26B"),
+                    ("NVIDIA", "Nemotron 3 Nano"), ("Apple", "Apple on-device model"))
+
+
+def _model_label(model_id: str) -> str:
+    """'claude-haiku-4-5-20251001' -> 'Haiku 4.5'; 'claude-sonnet-5' -> 'Sonnet 5'. The lanes read
+    config, so a model change shows on the page without an edit here."""
+    m = re.match(r"claude-(opus|sonnet|haiku)-(\d+)(?:-(\d{1,2}))?(?:-\d{8})?$", model_id or "")
+    if not m:
+        return model_id or ""
+    return f"{m.group(1).title()} {m.group(2)}" + (f".{m.group(3)}" if m.group(3) else "")
+
+
+def _how_figures() -> dict | None:
+    """Live figures for the panel, from the committed cards only (no network): active claims,
+    cards, alert entries dated on the latest run day. None when they cannot be read, and the
+    figure line is then left out; nothing is ever typed in by hand."""
+    try:
+        slugs = display.list_battlecards()
+        if not slugs:
+            return None
+        total, last = 0, None
+        for slug in slugs:
+            total += sum(1 for c in store.load_claims(slug) if str(c.get("status", "active")) != "retired")
+            lc = (store.load_meta(slug) or {}).get("last_checked")
+            if lc and (last is None or lc > last):
+                last = lc
+        if not last:
+            return None
+        day = last[:10]
+        updates = 0
+        for slug in slugs:
+            fp = os.path.join(store.STORE_ROOT, slug, "alerts.md")
+            if os.path.isfile(fp):
+                with open(fp, encoding="utf-8") as f:
+                    updates += len(re.findall(r"(?m)^- \*\*\[[A-Z]+\] " + re.escape(day), f.read()))
+        from zoneinfo import ZoneInfo
+        pt = ZoneInfo("America/Los_Angeles")
+        run_pt = datetime.fromisoformat(last).replace(tzinfo=timezone.utc).astimezone(pt)
+        today = datetime.now(pt).date() == run_pt.date()
+        return {"claims": total, "cards": len(slugs), "updates": updates,
+                "when": "this morning" if today else "in the last run",
+                "run": f"{run_pt.strftime('%b')} {run_pt.day}"}
+    except Exception:
+        return None
+
+
+def _how_panel() -> str:
+    """The 'How this works' panel: what the system does, in one diagram and three short columns.
+    It explains the system and stops there; per-claim evidence stays in the card's Verification
+    trail (no surface restates another). No run cost and no model performance, by decision
+    (2026-10-02): every model lane looks the same."""
+    fast, orch, sub = (_model_label(m) for m in
+                       (config.FAST_MODEL, config.ORCHESTRATOR_MODEL, config.SUBAGENT_MODEL))
+    steps = (("Step 1", "Watch", "Scans each competitor for what changed since yesterday."),
+             ("Step 2", "Weigh", "Decides whether a change matters in a deal and which parts of the card it touches."),
+             ("Step 3", "Write", "Drafts the edit from the source, with its link and date attached."),
+             ("Step 4", "Judge", "Checks the edit against the source and rules on it."))
+    flow = "".join(f'<div class="hw-step"><div class="hw-n">{n}</div><div class="hw-t">{t}</div>'
+                   f'<div class="hw-d">{d}</div></div>' for n, t, d in steps)
+    flow += ('<div class="hw-step hw-dec"><div class="hw-n">Output</div><div class="hw-t">Decision</div>'
+             '<div class="hw-states">'
+             '<div class="hw-state pub"><b>Publish</b><span>Along with source and date</span></div>'
+             '<div class="hw-state cut"><b>Cut</b><span>In the Cut Log, with the reason</span></div>'
+             '<div class="hw-state held"><b>Hold</b><span>Waits for a person</span></div>'
+             '</div></div>')
+    default_lane = ('<div class="hw-lane"><div class="hw-ln">Default: <i>Anthropic</i></div>'
+                    f'<div class="hw-track seg"><span>{_html.escape(fast)}</span><span>{_html.escape(orch)}</span>'
+                    f'<span>{_html.escape(sub)}</span><span class="w2">{_html.escape(orch)}</span></div></div>')
+    lanes = "".join(f'<div class="hw-lane"><div class="hw-ln">{co}</div>'
+                    f'<div class="hw-track"><span>{mo}</span></div></div>' for co, mo in _HOW_CHALLENGERS)
+    fig = _how_figures()
+    fig_li = (f'<li>Claims: <span class="hw-num">{fig["claims"]}</span> total on '
+              f'<span class="hw-num">{fig["cards"]}</span> cards, <span class="hw-num">{fig["updates"]}</span> '
+              f'update{"" if fig["updates"] == 1 else "s"} {fig["when"]}.</li>') if fig else ""
+    asof = f'<span class="hw-asof">figures read live &middot; last run {fig["run"]}</span>' if fig else ""
+    return (
+        '<div class="how" id="how" hidden>'
+        '<div><div class="hw-h">How Scout keeps a brief true</div>'
+        '<p class="hw-lede">AI agents search for changes, decide what is material, and track the '
+        'provenance and accuracy of every claim. Each model has one job. No decision is approved by '
+        'the model that made it.</p></div>'
+        '<div class="hw-diagram" role="img" aria-label="Four steps in order: watch, weigh, write, judge, '
+        'ending in a decision: publish, cut or hold. Below, five model lanes run across all five stages: '
+        'the default models, then Mistral, Google, NVIDIA and Apple.">'
+        f'<div class="hw-row"><div class="hw-ln"></div><div class="hw-flow">{flow}</div></div>'
+        f'<div class="hw-lanes">{default_lane}'
+        '<div class="hw-ev"><div class="hw-evh">Evaluated</div>'
+        '<p>Every decision above is logged and replayed by challenger models. Disputed calls go to a '
+        'blind arbiter.</p></div>'
+        f'{lanes}</div></div>'
+        '<div class="hw-cols">'
+        '<div class="hw-col"><h4>The product</h4><ul>'
+        '<li>Every claim is a deal-mover.</li>'
+        '<li>Decisions calibrated iteratively by the author.</li>'
+        '<li>All claims are verified for accuracy and link to source and date.</li>'
+        '<li>The Ask Scout agent answers only with verified information.</li>'
+        '<li>The Cut Log shows unverified and stale claims.</li>'
+        f'{fig_li}</ul></div>'
+        '<div class="hw-col"><h4>The build</h4><ul>'
+        '<li>A pipeline for the daily checks, event triggers between runs, and an agent for Ask Scout, '
+        'because a question&rsquo;s path cannot be planned ahead.</li>'
+        '<li>Code keeps the important gates: cost, retries, links, dates, format. Models are used for '
+        'judgment, and the cheapest model that passes its eval gets the job.</li>'
+        '<li>Fallback 1 is a model. Fallback 2 is the human author.</li>'
+        '<li>Built with Claude Code on a Mac mini, with system design decisions by the author.</li>'
+        '<li>Additional infrastructure: Google Cloud, GitHub, Ollama, Resend.</li></ul></div>'
+        '<div class="hw-col"><h4>The evals</h4><ul>'
+        '<li>Challengers run locally on a Mac mini and replay the exact calls the default models saw.</li>'
+        '<li>The arbiter rules from the source, blind to which model said what, and names each failure '
+        'from a fixed list.</li>'
+        '<li>The author reviews every ruling and can overrule it.</li>'
+        '<li>Models are compared only on the same set of calls.</li></ul></div>'
+        '</div>'
+        '<div class="hw-foot"><span class="hw-links">'
+        '<a href="#trail" id="how-trail">Verification trail on this card &darr;</a>'
+        '<a href="#" id="how-ask">Ask Scout</a>'
+        f'<a href="{_html.escape(config.SOURCE_REPO_URL)}" target="_blank" rel="noopener">Code on GitHub</a>'
+        f'<a href="{_html.escape(config.AUTHOR_LINKEDIN)}" target="_blank" rel="noopener">Contact me</a>'
+        f'</span>{asof}</div>'
+        '</div>')
+
+
+# Opens and closes the panel; /#how opens it on arrival (a link for a resume or a message). Links
+# whose target is not on this page (no card, Ask off) are hidden instead of going nowhere.
+_HOW_JS = (
+    "<script>(function(){var b=document.getElementById('how-btn'),p=document.getElementById('how');"
+    "if(!b||!p)return;"
+    "function set(o,how){b.setAttribute('aria-expanded',o?'true':'false');p.hidden=!o;"
+    "if(o){try{window.gtag&&window.gtag('event','how_this_works_open',{method:how});}catch(e){}}}"
+    "b.addEventListener('click',function(){var o=p.hidden;set(o,'button');"
+    "try{history.replaceState(null,'',o?'#how':location.pathname+location.search);}catch(e){}});"
+    "function fromHash(){if(location.hash==='#how'&&p.hidden){set(true,'link');"
+    "try{b.scrollIntoView({block:'start'});}catch(e){}}}"
+    "fromHash();window.addEventListener('hashchange',fromHash);"
+    "function links(){var t=document.getElementById('how-trail');"
+    "if(t&&!document.getElementById('trail'))t.hidden=true;"
+    "var a=document.getElementById('how-ask'),f=document.getElementById('ask-fab');"
+    "if(a){if(!f){a.hidden=true;}else{a.addEventListener('click',function(e){e.preventDefault();f.click();});}}}"
+    "if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',links);}else{links();}"
+    "})();</script>")
 
 # Fonts load via <link> tags injected SEPARATELY from the main <style> — a sanitizer that
 # dislikes @import can drop a whole <style> that contains it, which would wipe ALL styling and
@@ -742,6 +893,73 @@ FONT_HEAD = (
 # here we only cap width, fix the freshness column color, add the rail credit, and widen the
 # 2-col breakpoint so a narrow viewport doesn't stack the rail on top of the brief.
 _OVERRIDES = """
+/* The live box as a button + the "How this works" panel (2026-10-02). hw-* names: the mockup CSS
+   already owns .step/.ln/.lane. */
+#scout-page .livebox .lb-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
+#scout-page .livebox .lb-agents{display:block}
+#scout-page button.livebox{font:inherit;color:inherit;cursor:pointer;display:block;-webkit-appearance:none;appearance:none;transition:border-color .15s,background .15s}
+#scout-page button.livebox:hover,#scout-page button.livebox[aria-expanded="true"]{border-color:var(--accent-line);background:var(--paper2)}
+#scout-page button.livebox:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#scout-page .lb-how{font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--accent-deep);white-space:nowrap;border-bottom:1px solid var(--accent-line);padding-bottom:1px}
+#scout-page .lb-how .chev{display:inline-block;margin-left:5px;transition:transform .18s}
+#scout-page button.livebox[aria-expanded="true"] .chev{transform:rotate(180deg)}
+#scout-page .how{border:1px solid var(--accent-line);background:var(--paper2);border-radius:9px;padding:20px 22px 16px;margin:2px 0 18px;display:flex;flex-direction:column;gap:18px;text-align:left}
+#scout-page .how[hidden],#scout-page .how [hidden]{display:none}
+#scout-page .hw-h{font-family:var(--display);font-weight:600;font-size:21px;line-height:1.15;letter-spacing:-.01em}
+#scout-page .hw-lede{font-size:14px;color:var(--muted);max-width:78ch;margin:5px 0 0;line-height:1.5}
+#scout-page .hw-diagram{display:flex;flex-direction:column;gap:9px}
+#scout-page .hw-row,#scout-page .hw-lane{display:grid;grid-template-columns:70px minmax(0,1fr);gap:10px;align-items:center}
+#scout-page .hw-flow{display:grid;grid-template-columns:repeat(4,1fr) 1.15fr;border:1px solid var(--line);border-radius:7px;background:var(--paper);overflow:hidden}
+#scout-page .hw-step{padding:11px 14px 12px;position:relative;border-right:1px solid var(--line2)}
+#scout-page .hw-step:last-child{border-right:0}
+#scout-page .hw-step:not(:last-child)::after{content:"";position:absolute;right:-6px;top:50%;width:10px;height:10px;background:var(--paper);border-top:1px solid var(--line);border-right:1px solid var(--line);transform:translateY(-50%) rotate(45deg);z-index:1}
+#scout-page .hw-dec{background:var(--paper2)}
+#scout-page .hw-n{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--faint)}
+#scout-page .hw-t{font-family:var(--display);font-weight:600;font-size:17px;line-height:1.2;margin-top:1px}
+#scout-page .hw-d{font-size:12.5px;color:var(--muted);line-height:1.42;margin-top:4px}
+#scout-page .hw-states{display:flex;flex-direction:column;gap:5px;margin-top:7px}
+#scout-page .hw-state{border:1px solid;border-radius:5px;padding:4px 8px;font-size:11.5px;line-height:1.3}
+#scout-page .hw-state b{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;display:block}
+#scout-page .hw-state span{color:var(--muted)}
+#scout-page .hw-state.pub{background:rgba(47,97,73,.07);border-color:rgba(47,97,73,.26)}
+#scout-page .hw-state.pub b{color:var(--win)}
+#scout-page .hw-state.cut{background:rgba(154,67,33,.06);border-color:rgba(154,67,33,.24)}
+#scout-page .hw-state.cut b{color:var(--cut)}
+#scout-page .hw-state.held{background:rgba(138,99,34,.07);border-color:rgba(138,99,34,.26)}
+#scout-page .hw-state.held b{color:var(--amber)}
+#scout-page .hw-lanes{outline:1px solid var(--line);outline-offset:8px;border-radius:3px;margin:10px 0 8px;display:flex;flex-direction:column;gap:7px}
+#scout-page .hw-ln{font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--ink);line-height:1.25}
+#scout-page .hw-ln i{display:block;font-style:normal}
+#scout-page .hw-track{display:grid;grid-template-columns:repeat(4,1fr) 1.15fr;height:26px;border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:5px;overflow:hidden}
+#scout-page .hw-track span{grid-column:1/-1;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10.5px;font-weight:500;color:var(--accent-deep);padding:0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#scout-page .hw-track.seg span{grid-column:auto;border-right:1px solid var(--accent-line)}
+#scout-page .hw-track.seg span.w2{grid-column:span 2;border-right:0}
+#scout-page .hw-evh{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-deep);margin-top:5px}
+#scout-page .hw-ev p{font-size:12.5px;color:var(--muted);line-height:1.42;margin:1px 0 2px}
+#scout-page .hw-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+#scout-page .hw-col h4{margin:0 0 6px;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-deep);padding-bottom:6px;border-bottom:1px solid var(--line)}
+#scout-page .hw-col ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
+#scout-page .hw-col li{font-size:13px;line-height:1.45;color:var(--ink);padding-left:13px;position:relative;margin:0}
+#scout-page .hw-col li::before{content:"";position:absolute;left:0;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--accent-line)}
+#scout-page .hw-num{font-family:var(--mono);font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;background:var(--line2);border-radius:3px;padding:0 4px;white-space:nowrap}
+#scout-page .hw-foot{display:flex;gap:8px 22px;flex-wrap:wrap;align-items:baseline;justify-content:space-between;border-top:1px solid var(--line2);padding-top:11px;font-size:12.5px;color:var(--muted)}
+#scout-page .hw-links{display:flex;gap:6px 16px;flex-wrap:wrap}
+#scout-page .hw-foot a{color:var(--accent-deep);font-weight:600;text-decoration:none;border-bottom:1px solid var(--accent-line)}
+#scout-page .hw-asof{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+@media(max-width:760px){
+  #scout-page .livebox{max-width:none;width:100%}
+  #scout-page .hw-row,#scout-page .hw-lane{grid-template-columns:1fr;gap:3px}
+  #scout-page .hw-row > .hw-ln{display:none}
+  #scout-page .hw-ln i{display:inline}
+  #scout-page .hw-flow{grid-template-columns:1fr}
+  #scout-page .hw-step{border-right:0;border-bottom:1px solid var(--line2)}
+  #scout-page .hw-step:last-child{border-bottom:0}
+  #scout-page .hw-step:not(:last-child)::after{right:auto;left:22px;top:auto;bottom:-6px;transform:rotate(135deg)}
+  #scout-page .hw-cols{grid-template-columns:1fr;gap:16px}
+  #scout-page .how{padding:16px 15px 14px}
+  #scout-page .hw-track.seg span{font-size:9.5px;padding:0 2px}
+}
+@media print{#scout-page .how,#scout-page .lb-how{display:none!important}}
 #scout-page .wrap{padding-left:0;padding-right:0;padding-bottom:32px;}
 /* Source-class chip on every citation (2026-09-28): the .persona chip idiom, one notch quieter.
    unknown ("Web") is outlined only, so the eye lands on the classes that carry meaning. */
@@ -1014,9 +1232,15 @@ def style_block() -> str:
 def masthead_html() -> str:
     """Brand + tagline + right-hand LIVE box. Card-independent; rendered once, above the
     in-page mode switch."""
+    try:                       # the render path must never crash: no panel -> the plain box
+        panel = _how_panel()
+    except Exception:
+        panel = ""
+    box = _LIVE_BUTTON if panel else _LIVE_BOX
     top = ('<div class="top"><div class="brand"><span class="d"></span>'
-           '<span class="nm">Agent Scout</span></div>' + _LIVE_BOX + '</div>')
-    return '<div id="scout-page"><div class="wrap mast">' + top + _TAGLINE + '</div></div>'
+           '<span class="nm">Agent Scout</span></div>' + box + '</div>')
+    return ('<div id="scout-page"><div class="wrap mast">' + top + _TAGLINE + panel + '</div></div>'
+            + (_HOW_JS if panel else ""))
 
 
 def title_html(slug: str) -> str:
