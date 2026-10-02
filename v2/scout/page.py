@@ -1162,12 +1162,14 @@ _OVERRIDES = """
 @media(max-width:760px){
   #scout-page .sc-strip{display:none}
   #scout-page .sc-bar{min-height:50px;padding:5px 0}
-  #scout-page .sc-lead{display:none}            /* the brief is the star: nothing between the bar and the title on a phone */
+  #scout-page .sc-lead{padding-top:6px}
+  #scout-page .sc-statement{font-size:11.5px;line-height:1.3;max-width:none}   /* back by request: a visitor must know what this is */
   #scout-page hr.rule{display:none}
   #scout-page .sc-head{border-bottom:0;padding:6px 0 2px;gap:0 12px;align-items:baseline;flex-direction:row;flex-wrap:wrap}
   #scout-page .sc-head>div{flex:1 1 100%}
   #scout-page .sc-head h1{font-size:20px;line-height:1.15}
   #scout-page .sc-head h1 .pre{display:none}
+  #scout-page .sc-head h1::before{content:"Brief: ";color:var(--muted);font-weight:500}
   #scout-page .sc-area{display:inline;font-size:12px;margin:0}
   #scout-page .sc-head .sc-btn.sc-quiet{display:none}   /* printing is a desktop act; the call sheet stays at /print/<slug> */
   #scout-page .sc-obar{margin:4px 0 2px;padding:4px 0}
