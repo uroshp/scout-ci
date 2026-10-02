@@ -1011,7 +1011,18 @@ _OVERRIDES = """
   #scout-page .sc-nav .sc-navlink{display:none}
   #scout-page .sc-btn.sc-pri{padding:0 12px;margin-left:0}
   #scout-page details.sc-menu{display:block}
-  #scout-page .wrap{padding-left:14px;padding-right:14px}
+  #scout-page .wrap.wrap{padding-left:14px;padding-right:14px}
+  #scout-page .sc-lead{padding-top:8px}
+  #scout-page .sc-statement{font-size:14px;max-width:none}
+  #scout-page .sc-idx{padding-top:12px}
+  #scout-page .sc-idx h1{font-size:22px}
+  #scout-page .sc-idx .n{display:block;margin:2px 0 0;font-size:12.5px}
+  #scout-page .sc-grid{gap:6px;margin-top:10px}
+  #scout-page .sc-bcard{min-height:0;padding:9px 12px;gap:2px;flex-direction:row;flex-wrap:wrap;align-items:baseline;justify-content:space-between}
+  #scout-page .sc-bcard .ct{font-size:16px;flex:1 1 100%}
+  #scout-page .sc-bcard .ct .for{font-size:.85em}
+  #scout-page .sc-bcard .cf{font-size:12px}
+  #scout-page .sc-bcard .cm{margin-top:0;font-size:11.5px;gap:8px}
   #scout-page .sc-tabs{overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent)}
   #scout-page .sc-tabs::-webkit-scrollbar{display:none}
   #scout-page details.sc-more{display:none}
