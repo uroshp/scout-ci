@@ -102,9 +102,9 @@ class Signals(unittest.TestCase):
         self.assertEqual(sig, [])
 
     def test_dispatch_caps(self):
-        self.st.files["signals/_dispatch.json"] = json.dumps({"day": signals.date.today().isoformat(), "count": 2, "last": {}})
+        self.st.files["signals/_dispatch.json"] = json.dumps({"day": signals._utcnow().date().isoformat(), "count": 2, "last": {}})   # the cap counts UTC days (local today != UTC today after 17:00 PT)
         self.assertEqual(signals.may_dispatch("a", self.meta)[0], False)
-        self.st.files["signals/_dispatch.json"] = json.dumps({"day": signals.date.today().isoformat(), "count": 0, "last": {}})
+        self.st.files["signals/_dispatch.json"] = json.dumps({"day": signals._utcnow().date().isoformat(), "count": 0, "last": {}})
         recent = dict(self.meta, last_checked=signals._utcnow().isoformat(timespec="seconds"))
         ok, why = signals.may_dispatch("a", recent); self.assertFalse(ok); self.assertIn("within", why)
         self.assertTrue(signals.may_dispatch("a", self.meta)[0])
