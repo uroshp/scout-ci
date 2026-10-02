@@ -63,7 +63,12 @@ class ServerVisitOnlyOn200(unittest.TestCase):
         from unittest import mock
         import server
         calls = []
-        with mock.patch.object(server.threading, "Thread",
+        import os
+        # the feed is live only on the production service (server._ga_server_events_live); this
+        # class tests the 200-only rule, so it stands in for production and mocks the sender thread
+        with mock.patch.dict(os.environ, {"K_SERVICE": "agent-scout"}), \
+             mock.patch.object(server.config, "ANALYTICS_ENABLED", True), \
+             mock.patch.object(server.threading, "Thread",
                                side_effect=lambda **kw: mock.Mock(start=lambda: calls.append(1))):
             server.app.test_client().get(path, headers={"User-Agent": self.UA})
         return bool(calls)

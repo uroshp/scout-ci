@@ -386,11 +386,21 @@ def _noindex(resp):
     return resp
 
 
+def _ga_server_events_live() -> bool:
+    """Second lock on the server-side GA feed (2026-10-01): events are sent only by the production
+    Cloud Run service (K_SERVICE, set by Cloud Run) or under an explicit override. The route tests
+    drive this app with a non-bot user agent and the local .env carries the GA secret, so every
+    full test run was minting real `server_visit` events (two showed up as "7 PM visitors")."""
+    return os.environ.get("K_SERVICE") == "agent-scout" or os.environ.get("SCOUT_GA_SERVER_EVENTS") == "1"
+
+
 @app.after_request
 def _server_visit(resp):
     try:
         if not config.ANALYTICS_ENABLED:
             return resp                                    # RC / preview: no GA at all
+        if not _ga_server_events_live():
+            return resp                                    # only the production service mints GA events
         if (request.method != "GET" or request.path == "/healthcheck"
                 or resp.status_code != 200
                 or not (resp.content_type or "").startswith("text/html")):
