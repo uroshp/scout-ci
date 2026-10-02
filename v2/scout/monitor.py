@@ -502,6 +502,28 @@ def _lead_election_alert(election: dict, when: datetime | None = None) -> dict:
     }
 
 
+def _audience_alert(aud: dict, meta: dict, when: datetime | None = None) -> dict:
+    """Feed alert for audience leads that landed (2026-10-02): visible in the updates panel, and
+    the alert that carries the write (a card is only written when a run produced an alert). Same
+    six hard-indexed keys as every other feed row."""
+    from scout import audience as _aud
+    now = when or datetime.now()
+    who = ", ".join(_aud.LABELS.get(p, p) for p in sorted({str(a.get("subject_key", "")).split(" | ")[1]
+                                                            for a in aud["applied"] if " | " in str(a.get("subject_key", ""))}))
+    note = f"Today's angle written for the {who}" if who else "Audience leads updated"
+    return {
+        "date": now.date().isoformat(),
+        "detected_at": now.isoformat(timespec="seconds"),
+        "subject_key": "audience-lead",
+        "old_value": "general angle only", "new_value": f"angle for: {who}" if who else "angle per audience",
+        "headline": note,
+        "so_what": "Pick that audience on the brief to read its angle.",
+        "severity": "watch",
+        "source_url": None,
+        "fingerprint": _fingerprint("audience-lead", f"{now.date().isoformat()}:{who}"),
+    }
+
+
 def _competitor_arm(slug, meta, since, substantial, claims, result, sig_block: str = ""):
     """Competitor materiality (Opus) -> tier-ranked MULTI-SOURCE grounding -> bounded feedback
     retry -> material_grounded. Logic is UNCHANGED from the pre-my_company flow; extracted verbatim
@@ -764,6 +786,26 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
             # ...but it must NOT be silent: surface it loudly so a stale card can't look clean (the 7/1
             # miss). run_all folds pipeline_health into the digest email.
             result["pipeline_health"] = f"propagation FAILED on {slug}: {type(e).__name__}: {e}"
+
+    # AUDIENCE LEADS (Level 2, 2026-10-02): Today's angle written for each buyer present on the
+    # card, through author -> floor -> judge -> apply like any edit, on every written check. Zero
+    # spend when every buyer's lead already matches the current lead. Own non-disruption guard: a
+    # failure here can never touch what propagation already landed.
+    if write and config.PROPAGATE_MODE == "live" and config.AUDIENCE_LEADS:
+        try:
+            from scout import audience
+            aud = audience.refresh(slug, meta, new_claims, today, write=True)
+            if aud.get("cost_usd"):
+                result["cost"]["audience"] = aud["cost_usd"]
+            if aud["applied"]:
+                new_claims = aud["claims"]
+                new_alerts.append(_audience_alert(aud, meta))   # rides the write path below
+            if aud["personas"] or aud.get("skipped"):
+                result["audience"] = {"personas": aud["personas"], "applied": aud["applied"],
+                                      "rejected": aud["rejected"], "skipped": aud.get("skipped")}
+        except Exception as e:
+            print(f"[monitor] audience leads FAILED ({type(e).__name__}: {e})", file=sys.stderr)
+            result["audience_error"] = f"{type(e).__name__}: {e}"
 
     # Shadow-eval observer (v3.5): on a real escalated check, record the champion grounding
     # decisions for offline challenger scoring. No-op unless SCOUT_SHADOW_EVAL=1; never raises.
