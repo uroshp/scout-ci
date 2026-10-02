@@ -139,7 +139,7 @@ def _fmt(x, pct=False):
     return f"{x:.0%}" if pct else str(x)
 
 
-def brief(snapshot: dict, ver: dict, auth: dict, v_ver: dict, v_auth: dict, model_snap: dict | None) -> str:
+def brief(snapshot: dict, ver: dict, auth: dict, v_ver: dict, v_auth: dict, model_snap: dict | None, research_summary: dict | None = None) -> str:
     """The executive brief (Uroš, 2026-10-01: "what it is, what it means, proposed next steps").
     One block per lane: the one number that matters, what it means in words, the next step. The
     full tables follow as an appendix and live in the snapshot; this is what gets read."""
@@ -172,8 +172,29 @@ def brief(snapshot: dict, ver: dict, auth: dict, v_ver: dict, v_auth: dict, mode
                        + ("comparable" if a.get("eligible") else "warming up" if a.get("warming_up") else "NOT comparable (ran too few of the set)"))
         out += ["- What it means: the metric (was the local model right when it disagreed) needs blind labels; nothing here is a verdict yet.",
                 "- Next step: label 15 judge disagreements blind (`python -m scout.adjudicate_models`), then read precision at the next check-in.", ""]
+    rs = research_summary
+    if rs:
+        out += ["## 4. Research layer: when models disagree, who is right and why?",
+                f"- Numbers: {rs['items']} disagreements arbitrated (Opus 5.5), {rs['agreed']} ratified by you, {rs['overruled']} overruled, {rs['pending']} waiting for your read.",
+                "- Outcomes vs the arbiter: " + "; ".join(f"{w} {o['right']}/{o['arbitrated']}" for w, o in rs["outcomes"]) + ".",
+                "- Most common failure modes: " + ", ".join(f"{m} ({n})" for m, n in rs["causes"][:4]) + ".",
+                "- Next step: ratify the pending rulings in scout-labels (three things per item, Enter to agree).", ""]
     out += ["Detail for every number is in the appendix below and in the stored snapshot.", ""]
     return "\n".join(out)
+
+
+def _research_summary() -> dict | None:
+    try:
+        from scout import research
+        rep = research.report()
+    except Exception as e:
+        print(f"[eval] research summary skipped ({type(e).__name__}: {e})", file=sys.stderr); return None
+    if not rep["cost"]["items"]:
+        return None
+    r = rep["review"]
+    return {"items": rep["cost"]["items"], "agreed": r["agreed"], "overruled": r["overruled"], "pending": r["pending"],
+            "outcomes": sorted(rep["outcomes"].items(), key=lambda kv: -(kv[1]["precision"] or 0)),
+            "causes": list(rep["causes"]["overall"].items()), "usd": rep["cost"]["usd"]}
 
 
 _VERDICT_COLOR = {"ELIGIBLE": ("#2f7d4f", "#e8f3ec"), "ACCUMULATE": ("#8a6322", "#f7efe0"),
@@ -201,7 +222,7 @@ def _lane_card(title: str, question: str, status: str, rows: list[tuple[str, str
     return notify._hcard(inner, accent=accent)
 
 
-def brief_html(now: datetime, ver: dict, auth: dict, v_ver: dict, v_auth: dict, model_snap: dict | None) -> str:
+def brief_html(now: datetime, ver: dict, auth: dict, v_ver: dict, v_auth: dict, model_snap: dict | None, research_summary: dict | None = None) -> str:
     """The brief as the email body (Uroš, 2026-10-01: legible, tables and bullets, colour, only what
     deserves to be there, plain full sentences). One card per lane: what it checks, the number that
     matters, what the number means, the next step. The plain-text part keeps the full appendix."""
@@ -261,6 +282,20 @@ def brief_html(now: datetime, ver: dict, auth: dict, v_ver: dict, v_auth: dict, 
                                  ("What it means", e("Agreement is a sanity check, not the metric. The metric is whether the local model was right when it disagreed, and that needs blind labels.")),
                                  ("Next step", "Label 15 judge disagreements blind with <code>python -m scout.adjudicate_models</code>; precision appears at the next check-in.")],
                                 "#34566b"))
+    rs = research_summary
+    if rs:
+        head = ('<tr>' + "".join(f'<th style="text-align:left;padding:6px 8px;border-bottom:1px solid #e4e1d5;font-size:12px;color:#5f5e54">{e(h)}</th>'
+                                 for h in ("Side", "Right", "Wrong", "Precision vs arbiter")) + '</tr>')
+        trs = "".join('<tr>' + "".join(f'<td style="padding:6px 8px;border-bottom:1px solid #f0eee6;font-size:13px">{c}</td>' for c in (
+            e(w), o["right"], o["wrong"], e(_fmt(o["precision"], pct=True)))) + '</tr>' for w, o in rs["outcomes"])
+        table = f'<table style="border-collapse:collapse;width:100%;margin:6px 0 2px">{head}{trs}</table>'
+        cards.append(_lane_card("4. Research layer", "When the models disagree, who is right and why? A stronger model (Opus 5.5) rules from the facts; you ratify.",
+                                "BASELINE",
+                                [("The number", f"<b>{rs['items']}</b> disagreements arbitrated; {rs['agreed']} ratified by you, {rs['overruled']} overruled, {rs['pending']} waiting for your read. Spend ${rs['usd']}."),
+                                 ("", table),
+                                 ("What it means", e("Most common failure modes: " + ", ".join(f"{m} ({n})" for m, n in rs["causes"][:4]) + ". The overrule rate is the arbiter's own error rate.")),
+                                 ("Next step", "Ratify the pending rulings in <code>scout-labels</code> (three things per item, Enter to agree).")],
+                                "#34566b"))
     footer = ('<div style="color:#5f5e54;font-size:12px;margin-top:6px">The full tables for every lane are in the plain-text part of this email and in the stored snapshot. '
               'Bars and rules: docs/eval-exit-criteria.md and docs/model-substitution-exit-criteria.md.</div>')
     return notify._hdoc(lead, "".join(cards), footer)
@@ -295,9 +330,10 @@ def main() -> None:
         ver, auth = verification_metrics(), authorship_metrics()
         prior = _load_prior()
         v1, v2 = verdict("verification", ver, (prior or {}).get("verification")), verdict("authorship", auth, (prior or {}).get("authorship"))
-        head = brief(snapshot, ver, auth, v1, v2, model_snap)
+        rs = _research_summary()
+        head = brief(snapshot, ver, auth, v1, v2, model_snap, rs)
         body = head + "\n\n---\n\n# Appendix: full detail\n\n" + body
-        html = brief_html(now, ver, auth, v1, v2, model_snap)
+        html = brief_html(now, ver, auth, v1, v2, model_snap, rs)
     except Exception as e:                      # the brief must never block the check-in
         print(f"[eval] brief skipped ({type(e).__name__}: {e})", file=sys.stderr)
     print(body)
