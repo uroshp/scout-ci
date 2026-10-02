@@ -729,10 +729,10 @@ _LIVE_BUTTON = (
     '<button type="button" class="livebox" id="how-btn" aria-expanded="false" aria-controls="how">'
     f'<span class="lb-row">{_LIVE_HEAD}'
     '<span class="lb-how">How this works<span class="chev">&#9662;</span></span></span>'
-    f'<span class="lb-agents">{_LIVE_LINE}</span></button>')
+    f'<span class="lb-agents">{_LIVE_LINE} <span class="lb-more">Click to learn more</span></span></button>')
 
-_TAGLINE = ('<div class="tagline">Competitive briefs that stay fresh. AI agents prepare them '
-            'before the start of each work day.</div>')
+_TAGLINE = ('<div class="tagline">Competitive briefs that are deal-moving and always fresh. '
+            'Prepared by AI agents before the start of each work day.</div>')
 
 # The challenger lanes: company, then the model as a reader would name it. The registry of what
 # actually runs is scout/replaybackends.py (tests/test_how_panel.py keeps the two in step).
@@ -900,7 +900,8 @@ _OVERRIDES = """
 #scout-page button.livebox{font:inherit;color:inherit;cursor:pointer;display:block;-webkit-appearance:none;appearance:none;transition:border-color .15s,background .15s}
 #scout-page button.livebox:hover,#scout-page button.livebox[aria-expanded="true"]{border-color:var(--accent-line);background:var(--paper2)}
 #scout-page button.livebox:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-#scout-page .lb-how{font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--accent-deep);white-space:nowrap;border-bottom:1px solid var(--accent-line);padding-bottom:1px}
+#scout-page .lb-how{font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--paper2);background:var(--accent-deep);white-space:nowrap;border-radius:999px;padding:3px 10px 3px 11px}
+#scout-page .lb-more{color:var(--accent-deep);font-weight:600;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
 #scout-page .lb-how .chev{display:inline-block;margin-left:5px;transition:transform .18s}
 #scout-page button.livebox[aria-expanded="true"] .chev{transform:rotate(180deg)}
 #scout-page .how{border:1px solid var(--accent-line);background:var(--paper2);border-radius:9px;padding:20px 22px 16px;margin:2px 0 18px;display:flex;flex-direction:column;gap:18px;text-align:left}

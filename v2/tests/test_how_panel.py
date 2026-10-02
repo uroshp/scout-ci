@@ -17,7 +17,8 @@ class HowPanel(unittest.TestCase):
         self.assertIn("location.hash==='#how'", self.html)          # the direct link opens it
 
     def test_wording_decided_by_the_author(self):
-        self.assertIn("Competitive briefs that stay fresh.", self.html)
+        self.assertIn("Competitive briefs that are deal-moving and always fresh.", self.html)
+        self.assertIn("Click to learn more", self.html)
         self.assertIn(page._LIVE_LINE, self.html)
         self.assertNotIn("orchestra", self.html)
         for state in ("<b>Publish</b><span>Along with source and date</span>", "<b>Cut</b>", "<b>Hold</b>"):
