@@ -454,6 +454,9 @@ def _cut_log(md: str):
     return _section("cut", "Cut Log", f"{n} removed / revised", note + "".join(rows)), n
 
 
+_OBAR = contextvars.ContextVar("scout_obar", default="")
+
+
 def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = None,
           sources: tuple | None = None) -> str:
     plays_lbl = "Top play" if plays_n == 1 else f"Top {plays_n} plays"
@@ -473,6 +476,14 @@ def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = N
             toc.append(f'<a class="tr" href="#{sid}">{_html.escape(title)}</a>')
     toc.append('<a class="tr" href="#claims">Claim freshness</a>')
     nav = '<div class="toc" id="toc">' + "".join(toc) + "</div>"
+    # The phone bar (2026-10-02 evening): the same contents and audience as two dropdowns in one
+    # slim sticky row above the brief. The rail is hidden under 980px and this bar above it, so
+    # one of them exists at a time (no restated surfaces).
+    obar_toc = "".join(t.replace('class="grp brief first"', 'class="g"').replace('class="grp trail"', 'class="g"')
+                       .replace('class="grp"', 'class="g"').replace('<div class="grpsub">', '<div class="gs">')
+                       for t in toc)
+    _OBAR.set('<details class="ob"><summary>Contents <span class="cv">&#9662;</span></summary>'
+              f'<div class="sc-dd">{obar_toc}</div></details>')
 
     feed = status["change_feed"]
     def _cf_ts(e):
@@ -566,7 +577,13 @@ def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = N
             for p in present_p:
                 links.append(f'<a class="pv p-{p}{" on" if cur == p else ""}" href="/c/{_html.escape(slug)}?persona={p}">'
                              f'{_html.escape(_PERSONA_LABELS.get(p, p))}</a>')
-            view_panel = panel("Pick your audience", '<div class="pviews">' + "".join(links) + "</div>")
+            view_panel = panel("Pick your audience", '<div class="pviews">' + "".join(links) + "</div>") \
+                .replace('<div class="panel">', '<div class="panel pviews-panel">', 1)
+            cur_lbl = _PERSONA_LABELS.get(cur, cur) if cur else "Everyone"
+            _OBAR.set(_OBAR.get() + '<details class="ob aud"><summary>Audience: '
+                      f'{_html.escape(cur_lbl)} <span class="cv">&#9662;</span></summary>'
+                      '<div class="sc-dd"><div class="g">Pick your audience</div>'
+                      '<div class="pviews">' + "".join(links) + '</div></div></details>')
     src_panel = ""
     if sources:
         slug, counts = sources
@@ -740,7 +757,7 @@ def _title_block(meta: dict, print_href: str | None = None) -> str:
     print_btn = (f'<a class="sc-btn sc-quiet" href="{_html.escape(print_href)}" target="_blank" rel="noopener">'
                  f'{_ICON_PRINT}Print call sheet</a>' if print_href else "")
     return ('<div class="sc-head"><div>'
-            f'<h1>Competitive Brief: <span class="co">{_html.escape(_name(comp))}</span>{who}</h1>'
+            f'<h1><span class="pre">Competitive Brief: </span><span class="co">{_html.escape(_name(comp))}</span>{who}</h1>'
             f'<div class="sc-area"><span class="k">Area:</span> {_html.escape(area)}</div></div>'
             f'{print_btn}</div>')
 
@@ -1038,11 +1055,57 @@ _OVERRIDES = """
   #scout-page .sc-tabs{overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent)}
   #scout-page .sc-tabs::-webkit-scrollbar{display:none}
   #scout-page details.sc-more{display:none}
-  #scout-page .sc-head{align-items:stretch;flex-direction:column;gap:10px}
+  #scout-page .sc-head{align-items:flex-end;flex-direction:row;gap:6px 12px}
   #scout-page .sc-head h1{font-size:24px}
   #scout-page .sc-grid{grid-template-columns:1fr}
 }
 @media(max-width:1000px) and (min-width:761px){ #scout-page .sc-grid{grid-template-columns:1fr 1fr} }
+/* Phones and portrait tablets (2026-10-02 evening): the brief is the star. The rail drops BELOW
+   the brief, its contents + audience become the sticky bar above it, and the metric tiles move to
+   the end of the main column. Under 760px the strip and the statement shrink or go. */
+#scout-page .sc-obar{display:none}
+@media(max-width:980px){
+  #scout-page .sc-obar{display:flex;gap:6px;position:sticky;top:0;z-index:40;background:var(--bg);padding:6px 0;border-bottom:1px solid var(--line2);margin-bottom:8px}
+  #scout-page .sc-obar details{position:relative;flex:1 1 0;min-width:0}
+  #scout-page .sc-obar summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:36px;padding:0 11px;border:1px solid var(--line);border-radius:7px;background:var(--paper);font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #scout-page .sc-obar summary::-webkit-details-marker{display:none}
+  #scout-page .sc-obar summary .cv{font-family:var(--mono);font-size:10px;color:var(--muted)}
+  #scout-page .sc-obar details[open]>summary{border-color:var(--accent-line);background:var(--paper2)}
+  #scout-page .sc-obar .sc-dd{position:absolute;top:calc(100% + 6px);left:0;right:auto;min-width:270px;max-width:calc(100vw - 28px);max-height:70vh}
+  #scout-page .sc-obar details.aud .sc-dd{left:auto;right:0}
+  #scout-page .sc-obar .sc-dd .g{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:7px 10px 3px}
+  #scout-page .sc-obar .sc-dd .gs{display:none}
+  #scout-page .sc-obar .sc-dd a{display:block;padding:7px 10px;border-radius:6px;font-size:13.5px;font-weight:500;color:var(--ink);text-decoration:none;white-space:normal}
+  #scout-page .sc-obar .sc-dd a.tr{color:var(--muted)}
+  #scout-page .sc-obar .sc-dd .pviews{padding:4px 8px 8px}
+  #scout-page .sc-obar .sc-dd .pviews .pv{display:inline-block;padding:5px 10px;font-size:10.5px}
+  #scout-page .cols{display:flex;flex-direction:column;align-items:stretch}
+  #scout-page .maincol,#scout-page .rail{width:100%}
+  #scout-page .ftab-scroll{overflow-x:auto;max-width:100%}
+  #scout-page .rail{order:2;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+  #scout-page .rail .toc,#scout-page .rail .panel.pviews-panel{display:none}
+  #scout-page .rail #toc{display:none}
+  #scout-page .maincol{display:flex;flex-direction:column;min-width:0}
+  #scout-page .maincol>*{min-width:0;max-width:100%}
+  #scout-page hr.rule{display:none}
+  #scout-page .maincol>.metrics{order:99;margin-top:18px;grid-template-columns:repeat(2,minmax(0,1fr))}
+  #scout-page .metric{min-width:0;overflow:hidden}
+  #scout-page .metric .mv,#scout-page .metric .cd,#scout-page .metric .sub{white-space:normal}
+}
+@media(max-width:760px){
+  #scout-page .sc-strip{display:none}
+  #scout-page .sc-bar{min-height:50px;padding:5px 0}
+  #scout-page .sc-lead{display:none}            /* the brief is the star: nothing between the bar and the title on a phone */
+  #scout-page hr.rule{display:none}
+  #scout-page .sc-head{border-bottom:0;padding:6px 0 2px;gap:0 12px;align-items:baseline;flex-direction:row;flex-wrap:wrap}
+  #scout-page .sc-head>div{flex:1 1 100%}
+  #scout-page .sc-head h1{font-size:20px;line-height:1.15}
+  #scout-page .sc-head h1 .pre{display:none}
+  #scout-page .sc-area{display:inline;font-size:12px;margin:0}
+  #scout-page .sc-head .sc-btn.sc-quiet{display:none}   /* printing is a desktop act; the call sheet stays at /print/<slug> */
+  #scout-page .sc-obar{margin:4px 0 2px;padding:4px 0}
+  #scout-page .sc-obar summary{min-height:32px;font-size:13px}
+}
 #scout-page .how{border:1px solid var(--accent-line);background:var(--paper2);border-radius:9px;padding:20px 22px 16px;margin:14px 0 4px;display:flex;flex-direction:column;gap:18px;text-align:left}
 #scout-page .how[hidden],#scout-page .how [hidden]{display:none}
 #scout-page .hw-h{font-family:var(--display);font-weight:600;font-size:21px;line-height:1.15;letter-spacing:-.01em}
@@ -1645,10 +1708,12 @@ def _content_html(slug: str) -> str:
     plays_n = len([c for c in claims if c.get("section") == "battlecard"
                    and c.get("zone") == "where_we_win"][:3])
     nav_ids = set(re.findall(r'id="(u-[a-z0-9-]+)"', secs))   # anchors that actually render
+    _OBAR.set("")
+    rail = _rail(status, present, plays_n, nav_ids, sources=(slug, _classify.class_counts(claims)))
+    obar = f'<div class="sc-obar">{_OBAR.get()}</div>' if _OBAR.get() else ""
     inner = (
-        '<hr class="rule">'
-        '<div class="cols">' + _rail(status, present, plays_n, nav_ids,
-                                     sources=(slug, _classify.class_counts(claims)))
+        '<hr class="rule">' + obar
+        + '<div class="cols">' + rail
         + '<div class="maincol">'
         + _metrics(cp, status["agent_activity"]["claims_tracked"], max(remaining, 0),
                    sum(1 for r in rows if r.get("is_new")))
