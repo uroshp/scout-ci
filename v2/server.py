@@ -73,7 +73,7 @@ def _card_label(slug: str) -> str:
         e = _EMOJI.get(n.lower())
         return f"{e} {n}" if e else n
 
-    return f"{_name(comp)} vs {_name(mine)}" if mine else _name(comp)
+    return f"{_name(comp)} for {_name(mine)}" if mine else _name(comp)
 
 
 def _selfserve_meta(job_id: str, res: dict):
@@ -104,31 +104,10 @@ _CTRL_CSS = (
     ".scout-ctl,.scout-ctl *{box-sizing:border-box;"
     "font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;}"
     ".scout-ctl a{text-decoration:none;}"
-    ".scout-tabs{display:inline-flex;border:1px solid #dfdbcf;border-radius:8px;overflow:hidden;background:#fbfaf6;}"
-    ".scout-tabs a{display:inline-flex;align-items:center;min-height:40px;padding:0 1.05rem;font-weight:600;"
-    "font-size:14px;color:#5f5e54;white-space:nowrap;border-right:1px solid #dfdbcf;transition:background .15s,color .15s;}"
-    ".scout-tabs a:last-child{border-right:none;}"
-    ".scout-tabs a:hover{color:#34566b;}"
-    ".scout-tabs a.on{background:#34566b;color:#fff;}"
-    ".scout-dd{position:relative;display:block;width:auto;min-width:240px;max-width:340px;}"
-    ".scout-dd>summary{list-style:none;cursor:pointer;display:flex;align-items:center;min-height:40px;"
-    "justify-content:space-between;gap:10px;padding:0 .8rem;font-size:14px;font-weight:500;color:#1c1d16;"
-    "background:#fbfaf6;border:1px solid #dfdbcf;border-radius:8px;transition:border-color .15s;}"
-    ".scout-dd>summary::-webkit-details-marker{display:none;}"
-    ".scout-dd>summary:hover,.scout-dd[open]>summary{border-color:#34566b;}"
-    ".scout-dd>summary .cv{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;color:#908e82;transition:transform .15s;}"
-    ".scout-dd[open]>summary .cv{transform:rotate(180deg);}"
-    ".scout-dd .menu{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:60;background:#fbfaf6;"
-    "border:1px solid #dfdbcf;border-radius:8px;box-shadow:0 6px 24px rgba(28,29,22,.12);padding:5px;max-height:62vh;overflow:auto;}"
-    ".scout-dd .menu a{display:block;padding:8px 11px;border-radius:6px;font-size:14px;color:#33312a;}"
-    ".scout-dd .menu a:hover{background:rgba(52,86,107,.08);color:#1c1d16;}"
-    ".scout-dd .menu a.on{background:#34566b;color:#fff;}"
-    ".scout-bar{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin:16px 0 6px;}"
-    ".scout-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}"
-    ".scout-print{display:inline-flex;align-items:center;gap:7px;box-sizing:border-box;min-height:40px;padding:0 15px;"
-    "font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:600;font-size:12px;color:#34566b;background:#fbfaf6;"
+    ".scout-print{display:inline-flex;align-items:center;gap:7px;box-sizing:border-box;min-height:36px;padding:0 14px;"
+    "font-weight:600;font-size:14px;color:#1c1d16;background:#fbfaf6;"
     "border:1px solid #dfdbcf;border-radius:8px;white-space:nowrap;transition:border-color .15s,color .15s;}"
-    ".scout-print:hover{border-color:#34566b;color:#2a4658;}"
+    ".scout-print:hover{border-color:rgba(52,86,107,.24);background:#fff;}"
     # self-serve form (own palette; the old _FORM_CSS only existed to drag Streamlit widgets onto our font)
     ".ss-wrap{font-family:'Inter',system-ui,sans-serif;color:#1c1d16;max-width:640px;}"
     ".ss-title{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:28px;margin:.4rem 0 .3rem;}"
@@ -213,39 +192,11 @@ def _countdown_js() -> str:
         "</script>")
 
 
-def _control_bar(is_create: bool, slug, cards: list, right_html: str = "", mode: str | None = None) -> str:
-    """The mode tabs + card dropdown + print link, ported to real routes (no query params).
-    `right_html` overrides the right-aligned slot (the .scout-bar is flex space-between) — the
-    result page puts its Print/Download actions there, on the same row as the tabs.
-    `mode` (2026-09-28) names the active tab: cards | create."""
-    mode = mode or ("create" if is_create else "cards")
-    tabs = ('<div class="scout-tabs">'
-            f'<a class="{"on" if mode == "cards" else ""}" href="/">Living battlecards</a>'
-            f'<a class="{"on" if mode == "create" else ""}" href="/create">Create your own</a></div>')
-    left = tabs
-    print_btn = ""
-    if not is_create and slug:
-        opts = "".join(
-            f'<a class="{"on" if c == slug else ""}" href="/c/{c}">{_html.escape(_card_label(c))}</a>'
-            for c in cards)
-        dd = ('<details class="scout-dd">'
-              f'<summary><span>{_html.escape(_card_label(slug))}</span>'
-              '<span class="cv">&#9662;</span></summary>'
-              f'<div class="menu">{opts}</div></details>')
-        left = f'<div class="scout-left">{tabs}{dd}</div>'
-        print_btn = (f'<a class="scout-print" href="/print/{slug}" target="_blank" rel="noopener">'
-                     '&#128424; Print call sheet</a>')
-    right = right_html or print_btn
-    return f'<div class="scout-ctl scout-bar">{left}{right}</div>'
-
-
 def _chrome_with_actions(cards: list, right_html: str) -> str:
-    """Chrome variant for the result page: the action buttons ride the control bar's right slot
-    (same row as the tabs, right-aligned) so the report content starts tight underneath —
-    no floating button block, no dead space (2026-07-19 layout note)."""
-    return (page.masthead_html()
-            + f'<div class="wrap" style="padding:0 0 16px">'
-              f'{_control_bar(True, None, cards, right_html=right_html)}</div>')
+    """Chrome variant for the result page: the app bar, then the page's own actions in a
+    right-aligned row so the report starts tight underneath."""
+    return (page.masthead_html(cards, None, mode="create")
+            + f'<div id="scout-page"><div class="wrap" style="padding:0"><div class="sc-actions">{right_html}</div></div></div>')
 
 
 def _doc(body_inner: str, *, title: str, page_type: str = None, ask: tuple | None | bool = None) -> str:
@@ -355,14 +306,9 @@ def rc_login():
 
 
 def _chrome(is_create: bool, slug, cards: list) -> str:
-    """Masthead + the control bar (centered in a .wrap, matching the card body's own .wrap)."""
-    # The control bar lives OUTSIDE #scout-page, so it'd inherit the mockup's base
-    # .wrap{padding:0 24px 56px} — a 56px gap above the title + a 24px indent vs the rest.
-    # Override to align it (no L/R pad, matching the #scout-page .wrap) and close the gap.
-    # Balance the bar: the gap ABOVE it (masthead 6px + .scout-bar 16px top = ~22px) should equal
-    # the gap BELOW it. .scout-bar adds 6px below, so the wrap carries the remaining ~16px.
-    return (page.masthead_html()
-            + f'<div class="wrap" style="padding:0 0 16px">{_control_bar(is_create, slug, cards)}</div>')
+    """The top of the page: app bar, lead row, the How it works panel and, on a brief, the
+    briefs strip (page.masthead_html, 2026-10-02)."""
+    return page.masthead_html(cards, slug, mode="create" if is_create else "cards")
 
 
 # --- server-side GA4 visit (the unblockable catcher, ported from the Streamlit app) ----------
@@ -466,15 +412,15 @@ def assets(fname):
 
 @app.get("/")
 def index():
+    """The home page is the collection (2026-10-02): every brief as a card. A direct link to a
+    brief (/c/<slug>) is unchanged."""
     cards = _ordered_cards()
     if not cards:
         return _doc(_chrome(False, None, cards)
-                    + '<div class="wrap"><p>No battlecards have been generated yet.</p></div>',
-                    title="Agent Scout — Living Battlecards", page_type="home")
-    # The homepage serves the most-recently-updated card inline; page_type='home' marks it as a
-    # DEFAULT landing in GA (content_group) so it is never confused with a deliberate card view,
-    # whose route below sends page_type='card'.
-    return _card_page(cards[0], cards, page_type="home")
+                    + '<div class="wrap"><p>No briefs have been generated yet.</p></div>',
+                    title="Agent Scout — Competitive briefs", page_type="home")
+    return _doc(_chrome(False, None, cards) + page.index_html(cards),
+                title="Agent Scout — Competitive briefs", page_type="home")
 
 
 @app.get("/c/<slug>")
@@ -645,7 +591,7 @@ def create():
                 'please check back shortly.</p></div>')
         return _doc(chrome + body, title="Create your own — Agent Scout", page_type="create")
     if not gate.get("open"):
-        body = (f'<div class="wrap ss-wrap"><h2 class="ss-title">Create your own battlecard</h2>'
+        body = (f'<div class="wrap ss-wrap"><h2 class="ss-title">Create your own brief</h2>'
                 f'<p class="ss-cap">The free launch window is full. '
                 f'For access, <a href="{_html.escape(config.SELFSERVE_CONTACT)}">get in touch</a>.</p></div>')
         return _doc(chrome + body, title="Create your own — Agent Scout", page_type="create")
@@ -658,9 +604,9 @@ def _form_html(gate: dict) -> str:
                    if config.SELFSERVE_EMAIL_ENABLED else "")
     return (
         '<div class="wrap ss-wrap">'
-        '<h2 class="ss-title">Create your own battlecard</h2>'
+        '<h2 class="ss-title">Create your own brief</h2>'
         f'<p class="ss-cap"><b>{gate.get("free_left", 0)} free reports left.</b> Two companies, '
-        'optional focus. We research, verify every claim against its source, then show you the card.</p>'
+        'optional focus. We research, verify every claim against its source, then show you the brief.</p>'
         '<div id="ss-form">'
         '<label>Competitor to research (required)<input id="ss-comp" maxlength="60" placeholder="e.g. OpenAI"></label>'
         '<label>Your company (optional)<input id="ss-mine" maxlength="60" placeholder="e.g. Anthropic"></label>'

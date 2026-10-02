@@ -12,14 +12,14 @@ class HowPanel(unittest.TestCase):
         self.panel = self.html[self.html.index('id="how"'):]
 
     def test_closed_button_and_panel(self):
-        self.assertIn('id="how-btn" aria-expanded="false" aria-controls="how"', self.html)
+        self.assertIn('data-how aria-expanded="false" aria-controls="how"', self.html)
         self.assertIn('<div class="how" id="how" hidden>', self.html)
         self.assertIn("location.hash==='#how'", self.html)          # the direct link opens it
 
     def test_wording_decided_by_the_author(self):
-        self.assertIn("Competitive briefs that are deal-moving and always fresh.", self.html)
-        self.assertIn("Click to learn more", self.html)
-        self.assertIn(page._LIVE_LINE, self.html)
+        self.assertIn(page._STATEMENT, self.html)
+        self.assertIn(page._SYSTEM_LINE, self.panel)                   # first line of the panel
+        self.assertNotIn("livebox", self.html)
         self.assertNotIn("orchestra", self.html)
         for state in ("<b>Publish</b><span>Along with source and date</span>", "<b>Cut</b>", "<b>Hold</b>"):
             self.assertIn(state, self.panel)
@@ -64,9 +64,32 @@ class HowPanel(unittest.TestCase):
         with mock.patch.object(page, "_how_panel", side_effect=RuntimeError("boom")):
             html = page.masthead_html()
         self.assertIn("Agent Scout", html)
-        self.assertNotIn("how-btn", html)
+        self.assertNotIn("data-how", html)
         self.assertNotIn("<script", html)
 
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TopOfPage(unittest.TestCase):
+    """The app bar, the strip and the header (2026-10-02)."""
+    def test_brief_parts_normalise_the_area(self):
+        self.assertEqual(page.brief_parts({"competitor": "A", "my_company": "B", "focus": "None"})[2], "General")
+        self.assertEqual(page.brief_parts({"focus": "enterprise coding/developers"})[2], "Enterprise coding and developers")
+        self.assertEqual(page.brief_parts({"focus": "AI/ML infrastructure"})[2], "AI and ML infrastructure")
+
+    def test_header_has_one_size_and_no_vs(self):
+        h = page._title_block({"competitor": "OpenAI", "my_company": "Anthropic", "focus": "x"}, print_href="/print/s")
+        self.assertIn('Competitive Brief: <span class="co">OpenAI</span> for Anthropic sales reps', h)
+        self.assertIn("Area:", h); self.assertIn("Print call sheet", h); self.assertNotIn(" vs ", h)
+
+    def test_strip_only_with_a_brief_and_tabs_carry_area_and_tooltip(self):
+        from scout import display
+        cards = display.list_battlecards()
+        self.assertNotIn("sc-strip", page.masthead_html(cards, None))
+        h = page.masthead_html(cards, cards[0])
+        self.assertIn('class="sc-tab on"', h)
+        self.assertEqual(len(re.findall(r'class="sc-tab( on)?" href', h)), len(cards))
+        self.assertIn('title="', h); self.assertIn('class="ar"', h)
+        self.assertIn(f'<span class="sc-cnt">{len(cards)}</span>', h)
