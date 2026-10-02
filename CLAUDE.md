@@ -9,7 +9,7 @@ Scout — a competitive intelligence tool. Given a competitor (and optionally th
 ## Repo layout — two self-contained versions
 
 The repo holds two generations, each in its own folder with its own `requirements.txt`,
-`methodology.md`, and README:
+and README (the methodology is in the private judgment pack):
 
 - **`v1/`** — the shipped **pipeline** (this CLAUDE.md mostly documents v1; details below).
 - **`v2/`** — **Agent Scout**, the model-driven evolution (`app_v2.py` + the `scout/` package,
@@ -45,7 +45,7 @@ No build step, no linter. v2 has a focused stdlib-`unittest` suite in `v2/tests/
 
 The pipeline is a **fixed control flow written in code** (`research_competitor`): `generate_brief` → `verify_brief` → `save_report`. This is deliberate (v1 is a pipeline, not an agent — see Roadmap in README). Both passes are single `client.messages.create` calls with the Anthropic **web search tool** enabled.
 
-- **`v1/research.py`** — the engine. Two large prompts (`generate_brief`, `verify_brief`) that share three constants injected into both: `SOURCE_HIERARCHY` (a typed trust ladder — Tier 1A audited fact vs 1B self-positioning vs 2E analyst estimate vs 4 raw sentiment; the prompts forbid blurring fact / company-claim / estimate / sentiment), `FORMATTING_RULES`, and the contents of `v1/methodology.md`. `verify_brief` is adversarial by design — it re-searches the draft's claims and returns only survivors plus the Cut Log.
+- **`v1/research.py`** — the retired engine's control flow (`research_competitor`: generate → verify → save) and its deterministic helpers. Its two prompts and shared rule blocks are no longer in this file; the complete v1 engine is archived in the private judgment pack.
 - **The methodology and every prompt** (v1 and v2) live in the PRIVATE judgment pack (`judgment/pack.json` in the private data repo), loaded through `v2/scout/judgment.py`. They are not in this repo. v1's `generate_brief` / `verify_brief` are retired stubs.
 - **`v1/app.py`** — Streamlit UI: password gate, two tabs (sample reports / run-your-own), daily run limit, fake progress messages. Calls the same engine functions.
 - **`v1/reports/`** — committed sample briefs. The in-app "Sample Reports" dropdown reads directly from this directory (`list_samples` parses the `Label_vs_Label_DATE_TIME.md` filename convention). New live runs also save here via `save_report`.
