@@ -64,6 +64,11 @@ def check_replay(day: date) -> list[str]:
         last = str(st.get("last_run") or "")[:10]
     except Exception as e:
         return [f"replay: state.json unreadable ({type(e).__name__})"]
+    if _replay_running():
+        # The window is wide on purpose (2026-10-02: "let's not artificially limit anything"), so a
+        # replay can still be working at the 09:00 pass. In progress is not a finding; the 15:15
+        # pass, after the backstop deadline, checks the finished run.
+        return []
     if last != day.isoformat():
         problems.append(f"replay: last_run is {last or 'unknown'}, not today (the 05:15 replay did not run)")
         return problems
@@ -81,6 +86,16 @@ def check_replay(day: date) -> list[str]:
     if "=== replay end ===" not in today_log:
         problems.append("replay: no '=== replay end ===' today (aborted or still running)")
     return problems
+
+
+def _replay_running() -> bool:
+    """True while run.sh holds its lock and the process named in it is alive."""
+    try:
+        pid = int(open(os.path.join(REPLAY_DIR, "lock")).read().strip())
+        os.kill(pid, 0)
+        return True
+    except (OSError, ValueError):
+        return False
 
 
 def arm_problems(today_log: str) -> list[str]:
