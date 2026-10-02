@@ -136,7 +136,7 @@ anchored to the file location, so it runs from any working directory.)
 v1/
 ├── app.py                 # Streamlit UI: tabs, password gate, cut-log expander, deterministic cleanup
 ├── research.py            # Engine: generate_brief → verify_brief → save_report
-├── methodology.md         # The CI discipline the model is held to (editable, not buried in code)
+├── (methodology)          # The CI discipline the model is held to; private since October 2026, not in this repo
 ├── reports/               # Committed sample briefs (the in-app dropdown reads from here)
 ├── test.py · sdk_test.py  # Ad-hoc API smoke scripts (not a test suite)
 └── requirements.txt

@@ -78,7 +78,7 @@ directory. See each folder’s README for the full story: **<v1/README.md>** ·
 
 ```
 scout-ci/
-├── v1/                     # the pipeline (app.py, research.py, methodology.md, reports/)
+├── v1/                     # the pipeline (app.py, research.py, reports/); retired, its prompts are private
 ├── v2/                     # Agent Scout (app_v2.py, scout/ package, battlecards/, …)
 ├── .github/workflows/      # v2 automation: monitor (daily) + selfserve (on-demand), run inside v2/
 ├── .streamlit/             # shared Streamlit config
@@ -95,6 +95,12 @@ scout-ci/
 The v1→v2 jump is the real story: same interface, same methodology but the orchestration core
 moves from *a pipeline I control* to *a loop the model drives*. Keeping both side by side — each
 clean and independently launchable — is deliberate; the git history is meant to show the evolution.
+
+**What is not in this repository.** Scout's instruction text (the prompts, the sourcing and writing
+rules, the judge's rules, the methodology) lives in a private judgment pack, loaded at run time through
+[`v2/scout/judgment.py`](v2/scout/judgment.py). The code that enforces verification (grounding, the
+floors, the gates, the evals) is here to read. The modules name their blocks; the text itself is not
+published.
 
 **Roadmap & known limitations:** what I deferred on purpose, and the next step for each, lives
 in [`v2/ROADMAP.md`](v2/ROADMAP.md). Knowing where to stop was itself one of the decisions.
