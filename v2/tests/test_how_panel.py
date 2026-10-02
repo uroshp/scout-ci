@@ -81,7 +81,7 @@ class TopOfPage(unittest.TestCase):
 
     def test_header_has_one_size_and_no_vs(self):
         h = page._title_block({"competitor": "OpenAI", "my_company": "Anthropic", "focus": "x"}, print_href="/print/s")
-        self.assertIn('Competitive Brief: <span class="co">OpenAI</span> for Anthropic sales reps', h)
+        self.assertIn('Competitive Brief: </span><span class="co">OpenAI</span> for Anthropic sales reps', h)
         self.assertIn("Area:", h); self.assertIn("Print call sheet", h); self.assertNotIn(" vs ", h)
 
     def test_strip_only_with_a_brief_and_tabs_carry_area_and_tooltip(self):
@@ -93,3 +93,14 @@ class TopOfPage(unittest.TestCase):
         self.assertEqual(len(re.findall(r'class="sc-tab( on)?" href', h)), len(cards))
         self.assertIn('title="', h); self.assertIn('class="ar"', h)
         self.assertIn(f'<span class="sc-cnt">{len(cards)}</span>', h)
+
+
+class PhoneBar(unittest.TestCase):
+    def test_contents_and_audience_bar_is_rendered_once_above_the_columns(self):
+        from scout import display
+        slug = display.list_battlecards()[0]
+        h = page.content_html(slug)
+        self.assertEqual(h.count('class="sc-obar"'), 1)
+        self.assertLess(h.index('class="sc-obar"'), h.index('class="cols"'))
+        self.assertIn('<details class="ob"><summary>Contents', h)
+        self.assertIn('class="toc" id="toc"', h)                           # the rail keeps its own
