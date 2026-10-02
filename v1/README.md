@@ -10,7 +10,7 @@ Give Scout a competitor — and optionally your own company and a focus area —
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 ![Built with Claude](https://img.shields.io/badge/Built%20with-Claude%20API-D97757)
-![License: MIT](https://img.shields.io/badge/License-MIT-green)
+![License: all rights reserved](https://img.shields.io/badge/License-All%20rights%20reserved-lightgrey)
 
 🔗 **[Live demo](https://agent-scout.ai)** · password in my LinkedIn bio · 📄 sample reports are loaded in the app’s first tab
 
@@ -152,4 +152,4 @@ I’m a product marketing leader with a computer-science background, and I think
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+All rights reserved. The source is published for review only; see [LICENSE](../LICENSE). Versions up to 1 October 2026 were MIT.

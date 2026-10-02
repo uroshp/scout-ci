@@ -234,3 +234,31 @@ class CutLogShapes(unittest.TestCase):
         html, n = page._cut_log(md)
         self.assertEqual(n, 3)
         self.assertIn("removed as contamination", html); self.assertIn("quoted as projections", html); self.assertIn("unverifiable", html)
+
+
+class ServerVisitGate(unittest.TestCase):
+    """The server-side GA event is minted only by the production service, never by tests or a
+    local boot (2026-10-01: full test runs were sending real `server_visit` events)."""
+
+    def _hit(self, env):
+        import os
+        from unittest import mock
+        import server
+        calls = []
+        with mock.patch.dict(os.environ, env, clear=False), \
+             mock.patch.object(server.config, "ANALYTICS_ENABLED", True), \
+             mock.patch.object(server.analytics, "_ga4_server_event", side_effect=lambda *a, **k: calls.append(a)):
+            for k in ("K_SERVICE", "SCOUT_GA_SERVER_EVENTS"):
+                if k not in env:
+                    os.environ.pop(k, None)
+            r = server.app.test_client().get("/", headers={"User-Agent": "Mozilla/5.0 (Macintosh) Safari/605.1.15"})
+            self.assertEqual(r.status_code, 200)
+            import time; time.sleep(0.05)                    # the sender runs on a thread
+        return calls
+
+    def test_no_event_outside_production(self):
+        self.assertEqual(self._hit({}), [])
+        self.assertEqual(self._hit({"K_SERVICE": "agent-scout-rc"}), [])
+
+    def test_event_on_the_production_service(self):
+        self.assertEqual(len(self._hit({"K_SERVICE": "agent-scout"})), 1)

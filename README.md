@@ -99,4 +99,4 @@ clean and independently launchable — is deliberate; the git history is meant t
 **Roadmap & known limitations:** what I deferred on purpose, and the next step for each, lives
 in [`v2/ROADMAP.md`](v2/ROADMAP.md). Knowing where to stop was itself one of the decisions.
 
-— [LinkedIn](https://www.linkedin.com/in/urospajic) · MIT — see <LICENSE>.
+[LinkedIn](https://www.linkedin.com/in/urospajic) · All rights reserved. The source is published for review only; see [LICENSE](LICENSE).
