@@ -49,7 +49,7 @@ streamlit run app_v2.py
 (From the repo root: `streamlit run v2/app_v2.py`. All data paths are anchored to this folder via
 `scout.config.APP_ROOT`, so the app works regardless of the working directory — which is why
 Streamlit Cloud, running from the repo root with the entrypoint set to `v2/app_v2.py`, finds
-`v2/battlecards`, `v2/methodology.md`, etc.)
+`v2/battlecards`, etc.)
 
 ## Structure
 
@@ -64,13 +64,13 @@ v2/
 │   ├── store.py         # battlecards/<slug>/ JSON state + rendered markdown
 │   ├── selfserve.py     # async "create your own" gate + GitHub-API backend
 │   ├── display.py       # the viewer's data (freshness, change feed, claim timestamps)
-│   └── prompts.py       # SOURCE_HIERARCHY / FORMATTING_RULES (+ loads methodology.md)
+│   ├── judgment.py      # the only door to the private judgment pack (prompts, rules, methodology)
+│   └── prompts.py       # names the shared blocks (SOURCE_HIERARCHY / WRITING_STYLE / methodology), text loaded from the pack
 ├── battlecards/         # committed living battlecards (the showcase set)
 ├── selfserve/           # request queue + gate state (state.json)
 ├── scripts/             # run_selfserve.py (Action entrypoint), render_static.py, source_audit.py
 ├── assets/              # logo / icon
 ├── docs/                # v2 spec, claim-object schema, launch decision log
-├── methodology.md       # the CI discipline (v2's own copy; v1 keeps its own)
 └── requirements.txt
 ```
 

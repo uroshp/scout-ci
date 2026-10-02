@@ -42,6 +42,7 @@ from scout.grounding import _normalize, ground_claims
 from scout.prompts import SOURCE_HIERARCHY, WRITING_STYLE
 from scout.sources import classify
 from scout.schema import ZONES
+from scout import judgment
 
 ASK_RESEARCH_BUDGET_USD = config.ASK_RESEARCH_BUDGET_USD
 ASK_VERIFY_BUDGET_USD = config.ASK_VERIFY_BUDGET_USD
@@ -58,65 +59,13 @@ MAX_ROUNDS = 2
 MAX_CARD_FACTS = 24
 ASK_DIR = "ask"
 
-ANSWER_CONTRACT = """You are Scout, a competitive-intelligence analyst who answers ONE question with prose that
-rests on verified facts only. Read the KNOWN FACTS first (already verified; cite them by id). Search
-and fetch only for what they do not cover. Then return ONLY a single fenced ```json block:
+ANSWER_CONTRACT = judgment.get("ask.ANSWER_CONTRACT")
 
-{"facts": [ <new facts you found, each in the CLAIM CONTRACT shape below, each with an "id" field you
-            assign: "f1", "f2", ... (never reuse a KNOWN FACT id); "claim_type" must be "fact";
-            section "recent_moves"; zone null; order 0> ],
- "answer": [ {"text": "<one sentence or short paragraph>", "cites": ["<fact id>", ...],
-              "key": "<the one clause of text a reader must not miss, copied VERBATIM from text>"}, ... ],
- "unanswered": ["<a topic the question asked about that no source you could verify covers>", ...]}
+QUICK_CONTRACT = judgment.get("ask.QUICK_CONTRACT")
 
-RULES. Every answer entry cites at least one fact id (a KNOWN FACT id exactly as listed, or one of your
-new "f" ids); a fact without an "id" field or an entry with no cite will be deleted by code. Every number, percentage, money amount, and
-year in an entry must appear in the evidence_excerpt of a fact it cites; code checks this and deletes
-what fails. Never paraphrase a filing figure: the sec_fact tool gives you the exact line to copy as an
-evidence_excerpt. If the question asks for something you cannot verify, put the TOPIC in
-"unanswered" (no numbers) instead of guessing. Do not pad: three tight, well-cited entries beat eight.
-Write for the reader named in CONTEXT when one is given.
-TOOL BUDGET: at most 4 web searches and 3 page reads in total. Read the KNOWN FACTS before any search;
-if the budget runs out, answer from what you have verified and put the rest in "unanswered".
-SPEED: the reader is waiting. Issue your searches TOGETHER in one turn (several tool calls in one
-message), then ALL your page reads together in the next turn (several fetch calls in one message);
-never one tool per turn. LENGTH: at most FOUR answer entries; the reader asks a follow-up for more.
-"""
+VERIFY_SYSTEM = judgment.get("ask.VERIFY_SYSTEM")
 
-QUICK_CONTRACT = """You are Scout, a competitive-intelligence analyst answering ONE question in a chat, quickly, from
-what Scout has already verified. You have NO tools and may add NO facts: answer ONLY from the KNOWN FACTS
-and SCOUT'S TAKES below (takes are Scout's own battlecard judgments; a sentence resting on one must say
-"Scout's take"). Two or three sentences, each citing at least one id; lead with what a sales rep should
-say first. Each sentence stands alone (no "also", "however", "in addition": the checks may cut its
-neighbour). Put ids ONLY in "cites", never in the sentence text. Every number, date and name in a sentence must appear in the text of a fact it cites; code
-checks this and deletes what fails. If the question asks for something the facts do not cover, put that
-TOPIC (no numbers) in "unanswered" and answer only what they do cover; if they cover nothing, return an
-empty answer. Return ONLY a single fenced ```json block:
-{"answer": [{"text": "<one sentence>", "cites": ["<id>", ...], "key": "<the clause a reader must not miss, VERBATIM from text>"}, ...],
- "unanswered": ["<topic>", ...]}
-"""
-
-VERIFY_SYSTEM = """You are the VERIFIER of an answer written from verified facts. You have no tools, on purpose:
-judge ONLY against the facts given. For EACH numbered sentence decide whether it is SUPPORTED by the
-facts it cites: every claim it makes must be licensed by the cited facts' text and excerpts, at their
-LITERAL scope. REJECT a sentence if it asserts a number, entity, date, mechanism, motive or causal
-link the cited facts do not state; if it generalizes a scoped fact; or if it cites nothing relevant.
-Default to reject when not convinced. On a reject, name the cure: "prose" when the point is right but
-the wording overreaches (a rewrite citing the same facts can fix it), "root" when the point itself is
-not in the facts, "none" when nothing citable supports it. Your reason is the only feedback the
-rewriter gets: name the complete fix.
-
-Return ONLY a single fenced ```json block:
-{"verdicts": [{"op_index": <sentence number>, "verdict": "confirm|reject", "material": true,
-               "cure": "prose|root|none", "reason": "<complete diagnosis>"}]}
-"""
-
-REWRITE_SYSTEM = """Rewrite ONLY the sentences listed, so each says no more than the facts it cites state, keeping the
-same cites (drop a cite only if you also drop what it supported). Each rewrite is a standalone statement: no
-discourse opener (So, Today, In short, As noted), no reference to other sentences, and nothing that the
-OTHER SENTENCES already say. Return ONLY a fenced ```json block:
-{"answer": [{"index": <sentence number>, "text": "<rewritten>", "cites": [...], "key": "<verbatim clause to stress>"}]}
-"""
+REWRITE_SYSTEM = judgment.get("ask.REWRITE_SYSTEM")
 
 _FACT_KEYS = ("id", "claim", "source_url", "source_tier", "evidence_excerpt", "as_of")
 _TIERS = ("primary", "reputable_secondary", "sentiment_only")

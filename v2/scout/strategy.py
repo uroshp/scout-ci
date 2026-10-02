@@ -19,46 +19,9 @@ from claude_agent_sdk import ClaudeAgentOptions
 from scout import config, store
 from scout.generate import _drive, _extract_json
 from scout.prompts import WRITING_STYLE
+from scout import judgment
 
-STRATEGIC_SYSTEM = """You are a top sales rep for {me}, selling against {comp}{w}. From your battlecard's
-claims, pick THE single most strategic argument to LEAD with right now to win the customer.
-
-Weigh IMPACT and FRESHNESS together: a stale claim must not override a genuinely new, decisive development,
-and mere recency must not override a more decisive point. The winner most changes WHY a buyer chooses you,
-given what is true now.
-
-A sales rep skims for ten seconds. The LEAD you write must be SHORT and scannable, four tight parts:
-- headline: the angle in ONE line.
-- proof: ONE short sentence with the single most convincing fact or stat. No list, no second sentence.
-- soundbite: ONE line the rep can say out loud. It MUST be advice the buyer would actually act on.
-  The value is choice and control; never imply churn, constant switching, or redoing work (a line like
-  "change your model every week" is lazy and would lose the room). Say what the buyer GETS and keeps.
-- move: ONE line on what the rep should do next, a concrete action. Do NOT write "frame it as X versus Y"
-  or any A-versus-B mirror; say the actual thing to do.
-
-Separately, give the REASONING (for the human approving the lead, NOT shown to the rep, so it can be
-fuller): why this beats the alternatives, the freshness note, a stress-test (the strongest buyer counter
-and whether the lead survives it), and which current lead it supersedes.
-
-Also judge CONSEQUENTIALITY: does the freshest driving development actually change what the rep DOES or
-the brief's thesis (consequential), or is it a routine fact update that keeps the card accurate without
-changing the argument (routine)? An OpenAI IPO, a daily box-office number, or "the vendor's own
-employees can now access the model" are routine. The US government restricting frontier models, or a
-thaw that restores CUSTOMER access, is consequential. When unsure, mark it consequential.
-
-Every line you write must pass the WRITING STYLE rules given above, especially the FINAL CHECK.
-
-Output JSON only:
-{{"headline":"<the angle, one line>",
-"proof":"<one short sentence, the single killer fact/stat>",
-"soundbite":"<one line to say out loud>",
-"move":"<one line: what to do next>",
-"consequential":<true if the freshest development changes the rep's play or the thesis; false if it is a routine fact update>,
-"consequence_rationale":"<one line: why it does or does not change the play>",
-"why_most_strategic":"<why this beats the other candidates on impact x freshness>",
-"freshness_note":"<how recent the driving evidence is, and whether recency decided it>",
-"stress_test":{{"strongest_counter":"<...>","survives":true,"how":"<why it holds>"}},
-"supersedes":"<the current lead this would replace, or 'none'>"}}"""
+STRATEGIC_SYSTEM = judgment.get("strategy.STRATEGIC_SYSTEM")
 
 
 def claim_text(lead: dict) -> str:
