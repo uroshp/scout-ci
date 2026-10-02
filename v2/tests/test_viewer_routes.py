@@ -33,13 +33,13 @@ class Routes(unittest.TestCase):
 
     def test_home_is_the_collection_and_card_renders_with_chips_and_rail_panels(self):
         c = _client()
-        home = c.get("/")
-        self.assertEqual(home.status_code, 200)
-        hh = home.data.decode()
-        self.assertIn('class="sc-grid"', hh)                            # the index grid (2026-10-02)
+        allb = c.get("/briefs")
+        self.assertEqual(allb.status_code, 200)
+        hh = allb.data.decode()
+        self.assertIn('class="sc-grid"', hh)                            # the collection page (2026-10-02)
         self.assertIn(f'href="/c/{self.slug}"', hh)
         self.assertNotIn('class="sc-strip"', hh)                        # no strip on the collection itself
-        for path in (f"/c/{self.slug}",):
+        for path in ("/", f"/c/{self.slug}"):                           # home = the latest brief
             r = c.get(path)
             self.assertEqual(r.status_code, 200, path)
             h = r.data.decode()
@@ -53,7 +53,7 @@ class Routes(unittest.TestCase):
 
     def test_app_bar_marks_the_active_page(self):
         c = _client()
-        self.assertIn('href="/" class="sc-navlink on"', c.get("/").data.decode())
+        self.assertIn('href="/briefs" class="sc-navlink on"', c.get("/").data.decode())
         self.assertIn('class="sc-btn sc-pri on" href="/create"', c.get("/create").data.decode())
         card = c.get(f"/c/{self.slug}").data.decode()
         self.assertIn(f'class="sc-tab on" href="/c/{self.slug}"', card)      # the current brief's tab
