@@ -814,7 +814,7 @@ def _how_panel() -> str:
     asof = f'<span class="hw-asof">figures read live &middot; last run {fig["run"]}</span>' if fig else ""
     return (
         '<div class="how" id="how" hidden>'
-        '<div><div class="hw-h">How Scout keeps a brief true</div>'
+        '<div><div class="hw-h">How Scout keeps briefs true and useful</div>'
         '<p class="hw-lede">AI agents search for changes, decide what is material, and track the '
         'provenance and accuracy of every claim. Each model has one job. No decision is approved by '
         'the model that made it.</p></div>'
@@ -936,7 +936,7 @@ _OVERRIDES = """
 #scout-page .hw-track.seg span.w2{grid-column:span 2;border-right:0}
 #scout-page .hw-evh{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-deep);margin-top:5px}
 #scout-page .hw-ev p{font-size:12.5px;color:var(--muted);line-height:1.42;margin:1px 0 2px}
-#scout-page .hw-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+#scout-page .hw-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:22px}
 #scout-page .hw-col h4{margin:0 0 6px;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-deep);padding-bottom:6px;border-bottom:1px solid var(--line)}
 #scout-page .hw-col ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
 #scout-page .hw-col li{font-size:13px;line-height:1.45;color:var(--ink);padding-left:13px;position:relative;margin:0}
