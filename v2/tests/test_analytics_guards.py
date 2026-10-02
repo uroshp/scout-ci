@@ -82,3 +82,39 @@ class ServerVisitOnlyOn200(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class LiveRuntimeLock(unittest.TestCase):
+    """No path reaches GA or the visit log outside a production runtime (2026-10-01: the route
+    tests and the stub's AppTest were minting real server_visit events on every full run)."""
+
+    def _send(self, env):
+        import os
+        from unittest import mock
+        with mock.patch.dict(os.environ, env, clear=False), \
+             mock.patch.object(analytics.os.path, "isdir", return_value=False), \
+             mock.patch.object(analytics.config, "GA_MEASUREMENT_ID", "G-TEST"), \
+             mock.patch.object(analytics.config, "GA_API_SECRET", "s3cret"), \
+             mock.patch.object(analytics.urllib.request, "urlopen") as urlopen:
+            for k in ("K_SERVICE", "SCOUT_GA_SERVER_EVENTS"):
+                if k not in env:
+                    os.environ.pop(k, None)
+            analytics._ga4_server_event("cid", "1.2.3.4", "", "", {}, ua="Mozilla/5.0 Safari")
+            return urlopen.called
+
+    def test_sender_is_silent_outside_production(self):
+        self.assertFalse(self._send({}))
+        self.assertFalse(self._send({"K_SERVICE": "agent-scout-rc"}))
+
+    def test_sender_fires_on_the_production_service(self):
+        self.assertTrue(self._send({"K_SERVICE": "agent-scout"}))
+
+    def test_visit_log_is_not_written_outside_production(self):
+        import os
+        from unittest import mock
+        with mock.patch.object(analytics.os.path, "isdir", return_value=False), \
+             mock.patch.dict(os.environ, {}, clear=False), \
+             mock.patch("scout.selfserve.append_data") as append:
+            os.environ.pop("K_SERVICE", None); os.environ.pop("SCOUT_GA_SERVER_EVENTS", None)
+            analytics._log_async("cid", "1.2.3.4", "", "Mozilla/5.0 Safari", "")
+        self.assertFalse(append.called)

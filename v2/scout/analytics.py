@@ -13,6 +13,7 @@ so a visit is counted once, not once per interaction.
 """
 import ipaddress
 import json
+import os
 import sys
 import threading
 import time
@@ -193,6 +194,17 @@ def _device_from_ua(ua):
     return dev
 
 
+def _live_runtime() -> bool:
+    """The second lock on outbound analytics (2026-10-01). The GA server event and the first-party
+    visit log run only on a production runtime: the production Cloud Run service (Cloud Run sets
+    K_SERVICE), Streamlit Community Cloud (its source mount, for the retiring stub), or under an
+    explicit override. The local .env carries the GA secret and the store token, so without this
+    every test run that rendered a page (the route tests, and the stub's AppTest through
+    record_visit) minted a real `server_visit` in GA and a fake row in the visit log."""
+    return (os.environ.get("K_SERVICE") == "agent-scout" or os.path.isdir("/mount/src")
+            or os.environ.get("SCOUT_GA_SERVER_EVENTS") == "1")
+
+
 def _ga4_server_event(client_id, ip, ref, card, utm=None, event="server_visit", ua=None):
     """Fire a GA4 Measurement Protocol event (server-side, unblockable). Default 'server_visit'
     — a distinct name (not page_view) so it never double-counts the client gtag and gives a
@@ -201,6 +213,8 @@ def _ga4_server_event(client_id, ip, ref, card, utm=None, event="server_visit", 
     an API secret. Best-effort."""
     mid, secret = config.GA_MEASUREMENT_ID, config.GA_API_SECRET
     if not (mid and secret):
+        return
+    if not _live_runtime():
         return
     try:
         utm = utm or {}
@@ -261,6 +275,8 @@ def _log_async(client_id, ip, ref, ua, card, utm=None):
     """GA4 server event + the first-party visit write, off the render thread. geo starts empty
     and capture_city() fills it in from the browser, since Streamlit Cloud strips the real IP."""
     utm = utm or {}
+    if not _live_runtime():                      # no GA event and no visit-log row outside production
+        return
     _ga4_server_event(client_id, ip, ref, card, utm, ua=ua)
     try:
         rec = {

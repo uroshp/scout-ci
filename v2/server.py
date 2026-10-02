@@ -391,7 +391,7 @@ def _ga_server_events_live() -> bool:
     Cloud Run service (K_SERVICE, set by Cloud Run) or under an explicit override. The route tests
     drive this app with a non-bot user agent and the local .env carries the GA secret, so every
     full test run was minting real `server_visit` events (two showed up as "7 PM visitors")."""
-    return os.environ.get("K_SERVICE") == "agent-scout" or os.environ.get("SCOUT_GA_SERVER_EVENTS") == "1"
+    return analytics._live_runtime()             # one definition, shared with the sender itself
 
 
 @app.after_request
