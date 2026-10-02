@@ -31,27 +31,33 @@ class Routes(unittest.TestCase):
         for p in cls.p:
             p.stop()
 
-    def test_home_and_card_render_with_chips_and_rail_panels(self):
+    def test_home_is_the_collection_and_card_renders_with_chips_and_rail_panels(self):
         c = _client()
-        for path in ("/", f"/c/{self.slug}"):
+        home = c.get("/")
+        self.assertEqual(home.status_code, 200)
+        hh = home.data.decode()
+        self.assertIn('class="sc-grid"', hh)                            # the index grid (2026-10-02)
+        self.assertIn(f'href="/c/{self.slug}"', hh)
+        self.assertNotIn('class="sc-strip"', hh)                        # no strip on the collection itself
+        for path in (f"/c/{self.slug}",):
             r = c.get(path)
             self.assertEqual(r.status_code, 200, path)
             h = r.data.decode()
-            self.assertIn("Living battlecards", h)
+            self.assertIn('class="sc-strip"', h)                        # the briefs strip above the brief
+            self.assertIn("Competitive Brief:", h)
             self.assertRegex(h, r'srcclass srcclass-[a-z_]+')          # a class chip on a citation
             self.assertIn("All sources by kind", h)                       # rail Sources panel
             self.assertIn("Pick your audience", h)                        # the persona picker
             self.assertIn('class="rail-history"', h)                      # git feed demoted to History
             self.assertNotIn("Change feed", h)
 
-    def test_tabs_mark_the_active_page(self):
+    def test_app_bar_marks_the_active_page(self):
         c = _client()
-        def on(path):
-            h = c.get(path).data.decode()
-            i = h.find('<div class="scout-tabs">')
-            return [href for cls, href in re.findall(r'<a class="(on|)" href="([^"]+)"', h[i:i + 400]) if cls == "on"][:1]
-        self.assertEqual(on("/"), ["/"])
-        self.assertEqual(on("/create"), ["/create"])
+        self.assertIn('href="/" class="sc-navlink on"', c.get("/").data.decode())
+        self.assertIn('class="sc-btn sc-pri on" href="/create"', c.get("/create").data.decode())
+        card = c.get(f"/c/{self.slug}").data.decode()
+        self.assertIn(f'class="sc-tab on" href="/c/{self.slug}"', card)      # the current brief's tab
+        self.assertNotIn(" vs ", card[:card.find("<body")] if "<body" in card else card[:4000])
 
     def test_sources_page(self):
         c = _client()

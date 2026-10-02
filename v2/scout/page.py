@@ -708,31 +708,54 @@ def _metrics(cp: dict, claims_n: int, remaining: int, new_count: int = 0) -> str
             + "</div>")
 
 
-def _title_block(meta: dict) -> str:
-    comp = _html.escape((meta.get("competitor") or "").strip())
-    mine = _html.escape((meta.get("my_company") or "").strip())
-    focus = _html.escape((meta.get("focus") or "").strip())
-    sub = f"Researched: <b>{comp}</b>" + (f" · For <b>{mine}</b> reps" if mine else "")
-    foc = f'<div class="rt-focus">Focus area: {focus}</div>' if focus else ""
-    return ('<div class="rt"><h1>Competitive Intelligence Brief</h1>'
-            f'<div class="rt-sub">{sub}</div>{foc}</div>')
+_EMOJI = {"batman": "🦇", "superman": "🦸"}
 
 
-_LIVE_LINE = "Scout uses AI agents and human-calibrated model judgment, and evaluates every decision."
-_LIVE_HEAD = '<span class="lb-live"><span class="live"><span class="pulse"></span>LIVE</span></span>'
-# The fallback box (no panel available): the same line, not clickable.
-_LIVE_BOX = (f'<div class="livebox"><div class="lb-row">{_LIVE_HEAD}</div>'
-             f'<div class="lb-agents">{_LIVE_LINE}</div></div>')
-# The box as the door to the "How this works" panel (2026-10-02). A button, not a hover: hover does
-# not exist on a phone or an iPad.
-_LIVE_BUTTON = (
-    '<button type="button" class="livebox" id="how-btn" aria-expanded="false" aria-controls="how">'
-    f'<span class="lb-row">{_LIVE_HEAD}'
-    '<span class="lb-how">How this works<span class="chev">&#9662;</span></span></span>'
-    f'<span class="lb-agents">{_LIVE_LINE} <span class="lb-more">Click to learn more</span></span></button>')
+def _name(n: str) -> str:
+    e = _EMOJI.get((n or "").lower())
+    return f"{e} {n}" if e else n
 
-_TAGLINE = ('<div class="tagline">Competitive briefs that are deal-moving and always fresh. '
-            'Prepared by AI agents before the start of each work day.</div>')
+
+def brief_parts(meta: dict | None) -> tuple[str, str, str]:
+    """(competitor, my_company, area) as the page names them. A focus of none / "None" / general
+    is the area "General" (2026-10-02), so every brief states one."""
+    meta = meta or {}
+    comp = (meta.get("competitor") or "").strip()
+    mine = (meta.get("my_company") or "").strip()
+    focus = (meta.get("focus") or "").strip()
+    if not focus or focus.lower() in ("none", "general"):
+        area = "General"
+    else:                                              # "enterprise coding/developers" -> "Enterprise coding and developers"
+        area = re.sub(r"\s*/\s*", " and ", focus)
+        area = area[0].upper() + area[1:]
+    return comp, mine, area
+
+
+def _title_block(meta: dict, print_href: str | None = None) -> str:
+    """The brief header (2026-10-02): "Competitive Brief: <competitor> for <company> sales reps",
+    the area under it, and Print beside what it prints. One size on the title line; the
+    competitor is marked by colour, not size."""
+    comp, mine, area = brief_parts(meta)
+    who = f' for {_html.escape(_name(mine))} sales reps' if mine else ""
+    print_btn = (f'<a class="sc-btn sc-quiet" href="{_html.escape(print_href)}" target="_blank" rel="noopener">'
+                 f'{_ICON_PRINT}Print call sheet</a>' if print_href else "")
+    return ('<div class="sc-head"><div>'
+            f'<h1>Competitive Brief: <span class="co">{_html.escape(_name(comp))}</span>{who}</h1>'
+            f'<div class="sc-area"><span class="k">Area:</span> {_html.escape(area)}</div></div>'
+            f'{print_btn}</div>')
+
+
+_ICON_PRINT = ('<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">'
+               '<path d="M4 6V2h8v4M4 12H2V7h12v5h-2M4 10h8v4H4z"/></svg>')
+_ICON_PLUS = ('<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">'
+              '<path d="M8 3v10M3 8h10"/></svg>')
+_ICON_MENU = ('<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">'
+              '<path d="M2 4h12M2 8h12M2 12h12"/></svg>')
+
+
+_SYSTEM_LINE = "Scout uses AI agents and human-calibrated model judgement."
+_STATEMENT = ("Deal-moving and always-fresh competitive briefs prepared by AI agents at the start "
+              "of each work day.")
 
 # The challenger lanes: company, then the model as a reader would name it. The registry of what
 # actually runs is scout/replaybackends.py (tests/test_how_panel.py keeps the two in step).
@@ -811,10 +834,12 @@ def _how_panel() -> str:
     fig_li = (f'<li>Claims: <span class="hw-num">{fig["claims"]}</span> total on '
               f'<span class="hw-num">{fig["cards"]}</span> cards, <span class="hw-num">{fig["updates"]}</span> '
               f'update{"" if fig["updates"] == 1 else "s"} {fig["when"]}.</li>') if fig else ""
-    asof = f'<span class="hw-asof">figures read live &middot; last run {fig["run"]}</span>' if fig else ""
+    asof = (f'<span class="hw-asof"><span class="live"><span class="pulse"></span>LIVE</span> &middot; '
+            f'figures read live &middot; last run {fig["run"]}</span>' if fig else "")
     return (
         '<div class="how" id="how" hidden>'
-        '<div><div class="hw-h">How Scout keeps briefs true and useful</div>'
+        f'<div><div class="hw-sys">{_SYSTEM_LINE}</div>'
+        '<div class="hw-h">How Scout keeps briefs true and useful</div>'
         '<p class="hw-lede">AI agents search for changes, decide what is material, and track the '
         'provenance and accuracy of every claim. Each model has one job. No decision is approved by '
         'the model that made it.</p></div>'
@@ -859,17 +884,21 @@ def _how_panel() -> str:
         '</div>')
 
 
-# Opens and closes the panel; /#how opens it on arrival (a link for a resume or a message). Links
-# whose target is not on this page (no card, Ask off) are hidden instead of going nowhere.
+# Opens and closes the panel from any [data-how] control (the app bar item, the phone menu);
+# /#how opens it on arrival (a link for a resume or a message). Links whose target is not on this
+# page (no card, Ask off) are hidden instead of going nowhere. The briefs strip shows as many tabs
+# as fit on one line and folds the rest into "N more" (priority plus); phones scroll it sideways.
 _HOW_JS = (
-    "<script>(function(){var b=document.getElementById('how-btn'),p=document.getElementById('how');"
-    "if(!b||!p)return;"
-    "function set(o,how){b.setAttribute('aria-expanded',o?'true':'false');p.hidden=!o;"
+    "<script>(function(){var p=document.getElementById('how');var bs=[].slice.call(document.querySelectorAll('[data-how]'));"
+    "if(!p||!bs.length)return;"
+    "function set(o,how){bs.forEach(function(b){b.setAttribute('aria-expanded',o?'true':'false');});p.hidden=!o;"
     "if(o){try{window.gtag&&window.gtag('event','how_this_works_open',{method:how});}catch(e){}}}"
-    "b.addEventListener('click',function(){var o=p.hidden;set(o,'button');"
-    "try{history.replaceState(null,'',o?'#how':location.pathname+location.search);}catch(e){}});"
+    "bs.forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();var o=p.hidden;set(o,'button');"
+    "var m=document.getElementById('sc-menu');if(m)m.removeAttribute('open');"
+    "try{history.replaceState(null,'',o?'#how':location.pathname+location.search);}catch(x){}"
+    "if(o){try{p.scrollIntoView({block:'start',behavior:'smooth'});}catch(x){}}});});"
     "function fromHash(){if(location.hash==='#how'&&p.hidden){set(true,'link');"
-    "try{b.scrollIntoView({block:'start'});}catch(e){}}}"
+    "try{p.scrollIntoView({block:'start'});}catch(e){}}}"
     "fromHash();window.addEventListener('hashchange',fromHash);"
     "function links(){var t=document.getElementById('how-trail');"
     "if(t&&!document.getElementById('trail'))t.hidden=true;"
@@ -877,6 +906,26 @@ _HOW_JS = (
     "if(a){if(!f){a.hidden=true;}else{a.addEventListener('click',function(e){e.preventDefault();f.click();});}}}"
     "if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',links);}else{links();}"
     "})();</script>")
+
+_STRIP_JS = (
+    "<script>(function(){var row=document.getElementById('sc-tabs'),more=document.getElementById('sc-more');"
+    "if(!row||!more)return;var tabs=[].slice.call(row.children),menu=more.querySelector('.sc-dd');"
+    "function layout(){var narrow=window.innerWidth<=760;tabs.forEach(function(t){t.style.display='';});"
+    "more.hidden=true;var hidden=[];if(!narrow){more.hidden=false;"
+    "for(var i=tabs.length-1;i>0&&row.scrollWidth>row.clientWidth+1;i--){if(tabs[i].classList.contains('on'))continue;"
+    "tabs[i].style.display='none';hidden.unshift(tabs[i]);}}"
+    "if(!hidden.length){more.hidden=true;more.removeAttribute('open');return;}"
+    "more.querySelector('.n').textContent=hidden.length;"
+    "menu.innerHTML=(tabs.length>12?'<input type=\"search\" placeholder=\"Find a brief\" aria-label=\"Find a brief\">':'')+"
+    "hidden.map(function(t){return '<a href=\"'+t.getAttribute('href')+'\">'+t.querySelector('.nm').innerHTML+"
+    "'<small>'+t.querySelector('.ar').textContent+'</small></a>';}).join('');"
+    "var q=menu.querySelector('input');if(q){q.addEventListener('input',function(){var v=q.value.toLowerCase();"
+    "[].forEach.call(menu.querySelectorAll('a'),function(a){a.style.display=a.textContent.toLowerCase().indexOf(v)>-1?'':'none';});});}}"
+    "layout();var t;window.addEventListener('resize',function(){clearTimeout(t);t=setTimeout(layout,80);});"
+    "document.addEventListener('click',function(e){[].forEach.call(document.querySelectorAll('details.sc-more[open],details.sc-menu[open]'),"
+    "function(d){if(!d.contains(e.target))d.removeAttribute('open');});});"
+    "})();</script>")
+
 
 # Fonts load via <link> tags injected SEPARATELY from the main <style> — a sanitizer that
 # dislikes @import can drop a whole <style> that contains it, which would wipe ALL styling and
@@ -893,18 +942,85 @@ FONT_HEAD = (
 # here we only cap width, fix the freshness column color, add the rail credit, and widen the
 # 2-col breakpoint so a narrow viewport doesn't stack the rail on top of the brief.
 _OVERRIDES = """
-/* The live box as a button + the "How this works" panel (2026-10-02). hw-* names: the mockup CSS
-   already owns .step/.ln/.lane. */
-#scout-page .livebox .lb-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
-#scout-page .livebox .lb-agents{display:block}
-#scout-page button.livebox{font:inherit;color:inherit;cursor:pointer;display:block;-webkit-appearance:none;appearance:none;transition:border-color .15s,background .15s}
-#scout-page button.livebox:hover,#scout-page button.livebox[aria-expanded="true"]{border-color:var(--accent-line);background:var(--paper2)}
-#scout-page button.livebox:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-#scout-page .lb-how{font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--paper2);background:var(--accent-deep);white-space:nowrap;border-radius:999px;padding:3px 10px 3px 11px}
-#scout-page .lb-more{color:var(--accent-deep);font-weight:600;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
-#scout-page .lb-how .chev{display:inline-block;margin-left:5px;transition:transform .18s}
-#scout-page button.livebox[aria-expanded="true"] .chev{transform:rotate(180deg)}
-#scout-page .how{border:1px solid var(--accent-line);background:var(--paper2);border-radius:9px;padding:20px 22px 16px;margin:2px 0 18px;display:flex;flex-direction:column;gap:18px;text-align:left}
+/* The top of the page (2026-10-02): app bar, lead row, briefs strip, brief header, index grid.
+   sc-* names: the mockup CSS owns .top/.brand/.livebox/.tagline/.rt (unused now). */
+#scout-page .wrap.mast{padding-bottom:0}
+#scout-page .sc-bar{display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:60px;padding:8px 0;border-bottom:1px solid var(--line)}
+#scout-page .sc-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;flex:none}
+#scout-page .sc-brand .d{width:13px;height:13px;border-radius:4px;background:var(--accent-deep)}
+#scout-page .sc-brand .nm{font-family:var(--display);font-weight:600;font-size:26px;line-height:1;letter-spacing:-.02em}
+#scout-page .sc-nav{display:flex;align-items:center;gap:4px;margin-left:auto;position:relative}
+#scout-page .sc-navlink{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 11px;border-radius:7px;font-size:14px;font-weight:500;color:var(--ink);text-decoration:none;white-space:nowrap}
+#scout-page .sc-navlink:hover,#scout-page .sc-navlink[aria-expanded="true"]{background:var(--accent-soft)}
+#scout-page .sc-navlink.on{font-weight:600;color:var(--accent-deep);background:var(--accent-soft)}
+#scout-page .sc-cnt{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--accent-deep);background:var(--paper2);border:1px solid var(--accent-line);border-radius:999px;padding:0 7px;line-height:18px}
+#scout-page .sc-btn{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 14px;border:1px solid var(--line);border-radius:8px;background:var(--paper);font-weight:600;font-size:14px;color:var(--ink);text-decoration:none;cursor:pointer;white-space:nowrap}
+#scout-page .sc-btn:hover{border-color:var(--accent-line);background:var(--paper2)}
+#scout-page .sc-btn.sc-pri{background:var(--accent-deep);border-color:var(--accent-deep);color:#fff;margin-left:6px}
+#scout-page .sc-btn.sc-pri:hover,#scout-page .sc-btn.sc-pri.on{background:var(--accent)}
+#scout-page .sc-btn.sc-quiet{border-color:transparent;background:transparent;color:var(--accent-deep);padding:0 8px}
+#scout-page .sc-btn.sc-quiet:hover{background:var(--accent-soft);border-color:transparent}
+#scout-page .sc-btn svg{width:15px;height:15px;flex:none}
+#scout-page details.sc-menu{display:none;position:relative;margin-left:6px}
+#scout-page details.sc-menu>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+#scout-page details.sc-menu>summary::-webkit-details-marker{display:none}
+#scout-page details.sc-menu>summary svg{width:16px;height:16px}
+#scout-page .sc-dd{position:absolute;top:calc(100% + 6px);right:0;z-index:60;min-width:280px;max-height:70vh;overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:6px;box-shadow:0 8px 24px rgba(28,29,22,.10)}
+#scout-page .sc-dd .mh{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 10px 3px}
+#scout-page .sc-dd input{width:100%;font:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--paper2);margin-bottom:4px}
+#scout-page .sc-dd a{display:flex;justify-content:space-between;gap:12px;padding:7px 10px;border-radius:6px;font-size:14px;color:var(--ink);text-decoration:none;white-space:nowrap}
+#scout-page .sc-dd a small{font-size:12px;color:var(--muted)}
+#scout-page .sc-dd a:hover{background:var(--accent-soft)}
+#scout-page .sc-lead{padding:12px 0 0}
+#scout-page .sc-statement{font-family:var(--display);font-size:15px;font-weight:500;color:var(--muted);max-width:40ch;line-height:1.4;text-wrap:balance}
+#scout-page .sc-strip{display:flex;align-items:flex-end;gap:2px;margin-top:14px;border-bottom:1px solid var(--line);min-width:0}
+#scout-page .sc-tabs{display:flex;gap:2px;flex:1 1 auto;min-width:0;overflow:hidden}
+#scout-page .sc-tab{display:inline-flex;flex-direction:column;justify-content:center;gap:1px;height:46px;padding:0 13px;font-size:14px;font-weight:500;color:var(--muted);text-decoration:none;white-space:nowrap;flex:none;border-bottom:2px solid transparent;margin-bottom:-1px;border-radius:7px 7px 0 0;line-height:1.2}
+#scout-page .sc-tab > span{display:block}
+#scout-page .sc-tab small{font-size:14px;font-weight:400;color:var(--muted)}
+#scout-page .sc-tab .ar{font-family:var(--mono);font-size:10px;color:var(--muted);max-width:190px;overflow:hidden;text-overflow:ellipsis}
+#scout-page .sc-tab:hover{color:var(--ink);background:var(--accent-soft)}
+#scout-page .sc-tab.on{color:var(--ink);font-weight:600;border-bottom-color:var(--accent-deep)}
+#scout-page details.sc-more{position:relative;flex:none;margin-bottom:-1px}
+#scout-page details.sc-more[hidden]{display:none}
+#scout-page details.sc-more>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 12px;font-size:14px;font-weight:600;color:var(--accent-deep);white-space:nowrap;border-radius:7px 7px 0 0}
+#scout-page details.sc-more>summary:hover{background:var(--accent-soft)}
+#scout-page details.sc-more>summary::-webkit-details-marker{display:none}
+#scout-page .sc-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:18px 0 14px;border-bottom:1px solid var(--ink)}
+#scout-page .sc-head h1{font-family:var(--display);font-weight:600;font-size:28px;line-height:1.12;letter-spacing:-.015em;color:var(--ink);margin:0}
+#scout-page .sc-head h1 .co{color:var(--accent-deep)}
+#scout-page .sc-area{font-size:15px;margin-top:6px;color:var(--ink)}
+#scout-page .sc-area .k{color:var(--muted)}
+#scout-page .sc-actions{display:flex;gap:10px;align-items:center;justify-content:flex-end;padding:12px 0 4px}
+#scout-page .sc-idx{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:20px}
+#scout-page .sc-idx h1{font-family:var(--display);font-weight:600;font-size:30px;letter-spacing:-.015em;margin:0}
+#scout-page .sc-idx .n{font-family:var(--body);font-size:14px;color:var(--muted);margin-left:10px;font-weight:500}
+#scout-page .sc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+#scout-page .sc-bcard{border:1px solid var(--line);border-radius:9px;background:var(--paper);padding:14px 16px;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:6px;min-height:120px}
+#scout-page .sc-bcard:hover{border-color:var(--accent-line);background:var(--paper2)}
+#scout-page .sc-bcard .ct{font-family:var(--display);font-weight:600;font-size:20px;line-height:1.15}
+#scout-page .sc-bcard .ct .for{font-weight:400;font-size:.75em;color:var(--muted);margin-left:3px}
+#scout-page .sc-bcard .cf{font-size:12.5px;color:var(--muted);line-height:1.4}
+#scout-page .sc-bcard .cm{margin-top:auto;font-size:12.5px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap}
+#scout-page .sc-bcard .cm b{color:var(--win);font-weight:600}
+#scout-page .hw-sys{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px}
+#scout-page .hw-asof .live{color:var(--win);font-weight:600;letter-spacing:.04em}
+@media(max-width:760px){
+  #scout-page .sc-bar{min-height:54px;gap:10px}
+  #scout-page .sc-brand .nm{font-size:22px}
+  #scout-page .sc-nav .sc-navlink{display:none}
+  #scout-page .sc-btn.sc-pri{padding:0 12px;margin-left:0}
+  #scout-page details.sc-menu{display:block}
+  #scout-page .wrap{padding-left:14px;padding-right:14px}
+  #scout-page .sc-tabs{overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent)}
+  #scout-page .sc-tabs::-webkit-scrollbar{display:none}
+  #scout-page details.sc-more{display:none}
+  #scout-page .sc-head{align-items:stretch;flex-direction:column;gap:10px}
+  #scout-page .sc-head h1{font-size:24px}
+  #scout-page .sc-grid{grid-template-columns:1fr}
+}
+@media(max-width:1000px) and (min-width:761px){ #scout-page .sc-grid{grid-template-columns:1fr 1fr} }
+#scout-page .how{border:1px solid var(--accent-line);background:var(--paper2);border-radius:9px;padding:20px 22px 16px;margin:14px 0 4px;display:flex;flex-direction:column;gap:18px;text-align:left}
 #scout-page .how[hidden],#scout-page .how [hidden]{display:none}
 #scout-page .hw-h{font-family:var(--display);font-weight:600;font-size:21px;line-height:1.15;letter-spacing:-.01em}
 #scout-page .hw-lede{font-size:14px;color:var(--muted);max-width:78ch;margin:5px 0 0;line-height:1.5}
@@ -948,7 +1064,6 @@ _OVERRIDES = """
 #scout-page .hw-foot a{color:var(--accent-deep);font-weight:600;text-decoration:none;border-bottom:1px solid var(--accent-line)}
 #scout-page .hw-asof{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
 @media(max-width:760px){
-  #scout-page .livebox{max-width:none;width:100%}
   #scout-page .hw-row,#scout-page .hw-lane{grid-template-columns:1fr;gap:3px}
   #scout-page .hw-row > .hw-ln{display:none}
   #scout-page .hw-ln i{display:inline}
@@ -960,7 +1075,7 @@ _OVERRIDES = """
   #scout-page .how{padding:16px 15px 14px}
   #scout-page .hw-track.seg span{font-size:9.5px;padding:0 2px}
 }
-@media print{#scout-page .how,#scout-page .lb-how{display:none!important}}
+@media print{#scout-page .how,#scout-page .sc-strip,#scout-page .sc-nav{display:none!important}}
 #scout-page .wrap{padding-left:0;padding-right:0;padding-bottom:32px;}
 /* Source-class chip on every citation (2026-09-28): the .persona chip idiom, one notch quieter.
    unknown ("Web") is outlined only, so the eye lands on the classes that carry meaning. */
@@ -1230,25 +1345,88 @@ def style_block() -> str:
     return _style()
 
 
-def masthead_html() -> str:
-    """Brand + tagline + right-hand LIVE box. Card-independent; rendered once, above the
-    in-page mode switch."""
-    try:                       # the render path must never crash: no panel -> the plain box
+def _tab(slug: str, on: bool) -> str:
+    comp, mine, area = brief_parts(store.load_meta(slug))
+    label = _html.escape(_name(comp) or slug)
+    who = f' <small>for {_html.escape(_name(mine))}</small>' if mine else ""
+    tip = _html.escape(f"{comp} for {mine} sales reps. Area: {area}" if mine else f"{comp}. Area: {area}")
+    return (f'<a class="sc-tab{" on" if on else ""}" href="/c/{_html.escape(slug)}" title="{tip}"'
+            f'{" aria-current=\"page\"" if on else ""}>'
+            f'<span class="nm">{label}{who}</span><span class="ar">{_html.escape(area)}</span></a>')
+
+
+def strip_html(cards: list, slug: str | None) -> str:
+    """The briefs strip: the collection, above the brief it contains (2026-10-02)."""
+    if not cards:
+        return ""
+    tabs = "".join(_tab(c, c == slug) for c in cards)
+    return ('<div class="sc-strip"><nav class="sc-tabs" id="sc-tabs" aria-label="Briefs">' + tabs + '</nav>'
+            '<details class="sc-more" id="sc-more" hidden><summary><span class="n">0</span> more &#9662;</summary>'
+            '<div class="sc-dd"></div></details></div>')
+
+
+def masthead_html(cards: list | None = None, slug: str | None = None, mode: str = "cards") -> str:
+    """The top of every page (2026-10-02): the app bar (brand; Briefs with its count, How it
+    works, Create your own; a menu on phones), the lead row with the positioning statement, the
+    "How this works" panel (closed), and, on a brief, the briefs strip. Card-independent apart
+    from the strip; the brief's own header is `title_html`."""
+    cards = cards or []
+    try:                       # the render path must never crash: no panel -> no door to it
         panel = _how_panel()
     except Exception:
         panel = ""
-    box = _LIVE_BUTTON if panel else _LIVE_BOX
-    top = ('<div class="top"><div class="brand"><span class="d"></span>'
-           '<span class="nm">Agent Scout</span></div>' + box + '</div>')
-    return ('<div id="scout-page"><div class="wrap mast">' + top + _TAGLINE + panel + '</div></div>'
-            + (_HOW_JS if panel else ""))
+    n = len(cards)
+    cnt = f' <span class="sc-cnt">{n}</span>' if n else ""
+    how = ('<a href="#how" class="sc-navlink" data-how aria-expanded="false" aria-controls="how">How it works</a>'
+           if panel else "")
+    menu_items = "".join(f'<a href="/c/{_html.escape(c)}">{_html.escape(_name(brief_parts(store.load_meta(c))[0]) or c)}'
+                         f'<small> for {_html.escape(_name(brief_parts(store.load_meta(c))[1]))}</small></a>'
+                         for c in cards)
+    phone_menu = ('<details class="sc-menu" id="sc-menu"><summary aria-label="Menu">' + _ICON_MENU + '</summary>'
+                  '<div class="sc-dd"><div class="mh">Briefs</div>' + menu_items
+                  + ('<div class="mh">About</div><a href="#how" data-how aria-expanded="false">How it works</a>' if panel else "")
+                  + '</div></details>')
+    bar = ('<div class="sc-bar"><a class="sc-brand" href="/"><span class="d"></span><span class="nm">Agent Scout</span></a>'
+           '<nav class="sc-nav" aria-label="Site">'
+           f'<a href="/" class="sc-navlink{" on" if mode == "cards" else ""}">Briefs{cnt}</a>{how}'
+           f'<a class="sc-btn sc-pri{" on" if mode == "create" else ""}" href="/create">{_ICON_PLUS}Create your own</a>'
+           f'{phone_menu}</nav></div>')
+    lead = f'<div class="sc-lead"><div class="sc-statement">{_STATEMENT}</div></div>'
+    strip = strip_html(cards, slug) if slug else ""
+    return ('<div id="scout-page"><div class="wrap mast">' + bar + lead + panel + strip + '</div></div>'
+            + (_HOW_JS if panel else "") + (_STRIP_JS if strip else ""))
+
+
+def index_html(cards: list) -> str:
+    """The home page (2026-10-02): every brief as a card, most recently updated first."""
+    items = []
+    for c in cards:
+        meta = store.load_meta(c) or {}
+        comp, mine, area = brief_parts(meta)
+        claims = sum(1 for x in store.load_claims(c) if str(x.get("status", "active")) != "retired")
+        lc = meta.get("last_checked") or ""
+        when = ""
+        try:
+            from zoneinfo import ZoneInfo
+            d = datetime.fromisoformat(lc).replace(tzinfo=timezone.utc).astimezone(ZoneInfo("America/Los_Angeles"))
+            when = f"refreshed {d.strftime('%b')} {d.day}"
+        except Exception:
+            pass
+        who = f'<span class="for">for {_html.escape(_name(mine))} sales reps</span>' if mine else ""
+        items.append(f'<a class="sc-bcard" href="/c/{_html.escape(c)}"><div class="ct">{_html.escape(_name(comp) or c)} {who}</div>'
+                     f'<div class="cf">Area: {_html.escape(area)}</div>'
+                     f'<div class="cm">{("<span><b>&#9679;</b> " + when + "</span>") if when else ""}<span>{claims} claims</span></div></a>')
+    n = len(cards)
+    return ('<div id="scout-page"><div class="wrap">'
+            f'<div class="sc-idx"><h1>All briefs<span class="n">{n} live &middot; refreshed every morning</span></h1></div>'
+            '<div class="sc-grid">' + "".join(items) + '</div></div></div>')
 
 
 def title_html(slug: str) -> str:
-    """Just the report title block (Competitive Intelligence Brief / Researched / Focus area).
-    Rendered in its own row so the print button can sit beside the focus-area line."""
+    """The brief header in its own row, with Print beside it."""
     meta = store.load_meta(slug)
-    return '<div id="scout-page"><div class="wrap tw">' + _title_block(meta) + "</div></div>"
+    return ('<div id="scout-page"><div class="wrap tw">'
+            + _title_block(meta, print_href=f"/print/{slug}") + "</div></div>")
 
 
 def _prepare_display(claims: list, meta: dict | None = None):
