@@ -104,3 +104,38 @@ class PhoneBar(unittest.TestCase):
         self.assertLess(h.index('class="sc-obar"'), h.index('class="cols"'))
         self.assertIn('<details class="ob"><summary>Contents', h)
         self.assertIn('class="toc" id="toc"', h)                           # the rail keeps its own
+
+
+class AudienceMode(unittest.TestCase):
+    """Level 1 (2026-10-02 evening): the buyer's items lead, other buyers' fold, facts never hide."""
+    def setUp(self):
+        from scout import display
+        self.slug = "anthropic__vs__openai__enterprise-coding-developers"
+        self.assertIn(self.slug, display.list_battlecards())
+
+    def test_no_audience_shows_everything_unfolded(self):
+        h = page.content_html(self.slug)
+        self.assertNotIn('class="fold"', h)
+
+    def test_audience_folds_other_buyers_and_reorders_sections(self):
+        h = page.content_html(self.slug, persona="economic_buyer")
+        self.assertIn("for other audiences", h)
+        self.assertLess(h.index('id="pricing"'), h.index('id="bc"'))          # pricing moves up
+        base = page.content_html(self.slug)
+        self.assertLess(base.index('id="positioning"'), base.index('id="pricing"'))
+        # facts stay complete: the same snapshot and moves counts
+        import re
+        for sid in ("snapshot", "recent_moves"):
+            a = re.search(rf'id="{sid}"[^>]*>.*?<span class="scount">([^<]+)', base, re.S).group(1)
+            b = re.search(rf'id="{sid}"[^>]*>.*?<span class="scount">([^<]+)', h, re.S).group(1)
+            self.assertEqual(a, b, sid)
+
+    def test_header_chip_and_print_link_carry_the_audience(self):
+        h = page.title_html(self.slug, "security_regulated")
+        self.assertIn("Audience:", h); self.assertIn("Security &amp; regulated", h)
+        self.assertIn(f"/print/{self.slug}?persona=security_regulated", h)
+        self.assertNotIn("Audience:", page.title_html(self.slug))
+
+    def test_fold_grammar(self):
+        self.assertIn("1 more play for other audiences", page._fold(["x"], "plays"))
+        self.assertIn("2 more plays for other audiences", page._fold(["x", "y"], "plays"))

@@ -43,6 +43,57 @@ def _pkey(c: dict):
     return (0 if (p and c.get("persona") == p) else 1, c.get("order", 0))
 
 
+# Audience mode, Level 1 (2026-10-02 evening): the chosen buyer's items lead, other buyers' items
+# fold under a labelled handle, untagged items stay visible. Facts are never hidden. Section order
+# shifts to what that buyer reads first.
+_PERSONA_SECTION_ORDER = {
+    "economic_buyer":      ["executive_summary", "snapshot", "pricing", "battlecard", "objection_handling", "recent_moves", "positioning", "sentiment"],
+    "exec_top_down":       ["executive_summary", "snapshot", "recent_moves", "sentiment", "battlecard", "objection_handling", "positioning", "pricing"],
+    "technical_evaluator": ["executive_summary", "snapshot", "positioning", "battlecard", "objection_handling", "pricing", "recent_moves", "sentiment"],
+    "security_regulated":  ["executive_summary", "snapshot", "objection_handling", "battlecard", "positioning", "recent_moves", "pricing", "sentiment"],
+    "eng_led":             ["executive_summary", "snapshot", "positioning", "battlecard", "recent_moves", "objection_handling", "pricing", "sentiment"],
+}
+
+
+def _section_order() -> list:
+    p = _PERSONA.get()
+    return _PERSONA_SECTION_ORDER.get(p, _SECTION_ORDER) if p else _SECTION_ORDER
+
+
+def _split_for_audience(cs: list) -> tuple[list, list]:
+    """(shown, folded): with no audience everything is shown; with one, items tagged to OTHER
+    buyers fold, the buyer's own and untagged items stay, the buyer's first."""
+    p = _PERSONA.get()
+    if not p:
+        return list(cs), []
+    shown = [c for c in cs if not c.get("persona") or c.get("persona") == p]
+    folded = [c for c in cs if c.get("persona") and c.get("persona") != p]
+    return sorted(shown, key=_pkey), folded
+
+
+def _top_wins(claims: list, n: int = 3) -> list:
+    """The plays the briefing leads with: with an audience, that buyer's own first, then untagged
+    ones, then other buyers' only to fill."""
+    wins_all = sorted([c for c in claims if c.get("section") == "battlecard"
+                       and c.get("zone") == "where_we_win"], key=_pkey)
+    p = _PERSONA.get()
+    if not p:
+        return wins_all[:n]
+    mine = [c for c in wins_all if c.get("persona") == p]
+    general = [c for c in wins_all if not c.get("persona")]
+    rest = [c for c in wins_all if c.get("persona") and c.get("persona") != p]
+    return (mine + general + rest)[:n]
+
+
+def _fold(items: list, noun: str) -> str:
+    if not items:
+        return ""
+    n = len(items)
+    return ('<details class="fold"><summary><span class="lbl-more">'
+            f'{n} more {noun[:-1] if n == 1 else noun} for other audiences</span><span class="mchev">&#9662;</span></summary>'
+            f'<div class="rest">{"".join(items)}</div></details>')
+
+
 def _pdim(c: dict) -> str:
     """Kept as a no-op: the audience view once dimmed other personas' items to 55% with a hover
     un-dim; Uroš (2026-09-29) called it unwanted. Picking an audience REORDERS, never greys out."""
@@ -412,13 +463,18 @@ def _battlecard(claims: list, recent_keys: set | None = None) -> str:
     recent_keys = recent_keys or set()
     subs = []
     for zid, zlabel, zcls in _ZONES:
-        zc = sorted([c for c in claims if c.get("zone") == zid], key=_pkey)
-        if not zc:
+        zc_all = sorted([c for c in claims if c.get("zone") == zid], key=_pkey)
+        if not zc_all:
             continue
-        items = [_prose_item(c, badge_prefix="Best for",
-                             new=c.get("subject_key") in recent_keys) for c in zc]
+        zc, zfold = _split_for_audience(zc_all)
+        mk = lambda c: _prose_item(c, badge_prefix="Best for", new=c.get("subject_key") in recent_keys)
+        items = [mk(c) for c in zc]
+        fold = _fold([mk(c) for c in zfold], "plays")
         head = (f'<div class="zhead"><span class="zlabel {zcls}">{_html.escape(zlabel)}</span>'
-                f'<span class="subcount">{len(zc)} item{"s" if len(zc)!=1 else ""}</span></div>')
+                f'<span class="subcount">{len(zc_all)} item{"s" if len(zc_all)!=1 else ""}</span></div>')
+        if not items:                      # every play in this zone belongs to other buyers
+            subs.append(f'<div class="sub zone {zcls}">{head}{fold}</div>')
+            continue
         more = ""
         if items[1:]:
             more = ('<details class="more"><summary>'
@@ -426,7 +482,7 @@ def _battlecard(claims: list, recent_keys: set | None = None) -> str:
                     '<span class="lbl-less">Collapse</span>'
                     '<span class="mchev">▾</span></summary>'
                     f'<div class="rest">{"".join(items[1:])}</div></details>')
-        subs.append(f'<div class="sub zone {zcls}">{head}{items[0]}{more}</div>')
+        subs.append(f'<div class="sub zone {zcls}">{head}{items[0]}{more}{fold}</div>')
     n = len([c for c in claims if c.get("zone")])
     return _section("bc", "Competitive Battlecard", f"{n} across 3 zones", "".join(subs))
 
@@ -638,7 +694,9 @@ def _briefing(claims: list, label: str = "Your Daily Briefing",
     # Fall back to the freshest recent move only when a card has no executive-summary lead.
     exec_leads = sorted((c for c in claims if c.get("section") == "executive_summary"),
                         key=lambda c: c.get("order", 0))
-    angle = exec_leads[0] if exec_leads else None
+    p = _PERSONA.get()
+    own = [c for c in exec_leads if p and c.get("persona") == p]      # the buyer's own lead, if written
+    angle = own[0] if own else (exec_leads[0] if exec_leads else None)
     if angle is None:
         moves = [c for c in claims if c.get("section") == "recent_moves"]
         pri = [c for c in moves if re.search(r"billing|pricing|price|metered",
@@ -657,8 +715,7 @@ def _briefing(claims: list, label: str = "Your Daily Briefing",
             + (_callout("sw", "Move", p["so_what"]) if p["so_what"] else "")
             + _vsrc(angle, _fmt_asof(angle.get("as_of"))) + "</div>")
 
-    wins = sorted([c for c in claims if c.get("section") == "battlecard"
-                   and c.get("zone") == "where_we_win"], key=_pkey)[:3]
+    wins = _top_wins(claims)
     plays = []
     for i, c in enumerate(wins, 1):
         p = _parse_claim(c)
@@ -748,7 +805,7 @@ def brief_parts(meta: dict | None) -> tuple[str, str, str]:
     return comp, mine, area
 
 
-def _title_block(meta: dict, print_href: str | None = None) -> str:
+def _title_block(meta: dict, print_href: str | None = None, persona: str | None = None) -> str:
     """The brief header (2026-10-02): "Competitive Brief: <competitor> for <company> sales reps",
     the area under it, and Print beside what it prints. One size on the title line; the
     competitor is marked by colour, not size."""
@@ -758,7 +815,10 @@ def _title_block(meta: dict, print_href: str | None = None) -> str:
                  f'{_ICON_PRINT}Print call sheet</a>' if print_href else "")
     return ('<div class="sc-head"><div>'
             f'<h1><span class="pre">Competitive Brief: </span><span class="co">{_html.escape(_name(comp))}</span>{who}</h1>'
-            f'<div class="sc-area"><span class="k">Area:</span> {_html.escape(area)}</div></div>'
+            f'<div class="sc-area"><span class="k">Area:</span> {_html.escape(area)}'
+            + (f' <span class="k">&middot; Audience:</span> <span class="aud p-{_html.escape(persona)}">'
+               f'{_html.escape(_PERSONA_LABELS.get(persona, persona))}</span>' if persona else "")
+            + '</div></div>'
             f'{print_btn}</div>')
 
 
@@ -1026,6 +1086,13 @@ _OVERRIDES = """
 #scout-page .sc-bcard .cf{font-size:12.5px;color:var(--muted);line-height:1.4}
 #scout-page .sc-bcard .cm{margin-top:auto;font-size:12.5px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap}
 #scout-page .sc-bcard .cm b{color:var(--win);font-weight:600}
+#scout-page details.fold{margin-top:10px;border-top:1px dashed var(--line);padding-top:6px}
+#scout-page details.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--accent-deep);padding:4px 0}
+#scout-page details.fold>summary::-webkit-details-marker{display:none}
+#scout-page details.fold>summary .mchev{display:inline-block;transition:transform .15s}
+#scout-page details.fold[open]>summary .mchev{transform:rotate(180deg)}
+#scout-page details.fold .rest{margin-top:6px}
+#scout-page .sc-area .aud{font-weight:600;color:var(--accent-deep)}
 #scout-page .hw-sys{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px}
 #scout-page .hw-asof .live{color:var(--win);font-weight:600;letter-spacing:.04em}
 @media(max-width:760px){
@@ -1513,11 +1580,13 @@ def index_html(cards: list) -> str:
             '<div class="sc-grid">' + "".join(items) + '</div></div></div>')
 
 
-def title_html(slug: str) -> str:
-    """The brief header in its own row, with Print beside it."""
+def title_html(slug: str, persona: str | None = None) -> str:
+    """The brief header in its own row, with Print beside it (the call sheet keeps the audience)."""
     meta = store.load_meta(slug)
+    persona = persona_or_none(persona)
+    href = f"/print/{slug}" + (f"?persona={persona}" if persona else "")
     return ('<div id="scout-page"><div class="wrap tw">'
-            + _title_block(meta, print_href=f"/print/{slug}") + "</div></div>")
+            + _title_block(meta, print_href=href, persona=persona) + "</div></div>")
 
 
 def _prepare_display(claims: list, meta: dict | None = None):
@@ -1591,7 +1660,7 @@ def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retir
         return c.get("subject_key") in recent_keys
 
     secs, present = [], []
-    for sid in _SECTION_ORDER:
+    for sid in _section_order():
         if sid in _HIDDEN_SECTIONS:   # generated/stored but not shown (see _HIDDEN_SECTIONS)
             continue
         cs = sorted(by_sec.get(sid, []), key=lambda c: c.get("order", 0))
@@ -1615,10 +1684,10 @@ def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retir
                                  "".join(_prose_item(c, callout_label="So what",
                                                      new=_new(c)) for c in cs)))
         elif sid == "objection_handling":
+            shown, folded = _split_for_audience(cs)
+            item = lambda c: _prose_item(c, callout_label="So what", badge_prefix="Raised by", new=_new(c))
             secs.append(_section(sid, title, f"{len(cs)} objections",
-                                 "".join(_prose_item(c, callout_label="So what",
-                                                     badge_prefix="Raised by",
-                                                     new=_new(c)) for c in sorted(cs, key=_pkey))))
+                                 "".join(item(c) for c in shown) + _fold([item(c) for c in folded], "objections")))
         elif sid in _PREVIEW_SECTIONS:   # recent_moves, positioning, pricing
             label = {"recent_moves": "moves"}.get(sid, "items")
             secs.append(_preview_section(sid, title, f"{len(cs)} {label}",
@@ -1795,8 +1864,7 @@ def call_sheet_from_claims(claims: list, meta: dict | None) -> str:
         angle_html = (f'<div class="lbl">Today\'s angle</div>'
                       f'<div class="angle"><p>{_inline(text)}</p>{sw}</div>')
 
-    wins = sorted([c for c in claims if c.get("section") == "battlecard"
-                   and c.get("zone") == "where_we_win"], key=_pkey)[:3]
+    wins = _top_wins(claims)
     plays = []
     for i, c in enumerate(wins, 1):
         p = _parse_claim(c)
