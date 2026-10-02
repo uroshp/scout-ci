@@ -2903,5 +2903,76 @@
       "stamped_on": "2026-10-01",
       "source_class": "company_statement"
     }
+  },
+  {
+    "subject_key": "anthropic | ipo-filing",
+    "claim": "Anthropic is targeting a mid-November 2026 IPO, planning to start formal marketing the week of November 9 and begin trading before the Thanksgiving holiday on November 26, per Bloomberg sources. Prospective investors are reportedly considering a valuation between $1.8 trillion and $2 trillion.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.pymnts.com/news/artificial-intelligence/2026/anthropic-targets-pre-thanksgiving-ipo-at-2-trillion-valuation/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Anthropic aims to start the formal marketing for its initial public offering as soon as the week of Nov. 9",
+    "as_of": "2026-10-01",
+    "confidence": "high",
+    "id": "c_01b2bc34e421",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-02",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://nairametrics.com/2026/10/01/anthropic-targets-november-ipo-at-1-8-trillion-to-2-trillion-valuation/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "news"
+  },
+  {
+    "subject_key": "anthropic-broadcom-chip-financing",
+    "claim": "Anthropic's IPO prospectus discloses that Broadcom has agreed to lend Anthropic up to $42 billion to finance infrastructure spending and lease Broadcom chips, including TPU capacity, with Anthropic set to become Broadcom's largest compute customer in 2027. The facility could fund about a third of Anthropic's $125.2 billion five-year TPU lease commitment, and Anthropic disclosed the arrangement creates a potential conflict of interest since Broadcom is both a hardware supplier and a financing partner.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 2,
+    "source_url": "https://www.cnbc.com/2026/10/01/broadcom-lending-anthropic-42-billion-chips-reuters.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Broadcom has agreed to lend Anthropic up to $42 billion to finance infrastructure spending.",
+    "as_of": "2026-10-01",
+    "confidence": "high",
+    "id": "c_5a9018213f68",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-02",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://finance.yahoo.com/technology/article/broadcom-to-lend-anthropic-up-to-42-billion-to-lease-chips-in-latest-circular-investing-deal-121617505.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "news"
+      },
+      {
+        "source_url": "https://www.semafor.com/article/10/01/2026/broadcom-to-lend-anthropic-42-billion-to-lease-chips-report",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "news"
+      }
+    ],
+    "source_class": "news"
   }
 ]
