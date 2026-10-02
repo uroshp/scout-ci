@@ -12,7 +12,8 @@
 #   export GCP_PROJECT_ID=scout-monitor
 #   export ENGINE_SERVICE=scout-engine-rc VIEWER_SERVICE=agent-scout-rc DATA_PREFIX=rc   # or the prod pair
 #   export ANTHROPIC_API_KEY=sk-ant-...                 # written to Secret Manager, never to the plist/repo
-#   export ASK_CANNED=a_3fcddc763fa9                    # optional: the stored answer /ask/dry replays
+#   # Optional, and only to CHANGE a setting: ASK_CANNED, MCP_ENABLED, CALL_CAPTURE,
+#   # ASK_DAILY_CEILING_USD. Left unset, a redeploy keeps what the live service already has.
 #   bash v2/scripts/setup_engine_service.sh
 #
 # The viewer secret and the owner key are generated on first run and kept in Secret Manager
@@ -27,10 +28,34 @@ ENGINE_SERVICE="${ENGINE_SERVICE:-scout-engine-rc}"
 VIEWER_SERVICE="${VIEWER_SERVICE:-agent-scout-rc}"
 DATA_PREFIX="${DATA_PREFIX-rc}"     # unset -> rc; EMPTY means production (":-" would turn "" into rc)
 DATA_REPO="${SELFSERVE_REPO:-uroshp/scout-user-data}"
-CEILING="${ASK_DAILY_CEILING_USD:-10}"
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 
 gcloud config set project "$GCP_PROJECT_ID" >/dev/null
+
+# A redeploy must never change a setting nobody asked to change (2026-10-02: a production redeploy
+# without the three knobs exported switched MCP off, cleared the probe's canned answer and stopped
+# call capture). Each knob: the caller's value if exported, otherwise what the live service has now,
+# otherwise the first-deploy default. The resolved values are printed before and after the deploy.
+live_env() {     # live_env NAME -> the plain value on the running engine service, empty if none
+  gcloud run services describe "$ENGINE_SERVICE" --region "$REGION" --format=json 2>/dev/null \
+    | python3 -c 'import json,sys
+try:
+    env = json.load(sys.stdin)["spec"]["template"]["spec"]["containers"][0].get("env", [])
+except Exception:
+    env = []
+print(next((e.get("value", "") for e in env if e["name"] == sys.argv[1]), ""))' "$1"
+}
+keep() {         # keep CALLER_VAR SERVICE_ENV DEFAULT
+  local caller="$1" live
+  if [ -n "${!caller+x}" ]; then printf '%s' "${!caller}"; return; fi
+  live="$(live_env "$2")"
+  printf '%s' "${live:-$3}"
+}
+CEILING="$(keep ASK_DAILY_CEILING_USD SCOUT_ASK_DAILY_CEILING_USD 10)"
+CALL_CAPTURE="$(keep CALL_CAPTURE SCOUT_CALL_CAPTURE 0)"
+ASK_CANNED="$(keep ASK_CANNED SCOUT_ASK_CANNED '')"
+MCP_ENABLED="$(keep MCP_ENABLED SCOUT_MCP 0)"
+echo "  settings for $ENGINE_SERVICE: ceiling=\$$CEILING call_capture=$CALL_CAPTURE mcp=$MCP_ENABLED canned=${ASK_CANNED:-none} prefix='${DATA_PREFIX}'"
 
 secret_set() {   # secret_set NAME VALUE  (new version if it exists)
   if gcloud secrets describe "$1" >/dev/null 2>&1; then
@@ -70,7 +95,7 @@ ORIGINS="$VIEWER_URL"; [ "$VIEWER_URL2" != "$VIEWER_URL" ] && ORIGINS="$ORIGINS,
 [ "$DATA_PREFIX" = "" ] && ORIGINS="$ORIGINS,https://agent-scout.ai,https://www.agent-scout.ai"
 gcloud run deploy "$ENGINE_SERVICE" --image "$IMAGE" --region "$REGION" --allow-unauthenticated --quiet \
   --min-instances 0 --max-instances 2 --memory 1Gi --cpu 1 --concurrency 1 --timeout 600 --port 8081 \
-  --set-env-vars "^|^SCOUT_SELFSERVE_DATA_PREFIX=${DATA_PREFIX}|SCOUT_SELFSERVE_DATA_READ_FALLBACK=1|SELFSERVE_REPO=${DATA_REPO}|SCOUT_ASK_DAILY_CEILING_USD=${CEILING}|SCOUT_CALL_CAPTURE=${CALL_CAPTURE:-0}|SCOUT_ASK_CANNED=${ASK_CANNED:-}|SCOUT_MCP=${MCP_ENABLED:-0}|ASK_ALLOWED_ORIGINS=${ORIGINS}" \
+  --set-env-vars "^|^SCOUT_SELFSERVE_DATA_PREFIX=${DATA_PREFIX}|SCOUT_SELFSERVE_DATA_READ_FALLBACK=1|SELFSERVE_REPO=${DATA_REPO}|SCOUT_ASK_DAILY_CEILING_USD=${CEILING}|SCOUT_CALL_CAPTURE=${CALL_CAPTURE}|SCOUT_ASK_CANNED=${ASK_CANNED}|SCOUT_MCP=${MCP_ENABLED}|ASK_ALLOWED_ORIGINS=${ORIGINS}" \
   --set-secrets "ANTHROPIC_API_KEY=scout-anthropic-key:latest,ASK_VIEWER_SECRET=scout-ask-viewer-secret:latest,ASK_API_KEYS=scout-ask-api-keys:latest,SELFSERVE_GH_TOKEN=scout-gh-token:latest" >/dev/null
 ENGINE_URL=$(gcloud run services describe "$ENGINE_SERVICE" --region "$REGION" --format='value(status.url)')
 echo "  ✓ $ENGINE_SERVICE at $ENGINE_URL (origins: $ORIGINS)"
@@ -85,4 +110,5 @@ gcloud run services update "$VIEWER_SERVICE" --region "$REGION" --quiet \
 echo "  ✓ $VIEWER_SERVICE -> engine mode"
 echo
 echo "healthcheck: $(curl -s -m 20 "$ENGINE_URL/healthcheck")"
+echo "now live:    ceiling=\$$(live_env SCOUT_ASK_DAILY_CEILING_USD) call_capture=$(live_env SCOUT_CALL_CAPTURE) mcp=$(live_env SCOUT_MCP) canned=$(live_env SCOUT_ASK_CANNED)"
 echo "owner key:   gcloud secrets versions access latest --secret scout-ask-api-keys"
