@@ -857,8 +857,7 @@ _ICON_MENU = ('<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke
 
 
 _SYSTEM_LINE = "Scout uses AI agents and human-calibrated model judgement."
-_STATEMENT = ("Deal-moving and always-fresh competitive briefs prepared by AI agents at the start "
-              "of each work day.")
+_STATEMENT = "Deal-moving, always-fresh competitive briefs prepared by AI agents every morning."
 
 # The challenger lanes: company, then the model as a reader would name it. The registry of what
 # actually runs is scout/replaybackends.py (tests/test_how_panel.py keeps the two in step).
