@@ -794,7 +794,7 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     if write and config.PROPAGATE_MODE == "live" and config.AUDIENCE_LEADS:
         try:
             from scout import audience
-            aud = audience.refresh(slug, meta, new_claims, today, write=True)
+            aud = audience.refresh(slug, meta, new_claims, checked_at[:10], write=True)   # `today` only exists inside the propagation block
             if aud.get("cost_usd"):
                 result["cost"]["audience"] = aud["cost_usd"]
             if aud["applied"]:

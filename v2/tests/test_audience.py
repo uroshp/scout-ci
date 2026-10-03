@@ -173,3 +173,15 @@ class WeeklyAudit(unittest.TestCase):
         self.assertNotIn("old", ids); self.assertNotIn("notapplied", ids)
         self.assertEqual(sum(1 for g in got if g["slug"] == "cardB"), 3)         # round-robin: the small card is fully covered
         self.assertEqual(ids[0][0], "a")                                           # the busiest card leads
+
+
+class MonitorHook(unittest.TestCase):
+    def test_hook_uses_a_name_that_exists_on_every_check(self):
+        """2026-10-03: the first live run crashed the audience step on every card with
+        UnboundLocalError on `today`, which is only bound inside the propagation block."""
+        import inspect
+        from scout import monitor
+        src = inspect.getsource(monitor.check)
+        hook = src[src.index("AUDIENCE LEADS"):src.index("Shadow-eval observer")]
+        self.assertIn("checked_at[:10]", hook)
+        self.assertNotIn("new_claims, today,", hook)
