@@ -55,6 +55,11 @@ _PERSONA_SECTION_ORDER = {
 }
 
 
+# Sections a buyer reads first, kept open with that audience even without tagged items.
+_PERSONA_OPEN = {"economic_buyer": ("pricing",), "technical_evaluator": ("positioning",),
+                 "exec_top_down": ("recent_moves",), "eng_led": ("positioning",), "security_regulated": ()}
+
+
 def _section_order() -> list:
     p = _PERSONA.get()
     return _PERSONA_SECTION_ORDER.get(p, _SECTION_ORDER) if p else _SECTION_ORDER
@@ -79,10 +84,20 @@ def _top_wins(claims: list, n: int = 3) -> list:
     p = _PERSONA.get()
     if not p:
         return wins_all[:n]
-    mine = [c for c in wins_all if c.get("persona") == p]
-    general = [c for c in wins_all if not c.get("persona")]
-    rest = [c for c in wins_all if c.get("persona") and c.get("persona") != p]
-    return (mine + general + rest)[:n]
+    # the buyer's own plays only (2026-10-02: filling from other audiences read as no filter at all)
+    return [c for c in wins_all if c.get("persona") == p][:n]
+
+
+def _pulled_up_ids(claims: list) -> set:
+    """With an audience, the claims the briefing shows at the top (the buyer's top plays and
+    objections); the sections below leave them out, so nothing appears twice (2026-10-02)."""
+    p = _PERSONA.get()
+    if not p:
+        return set()
+    ids = {c.get("id") for c in _top_wins(claims)}
+    objs = sorted([c for c in claims if c.get("section") == "objection_handling" and c.get("persona") == p],
+                  key=lambda c: c.get("order", 0))[:4]
+    return ids | {c.get("id") for c in objs}
 
 
 def _fold(items: list, noun: str) -> str:
@@ -423,9 +438,11 @@ def _snapshot_box(c: dict, new: bool = False) -> str:
             f'{_vsrc(c, _fmt_asof(c.get("as_of")))}</div>')
 
 
-def _section(sid: str, title: str, count_label: str, inner: str) -> str:
+def _section(sid: str, title: str, count_label: str, inner: str, open: bool = True) -> str:
     # <details>/<summary> => collapsible, open by default. Survives st.markdown sanitization.
-    return (f'<details class="sec" id="{sid}" open><summary>'
+    # With an audience chosen, a section with nothing written for that buyer renders CLOSED (2026-10-02):
+    # the buyer's material leads, the rest of the brief waits one tap away.
+    return (f'<details class="sec{"" if open else " folded"}" id="{sid}"{" open" if open else ""}><summary>'
             f'<span class="stitle">{_html.escape(title)}</span>'
             f'<span class="scount">{_html.escape(count_label)}</span>'
             f'<span class="chev">›</span></summary>'
@@ -439,7 +456,7 @@ _PREVIEW_SECTIONS = ("snapshot", "recent_moves", "positioning", "pricing")
 
 
 def _preview_section(sid: str, title: str, count_label: str, items: list,
-                     n_first: int, *, snap: bool = False) -> str:
+                     n_first: int, *, snap: bool = False, open: bool = True) -> str:
     first, rest = items[:n_first], items[n_first:]
     if snap:
         first_html = '<div class="snap">' + "".join(first) + "</div>"
@@ -455,11 +472,13 @@ def _preview_section(sid: str, title: str, count_label: str, items: list,
                 '<span class="lbl-less">Collapse section</span>'
                 '<span class="mchev">▾</span></summary>'
                 f'<div class="rest">{rest_html}</div></details>')
+    if not open:                                       # audience chosen, nothing here for that buyer
+        return _section(sid, title, count_label, first_html + more, open=False)
     return (f'<div class="sec preview" id="{sid}">{head}'
             f'<div class="sbody">{first_html}{more}</div></div>')
 
 
-def _battlecard(claims: list, recent_keys: set | None = None) -> str:
+def _battlecard(claims: list, recent_keys: set | None = None, open: bool = True) -> str:
     recent_keys = recent_keys or set()
     subs = []
     for zid, zlabel, zcls in _ZONES:
@@ -484,7 +503,7 @@ def _battlecard(claims: list, recent_keys: set | None = None) -> str:
                     f'<div class="rest">{"".join(items[1:])}</div></details>')
         subs.append(f'<div class="sub zone {zcls}">{head}{items[0]}{more}{fold}</div>')
     n = len([c for c in claims if c.get("zone")])
-    return _section("bc", "Competitive Battlecard", f"{n} across 3 zones", "".join(subs))
+    return _section("bc", "Competitive Battlecard", f"{n} across 3 zones", "".join(subs), open=open)
 
 
 def _cut_log(md: str):
@@ -687,15 +706,15 @@ def _freshness(rows: list) -> str:
 
 
 def _briefing(claims: list, label: str = "Your Daily Briefing",
-              tag: str = "the 2-min version before your call") -> str:
+              tag: str = "the 2-min version before your call", clear_href: str | None = None) -> str:
     # Today's angle = the brief's STRATEGIC LEAD (the executive summary's first claim), the single
     # most consequential opener, set by the strategic pass. The executive_summary section itself is
     # hidden to avoid a redundant summary, so this is where that lead actually surfaces to the rep.
     # Fall back to the freshest recent move only when a card has no executive-summary lead.
     exec_leads = sorted((c for c in claims if c.get("section") == "executive_summary"),
                         key=lambda c: c.get("order", 0))
-    p = _PERSONA.get()
-    own = [c for c in exec_leads if p and c.get("persona") == p]      # the buyer's own lead, if written
+    aud = _PERSONA.get()
+    own = [c for c in exec_leads if aud and c.get("persona") == aud]  # the buyer's own lead, if written
     angle = own[0] if own else (exec_leads[0] if exec_leads else None)
     if angle is None:
         moves = [c for c in claims if c.get("section") == "recent_moves"]
@@ -729,15 +748,39 @@ def _briefing(claims: list, label: str = "Your Daily Briefing",
     plays_lbl = "Top play" if len(plays) == 1 else f"Top {len(plays)} plays"
     plays_html = (f'<div class="bsub two" id="brief2">{plays_lbl}</div>'
                   f'<div class="playbox">{"".join(plays)}</div>') if plays else ""
+    if aud and not plays:
+        plays_html = ('<div class="bsub two" id="brief2">Top plays</div>'
+                      f'<p class="aud-none">No plays written for the {_html.escape(_PERSONA_LABELS.get(aud, aud).lower())} yet. '
+                      'The full brief below is unchanged.</p>')
+    if aud:   # the buyer's objections, pulled up: the other half of what a rep prepares for
+        objs = [c for c in sorted(claims, key=lambda c: c.get("order", 0))
+                if c.get("section") == "objection_handling" and c.get("persona") == aud][:4]
+        if objs:
+            rows = []
+            for c in objs:
+                q = _parse_claim(c)
+                badge = _badge(c, "Raised by")
+                rows.append(f'<div class="aud-obj">{f"<div class=\"ptop\">{badge}</div>" if badge else ""}'
+                            f'<h4>{_inline(q["title"]) if q["title"] else _inline(c.get("claim", "")[:120])}</h4>'
+                            + (f'<p>{_inline(" ".join(q["body"]))}</p>' if q["body"] else "")
+                            + (_callout("sw", "So what", q["so_what"]) if q["so_what"] else "") + "</div>")
+            plays_html += (f'<div class="bsub two">Objections they raise</div><div class="playbox">{"".join(rows)}</div>')
 
     # Honest freshness (2026-08-08): the tag reflects the LEAD's own as_of, not a blanket "refreshed
     # today" — the angle is an elected strategic lead that only moves when a fresher verdict clears
     # the deal-impact bar (see propagate._lead_election), so it can legitimately be days old.
     asof = _fmt_asof(angle.get("as_of")) if angle else ""     # _fmt_asof already yields "as of <date>"
     full_tag = f"{tag} · lead {asof}" if asof else tag
-    return ('<div class="briefing" id="brief"><div class="bhead">'
-            f'<span class="l"><span class="dot"></span>{_html.escape(label)}</span>'
-            f'<span class="r">{_html.escape(full_tag)}</span></div>'
+    # Audience mode (2026-10-02 night): the box says what it is filtered for, carries the buyer's
+    # colour, and offers one way out.
+    cls = f" p-{aud}" if aud else ""
+    head_l = (f'{_html.escape(label)} <span class="filt">filtered for {_html.escape(_PERSONA_LABELS.get(aud, aud))}</span>'
+              if aud else _html.escape(label))
+    head_r = (f'<a class="clear" href="{_html.escape(clear_href)}">Clear filter</a>' if (aud and clear_href)
+              else f'<span class="r">{_html.escape(full_tag)}</span>')
+    return (f'<div class="briefing{cls}" id="brief"><div class="bhead">'
+            f'<span class="l"><span class="dot"></span>{head_l}</span>'
+            f'{head_r}</div>'
             f'<div class="bbody">{angle_html}{plays_html}</div></div>')
 
 
@@ -840,8 +883,7 @@ _ICON_MENU = ('<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke
 
 
 _SYSTEM_LINE = "Scout uses AI agents and human-calibrated model judgement."
-_STATEMENT = ("Deal-moving and always-fresh competitive briefs prepared by AI agents at the start "
-              "of each work day.")
+_STATEMENT = "Deal-moving, always-fresh competitive briefs prepared by AI agents every morning."
 
 # The challenger lanes: company, then the model as a reader would name it. The registry of what
 # actually runs is scout/replaybackends.py (tests/test_how_panel.py keeps the two in step).
@@ -920,8 +962,7 @@ def _how_panel() -> str:
     fig_li = (f'<li>Claims: <span class="hw-num">{fig["claims"]}</span> total on '
               f'<span class="hw-num">{fig["cards"]}</span> cards, <span class="hw-num">{fig["updates"]}</span> '
               f'update{"" if fig["updates"] == 1 else "s"} {fig["when"]}.</li>') if fig else ""
-    asof = (f'<span class="hw-asof"><span class="live"><span class="pulse"></span>LIVE</span> &middot; '
-            f'figures read live &middot; last run {fig["run"]}</span>' if fig else "")
+    asof = ""                                              # the footer carries links only (2026-10-02 night)
     return (
         '<div class="how" id="how" hidden>'
         '<button type="button" class="hw-close" data-how aria-expanded="true" aria-controls="how" aria-label="Close">&#215;</button>'
@@ -950,6 +991,7 @@ def _how_panel() -> str:
         '<div class="hw-col"><h4>The build</h4><ul>'
         '<li>A pipeline for the daily checks, event triggers between runs, and an agent for Ask Scout, '
         'because a question&rsquo;s path cannot be planned ahead.</li>'
+        '<li>Ask Scout is also an MCP tool, so other agents can call it, and it answers in Slack.</li>'
         '<li>Code keeps the important gates: cost, retries, links, dates, format. Models are used for '
         'judgment, and the cheapest model that passes its eval gets the job.</li>'
         '<li>Fallback 1 is a model. Fallback 2 is the human author.</li>'
@@ -963,11 +1005,10 @@ def _how_panel() -> str:
         '<li>Models are compared only on the same set of calls.</li></ul></div>'
         '</div>'
         '<div class="hw-foot"><span class="hw-links">'
-        '<a href="#trail" id="how-trail">Verification trail on this card &darr;</a>'
-        '<a href="#" id="how-ask">Ask Scout</a>'
         f'<a href="{_html.escape(config.SOURCE_REPO_URL)}" target="_blank" rel="noopener">Code on GitHub</a>'
+        f'<a href="{_html.escape(config.SOURCE_REPO_URL)}/blob/main/v2/docs/mcp.md" target="_blank" rel="noopener">Agent Scout via MCP</a>'
         f'<a href="{_html.escape(config.AUTHOR_LINKEDIN)}" target="_blank" rel="noopener">Contact me</a>'
-        f'</span>{asof}</div>'
+        '</span></div>'
         '</div>')
 
 
@@ -987,11 +1028,6 @@ _HOW_JS = (
     "function fromHash(){if(location.hash==='#how'&&p.hidden){set(true,'link');"
     "try{p.scrollIntoView({block:'start'});}catch(e){}}}"
     "fromHash();window.addEventListener('hashchange',fromHash);"
-    "function links(){var t=document.getElementById('how-trail');"
-    "if(t&&!document.getElementById('trail'))t.hidden=true;"
-    "var a=document.getElementById('how-ask'),f=document.getElementById('ask-fab');"
-    "if(a){if(!f){a.hidden=true;}else{a.addEventListener('click',function(e){e.preventDefault();f.click();});}}}"
-    "if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',links);}else{links();}"
     "})();</script>")
 
 _STRIP_JS = (
@@ -1115,6 +1151,18 @@ _OVERRIDES = """
 #scout-page .how{position:relative}
 #scout-page .hw-close{position:absolute;top:10px;right:12px;width:32px;height:32px;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:var(--muted);font:400 20px/1 var(--body);cursor:pointer}
 #scout-page .hw-close:hover{color:var(--ink);border-color:var(--accent-line)}
+#scout-page .briefing[class*=" p-"]{background:var(--pf, var(--paper2));border-color:var(--pl, var(--line));border-top-color:var(--pc, var(--accent-deep))}
+#scout-page .briefing[class*=" p-"] .bhead{background:var(--pf, var(--paper));border-bottom-color:var(--pl, var(--line2));color:var(--pc, var(--accent-deep))}
+#scout-page .briefing[class*=" p-"] .bbody{background:var(--pf, var(--paper2))}
+#scout-page .briefing .filt{font-weight:500;color:var(--pc, var(--accent-deep));font-size:.85em;margin-left:6px}
+#scout-page .briefing .clear{font-size:12.5px;font-weight:600;color:var(--pc, var(--accent-deep));text-decoration:none;border-bottom:1px solid currentColor;white-space:nowrap}
+#scout-page .aud-none{font-size:14px;color:var(--muted);margin:4px 0 0}
+#scout-page .aud-obj{padding:10px 0;border-top:1px solid var(--line2)}
+#scout-page .aud-obj:first-child{border-top:0;padding-top:0}
+#scout-page .aud-obj h4{margin:0 0 4px;font-family:var(--display);font-size:16px;font-weight:600}
+#scout-page .aud-obj .ptop{display:flex;justify-content:flex-end;margin-bottom:2px}
+#scout-page .aud-obj p{margin:0 0 6px;font-size:14px}
+#scout-page details.sec.folded>summary{opacity:.75}
 #scout-page .hw-sys{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px}
 #scout-page .hw-asof .live{color:var(--win);font-weight:600;letter-spacing:.04em}
 @media(max-width:760px){
@@ -1740,10 +1788,26 @@ def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retir
         return c.get("subject_key") in recent_keys
 
     secs, present = [], []
+    aud = _PERSONA.get()
+    pulled = _pulled_up_ids(claims)
+
+    def _opened(sid, cs):
+        """With an audience: open the sections that hold that buyer's own material, plus the one
+        or two a buyer reads first (_PERSONA_OPEN). Objection handling closes: the buyer's
+        objections were pulled up into the briefing, and open twice reads as a double."""
+        if not aud:
+            return True
+        if sid == "objection_handling":
+            return False
+        return sid in _PERSONA_OPEN.get(aud, ()) or any(c.get("persona") == aud for c in cs)
+
     for sid in _section_order():
         if sid in _HIDDEN_SECTIONS:   # generated/stored but not shown (see _HIDDEN_SECTIONS)
             continue
         cs = sorted(by_sec.get(sid, []), key=lambda c: c.get("order", 0))
+        if pulled and sid in ("battlecard", "objection_handling"):
+            cs = [c for c in cs if c.get("id") not in pulled]      # already shown at the top
+        opn = _opened(sid, cs)
         if sid == "recent_moves":
             # A chronological section: the latest development belongs on top, regardless of the
             # `order` the model assigned (monitor-added claims get arbitrary orders). Stable sort,
@@ -1755,10 +1819,10 @@ def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retir
         anchor = "bc" if sid == "battlecard" else sid   # battlecard's card uses id="bc"
         present.append((anchor, title, len(cs)))
         if sid == "battlecard":
-            secs.append(_battlecard(cs, recent_keys))
+            secs.append(_battlecard(cs, recent_keys, open=opn))
         elif sid == "snapshot":
             secs.append(_preview_section(sid, title, f"{len(cs)} facts",
-                                         [_snapshot_box(c, _new(c)) for c in cs], 2, snap=True))
+                                         [_snapshot_box(c, _new(c)) for c in cs], 2, snap=True, open=opn))
         elif sid == "executive_summary":
             secs.append(_section(sid, title, f"{len(cs)} takeaways",
                                  "".join(_prose_item(c, callout_label="So what",
@@ -1767,15 +1831,15 @@ def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retir
             shown, folded = _split_for_audience(cs)
             item = lambda c: _prose_item(c, callout_label="So what", badge_prefix="Raised by", new=_new(c))
             secs.append(_section(sid, title, f"{len(cs)} objections",
-                                 "".join(item(c) for c in shown) + _fold([item(c) for c in folded], "objections")))
+                                 "".join(item(c) for c in shown) + _fold([item(c) for c in folded], "objections"), open=opn))
         elif sid in _PREVIEW_SECTIONS:   # recent_moves, positioning, pricing
             label = {"recent_moves": "moves"}.get(sid, "items")
             secs.append(_preview_section(sid, title, f"{len(cs)} {label}",
-                                         [_bullet_item(c, _new(c)) for c in cs], 1))
+                                         [_bullet_item(c, _new(c)) for c in cs], 1, open=opn))
         else:
             label = {"sentiment": "signal"}.get(sid, "items")
             secs.append(_section(sid, title, f"{len(cs)} {label}",
-                                 "".join(_bullet_item(c, _new(c)) for c in cs)))
+                                 "".join(_bullet_item(c, _new(c)) for c in cs), open=opn))
     trail = []
     lineage_html = _lineage(retired or [])
     if lineage_html:
@@ -1872,7 +1936,7 @@ def _content_html(slug: str) -> str:
         + '<div class="maincol">'
         + _metrics(cp, status["agent_activity"]["claims_tracked"], max(remaining, 0),
                    sum(1 for r in rows if r.get("is_new")))
-        + _briefing(claims)
+        + _briefing(claims, clear_href=f"/c/{slug}")
         + '<div class="divider"><span class="t">The full brief</span><span class="ln"></span></div>'
         + secs + _trail_divider() + trail + _freshness(rows)
         + '</div></div>')
