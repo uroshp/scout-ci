@@ -96,6 +96,12 @@ a failure to a step). Rollback levers that need no deploy: repo variables (`SCOU
 
 ## Conventions specific to this repo
 
+- **Models and the Agent SDK move in lockstep** (v2, 2026-10-03). The models run through the Claude
+  Code binary that `claude-agent-sdk` bundles, and a new model id can need a newer binary. When a
+  model id in `v2/scout/config.py` changes: bump `claude-agent-sdk` to the latest release in BOTH
+  `v2/requirements.txt` and `v2/requirements-engine.txt`, raise `MODEL_MIN_CLI`, re-pip the mini's
+  venv, redeploy the engine, and rehearse. `tests/test_models_lockstep.py` and `monitor.preflight`
+  enforce it; never revert a model to dodge the bump.
 - **Model is pinned** to `MODEL = "claude-sonnet-4-6"` in `v1/research.py` — a pinned ID, not an evergreen alias, for reproducibility. Don't swap it for an alias. (Note: `v1/test.py` independently hardcodes an older model for its smoke test.)
 - Every saved brief begins with the exact line `# Competitive Intelligence Brief` — multiple functions key off this string to trim preamble. Don't change that title phrasing without updating `_from_title`, `clean_output`, and `format_report`.
 - The Cut Log is a **user-facing feature**, not an internal note. Its `## Cut Log` header and the `**CUT — …:**` / `**REVISED — …:**` entry format are load-bearing (CUT = removed from body, REVISED = corrected but still present). Preserve that distinction in prompt edits.

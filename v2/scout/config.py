@@ -29,6 +29,16 @@ SUBAGENT_MODEL = os.environ.get("SUBAGENT_MODEL", "claude-sonnet-5-5")
 # Triage gate: cheap "is there anything here at all?" check (§6). Runs on EVERY check, so
 # it uses Haiku — the cheapest model — to keep the no-news floor low (lever A).
 FAST_MODEL = os.environ.get("FAST_MODEL", "claude-haiku-4-5-20251001")
+# LOCKSTEP (Uroš, 2026-10-03: "latest models and latest SDK, updated in lockstep"): the models run
+# through the Claude Code binary the Agent SDK bundles, and a new model id can need a newer binary
+# (Opus 5.5 needs 2.1.280+; the pinned SDK of 10/3 bundled 2.1.179 and every Opus call failed with
+# a 400 until the first rehearsal caught it). When a model id above changes: bump `claude-agent-sdk`
+# in requirements.txt AND requirements-engine.txt to the latest release, raise MODEL_MIN_CLI to the
+# version the new model needs, and re-pip every environment that runs the SDK (the Actions runners
+# rebuild from the pins; the mini's venv and the engine image must be rebuilt). tests/
+# test_models_lockstep.py asserts the pins agree and the installed binary is new enough;
+# monitor.preflight refuses a run on a binary that is too old, before any spend.
+MODEL_MIN_CLI = "2.1.280"
 
 # --- Analytics ----------------------------------------------------------------
 # GA4 Measurement ID for the viewer. This is a CLIENT-side id (it ships in every
