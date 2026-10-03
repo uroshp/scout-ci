@@ -706,7 +706,7 @@ def _freshness(rows: list) -> str:
 
 
 def _briefing(claims: list, label: str = "Your Daily Briefing",
-              tag: str = "the 2-min version before your call") -> str:
+              tag: str = "the 2-min version before your call", clear_href: str | None = None) -> str:
     # Today's angle = the brief's STRATEGIC LEAD (the executive summary's first claim), the single
     # most consequential opener, set by the strategic pass. The executive_summary section itself is
     # hidden to avoid a redundant summary, so this is where that lead actually surfaces to the rep.
@@ -771,9 +771,16 @@ def _briefing(claims: list, label: str = "Your Daily Briefing",
     # the deal-impact bar (see propagate._lead_election), so it can legitimately be days old.
     asof = _fmt_asof(angle.get("as_of")) if angle else ""     # _fmt_asof already yields "as of <date>"
     full_tag = f"{tag} · lead {asof}" if asof else tag
-    return ('<div class="briefing" id="brief"><div class="bhead">'
-            f'<span class="l"><span class="dot"></span>{_html.escape(label)}</span>'
-            f'<span class="r">{_html.escape(full_tag)}</span></div>'
+    # Audience mode (2026-10-02 night): the box says what it is filtered for, carries the buyer's
+    # colour, and offers one way out.
+    cls = f" p-{aud}" if aud else ""
+    head_l = (f'{_html.escape(label)} <span class="filt">filtered for {_html.escape(_PERSONA_LABELS.get(aud, aud))}</span>'
+              if aud else _html.escape(label))
+    head_r = (f'<a class="clear" href="{_html.escape(clear_href)}">Clear filter</a>' if (aud and clear_href)
+              else f'<span class="r">{_html.escape(full_tag)}</span>')
+    return (f'<div class="briefing{cls}" id="brief"><div class="bhead">'
+            f'<span class="l"><span class="dot"></span>{head_l}</span>'
+            f'{head_r}</div>'
             f'<div class="bbody">{angle_html}{plays_html}</div></div>')
 
 
@@ -1144,6 +1151,11 @@ _OVERRIDES = """
 #scout-page .how{position:relative}
 #scout-page .hw-close{position:absolute;top:10px;right:12px;width:32px;height:32px;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:var(--muted);font:400 20px/1 var(--body);cursor:pointer}
 #scout-page .hw-close:hover{color:var(--ink);border-color:var(--accent-line)}
+#scout-page .briefing[class*=" p-"]{background:var(--pf, var(--paper2));border-color:var(--pl, var(--line));border-top-color:var(--pc, var(--accent-deep))}
+#scout-page .briefing[class*=" p-"] .bhead{background:var(--pf, var(--paper));border-bottom-color:var(--pl, var(--line2));color:var(--pc, var(--accent-deep))}
+#scout-page .briefing[class*=" p-"] .bbody{background:var(--pf, var(--paper2))}
+#scout-page .briefing .filt{font-weight:500;color:var(--pc, var(--accent-deep));font-size:.85em;margin-left:6px}
+#scout-page .briefing .clear{font-size:12.5px;font-weight:600;color:var(--pc, var(--accent-deep));text-decoration:none;border-bottom:1px solid currentColor;white-space:nowrap}
 #scout-page .aud-none{font-size:14px;color:var(--muted);margin:4px 0 0}
 #scout-page .aud-obj{padding:10px 0;border-top:1px solid var(--line2)}
 #scout-page .aud-obj:first-child{border-top:0;padding-top:0}
@@ -1924,7 +1936,7 @@ def _content_html(slug: str) -> str:
         + '<div class="maincol">'
         + _metrics(cp, status["agent_activity"]["claims_tracked"], max(remaining, 0),
                    sum(1 for r in rows if r.get("is_new")))
-        + _briefing(claims)
+        + _briefing(claims, clear_href=f"/c/{slug}")
         + '<div class="divider"><span class="t">The full brief</span><span class="ln"></span></div>'
         + secs + _trail_divider() + trail + _freshness(rows)
         + '</div></div>')
