@@ -155,3 +155,21 @@ class NoGroundedWin(unittest.TestCase):
         with mock.patch.object(judgment, "optional", return_value="b"):
             pl = audience.plan(card)
         self.assertEqual(pl["ops"], []); self.assertEqual(pl["personas"], [])
+
+
+class WeeklyAudit(unittest.TestCase):
+    def test_weekly_sample_is_applied_recent_unlabeled_and_spread_across_cards(self):
+        from datetime import datetime
+        from scout import adjudicate
+        now = datetime(2026, 10, 2, 12, 0)
+        pend = ([{"delta_id": f"a{i}", "slug": "cardA", "committed": True, "run_ts": f"2026-10-0{1 + i % 2}T04:00:00"} for i in range(8)]
+                + [{"delta_id": f"b{i}", "slug": "cardB", "committed": True, "run_ts": "2026-09-30T04:00:00"} for i in range(3)]
+                + [{"delta_id": "old", "slug": "cardA", "committed": True, "run_ts": "2026-09-10T04:00:00"}]
+                + [{"delta_id": "notapplied", "slug": "cardB", "committed": False, "run_ts": "2026-10-01T04:00:00"}])
+        with mock.patch.object(adjudicate, "digest", return_value={"pending": pend}):
+            got = adjudicate.weekly_sample(n=6, now=now)
+        ids = [g["delta_id"] for g in got]
+        self.assertEqual(len(ids), 6)
+        self.assertNotIn("old", ids); self.assertNotIn("notapplied", ids)
+        self.assertEqual(sum(1 for g in got if g["slug"] == "cardB"), 3)         # round-robin: the small card is fully covered
+        self.assertEqual(ids[0][0], "a")                                           # the busiest card leads
