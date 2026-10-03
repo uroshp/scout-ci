@@ -29,7 +29,7 @@ class HowPanel(unittest.TestCase):
     def test_no_cost_no_performance_no_genai_dashes(self):
         text = re.sub(r"<script.*?</script>", "", self.panel, flags=re.S)
         self.assertNotIn("$", text)
-        self.assertNotIn("%", text)
+        self.assertNotIn("%", text.replace("95% interval", ""))        # the method names its interval; no result carries a percent
         self.assertNotIn("—", text)
         self.assertNotRegex(text, r"\d+ of \d+")                    # no scoreboard
 
