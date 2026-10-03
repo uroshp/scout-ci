@@ -153,11 +153,14 @@ class AudienceFocus(unittest.TestCase):
         self.assertNotIn("Exec / top-down", plays); self.assertNotIn("Security", plays)   # no other audience in the top plays
         self.assertIn("Objections they raise", h[:h.find('class="divider"')])
         self.assertGreaterEqual(h.count('class="aud-obj"'), 1)
+        self.assertIn("Raised by", h[h.find("Objections they raise"):h.find('class="divider"')])   # tagged
 
     def test_sections_without_the_buyers_material_are_closed(self):
         h = page.content_html(self.slug, persona="economic_buyer")
         self.assertIn('<details class="sec folded" id="snapshot">', h)
         self.assertIn('<details class="sec" id="bc" open>', h)
+        self.assertIn('<details class="sec folded" id="objection_handling">', h)   # pulled up, so closed below
+        self.assertIn('id="pricing"', h); self.assertNotIn('class="sec folded" id="pricing"', h)   # the economic buyer reads pricing
         self.assertNotIn("sec folded", page.content_html(self.slug))
 
     def test_buyer_with_no_plays_gets_an_honest_line(self):
