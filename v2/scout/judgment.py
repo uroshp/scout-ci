@@ -178,6 +178,16 @@ def require() -> None:
         raise JudgmentUnavailable(f"the judgment pack has no block for: {', '.join(sorted(set(missing)))}")
 
 
+def instructions_sha(system) -> str | None:
+    """The fingerprint of the instructions a call actually received: the system prompt as sent.
+    Recorded on every captured call (2026-10-03) so an eval period is keyed per ROLE, not per
+    whole pack: adding or editing a block moves only the roles whose text changed."""
+    if system is None:
+        return None
+    text = system if isinstance(system, str) else json.dumps(system, sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(text.encode("utf-8", "replace")).hexdigest()[:12]
+
+
 def period_tag(v: str | None) -> str | None:
     """None for the baseline pack (and for results captured before versions were recorded): a prompt
     edit yields a new tag, which opens a new eval period by construction."""
