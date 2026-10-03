@@ -94,6 +94,11 @@ def _dispatch(subject: str, body: str, dry_run: bool = True, html: str = None) -
     clients render preferentially. SAFE BY DEFAULT: a no-op (returns a preview) when dry_run is set
     or nothing is configured; never raises on a config/send path."""
     to = config.ALERT_EMAIL_TO
+    # REHEARSAL (2026-10-03): every email a rehearsal sends is the real email, marked. The prefix
+    # lands here, the one choke point, so the preflight refusal, the render-gate alert and the run
+    # emails all carry it, previews included.
+    if config.REHEARSAL and not str(subject).startswith("[rehearsal]"):
+        subject = f"[rehearsal] {subject}"
     if dry_run or not to:
         return {"sent": False, "reason": "dry_run or no recipient (no email sent)",
                 "subject": subject, "to": to, "preview": body, "html": html}
@@ -721,9 +726,32 @@ def _alert_block_html(a: dict) -> str:
     return _hcard("".join(parts))
 
 
-def render_run_fyi(cards: list[dict], cost_total: float | None = None) -> tuple[str, str, str]:
+def _health_lines(health: list[dict]) -> list[str]:
+    """One line per card from the step tables (2026-10-03): what ran, what was skipped and why,
+    what failed. Cards whose every step ran or was skipped by design collapse into one count."""
+    clean, lines = 0, []
+    for h in health or []:
+        label = _card_label(h.get("meta") or {}) if h.get("meta") else h.get("slug", "?")
+        if h.get("skipped"):
+            lines.append(f"{label}: skipped ({h['skipped']})")
+            continue
+        if h.get("error"):
+            lines.append(f"{label}: CHECK FAILED ({_flat(h['error'])[:160]})")
+            continue
+        steps = h.get("steps") or []
+        failed = [r for r in steps if r.get("status") == "failed"]
+        if failed:
+            lines.append(f"{label}: FAILED " + "; ".join(f"{r['step']} ({_flat(r.get('detail') or '')[:120]})" for r in failed))
+            continue
+        clean += 1
+    head = [f"{clean} card{'s' if clean != 1 else ''} checked, every step ran or was skipped by design"] if clean else []
+    return head + lines
+
+
+def render_run_fyi(cards: list[dict], cost_total: float | None = None, health: list[dict] | None = None) -> tuple[str, str, str]:
     """(subject, text, html) for the run's single FYI. `cards`: [{meta, alerts, applied (decisions
-    that landed), deferred_n, election}] for cards where anything happened."""
+    that landed), deferred_n, election}] for cards where anything happened. `health` (2026-10-03):
+    every checked card's step table, rendered as the run-health footer."""
     n_alerts = sum(len(c.get("alerts") or []) for c in cards)
     n_applied = sum(len(c.get("applied") or []) for c in cards)
     n_cards = len(cards)
@@ -762,15 +790,22 @@ def render_run_fyi(cards: list[dict], cost_total: float | None = None) -> tuple[
     if cost_total is not None:
         foot.append(f'<div style="{_C_MUTED};font-size:13px">Run cost: ${cost_total:.2f}</div>')
         text_lines.append(f"Run cost: ${cost_total:.2f}")
+    hl = _health_lines(health or [])
+    if hl:
+        bad = any(("FAILED" in l) for l in hl)
+        foot.append(f'<div style="font-size:13px;margin-top:8px;{"color:#b0301c;font-weight:700" if bad else _C_MUTED}">Run health: '
+                    + "<br>".join(_esc(l) for l in hl) + '</div>')
+        text_lines.append("Run health: " + " | ".join(hl))
     foot.append(f'<div style="{_C_MUTED};font-size:12px;margin-top:10px">— Scout (every claim verified against its '
                 'source; every applied update passed the authorship judge and the provenance gate)</div>')
     return subject, "\n".join(text_lines), _hdoc(lead, "".join(blocks), "".join(foot))
 
 
-def send_run_fyi(cards: list[dict], cost_total: float | None = None, dry_run: bool = True) -> dict:
+def send_run_fyi(cards: list[dict], cost_total: float | None = None, dry_run: bool = True,
+                 health: list[dict] | None = None) -> dict:
     if not cards:
         return {"sent": False, "reason": "nothing to report"}
-    subject, text, html = render_run_fyi(cards, cost_total)
+    subject, text, html = render_run_fyi(cards, cost_total, health=health)
     return _dispatch(subject, text, dry_run=dry_run, html=html)
 
 

@@ -182,7 +182,7 @@ class LiveMode(unittest.TestCase):
              mock.patch.object(config, "PROPAGATE_MODE", "live"), mock.patch.object(config, "CONSEQUENTIAL_FILTER", "off"), \
              mock.patch("scout.notify.send_digest") as digest, mock.patch("scout.notify.send_propagation_proposals") as props, \
              mock.patch("scout.notify.send_lead_election_fyi") as lead, mock.patch("scout.notify._dispatch") as disp, \
-             mock.patch("scout.notify.send_run_fyi", side_effect=lambda cards, cost, dry_run=True: sent.__setitem__("fyi", (cards, cost)) or {"sent": True}) as fyi, \
+             mock.patch("scout.notify.send_run_fyi", side_effect=lambda cards, cost, dry_run=True, **kw: sent.__setitem__("fyi", (cards, cost)) or {"sent": True}) as fyi, \
              mock.patch("scout.notify.send_run_issues", side_effect=lambda cards, dry_run=True: sent.__setitem__("issues", cards) or {"sent": True}) as iss:
             monitor._run_all_impl(write=False, send=True, email_dry_run=True, force=True)
         digest.assert_not_called(); props.assert_not_called(); lead.assert_not_called(); disp.assert_not_called()
@@ -282,7 +282,7 @@ class DispatchedRun(unittest.TestCase):
             for c in common:
                 es.enter_context(c)
             es.enter_context(mock.patch.object(monitor, "check", side_effect=lambda slug, write=False: self._res("a")))
-            es.enter_context(mock.patch("scout.notify.send_run_fyi", side_effect=lambda cards, cost, dry_run=True: sent.__setitem__("fyi", (cards, cost)) or {"sent": True}))
+            es.enter_context(mock.patch("scout.notify.send_run_fyi", side_effect=lambda cards, cost, dry_run=True, **kw: sent.__setitem__("fyi", (cards, cost)) or {"sent": True}))
             es.enter_context(mock.patch("scout.notify.send_run_issues", return_value={"sent": False}))
             monitor._run_all_impl(write=True, send=True, email_dry_run=True, force=True)               # the scheduled run
         cards, cost = sent["fyi"]

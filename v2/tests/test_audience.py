@@ -181,7 +181,7 @@ class MonitorHook(unittest.TestCase):
         UnboundLocalError on `today`, which is only bound inside the propagation block."""
         import inspect
         from scout import monitor
-        src = inspect.getsource(monitor.check)
+        src = inspect.getsource(monitor._check)          # check() is a thin wrapper since 2026-10-03 (step rows)
         hook = src[src.index("AUDIENCE LEADS"):src.index("Shadow-eval observer")]
         self.assertIn("checked_at[:10]", hook)
         self.assertNotIn("new_claims, today,", hook)
