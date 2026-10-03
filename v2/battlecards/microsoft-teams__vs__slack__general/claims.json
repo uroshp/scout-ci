@@ -1159,5 +1159,90 @@
       }
     ],
     "source_class": "company_statement"
+  },
+  {
+    "subject_key": "microsoft-copilot | billing-model",
+    "claim": "Microsoft is splitting Copilot pricing into two tracks. Everyday AI (chat and the Microsoft 365 app assistants) stays on the flat per-user Copilot subscription license with no price change. Advanced agentic work, including Cowork, Code, Autopilot, new SharePoint AI features and frontier models, moves to usage-based billing through Copilot Credits, which for enterprise tenants stays off until an admin sets a spending policy in the Microsoft 365 admin center. Usage-based billing switches on by default for new Microsoft 365 Copilot Business purchases starting October 19, 2026 for direct purchases and December 1, 2026 for CSP purchases.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://techcommunity.microsoft.com/blog/microsoft-copilot-blog/evolution-of-the-copilot-pricing-model/4559416",
+    "source_tier": "primary",
+    "evidence_excerpt": "That’s why Copilot pricing is evolving to combine predictable per-user pricing with usage-based pricing",
+    "as_of": "2026-09-25",
+    "confidence": "high",
+    "id": "c_cf2ac95ad323",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-03",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.epcgroup.net/blog/copilot-usage-based-billing-default-october-2026-spending-policy-playbook",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      },
+      {
+        "source_url": "https://changepilot.cloud/blog/october-2026-microsoft-365-updates-copilot-billing-home-more",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "company_statement"
+  },
+  {
+    "id": "c_1a86032363d2",
+    "subject_key": "microsoft-copilot | copilot-credits-pricing | current",
+    "claim": "Microsoft is splitting Copilot pricing into two tracks. Everyday AI (chat and the Microsoft 365 app assistants) stays on the flat per-user Copilot license with no price change. Advanced agentic work (Cowork, Code, Autopilot, new SharePoint AI features and frontier models) moves to usage-based billing through Copilot Credits, which for enterprise tenants stays off until an admin sets a spending policy in the Microsoft 365 admin center. Usage-based billing turns on by default for new Microsoft 365 Copilot Business purchases starting October 19, 2026 for direct purchases and December 1, 2026 for CSP purchases.",
+    "claim_type": "interpretation",
+    "section": "pricing",
+    "zone": null,
+    "order": 3,
+    "as_of": "2026-09-25",
+    "updated_on": "2026-10-03",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_cf2ac95ad323",
+    "persona": "economic_buyer",
+    "provenance": {
+      "source_url": "https://techcommunity.microsoft.com/blog/microsoft-copilot-blog/evolution-of-the-copilot-pricing-model/4559416",
+      "source_tier": "primary",
+      "as_of": "2026-09-25",
+      "fact_id": "c_cf2ac95ad323",
+      "stamped_on": "2026-10-03",
+      "source_class": "company_statement"
+    }
+  },
+  {
+    "id": "c_34d6a7797703",
+    "subject_key": "microsoft-copilot | objection | usage-based-billing",
+    "claim": "**\"If Copilot's agent work is metered now, how do we know what we'll actually pay?\"**\n\nConcede the split: advanced agentic work (Cowork, Code, Autopilot, new SharePoint AI features and frontier models) moves off the flat license onto usage-based Copilot Credits billing. The everyday AI most seats actually run today, chat and the M365 app assistants already live in Teams, keeps the same per-user subscription price with no change. Enterprise tenants also control the on-switch: Copilot Credits billing stays off until an admin sets a spending policy in the Microsoft 365 admin center, so nothing meters until the organization chooses to turn on advanced agent features.\n\n**So what:** Offer to scope the deal on the flat per-seat Copilot work already live in Teams today, and let the customer opt into metered Credits only when they are ready to turn on advanced agent features, keeping spend under their own admin's control.",
+    "claim_type": "interpretation",
+    "section": "objection_handling",
+    "zone": null,
+    "order": 8,
+    "as_of": "2026-09-25",
+    "updated_on": "2026-10-03",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_cf2ac95ad323",
+    "persona": "economic_buyer",
+    "provenance": {
+      "source_url": "https://techcommunity.microsoft.com/blog/microsoft-copilot-blog/evolution-of-the-copilot-pricing-model/4559416",
+      "source_tier": "primary",
+      "as_of": "2026-09-25",
+      "fact_id": "c_cf2ac95ad323",
+      "stamped_on": "2026-10-03",
+      "source_class": "company_statement"
+    }
   }
 ]

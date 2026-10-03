@@ -4,7 +4,7 @@
   "competitor": "Atlassian",
   "focus": "AI features",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-10-02T11:13:07",
+  "last_checked": "2026-10-03T11:37:17",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_af44b318b691",
@@ -36,5 +36,10 @@
       }
     ]
   },
-  "last_check_reason": "scheduled"
+  "last_check_reason": "scheduled",
+  "unresolved_subjects": [
+    "notion | workers-pricing"
+  ],
+  "unresolved_since": "2026-10-02",
+  "unresolved_attempts": 1
 }

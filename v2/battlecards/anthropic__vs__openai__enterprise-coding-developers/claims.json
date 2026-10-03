@@ -680,18 +680,26 @@
   },
   {
     "subject_key": "battlecard | codex-scale-distribution | where_they_win",
-    "claim": "**OpenAI wins on scale and channel, especially in top-down deals.**\n\nCodex passed 5M weekly users, is expanding to non-developers and ships through a named SI network (Accenture, PwC, Infosys, TCS and more) plus native GitHub Copilot integration. Claude is now generally available in Microsoft Azure Foundry (GA June 29, 2026) with Azure-native billing for EA customers, which narrows OpenAI's prior Azure deployment advantage. Claude also picked up a top-tier consulting endorsement: Bain is now a 'Global Premier' partner in the Claude Partner Network. The remaining channel strengths are the SI network and GitHub's native Microsoft ownership: in an exec-led, \"one-vendor-for-everything\" enterprise buy routed through an SI where GitHub is already in the contract, OpenAI is still the path of least resistance.\n\n**Soundbite:** *\"Top-down on breadth through an SI, OpenAI's the easy pick. But Claude is now on the Azure EA bill, and the engineers who actually live in the tool rate Claude higher, so get this in front of them.\"*",
+    "claim": "**OpenAI still leads on distribution, but its SI channel edge keeps narrowing.**\n\nCodex has passed 5M weekly users and ships through a named SI network (Accenture, PwC, Infosys, TCS) plus native GitHub Copilot integration. Claude already closed two channel gaps: general availability in Microsoft Azure Foundry with Azure-native EA billing, and a 'Global Premier' Bain partnership. Now Anthropic is training engineers inside those same SI firms: Claude Frontier Academy, a $100 million program launched October 2, 2026, aims to certify 10,000 Frontier Deployed Engineers by end of 2027, with cohorts already running and nominated engineers from Accenture, Bain, Deloitte, McKinsey and Morgan Stanley. The remaining edge is GitHub's native Microsoft ownership: where GitHub is already in the contract, OpenAI stays the easy pick for an exec-led, one-vendor buy.\n\n**Soundbite:** *\"OpenAI still wins the easy top-down pick through GitHub and its SI network, but Anthropic is now training and badging engineers inside Accenture, Bain, Deloitte and McKinsey, so that SI advantage is closing fast.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_they_win",
     "order": 0,
-    "as_of": "2026-08-25",
+    "as_of": "2026-10-02",
     "confidence": "high",
     "id": "c_987856624481",
     "verified": true,
     "persona": "exec_top_down",
-    "derived_from": "c_dbebd47beb33",
-    "updated_on": "2026-08-26"
+    "derived_from": "c_9d22755eed13",
+    "updated_on": "2026-10-03",
+    "provenance": {
+      "source_url": "https://www.anthropic.com/news/claude-frontier-academy",
+      "source_tier": "primary",
+      "as_of": "2026-10-02",
+      "fact_id": "c_9d22755eed13",
+      "stamped_on": "2026-10-03",
+      "source_class": "company_statement"
+    }
   },
   {
     "subject_key": "openai-copilot | sentiment-billing-defection | current",
@@ -2974,5 +2982,99 @@
       }
     ],
     "source_class": "news"
+  },
+  {
+    "subject_key": "openai-safety-team-firings",
+    "claim": "OpenAI fired three safety researchers, Jasmine Wang, Tomek Korbak and Mikita Balesni, on October 1, 2026 for sharing confidential company information with an outside AI safety organization. Korbak had served as OpenAI's technical contact to the external auditors METR and Redwood Research during their investigation of OpenAI's Hugging Face breach. OpenAI said the three mishandled sensitive information outside established procedures. The firings land weeks before OpenAI's planned IPO.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.washingtonexaminer.com/policy/technology/4751591/openai-fires-researchers-sharing-data-ai-safety-advocacy-group/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI fired three of its safety researchers for reportedly divulging privileged information to an artificial intelligence safety group.",
+    "as_of": "2026-10-02",
+    "confidence": "high",
+    "id": "c_6407f2c70927",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-03",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://tech.yahoo.com/ai/articles/openai-fires-three-safety-researchers-181204664.html",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      },
+      {
+        "source_url": "https://www.metacurity.com/openai-fires-three-safety-researchers-over-alleged-information-leaks/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "unknown"
+  },
+  {
+    "subject_key": "anthropic-claude-frontier-academy",
+    "claim": "Anthropic launched Claude Frontier Academy on October 2, 2026, backed by a $100 million commitment to train 10,000 Frontier Deployed Engineers (FDEs) by the end of 2027. The program follows a medical-residency model: a multi-day in-person program followed by a 12-week on-the-job residency, with Resident Engineer and Frontier Deployed Engineer badges awarded after two assessments, the first FDE badges expected in early 2027. First cohorts are running now in San Francisco, New York and London, with nominated engineers from Accenture, Bain, Capgemini, Commonwealth Bank of Australia, Deloitte, McKinsey, Morgan Stanley and Novo Nordisk.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.anthropic.com/news/claude-frontier-academy",
+    "source_tier": "primary",
+    "evidence_excerpt": "Backed by a $100 million commitment, Anthropic aims to train 10,000 Frontier Deployed Engineers (FDEs) by the end of 2027.",
+    "as_of": "2026-10-02",
+    "confidence": "high",
+    "id": "c_9d22755eed13",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-03",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://fourweekmba.com/ai-anthropic-100m-claude-frontier-academy/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "company_statement"
+  },
+  {
+    "id": "c_fdad4b2158e5",
+    "subject_key": "battlecard | frontier-academy-si-enablement | where_we_win",
+    "claim": "**Anthropic is training and badging 10,000 engineers inside the world's top consulting and banking firms.**\n\nClaude Frontier Academy, launched October 2, 2026 with a $100 million commitment, aims to certify 10,000 Frontier Deployed Engineers by the end of 2027. It runs like a medical residency: a multi-day in-person program followed by a 12-week on-the-job residency, with Resident Engineer and Frontier Deployed Engineer badges awarded after two assessments and the first FDE badges expected in early 2027. First cohorts are already running in San Francisco, New York and London, with nominated engineers from Accenture, Bain, Capgemini, Commonwealth Bank of Australia, Deloitte, McKinsey, Morgan Stanley and Novo Nordisk.\n\n**Soundbite:** *\"Anthropic is training and certifying engineers inside Accenture, Bain, Deloitte and McKinsey right now, so the expertise your SI brings to the table is already built on Claude.\"*",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 13,
+    "as_of": "2026-10-02",
+    "updated_on": "2026-10-03",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_9d22755eed13",
+    "persona": "exec_top_down",
+    "provenance": {
+      "source_url": "https://www.anthropic.com/news/claude-frontier-academy",
+      "source_tier": "primary",
+      "as_of": "2026-10-02",
+      "fact_id": "c_9d22755eed13",
+      "stamped_on": "2026-10-03",
+      "source_class": "company_statement"
+    }
   }
 ]
