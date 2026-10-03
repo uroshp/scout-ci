@@ -41,6 +41,11 @@ ASK_VIEWER_SECRET = os.environ.get("ASK_VIEWER_SECRET", "")
 # apart in the records (asked_by "slack") and capped on its own under the engine's daily ceiling.
 ASK_SLACK_KEY = os.environ.get("ASK_SLACK_KEY", "").strip()
 ASK_SLACK_DAILY_USD = float(os.environ.get("SCOUT_ASK_SLACK_DAILY_USD", "3"))
+# Slack's own reservations are sized to what answers actually cost (quick $0.03 to $0.75, deep
+# about $1.20), not to the engine's worst-case caps: with $1.50 held per question, a $3 day allowed
+# one question in flight and refused the second as "budget spent" (2026-10-02, the first review).
+SLACK_RESERVE = {"quick": float(os.environ.get("SCOUT_ASK_SLACK_RESERVE_QUICK", "0.75")),
+                 "deep": float(os.environ.get("SCOUT_ASK_SLACK_RESERVE_DEEP", "1.50"))}
 ASK_DAILY_CEILING_USD = float(os.environ.get("SCOUT_ASK_DAILY_CEILING_USD", "10"))
 ASK_ALLOWED_ORIGINS = [o.strip() for o in os.environ.get("ASK_ALLOWED_ORIGINS", "").split(",") if o.strip()]
 LEDGER = ledger.Ledger("ask/state.json", ASK_DAILY_CEILING_USD, config.ASK_MAX_USD)
@@ -136,12 +141,16 @@ async def ask_route(request: Request, authorization: str | None = Header(default
         return JSONResponse({"message": "Today's question budget is spent. Come back tomorrow, or browse the answers so far.",
                              "room_usd": LEDGER.room(state)}, status_code=429)
     slack_reserved = False
+    slack_reserve = SLACK_RESERVE[mode]
     if kind == "slack":                                    # Slack's own cap, inside the engine's ceiling
-        ok2, state2 = SLACK_LEDGER.start(reserve)
+        ok2, state2 = SLACK_LEDGER.start(slack_reserve)
         if not ok2:
             LEDGER.settle(0.0, reserve)
-            return JSONResponse({"message": "Agent Scout's Slack budget for today is spent. Ask again tomorrow, or read the briefs at agent-scout.ai.",
-                                 "room_usd": SLACK_LEDGER.room(state2)}, status_code=429)
+            room = SLACK_LEDGER.room(state2)
+            busy = (state2 or {}).get("in_flight_usd", 0) > 0 and (state2 or {}).get("spend_usd", 0) + slack_reserve <= ASK_SLACK_DAILY_USD
+            msg = ("Agent Scout is answering other questions right now. Ask again in a minute." if busy else
+                   "Agent Scout's Slack budget for today is spent. Ask again tomorrow, or read the briefs at agent-scout.ai.")
+            return JSONResponse({"message": msg, "room_usd": room}, status_code=429)
         slack_reserved = True
 
     q: queue.Queue = queue.Queue()
@@ -167,7 +176,7 @@ async def ask_route(request: Request, authorization: str | None = Header(default
                    "answer": structured(a)})
             LEDGER.settle(a["cost_usd"], reserve)
             if slack_reserved:
-                SLACK_LEDGER.settle(a["cost_usd"], reserve)
+                SLACK_LEDGER.settle(a["cost_usd"], slack_reserve)
         except Exception as e:
             # honest failure: a crashed run is NOT free. generate._drive attaches the cost so far
             # (a known 0.0 when the process died before its first message); an UNKNOWN cost (None)
@@ -182,7 +191,7 @@ async def ask_route(request: Request, authorization: str | None = Header(default
             q.put({"error": text, "cost_usd": round(spent, 2), "id": record_id})
             LEDGER.settle(spent, reserve)
             if slack_reserved:
-                SLACK_LEDGER.settle(spent, reserve)
+                SLACK_LEDGER.settle(spent, slack_reserve)
             if record_id:
                 ask.persist_failure(record_id, question, text, spent, asked_at, kind=mode)
         finally:
