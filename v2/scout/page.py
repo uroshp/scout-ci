@@ -1093,6 +1093,11 @@ _OVERRIDES = """
 #scout-page details.fold[open]>summary .mchev{transform:rotate(180deg)}
 #scout-page details.fold .rest{margin-top:6px}
 #scout-page .sc-area .aud{font-weight:600;color:var(--accent-deep)}
+#scout-page .sc-slack{max-width:62ch;padding:28px 0 40px}
+#scout-page .sc-slack h1{font-family:var(--display);font-weight:600;font-size:30px;letter-spacing:-.015em;margin:0 0 10px}
+#scout-page .sc-slack p{font-size:16px;line-height:1.55;margin:0 0 10px}
+#scout-page .sc-slack p.how{color:var(--muted);font-size:14.5px}
+#scout-page .sc-slack-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 #scout-page .hw-sys{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px}
 #scout-page .hw-asof .live{color:var(--win);font-weight:600;letter-spacing:.04em}
 @media(max-width:760px){
@@ -1546,15 +1551,44 @@ def masthead_html(cards: list | None = None, slug: str | None = None, mode: str 
                   + '<a class="sc-see" href="/briefs">See all briefs as cards</a>'
                   + ('<a class="sc-phone-only" href="#how" data-how aria-expanded="false">How Scout works</a>' if panel else "")
                   + '</div></details>')
+    slack = ('<a href="/slack" class="sc-navlink">Agent Scout in Slack</a>' if slack_live_paths() else "")
     bar = ('<div class="sc-bar"><a class="sc-brand" href="/"><span class="d"></span><span class="nm">Agent Scout</span></a>'
            '<nav class="sc-nav" aria-label="Site">'
-           f'{all_briefs}{how}'
+           f'{all_briefs}{how}{slack}'
            f'<a class="sc-btn sc-pri{" on" if mode == "create" else ""}" href="/create">{_ICON_PLUS}<span class="lbl">Create your own</span></a>'
            '</nav></div>')
     lead = f'<div class="sc-lead"><div class="sc-statement">{_STATEMENT}</div></div>'
     strip = strip_html(cards, slug) if slug else ""
     return ('<div id="scout-page"><div class="wrap mast">' + bar + lead + panel + strip + '</div></div>'
             + (_HOW_JS if panel else "") + (_STRIP_JS if strip else ""))
+
+
+def slack_live_paths() -> list[tuple[str, str, str]]:
+    """The Slack actions that are live, as (label, href, kind). Empty = no Slack item anywhere."""
+    out = []
+    if config.SLACK_INVITE_URL:
+        out.append(("Join the demo workspace", config.SLACK_INVITE_URL, "pri"))
+    if config.SLACK_APP_ID and config.SLACK_TEAM_ID:
+        out.append(("Open Agent Scout in Slack", f"https://slack.com/app_redirect?app={config.SLACK_APP_ID}&team={config.SLACK_TEAM_ID}", ""))
+    if config.SLACK_INSTALL_URL:
+        out.append(("Add to your Slack", config.SLACK_INSTALL_URL, ""))
+    return out
+
+
+def slack_html() -> str:
+    """The /slack page: what it is in two lines, then only the actions that are live."""
+    paths = slack_live_paths()
+    btns = "".join(f'<a class="sc-btn{" sc-pri" if kind else ""}" href="{_html.escape(href)}" target="_blank" rel="noopener">'
+                   f'{_html.escape(label)}</a>' for label, href, kind in paths)
+    return ('<div id="scout-page"><div class="wrap"><div class="sc-slack">'
+            '<h1>Agent Scout in Slack</h1>'
+            '<p>Ask Agent Scout a question in Slack the way you would ask a colleague. It answers in the '
+            'thread from claims verified against their sources, shows the sources and what it cut, and '
+            'can research deeper on request. The same engine that writes the briefs here.</p>'
+            '<p class="how">Join the demo workspace, then open Agent Scout and ask. Ten quick answers and one '
+            'deep research question per person per day.</p>'
+            f'<div class="sc-slack-actions">{btns}</div>'
+            '</div></div></div>')
 
 
 def index_html(cards: list) -> str:
