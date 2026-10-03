@@ -55,6 +55,11 @@ _PERSONA_SECTION_ORDER = {
 }
 
 
+# Sections a buyer reads first, kept open with that audience even without tagged items.
+_PERSONA_OPEN = {"economic_buyer": ("pricing",), "technical_evaluator": ("positioning",),
+                 "exec_top_down": ("recent_moves",), "eng_led": ("positioning",), "security_regulated": ()}
+
+
 def _section_order() -> list:
     p = _PERSONA.get()
     return _PERSONA_SECTION_ORDER.get(p, _SECTION_ORDER) if p else _SECTION_ORDER
@@ -742,7 +747,9 @@ def _briefing(claims: list, label: str = "Your Daily Briefing",
             rows = []
             for c in objs:
                 q = _parse_claim(c)
-                rows.append(f'<div class="aud-obj"><h4>{_inline(q["title"]) if q["title"] else _inline(c.get("claim", "")[:120])}</h4>'
+                badge = _badge(c, "Raised by")
+                rows.append(f'<div class="aud-obj">{f"<div class=\"ptop\">{badge}</div>" if badge else ""}'
+                            f'<h4>{_inline(q["title"]) if q["title"] else _inline(c.get("claim", "")[:120])}</h4>'
                             + (f'<p>{_inline(" ".join(q["body"]))}</p>' if q["body"] else "")
                             + (_callout("sw", "So what", q["so_what"]) if q["so_what"] else "") + "</div>")
             plays_html += (f'<div class="bsub two">Objections they raise</div><div class="playbox">{"".join(rows)}</div>')
@@ -1137,6 +1144,7 @@ _OVERRIDES = """
 #scout-page .aud-obj{padding:10px 0;border-top:1px solid var(--line2)}
 #scout-page .aud-obj:first-child{border-top:0;padding-top:0}
 #scout-page .aud-obj h4{margin:0 0 4px;font-family:var(--display);font-size:16px;font-weight:600}
+#scout-page .aud-obj .ptop{display:flex;justify-content:flex-end;margin-bottom:2px}
 #scout-page .aud-obj p{margin:0 0 6px;font-size:14px}
 #scout-page details.sec.folded>summary{opacity:.75}
 #scout-page .hw-sys{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px}
@@ -1766,15 +1774,21 @@ def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retir
     secs, present = [], []
     aud = _PERSONA.get()
 
-    def _opened(cs):
-        """With an audience: open only sections that hold that buyer's own material."""
-        return True if not aud else any(c.get("persona") == aud for c in cs)
+    def _opened(sid, cs):
+        """With an audience: open the sections that hold that buyer's own material, plus the one
+        or two a buyer reads first (_PERSONA_OPEN). Objection handling closes: the buyer's
+        objections were pulled up into the briefing, and open twice reads as a double."""
+        if not aud:
+            return True
+        if sid == "objection_handling":
+            return False
+        return sid in _PERSONA_OPEN.get(aud, ()) or any(c.get("persona") == aud for c in cs)
 
     for sid in _section_order():
         if sid in _HIDDEN_SECTIONS:   # generated/stored but not shown (see _HIDDEN_SECTIONS)
             continue
         cs = sorted(by_sec.get(sid, []), key=lambda c: c.get("order", 0))
-        opn = _opened(cs)
+        opn = _opened(sid, cs)
         if sid == "recent_moves":
             # A chronological section: the latest development belongs on top, regardless of the
             # `order` the model assigned (monitor-added claims get arbitrary orders). Stable sort,
