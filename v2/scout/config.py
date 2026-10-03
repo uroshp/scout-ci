@@ -49,7 +49,7 @@ MAX_TURNS = int(os.environ.get("SCOUT_MAX_TURNS", "40"))
 # monitor-side role disallows the shell, file and subagent tools; search, the fetch tool and the
 # structured-source tools stay. No monitor role uses subagents (119 captured calls). The eval
 # fingerprint hashes the system prompt only, so this moves no eval period.
-MODEL_DISALLOWED_TOOLS = ["WebFetch", "Bash", "Read", "Write", "Edit", "MultiEdit", "NotebookEdit",
+MODEL_DISALLOWED_TOOLS = ["WebFetch", "Bash", "Read", "Write", "Edit", "NotebookEdit",
                          "Glob", "Grep", "Agent", "Task", "TodoWrite"]
 # Per-query ceiling. Fine for a monitoring check (~$1-1.9). NOT enough for a full
 # generation: the orchestrator runs the researcher + verifier subagents INLINE in
