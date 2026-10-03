@@ -179,3 +179,25 @@ if __name__ == "__main__":
         print("recorded:", label(args[1], args[2], " ".join(args[3:])))
     else:
         _print_digest()
+
+
+# --- the weekly audit sample (2026-10-02): precision keeps a pulse once approval is automatic ------
+def weekly_sample(n: int = 10, days: int = 7, now=None) -> list[dict]:
+    """The applied (committed) judge decisions of the last `days` days that have no human label,
+    spread across cards (round-robin by slug, newest first), capped at `n`. This is what the owner
+    grades each week so the authorship judge's precision keeps a live reading after approval
+    became automatic (the Sep 28 prerequisite). Pure: reads the digest, writes nothing."""
+    from datetime import datetime, timedelta
+    now = now or datetime.now()
+    since = (now - timedelta(days=days)).isoformat(timespec="seconds")
+    pend = [d for d in (digest().get("pending") or [])
+            if str(d.get("committed")) == "True" and str(d.get("run_ts") or "") >= since]
+    by_slug: dict = {}
+    for d in sorted(pend, key=lambda d: str(d.get("run_ts") or ""), reverse=True):
+        by_slug.setdefault(d.get("slug") or "", []).append(d)
+    out, slugs = [], sorted(by_slug, key=lambda k: -len(by_slug[k]))
+    while len(out) < n and any(by_slug.values()):
+        for k in slugs:
+            if by_slug[k] and len(out) < n:
+                out.append(by_slug[k].pop(0))
+    return out
