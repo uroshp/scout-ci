@@ -78,6 +78,45 @@ def check_steps(day: date) -> list[str]:
     return problems
 
 
+SENSOR_READY_MARK = "sensors/_compare/_ready_notified.json"
+
+
+def sensor_checkpoint(day: date, dry: bool) -> None:
+    """The sensor cutover checkpoint, tracked FOR the owner (Uroš 2026-10-03: "track that for me and
+    report, so I don't have to deal with it"): when the shadow streak reaches the gate, one email
+    with the numbers the call needs; never twice for the same streak. Nothing here fails the canary."""
+    try:
+        from scout import config as _cfg
+        from scout.sensors import compare
+        if getattr(_cfg, "SENSORS_MODE", "off") != "shadow":
+            return
+        st = compare.load_streak()
+        if not st.get("ready"):
+            return
+        mark = json.loads(selfserve.read_data(SENSOR_READY_MARK) or "{}")
+        if mark.get("streak_date") == st.get("updated_at", "")[:10]:
+            return
+        runs = [r for r in st.get("runs", []) if not r.get("baseline")]
+        clean = runs[-int(st.get("gate_runs") or 7):]
+        alerts = sum(int(r.get("triage_subst") or 0) for r in clean)
+        cost = sum(float(r.get("screen_cost") or 0) for r in clean)
+        body = (f"Sensors have run in shadow next to the morning triage and reached the checkpoint: "
+                f"{st.get('clean_streak')} consecutive clean runs (gate {st.get('gate_runs')}), {day.isoformat()}.\n\n"
+                f"Over those runs: {sum(r.get('cards', 0) for r in clean)} card checks, {alerts} substantial triage candidates, "
+                f"0 alerts that landed without a finding behind them, {sum(int(r.get('errors') or 0) for r in clean)} source errors, "
+                f"screen cost ${cost:.2f} in total.\n\n"
+                f"Your call: flip the repo variable SCOUT_SENSORS from shadow to gate (the screen's candidates replace the daily "
+                f"model search; the weekly sweep keeps auditing), or keep shadow longer. Nothing changes until you say so.\n\n"
+                f"Streak file: sensors/_compare/streak.json; compare records: sensors/_compare/<date>/<card>.json.")
+        notify._dispatch("Scout: sensors reached the cutover checkpoint, your call", body, dry_run=dry)
+        if not dry:
+            selfserve.write_data(SENSOR_READY_MARK, json.dumps({"streak_date": st.get("updated_at", "")[:10], "notified_at": datetime.now().isoformat(timespec="seconds")}),
+                                 "sensors: checkpoint notified")
+        print(f"[canary] sensor checkpoint reached: emailed ({'dry' if dry else 'sent'})")
+    except Exception as e:
+        print(f"[canary] sensor checkpoint check skipped ({type(e).__name__}: {e})")
+
+
 def check_capture(day: date) -> list[str]:
     stamp = day.strftime("%Y%m%d")
     month = day.strftime("%Y-%m")
@@ -170,6 +209,7 @@ def main(argv=None) -> int:
         problems += check_capture(day)
         problems += check_replay(day)
     problems += check_app()
+    sensor_checkpoint(day, dry)
     print(f"[canary] {day} skip_day={skip_day} problems={len(problems)}")
     for p in problems:
         print("  -", p)
