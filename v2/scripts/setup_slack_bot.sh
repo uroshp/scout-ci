@@ -9,7 +9,8 @@
 #       SCOUT_SLACK_REPO=~/code/scout-ci-rc/v2 bash v2/scripts/setup_slack_bot.sh   (review against rc)
 set -euo pipefail
 HOME_DIR="$HOME/scout-slack"
-REPO="${SCOUT_SLACK_REPO:-$HOME/code/scout-ci/v2}"
+# default: the v2 folder this script lives in (so the rc worktree reviews against rc); SCOUT_SLACK_REPO overrides
+REPO="${SCOUT_SLACK_REPO:-$(cd "$(dirname "$0")/.." && pwd)}"
 LABEL="com.urosh.scout-slack"
 PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
 mkdir -p "$HOME_DIR/log"
