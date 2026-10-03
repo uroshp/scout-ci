@@ -139,3 +139,45 @@ class DispatchHtml(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RunHealthAndRehearsal(unittest.TestCase):
+    """2026-10-03: the FYI footer carries every checked card's step table; a rehearsal marks every
+    email subject so the inbox shows exactly what the morning would have sent, labelled."""
+
+    def test_health_footer_lists_failures_and_collapses_clean_cards(self):
+        health = [
+            {"slug": "a", "meta": {"my_company": "A", "competitor": "B"}, "steps": [{"step": "triage", "status": "ran"}, {"step": "write", "status": "ran"}]},
+            {"slug": "c", "meta": {"my_company": "C", "competitor": "D"}, "steps": [{"step": "triage", "status": "ran"},
+                                                                                   {"step": "audience", "status": "failed", "detail": "NameError: name 'today' is not defined"}]},
+            {"slug": "e", "meta": {"my_company": "E", "competitor": "F"}, "skipped": "not monitored"},
+            {"slug": "g", "meta": {"my_company": "G", "competitor": "H"}, "steps": [{"step": "triage", "status": "failed", "detail": "x"}], "error": "RuntimeError: store down"},
+        ]
+        cards = [{"meta": {"my_company": "A", "competitor": "B"}, "alerts": [{"headline": "h", "subject_key": "s", "old_value": "1", "new_value": "2"}], "applied": []}]
+        subject, text, html = notify.render_run_fyi(cards, 3.21, health=health)
+        self.assertIn("Run health:", text)
+        self.assertIn("1 card checked, every step ran or was skipped by design", text)
+        self.assertIn("FAILED audience (NameError", text)
+        self.assertIn("CHECK FAILED (RuntimeError: store down", text)
+        self.assertIn("skipped (not monitored)", text)
+        self.assertIn("Run health:", html)
+        self.assertIn("#b0301c", html)                                     # a failure colours the footer red
+        self.assertNotIn("today' is not defined", subject)                  # the subject stays the headline
+
+    def test_clean_health_footer_is_muted(self):
+        health = [{"slug": "a", "meta": {"my_company": "A", "competitor": "B"}, "steps": [{"step": "triage", "status": "ran"}]}]
+        cards = [{"meta": {"my_company": "A", "competitor": "B"}, "alerts": [{"headline": "h", "subject_key": "s"}], "applied": []}]
+        _, text, html = notify.render_run_fyi(cards, 1.0, health=health)
+        self.assertIn("1 card checked, every step ran or was skipped by design", text)
+        self.assertNotIn("#b0301c", html.split("Run health:")[1])
+
+    def test_rehearsal_prefixes_every_subject_once(self):
+        from unittest import mock
+        from scout import config
+        with mock.patch.object(config, "REHEARSAL", True), mock.patch.object(config, "ALERT_EMAIL_TO", "o@x.test"):
+            r = notify._dispatch("Scout this morning: quiet run", "body", dry_run=True)
+            self.assertEqual(r["subject"], "[rehearsal] Scout this morning: quiet run")
+            r2 = notify._dispatch("[rehearsal] already", "body", dry_run=True)
+            self.assertEqual(r2["subject"], "[rehearsal] already")
+        with mock.patch.object(config, "REHEARSAL", False), mock.patch.object(config, "ALERT_EMAIL_TO", "o@x.test"):
+            self.assertEqual(notify._dispatch("Scout this morning", "body", dry_run=True)["subject"], "Scout this morning")

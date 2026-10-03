@@ -175,7 +175,7 @@ async def _run_author(meta: dict, surface_ops: list[dict], facts: list[dict], ac
         system_prompt=_AUTHOR_SYSTEM + (("\n\n" + addendum) if addendum else "") + "\n\n" + WRITING_STYLE,
         mcp_servers={},
         allowed_tools=[],                                 # TOOLS-OFF: write only from the given facts
-        disallowed_tools=["WebSearch", "WebFetch"],
+        disallowed_tools=["WebSearch", *config.MODEL_DISALLOWED_TOOLS],
         permission_mode="bypassPermissions",
         max_turns=config.PROPOSE_MAX_TURNS,
         max_budget_usd=config.PROPOSE_MAX_BUDGET_USD,
@@ -362,7 +362,7 @@ async def _run_judge(meta: dict, facts: list[dict], claims: list[dict], indexed_
         system_prompt=_JUDGE_SYSTEM + (("\n\n" + addendum) if addendum else ""),   # tools-off: no preset (cost pass 2026-07-02)
         mcp_servers={},
         allowed_tools=[],                                 # TOOLS-OFF: judge only the given facts
-        disallowed_tools=["WebSearch", "WebFetch"],
+        disallowed_tools=["WebSearch", *config.MODEL_DISALLOWED_TOOLS],
         permission_mode="bypassPermissions",
         max_turns=config.JUDGE_MAX_TURNS,
         max_budget_usd=config.JUDGE_MAX_BUDGET_USD,
@@ -498,7 +498,7 @@ async def _run_election(meta: dict, incumbent: dict, challengers: list[dict]) ->
         system_prompt=_ELECTION_SYSTEM,
         mcp_servers={},
         allowed_tools=[],                                 # TOOLS-OFF: reason only from the given verdicts
-        disallowed_tools=["WebSearch", "WebFetch"],
+        disallowed_tools=["WebSearch", *config.MODEL_DISALLOWED_TOOLS],
         permission_mode="bypassPermissions",
         max_turns=config.JUDGE_MAX_TURNS,
         max_budget_usd=config.JUDGE_MAX_BUDGET_USD,
@@ -698,11 +698,11 @@ async def _run_rewrite(meta: dict, worklist: list, facts: list) -> dict:
               "op_index:\n"
             + json.dumps(worklist, ensure_ascii=False, indent=2))
     options = ClaudeAgentOptions(
-        model=config.PROPAGATE_REWRITE_MODEL,             # upgraded writer: pay Opus only on failure
+        model=config.PROPAGATE_REWRITE_MODEL,             # the authoring tier since 2026-10-03 (two attempts, Opus judges each)
         system_prompt=_AUTHOR_SYSTEM + "\n\n" + _REWRITE_ADDENDUM + "\n\n" + WRITING_STYLE,
         mcp_servers={},
         allowed_tools=[],                                 # TOOLS-OFF: same constraint as the author
-        disallowed_tools=["WebSearch", "WebFetch"],
+        disallowed_tools=["WebSearch", *config.MODEL_DISALLOWED_TOOLS],
         permission_mode="bypassPermissions",
         max_turns=config.PROPOSE_MAX_TURNS,
         max_budget_usd=config.PROPOSE_MAX_BUDGET_USD,
@@ -965,6 +965,19 @@ def log_decisions(slug: str, records: list, source: str = "monitor", facts: list
 def propagate(meta: dict, facts_with_alerts: list[dict], strength_facts: list[dict],
               claims: list[dict], slug: str = None, source: str = "monitor",
               persist: bool = True) -> dict:
+    """Wrapper (2026-10-03): a persist=False run is DRY for the render gate too (reformat.hold writes
+    nothing, emails nothing). The body is _propagate, unchanged."""
+    from scout import reformat
+    token = reformat.DRY.set(not persist)
+    try:
+        return _propagate(meta, facts_with_alerts, strength_facts, claims, slug=slug, source=source, persist=persist)
+    finally:
+        reformat.DRY.reset(token)
+
+
+def _propagate(meta: dict, facts_with_alerts: list[dict], strength_facts: list[dict],
+               claims: list[dict], slug: str = None, source: str = "monitor",
+               persist: bool = True) -> dict:
     """Full propagation control flow, everything UPSTREAM of human approval:
         route (Opus, all sections, SEEDED with the materiality verdict) -> author (Sonnet) ->
         deterministic FLOOR -> judge (Opus, adversarial) -> decision log.

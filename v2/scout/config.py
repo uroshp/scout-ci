@@ -43,6 +43,14 @@ GA_API_SECRET = os.environ.get("GA_MP_API_SECRET", "")
 # Hard caps so an agent that can loop can't burn money. The SDK enforces both
 # natively (ClaudeAgentOptions.max_turns / max_budget_usd).
 MAX_TURNS = int(os.environ.get("SCOUT_MAX_TURNS", "40"))
+# Tool surface (2026-10-03): under the SDK's bypassPermissions mode `allowed_tools` is a name only;
+# `disallowed_tools` is the block. Captured monitor calls showed the own-company step running Bash
+# (including grep over the card store) and a rewrite reading CLAUDE.md on the Actions runner. Every
+# monitor-side role disallows the shell, file and subagent tools; search, the fetch tool and the
+# structured-source tools stay. No monitor role uses subagents (119 captured calls). The eval
+# fingerprint hashes the system prompt only, so this moves no eval period.
+MODEL_DISALLOWED_TOOLS = ["WebFetch", "Bash", "Read", "Write", "Edit", "MultiEdit", "NotebookEdit",
+                         "Glob", "Grep", "Agent", "Task", "TodoWrite"]
 # Per-query ceiling. Fine for a monitoring check (~$1-1.9). NOT enough for a full
 # generation: the orchestrator runs the researcher + verifier subagents INLINE in
 # one query, so this cap must cover the whole two-pass brief (measured ~$5.77) —
@@ -85,11 +93,16 @@ JUDGE_FALLBACK_MODEL = os.environ.get("SCOUT_JUDGE_FALLBACK_MODEL", "claude-sonn
 # op the judge deems MATERIAL (its point would move a deal) gets up to N guided cure rounds — the
 # judge's reason fed back — then a blind re-judge each round. A `cure:"prose"` reject fixes wording;
 # a `cure:"root"` reject re-approaches a material point whose pivot/mechanism was wrong (the 7/31
-# containment case). The rewrite escalates to the Opus tier. Exhausted (or `cure:"none"`) -> an
-# URGENT separate email so a deal-moving point is NEVER silently dropped. 0 disables the loop
-# (restores drop-on-reject). Reuses the PROPOSE/JUDGE caps per call. Default 3 (owner-chosen cap).
-PROPAGATE_MAX_REWRITES = int(os.environ.get("SCOUT_PROPAGATE_MAX_REWRITES", "3"))
-PROPAGATE_REWRITE_MODEL = os.environ.get("SCOUT_PROPAGATE_REWRITE_MODEL", ORCHESTRATOR_MODEL)
+# containment case). Exhausted (or `cure:"none"`) -> an URGENT separate email so a deal-moving
+# point is NEVER silently dropped. 0 disables the loop (restores drop-on-reject). Reuses the
+# PROPOSE/JUDGE caps per call.
+# 2026-10-03 (owner's cost read): the rewrite is authored on the AUTHORING tier and capped at TWO
+# attempts. The decision logs over 74 days: 231 ops passed first time, 66 needed one rewrite (63
+# passed), 14 took three attempts (13 passed), 4 were exhausted; the 10/3 Teams card spent ~$3 on
+# three Opus rewrites that all failed. The judge (Opus) still rules on every attempt; a third
+# failure reaches the owner as AUTHORING FAILED instead of buying a third attempt.
+PROPAGATE_MAX_REWRITES = int(os.environ.get("SCOUT_PROPAGATE_MAX_REWRITES", "2"))
+PROPAGATE_REWRITE_MODEL = os.environ.get("SCOUT_PROPAGATE_REWRITE_MODEL", SUBAGENT_MODEL)
 # Urgent-material alert (2026-07-31): when a material op can't be cured (exhausted the rewrites, or
 # the judge ruled cure:"none"), send a SEPARATE urgent email (distinct from the proposals email's
 # AUTHORING-FAILED section) so the owner sees a deal-moving point that went undrafted. review/live
@@ -400,6 +413,18 @@ SELFSERVE_DATA_READ_FALLBACK = os.environ.get("SCOUT_SELFSERVE_DATA_READ_FALLBAC
 # The public code repo whose selfserve workflow the app dispatches when a request is submitted.
 SELFSERVE_DISPATCH_REPO = os.environ.get("SCOUT_SELFSERVE_DISPATCH_REPO", "uroshp/scout-ci")
 SELFSERVE_DISPATCH_WORKFLOW = os.environ.get("SCOUT_SELFSERVE_DISPATCH_WORKFLOW", "selfserve.yml")
+
+# Rehearsal mode (2026-10-03): the monitor's REAL write path, run on a retired card that lives in a
+# store root outside the checkout (SCOUT_STORE_ROOT) with every private-store write under the
+# `rehearsal/` prefix and every email subject prefixed "[rehearsal]". A rehearsal on main proves
+# the exact code and workflow expressions the 4 AM run will execute, without touching a card a
+# reader sees. monitor.preflight refuses the flag without the prefix and the store root.
+REHEARSAL = os.environ.get("SCOUT_REHEARSAL", "") == "1"
+# Run-level spend ceiling (2026-10-03): once a monitor run's running total crosses this, the
+# remaining due cards get triage only; their substantial candidates hold a detection window (the
+# existing mechanism, so nothing is lost) and the needs-you email names them. Live average is
+# ~$8.5 a day; the default is ~1.8x that. 0 disables.
+RUN_MAX_USD = float(os.environ.get("SCOUT_RUN_MAX_USD", "15"))
 
 
 def require_api_key() -> str:

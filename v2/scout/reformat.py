@@ -16,6 +16,7 @@ things, never a third:
 call lives in `reformat_claim`.
 """
 import asyncio
+import contextvars
 import json
 import sys
 from datetime import datetime
@@ -43,7 +44,7 @@ async def _run_reformat(claim_text: str, section: str, zone, errors: list | None
     options = ClaudeAgentOptions(
         model=config.CHALLENGER_MODEL,                 # Sonnet — reliable, cheap for one claim
         system_prompt=_REFORMAT_SYSTEM + "\n\n" + WRITING_STYLE,
-        mcp_servers={}, allowed_tools=[], disallowed_tools=["WebSearch", "WebFetch"],
+        mcp_servers={}, allowed_tools=[], disallowed_tools=["WebSearch", *config.MODEL_DISALLOWED_TOOLS],
         permission_mode="bypassPermissions",
         max_turns=2, max_budget_usd=0.25,
     )
@@ -93,7 +94,7 @@ async def _run_condense_verify(original: str, condensed: str, section: str, zone
     options = ClaudeAgentOptions(
         model=model,                                   # judge tier: Opus, fallback per config
         system_prompt=_CONDENSE_VERIFY_SYSTEM,
-        mcp_servers={}, allowed_tools=[], disallowed_tools=["WebSearch", "WebFetch"],
+        mcp_servers={}, allowed_tools=[], disallowed_tools=["WebSearch", *config.MODEL_DISALLOWED_TOOLS],
         permission_mode="bypassPermissions",
         max_turns=config.JUDGE_MAX_TURNS, max_budget_usd=config.JUDGE_MAX_BUDGET_USD,
     )
@@ -178,14 +179,25 @@ def classify_persona(claim_text: str, section: str, zone=None) -> str | None:
     return None
 
 
+# DRY context (2026-10-03): a propagation run with persist=False (a dry monitor run, an offline
+# verification) used to write pending_publish records and email "HELD" alerts for real, because
+# hold() had no idea the run was dry. propagate() sets this for its duration; hold() then logs
+# the would-be hold and writes nothing.
+DRY = contextvars.ContextVar("reformat_dry", default=False)
+
+
 def hold(slug: str, item: dict, reason: str, *, alert: bool = True) -> str:
     """Durably HOLD a confirmed-material update that could not be auto-formatted, and flag it. This is
     NOT the Cut Log: the update is pending publication, owed to the card, awaiting a human edit or a
-    model-judge reformat. Returns the store path."""
+    model-judge reformat. Returns the store path. Under DRY (a persist=False propagation) nothing is
+    written or emailed; the hold is printed instead."""
     now = datetime.now()
     rec = {"slug": slug, "held_at": now.isoformat(timespec="seconds"), "reason": reason,
            "status": "pending_publish", "item": item}
     path = f"{PENDING_DIR}/{slug}/{now.strftime('%Y%m%dT%H%M%S')}.json"
+    if DRY.get():
+        print(f"[reformat] DRY: would HOLD {slug} ({reason}) at {path}; nothing written, no email", file=sys.stderr)
+        return path
     try:
         selfserve.write_data(path, json.dumps(rec, indent=2, ensure_ascii=False, default=str),
                              f"pending-publish: HELD (needs format) {slug}")
