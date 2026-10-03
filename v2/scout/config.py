@@ -18,12 +18,14 @@ load_dotenv()
 APP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPO_SUBDIR = "v2"
 
-# --- Models (defaults verified against Anthropic docs, June 2026) -------------
-# Orchestrator: judgment — planning, materiality, synthesis, consistency.
-ORCHESTRATOR_MODEL = os.environ.get("ORCHESTRATOR_MODEL", "claude-opus-4-8")
-# Subagents: legwork — research + verification, parallelized. Sonnet 5 (2026-06-30): same standard
-# price as Sonnet 4.6 ($3/$15, intro $2/$10 through Aug 31), materially stronger — a free upgrade.
-SUBAGENT_MODEL = os.environ.get("SUBAGENT_MODEL", "claude-sonnet-5")
+# --- Models (2026-10-03: moved to the newest version of each tier; Uroš: "no need to run anything
+# with old models". Eval periods are keyed on the model per role, so the switch opens new periods
+# by construction. The CHALLENGER pin below is the one deliberate exception: it is the measuring
+# stick and must not move with the thing it measures.) --------------------------------------------
+# Orchestrator: judgment — routing, materiality, the judge, the election. Opus 5.5 ($4/$20): 20% below Opus 4.8.
+ORCHESTRATOR_MODEL = os.environ.get("ORCHESTRATOR_MODEL", "claude-opus-5-5")
+# Subagents: legwork — research, authoring, quick answers. Sonnet 5.5: Sonnet 5's price, faster.
+SUBAGENT_MODEL = os.environ.get("SUBAGENT_MODEL", "claude-sonnet-5-5")
 # Triage gate: cheap "is there anything here at all?" check (§6). Runs on EVERY check, so
 # it uses Haiku — the cheapest model — to keep the no-news floor low (lever A).
 FAST_MODEL = os.environ.get("FAST_MODEL", "claude-haiku-4-5-20251001")
@@ -78,7 +80,7 @@ JUDGE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_JUDGE_MAX_BUDGET_USD", "0.75"
 # and must not move with ops concerns). Empty string disables the fallback. A fallback verdict
 # gates the proposals EMAIL only — it never auto-applies to a card and never scores the Opus
 # judge's promotion gate (adjudicate excludes it).
-JUDGE_FALLBACK_MODEL = os.environ.get("SCOUT_JUDGE_FALLBACK_MODEL", "claude-sonnet-4-6")
+JUDGE_FALLBACK_MODEL = os.environ.get("SCOUT_JUDGE_FALLBACK_MODEL", "claude-sonnet-5-5")
 # Rewrite loop (2026-07-01 Sonnet-5 silent drop; materiality-first cure 2026-07-31): a judge-rejected
 # op the judge deems MATERIAL (its point would move a deal) gets up to N guided cure rounds — the
 # judge's reason fed back — then a blind re-judge each round. A `cure:"prose"` reject fixes wording;
