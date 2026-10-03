@@ -119,7 +119,7 @@ async def _run_route(meta: dict, facts_with_alerts: list[dict], claims: list[dic
         system_prompt=_ROUTE_SYSTEM + "\n\n" + WRITING_STYLE,
         mcp_servers={},
         allowed_tools=[],                                 # TOOLS-OFF: route only from the given facts + card
-        disallowed_tools=["WebSearch", "WebFetch"],
+        disallowed_tools=["WebSearch", *config.MODEL_DISALLOWED_TOOLS],
         permission_mode="bypassPermissions",
         max_turns=config.ROUTE_MAX_TURNS,
         max_budget_usd=config.ROUTE_MAX_BUDGET_USD,

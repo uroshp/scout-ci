@@ -70,6 +70,30 @@ the text is in `judgment/pack.json` (private repo; `rc/judgment/pack.json` for r
 - `python scripts/judgment_pack.py verify` must report every block byte-identical to its frozen hash after any refactor that touches a block's call site.
 - Every model-call choke point calls `judgment.require()` and `judgment.assert_clean(...)`; keep that when adding one.
 
+## Shipping a monitor change (2026-10-03)
+
+The morning run has no dry-run equivalent: a dry run skips the write-only path where two changes
+broke production this week. Every change to `scout/monitor.py`, `scout/propagate.py`,
+`scout/audience.py`, `scout/notify.py` or `.github/workflows/monitor.yml` ships like this:
+
+1. Build on `rc`; `python -m unittest discover -s tests` from `v2/` (the live-wiring test in
+   `tests/test_monitor_live_wiring.py` runs `check(write=True)` in production's mode through the
+   real store with fakes only at the model boundary; extend it when a step is added).
+2. **Rehearse on rc**: dispatch `monitor.yml` on `rc` with `rehearsal=<archive slug[,slug]>`
+   (`cursor__vs__cognition__general` is the everyday card). It runs the REAL write path on the
+   retired card in a store root outside the checkout, every private-store write under
+   `rehearsal/`, every email subject prefixed `[rehearsal]`, nothing committed; the job summary
+   holds the step table and the diff. Avoid 03:00–05:30 PT.
+3. Uroš approves; merge `rc` into `main`; **rehearse on main** the same way (it proves the exact
+   code and workflow expressions the 4 AM run will use).
+4. The first morning is watched: the FYI footer's run-health line, the needs-you email (every
+   failed step is an item), the step table in `costs/<stamp>.json`, and the 09:00 PT canary's
+   `check_steps`.
+
+One rehearsed release per morning; a release may bundle several changes (the step rows attribute
+a failure to a step). Rollback levers that need no deploy: repo variables (`SCOUT_SIGNALS`,
+`SCOUT_SENSORS`), and the env in `monitor.yml` for everything else.
+
 ## Conventions specific to this repo
 
 - **Model is pinned** to `MODEL = "claude-sonnet-4-6"` in `v1/research.py` — a pinned ID, not an evergreen alias, for reproducibility. Don't swap it for an alias. (Note: `v1/test.py` independently hardcodes an older model for its smoke test.)

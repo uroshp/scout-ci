@@ -207,7 +207,7 @@ async def _run_triage(meta, since, claims, my_since=None, extra: str = ""):
         system_prompt={"type": "preset", "preset": "claude_code", "append": _TRIAGE_SYSTEM + sources_tool.note("triage")},
         mcp_servers={"scoutfetch": FETCH_SERVER, **sources_tool.servers()},
         allowed_tools=["WebSearch", FETCH_TOOL_NAME, *sources_tool.names("triage")],
-        disallowed_tools=["WebFetch"],
+        disallowed_tools=config.MODEL_DISALLOWED_TOOLS,
         permission_mode="bypassPermissions",
         # Triage-specific tight caps (lever B): few turns structurally bound the number of
         # searches, and a sub-dollar budget hard-stops the routine check at pennies.
@@ -266,7 +266,7 @@ async def _run_materiality(meta, since, candidates, claims, extra: str = ""):
                        "append": _MATERIALITY_SYSTEM + sources_tool.note() + "\n\n" + WRITING_STYLE},
         mcp_servers={"scoutfetch": FETCH_SERVER, **sources_tool.servers()},
         allowed_tools=["WebSearch", FETCH_TOOL_NAME, *sources_tool.names()],
-        disallowed_tools=["WebFetch"],
+        disallowed_tools=config.MODEL_DISALLOWED_TOOLS,
         permission_mode="bypassPermissions",
         max_turns=config.MAX_TURNS,
         max_budget_usd=config.MAX_BUDGET_USD,
@@ -388,7 +388,7 @@ async def _run_my_facts(meta, since, candidates, claims):
                        "append": _MY_FACTS_SYSTEM + sources_tool.note() + "\n\n" + WRITING_STYLE},
         mcp_servers={"scoutfetch": FETCH_SERVER, **sources_tool.servers()},
         allowed_tools=["WebSearch", FETCH_TOOL_NAME, *sources_tool.names()],
-        disallowed_tools=["WebFetch"],
+        disallowed_tools=config.MODEL_DISALLOWED_TOOLS,
         permission_mode="bypassPermissions",
         max_turns=config.MAX_TURNS,
         max_budget_usd=config.MY_FACTS_MAX_BUDGET_USD,
@@ -581,9 +581,50 @@ def _competitor_arm(slug, meta, since, substantial, claims, result, sig_block: s
     return material_grounded, grounded, (mdata.get("immaterial") or [])
 
 
-def check(slug: str, write: bool = False, since_override: str | None = None) -> dict:
+def _step(steps: list, name: str, status: str, detail=None, cost=None) -> None:
+    """One row of the run's step table (2026-10-03): `ran | skipped | failed`, the reason, the spend.
+    The rows ride the check result, the cost ledger, the FYI footer and the needs-you email, so a
+    step that dies can never fail into stderr alone again (the 10/3 audience crash: four cards
+    failed, the needs-you email said three items on two cards, the canary was green)."""
+    row = {"step": name, "status": status}
+    if detail:
+        row["detail"] = str(detail)[:400]
+    if cost:
+        row["cost"] = round(float(cost), 4)
+    steps.append(row)
+
+
+def _merge_candidates(base: list, extra: list) -> list:
+    """Carried-over candidates joined to today's, deduped on the signal text (a story triage found
+    again today is not presented twice)."""
+    seen = {str(c.get("signal") or "")[:80].strip().lower() for c in base}
+    out = list(base)
+    for c in extra:
+        key = str(c.get("signal") or "")[:80].strip().lower()
+        if key and key not in seen:
+            seen.add(key)
+            out.append(c)
+    return out
+
+
+def check(slug: str, write: bool = False, since_override: str | None = None, escalate: bool = True) -> dict:
     """One monitoring check. write=False measures without mutating the store (for cost runs).
-    since_override forces the detection window (e.g. an old date to simulate a stale baseline)."""
+    since_override forces the detection window (e.g. an old date to simulate a stale baseline).
+    escalate=False is the run ceiling (2026-10-03): triage only; substantial candidates are carried
+    to the next run instead of running the paid steps today. A crash carries the step rows recorded
+    so far on the exception (`scout_steps`) so run_all can report them."""
+    steps: list = []
+    try:
+        return _check(slug, write, since_override, escalate, steps)
+    except BaseException as e:
+        try:
+            e.scout_steps = steps
+        except Exception:
+            pass
+        raise
+
+
+def _check(slug: str, write: bool, since_override: str | None, escalate: bool, steps: list) -> dict:
     meta = store.load_meta(slug) or {}
     claims = store.load_claims(slug)
     # Detection window: a HELD `unresolved_since` (a prior substantial item we detected but
@@ -608,8 +649,22 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     # hiring context line; `sig_open` is consumed (marked) once this check has written.
     sig_block, sig_open = _signals_block(slug)
     ctx_block = _hiring_context(slug)
+    _step(steps, "signals", "ran" if sig_open else "skipped",
+          f"{len(sig_open)} open signal(s) in front of triage" if sig_open
+          else ("signals off" if not config.SIGNALS_ENABLED else "none open"))
+    # FAILED-ARM CARRY-OVER (2026-10-03): candidates a paid step died on (its budget, a crash) or
+    # could not ground, and candidates a run ceiling deferred, are re-presented to that step today
+    # without a second detection, with the cutoffs they came from. Bounded by
+    # MONITOR_MAX_UNRESOLVED_RETRIES, then abandoned LOUDLY (needs-you), never silently.
+    pending = dict(meta.get("pending_candidates") or {}) if isinstance(meta.get("pending_candidates"), dict) else {}
+    carried_comp = [c for c in (pending.get("competitor") or []) if isinstance(c, dict)]
+    carried_my = [c for c in (pending.get("my_company") or []) if isinstance(c, dict)]
     # Stage 1: triage (cheap)
-    triage = asyncio.run(_run_triage(meta, since, claims, my_since=my_since, extra=sig_block))
+    try:
+        triage = asyncio.run(_run_triage(meta, since, claims, my_since=my_since, extra=sig_block))
+    except BaseException as e:
+        _step(steps, "triage", "failed", f"{type(e).__name__}: {e}", getattr(e, "scout_cost_usd", None))
+        raise
     try:
         tdata = _extract_json(triage["text"])
     except Exception:
@@ -618,6 +673,9 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     # Deterministic escalation floor: a candidate on a TRACKED subject escalates regardless of the
     # cheap triage grade (the 2026-07-01 Fable-lift miss — triage graded a status flip "minor").
     _escalation_floor(candidates, claims)
+    _step(steps, "triage", "ran",
+          f"{len(candidates)} candidate(s), {sum(1 for c in candidates if c.get('substantial') is True)} substantial",
+          triage.get("cost_usd"))
     # Strict gate: escalate to the expensive Opus judge ONLY when triage flagged a genuinely
     # SUBSTANTIAL development. Minor/routine candidates are surfaced for the record but do NOT
     # trigger the full pipeline — that's what keeps most checks cheap, triage-only.
@@ -633,6 +691,14 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     my_company_signals = [c for c in candidates if _is_mine(c, me)]
 
     my_substantial = [c for c in my_company_signals if c.get("substantial") is True]
+    if carried_comp or carried_my:
+        substantial = _merge_candidates(substantial, carried_comp)
+        my_substantial = _merge_candidates(my_substantial, carried_my)
+        if carried_my and pending.get("my_since"):
+            my_since = min(my_since or pending["my_since"], str(pending["my_since"]))
+        _step(steps, "carry_over", "ran",
+              f"{len(carried_comp)} competitor + {len(carried_my)} own-side candidate(s) carried from "
+              f"{pending.get('since')} ({pending.get('reason') or 'failed step'}, attempt {int(pending.get('attempts') or 0) + 1})")
     # The my_company arm is PART of propagation (spec §17): it runs only when propagation is enabled.
     # With PROPAGATE_MODE=off (the default, and production today) do_my is always False, the arm is
     # dead, and everything below is byte-identical to the competitor-only flow.
@@ -641,12 +707,13 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
     result = {
         "slug": slug, "since": since, "no_change": not substantial and not my_substantial,
         "candidates": len(candidates), "substantial": len(substantial),
-        "minor_skipped": len(comp_candidates) - len(substantial),
+        "minor_skipped": len(comp_candidates) - len([c for c in comp_candidates if c.get("substantial") is True]),
         "my_company_signals": my_company_signals, "my_substantial": len(my_substantial),
         "material": [], "alerts": [],
         "cost": {"triage": triage.get("cost_usd"), "materiality": 0.0},
         "last_checked": checked_at,
         "last_check_reason": check_reason,
+        "steps": steps,
     }
 
     if not substantial and not do_my:
@@ -654,18 +721,65 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
         # last_checked and stop. A held detection window is NOT cleared by one empty re-scan
         # (retrieval variance: the Fable lift was found 1-of-4 runs on the same window) — it stays
         # open, bounded, and abandons loudly at the retry bound.
+        for name in ("materiality", "own_company", "propagation", "audience"):
+            _step(steps, name, "skipped", "quiet: no substantial candidate")
         if write:
             meta["last_checked"] = checked_at; meta["last_check_reason"] = check_reason
             if meta.get("unresolved_since"):
                 _hold_window(meta, meta["unresolved_since"], result)
+            if pending:
+                meta.pop("pending_candidates", None)     # carried candidates were re-triaged quiet
             store.write_baseline(slug, claims, meta, _current_md(slug))
+            _step(steps, "write", "ran", "heartbeat" + (", held window kept open" if result.get("unresolved_held") else "")
+                  + (", held window abandoned" if result.get("abandoned_window") else ""))
+            # every written check consumes what it was shown (2026-10-03: the quiet path used to
+            # return before this, so an unescalated signal was shown again every run for 7 days)
+            if sig_open:
+                _consume_signals(slug, sig_open, checked_at)
+                _step(steps, "signals_consume", "ran", f"{len(sig_open)} consumed")
+        return result
+
+    if not escalate:
+        # RUN CEILING (2026-10-03): the run's total crossed SCOUT_RUN_MAX_USD before this card. No
+        # paid step today; the candidates are carried to the next run (nothing is lost, nothing is
+        # re-detected) and the needs-you email names the card.
+        _step(steps, "ceiling", "skipped",
+              f"run ceiling ${config.RUN_MAX_USD:.0f} reached: {len(substantial)} competitor + "
+              f"{len(my_substantial)} own-side substantial candidate(s) carried to the next run")
+        for name in ("materiality", "own_company", "propagation", "audience"):
+            _step(steps, name, "skipped", "run ceiling")
+        result["ceiling_deferred"] = [str(c.get("signal") or "")[:120] for c in substantial + my_substantial]
+        if write:
+            meta["last_checked"] = checked_at; meta["last_check_reason"] = check_reason
+            meta["pending_candidates"] = {"competitor": substantial, "my_company": my_substantial,
+                                          "since": since, "my_since": my_since, "reason": "run ceiling",
+                                          "attempts": int(pending.get("attempts") or 0)}
+            store.write_baseline(slug, claims, meta, _current_md(slug))
+            _step(steps, "write", "ran", "heartbeat, candidates carried")
+            if sig_open:
+                _consume_signals(slug, sig_open, checked_at)
         return result
 
     # COMPETITOR ARM: Opus materiality -> multi-source grounding -> bounded retry. Runs only when
-    # competitor signals are substantial; otherwise the my_company arm is why we escalated.
+    # competitor signals are substantial; otherwise the my_company arm is why we escalated. A crash
+    # here (a budget hit, an SDK error) no longer takes the check down or triggers a re-run that
+    # re-bills the detection: the candidates are carried to the next run and the spend is recorded.
+    comp_failed = my_failed = False
     if substantial:
-        material_grounded, grounded, immaterial = _competitor_arm(slug, meta, since, substantial, claims, result, sig_block=sig_block + ctx_block)
+        try:
+            material_grounded, grounded, immaterial = _competitor_arm(slug, meta, since, substantial, claims, result, sig_block=sig_block + ctx_block)
+            _step(steps, "materiality", "ran",
+                  f"{len(material_grounded)} grounded of {len(substantial)} candidate(s)", result["cost"].get("materiality"))
+        except Exception as e:
+            comp_failed = True
+            spent = getattr(e, "scout_cost_usd", None)
+            result["cost"]["materiality"] = (result["cost"].get("materiality") or 0) + (spent or 0)
+            result["materiality_error"] = f"{type(e).__name__}: {e}"
+            print(f"[monitor] competitor arm FAILED ({type(e).__name__}: {e}); candidates carried", file=sys.stderr)
+            _step(steps, "materiality", "failed", f"{type(e).__name__}: {e}; {len(substantial)} candidate(s) carried to the next run", spent)
+            material_grounded, grounded, immaterial = [], {"kept": [], "cut": [], "results": []}, []
     else:
+        _step(steps, "materiality", "skipped", "no substantial competitor candidate")
         material_grounded, grounded, immaterial = [], {"kept": [], "cut": [], "results": []}, []
     new_claims, new_alerts = _apply_updates(
         claims, material_grounded, meta.get("alerted_fingerprints", []))
@@ -687,12 +801,44 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
                 new_claims, my_alerts = _apply_updates(
                     new_claims, my_grounded, meta.get("alerted_fingerprints", []))
                 new_alerts = new_alerts + my_alerts
+            _step(steps, "own_company", "ran",
+                  f"{len(my_grounded)} anchor fact(s) grounded of {len(my_substantial)} candidate(s)", myf.get("cost"))
         except Exception as e:  # NON-DISRUPTION: the new arm must never break the competitor monitor
+            my_failed = True
+            spent = getattr(e, "scout_cost_usd", None)
+            result["cost"]["my_company"] = (result["cost"].get("my_company") or 0) + (spent or 0)
             print(f"[monitor] my_company arm skipped ({type(e).__name__}: {e})", file=sys.stderr)
             my_grounded = []
             result["my_company_error"] = f"{type(e).__name__}: {e}"
+            _step(steps, "own_company", "failed", f"{type(e).__name__}: {e}; {len(my_substantial)} candidate(s) carried to the next run", spent)
+    else:
+        _step(steps, "own_company", "skipped",
+              "no own-side substantial candidate" if config.PROPAGATE_MODE in ("shadow", "review", "live") else "propagation off")
 
     result["alerts"] = new_alerts
+
+    # CARRY-OVER BOOKKEEPING: a failed arm re-presents its candidates next run. An arm that RAN and
+    # grounded nothing had its chance: the competitor case keeps its held window below (as before);
+    # the own-side case is recorded in the dismissal capture and dropped (it used to hold the
+    # COMPETITOR window, which re-scanned the wrong side). Bounded, then abandoned loudly.
+    carry = {}
+    if comp_failed:
+        carry["competitor"] = substantial
+    if do_my and my_failed:
+        carry["my_company"] = my_substantial
+    if carry:
+        attempts = int(pending.get("attempts") or 0) + 1
+        if attempts < config.MONITOR_MAX_UNRESOLVED_RETRIES:
+            meta["pending_candidates"] = {**carry, "since": since, "my_since": my_since, "attempts": attempts,
+                                          "reason": "failed step"}
+            result["carry_over"] = {k: len(v) for k, v in carry.items()}
+        else:
+            meta.pop("pending_candidates", None)
+            result["abandoned_carry_over"] = [str(c.get("signal") or "")[:120] for v in carry.values() for c in v]
+            _step(steps, "carry_over", "failed",
+                  f"abandoned after {attempts} attempts: " + "; ".join(result["abandoned_carry_over"])[:300])
+    elif pending:
+        meta.pop("pending_candidates", None)
 
     # PROPAGATION (spec §17): an ACT-grade grounded change reshapes the rep-facing prose across EVERY
     # affected surface — the step that makes the card *living*. route (Opus, seeded with the materiality
@@ -780,12 +926,23 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
                 result["propagation"]["lead_election"] = {
                     "promoted": True, "winner_key": el["winner_key"],
                     "incumbent_key": el["incumbent_key"], "margin": el["margin"]}
+            _p = result["propagation"]
+            _step(steps, "propagation", "ran",
+                  f"{_p['ops']} op(s), {_p['confirmed']} confirmed, {len(_p.get('applied') or [])} applied"
+                  + (f", {len(_p['provenance_issues'])} provenance issue(s): nothing written" if _p.get("provenance_issues") else "")
+                  + (", deferred by the consequentiality gate" if _p.get("gated") == "routine" else "")
+                  + (", angle promoted" if _p.get("lead_election") else ""),
+                  result["cost"].get("propagation"))
         except Exception as e:  # NON-DISRUPTION: propagation failure must not drop the monitor update...
             print(f"[monitor] propagation FAILED ({type(e).__name__}: {e})", file=sys.stderr)
             result["propagation_error"] = f"{type(e).__name__}: {e}"
             # ...but it must NOT be silent: surface it loudly so a stale card can't look clean (the 7/1
             # miss). run_all folds pipeline_health into the digest email.
             result["pipeline_health"] = f"propagation FAILED on {slug}: {type(e).__name__}: {e}"
+            _step(steps, "propagation", "failed", f"{type(e).__name__}: {e}", getattr(e, "scout_cost_usd", None))
+    else:
+        _step(steps, "propagation", "skipped",
+              "no act-grade grounded fact" if config.PROPAGATE_MODE in ("shadow", "review", "live") else "propagation off")
 
     # AUDIENCE LEADS (Level 2, 2026-10-02): Today's angle written for each buyer present on the
     # card, through author -> floor -> judge -> apply like any edit, on every written check. Zero
@@ -803,9 +960,20 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
             if aud["personas"] or aud.get("skipped"):
                 result["audience"] = {"personas": aud["personas"], "applied": aud["applied"],
                                       "rejected": aud["rejected"], "skipped": aud.get("skipped")}
+            if aud.get("skipped") and not aud["personas"]:
+                _step(steps, "audience", "skipped", aud["skipped"])
+            else:
+                _step(steps, "audience", "ran",
+                      f"{len(aud['applied'])} lead(s) written, {len(aud['rejected'])} rejected, {len(aud['personas'])} buyer(s) present"
+                      + (", every buyer's lead current" if not aud["applied"] and not aud["rejected"] and aud["personas"] else ""),
+                      aud.get("cost_usd"))
         except Exception as e:
             print(f"[monitor] audience leads FAILED ({type(e).__name__}: {e})", file=sys.stderr)
             result["audience_error"] = f"{type(e).__name__}: {e}"
+            _step(steps, "audience", "failed", f"{type(e).__name__}: {e}", getattr(e, "scout_cost_usd", None))
+    else:
+        _step(steps, "audience", "skipped",
+              "dry run" if not write else ("audience leads off" if not config.AUDIENCE_LEADS else f"propagation mode {config.PROPAGATE_MODE}"))
 
     # Shadow-eval observer (v3.5): on a real escalated check, record the champion grounding
     # decisions for offline challenger scoring. No-op unless SCOUT_SHADOW_EVAL=1; never raises.
@@ -827,11 +995,14 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
             became_material=[c["subject_key"] for c, _ in material_grounded],
             alerts=new_alerts, my_substantial=my_substantial,
             competitor=meta.get("competitor"), my_company=meta.get("my_company"))
+        _step(steps, "shadow_capture", "ran" if config.SHADOW_EVAL_ENABLED else "skipped",
+              "grounding, derived and dismissal records" if config.SHADOW_EVAL_ENABLED else "shadow eval off")
 
     if write and new_alerts:
         meta["last_checked"] = checked_at; meta["last_check_reason"] = check_reason
         # A landed alert resolves the held window ONLY if it matches a held subject — an unrelated
         # catch keeps the window open (the 7/1 miss: Copilot's alert erased the Fable window).
+        had_window = bool(meta.get("unresolved_since"))
         _resolve_or_hold(meta, new_alerts, result)
         meta.setdefault("alerted_fingerprints", []).extend(a["fingerprint"] for a in new_alerts)
         # Regenerating the body from claims drops the Cut Log (it lives only in the
@@ -844,29 +1015,38 @@ def check(slug: str, write: bool = False, since_override: str | None = None) -> 
         current_md = format_report(clean_output(body))
         store.write_baseline(slug, new_claims, meta, current_md)
         _append_alerts(slug, _stamp_triggers(new_alerts, sig_open))
-    elif write and (substantial or (do_my and not my_grounded)):
-        # SUBSTANTIAL development detected on EITHER arm, but nothing landed (competitor: nothing
-        # survived grounding+retry; my_company: the arm escalated and grounded nothing). Do NOT
-        # lose it: always advance last_checked (keeps the due-gate honest / no same-window storm),
-        # but HOLD the detection window open at `since` so the next check re-attempts it — bounded,
-        # so a genuinely ungroundable item can't make us re-escalate the Opus judge forever.
-        # Record WHICH subjects the window is held for, so only a matching later alert resolves it.
+        _step(steps, "write", "ran", f"{len(new_alerts)} alert(s) written, card regenerated"
+              + (", held window resolved" if had_window and not meta.get("unresolved_since") else "")
+              + (", held window kept open" if result.get("unresolved_held") else ""))
+    elif write and substantial and not comp_failed:
+        # SUBSTANTIAL competitor development detected, the arm ran, nothing landed (nothing survived
+        # grounding+retry). Do NOT lose it: always advance last_checked (keeps the due-gate honest /
+        # no same-window storm), but HOLD the detection window open at `since` so the next check
+        # re-attempts it — bounded, so a genuinely ungroundable item can't make us re-escalate the
+        # Opus judge forever. Record WHICH subjects the window is held for, so only a matching later
+        # alert resolves it. (An own-side arm that grounded nothing no longer holds this window: it
+        # is the competitor cutoff, and re-scanning it never re-found an own-side story.)
         meta["last_checked"] = checked_at; meta["last_check_reason"] = check_reason
-        failed = substantial + (my_substantial if (do_my and not my_grounded) else [])
-        subs = {str(c.get("subject_key")) for c in failed if c.get("subject_key")}
+        subs = {str(c.get("subject_key")) for c in substantial if c.get("subject_key")}
         meta["unresolved_subjects"] = sorted(set(meta.get("unresolved_subjects") or []) | subs)
         _hold_window(meta, since, result)
         if "abandoned_window" in result:
             # Bound hit: gave up re-scanning, but SURFACE the abandonment (never silent).
-            result["abandoned_substantial"] = [c.get("signal") for c in failed]
+            result["abandoned_substantial"] = [c.get("signal") for c in substantial]
         store.write_baseline(slug, claims, meta, _current_md(slug))
+        _step(steps, "write", "ran", "nothing landed; held window "
+              + ("abandoned (bound reached)" if "abandoned_window" in result else f"kept open since {since}"))
     elif write:
-        # Escalated for the my_company arm only (SHADOW grounds + proposes but writes no card change,
-        # or LIVE produced no new alert). No competitor window to hold open: just advance the gate.
+        # Escalated but nothing to write (a failed arm carried its candidates; the own-side arm ran
+        # and grounded nothing; SHADOW/REVIEW propose without writing). Advance the gate.
         meta["last_checked"] = checked_at; meta["last_check_reason"] = check_reason
         store.write_baseline(slug, claims, meta, _current_md(slug))
+        _step(steps, "write", "ran", "heartbeat" + (", candidates carried to the next run" if result.get("carry_over") else ""))
+    else:
+        _step(steps, "write", "skipped", "dry run")
     if write and sig_open:                       # every written check consumes what it was shown
         _consume_signals(slug, sig_open, checked_at)
+        _step(steps, "signals_consume", "ran", f"{len(sig_open)} consumed")
     return result
 
 
@@ -1021,14 +1201,18 @@ def _persist_run_cost(started, rows: list, write: bool) -> None:
 
 
 def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
-            force: bool = False, slugs: list | None = None, quiet: bool = False) -> list[dict]:
+            force: bool = False, slugs: list | None = None, quiet: bool = False,
+            since_override: str | None = None) -> list[dict]:
     """Thin wrapper (2026-09-28): opens the call-capture run and guarantees it is flushed even when a
     run crashes (a crashed run still captured billable calls). The body is _run_all_impl, unchanged.
-    `slugs` (2026-09-28, WS1/WS3): check only these cards (a dry test run, a signal-triggered run)."""
+    `slugs` (2026-09-28, WS1/WS3): check only these cards (a dry test run, a signal-triggered run).
+    `since_override` (2026-10-03, SCOUT_MONITOR_SINCE): force every checked card's detection cutoff
+    (a rehearsal that must exercise escalation)."""
     from scout import calllog
     calllog.begin_run("monitor")          # no-op unless SCOUT_CALL_CAPTURE=1
     try:
-        return _run_all_impl(write=write, send=send, email_dry_run=email_dry_run, force=force, slugs=slugs, quiet=quiet)
+        return _run_all_impl(write=write, send=send, email_dry_run=email_dry_run, force=force, slugs=slugs, quiet=quiet,
+                             since_override=since_override)
     finally:
         if not write and os.environ.get("SCOUT_MONITOR_TRACE") == "1":
             print(calllog.trace_summary(), flush=True)      # dry test runs: show the tool calls
@@ -1036,7 +1220,8 @@ def run_all(write: bool = True, send: bool = True, email_dry_run: bool = True,
 
 
 def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = True,
-            force: bool = False, slugs: list | None = None, quiet: bool = False) -> list[dict]:
+            force: bool = False, slugs: list | None = None, quiet: bool = False,
+            since_override: str | None = None) -> list[dict]:
     """Cron entrypoint: check every DUE battlecard, write per policy, email digests.
 
     Due-gate (_is_due): by default a card is only checked when it hasn't been checked
@@ -1057,6 +1242,8 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
     summary = []
     cost_rows = []
     fyi_cards, issue_cards = [], []          # LIVE mode: one FYI + one "needs you" per run
+    health_rows = []                         # every card's step table (2026-10-03): the FYI footer + the ledger
+    run_spend = 0.0                          # the running total the run ceiling is measured against
     wanted = set(slugs) if slugs else None
     for slug in list_battlecards():
         if wanted is not None and slug not in wanted:
@@ -1067,29 +1254,45 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
         # stress-test card): it still renders in the viewer but never burns a check.
         if meta.get("monitored") is False:
             summary.append({"slug": slug, "skipped": "not monitored"})
+            health_rows.append({"slug": slug, "meta": meta, "skipped": "not monitored"})
             continue
         if not force and not _is_due(meta):
             summary.append({"slug": slug, "skipped": "not due",
                             "cadence_hours": meta.get("cadence_hours") or config.DEFAULT_CADENCE_HOURS,
                             "last_checked": meta.get("last_checked")})
             continue
+        # RUN CEILING (2026-10-03): once the run's total crosses SCOUT_RUN_MAX_USD, the remaining
+        # cards get triage only and carry their candidates to the next run (named in needs-you).
+        # Extra kwargs are passed only when they apply, so the test fakes keep their call shape.
+        kw = {}
+        if since_override:
+            kw["since_override"] = since_override
+        if config.RUN_MAX_USD and run_spend >= config.RUN_MAX_USD:
+            kw["escalate"] = False
         try:
-            res = check(slug, write=write)
+            res = check(slug, write=write, **kw)
         except Exception as first_err:
             # One bounded retry: a transient SDK/API hiccup (observed 2026-06-10: the agent
             # subprocess surfaced an error result mid-stream) must not kill the cron run.
             # check() writes the store only at its very end, so a failed attempt leaves the
             # card untouched and is safe to redo. Worst-case extra spend is one more check.
+            # (Since 2026-10-03 a failed PAID arm no longer raises: it carries its candidates, so
+            # this retry only ever re-runs the cheap part.)
             print(f"check({slug}) failed ({type(first_err).__name__}: {first_err}) — retrying once")
             try:
-                res = check(slug, write=write)
+                res = check(slug, write=write, **kw)
             except Exception as e:
                 # Record the failure and move on: one bad card must not block the other
                 # cards' checks (or the workflow committing their results). __main__ exits
                 # non-zero when any card errored, so the Actions run still notifies.
                 summary.append({"slug": slug, "error": f"{type(e).__name__}: {e}"})
+                steps_so_far = list(getattr(e, "scout_steps", None) or [])
+                health_rows.append({"slug": slug, "meta": store.load_meta(slug) or {}, "steps": steps_so_far,
+                                    "error": f"{type(e).__name__}: {e}"})
                 if send and config.PROPAGATE_MODE == "live":     # a failed card is a "needs you" item
-                    issue_cards.append({"slug": slug, "meta": store.load_meta(slug) or {}, "errors": [f"check failed twice: {type(e).__name__}: {e}"]})
+                    errs = [f"check failed twice: {type(e).__name__}: {e}"]
+                    errs += [f"{r['step']}: {r.get('detail') or 'failed'}" for r in steps_so_far if r.get("status") == "failed"]
+                    issue_cards.append({"slug": slug, "meta": store.load_meta(slug) or {}, "errors": errs})
                 continue
         # $/claim (2026-07-08, his metric): claims this run = direct material patches + judge-
         # CONFIRMED proposals (confirmed = produced and sent for approval; a later human decline
@@ -1099,6 +1302,22 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
         claims_n = len(res["material"]) + sum(1 for d in _prop_all.get("decisions", [])
                                               if d.get("judge_verdict") == "confirm")
         card_cost = _run_total(res["cost"])
+        run_spend += card_cost
+        health_rows.append({"slug": slug, "meta": store.load_meta(slug) or {}, "steps": list(res.get("steps") or []),
+                            "cost": card_cost, "alerts": len(res.get("alerts") or [])})
+        # STEP FAILURES ARE NEEDS-YOU ITEMS (2026-10-03): every failed step row, an abandoned held
+        # window, an abandoned carry-over and a ceiling deferral reach the owner, in live mode.
+        step_errors = [f"{r['step']}: {r.get('detail') or 'failed'}" for r in (res.get("steps") or []) if r.get("status") == "failed"]
+        if res.get("abandoned_window"):
+            aw = res["abandoned_window"]
+            step_errors.append(f"held window abandoned after {config.MONITOR_MAX_UNRESOLVED_RETRIES} attempts since {aw.get('since')}: "
+                               + (", ".join(aw.get("subjects") or []) or "; ".join(str(x) for x in (res.get("abandoned_substantial") or []))[:300]))
+        if res.get("abandoned_carry_over"):
+            step_errors.append("carried candidates abandoned: " + "; ".join(res["abandoned_carry_over"])[:300])
+        if res.get("ceiling_deferred"):
+            step_errors.append(f"run ceiling ${config.RUN_MAX_USD:.0f} reached before this card: "
+                               f"{len(res['ceiling_deferred'])} candidate(s) carried to the next run: "
+                               + "; ".join(res["ceiling_deferred"])[:300])
         cost_note = (f"Run cost: ${card_cost:.2f} — {claims_n} claim{'s' if claims_n != 1 else ''}, "
                      f"${card_cost / claims_n:.2f}/claim" if claims_n
                      else f"Run cost: ${card_cost:.2f} — no claims shipped")
@@ -1121,12 +1340,15 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
             confirmed_not_applied = [d for d in decisions if d.get("judge_verdict") == "confirm" and not d.get("held_for_format")
                                      and (d.get("subject_key"), d.get("operation")) not in applied_keys
                                      and str(d.get("judged_by") or "").startswith("fallback:")]
+            errors = list(step_errors)
+            if res.get("my_company_error") and not any(e_.startswith("own_company:") for e_ in errors):
+                errors.append(res["my_company_error"])
             issue = {"slug": slug, "meta": meta, "held": held + [dict(d, held_reason="confirmed by the fallback judge only; not applied unattended") for d in confirmed_not_applied],
                      "unjudged": [d for d in decisions if d.get("judge_verdict") == "judge_unavailable"],
                      "exhausted": [d for d in decisions if d.get("rewrite_exhausted")],
                      "provenance_issues": prop0.get("provenance_issues") or [],
                      "pipeline_health": res.get("pipeline_health"),
-                     "errors": [res["my_company_error"]] if res.get("my_company_error") else []}
+                     "errors": errors}
             if any(issue[k] for k in ("held", "unjudged", "exhausted", "provenance_issues", "pipeline_health", "errors")):
                 issue_cards.append(issue)
             urgent = [d for d in decisions if d.get("material_uncured")]
@@ -1140,7 +1362,7 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
                                                                  if d not in issue["exhausted"]]
                 if issue not in issue_cards:
                     issue_cards.append(issue)
-            if prop0 and config.CONSEQUENTIAL_FILTER != "off" and prop0.get("run_verdict"):
+            if write and prop0 and config.CONSEQUENTIAL_FILTER != "off" and prop0.get("run_verdict"):   # a dry run writes nothing (2026-10-03)
                 shadow.filter_capture(slug, run_ts=res.get("last_checked"), verdict=prop0["run_verdict"],
                                       act_subject_keys=[m["subject_key"] for m in res.get("material", [])],
                                       competitor=meta.get("competitor"), my_company=meta.get("my_company"),
@@ -1216,7 +1438,7 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
             # for the longitudinal eval. DOWNSTREAM of the grounding shadow.capture in check() (Fold A:
             # never alter what the v3.5 grounding eval sees). "shadow" mode changes NOTHING — the verdict
             # is validated over weeks before it can gate. No-op unless SHADOW_EVAL_ENABLED.
-            if prop and config.CONSEQUENTIAL_FILTER != "off":
+            if write and prop and config.CONSEQUENTIAL_FILTER != "off":   # a dry run writes nothing (2026-10-03)
                 rv = prop.get("run_verdict") or {}
                 if rv:
                     shadow.filter_capture(
@@ -1246,6 +1468,7 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
             "usd_per_claim": round(card_cost / claims_n, 4) if claims_n else None,
             "phases": {k: round(v, 6) for k, v in (cost or {}).items() if v is not None},
             "total": _run_total(cost),
+            "steps": list(res.get("steps") or []),   # the step table rides the ledger: the canary reads it
         })
     if send and config.PROPAGATE_MODE == "live":
         run_cost = sum(float(r.get("cost_usd") or _run_total(r.get("phases") or {}) or 0) for r in cost_rows)
@@ -1262,7 +1485,7 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
                 issue_cards = [dict(c, meta=store.load_meta(c["slug"]) or {}) for c in p_.get("issue_cards", [])] + issue_cards
                 run_cost += float(p_.get("cost_usd") or 0)
             try:
-                fyi = notify.send_run_fyi(fyi_cards, run_cost, dry_run=email_dry_run)
+                fyi = notify.send_run_fyi(fyi_cards, run_cost, dry_run=email_dry_run, health=health_rows)
                 print(f"[monitor] run FYI: {fyi}")
             except Exception as e:
                 print(f"[monitor] run FYI skipped ({type(e).__name__}: {e})", file=sys.stderr)
@@ -1274,7 +1497,7 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
     _persist_run_cost(run_started, cost_rows, write)
     # CONSEQ. TRACK: once enough shadow verdicts have accumulated, email a one-time "ready to review"
     # spot-check digest (so the owner knows when to evaluate the filter for production). Best-effort.
-    if send:
+    if send and not config.REHEARSAL:            # a rehearsal never speaks for the production eval tracks
         from scout import conseq
         conseq.maybe_notify_ready(send=not email_dry_run)
     return summary
@@ -1352,6 +1575,17 @@ def preflight(env: dict | None = None) -> str | None:
     env = os.environ if env is None else env
     ref = (env.get("GITHUB_REF_NAME") or "").strip()
     prefix = (env.get("SCOUT_SELFSERVE_DATA_PREFIX") or "").strip().strip("/")
+    # REHEARSAL (2026-10-03) rules first: the real write path on a retired card, legal on ANY ref,
+    # but only with its own private-store prefix AND a card store outside the checkout. Either
+    # missing would let a rehearsal write production's paths or the committed cards.
+    if (env.get("SCOUT_REHEARSAL") or "").strip() == "1":
+        if prefix != "rehearsal":
+            return f"rehearsal with store prefix {prefix!r} (rehearsals write under rehearsal/ only)"
+        if not (env.get("SCOUT_STORE_ROOT") or "").strip():
+            return "rehearsal without SCOUT_STORE_ROOT (it would write the checkout's battlecards/)"
+        return None
+    if prefix == "rehearsal":
+        return "store prefix 'rehearsal' without SCOUT_REHEARSAL=1"
     if ref == "main" and prefix:
         return f"store prefix {prefix!r} on main (production runs write to the root paths)"
     if ref == "rc" and prefix != "rc":
@@ -1381,7 +1615,15 @@ if __name__ == "__main__":
         print(f"[monitor] dispatched: {reason} (quiet: no emails of its own; findings ride the next FYI)")
     if not live:
         print(f"[monitor] DRY run: no writes, no email (slugs={slugs or 'all'}, force={force})")
-    out = run_all(write=live, send=True, email_dry_run=not live, force=force, slugs=slugs, quiet=bool(reason))
+    since_override = os.environ.get("SCOUT_MONITOR_SINCE", "").strip() or None
+    if since_override:
+        from datetime import date as _date
+        _date.fromisoformat(since_override)       # YYYY-MM-DD or refuse before any spend
+        print(f"[monitor] detection cutoff forced to {since_override} for every checked card")
+    if config.REHEARSAL:
+        print(f"[monitor] REHEARSAL: store root {store.STORE_ROOT}, private-store prefix {config.SELFSERVE_DATA_PREFIX!r}, emails prefixed [rehearsal]")
+    out = run_all(write=live, send=True, email_dry_run=not live, force=force, slugs=slugs, quiet=bool(reason),
+                  since_override=since_override)
     print(_json.dumps(out, indent=2, default=str))
     # Partial failure still exits 1 (after the full summary prints) so the Actions run
     # notifies — but only after every card had its chance to check and write.

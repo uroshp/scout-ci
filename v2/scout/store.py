@@ -10,7 +10,11 @@ from datetime import date, datetime
 
 from scout import config
 
-STORE_ROOT = os.path.join(config.APP_ROOT, "battlecards")
+# SCOUT_STORE_ROOT (2026-10-03, rehearsal mode): the monitor's real write path can run against a
+# card folder OUTSIDE the checkout, so a rehearsal on a retired card can never reach a committed
+# card. Every consumer reads this module global at call time (battlecard_dir, list_battlecards,
+# the monitor's alert writer), so the override needs no other plumbing. Empty means the default.
+STORE_ROOT = os.environ.get("SCOUT_STORE_ROOT") or os.path.join(config.APP_ROOT, "battlecards")
 
 
 def _slug_part(s: str) -> str:
