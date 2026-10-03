@@ -774,7 +774,7 @@ def _metrics(cp: dict, claims_n: int, remaining: int, new_count: int = 0) -> str
     return ('<div class="metrics">'
             + card("Last refresh", last_d, last_t, last_iso)
             + f'<div class="metric"><div class="ml">Next refresh</div>'
-              f'<div class="mv">{next_dh}<span class="t scout-lt"{next_a}>{_html.escape(next_t)}</span></div>{cd}</div>'
+              f'<div class="mv">{next_dh}</div>{cd}</div>'
             + card("Baseline", base_d)
             + '<div class="metric claims"><div class="ml">Claims tracked &amp; verified</div>'
               f'<div class="mv"><a href="#claims">{claims_n}</a>{delta}</div>'
@@ -826,6 +826,12 @@ _ICON_PRINT = ('<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strok
                '<path d="M4 6V2h8v4M4 12H2V7h12v5h-2M4 10h8v4H4z"/></svg>')
 _ICON_PLUS = ('<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">'
               '<path d="M8 3v10M3 8h10"/></svg>')
+# The Slack mark (four colours), inline so the button needs no asset.
+_ICON_SLACK = ('<svg viewBox="0 0 122.8 122.8" aria-hidden="true" class="slk">'
+               '<path d="M25.8 77.6a12.9 12.9 0 1 1-12.9-12.9h12.9zm6.5 0a12.9 12.9 0 0 1 25.8 0v32.3a12.9 12.9 0 0 1-25.8 0z" fill="#e01e5a"/>'
+               '<path d="M45.2 25.8a12.9 12.9 0 1 1 12.9-12.9v12.9zm0 6.5a12.9 12.9 0 0 1 0 25.8H12.9a12.9 12.9 0 0 1 0-25.8z" fill="#36c5f0"/>'
+               '<path d="M97 45.2a12.9 12.9 0 1 1 12.9 12.9H97zm-6.5 0a12.9 12.9 0 0 1-25.8 0V12.9a12.9 12.9 0 0 1 25.8 0z" fill="#2eb67d"/>'
+               '<path d="M77.6 97a12.9 12.9 0 1 1-12.9 12.9V97zm0-6.5a12.9 12.9 0 0 1 0-25.8h32.3a12.9 12.9 0 0 1 0 25.8z" fill="#ecb22e"/></svg>')
 _ICON_MENU = ('<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">'
               '<path d="M2 4h12M2 8h12M2 12h12"/></svg>')
 
@@ -915,6 +921,7 @@ def _how_panel() -> str:
             f'figures read live &middot; last run {fig["run"]}</span>' if fig else "")
     return (
         '<div class="how" id="how" hidden>'
+        '<button type="button" class="hw-close" data-how aria-expanded="true" aria-controls="how" aria-label="Close">&#215;</button>'
         f'<div><div class="hw-sys">{_SYSTEM_LINE}</div>'
         '<div class="hw-h">How Scout keeps briefs true and useful</div>'
         '<p class="hw-lede">AI agents search for changes, decide what is material, and track the '
@@ -1038,7 +1045,9 @@ _OVERRIDES = """
 #scout-page .sc-btn.sc-quiet{border-color:transparent;background:transparent;color:var(--accent-deep);padding:0 8px}
 #scout-page .sc-btn.sc-quiet:hover{background:var(--accent-soft);border-color:transparent}
 #scout-page .sc-btn svg{width:15px;height:15px;flex:none}
-#scout-page details.sc-menu{display:block;position:relative}
+#scout-page .sc-btn.sc-slackbtn{margin-left:6px;background:var(--paper2)}
+#scout-page .sc-btn.sc-slackbtn svg.slk{width:16px;height:16px}
+#scout-page details.sc-menu{display:none;position:relative}   /* phones: the strip is hidden there */
 #scout-page details.sc-menu>summary{list-style:none;cursor:pointer}
 #scout-page details.sc-menu>summary .cv{font-family:var(--mono);font-size:11px;color:var(--accent-deep);margin-left:2px;transition:transform .15s}
 #scout-page details.sc-menu[open]>summary .cv{transform:rotate(180deg)}
@@ -1051,7 +1060,8 @@ _OVERRIDES = """
 #scout-page .sc-dd{position:absolute;top:calc(100% + 6px);right:0;z-index:60;min-width:280px;max-height:70vh;overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:6px;box-shadow:0 8px 24px rgba(28,29,22,.10)}
 #scout-page .sc-dd .mh{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 10px 3px}
 #scout-page .sc-dd input{width:100%;font:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--paper2);margin-bottom:4px}
-#scout-page .sc-dd a{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:7px 10px;border-radius:6px;font-size:14px;font-weight:500;color:var(--ink);text-decoration:none;white-space:nowrap}
+#scout-page .sc-dd a{display:flex;flex-direction:column;align-items:flex-start;gap:0;padding:6px 10px;border-radius:6px;font-size:13.5px;font-weight:500;color:var(--ink);text-decoration:none;white-space:nowrap;line-height:1.3}
+#scout-page .sc-dd a:nth-of-type(even){background:var(--accent-soft)}
 #scout-page .sc-dd a small{font-size:12px;color:var(--muted)}
 #scout-page .sc-dd a:hover{background:var(--accent-soft)}
 #scout-page .sc-lead{padding:12px 0 0}
@@ -1069,7 +1079,9 @@ _OVERRIDES = """
 #scout-page details.sc-more>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 12px;font-size:14px;font-weight:600;color:var(--accent-deep);white-space:nowrap;border-radius:7px 7px 0 0}
 #scout-page details.sc-more>summary:hover{background:var(--accent-soft)}
 #scout-page details.sc-more>summary::-webkit-details-marker{display:none}
-#scout-page .sc-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:18px 0 14px;border-bottom:1px solid var(--ink)}
+#scout-page .sc-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:18px 0 8px}
+#scout-page .wrap.tw{padding-bottom:0}
+#scout-page hr.rule{margin-top:0}
 #scout-page .sc-head h1{font-family:var(--display);font-weight:600;font-size:28px;line-height:1.12;letter-spacing:-.015em;color:var(--ink);margin:0}
 #scout-page .sc-head h1 .co{color:var(--accent-deep)}
 #scout-page .sc-area{font-size:15px;margin-top:6px;color:var(--ink)}
@@ -1098,19 +1110,24 @@ _OVERRIDES = """
 #scout-page .sc-slack p{font-size:16px;line-height:1.55;margin:0 0 10px}
 #scout-page .sc-slack p.how{color:var(--muted);font-size:14.5px}
 #scout-page .sc-slack-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+#scout-page .how{position:relative}
+#scout-page .hw-close{position:absolute;top:10px;right:12px;width:32px;height:32px;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:var(--muted);font:400 20px/1 var(--body);cursor:pointer}
+#scout-page .hw-close:hover{color:var(--ink);border-color:var(--accent-line)}
 #scout-page .hw-sys{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px}
 #scout-page .hw-asof .live{color:var(--win);font-weight:600;letter-spacing:.04em}
 @media(max-width:760px){
   #scout-page .sc-bar{min-height:54px;gap:10px}
   #scout-page .sc-brand .nm{font-size:22px}
   #scout-page .sc-nav > a.sc-navlink{display:none}
+  #scout-page details.sc-menu{display:block}
   #scout-page .sc-btn.sc-pri{padding:0 10px;margin-left:0}
   #scout-page .sc-btn.sc-pri .lbl{display:none}
   #scout-page .sc-btn.sc-pri::after{content:"Create"}
   #scout-page .sc-dd a.sc-phone-only{display:flex}
   #scout-page .sc-dd{position:fixed;left:12px;right:12px;top:64px;min-width:0;max-height:72vh}
-  #scout-page .sc-dd a{white-space:normal;padding:8px 10px}
-  #scout-page .sc-dd a small{font-size:12px}
+  #scout-page .sc-dd a{white-space:normal;padding:5px 10px;font-size:13px}
+  #scout-page .sc-dd a small{font-size:11.5px}
+  #scout-page .sc-btn.sc-slackbtn{display:none}            /* phones: in the All Briefs menu instead */
   #scout-page .sc-dd a.sc-see,#scout-page .sc-dd a.sc-phone-only{flex-direction:row}
   #scout-page .wrap.wrap{padding-left:14px;padding-right:14px}
   #scout-page .sc-lead{padding-top:8px}
@@ -1545,17 +1562,20 @@ def masthead_html(cards: list | None = None, slug: str | None = None, mode: str 
         items.append(f'<a href="/c/{_html.escape(c)}"{" class=\"on\" aria-current=\"page\"" if c == slug else ""}>'
                      f'<span>{_html.escape((_name(comp) or c) + who)}</span><small>{_html.escape(area)}</small></a>')
     # "All Briefs (N) ▾": the one control that says there are others, on every width (2026-10-02 evening)
+    home = '<a href="/" class="sc-navlink sc-home">Home</a>'
     all_briefs = ('<details class="sc-menu" id="sc-menu"><summary class="sc-navlink">All Briefs '
                   f'<span class="sc-cnt">{n}</span><span class="cv">&#9662;</span></summary>'
                   '<div class="sc-dd">' + "".join(items)
                   + '<a class="sc-see" href="/briefs">See all briefs as cards</a>'
                   + ('<a class="sc-phone-only" href="#how" data-how aria-expanded="false">How Scout works</a>' if panel else "")
+                  + ('<a class="sc-phone-only" href="/slack">Agent Scout in Slack</a>' if (slack_live_paths() or config.SLACK_PREVIEW) else "")
                   + '</div></details>')
-    slack = ('<a href="/slack" class="sc-navlink">Agent Scout in Slack</a>' if slack_live_paths() else "")
+    slack = (f'<a href="/slack" class="sc-btn sc-slackbtn">{_ICON_SLACK}<span class="lbl">Agent Scout in Slack</span></a>'
+             if (slack_live_paths() or config.SLACK_PREVIEW) else "")
     bar = ('<div class="sc-bar"><a class="sc-brand" href="/"><span class="d"></span><span class="nm">Agent Scout</span></a>'
            '<nav class="sc-nav" aria-label="Site">'
-           f'{all_briefs}{how}{slack}'
-           f'<a class="sc-btn sc-pri{" on" if mode == "create" else ""}" href="/create">{_ICON_PLUS}<span class="lbl">Create your own</span></a>'
+           f'{home}{all_briefs}{how}'
+           f'<a class="sc-btn sc-pri{" on" if mode == "create" else ""}" href="/create">{_ICON_PLUS}<span class="lbl">Create your own</span></a>{slack}'
            '</nav></div>')
     lead = f'<div class="sc-lead"><div class="sc-statement">{_STATEMENT}</div></div>'
     strip = strip_html(cards, slug) if slug else ""
@@ -1578,6 +1598,8 @@ def slack_live_paths() -> list[tuple[str, str, str]]:
 def slack_html() -> str:
     """The /slack page: what it is in two lines, then only the actions that are live."""
     paths = slack_live_paths()
+    preview = ('' if paths else '<p class="how"><b>Release candidate preview.</b> The demo workspace is being set up; '
+               'this page shows only live actions once it exists.</p>') if config.SLACK_PREVIEW else ""
     btns = "".join(f'<a class="sc-btn{" sc-pri" if kind else ""}" href="{_html.escape(href)}" target="_blank" rel="noopener">'
                    f'{_html.escape(label)}</a>' for label, href, kind in paths)
     return ('<div id="scout-page"><div class="wrap"><div class="sc-slack">'
@@ -1587,7 +1609,7 @@ def slack_html() -> str:
             'can research deeper on request. The same engine that writes the briefs here.</p>'
             '<p class="how">Join the demo workspace, then open Agent Scout and ask. Ten quick answers and one '
             'deep research question per person per day.</p>'
-            f'<div class="sc-slack-actions">{btns}</div>'
+            f'{preview}<div class="sc-slack-actions">{btns}</div>'
             '</div></div></div>')
 
 
