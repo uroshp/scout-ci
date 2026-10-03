@@ -581,6 +581,179 @@ def _competitor_arm(slug, meta, since, substantial, claims, result, sig_block: s
     return material_grounded, grounded, (mdata.get("immaterial") or [])
 
 
+# --- Sensors (Release 2, 2026-10-04) -------------------------------------------------------------
+# The daily pass runs ONCE per monitor run (run_all, before the card loop) for every entity on a due
+# card and leaves its summary here; each check reads its entities' open findings, runs the screen,
+# and (shadow) writes the compare record. Everything is behind config.SENSORS_MODE; off = untouched.
+_SENSORS: dict = {"summary": {}, "today": None}
+
+
+def _sensor_entities(slugs: list) -> dict:
+    """{entity_key: {name, names, cards}} for the cards about to be checked."""
+    from scout.sensors import registry as _reg
+    out: dict = {}
+    for slug in slugs:
+        meta = store.load_meta(slug) or {}
+        for e in _reg.entities_for(meta):
+            rec = out.setdefault(e["key"], {"name": e["name"], "names": [e["name"]], "cards": []})
+            rec["cards"].append(slug)
+    return out
+
+
+def _sensor_pass(slugs: list, write: bool, today: str) -> dict:
+    """Run the pass for the due cards' entities; never raises (a failure marks every entity unavailable)."""
+    if config.SENSORS_MODE == "off" or not slugs:
+        _SENSORS.update({"summary": {}, "today": today})
+        return {}
+    try:
+        from scout.sensors import collect
+        ents = _sensor_entities(slugs)
+        days = {}
+        for slug in slugs:
+            meta = store.load_meta(slug) or {}
+            lc = _since_date(meta.get("last_checked") or meta.get("baseline_date"))
+            try:
+                gap = (datetime.fromisoformat(today) - datetime.fromisoformat(lc)).days if lc else 2
+            except Exception:
+                gap = 2
+            for e in _sensor_entities([slug]):
+                days[e] = max(days.get(e, 1), min(14, max(1, gap + 1)))
+        summary = collect.run_pass(ents, write=write, today=today, days_by_entity=days)
+        _SENSORS.update({"summary": summary, "entities": ents, "today": today})
+        found = sum(v.get("findings", 0) for v in summary.values())
+        print(f"[sensors] pass: {len(ents)} entit{'y' if len(ents) == 1 else 'ies'}, {found} finding(s), "
+              f"{sum(1 for v in summary.values() if v.get('unavailable'))} unavailable")
+        return summary
+    except Exception as e:
+        print(f"[sensors] pass FAILED ({type(e).__name__}: {e})", file=sys.stderr)
+        _SENSORS.update({"summary": {}, "today": today, "error": f"{type(e).__name__}: {e}"})
+        return {}
+
+
+def _sweep_day(slug: str, when: str) -> bool:
+    """Deterministic weekly sweep day per card (sha256 of the slug over the run weekdays; Python's
+    hash() is salted per process and would move every run)."""
+    days = sorted(d for d in range(7) if d not in config.MONITOR_SKIP_WEEKDAYS) or [0]
+    wd = days[int(hashlib.sha256(slug.encode()).hexdigest(), 16) % len(days)]
+    try:
+        return datetime.fromisoformat(when[:10]).weekday() == wd
+    except Exception:
+        return False
+
+
+def _sensor_screen(slug: str, meta: dict, claims: list, since: str | None, sig_block: str, steps: list,
+                   check_reason: str) -> dict | None:
+    """The card's view of this morning's sensors: open findings, the screen's candidates, and whether
+    the model-triage path must run anyway. None when sensors are off."""
+    if config.SENSORS_MODE == "off":
+        return None
+    from scout.sensors import events, registry as _reg, screen as _screen
+    ents = _reg.entities_for(meta)
+    summary = _SENSORS.get("summary") or {}
+    sens = {"mode": config.SENSORS_MODE, "entities": [e["key"] for e in ents], "findings": [], "candidates": [],
+            "unavailable": False, "no_registry": False, "status": "skipped", "detail": "", "cost_usd": 0.0,
+            "by_entity": {}, "names": [e["name"] for e in ents], "watched_hosts": set(),
+            "sweep": False, "use_triage": True, "pass_error": _SENSORS.get("error")}
+    for e in ents:
+        sm = summary.get(e["key"]) or {}
+        if not sm:
+            sens["no_registry"] = True        # the pass never saw this entity (no registry, or the pass failed)
+        if sm.get("unavailable"):
+            sens["unavailable"] = True
+        if sm.get("no_registry"):
+            sens["no_registry"] = True
+        try:
+            reg = _reg.load(e["key"]) or {}
+            for src in reg.get("sources") or []:
+                from scout.sensors import feeds as _feeds
+                sens["watched_hosts"].add(_feeds.host_of(src.get("url")))
+        except Exception:
+            pass
+        try:
+            opened = events.open_for(e["key"], slug)
+        except Exception as ex:
+            opened = []
+            sens["detail"] += f"{e['key']}: findings unreadable ({type(ex).__name__}); "
+        for f in opened:
+            f = dict(f, role=e["role"])
+            sens["findings"].append(f)
+        sens["by_entity"][e["key"]] = {"open": len(opened), **{k: sm.get(k) for k in ("pages_checked", "pages_changed", "pages_failed", "feed_items", "news_hits", "findings", "unavailable", "no_registry")}}
+    _step(steps, "sensors", "failed" if sens["unavailable"] else ("skipped" if sens["no_registry"] else "ran"),
+          (f"{len(sens['findings'])} open finding(s) across {len(ents)} entit{'y' if len(ents) == 1 else 'ies'}: "
+           + "; ".join(f"{k}: {v.get('pages_checked') or 0} pages ({v.get('pages_changed') or 0} changed), {v.get('feed_items') or 0} feed, {v.get('news_hits') or 0} news"
+                       for k, v in sens["by_entity"].items()))
+          + (" | news channel down: model triage today" if sens["unavailable"] else "")
+          + (" | no registry for an entity: model triage today" if sens["no_registry"] else ""))
+    if sens["findings"] and not sens["unavailable"]:
+        r = _screen.run(meta, claims, sens["findings"], since or "", sig_block)
+        sens.update({"candidates": r["candidates"], "status": r["status"], "detail": r["detail"], "cost_usd": r.get("cost_usd") or 0.0})
+        _step(steps, "screen", "ran" if r["status"] == "ok" else r["status"], r["detail"], r.get("cost_usd"))
+    else:
+        _step(steps, "screen", "skipped", "no open findings" if not sens["unavailable"] else "sensors unavailable")
+    # gate: the screen's candidates are the candidates, except where the model path must run anyway
+    sens["sweep"] = config.SENSORS_MODE == "gate" and config.SENSOR_SWEEP and _sweep_day(slug, _SENSORS.get("today") or datetime.now().isoformat())
+    sens["use_triage"] = (config.SENSORS_MODE != "gate" or sens["unavailable"] or sens["no_registry"]
+                          or sens["status"] == "failed" or bool(meta.get("unresolved_since"))
+                          or check_reason == "signal" or sens["sweep"])
+    return sens
+
+
+def _sensor_consume(slug: str, sens: dict | None, run_ts: str) -> None:
+    if not sens or not sens.get("findings"):
+        return
+    from scout.sensors import events
+    by_ent: dict = {}
+    for f in sens["findings"]:
+        by_ent.setdefault(f.get("entity"), []).append(f.get("fingerprint"))
+    for ent, fps in by_ent.items():
+        try:
+            events.consume(ent, slug, run_ts, [x for x in fps if x])
+        except Exception as e:
+            print(f"[sensors] consume skipped for {ent} ({type(e).__name__}: {e})", file=sys.stderr)
+
+
+def _sensor_compare(slug: str, meta: dict, sens: dict | None, candidates: list, material_grounded: list,
+                    steps: list, write: bool, checked_at: str, triage_ran: bool) -> dict | None:
+    """Shadow (and gate sweep days): the compare record for this card. Returns the summary row."""
+    if not sens:
+        return None
+    try:
+        from scout.sensors import compare, events
+        today = checked_at[:10]
+        recent = []
+        for e in sens["entities"]:
+            try:
+                recent += events.recent(e)
+            except Exception:
+                pass
+        dates = [(datetime.fromisoformat(checked_at) - timedelta(days=d)).date().isoformat() for d in (1, 2, 3)]
+        screen_window = list(sens["candidates"]) + compare.recent_screen_candidates(slug, dates)
+        la = compare.level_a(material_grounded, recent, screen_window, set(sens.get("watched_hosts") or set()),
+                             names=sens.get("names") or []) if triage_ran else []
+        lb = compare.level_b(candidates if triage_ran else [], sens["candidates"], recent, sens.get("names") or []) if triage_ran else {"matched": [], "misses": [], "screen_only": []}
+        misses_a = [r for r in la if r.get("miss")]
+        payload = {"mode": sens["mode"], "triage_ran": triage_ran, "entities": sens["entities"], "by_entity": sens["by_entity"],
+                   "findings_open": len(sens["findings"]), "findings_recent": len(recent),
+                   "screen": {"status": sens["status"], "cost_usd": sens["cost_usd"], "candidates": sens["candidates"]},
+                   "triage": {"candidates": [{k: c.get(k) for k in ("signal", "subject_key", "about", "substantial", "source_hint")} for c in candidates]} if triage_ran else None,
+                   "landed": la, "misses_a": misses_a, "level_b": lb, "pass_error": sens.get("pass_error")}
+        doc = compare.record(slug, today, payload, write)
+        row = {"slug": slug, "misses_a": len(misses_a), "misses": misses_a, "level_b_misses": lb["misses"],
+               "screen_only": lb["screen_only"], "errors": sum(int((v or {}).get("pages_failed") or 0) for v in sens["by_entity"].values()),
+               "sources": sum(int((v or {}).get("pages_checked") or 0) + int(bool((v or {}).get("news_hits") is not None)) for v in sens["by_entity"].values()),
+               "screen_cost": sens["cost_usd"], "screen_subst": sum(1 for c in sens["candidates"] if c.get("substantial")),
+               "triage_subst": sum(1 for c in candidates if c.get("substantial") is True) if triage_ran else 0,
+               "findings": len(sens["findings"]), "unavailable": sens["unavailable"], "by_entity": sens["by_entity"],
+               "write_error": doc.get("write_error")}
+        _step(steps, "compare", "ran", f"{len(la)} landed alert(s) checked, {len(misses_a)} miss(es); "
+              f"level B: {len(lb['matched'])} matched, {len(lb['misses'])} unmatched, {len(lb['screen_only'])} screen-only")
+        return row
+    except Exception as e:
+        print(f"[sensors] compare FAILED ({type(e).__name__}: {e})", file=sys.stderr)
+        _step(steps, "compare", "failed", f"{type(e).__name__}: {e}")
+        return {"slug": slug, "misses_a": 0, "error": f"{type(e).__name__}: {e}"}
+
+
 def _step(steps: list, name: str, status: str, detail=None, cost=None) -> None:
     """One row of the run's step table (2026-10-03): `ran | skipped | failed`, the reason, the spend.
     The rows ride the check result, the cost ledger, the FYI footer and the needs-you email, so a
@@ -659,23 +832,44 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
     pending = dict(meta.get("pending_candidates") or {}) if isinstance(meta.get("pending_candidates"), dict) else {}
     carried_comp = [c for c in (pending.get("competitor") or []) if isinstance(c, dict)]
     carried_my = [c for c in (pending.get("my_company") or []) if isinstance(c, dict)]
-    # Stage 1: triage (cheap)
-    try:
-        triage = asyncio.run(_run_triage(meta, since, claims, my_since=my_since, extra=sig_block))
-    except BaseException as e:
-        _step(steps, "triage", "failed", f"{type(e).__name__}: {e}", getattr(e, "scout_cost_usd", None))
-        raise
-    try:
-        tdata = _extract_json(triage["text"])
-    except Exception:
-        tdata = {"has_candidates": False, "candidates": []}
-    candidates = tdata.get("candidates", []) if tdata.get("has_candidates") else []
+    # SENSORS (Release 2): the card's open findings and the screen's candidates. In shadow the
+    # unchanged triage still decides; in gate the screen decides unless the model path must run
+    # (sweep day, held window, dispatched run, sensors unavailable). A sweep day widens the cutoff
+    # to the last sweep so the audit covers the week, and the two candidate lists are unioned.
+    sens = _sensor_screen(slug, meta, claims, since, sig_block, steps, check_reason)
+    triage_ran = True
+    if sens and sens.get("sweep"):
+        last_sweep = _since_date(meta.get("last_sweep")) or (datetime.fromisoformat(checked_at) - timedelta(days=config.SENSOR_SWEEP_DAYS)).date().isoformat()
+        since = min(since or last_sweep, last_sweep)
+    if sens and not sens["use_triage"]:
+        triage_ran = False
+        triage = {"cost_usd": 0.0, "text": ""}
+        candidates = list(sens["candidates"])
+        _step(steps, "triage", "skipped", "gate: the screen's candidates stand in; no model search today")
+    else:
+        # Stage 1: triage (cheap)
+        try:
+            triage = asyncio.run(_run_triage(meta, since, claims, my_since=my_since, extra=sig_block))
+        except BaseException as e:
+            _step(steps, "triage", "failed", f"{type(e).__name__}: {e}", getattr(e, "scout_cost_usd", None))
+            raise
+        try:
+            tdata = _extract_json(triage["text"])
+        except Exception:
+            tdata = {"has_candidates": False, "candidates": []}
+        candidates = tdata.get("candidates", []) if tdata.get("has_candidates") else []
+        if sens and sens.get("sweep"):
+            # the sweep's catches already handled by sensors this week are not re-escalated
+            seen_sk = {str(c.get("subject_key")) for c in sens["candidates"] if c.get("subject_key") and c.get("subject_key") != "NEW"}
+            candidates = _merge_candidates([c for c in candidates if str(c.get("subject_key")) not in seen_sk], sens["candidates"])
     # Deterministic escalation floor: a candidate on a TRACKED subject escalates regardless of the
     # cheap triage grade (the 2026-07-01 Fable-lift miss — triage graded a status flip "minor").
     _escalation_floor(candidates, claims)
-    _step(steps, "triage", "ran",
-          f"{len(candidates)} candidate(s), {sum(1 for c in candidates if c.get('substantial') is True)} substantial",
-          triage.get("cost_usd"))
+    if triage_ran:
+        _step(steps, "triage", "ran",
+              f"{len(candidates)} candidate(s), {sum(1 for c in candidates if c.get('substantial') is True)} substantial"
+              + (" (sweep day: unioned with the screen)" if sens and sens.get("sweep") else ""),
+              triage.get("cost_usd"))
     # Strict gate: escalate to the expensive Opus judge ONLY when triage flagged a genuinely
     # SUBSTANTIAL development. Minor/routine candidates are surfaced for the record but do NOT
     # trigger the full pipeline — that's what keeps most checks cheap, triage-only.
@@ -715,6 +909,10 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
         "last_check_reason": check_reason,
         "steps": steps,
     }
+    if sens and sens.get("cost_usd"):
+        result["cost"]["screen"] = sens["cost_usd"]
+    if sens and sens.get("sweep") and write:
+        meta["last_sweep"] = checked_at[:10]
 
     if not substantial and not do_my:
         # Quiet / minor-only window (neither arm has act-able work): triage-only, cheap. Advance
@@ -737,6 +935,9 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
             if sig_open:
                 _consume_signals(slug, sig_open, checked_at)
                 _step(steps, "signals_consume", "ran", f"{len(sig_open)} consumed")
+            _sensor_consume(slug, sens, checked_at)
+        if sens:
+            result["sensors"] = _sensor_compare(slug, meta, sens, candidates, [], steps, write, checked_at, triage_ran)
         return result
 
     if not escalate:
@@ -758,6 +959,9 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
             _step(steps, "write", "ran", "heartbeat, candidates carried")
             if sig_open:
                 _consume_signals(slug, sig_open, checked_at)
+            _sensor_consume(slug, sens, checked_at)
+        if sens:
+            result["sensors"] = _sensor_compare(slug, meta, sens, candidates, [], steps, write, checked_at, triage_ran)
         return result
 
     # COMPETITOR ARM: Opus materiality -> multi-source grounding -> bounded retry. Runs only when
@@ -1047,6 +1251,10 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
     if write and sig_open:                       # every written check consumes what it was shown
         _consume_signals(slug, sig_open, checked_at)
         _step(steps, "signals_consume", "ran", f"{len(sig_open)} consumed")
+    if write:
+        _sensor_consume(slug, sens, checked_at)
+    if sens:
+        result["sensors"] = _sensor_compare(slug, meta, sens, candidates, material_grounded, steps, write, checked_at, triage_ran)
     return result
 
 
@@ -1243,8 +1451,21 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
     cost_rows = []
     fyi_cards, issue_cards = [], []          # LIVE mode: one FYI + one "needs you" per run
     health_rows = []                         # every card's step table (2026-10-03): the FYI footer + the ledger
+    sensor_rows = []                         # per-card compare rows (Release 2): the streak + the FYI block
     run_spend = 0.0                          # the running total the run ceiling is measured against
     wanted = set(slugs) if slugs else None
+    today = run_started.date().isoformat()
+    if config.SENSORS_MODE != "off":
+        # SENSORS: one pass for every entity on a card this run will check, before the loop
+        due_slugs = []
+        for slug in list_battlecards():
+            if wanted is not None and slug not in wanted:
+                continue
+            meta = store.load_meta(slug) or {}
+            if meta.get("monitored") is False or (not force and not _is_due(meta)):
+                continue
+            due_slugs.append(slug)
+        _sensor_pass(due_slugs, write, today)
     for slug in list_battlecards():
         if wanted is not None and slug not in wanted:
             summary.append({"slug": slug, "skipped": "not selected"})
@@ -1305,6 +1526,8 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
         run_spend += card_cost
         health_rows.append({"slug": slug, "meta": store.load_meta(slug) or {}, "steps": list(res.get("steps") or []),
                             "cost": card_cost, "alerts": len(res.get("alerts") or [])})
+        if res.get("sensors"):
+            sensor_rows.append(dict(res["sensors"], meta=store.load_meta(slug) or {}))
         # STEP FAILURES ARE NEEDS-YOU ITEMS (2026-10-03): every failed step row, an abandoned held
         # window, an abandoned carry-over and a ceiling deferral reach the owner, in live mode.
         step_errors = [f"{r['step']}: {r.get('detail') or 'failed'}" for r in (res.get("steps") or []) if r.get("status") == "failed"]
@@ -1484,8 +1707,18 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
                 fyi_cards = [dict(c, meta=store.load_meta(c["slug"]) or {}) for c in p_.get("fyi_cards", [])] + fyi_cards
                 issue_cards = [dict(c, meta=store.load_meta(c["slug"]) or {}) for c in p_.get("issue_cards", [])] + issue_cards
                 run_cost += float(p_.get("cost_usd") or 0)
+            sensors_block = None
+            if config.SENSORS_MODE != "off" and sensor_rows:
+                try:
+                    from scout.sensors import compare as _compare
+                    streak = _compare.update_streak(today, sensor_rows, gate_runs=config.SENSOR_GATE_RUNS, write=write)
+                    sensors_block = {"mode": config.SENSORS_MODE, "rows": sensor_rows, "streak": streak,
+                                     "pass_error": _SENSORS.get("error")}
+                except Exception as e:
+                    print(f"[sensors] streak update skipped ({type(e).__name__}: {e})", file=sys.stderr)
+                    sensors_block = {"mode": config.SENSORS_MODE, "rows": sensor_rows, "streak": None, "error": f"{type(e).__name__}: {e}"}
             try:
-                fyi = notify.send_run_fyi(fyi_cards, run_cost, dry_run=email_dry_run, health=health_rows)
+                fyi = notify.send_run_fyi(fyi_cards, run_cost, dry_run=email_dry_run, health=health_rows, sensors=sensors_block)
                 print(f"[monitor] run FYI: {fyi}")
             except Exception as e:
                 print(f"[monitor] run FYI skipped ({type(e).__name__}: {e})", file=sys.stderr)

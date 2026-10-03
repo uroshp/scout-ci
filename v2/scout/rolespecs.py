@@ -289,6 +289,39 @@ def parse_triage(text):
                                                 "has_candidates": bool(d.get("has_candidates"))}}
 
 
+def _screen_schema():
+    return {"type": "object", "properties": {
+        "candidates": {"type": "array", "items": {"type": "object", "properties": {
+            "finding_id": {"type": "string"}, "signal": {"type": "string"}, "subject_key": {"type": "string"},
+            "about": {"type": "string"}, "valence": {"type": "string"},
+            "substantial": {"type": "boolean"}, "why_new": {"type": "string"}},
+            "required": ["finding_id", "signal", "subject_key", "about", "substantial"]}}},
+        "required": ["candidates"]}
+
+
+def parse_screen(text):
+    """The screen (Release 2): a classification per FINDING the model pointed at, label
+    substantial|minor; findings it left out are the implicit `quiet` majority, so the unit is the
+    run (like triage) and an empty list is a valid parse."""
+    d = _extract(text)
+    if not isinstance(d, dict):
+        return None
+    rows = d.get("candidates")
+    if not isinstance(rows, list):
+        return {"items": {}, "abstain": {"*": "missing_key"}, "extra": {}}
+    items, abstain = {}, {}
+    for r in rows:
+        if not isinstance(r, dict) or not r.get("finding_id"):
+            abstain[f"row{len(items) + len(abstain)}"] = "missing_key"
+            continue
+        v = r.get("substantial")
+        if not isinstance(v, bool):
+            abstain[str(r["finding_id"])] = "wrong_type"
+            continue
+        items[str(r["finding_id"])] = "substantial" if v else "minor"
+    return {"items": items, "abstain": abstain, "extra": {"candidates": [r for r in rows if isinstance(r, dict)]}}
+
+
 # --- the table ---------------------------------------------------------------------------------------
 ROLE_SPECS = {
     "judge": {"family": CLASSIFICATION, "unit": "op", "label_set": ("confirm", "reject"),
@@ -318,6 +351,20 @@ ROLE_SPECS = {
     "reformat": {"family": GENERATIVE, "unit": "call", "label_set": (), "costly": "confirmed update lost or held",
                  "parse": parse_reformat, "schema": _reformat_schema,
                  "primary_model": lambda: config.CHALLENGER_MODEL, "output_reserve": 512},
+    # the sensor screen (Release 2, 2026-10-04): tools OFF, plain system prompt, bounded input; the
+    # role the on-device lane is meant to take over. Costly direction: a substantial development the
+    # screen left out (a miss), mirrored by the compare step's Level A.
+    "screen": {"family": CLASSIFICATION, "unit": "run", "label_set": ("substantial", "minor"),
+               "costly": "substantial development screened out", "parse": parse_screen, "schema": _screen_schema,
+               "primary_model": lambda: config.FAST_MODEL, "output_reserve": 1500},
+    # audience leads (2026-10-02; captured since, never evaluated until these entries): the author is
+    # generative like `author`, the judge classifies like `judge`.
+    "audience_author": {"family": GENERATIVE, "unit": "op", "label_set": (), "costly": "op failing the floor",
+                        "parse": parse_authored, "schema": _authored_schema,
+                        "primary_model": lambda: config.SUBAGENT_MODEL, "output_reserve": 1024},
+    "audience_judge": {"family": CLASSIFICATION, "unit": "op", "label_set": ("confirm", "reject"),
+                       "costly": "wrong confirm", "parse": parse_judge, "schema": _judge_schema,
+                       "primary_model": lambda: config.ORCHESTRATOR_MODEL, "output_reserve": 1024},
     "triage": {"family": CLASSIFICATION, "unit": "run", "label_set": ("escalate", "quiet"),
                "costly": "local quiet on a live escalation", "parse": parse_triage, "schema": _triage_schema,
                "primary_model": lambda: config.FAST_MODEL, "output_reserve": 1024, "tools_on": True},

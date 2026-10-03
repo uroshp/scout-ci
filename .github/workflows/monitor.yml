@@ -70,6 +70,10 @@ on:
         description: "force the detection cutoff (YYYY-MM-DD) for every checked card (rehearsals)"
         type: string
         default: ""
+      sensors:
+        description: "override SCOUT_SENSORS for this run: off | shadow | gate (rehearsals; empty = the repo variable)"
+        type: string
+        default: ""
 
 concurrency:
   # a rehearsal has its own group: it never queues the scheduled run (its stores are isolated)
@@ -123,6 +127,9 @@ jobs:
           # Signals (WS3): the run reads open filings / new-department events from the store and
           # puts them in front of triage, with the hiring context line. Off until promoted.
           SCOUT_SIGNALS: ${{ vars.SCOUT_SIGNALS || '0' }}
+          # Sensors (Release 2, 2026-10-04): off | shadow | gate. A repo variable, so the cutover and
+          # any rollback are a variable flip, no deploy; a dispatch may override it for a rehearsal.
+          SCOUT_SENSORS: ${{ inputs.sensors || vars.SCOUT_SENSORS || 'off' }}
           # Propagation (spec §17) in REVIEW (human-approval gate): on an act-grade grounded
           # development (ours or the competitor's), run propose->judge, LOG the decisions + grounding
           # facts to the PRIVATE data repo, and EMAIL the proposed change (where/what/how/verdict).

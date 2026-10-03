@@ -215,6 +215,7 @@ CUT_EXCLUDED = "source on excluded list — re-source from reputable news or cut
 #
 # Wikis / tertiary encyclopedias: lag and are gameable.
 BLOCKED_SOURCE_DOMAINS = {
+    "news.google.com",            # a redirect, never the publisher (Release 2: the news sensor reads it, nothing cites it)
     "wikipedia.org", "wikimedia.org", "wikidata.org", "wiktionary.org",
     "wikinews.org", "wikivoyage.org", "wikibooks.org", "wikiquote.org",
     "wikisource.org", "fandom.com", "wikia.com", "britannica.com",
