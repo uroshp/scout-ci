@@ -83,13 +83,11 @@ class Routes(unittest.TestCase):
         h = c.get(f"/c/{self.slug}?persona={p}").data.decode()
         self.assertIn(f'class="pv p-{p} on" href="/c/{self.slug}?persona={p}"', h)
         self.assertIn(f'class="persona p-{p}"', h)                          # badge carries the colour class
-        first = re.search(r'id="bc".*?<div class="item[^"]*" id="(u-[^"]+)"', h, re.S)
-        self.assertIsNotNone(first)
-        # the first play in the battlecard carries the chosen persona (when that persona has plays)
-        claims = [x for x in page._prepare_display(__import__("scout.store", fromlist=["x"]).load_claims(self.slug))[0]
-                  if x.get("zone") == "where_we_win"]
-        if any(x.get("persona") == p for x in claims):
-            self.assertTrue(any(page._anchor(x.get("subject_key", "")) == first.group(1) and x.get("persona") == p for x in claims))
+        # 2026-10-02: the buyer's top plays are pulled up into the briefing and left out of the
+        # battlecard below (nothing repeats), so the first play ABOVE the divider carries the persona
+        top = h[:h.find('class="divider"')]
+        self.assertIn(f'class="persona p-{p}"', top)
+        self.assertNotIn('class="persona p-', top.replace(f'class="persona p-{p}"', ""))   # and no other audience up there
         self.assertNotIn(" pdim", h); self.assertNotIn(".pdim", h)                    # no greyed-out items in the audience view (Uroš 2026-09-29)
         self.assertEqual(c.get(f"/c/{self.slug}?persona=hacker").status_code, 200)   # unknown = default
         self.assertEqual(c.get(f"/print/{self.slug}?persona={p}").status_code, 200)
