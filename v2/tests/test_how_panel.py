@@ -139,3 +139,27 @@ class AudienceMode(unittest.TestCase):
     def test_fold_grammar(self):
         self.assertIn("1 more play for other audiences", page._fold(["x"], "plays"))
         self.assertIn("2 more plays for other audiences", page._fold(["x", "y"], "plays"))
+
+
+class AudienceFocus(unittest.TestCase):
+    """2026-10-02 night: with an audience, the briefing shows only that buyer's plays and pulls their
+    objections up; sections holding nothing for them render closed."""
+    slug = "anthropic__vs__openai__enterprise-coding-developers"
+
+    def test_only_the_buyers_plays_lead_and_their_objections_follow(self):
+        import re
+        h = page.content_html(self.slug, persona="economic_buyer")
+        plays = h[h.find('id="brief2"'):h.find("Objections they raise")]
+        self.assertNotIn("Exec / top-down", plays); self.assertNotIn("Security", plays)   # no other audience in the top plays
+        self.assertIn("Objections they raise", h[:h.find('class="divider"')])
+        self.assertGreaterEqual(h.count('class="aud-obj"'), 1)
+
+    def test_sections_without_the_buyers_material_are_closed(self):
+        h = page.content_html(self.slug, persona="economic_buyer")
+        self.assertIn('<details class="sec folded" id="snapshot">', h)
+        self.assertIn('<details class="sec" id="bc" open>', h)
+        self.assertNotIn("sec folded", page.content_html(self.slug))
+
+    def test_buyer_with_no_plays_gets_an_honest_line(self):
+        h = page.content_html(self.slug, persona="eng_led")
+        self.assertTrue(("No plays written for the eng-led champion" in h) or ("PLAY 01" in h))

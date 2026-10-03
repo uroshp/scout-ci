@@ -79,10 +79,8 @@ def _top_wins(claims: list, n: int = 3) -> list:
     p = _PERSONA.get()
     if not p:
         return wins_all[:n]
-    mine = [c for c in wins_all if c.get("persona") == p]
-    general = [c for c in wins_all if not c.get("persona")]
-    rest = [c for c in wins_all if c.get("persona") and c.get("persona") != p]
-    return (mine + general + rest)[:n]
+    # the buyer's own plays only (2026-10-02: filling from other audiences read as no filter at all)
+    return [c for c in wins_all if c.get("persona") == p][:n]
 
 
 def _fold(items: list, noun: str) -> str:
@@ -423,9 +421,11 @@ def _snapshot_box(c: dict, new: bool = False) -> str:
             f'{_vsrc(c, _fmt_asof(c.get("as_of")))}</div>')
 
 
-def _section(sid: str, title: str, count_label: str, inner: str) -> str:
+def _section(sid: str, title: str, count_label: str, inner: str, open: bool = True) -> str:
     # <details>/<summary> => collapsible, open by default. Survives st.markdown sanitization.
-    return (f'<details class="sec" id="{sid}" open><summary>'
+    # With an audience chosen, a section with nothing written for that buyer renders CLOSED (2026-10-02):
+    # the buyer's material leads, the rest of the brief waits one tap away.
+    return (f'<details class="sec{"" if open else " folded"}" id="{sid}"{" open" if open else ""}><summary>'
             f'<span class="stitle">{_html.escape(title)}</span>'
             f'<span class="scount">{_html.escape(count_label)}</span>'
             f'<span class="chev">›</span></summary>'
@@ -439,7 +439,7 @@ _PREVIEW_SECTIONS = ("snapshot", "recent_moves", "positioning", "pricing")
 
 
 def _preview_section(sid: str, title: str, count_label: str, items: list,
-                     n_first: int, *, snap: bool = False) -> str:
+                     n_first: int, *, snap: bool = False, open: bool = True) -> str:
     first, rest = items[:n_first], items[n_first:]
     if snap:
         first_html = '<div class="snap">' + "".join(first) + "</div>"
@@ -455,11 +455,13 @@ def _preview_section(sid: str, title: str, count_label: str, items: list,
                 '<span class="lbl-less">Collapse section</span>'
                 '<span class="mchev">▾</span></summary>'
                 f'<div class="rest">{rest_html}</div></details>')
+    if not open:                                       # audience chosen, nothing here for that buyer
+        return _section(sid, title, count_label, first_html + more, open=False)
     return (f'<div class="sec preview" id="{sid}">{head}'
             f'<div class="sbody">{first_html}{more}</div></div>')
 
 
-def _battlecard(claims: list, recent_keys: set | None = None) -> str:
+def _battlecard(claims: list, recent_keys: set | None = None, open: bool = True) -> str:
     recent_keys = recent_keys or set()
     subs = []
     for zid, zlabel, zcls in _ZONES:
@@ -484,7 +486,7 @@ def _battlecard(claims: list, recent_keys: set | None = None) -> str:
                     f'<div class="rest">{"".join(items[1:])}</div></details>')
         subs.append(f'<div class="sub zone {zcls}">{head}{items[0]}{more}{fold}</div>')
     n = len([c for c in claims if c.get("zone")])
-    return _section("bc", "Competitive Battlecard", f"{n} across 3 zones", "".join(subs))
+    return _section("bc", "Competitive Battlecard", f"{n} across 3 zones", "".join(subs), open=open)
 
 
 def _cut_log(md: str):
@@ -694,8 +696,8 @@ def _briefing(claims: list, label: str = "Your Daily Briefing",
     # Fall back to the freshest recent move only when a card has no executive-summary lead.
     exec_leads = sorted((c for c in claims if c.get("section") == "executive_summary"),
                         key=lambda c: c.get("order", 0))
-    p = _PERSONA.get()
-    own = [c for c in exec_leads if p and c.get("persona") == p]      # the buyer's own lead, if written
+    aud = _PERSONA.get()
+    own = [c for c in exec_leads if aud and c.get("persona") == aud]  # the buyer's own lead, if written
     angle = own[0] if own else (exec_leads[0] if exec_leads else None)
     if angle is None:
         moves = [c for c in claims if c.get("section") == "recent_moves"]
@@ -729,6 +731,21 @@ def _briefing(claims: list, label: str = "Your Daily Briefing",
     plays_lbl = "Top play" if len(plays) == 1 else f"Top {len(plays)} plays"
     plays_html = (f'<div class="bsub two" id="brief2">{plays_lbl}</div>'
                   f'<div class="playbox">{"".join(plays)}</div>') if plays else ""
+    if aud and not plays:
+        plays_html = ('<div class="bsub two" id="brief2">Top plays</div>'
+                      f'<p class="aud-none">No plays written for the {_html.escape(_PERSONA_LABELS.get(aud, aud).lower())} yet. '
+                      'The full brief below is unchanged.</p>')
+    if aud:   # the buyer's objections, pulled up: the other half of what a rep prepares for
+        objs = sorted([c for c in claims if c.get("section") == "objection_handling" and c.get("persona") == aud],
+                      key=lambda c: c.get("order", 0))[:4]
+        if objs:
+            rows = []
+            for c in objs:
+                q = _parse_claim(c)
+                rows.append(f'<div class="aud-obj"><h4>{_inline(q["title"]) if q["title"] else _inline(c.get("claim", "")[:120])}</h4>'
+                            + (f'<p>{_inline(" ".join(q["body"]))}</p>' if q["body"] else "")
+                            + (_callout("sw", "So what", q["so_what"]) if q["so_what"] else "") + "</div>")
+            plays_html += (f'<div class="bsub two">Objections they raise</div><div class="playbox">{"".join(rows)}</div>')
 
     # Honest freshness (2026-08-08): the tag reflects the LEAD's own as_of, not a blanket "refreshed
     # today" — the angle is an elected strategic lead that only moves when a fresher verdict clears
@@ -950,6 +967,7 @@ def _how_panel() -> str:
         '<div class="hw-col"><h4>The build</h4><ul>'
         '<li>A pipeline for the daily checks, event triggers between runs, and an agent for Ask Scout, '
         'because a question&rsquo;s path cannot be planned ahead.</li>'
+        '<li>Ask Scout is also an MCP tool, so other agents can call it, and it answers in Slack.</li>'
         '<li>Code keeps the important gates: cost, retries, links, dates, format. Models are used for '
         'judgment, and the cheapest model that passes its eval gets the job.</li>'
         '<li>Fallback 1 is a model. Fallback 2 is the human author.</li>'
@@ -966,6 +984,7 @@ def _how_panel() -> str:
         '<a href="#trail" id="how-trail">Verification trail on this card &darr;</a>'
         '<a href="#" id="how-ask">Ask Scout</a>'
         f'<a href="{_html.escape(config.SOURCE_REPO_URL)}" target="_blank" rel="noopener">Code on GitHub</a>'
+        f'<a href="{_html.escape(config.SOURCE_REPO_URL)}/blob/main/v2/docs/mcp.md" target="_blank" rel="noopener">MCP</a>'
         f'<a href="{_html.escape(config.AUTHOR_LINKEDIN)}" target="_blank" rel="noopener">Contact me</a>'
         f'</span>{asof}</div>'
         '</div>')
@@ -1115,6 +1134,12 @@ _OVERRIDES = """
 #scout-page .how{position:relative}
 #scout-page .hw-close{position:absolute;top:10px;right:12px;width:32px;height:32px;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:var(--muted);font:400 20px/1 var(--body);cursor:pointer}
 #scout-page .hw-close:hover{color:var(--ink);border-color:var(--accent-line)}
+#scout-page .aud-none{font-size:14px;color:var(--muted);margin:4px 0 0}
+#scout-page .aud-obj{padding:10px 0;border-top:1px solid var(--line2)}
+#scout-page .aud-obj:first-child{border-top:0;padding-top:0}
+#scout-page .aud-obj h4{margin:0 0 4px;font-family:var(--display);font-size:16px;font-weight:600}
+#scout-page .aud-obj p{margin:0 0 6px;font-size:14px}
+#scout-page details.sec.folded>summary{opacity:.75}
 #scout-page .hw-sys{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px}
 #scout-page .hw-asof .live{color:var(--win);font-weight:600;letter-spacing:.04em}
 @media(max-width:760px){
@@ -1740,10 +1765,17 @@ def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retir
         return c.get("subject_key") in recent_keys
 
     secs, present = [], []
+    aud = _PERSONA.get()
+
+    def _opened(cs):
+        """With an audience: open only sections that hold that buyer's own material."""
+        return True if not aud else any(c.get("persona") == aud for c in cs)
+
     for sid in _section_order():
         if sid in _HIDDEN_SECTIONS:   # generated/stored but not shown (see _HIDDEN_SECTIONS)
             continue
         cs = sorted(by_sec.get(sid, []), key=lambda c: c.get("order", 0))
+        opn = _opened(cs)
         if sid == "recent_moves":
             # A chronological section: the latest development belongs on top, regardless of the
             # `order` the model assigned (monitor-added claims get arbitrary orders). Stable sort,
@@ -1755,10 +1787,10 @@ def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retir
         anchor = "bc" if sid == "battlecard" else sid   # battlecard's card uses id="bc"
         present.append((anchor, title, len(cs)))
         if sid == "battlecard":
-            secs.append(_battlecard(cs, recent_keys))
+            secs.append(_battlecard(cs, recent_keys, open=opn))
         elif sid == "snapshot":
             secs.append(_preview_section(sid, title, f"{len(cs)} facts",
-                                         [_snapshot_box(c, _new(c)) for c in cs], 2, snap=True))
+                                         [_snapshot_box(c, _new(c)) for c in cs], 2, snap=True, open=opn))
         elif sid == "executive_summary":
             secs.append(_section(sid, title, f"{len(cs)} takeaways",
                                  "".join(_prose_item(c, callout_label="So what",
@@ -1767,15 +1799,15 @@ def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retir
             shown, folded = _split_for_audience(cs)
             item = lambda c: _prose_item(c, callout_label="So what", badge_prefix="Raised by", new=_new(c))
             secs.append(_section(sid, title, f"{len(cs)} objections",
-                                 "".join(item(c) for c in shown) + _fold([item(c) for c in folded], "objections")))
+                                 "".join(item(c) for c in shown) + _fold([item(c) for c in folded], "objections"), open=opn))
         elif sid in _PREVIEW_SECTIONS:   # recent_moves, positioning, pricing
             label = {"recent_moves": "moves"}.get(sid, "items")
             secs.append(_preview_section(sid, title, f"{len(cs)} {label}",
-                                         [_bullet_item(c, _new(c)) for c in cs], 1))
+                                         [_bullet_item(c, _new(c)) for c in cs], 1, open=opn))
         else:
             label = {"sentiment": "signal"}.get(sid, "items")
             secs.append(_section(sid, title, f"{len(cs)} {label}",
-                                 "".join(_bullet_item(c, _new(c)) for c in cs)))
+                                 "".join(_bullet_item(c, _new(c)) for c in cs), open=opn))
     trail = []
     lineage_html = _lineage(retired or [])
     if lineage_html:
