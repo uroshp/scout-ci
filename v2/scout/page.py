@@ -832,6 +832,9 @@ _ICON_SLACK = ('<svg viewBox="0 0 122.8 122.8" aria-hidden="true" class="slk">'
                '<path d="M45.2 25.8a12.9 12.9 0 1 1 12.9-12.9v12.9zm0 6.5a12.9 12.9 0 0 1 0 25.8H12.9a12.9 12.9 0 0 1 0-25.8z" fill="#36c5f0"/>'
                '<path d="M97 45.2a12.9 12.9 0 1 1 12.9 12.9H97zm-6.5 0a12.9 12.9 0 0 1-25.8 0V12.9a12.9 12.9 0 0 1 25.8 0z" fill="#2eb67d"/>'
                '<path d="M77.6 97a12.9 12.9 0 1 1-12.9 12.9V97zm0-6.5a12.9 12.9 0 0 1 0-25.8h32.3a12.9 12.9 0 0 1 0 25.8z" fill="#ecb22e"/></svg>')
+_ICON_HOW = ('<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" class="how-i">'
+             '<rect x="1.5" y="6" width="5" height="8" rx="1"/><rect x="7.5" y="6" width="5" height="8" rx="1"/>'
+             '<rect x="13.5" y="6" width="5" height="8" rx="1"/><path d="M6.5 10h1M12.5 10h1"/></svg>')
 _ICON_MENU = ('<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">'
               '<path d="M2 4h12M2 8h12M2 12h12"/></svg>')
 
@@ -1061,7 +1064,6 @@ _OVERRIDES = """
 #scout-page .sc-dd .mh{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 10px 3px}
 #scout-page .sc-dd input{width:100%;font:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--paper2);margin-bottom:4px}
 #scout-page .sc-dd a{display:flex;flex-direction:column;align-items:flex-start;gap:0;padding:6px 10px;border-radius:6px;font-size:13.5px;font-weight:500;color:var(--ink);text-decoration:none;white-space:nowrap;line-height:1.3}
-#scout-page .sc-dd a:nth-of-type(even){background:var(--accent-soft)}
 #scout-page .sc-dd a small{font-size:12px;color:var(--muted)}
 #scout-page .sc-dd a:hover{background:var(--accent-soft)}
 #scout-page .sc-lead{padding:12px 0 0}
@@ -1123,11 +1125,27 @@ _OVERRIDES = """
   #scout-page .sc-btn.sc-pri{padding:0 10px;margin-left:0}
   #scout-page .sc-btn.sc-pri .lbl{display:none}
   #scout-page .sc-btn.sc-pri::after{content:"Create"}
-  #scout-page .sc-dd a.sc-phone-only{display:flex}
   #scout-page .sc-dd{position:fixed;left:12px;right:12px;top:64px;min-width:0;max-height:72vh}
   #scout-page .sc-dd a{white-space:normal;padding:5px 10px;font-size:13px}
   #scout-page .sc-dd a small{font-size:11.5px}
-  #scout-page .sc-btn.sc-slackbtn{display:none}            /* phones: in the All Briefs menu instead */
+  #scout-page .sc-brand .nm{font-size:20px}
+  #scout-page .sc-nav{gap:5px}
+  #scout-page .sc-nav .sc-navlink{padding:0 9px;font-size:13.5px;min-height:34px}
+  #scout-page .sc-btn.sc-pri{padding:0 9px;min-height:34px;font-size:13.5px}
+  #scout-page .sc-btn.sc-slackbtn{display:inline-flex;margin-left:0;padding:0 8px;min-height:34px}
+  #scout-page .sc-btn.sc-slackbtn .lbl{display:none}
+  #scout-page .sc-dd a.top{flex-direction:row;align-items:center;justify-content:flex-start;gap:10px;min-height:46px;font-size:14.5px;font-weight:600;background:var(--paper2);border:1px solid var(--line);margin-bottom:6px}
+  #scout-page .sc-dd a.top svg{width:18px;height:18px;flex:none}
+  #scout-page .sc-dd a.top .how-i{color:var(--accent-deep)}
+  #scout-page .sc-dd .mh{margin-top:4px;font-size:10.5px;display:flex;align-items:center;gap:8px}
+  #scout-page .sc-dd a.brief{margin-left:12px}
+  #scout-page .sc-dd a.brief:nth-of-type(odd){background:var(--accent-soft)}
+  #scout-page .sc-dd a.brief.on{background:var(--accent-deep);color:#fff}
+  #scout-page .sc-brand .nm{font-size:19px}
+  #scout-page .sc-nav{gap:4px}
+  #scout-page .sc-nav .sc-navlink{padding:0 8px}
+  #scout-page .sc-btn.sc-pri{padding:0 8px}
+  #scout-page .sc-btn.sc-slackbtn{padding:0 7px}
   #scout-page .sc-dd a.sc-see,#scout-page .sc-dd a.sc-phone-only{flex-direction:row}
   #scout-page .wrap.wrap{padding-left:14px;padding-right:14px}
   #scout-page .sc-lead{padding-top:8px}
@@ -1149,6 +1167,8 @@ _OVERRIDES = """
   #scout-page .sc-grid{grid-template-columns:1fr}
 }
 @media(max-width:1000px) and (min-width:761px){ #scout-page .sc-grid{grid-template-columns:1fr 1fr} }
+@media(max-width:380px){ #scout-page .sc-brand .nm{font-size:18px} #scout-page .sc-nav .sc-navlink{padding:0 7px} }
+@media(max-width:359px){ #scout-page .sc-btn.sc-slackbtn{display:none} }
 /* Phones and portrait tablets (2026-10-02 evening): the brief is the star. The rail drops BELOW
    the brief, its contents + audience become the sticky bar above it, and the metric tiles move to
    the end of the main column. Under 760px the strip and the statement shrink or go. */
@@ -1558,24 +1578,26 @@ def masthead_html(cards: list | None = None, slug: str | None = None, mode: str 
     items = []
     for c in cards:
         comp, mine, area = brief_parts(store.load_meta(c))
-        who = f" for {_name(mine)}" if mine else ""
-        items.append(f'<a href="/c/{_html.escape(c)}"{" class=\"on\" aria-current=\"page\"" if c == slug else ""}>'
+        who = f" for {_name(mine)} reps" if mine else ""           # "reps" for context, phones only (this menu is phone-only)
+        items.append(f'<a href="/c/{_html.escape(c)}" class="brief{" on" if c == slug else ""}"{" aria-current=\"page\"" if c == slug else ""}>'
                      f'<span>{_html.escape((_name(comp) or c) + who)}</span><small>{_html.escape(area)}</small></a>')
-    # "All Briefs (N) ▾": the one control that says there are others, on every width (2026-10-02 evening)
+    # Phones only (2026-10-02 night): one menu for everything, "Start Here". Two links with icons
+    # first (How Scout works, Agent Scout in Slack), then the heading "Briefs (N)" and the indented
+    # list, then the cards page. Desktop keeps the strip and never shows this.
     home = '<a href="/" class="sc-navlink sc-home">Home</a>'
-    all_briefs = ('<details class="sc-menu" id="sc-menu"><summary class="sc-navlink">All Briefs '
-                  f'<span class="sc-cnt">{n}</span><span class="cv">&#9662;</span></summary>'
-                  '<div class="sc-dd">' + "".join(items)
-                  + '<a class="sc-see" href="/briefs">See all briefs as cards</a>'
-                  + ('<a class="sc-phone-only" href="#how" data-how aria-expanded="false">How Scout works</a>' if panel else "")
-                  + ('<a class="sc-phone-only" href="/slack">Agent Scout in Slack</a>' if (slack_live_paths() or config.SLACK_PREVIEW) else "")
-                  + '</div></details>')
-    slack = (f'<a href="/slack" class="sc-btn sc-slackbtn">{_ICON_SLACK}<span class="lbl">Agent Scout in Slack</span></a>'
-             if (slack_live_paths() or config.SLACK_PREVIEW) else "")
+    slack_on = bool(slack_live_paths() or config.SLACK_PREVIEW)
+    top_links = (('<a class="top" href="#how" data-how aria-expanded="false">' + _ICON_HOW + '<span>How Scout works</span></a>') if panel else "") \
+        + (('<a class="top" href="/slack">' + _ICON_SLACK + '<span>Agent Scout in Slack</span></a>') if slack_on else "")
+    all_briefs = ('<details class="sc-menu" id="sc-menu"><summary class="sc-navlink">Start Here'
+                  '<span class="cv">&#9662;</span></summary>'
+                  f'<div class="sc-dd">{top_links}<div class="mh">Briefs <span class="sc-cnt">{n}</span></div>' + "".join(items)
+                  + '<a class="sc-see" href="/briefs">See all briefs as cards</a></div></details>')
+    slack_btn = (f'<a href="/slack" class="sc-btn sc-slackbtn" aria-label="Agent Scout in Slack">{_ICON_SLACK}<span class="lbl">Agent Scout in Slack</span></a>'
+                 if slack_on else "")
     bar = ('<div class="sc-bar"><a class="sc-brand" href="/"><span class="d"></span><span class="nm">Agent Scout</span></a>'
            '<nav class="sc-nav" aria-label="Site">'
            f'{home}{all_briefs}{how}'
-           f'<a class="sc-btn sc-pri{" on" if mode == "create" else ""}" href="/create">{_ICON_PLUS}<span class="lbl">Create your own</span></a>{slack}'
+           f'<a class="sc-btn sc-pri{" on" if mode == "create" else ""}" href="/create">{_ICON_PLUS}<span class="lbl">Create your own</span></a>{slack_btn}'
            '</nav></div>')
     lead = f'<div class="sc-lead"><div class="sc-statement">{_STATEMENT}</div></div>'
     strip = strip_html(cards, slug) if slug else ""
