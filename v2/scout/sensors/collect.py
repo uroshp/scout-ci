@@ -66,20 +66,64 @@ def fetch(url: str, etag: str | None = None, last_modified: str | None = None) -
             "last_modified": resp.headers.get("last-modified") or last_modified, "error": None, "unchanged": False}
 
 
+THIN_BLOCKS = 3
+
+
+def read_page(url: str, pst: dict, src: dict) -> tuple[dict, list[str], str]:
+    """The three-tier read: plain httpx (conditional GET), then the headless browser when the plain
+    read is blocked or a JavaScript shell, then `challenge` when the browser hits a bot wall.
+    Returns (response-like dict, blocks, tier) with tier in plain | rendered | challenge | failed |
+    unchanged. The tier that worked is remembered on the source so tomorrow goes straight to it."""
+    from scout import config as _cfg
+    mode = src.get("read") or "auto"
+    r = None
+    if mode != "rendered":
+        r = fetch(url, pst.get("etag"), pst.get("last_modified"))
+        if r["unchanged"]:
+            return r, [], "unchanged"
+        if not r["error"]:
+            blocks = pagediff.blocks_from_html(r["text"] or "")
+            if len(blocks) >= THIN_BLOCKS or mode == "plain":
+                return r, blocks, "plain"
+            plain_reason = f"thin or JavaScript-only ({len(blocks)} blocks)"
+        else:
+            plain_reason = r["error"]
+        if not (_cfg.SENSOR_RENDERED and (r["status"] in (401, 403, 429, None) or not r["error"])):
+            return r, [], "failed"
+    else:
+        plain_reason = "read mode: rendered"
+    from scout.sensors import rendered
+    rr = rendered.fetch(url)
+    if rr.get("challenge"):
+        src["read"] = "challenge"
+        return {"status": rr["status"], "text": None, "etag": pst.get("etag"), "last_modified": pst.get("last_modified"),
+                "error": f"bot wall (plain: {plain_reason})", "unchanged": False}, [], "challenge"
+    if rr.get("error") or not rr.get("text"):
+        return {"status": rr.get("status"), "text": None, "etag": pst.get("etag"), "last_modified": pst.get("last_modified"),
+                "error": f"{rr.get('error') or 'empty'} (plain: {plain_reason})", "unchanged": False}, [], "failed"
+    blocks = pagediff.blocks_from_html(rr["text"])
+    if len(blocks) < THIN_BLOCKS:
+        return {"status": rr.get("status"), "text": None, "etag": None, "last_modified": None,
+                "error": f"rendered but empty ({len(blocks)} blocks; plain: {plain_reason})", "unchanged": False}, [], "failed"
+    src["read"] = "rendered"
+    return {"status": rr.get("status"), "text": rr["text"], "etag": None, "last_modified": None, "error": None, "unchanged": False}, blocks, "rendered"
+
+
 def _page_findings(entity: str, src: dict, state: dict, today: str) -> tuple[list[dict], str]:
     """Fetch + diff one page source. Returns (findings, status) with status in
-    first | unchanged | changed | quiet | failed."""
+    first | unchanged | changed | quiet | failed | challenge."""
     url = src["url"]
     pst = state["pages"].setdefault(url, {})
-    r = fetch(url, pst.get("etag"), pst.get("last_modified"))
+    r, blocks, tier = read_page(url, pst, src)
     pst["fetched_at"] = datetime.now().isoformat(timespec="seconds")
-    if r["error"]:
+    pst["tier"] = tier
+    if tier in ("failed", "challenge"):
         pst["status"] = r["error"]
-        return [], "failed"
-    pst["etag"], pst["last_modified"], pst["status"] = r["etag"], r["last_modified"], "ok"
-    if r["unchanged"]:
+        return [], tier
+    if tier == "unchanged":
+        pst["status"] = "ok"
         return [], "unchanged"
-    blocks = pagediff.blocks_from_html(r["text"] or "")
+    pst["etag"], pst["last_modified"], pst["status"] = r["etag"], r["last_modified"], "ok"
     d = pagediff.diff({"hashes": pst.get("hashes"), "shapes": pst.get("shapes")}, blocks)
     pst["hashes"], pst["shapes"] = d["state"]["hashes"], d["state"]["shapes"]
     pst["blocks_n"] = len(blocks)
@@ -207,11 +251,11 @@ def run_pass(entities: dict, *, write: bool, today: str | None = None, days_by_e
                         s["pages_checked"] += 1
                         if status == "changed":
                             s["pages_changed"] += 1
-                    if status == "failed":
+                    if status in ("failed", "challenge"):
                         s["pages_failed"] += 1
                         s["errors"].append(f"{src.get('kind')} {src['url']}: {state['pages'].get(src['url'], {}).get('status')}")
                     found += f
-                    src["last_ok"] = datetime.now().isoformat(timespec="seconds") if status != "failed" else src.get("last_ok")
+                    src["last_ok"] = datetime.now().isoformat(timespec="seconds") if status not in ("failed", "challenge") else src.get("last_ok")
                     src["last_status"] = status
                 except Exception as e:                        # one source must never take the pass down
                     s["pages_failed"] += 1
@@ -234,4 +278,9 @@ def run_pass(entities: dict, *, write: bool, today: str | None = None, days_by_e
             s["errors"].append(f"pass: {type(e).__name__}: {e}")
             s["unavailable"] = True
             print(f"[sensors] pass FAILED for {key} ({type(e).__name__}: {e})", file=sys.stderr)
+    try:
+        from scout.sensors import rendered
+        rendered.close()
+    except Exception:
+        pass
     return summary

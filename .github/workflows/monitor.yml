@@ -95,6 +95,16 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -q -r requirements.txt
+      - name: Headless browser for the sensors' rendered-fetch tier (only when sensors are on)
+        # pages the plain fetcher cannot read (JavaScript shells, 401/403 to a plain client) are read
+        # by the same Chromium the deploy probe uses; cached so the install costs seconds, not minutes
+        if: ${{ (inputs.sensors || vars.SCOUT_SENSORS || 'off') != 'off' }}
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('v2/requirements.txt') }}
+      - if: ${{ (inputs.sensors || vars.SCOUT_SENSORS || 'off') != 'off' }}
+        run: python -m playwright install --with-deps chromium
       - name: Rehearsal prep (restore or copy the retired cards into the isolated store)
         if: ${{ inputs.rehearsal != '' }}
         env:

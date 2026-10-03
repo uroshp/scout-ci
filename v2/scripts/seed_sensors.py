@@ -35,7 +35,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 
 from scout import store  # noqa: E402
 from scout._probe_reach import categorize  # noqa: E402
-from scout.sensors import collect, feeds, registry  # noqa: E402
+from scout.sensors import collect, feeds, pagediff, registry  # noqa: E402
 from scout.sources import classify  # noqa: E402
 
 # Official hosts that do not carry the company's name, and look-alikes that are not the company.
@@ -46,11 +46,11 @@ OFFICIAL_HOSTS = {
     "anthropic": ["claude.com", "status.claude.com", "platform.claude.com", "status.anthropic.com"],
     "google": ["blog.google", "workspace.google.com", "deepmind.google"],
     "google cloud": ["cloud.google.com", "googlecloudpresscorner.com", "status.cloud.google.com", "blog.google"],
-    "microsoft teams": ["techcommunity.microsoft.com", "microsoft.com", "news.microsoft.com"],
-    "slack": ["slack.com", "status.slack.com", "salesforce.com"],
+    "microsoft teams": ["techcommunity.microsoft.com", "microsoft.com", "news.microsoft.com", "adoption.microsoft.com"],
+    "slack": ["slack.com", "status.slack.com", "salesforce.com", "slack.engineering"],
     "openai": ["openai.com", "developers.openai.com", "status.openai.com", "deploymentsafety.openai.com"],
     "mistral": ["mistral.ai", "help.mistral.ai"],
-    "perplexity": ["perplexity.ai", "docs.perplexity.ai", "research.perplexity.ai"],
+    "perplexity": ["perplexity.ai", "docs.perplexity.ai", "research.perplexity.ai", "www.perplexity.ai"],
     "notion": ["notion.com", "notion.so", "notion-status.com", "status.notion.com"],
     "atlassian": ["atlassian.com", "status.atlassian.com"],
     "cursor": ["cursor.com", "cursor.sh", "anysphere.inc"],
@@ -175,7 +175,7 @@ def _is_company_page(host: str, name: str) -> tuple[bool, bool]:
     return False, False
 
 
-def plan_entity(key: str, name: str, cards: list[dict], probe=categorize) -> dict:
+def plan_entity(key: str, name: str, cards: list[dict], probe=categorize, render: bool = True) -> dict:
     hosts: Counter = Counter()
     pages: Counter = Counter()
     suspicious = []
@@ -195,41 +195,75 @@ def plan_entity(key: str, name: str, cards: list[dict], probe=categorize) -> dic
     candidates: dict[str, str] = {}
     for url, _ in pages.most_common(MAX_CITED_PAGES):
         candidates.setdefault(url, "cited")
+    probe_hosts = []
     if main:
-        for kind, paths in STANDARD_PATHS.items():
-            for pth in paths:
-                candidates.setdefault(f"https://{main}{pth}", kind)
-        for kind, tmpl in SUBDOMAINS.items():
-            candidates.setdefault(f"https://{tmpl.format(host=main)}/", kind)
+        probe_hosts.append(main)
+    for h in OFFICIAL_HOSTS.get(name.lower(), []):          # every official host, not only the main one
+        if h not in probe_hosts and not h.startswith(("status.", "ir.", "investor.")):
+            probe_hosts.append(h)
+    for i, host in enumerate(probe_hosts[:4]):
+        paths = STANDARD_PATHS if i == 0 else {k: v for k, v in STANDARD_PATHS.items() if k in ("newsroom", "blog", "pricing", "releases", "docs")}
+        for kind, pths in paths.items():
+            for pth in pths:
+                candidates.setdefault(f"https://{host}{pth}", kind)
+        if i == 0:
+            for kind, tmpl in SUBDOMAINS.items():
+                candidates.setdefault(f"https://{tmpl.format(host=host)}/", kind)
+    for h in OFFICIAL_HOSTS.get(name.lower(), []):
+        if h.startswith("status."):
+            candidates.setdefault(f"https://{h}/", "status")
     sources, unreadable, feeds_found = [], [], {}
     seen_bare: set = set()
     seen_text: dict = {}
     import hashlib as _hl
+    from scout.sensors import rendered as _rendered
+    walled_hosts: set = set()
     for url, kind in candidates.items():
         bare = _bare(url)
         if bare in seen_bare:
             continue
         seen_bare.add(bare)
+        host = feeds.host_of(url)
+        if host in walled_hosts:
+            unreadable.append({"url": url, "kind": kind, "why": "walled host (bot wall even for a browser)", "guessed": kind != "cited", "challenge": True})
+            continue
         cat, detail = probe(url)
+        read, html, why = None, None, f"{cat} {detail or ''}".strip()
         if cat in ("clean_html", "pdf_clean"):
-            text_hash, found_feeds = None, []
             try:
-                r = collect.fetch(url)
-                text_hash = _hl.sha256((r.get("text") or "").encode("utf-8", "replace")).hexdigest()[:16]
-                found_feeds = feeds.discover(r.get("text") or "", url)
+                html = collect.fetch(url).get("text") or ""
             except Exception:
-                pass
-            if text_hash and text_hash in seen_text:
+                html = ""
+            if len(pagediff.blocks_from_html(html)) >= collect.THIN_BLOCKS:
+                read = "plain"
+            else:
+                cat, why = "thin_or_js", f"plain read has {len(pagediff.blocks_from_html(html))} text blocks (a JavaScript shell)"
+        if read is None and cat in ("blocked_403", "thin_or_js", "timeout", "connect_error") and "BlockedURLError" not in (detail or "") \
+                and not (cat == "connect_error" and detail in ("ConnectError",)):
+            rr = _rendered.fetch(url) if render else {"text": None, "challenge": False, "error": "renderer off"}
+            if rr.get("challenge"):
+                read, why = "challenge", f"bot wall even for a browser (plain: {why})"
+                walled_hosts.add(host)
+            elif rr.get("text") and len(pagediff.blocks_from_html(rr["text"])) >= collect.THIN_BLOCKS:
+                read, html = "rendered", rr["text"]
+            elif rr.get("status") == 404:
+                read, why = None, "http_error 404"
+            else:
+                read, why = None, f"{why}; browser: {rr.get('error') or 'empty page'}"
+        if read in ("plain", "rendered"):
+            text_hash = _hl.sha256((html or "").encode("utf-8", "replace")).hexdigest()[:16]
+            found_feeds = feeds.discover(html or "", url)
+            if text_hash in seen_text:
                 continue                                   # /blog and /blog/, or a path that redirects to a page already kept
-            if text_hash:
-                seen_text[text_hash] = url
+            seen_text[text_hash] = url
             for f in found_feeds:
                 feeds_found.setdefault(f, kind)
             sources.append({"url": url, "kind": kind, "feed": False, "added_by": "cited" if kind == "cited" else "seed",
-                            "added_on": date.today().isoformat(), "cadence": "daily", "noise": 0,
-                            "probe": f"{cat} {detail or ''}".strip(), "_feeds": found_feeds})
+                            "added_on": date.today().isoformat(), "cadence": "daily", "noise": 0, "read": read,
+                            "probe": f"{read}: {len(pagediff.blocks_from_html(html or ''))} blocks", "_feeds": found_feeds})
         else:
-            unreadable.append({"url": url, "kind": kind, "why": f"{cat} {detail or ''}".strip(), "guessed": kind != "cited"})
+            unreadable.append({"url": url, "kind": kind, "why": why, "guessed": kind != "cited",
+                               "challenge": read == "challenge"})
     if main:
         for pth in FEED_GUESSES:              # feeds are often open where the pages are not (openai.com 403s the fetcher)
             feeds_found.setdefault(f"https://{main}{pth}", "feed")
@@ -258,9 +292,9 @@ def plan_entity(key: str, name: str, cards: list[dict], probe=categorize) -> dic
         s_.pop("_feeds", None)
     reg = {"entity": key, "name": name, "names": [name] + _aliases(name), "cards": [c["slug"] for c in cards],
            "main_host": main, "sources": sources, "news_queries": _queries(name, cards),
-           "seeded_at": date.today().isoformat(),
+           "walled_hosts": sorted(walled_hosts), "seeded_at": date.today().isoformat(),
            "notes": ([f"classifier called {h} a company host; ignored" for h in sorted(set(suspicious))])}
-    return {"registry": reg, "unreadable": unreadable, "cited_hosts": dict(hosts.most_common(12))}
+    return {"registry": reg, "unreadable": unreadable, "cited_hosts": dict(hosts.most_common(12)), "walled_hosts": sorted(walled_hosts)}
 
 
 def _bare(url: str) -> str:
@@ -306,15 +340,19 @@ def render_html(plans: dict) -> str:
         parts.append(f"<p>Main host: <code>{_html.escape(str(reg.get('main_host')))}</code>. Cited company hosts: "
                      + ", ".join(f"<code>{_html.escape(h)}</code> ×{n}" for h, n in pl["cited_hosts"].items()) + "</p>")
         parts.append("<p>News queries: " + ", ".join(f"<code>{_html.escape(q)}</code>" for q in reg["news_queries"]) + "</p>")
-        parts.append("<table><tr><th>kind</th><th>url</th><th>cadence</th><th>probe</th></tr>")
+        parts.append("<table><tr><th>kind</th><th>url</th><th>how it is read</th><th>cadence</th></tr>")
         for s_ in reg["sources"]:
-            parts.append(f"<tr><td>{_html.escape(s_['kind'])}{' (feed)' if s_['feed'] else ''}</td><td><a href='{_html.escape(s_['url'])}'>{_html.escape(s_['url'])}</a></td>"
-                         f"<td class=muted>{_html.escape(s_.get('cadence') or 'daily')}</td><td class=muted>{_html.escape(s_.get('probe') or '')}</td></tr>")
-        real_bad = [b for b in bad if not b.get("guessed") or not (b["why"].startswith("http_error 404") or "BlockedURLError" in b["why"])]
-        for b in real_bad:
-            parts.append(f"<tr><td class=bad>{_html.escape(b['kind'])}</td><td class=bad>{_html.escape(b['url'])}</td><td></td><td class=bad>cannot be sensed: {_html.escape(b['why'])}</td></tr>")
+            how = "feed" if s_["feed"] else (s_.get("read") or "plain")
+            parts.append(f"<tr><td>{_html.escape(s_['kind'])}</td><td><a href='{_html.escape(s_['url'])}'>{_html.escape(s_['url'])}</a></td>"
+                         f"<td>{_html.escape(how)} <span class=muted>({_html.escape(s_.get('probe') or '')})</span></td><td class=muted>{_html.escape(s_.get('cadence') or 'daily')}</td></tr>")
+        challenge = [b for b in bad if b.get("challenge")]
+        other_bad = [b for b in bad if not b.get("challenge") and (not b.get("guessed") or not (b["why"].startswith("http_error 404") or "BlockedURLError" in b["why"]))]
+        for b in challenge:
+            parts.append(f"<tr><td class=bad>{_html.escape(b['kind'])}</td><td class=bad>{_html.escape(b['url'])}</td><td class=bad>needs TinyFish (bot wall)</td><td></td></tr>")
+        for b in other_bad:
+            parts.append(f"<tr><td class=bad>{_html.escape(b['kind'])}</td><td class=bad>{_html.escape(b['url'])}</td><td class=bad>unreadable: {_html.escape(b['why'])}</td><td></td></tr>")
         parts.append("</table>")
-        guessed = len(bad) - len(real_bad)
+        guessed = len(bad) - len(challenge) - len(other_bad)
         if guessed:
             parts.append(f"<p class=muted>{guessed} guessed standard path(s) do not exist on this host (not listed).</p>")
         for n in reg.get("notes") or []:
@@ -331,6 +369,8 @@ def main() -> None:
     ap.add_argument("--html", default="")
     ap.add_argument("--write", action="store_true")
     ap.add_argument("--archive", action="store_true", help="plan from v2/archive (the rehearsal cards) instead of the live cards")
+    ap.add_argument("--no-render", action="store_true", help="skip the headless-browser tier")
+    ap.add_argument("--cover", default="", help="coverage.json from sensor_coverage.py: add every uncovered host's cited section page as a third-party source")
     a = ap.parse_args()
     slugs = [s.strip() for s in a.slugs.split(",") if s.strip()] or None
     names = {n.strip().lower() for n in a.names.split(",") if n.strip()}
@@ -341,11 +381,32 @@ def main() -> None:
         if names and rec["name"].lower() not in names:
             continue
         print(f"[seed] {rec['name']} ({key}) from {len(rec['cards'])} card(s) ...", flush=True)
-        pl = plan_entity(key, rec["name"], rec["cards"])
+        pl = plan_entity(key, rec["name"], rec["cards"], render=not a.no_render)
         if key in overrides:
             pl["registry"]["news_queries"] = list(overrides[key])
         plans[key] = pl
         print(f"       {len(pl['registry']['sources'])} source(s) kept, {len(pl['unreadable'])} unreadable, queries {pl['registry']['news_queries']}")
+    if a.cover:
+        # the gate: a host Scout cited that no index carries is watched directly (its section page)
+        from urllib.parse import urlparse
+        for r in json.load(open(a.cover)):
+            if r.get("channel") != "uncovered" or not r.get("example"):
+                continue
+            pth = urlparse(r["example"])
+            parts = [x for x in pth.path.split("/") if x]
+            sec = f"{pth.scheme}://{pth.netloc}/" + (parts[0] if parts and not parts[0][:4].isdigit() else "")
+            for slug in r.get("cards") or []:
+                key = slug.split("__vs__")[1].split("__")[0]        # the card's competitor, slugified = the entity key
+                if key not in plans:
+                    continue
+                reg = plans[key]["registry"]
+                if any(_bare(s_["url"]) == _bare(sec) for s_ in reg["sources"]):
+                    continue
+                cat, detail = categorize(sec)
+                ok = cat in ("clean_html", "pdf_clean")
+                reg["sources"].append({"url": sec, "kind": "third_party", "feed": False, "added_by": "coverage", "added_on": date.today().isoformat(),
+                                       "cadence": "daily", "noise": 0, "read": "plain", "probe": f"{'plain' if ok else cat}: cited host no index carries"})
+                print(f"[seed] coverage: {r['host']} -> {reg['name']} ({sec}, {cat})")
     json.dump(plans, open(a.out, "w"), indent=1, ensure_ascii=False)
     print(f"[seed] wrote {a.out}")
     if a.html:
@@ -356,6 +417,7 @@ def main() -> None:
             reg = dict(pl["registry"])
             for s_ in reg["sources"]:
                 s_.pop("probe", None)
+            reg["challenge"] = [{"url": b["url"], "kind": b["kind"]} for b in pl["unreadable"] if b.get("challenge")]
             registry.save(key, reg, f"sensors: seed {key}")
             print(f"[seed] saved registry {key} ({len(reg['sources'])} sources)")
 
