@@ -9,3 +9,4 @@ beautifulsoup4==4.14.3
 rapidfuzz==3.14.5
 pypdf==6.12.2
 streamlit-javascript
+playwright==1.61.0          # the sensors' rendered-fetch tier (headless Chromium); the browser itself is installed by the workflow

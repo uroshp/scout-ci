@@ -448,3 +448,59 @@ class Seeding(unittest.TestCase):
         m = self.m
         self.assertEqual(m._section_page("https://www.anthropic.com/news/claude-5"), "https://www.anthropic.com/news")
         self.assertEqual(m._section_page("https://techcrunch.com/2026/10/03/story"), "https://techcrunch.com/")
+
+
+class RenderedTier(unittest.TestCase):
+    """The three-tier page read: plain, then the headless browser, then `challenge` (no browser is
+    launched here: the renderer is faked)."""
+
+    def _plain(self, status=200, text=PRICING, error=None):
+        return lambda url, etag=None, lm=None: {"status": status, "text": text, "etag": None, "last_modified": None, "error": error, "unchanged": False}
+
+    def test_plain_read_with_text_stays_plain(self):
+        from scout.sensors import collect, rendered
+        src, pst = {"url": "https://acme.example/pricing"}, {}
+        with mock.patch.object(collect, "fetch", self._plain()), mock.patch.object(rendered, "fetch", side_effect=AssertionError("must not render")), \
+             mock.patch.object(config, "SENSOR_RENDERED", True):
+            r, blocks, tier = collect.read_page(src["url"], pst, src)
+        self.assertEqual(tier, "plain"); self.assertGreaterEqual(len(blocks), 3); self.assertNotIn("read", src)
+
+    def test_blocked_or_thin_falls_to_the_browser_and_remembers_it(self):
+        from scout.sensors import collect, rendered
+        src, pst = {"url": "https://acme.example/pricing"}, {}
+        with mock.patch.object(collect, "fetch", self._plain(status=403, text=None, error="HTTP 403")), \
+             mock.patch.object(rendered, "fetch", return_value={"status": 200, "text": PRICING, "error": None, "challenge": False, "title": "Pricing"}), \
+             mock.patch.object(config, "SENSOR_RENDERED", True):
+            r, blocks, tier = collect.read_page(src["url"], pst, src)
+        self.assertEqual(tier, "rendered"); self.assertGreaterEqual(len(blocks), 3); self.assertEqual(src["read"], "rendered")
+        # a JavaScript shell (200 with no text) takes the same path
+        src2 = {"url": "https://acme.example/app"}
+        with mock.patch.object(collect, "fetch", self._plain(text="<html><body><div id=root></div></body></html>")), \
+             mock.patch.object(rendered, "fetch", return_value={"status": 200, "text": PRICING, "error": None, "challenge": False, "title": ""}), \
+             mock.patch.object(config, "SENSOR_RENDERED", True):
+            _, blocks2, tier2 = collect.read_page(src2["url"], {}, src2)
+        self.assertEqual(tier2, "rendered")
+
+    def test_bot_wall_is_a_challenge_not_a_finding(self):
+        from scout.sensors import collect, rendered
+        src = {"url": "https://walled.example/pricing"}
+        with mock.patch.object(collect, "fetch", self._plain(status=403, text=None, error="HTTP 403")), \
+             mock.patch.object(rendered, "fetch", return_value={"status": 403, "text": None, "error": "bot wall (challenge page)", "challenge": True, "title": "Just a moment..."}), \
+             mock.patch.object(config, "SENSOR_RENDERED", True):
+            r, blocks, tier = collect.read_page(src["url"], {}, src)
+        self.assertEqual(tier, "challenge"); self.assertEqual(src["read"], "challenge"); self.assertIn("bot wall", r["error"])
+
+    def test_renderer_off_keeps_the_plain_failure(self):
+        from scout.sensors import collect, rendered
+        src = {"url": "https://acme.example/pricing"}
+        with mock.patch.object(collect, "fetch", self._plain(status=403, text=None, error="HTTP 403")), \
+             mock.patch.object(rendered, "fetch", side_effect=AssertionError("renderer off")), \
+             mock.patch.object(config, "SENSOR_RENDERED", False):
+            r, blocks, tier = collect.read_page(src["url"], {}, src)
+        self.assertEqual(tier, "failed")
+
+    def test_challenge_markers(self):
+        from scout.sensors import rendered
+        self.assertTrue(rendered.is_challenge("<html><title>Just a moment...</title></html>"))
+        self.assertTrue(rendered.is_challenge("<p>Please verify you are a human</p>"))
+        self.assertFalse(rendered.is_challenge("<html><title>Pricing</title><p>Team plan $20</p></html>", "Pricing"))

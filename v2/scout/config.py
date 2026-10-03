@@ -438,6 +438,11 @@ if SENSORS_MODE not in ("off", "shadow", "gate"):
 SENSOR_GATE_RUNS = int(os.environ.get("SCOUT_SENSOR_GATE_RUNS", "7"))
 SENSOR_SWEEP = os.environ.get("SCOUT_SENSOR_SWEEP", "1") == "1"       # the weekly model-triage audit in gate mode
 SENSOR_SWEEP_DAYS = int(os.environ.get("SCOUT_SENSOR_SWEEP_DAYS", "7"))
+# The rendered-fetch tier (headless Chromium via Playwright) for pages the plain fetcher cannot read
+# (JavaScript shells, 401/403 to a plain client). A bot wall that defeats the browser too is recorded
+# as `challenge` and shown as unreadable until a browser infrastructure (TinyFish Fetch) is wired.
+SENSOR_RENDERED = os.environ.get("SCOUT_SENSOR_RENDERED", "1") == "1"
+SENSOR_TINYFISH_KEY = os.environ.get("SCOUT_TINYFISH_KEY", "").strip()      # reserved: the third tier, when he has a key
 
 # Rehearsal mode (2026-10-03): the monitor's REAL write path, run on a retired card that lives in a
 # store root outside the checkout (SCOUT_STORE_ROOT) with every private-store write under the
