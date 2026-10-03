@@ -955,8 +955,7 @@ def _how_panel() -> str:
     fig_li = (f'<li>Claims: <span class="hw-num">{fig["claims"]}</span> total on '
               f'<span class="hw-num">{fig["cards"]}</span> cards, <span class="hw-num">{fig["updates"]}</span> '
               f'update{"" if fig["updates"] == 1 else "s"} {fig["when"]}.</li>') if fig else ""
-    asof = (f'<span class="hw-asof"><span class="live"><span class="pulse"></span>LIVE</span> &middot; '
-            f'figures read live &middot; last run {fig["run"]}</span>' if fig else "")
+    asof = ""                                              # the footer carries links only (2026-10-02 night)
     return (
         '<div class="how" id="how" hidden>'
         '<button type="button" class="hw-close" data-how aria-expanded="true" aria-controls="how" aria-label="Close">&#215;</button>'
@@ -999,12 +998,10 @@ def _how_panel() -> str:
         '<li>Models are compared only on the same set of calls.</li></ul></div>'
         '</div>'
         '<div class="hw-foot"><span class="hw-links">'
-        '<a href="#trail" id="how-trail">Verification trail on this card &darr;</a>'
-        '<a href="#" id="how-ask">Ask Scout</a>'
         f'<a href="{_html.escape(config.SOURCE_REPO_URL)}" target="_blank" rel="noopener">Code on GitHub</a>'
-        f'<a href="{_html.escape(config.SOURCE_REPO_URL)}/blob/main/v2/docs/mcp.md" target="_blank" rel="noopener">MCP</a>'
+        f'<a href="{_html.escape(config.SOURCE_REPO_URL)}/blob/main/v2/docs/mcp.md" target="_blank" rel="noopener">Agent Scout via MCP</a>'
         f'<a href="{_html.escape(config.AUTHOR_LINKEDIN)}" target="_blank" rel="noopener">Contact me</a>'
-        f'</span>{asof}</div>'
+        '</span></div>'
         '</div>')
 
 
@@ -1024,11 +1021,6 @@ _HOW_JS = (
     "function fromHash(){if(location.hash==='#how'&&p.hidden){set(true,'link');"
     "try{p.scrollIntoView({block:'start'});}catch(e){}}}"
     "fromHash();window.addEventListener('hashchange',fromHash);"
-    "function links(){var t=document.getElementById('how-trail');"
-    "if(t&&!document.getElementById('trail'))t.hidden=true;"
-    "var a=document.getElementById('how-ask'),f=document.getElementById('ask-fab');"
-    "if(a){if(!f){a.hidden=true;}else{a.addEventListener('click',function(e){e.preventDefault();f.click();});}}}"
-    "if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',links);}else{links();}"
     "})();</script>")
 
 _STRIP_JS = (

@@ -57,7 +57,7 @@ class HowPanel(unittest.TestCase):
         with mock.patch.object(page, "_how_figures", return_value=None):
             html = page.masthead_html()
         self.assertNotIn("Claims:", html)
-        self.assertNotIn("figures read live", html)
+        self.assertNotIn("hw-asof", html)
         self.assertIn('id="how"', html)
 
     def test_a_broken_panel_never_breaks_the_page(self):
