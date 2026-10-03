@@ -209,7 +209,7 @@ class Checkin(unittest.TestCase):
 
     def test_streak_advances_only_with_snapshot(self):
         rows, labels = self._results(6, 12)                      # precision 0.33 < bar, 18 adjudicated
-        prior_snap = {"cells": {"apple_ondevice|judge": {"period_key": json.dumps(sorted({'{"v": 1}|' + rows[0]["reference"]["model"]})),
+        prior_snap = {"cells": {"apple_ondevice|judge": {"period_key": json.dumps(sorted({'{"v": 1}|' + rows[0]["reference"]["model"] + "+instr:" + rows[0]["instructions_sha"]})),
                                                          "precision": 0.4, "adjudicated": 18, "no_improve_streak": 1}}}
         store = {"model_checkin/20260915T060000.json": json.dumps(prior_snap)}
         with mock.patch.object(mc, "load_results", return_value=rows), mock.patch.object(mc, "load_labels", return_value=labels), \

@@ -1,5 +1,6 @@
 """Audience leads, Level 2 (2026-10-02): planned from the card, authored and judged like any edit,
 applied only when confirmed, never without the pack block, never a retire without its replacement."""
+import json
 import unittest
 from unittest import mock
 
@@ -105,3 +106,43 @@ class Optional(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PeriodKey(unittest.TestCase):
+    """An eval period is keyed per role on the instructions the call received (2026-10-03)."""
+    def test_fingerprint_is_stable_and_shape_independent(self):
+        from scout import calllog
+        class O:
+            def __init__(self, sp): self.system_prompt = sp
+        a = judgment.instructions_sha(calllog._system_of(O("rules")))
+        self.assertEqual(a, judgment.instructions_sha(calllog._system_of(O("rules"))))
+        self.assertNotEqual(a, judgment.instructions_sha(calllog._system_of(O("rules v2"))))
+        self.assertIsNone(judgment.instructions_sha(None))
+
+    def test_period_suffix_prefers_fingerprint_then_baseline_then_pack(self):
+        from scout import modelcompare
+        with mock.patch.object(modelcompare, "_baseline_instructions", return_value={"judge": "cb6226799ecd"}):
+            self.assertEqual(modelcompare._period_suffix({"instructions_sha": "abc", "role": "judge"}), "instr:abc")
+            self.assertEqual(modelcompare._period_suffix({"role": "judge", "judgment_version": "zzz"}), "instr:cb6226799ecd")
+            self.assertEqual(modelcompare._period_suffix({"role": "orchestrator", "judgment_version": "zzz"}), "pack:zzz")
+            self.assertEqual(modelcompare._period_suffix({"role": "orchestrator", "judgment_version": judgment.BASELINE_VERSION}), "baseline")
+
+    def test_adding_an_unrelated_block_keeps_a_roles_period(self):
+        from scout import modelcompare
+        old = {"role": "judge", "judgment_version": judgment.BASELINE_VERSION}            # before fingerprints
+        new = {"role": "judge", "judgment_version": "newpack", "instructions_sha": "cb6226799ecd"}
+        with mock.patch.object(modelcompare, "_baseline_instructions", return_value={"judge": "cb6226799ecd"}):
+            self.assertEqual(modelcompare._period_suffix(old), modelcompare._period_suffix(new))
+
+
+class CheckinPeriod(unittest.TestCase):
+    def test_pre_fingerprint_snapshot_matches_a_baseline_suffixed_key(self):
+        import importlib.util, os
+        spec = importlib.util.spec_from_file_location("model_checkin", os.path.join(os.path.dirname(__file__), "..", "scripts", "model_checkin.py"))
+        mck = importlib.util.module_from_spec(spec); spec.loader.exec_module(mck)
+        from scout import modelcompare
+        old = json.dumps(['{"v": 1}|claude-opus-4-8'])
+        with mock.patch.object(modelcompare, "_baseline_instructions", return_value={"judge": "cb6226799ecd"}):
+            self.assertTrue(mck._same_period(old, json.dumps(['{"v": 1}|claude-opus-4-8+instr:cb6226799ecd']), "judge"))
+            self.assertTrue(mck._same_period(old, json.dumps(['{"v": 1}|claude-opus-4-8+baseline']), "judge"))
+            self.assertFalse(mck._same_period(old, json.dumps(['{"v": 1}|claude-opus-4-8+instr:ffffffffffff']), "judge"))
