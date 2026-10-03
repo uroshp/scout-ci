@@ -424,6 +424,26 @@ SELFSERVE_DATA_READ_FALLBACK = os.environ.get("SCOUT_SELFSERVE_DATA_READ_FALLBAC
 SELFSERVE_DISPATCH_REPO = os.environ.get("SCOUT_SELFSERVE_DISPATCH_REPO", "uroshp/scout-ci")
 SELFSERVE_DISPATCH_WORKFLOW = os.environ.get("SCOUT_SELFSERVE_DISPATCH_WORKFLOW", "selfserve.yml")
 
+# Sensors (Release 2, 2026-10-04): code reads every registered source about each company every
+# morning; a model (the screen) reads what is new. SCOUT_SENSORS is a repo variable like SCOUT_SIGNALS:
+#   off     today's behaviour, byte for byte
+#   shadow  the pass and the screen run next to the unchanged triage; a compare record per card per
+#           run says whether a finding was behind every alert that landed; the FYI shows the streak
+#   gate    the screen's candidates ARE the candidates; triage runs only on the card's weekly sweep
+#           day, on a held window, on a filing-dispatched run, or when the entity's sensors were
+#           unavailable. Cutover needs SENSOR_GATE_RUNS consecutive clean shadow runs (his call).
+SENSORS_MODE = (os.environ.get("SCOUT_SENSORS", "off").strip().lower() or "off")
+if SENSORS_MODE not in ("off", "shadow", "gate"):
+    SENSORS_MODE = "off"
+SENSOR_GATE_RUNS = int(os.environ.get("SCOUT_SENSOR_GATE_RUNS", "7"))
+SENSOR_SWEEP = os.environ.get("SCOUT_SENSOR_SWEEP", "1") == "1"       # the weekly model-triage audit in gate mode
+SENSOR_SWEEP_DAYS = int(os.environ.get("SCOUT_SENSOR_SWEEP_DAYS", "7"))
+# The rendered-fetch tier (headless Chromium via Playwright) for pages the plain fetcher cannot read
+# (JavaScript shells, 401/403 to a plain client). A bot wall that defeats the browser too is recorded
+# as `challenge` and shown as unreadable until a browser infrastructure (TinyFish Fetch) is wired.
+SENSOR_RENDERED = os.environ.get("SCOUT_SENSOR_RENDERED", "1") == "1"
+SENSOR_TINYFISH_KEY = os.environ.get("SCOUT_TINYFISH_KEY", "").strip()      # reserved: the third tier, when he has a key
+
 # Rehearsal mode (2026-10-03): the monitor's REAL write path, run on a retired card that lives in a
 # store root outside the checkout (SCOUT_STORE_ROOT) with every private-store write under the
 # `rehearsal/` prefix and every email subject prefixed "[rehearsal]". A rehearsal on main proves
