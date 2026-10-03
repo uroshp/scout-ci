@@ -941,12 +941,12 @@ def _how_panel() -> str:
     (2026-10-02): every model lane looks the same."""
     fast, orch, sub = (_model_label(m) for m in
                        (config.FAST_MODEL, config.ORCHESTRATOR_MODEL, config.SUBAGENT_MODEL))
-    steps = (("Step 1", "Watch", "Scans each competitor for what changed since yesterday."),
-             ("Step 2", "Weigh", "Decides whether a change matters in a deal and which parts of the card it touches."),
-             ("Step 3", "Write", "Drafts the edit from the source, with its link and date attached."),
-             ("Step 4", "Judge", "Checks the edit against the source and rules on it."))
-    flow = "".join(f'<div class="hw-step"><div class="hw-n">{n}</div><div class="hw-t">{t}</div>'
-                   f'<div class="hw-d">{d}</div></div>' for n, t, d in steps)
+    steps = (("Step 1", "Watch", "Scans each competitor for what changed since yesterday.", fast),
+             ("Step 2", "Weigh", "Decides whether a change matters in a deal and which parts of the card it touches.", orch),
+             ("Step 3", "Write", "Drafts the edit from the source, with its link and date attached.", sub),
+             ("Step 4", "Judge", "Checks the edit against the source and rules on it.", orch))
+    flow = "".join(f'<div class="hw-step"><div class="hw-n">{n} <span class="hw-m">{_html.escape(m)}</span></div><div class="hw-t">{t}</div>'
+                   f'<div class="hw-d">{d}</div></div>' for n, t, d, m in steps)
     flow += ('<div class="hw-step hw-dec"><div class="hw-n">Output</div><div class="hw-t">Decision</div>'
              '<div class="hw-states">'
              '<div class="hw-state pub"><b>Publish</b><span>Along with source and date</span></div>'
@@ -979,7 +979,12 @@ def _how_panel() -> str:
         '<div class="hw-ev"><div class="hw-evh">Evaluated</div>'
         '<p>Every decision above is logged and replayed by challenger models. Disputed calls go to a '
         'blind arbiter.</p></div>'
-        f'{lanes}</div></div>'
+        f'{lanes}</div>'
+        '<div class="hw-chal"><div class="hw-evh">Evaluated</div>'
+        '<p>Every decision above is logged and replayed by challenger models. Disputed calls go to a blind arbiter.</p>'
+        '<div class="hw-chips"><span class="hw-chip"><b>Default</b> Anthropic</span>'
+        + "".join(f'<span class="hw-chip"><b>{_html.escape(co)}</b> {_html.escape(mo)}</span>' for co, mo in _HOW_CHALLENGERS)
+        + '</div></div></div>'
         '<div class="hw-cols">'
         '<div class="hw-col"><h4>The product</h4><ul>'
         '<li>Every claim is a deal-mover.</li>'
@@ -1163,6 +1168,30 @@ _OVERRIDES = """
 #scout-page .aud-obj .ptop{display:flex;justify-content:flex-end;margin-bottom:2px}
 #scout-page .aud-obj p{margin:0 0 6px;font-size:14px}
 #scout-page details.sec.folded>summary{opacity:.75}
+#scout-page .hw-m,#scout-page .hw-chal{display:none}
+#scout-page .hw-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+#scout-page .hw-chip{font-family:var(--mono);font-size:10.5px;color:var(--accent-deep);background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:999px;padding:3px 9px}
+#scout-page .hw-chip b{font-weight:600;color:var(--ink);margin-right:4px}
+@media(max-width:760px){
+  #scout-page .hw-lanes{display:none!important}
+  #scout-page .hw-chal{display:block!important;border:1px dashed var(--accent-line);border-radius:7px;padding:10px 12px}
+  #scout-page .hw-sys{padding-right:40px}
+  #scout-page .hw-states{flex-direction:column}
+  #scout-page .hw-chal p{font-size:12.5px;color:var(--muted);line-height:1.42;margin:2px 0 0}
+  #scout-page .hw-m{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--accent-deep);background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+  #scout-page .hw-row{display:block}
+  #scout-page .hw-row > .hw-ln{display:none}
+  #scout-page .hw-flow{grid-template-columns:1fr}
+  #scout-page .hw-step{border-right:0;border-bottom:1px solid var(--line2);padding:10px 12px 11px}
+  #scout-page .hw-step:last-child{border-bottom:0}
+  #scout-page .hw-step:not(:last-child)::after{right:auto;left:22px;top:auto;bottom:-6px;transform:rotate(135deg)}
+  #scout-page .hw-states{flex-direction:row;flex-wrap:wrap;gap:6px}
+  #scout-page .hw-state{flex:1 1 30%;padding:5px 8px}
+  #scout-page .hw-cols{grid-template-columns:1fr;gap:16px}
+  #scout-page .how{padding:16px 14px 12px}
+  #scout-page .hw-h{font-size:19px;padding-right:36px}
+  #scout-page .hw-foot{flex-direction:column;align-items:flex-start;gap:8px}
+}
 #scout-page .hw-sys{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px}
 #scout-page .hw-asof .live{color:var(--win);font-weight:600;letter-spacing:.04em}
 @media(max-width:760px){
