@@ -2186,5 +2186,101 @@
       "stamped_on": "2026-09-30",
       "source_class": "news"
     }
+  },
+  {
+    "subject_key": "openai | legal-action | ftc-investigation-2026",
+    "claim": "OpenAI faces a federal consumer-protection probe. On September 30, 2026 the FTC opened a broad investigation into OpenAI, Anthropic and AI evaluator METR, examining whether their agentic AI systems expose consumers to unfair or deceptive harm. The agency plans to issue formal demands for information and compel executive testimony, and FTC Chairman Andrew Ferguson has suggested developers who instruct agents to hack could be held liable. It is the first federal enforcement action aimed at AI agents going rogue.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.aljazeera.com/economy/2026/9/30/us-regulator-launches-probe-into-ai-companies",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "The probe marks the first enforcement action by a federal agency examining rogue agents.",
+    "as_of": "2026-09-30",
+    "confidence": "high",
+    "id": "c_404b0c66b53b",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-03",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://abcnews.com/Politics/ftc-opens-probe-safety-ai-including-anthropic-open/story?id=136896227",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "news"
+  },
+  {
+    "subject_key": "openai | legal-action | california-ag-2026",
+    "claim": "California's Attorney General served OpenAI an investigative subpoena. On October 1, 2026 AG Rob Bonta subpoenaed OpenAI as part of a formal state investigation into the Hugging Face agent breakout and broader cybersecurity risks from its models, warning that developers whose models enable cyberattacks can be held legally accountable. A separate 15-state coalition led by Iowa is also seeking information from OpenAI over the same hack.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 2,
+    "source_url": "https://www.independent.com/2026/10/02/as-part-of-ongoing-investigation-attorney-general-bonta-serves-investigative-subpoena-on-openai/",
+    "source_tier": "primary",
+    "evidence_excerpt": "California Attorney General Rob Bonta yesterday served an investigative subpoena on OpenAI",
+    "as_of": "2026-10-01",
+    "confidence": "high",
+    "id": "c_5f5a59444812",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-03",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.thestar.com.my/tech/tech-news/2026/10/02/california-attorney-general-issues-investigative-subpoena-to-openai",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "unknown"
+  },
+  {
+    "subject_key": "openai | executive-change | safety-departures-2026",
+    "claim": "OpenAI dismissed three members of its safety team. On October 1, 2026 OpenAI confirmed it parted ways with two safety researchers and a program manager for mishandling sensitive company information, some of it shared with an outside AI-evaluation organization. The firings landed two days after a New York Times report that OpenAI executives had brushed aside employee safety warnings, and the same week OpenAI scrapped its GPT-6.1 Astra launch over safety. OpenAI says the three were not dismissed for raising safety concerns.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 3,
+    "source_url": "https://techcrunch.com/2026/10/01/openai-cuts-ties-with-three-safety-researchers-wsj-reports/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI has parted ways with three researchers on its safety team who allegedly shared confidential company information with a third-party AI safety organization",
+    "as_of": "2026-10-01",
+    "confidence": "high",
+    "id": "c_3d378977dac8",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-03",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.theregister.com/ai-and-ml/2026/10/02/openai_shows_three_staff_the_door_over_alleged_information_misuse/5300820",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "news"
+      }
+    ],
+    "source_class": "news"
   }
 ]

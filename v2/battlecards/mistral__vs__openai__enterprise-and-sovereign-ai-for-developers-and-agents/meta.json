@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise and sovereign AI for developers and agents",
   "baseline_date": "2026-06-17",
-  "last_checked": "2026-10-02T11:10:28",
+  "last_checked": "2026-10-03T11:31:12",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_911e9a6938ba",
@@ -58,7 +58,10 @@
     "f_a2fa26d55a19",
     "f_966775d3017d",
     "f_3cdffdcc9733",
-    "f_b841ed825ba1"
+    "f_b841ed825ba1",
+    "f_3b01dcc5b7e8",
+    "f_88674b041783",
+    "f_bc5348048408"
   ],
   "monitored": true,
   "lead_election": {
@@ -73,11 +76,5 @@
       }
     ]
   },
-  "last_check_reason": "scheduled",
-  "unresolved_subjects": [
-    "mistral | product-discontinuation-leanstral-2026",
-    "openai | regulatory-action-ftc-2026"
-  ],
-  "unresolved_since": "2026-09-30",
-  "unresolved_attempts": 2
+  "last_check_reason": "scheduled"
 }

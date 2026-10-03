@@ -1742,15 +1742,15 @@
   },
   {
     "subject_key": "google | product-launch | googlebook",
-    "claim": "Google set Googlebook pre-orders to open September 21, 2026 at 9AM ET, with the first models shipping this fall from Acer, Asus, Dell, HP and Lenovo. Googlebooks are flagship laptops running a version of ChromeOS built on Android, with Gemini Intelligence in the OS powering features like Magic Pointer and Create My Widget, plus deep Android-phone integration. Google has not published prices yet.",
+    "claim": "Googlebook laptops go on sale October 4, 2026 in the US and October 5 in Canada, the UK, Ireland, France, Germany and Australia, starting at $899 from Acer, Dell, HP, ASUS and Lenovo. Every unit bundles 12 months of Google AI Pro with 5TB cloud storage and Gemini Advanced, so Google is subsidizing a full year of its $19.99/month paid AI tier (about $240 of value) onto every buyer to embed Gemini in the laptop.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 50,
-    "source_url": "https://googlebook.google/",
+    "order": 2,
+    "source_url": "https://9to5google.com/2026/09/21/googlebook-launch/",
     "source_tier": "primary",
-    "evidence_excerpt": "The first wave of Googlebooks launching during fall this year will be made by leading laptop manufacturers like Acer, Asus, Dell, HP and Lenovo.",
-    "as_of": "2026-09-14",
+    "evidence_excerpt": "Each purchase includes 12 months of Google AI Pro, 3 months of YouTube Premium, Adobe Photoshop, and CapCut.",
+    "as_of": "2026-10-03",
     "confidence": "high",
     "id": "c_2e670cc73718",
     "verified": true,
@@ -1758,16 +1758,16 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-09-16",
+      "fetched_at": "2026-10-03",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://www.engadget.com/2258035/pre-orders-for-the-android-based-googlebook-laptops-open-on-september-21/",
+        "source_url": "https://www.androidauthority.com/google-googlebook-laptops-launch-features-models-price-specs-availability-3713215/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false,
-        "source_class": "news"
+        "source_class": "unknown"
       }
     ],
     "source_class": "company_statement"
