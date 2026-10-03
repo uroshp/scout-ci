@@ -76,6 +76,7 @@ secret_ensure() {   # secret_ensure NAME  (generate once, keep thereafter)
 secret_set scout-anthropic-key "$ANTHROPIC_API_KEY"
 secret_ensure scout-ask-viewer-secret
 secret_ensure scout-ask-api-keys
+secret_ensure scout-ask-slack-key      # Agent Scout in Slack (2026-10-02): the bot's own caller key
 
 # 2. build + deploy the image (Cloud Build, the engine's cloudbuild file)
 SHA=$(git -C "$REPO_ROOT" rev-parse --short HEAD)
@@ -96,7 +97,7 @@ ORIGINS="$VIEWER_URL"; [ "$VIEWER_URL2" != "$VIEWER_URL" ] && ORIGINS="$ORIGINS,
 gcloud run deploy "$ENGINE_SERVICE" --image "$IMAGE" --region "$REGION" --allow-unauthenticated --quiet \
   --min-instances 0 --max-instances 2 --memory 1Gi --cpu 1 --concurrency 1 --timeout 600 --port 8081 \
   --set-env-vars "^|^SCOUT_SELFSERVE_DATA_PREFIX=${DATA_PREFIX}|SCOUT_SELFSERVE_DATA_READ_FALLBACK=1|SELFSERVE_REPO=${DATA_REPO}|SCOUT_ASK_DAILY_CEILING_USD=${CEILING}|SCOUT_CALL_CAPTURE=${CALL_CAPTURE}|SCOUT_ASK_CANNED=${ASK_CANNED}|SCOUT_MCP=${MCP_ENABLED}|ASK_ALLOWED_ORIGINS=${ORIGINS}" \
-  --set-secrets "ANTHROPIC_API_KEY=scout-anthropic-key:latest,ASK_VIEWER_SECRET=scout-ask-viewer-secret:latest,ASK_API_KEYS=scout-ask-api-keys:latest,SELFSERVE_GH_TOKEN=scout-gh-token:latest" >/dev/null
+  --set-secrets "ANTHROPIC_API_KEY=scout-anthropic-key:latest,ASK_VIEWER_SECRET=scout-ask-viewer-secret:latest,ASK_API_KEYS=scout-ask-api-keys:latest,ASK_SLACK_KEY=scout-ask-slack-key:latest,SELFSERVE_GH_TOKEN=scout-gh-token:latest" >/dev/null
 ENGINE_URL=$(gcloud run services describe "$ENGINE_SERVICE" --region "$REGION" --format='value(status.url)')
 echo "  ✓ $ENGINE_SERVICE at $ENGINE_URL (origins: $ORIGINS)"
 
@@ -112,3 +113,4 @@ echo
 echo "healthcheck: $(curl -s -m 20 "$ENGINE_URL/healthcheck")"
 echo "now live:    ceiling=\$$(live_env SCOUT_ASK_DAILY_CEILING_USD) call_capture=$(live_env SCOUT_CALL_CAPTURE) mcp=$(live_env SCOUT_MCP) canned=$(live_env SCOUT_ASK_CANNED)"
 echo "owner key:   gcloud secrets versions access latest --secret scout-ask-api-keys"
+echo "slack key:   gcloud secrets versions access latest --secret scout-ask-slack-key   (goes in ~/scout-slack/env on the mini)"

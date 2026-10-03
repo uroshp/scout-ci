@@ -1,0 +1,44 @@
+# Slack app manifest for Agent Scout (create the app from this at api.slack.com/apps -> From a manifest).
+display_information:
+  name: Agent Scout
+  description: Competitive briefs that stay fresh. Ask about a tracked competitor; every answer is verified against its sources.
+  background_color: "#2a4658"
+features:
+  bot_user:
+    display_name: Agent Scout
+    always_online: true
+  app_home:
+    messages_tab_enabled: true
+    messages_tab_read_only_enabled: false
+  assistant_view:
+    assistant_description: Ask about the competitors Scout tracks. Answers come only from claims verified against their sources.
+    suggested_prompts:
+      - title: Is the competitor cheaper?
+        message: The buyer says OpenAI is cheaper than Anthropic. Is it?
+      - title: What shipped lately?
+        message: What has Google shipped against Perplexity in the last 30 days?
+      - title: What will their rep say?
+        message: What will a Microsoft Teams rep say against Slack, and is it true?
+oauth_config:
+  scopes:
+    bot:
+      - app_mentions:read
+      - assistant:write
+      - chat:write
+      - im:history
+      - im:read
+      - im:write
+      - users:read
+settings:
+  event_subscriptions:
+    bot_events:
+      - app_mention
+      - assistant_thread_started
+      - assistant_thread_context_changed
+      - message.im
+      - team_join
+  interactivity:
+    is_enabled: true
+  org_deploy_enabled: false
+  socket_mode_enabled: true
+  token_rotation_enabled: false
