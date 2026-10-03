@@ -221,3 +221,52 @@ class Engine(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SlackCaller(unittest.TestCase):
+    """The Slack bot's key (2026-10-02): its own identity, its own cap inside the ceiling, and a
+    structured answer on the done frame."""
+    def setUp(self):
+        self.st = _Store()
+        self.p = [mock.patch.object(selfserve, "read_data", side_effect=self.st.read),
+                  mock.patch.object(selfserve, "update_data", side_effect=self.st.update),
+                  mock.patch.object(eng, "ASK_API_KEYS", ["owner-key"]), mock.patch.object(eng, "ASK_SLACK_KEY", "slack-key"),
+                  mock.patch.object(eng, "LEDGER", ledger.Ledger("ask/state.json", 10, 3)),
+                  mock.patch.object(eng, "SLACK_LEDGER", ledger.Ledger("ask/slack_state.json", 2.0, 0.5)),
+                  mock.patch.object(eng.calllog, "begin_run"), mock.patch.object(eng.calllog, "flush_run")]
+        for p in self.p:
+            p.start()
+        self.c = TestClient(eng.app)
+
+    def tearDown(self):
+        for p in self.p:
+            p.stop()
+
+    def _answer(self, cost):
+        def fake(question, **kw):
+            return {"id": "a_0123456789ab", "cost_usd": cost, "seconds": 20.0, "verified": True, "question": question, "kind": "quick",
+                    "paragraphs": [{"text": "X grew.", "cites": [1]}],
+                    "sources": [{"n": 1, "url": "https://www.cnbc.com/x", "class": "news", "tier": "reputable_secondary", "as_of": "2026-10-01"}],
+                    "cut_log": [{"claim": "y", "reason": "no source"}], "unanswered": [], "trajectory": {}, "competitor": "X", "card": None}
+        return fake
+
+    def test_slack_key_is_its_own_caller_and_the_done_frame_carries_data(self):
+        with mock.patch.object(eng.ask, "quick_ask", side_effect=self._answer(0.4)):
+            r = self.c.post("/ask", json={"question": "Did X grow?"}, headers={"Authorization": "Bearer slack-key"})
+        self.assertEqual(r.status_code, 200)
+        done = [e for e in _events(r) if e.get("done")][0]
+        a = done["answer"]
+        self.assertEqual(a["paragraphs"][0]["text"], "X grew."); self.assertEqual(a["sources"][0]["url"], "https://www.cnbc.com/x")
+        self.assertEqual(a["cut_log"][0]["claim"], "y"); self.assertTrue(a["permalink"].endswith("/answers/a_0123456789ab"))
+        s = json.loads(self.st.files["ask/slack_state.json"]); self.assertEqual(s["spend_usd"], 0.4)
+        self.assertEqual(json.loads(self.st.files["ask/state.json"])["spend_usd"], 0.4)   # the engine's ceiling is charged too
+
+    def test_slack_cap_refuses_before_the_engine_ceiling_and_releases_the_reservation(self):
+        with mock.patch.object(eng.ask, "quick_ask", side_effect=self._answer(1.9)):
+            self.c.post("/ask", json={"question": "one"}, headers={"Authorization": "Bearer slack-key"}).read()
+        r = self.c.post("/ask", json={"question": "two"}, headers={"Authorization": "Bearer slack-key"})
+        self.assertEqual(r.status_code, 429); self.assertIn("Slack budget", r.json()["message"])
+        self.assertEqual(json.loads(self.st.files["ask/state.json"])["in_flight_usd"], 0.0)   # nothing left reserved
+        # the owner is not blocked by Slack's cap
+        with mock.patch.object(eng.ask, "quick_ask", side_effect=self._answer(0.1)):
+            self.assertEqual(self.c.post("/ask", json={"question": "three"}, headers={"Authorization": "Bearer owner-key"}).status_code, 200)
