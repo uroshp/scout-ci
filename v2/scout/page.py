@@ -362,7 +362,49 @@ def sources_html(slug: str) -> str:
         blurb = f'<p class="srcblurb">{_html.escape(_CLASS_BLURB.get(k, ""))}</p>'
         secs.append(_section(f"src-{k}", _classify.CLASS_LABEL.get(k, k), f"{counts[k]}", blurb + "".join(rows)))
     return ('<div id="scout-page"><div class="wrap srcpage">' + head + f'<div class="srcchips big">{chips}</div>'
-            + warn + "".join(secs) + "</div></div>")
+            + warn + "".join(secs) + _coverage_html(meta) + "</div></div>")
+
+
+def _coverage_html(meta: dict) -> str:
+    """Release 2: what code WATCHES for this card's two companies (the sensor registries), with the
+    last read of each source and the ones that cannot be read. Empty when sensors are off or no
+    registry exists; never raises (the viewer's render path must not crash)."""
+    try:
+        from scout import config as _cfg
+        if getattr(_cfg, "SENSORS_MODE", "off") == "off":
+            return ""
+        from scout.sensors import registry as _reg
+        ents = _reg.entities_for(meta)
+        blocks = []
+        for e in ents:
+            reg = _reg.load(e["key"])
+            if not reg:
+                blocks.append(f'<div class="srchost"><div class="srchostline">{_html.escape(e["name"])}<span class="muted"> · news only until its sources are seeded</span></div></div>')
+                continue
+            rows = []
+            for src in sorted(reg.get("sources") or [], key=lambda x: (x.get("kind") or "", x.get("url") or "")):
+                st = src.get("last_status") or "not read yet"
+                bad = st in ("failed",) or (src.get("cadence") == "off")
+                rows.append(f'<li><a href="{_html.escape(src.get("url") or "#")}" target="_blank" rel="noopener">{_html.escape(_domain(src.get("url") or ""))}'
+                            f'{_html.escape(("/" + src["url"].split("/", 3)[3]) if src.get("url", "").count("/") >= 3 and src["url"].split("/", 3)[3] else "")}</a>'
+                            f'<span class="muted"> · {_html.escape(src.get("kind") or "page")}{" feed" if src.get("feed") else ""}'
+                            f' · {"cannot be read" if bad else _html.escape(st)}'
+                            + (f' · last read {_html.escape(str(src.get("last_ok"))[:10])}' if src.get("last_ok") else "") + "</span></li>")
+            q = ", ".join(_html.escape(x) for x in (reg.get("news_queries") or [])[:4])
+            blocks.append(f'<div class="srchost"><div class="srchostline">{_html.escape(reg.get("name") or e["name"])}'
+                          f'<span class="srcn">{len(rows)}</span></div>'
+                          + (f'<p class="srcblurb">News queries every morning: {q}</p>' if q else "")
+                          + f'<ul class="srcclaims">{"".join(rows)}</ul></div>')
+        if not blocks:
+            return ""
+        mode = getattr(_cfg, "SENSORS_MODE", "off")
+        blurb = ('<p class="srcblurb">Code reads these pages and feeds every morning and runs the news queries; a model reads '
+                 'only what changed. ' + ("Running in shadow next to the model search while it earns its place." if mode == "shadow"
+                                          else "The model search runs once a week as an audit.") + "</p>")
+        return _section("src-watch", "What Scout watches", f"{sum(len(_reg.load(e['key']).get('sources') or []) for e in ents if _reg.load(e['key']))}", blurb + "".join(blocks))
+    except Exception as ex:
+        print(f"[page] coverage block skipped ({type(ex).__name__}: {ex})")
+        return ""
 
 
 _TIER_TITLE = {
@@ -603,7 +645,9 @@ def _rail(status: dict, present: list, plays_n: int = 3, nav_ids: set | None = N
             chips += '<span class="new">NEW</span>'
         tb = a.get("triggered_by") or {}                      # WS3: this row came from a structured signal
         if tb.get("kind"):
-            label = {"filing": "new filing", "new_department": "new department"}.get(tb["kind"], tb["kind"])
+            label = {"filing": "new filing", "new_department": "new department", "page_change": "a watched page changed",
+                     "value_change": "a figure changed on a watched page", "feed_item": "the company's own feed",
+                     "news": "news sensor", "redesign": "a watched page was redesigned"}.get(tb["kind"], tb["kind"])
             chips += f'<span class="trig" title="{_html.escape(str(tb.get("summary") or ""))}">Triggered by: {_html.escape(label)}</span>'
         sw = a.get("so_what")
         swx = (f'<details class="swx"><summary>Why it matters</summary>'

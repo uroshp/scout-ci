@@ -748,10 +748,63 @@ def _health_lines(health: list[dict]) -> list[str]:
     return head + lines
 
 
-def render_run_fyi(cards: list[dict], cost_total: float | None = None, health: list[dict] | None = None) -> tuple[str, str, str]:
+def _sensors_lines(sensors: dict | None) -> tuple[list[str], str]:
+    """(text lines, html) for the Sensors block (Release 2): per card, what code read and what the
+    screen made of it; every Level A miss with its reason; the streak toward cutover."""
+    if not sensors or not sensors.get("rows"):
+        return [], ""
+    mode = sensors.get("mode")
+    lines, items = [], []
+    for r in sensors["rows"]:
+        label = _card_label(r.get("meta") or {}) if r.get("meta") else r.get("slug", "?")
+        if r.get("error"):
+            lines.append(f"{label}: compare failed ({_flat(r['error'])[:120]})")
+            items.append(f'<li><strong>{_esc(label)}</strong>: compare failed ({_esc(_flat(r["error"])[:120])})</li>')
+            continue
+        be = r.get("by_entity") or {}
+        read = "; ".join(f"{k}: {v.get('pages_checked') or 0} pages ({v.get('pages_changed') or 0} changed), "
+                         f"{v.get('feed_items') or 0} feed, {v.get('news_hits') or 0} news" for k, v in be.items() if isinstance(v, dict))
+        head = (f"{label}: {r.get('findings', 0)} finding(s) [{read}]; screen {r.get('screen_subst', 0)} substantial "
+                f"(${float(r.get('screen_cost') or 0):.3f})" + (f"; triage {r.get('triage_subst', 0)} substantial" if r.get("triage_subst") is not None else "")
+                + (f"; {r.get('misses_a', 0)} MISS(ES)" if r.get("misses_a") else "; 0 misses")
+                + ("; SENSORS UNAVAILABLE (model triage ran)" if r.get("unavailable") else ""))
+        lines.append(head)
+        sub = []
+        for m in r.get("misses") or []:
+            t = f"miss ({m.get('miss_reason')}): {m.get('subject_key')} via {m.get('host') or m.get('source_url')}"
+            lines.append("  " + t); sub.append(f"<li>{_esc(t)}</li>")
+        for m in (r.get("level_b_misses") or [])[:5]:
+            t = f"level B unmatched: {_flat(m.get('signal') or '')[:120]}"
+            lines.append("  " + t); sub.append(f"<li style=\"{_C_MUTED}\">{_esc(t)}</li>")
+        for m in (r.get("screen_only") or [])[:5]:
+            t = f"screen only ({'substantial' if m.get('substantial') else 'minor'}): {_flat(m.get('signal') or '')[:120]}"
+            lines.append("  " + t); sub.append(f"<li style=\"{_C_MUTED}\">{_esc(t)}</li>")
+        items.append(f'<li><strong>{_esc(label)}</strong>: {_esc(head[len(label) + 2:])}' + (f"<ul>{''.join(sub)}</ul>" if sub else "") + "</li>")
+    st = sensors.get("streak") or {}
+    if st:
+        last = (st.get("runs") or [{}])[-1]
+        tail = (f"Streak: {st.get('clean_streak', 0)} clean run(s) of {st.get('gate_runs', 7)} needed"
+                + (" (READY for your call)" if st.get("ready") else "")
+                + (f"; today not clean: {', '.join(last.get('reasons') or [])}" if last and not last.get("clean") else ""))
+        lines.append(tail)
+    else:
+        tail = ""
+    if sensors.get("pass_error"):
+        lines.append(f"Sensor pass error: {_flat(sensors['pass_error'])[:160]}")
+    title = "Sensors (shadow): what code read this morning, next to the unchanged triage" if mode == "shadow" else "Sensors"
+    html = (f'<h2 style="font-size:17px;margin:22px 0 8px">{_esc(title)}</h2>'
+            f'<ul style="font-size:13px;padding-left:18px">{"".join(items)}</ul>'
+            + (f'<div style="font-size:13px;font-weight:700;margin-top:6px">{_esc(tail)}</div>' if tail else "")
+            + (f'<div style="font-size:13px;color:#b0301c">Sensor pass error: {_esc(_flat(sensors["pass_error"])[:160])}</div>' if sensors.get("pass_error") else ""))
+    return [title] + lines, html
+
+
+def render_run_fyi(cards: list[dict], cost_total: float | None = None, health: list[dict] | None = None,
+                   sensors: dict | None = None) -> tuple[str, str, str]:
     """(subject, text, html) for the run's single FYI. `cards`: [{meta, alerts, applied (decisions
     that landed), deferred_n, election}] for cards where anything happened. `health` (2026-10-03):
-    every checked card's step table, rendered as the run-health footer."""
+    every checked card's step table, rendered as the run-health footer. `sensors` (Release 2): the
+    shadow comparison block and the cutover streak."""
     n_alerts = sum(len(c.get("alerts") or []) for c in cards)
     n_applied = sum(len(c.get("applied") or []) for c in cards)
     n_cards = len(cards)
@@ -760,9 +813,10 @@ def render_run_fyi(cards: list[dict], cost_total: float | None = None, health: l
         bits.append(f"{n_alerts} material change{'s' if n_alerts != 1 else ''}")
     if n_applied:
         bits.append(f"{n_applied} card update{'s' if n_applied != 1 else ''} applied")
-    subject = "Scout this morning: " + (", ".join(bits) if bits else "quiet run") + f" ({n_cards} card{'s' if n_cards != 1 else ''})"
-    lead = (f'<p><strong>{", ".join(bits) if bits else "Nothing material"}</strong> across {n_cards} '
-            f'card{"s" if n_cards != 1 else ""}. Updates are already on the cards; nothing here needs approval.</p>')
+    n_checked = len([h for h in (health or []) if not h.get("skipped")]) or n_cards
+    subject = "Scout this morning: " + (", ".join(bits) if bits else "quiet run") + (f" ({n_cards} card{'s' if n_cards != 1 else ''})" if n_cards else "")
+    lead = (f'<p><strong>{", ".join(bits) if bits else "Nothing material"}</strong> across {n_cards or n_checked} '
+            f'card{"s" if (n_cards or n_checked) != 1 else ""}. Updates are already on the cards; nothing here needs approval.</p>')
     text_lines = [subject, ""]
     blocks = []
     for c in cards:
@@ -787,6 +841,10 @@ def render_run_fyi(cards: list[dict], cost_total: float | None = None, health: l
             text_lines.append(f"- {c['deferred_n']} routine update(s) deferred by the consequentiality gate")
         text_lines.append("")
     foot = []
+    s_lines, s_html = _sensors_lines(sensors)
+    if s_lines:
+        blocks.append(s_html)
+        text_lines += [""] + s_lines + [""]
     if cost_total is not None:
         foot.append(f'<div style="{_C_MUTED};font-size:13px">Run cost: ${cost_total:.2f}</div>')
         text_lines.append(f"Run cost: ${cost_total:.2f}")
@@ -802,10 +860,12 @@ def render_run_fyi(cards: list[dict], cost_total: float | None = None, health: l
 
 
 def send_run_fyi(cards: list[dict], cost_total: float | None = None, dry_run: bool = True,
-                 health: list[dict] | None = None) -> dict:
-    if not cards:
+                 health: list[dict] | None = None, sensors: dict | None = None) -> dict:
+    # the FYI goes out every run day while sensors run in SHADOW (his decision 10/3: he watches the
+    # streak); otherwise a quiet morning sends nothing, as before
+    if not cards and not (sensors and sensors.get("rows") and sensors.get("mode") == "shadow"):
         return {"sent": False, "reason": "nothing to report"}
-    subject, text, html = render_run_fyi(cards, cost_total, health=health)
+    subject, text, html = render_run_fyi(cards, cost_total, health=health, sensors=sensors)
     return _dispatch(subject, text, dry_run=dry_run, html=html)
 
 
