@@ -65,8 +65,10 @@ def plan(claims: list, limit: int | None = None) -> dict:
     if not anchor or not anchor.get("source_url"):
         return {"lead": lead, "ops": [], "facts": [], "personas": []}
     brief = judgment.optional("audience._OP_BRIEF")
-    if brief is None:
-        return {"lead": lead, "ops": [], "facts": [], "personas": [], "skipped": "no audience._OP_BRIEF block in the pack"}
+    if brief is None or judgment.optional("audience._AUTHOR_ADDENDUM") is None \
+            or judgment.optional("audience._JUDGE_ADDENDUM") is None:
+        return {"lead": lead, "ops": [], "facts": [], "personas": [],
+                "skipped": "the pack lacks an audience block (audience._OP_BRIEF / _AUTHOR_ADDENDUM / _JUDGE_ADDENDUM)"}
     todo = []
     for p in personas_present(claims):
         have = audience_lead(claims, p)
@@ -82,20 +84,31 @@ def plan(claims: list, limit: int | None = None) -> dict:
         for c in own:
             if c.get("derived_from") in by_id and by_id[c["derived_from"]].get("source_url"):
                 fact_ids.add(c["derived_from"])
+        # The angle anchors on the buyer's strongest GROUNDED win, not on the general lead's fact:
+        # a lead can legitimately open on a back-foot fact (a scar the buyer will raise), and an
+        # audience angle built on that reads as opening the brief with our own weakness (the judge
+        # rejected exactly that, 2026-10-02). The general lead stays in the brief as context.
+        wins = sorted((c for c in own if c.get("section") == "battlecard" and c.get("zone") == "where_we_win"
+                       and c.get("derived_from") in by_id and by_id[c["derived_from"]].get("source_url")),
+                      key=lambda c: c.get("order", 0))
+        if not wins:                                       # no grounded win for this buyer: nothing to lead with
+            continue
+        own_anchor = by_id[wins[0]["derived_from"]]
+        own_valence = "front_foot"
         if have:
             ops.append({"operation": "retire", "section": "executive_summary", "zone": None,
                         "target_subject_key": have.get("subject_key"), "subject_key": have.get("subject_key"),
-                        "change_kind": "supersede", "derived_from": anchor["id"], "persona": p,
+                        "change_kind": "supersede_retire", "derived_from": own_anchor["id"], "persona": p,
                         "feed_note": "the brief's lead changed; this audience lead is rewritten for the new one"})
         ops.append({"operation": "add", "section": "executive_summary", "zone": None,
-                    "subject_key": subject_key(p, lead["id"]), "derived_from": anchor["id"],
-                    "persona": p, "change_kind": "audience", "valence": lead.get("valence"),
+                    "subject_key": subject_key(p, lead["id"]), "derived_from": own_anchor["id"],
+                    "persona": p, "change_kind": "new", "valence": own_valence,
                     "why": judgment.render(brief, {"persona_label": LABELS.get(p, p),
                                                    "lead_text": lead.get("claim") or "",
                                                    "n_plays": len([c for c in own if c.get("section") == "battlecard"]),
                                                    "n_objections": len([c for c in own if c.get("section") == "objection_handling"])})})
     facts = [by_id[i] for i in fact_ids if i in by_id]
-    return {"lead": lead, "ops": ops, "facts": facts, "personas": [p for p, _ in todo]}
+    return {"lead": lead, "ops": ops, "facts": facts, "personas": [p for p, _ in todo if any(o.get("persona") == p for o in ops)]}
 
 
 def refresh(slug: str, meta: dict, claims: list, today: str, *, write: bool,
@@ -119,7 +132,8 @@ def refresh(slug: str, meta: dict, claims: list, today: str, *, write: bool,
         return out
     out["personas"] = pl["personas"]
     facts = pl["facts"]
-    authored = author(meta, pl["ops"], facts, claims)
+    authored = author(meta, pl["ops"], facts, claims,
+                      addendum=judgment.optional("audience._AUTHOR_ADDENDUM"), role="audience_author")
     out["cost_usd"] += authored.get("cost_usd") or 0.0
     ops = authored["ops"]
     active_by_sk = propagate._active_targets(claims)
@@ -128,7 +142,8 @@ def refresh(slug: str, meta: dict, claims: list, today: str, *, write: bool,
     indexed = [(i, op) for i, (op, v) in enumerate(zip(ops, floor_results)) if not v]
     verdicts = {}
     if indexed:
-        jr = judge(meta, facts, claims, indexed)
+        jr = judge(meta, facts, claims, indexed,
+                   addendum=judgment.optional("audience._JUDGE_ADDENDUM"), role="audience_judge")
         out["cost_usd"] += jr.get("cost_usd") or 0.0
         verdicts = jr.get("verdicts") or {}
     confirmed = [ops[i] for i, _ in indexed

@@ -25,7 +25,7 @@ class JudgeFallback(unittest.TestCase):
         """Run judge() with a stateful _run_judge fake; returns (result, calls[(model, text)...])."""
         calls = []
 
-        async def fake(meta, facts, claims, indexed_ops, model=None):
+        async def fake(meta, facts, claims, indexed_ops, model=None, **kw):
             calls.append(model)
             return {"text": texts[len(calls) - 1], "cost_usd": 0.1}
 
@@ -84,7 +84,7 @@ class UnavailableEndToEnd(unittest.TestCase):
                                                   _route_fake)
         rewrite = mock.MagicMock()
 
-        async def dead_judge(meta, facts, claims, indexed_ops, model=None):
+        async def dead_judge(meta, facts, claims, indexed_ops, model=None, **kw):
             return {"text": GARBAGE, "cost_usd": 0.1}
 
         with mock.patch.object(propagate, "route", _route_fake([dict(SURFACE_OP)])), \

@@ -160,7 +160,8 @@ def _finalize_op(op: dict, authored: dict | None) -> dict:
     return out
 
 
-async def _run_author(meta: dict, surface_ops: list[dict], facts: list[dict], active_by_sk: dict) -> dict:
+async def _run_author(meta: dict, surface_ops: list[dict], facts: list[dict], active_by_sk: dict,
+                      *, addendum: str | None = None, role: str = "author") -> dict:
     comp, me = meta.get("competitor"), meta.get("my_company")
     user = (f"Competitor: {comp}" + (f"   We are: {me}" if me else "") + "\n\n"
             "GROUNDED FACTS (the ONLY admissible evidence; each op's derived_from points into these):\n"
@@ -171,7 +172,7 @@ async def _run_author(meta: dict, surface_ops: list[dict], facts: list[dict], ac
         model=config.SUBAGENT_MODEL,                      # author prose on Sonnet (routing was Opus)
         # Plain-string system (2026-07-02 cost pass): tools are OFF, so the ~10-15K-token
         # claude_code preset was pure input overhead on every call. Same for judge/rewrite/route.
-        system_prompt=_AUTHOR_SYSTEM + "\n\n" + WRITING_STYLE,
+        system_prompt=_AUTHOR_SYSTEM + (("\n\n" + addendum) if addendum else "") + "\n\n" + WRITING_STYLE,
         mcp_servers={},
         allowed_tools=[],                                 # TOOLS-OFF: write only from the given facts
         disallowed_tools=["WebSearch", "WebFetch"],
@@ -179,10 +180,11 @@ async def _run_author(meta: dict, surface_ops: list[dict], facts: list[dict], ac
         max_turns=config.PROPOSE_MAX_TURNS,
         max_budget_usd=config.PROPOSE_MAX_BUDGET_USD,
     )
-    return await _drive(user, options, "author")
+    return await _drive(user, options, role)
 
 
-def author(meta: dict, surface_ops: list[dict], facts: list[dict], claims: list[dict]) -> dict:
+def author(meta: dict, surface_ops: list[dict], facts: list[dict], claims: list[dict], *,
+           addendum: str | None = None, role: str = "author") -> dict:
     """Author the rep-facing prose for the router's add/revise ops. Returns {'ops': [...], 'cost_usd'}
     where ops are the ROUTER ops (routing authoritative) with prose merged in; retires pass through
     with claim=None. The deterministic FLOOR + adversarial Opus judge gate them next (nothing applies
@@ -191,7 +193,8 @@ def author(meta: dict, surface_ops: list[dict], facts: list[dict], claims: list[
     if not add_revise:                                    # only retires -> no authoring call needed
         return {"ops": [_finalize_op(op, None) for op in surface_ops], "cost_usd": None}
     active_by_sk = _active_targets(claims)
-    res = asyncio.run(_run_author(meta, surface_ops, facts, active_by_sk))
+    extra = {"addendum": addendum, "role": role} if (addendum or role != "author") else {}
+    res = asyncio.run(_run_author(meta, surface_ops, facts, active_by_sk, **extra))
     try:
         authored = {a.get("op_index"): a for a in (_extract_json(res["text"]).get("authored") or [])
                     if isinstance(a, dict) and isinstance(a.get("op_index"), int)}
@@ -339,7 +342,7 @@ def _judge_ops_digest(indexed_ops: list) -> list:
 
 
 async def _run_judge(meta: dict, facts: list[dict], claims: list[dict], indexed_ops: list,
-                     model: str | None = None) -> dict:
+                     model: str | None = None, *, addendum: str | None = None, role: str = "judge") -> dict:
     comp, me = meta.get("competitor"), meta.get("my_company")
     # Full prose only for the claims this batch's ops touch; compact rows for the rest (the judge
     # needs non-targets only for the duplicate-add check). See _targets_digest.
@@ -356,7 +359,7 @@ async def _run_judge(meta: dict, facts: list[dict], claims: list[dict], indexed_
             + json.dumps(_judge_ops_digest(indexed_ops), ensure_ascii=False, indent=2))
     options = ClaudeAgentOptions(
         model=model or config.ORCHESTRATOR_MODEL,         # judge on Opus; fallback overrides (outage)
-        system_prompt=_JUDGE_SYSTEM,                      # tools-off: no preset (cost pass 2026-07-02)
+        system_prompt=_JUDGE_SYSTEM + (("\n\n" + addendum) if addendum else ""),   # tools-off: no preset (cost pass 2026-07-02)
         mcp_servers={},
         allowed_tools=[],                                 # TOOLS-OFF: judge only the given facts
         disallowed_tools=["WebSearch", "WebFetch"],
@@ -364,7 +367,7 @@ async def _run_judge(meta: dict, facts: list[dict], claims: list[dict], indexed_
         max_turns=config.JUDGE_MAX_TURNS,
         max_budget_usd=config.JUDGE_MAX_BUDGET_USD,
     )
-    return await _drive(user, options, "judge")
+    return await _drive(user, options, role)
 
 
 def _parse_verdicts(text: str) -> dict:
@@ -412,7 +415,8 @@ def _parse_verdicts(text: str) -> dict:
     return verdicts
 
 
-def judge(meta: dict, facts: list[dict], claims: list[dict], indexed_ops: list) -> dict:
+def judge(meta: dict, facts: list[dict], claims: list[dict], indexed_ops: list, *,
+          addendum: str | None = None, role: str = "judge") -> dict:
     """Adversarial Opus pass over the floor-surviving ops. `indexed_ops` is a list of (op_index, op)
     pairs (op_index = position in the ORIGINAL proposed list). Returns
     {'verdicts': {op_index: {'verdict','reason','rewritable','judged_by'}}, 'cost_usd',
@@ -436,7 +440,8 @@ def judge(meta: dict, facts: list[dict], claims: list[dict], indexed_ops: list) 
         plan.append(config.JUDGE_FALLBACK_MODEL)
     cost, raw_failures, verdicts, used = 0.0, [], {}, None
     for model in plan:
-        res = asyncio.run(_run_judge(meta, facts, claims, indexed_ops, model=model))
+        extra = {"addendum": addendum, "role": role} if (addendum or role != "judge") else {}
+        res = asyncio.run(_run_judge(meta, facts, claims, indexed_ops, model=model, **extra))
         cost += res.get("cost_usd") or 0.0
         verdicts = _parse_verdicts(res["text"])
         if verdicts:
