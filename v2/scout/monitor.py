@@ -743,7 +743,7 @@ def _sensor_compare(slug: str, meta: dict, sens: dict | None, candidates: list, 
                "sources": sum(int((v or {}).get("pages_checked") or 0) + int(bool((v or {}).get("news_hits") is not None)) for v in sens["by_entity"].values()),
                "screen_cost": sens["cost_usd"], "screen_subst": sum(1 for c in sens["candidates"] if c.get("substantial")),
                "triage_subst": sum(1 for c in candidates if c.get("substantial") is True) if triage_ran else 0,
-               "findings": len(sens["findings"]), "unavailable": sens["unavailable"], "by_entity": sens["by_entity"],
+               "findings": len(sens["findings"]), "findings_recent": len(recent), "unavailable": sens["unavailable"], "by_entity": sens["by_entity"],
                "write_error": doc.get("write_error")}
         _step(steps, "compare", "ran", f"{len(la)} landed alert(s) checked, {len(misses_a)} miss(es); "
               f"level B: {len(lb['matched'])} matched, {len(lb['misses'])} unmatched, {len(lb['screen_only'])} screen-only")

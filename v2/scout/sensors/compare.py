@@ -165,8 +165,14 @@ def update_streak(date: str, cards: list[dict], *, gate_runs: int, write: bool) 
     triage_subst = sum(int(c.get("triage_subst") or 0) for c in cards)
     n = max(1, len(cards))
     err_ratio = (errors / sources) if sources else 0.0
-    clean = misses == 0 and err_ratio < 0.10 and (cost / n) <= 0.03 and screen_subst <= triage_subst
+    findings = sum(int(c.get("findings") or 0) for c in cards)
+    # the day the sensors only set their baselines (no finding anywhere, nothing screened) is not a
+    # clean run and not a failed one: the streak starts the day after
+    baseline = findings == 0 and screen_subst == 0 and sum(int(c.get("findings_recent") or 0) for c in cards) == 0
+    clean = (not baseline) and misses == 0 and err_ratio < 0.10 and (cost / n) <= 0.03 and screen_subst <= triage_subst
     reasons = []
+    if baseline:
+        reasons.append("baseline day: sensors read everything for the first time, no findings yet")
     if misses:
         reasons.append(f"{misses} Level A miss(es)")
     if err_ratio >= 0.10:
@@ -177,10 +183,12 @@ def update_streak(date: str, cards: list[dict], *, gate_runs: int, write: bool) 
         reasons.append(f"screen {screen_subst} substantial vs triage {triage_subst}")
     row = {"date": date, "cards": len(cards), "misses_a": misses, "errors": errors, "sources": sources,
            "screen_cost": round(cost, 4), "screen_subst": screen_subst, "triage_subst": triage_subst,
-           "clean": clean, "reasons": reasons}
+           "findings": findings, "baseline": baseline, "clean": clean, "reasons": reasons}
     s["runs"] = [r for r in s["runs"] if r.get("date") != date][-60:] + [row]
     streak = 0
     for r in reversed(s["runs"]):
+        if r.get("baseline"):
+            continue                              # neither counts nor breaks
         if r.get("clean"):
             streak += 1
         else:
