@@ -421,3 +421,11 @@ def require_api_key() -> str:
 AUDIENCE_LEADS = os.environ.get("SCOUT_AUDIENCE_LEADS", "1") == "1"
 AUDIENCE_MIN_PLAYS = int(os.environ.get("SCOUT_AUDIENCE_MIN_PLAYS", "2"))
 AUDIENCE_MAX_PER_CARD_RUN = int(os.environ.get("SCOUT_AUDIENCE_MAX_PER_CARD_RUN", "2"))
+
+# Agent Scout in Slack (V1, 2026-10-02): the site shows the "Agent Scout in Slack" item and page
+# only for the live paths that are configured. Nothing on the page stands in for the product.
+SLACK_INVITE_URL = os.environ.get("SCOUT_SLACK_INVITE_URL", "").strip()      # the demo workspace's shared invite
+SLACK_APP_ID = os.environ.get("SCOUT_SLACK_APP_ID", "").strip()
+SLACK_TEAM_ID = os.environ.get("SCOUT_SLACK_TEAM_ID", "").strip()
+SLACK_INSTALL_URL = os.environ.get("SCOUT_SLACK_INSTALL_URL", "").strip()    # V2: "Add to your Slack"
+SLACK_PREVIEW = os.environ.get("SCOUT_SLACK_PREVIEW", "0") == "1"           # RC ONLY: show the button and page for layout review before the workspace exists

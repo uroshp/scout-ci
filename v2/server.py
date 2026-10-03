@@ -423,6 +423,16 @@ def index():
     return _card_page(cards[0], cards, page_type="home")
 
 
+@app.get("/slack")
+def slack_page():
+    """Agent Scout in Slack (2026-10-02): only live actions; 404 until one is configured."""
+    if not page.slack_live_paths() and not config.SLACK_PREVIEW:
+        abort(404)
+    cards = _ordered_cards()
+    return _doc(_chrome(False, None, cards) + page.slack_html(),
+                title="Agent Scout in Slack — Agent Scout", page_type="slack")
+
+
 @app.get("/briefs")
 def briefs():
     """Every brief as a card, most recently updated first."""

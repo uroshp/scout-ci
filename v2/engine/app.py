@@ -37,9 +37,19 @@ from scout import ask, askui, calllog, config, ledger
 
 ASK_API_KEYS = [k.strip() for k in os.environ.get("ASK_API_KEYS", "").split(",") if k.strip()]
 ASK_VIEWER_SECRET = os.environ.get("ASK_VIEWER_SECRET", "")
+# Slack (2026-10-02): the bot on the Mac mini calls /ask with its own key, so its traffic is told
+# apart in the records (asked_by "slack") and capped on its own under the engine's daily ceiling.
+ASK_SLACK_KEY = os.environ.get("ASK_SLACK_KEY", "").strip()
+ASK_SLACK_DAILY_USD = float(os.environ.get("SCOUT_ASK_SLACK_DAILY_USD", "3"))
+# Slack's own reservations are sized to what answers actually cost (quick $0.03 to $0.75, deep
+# about $1.20), not to the engine's worst-case caps: with $1.50 held per question, a $3 day allowed
+# one question in flight and refused the second as "budget spent" (2026-10-02, the first review).
+SLACK_RESERVE = {"quick": float(os.environ.get("SCOUT_ASK_SLACK_RESERVE_QUICK", "0.75")),
+                 "deep": float(os.environ.get("SCOUT_ASK_SLACK_RESERVE_DEEP", "1.50"))}
 ASK_DAILY_CEILING_USD = float(os.environ.get("SCOUT_ASK_DAILY_CEILING_USD", "10"))
 ASK_ALLOWED_ORIGINS = [o.strip() for o in os.environ.get("ASK_ALLOWED_ORIGINS", "").split(",") if o.strip()]
 LEDGER = ledger.Ledger("ask/state.json", ASK_DAILY_CEILING_USD, config.ASK_MAX_USD)
+SLACK_LEDGER = ledger.Ledger("ask/slack_state.json", ASK_SLACK_DAILY_USD, config.ASK_QUICK_MAX_USD)
 PING_S = 15
 
 # --- MCP (WS4, 2026-09-29): the same tools as `python -m scout.mcp_server`, over Streamable HTTP at
@@ -80,6 +90,8 @@ def _who(authorization: str | None) -> tuple[str | None, str | None]:
     for k in ASK_API_KEYS:
         if hmac.compare_digest(tok, k):
             return "owner", hashlib.sha256(k.encode()).hexdigest()[:8]
+    if ASK_SLACK_KEY and hmac.compare_digest(tok, ASK_SLACK_KEY):
+        return "slack", "slack"
     if ASK_VIEWER_SECRET:
         cid = check_token(tok, ASK_VIEWER_SECRET)
         if cid:
@@ -128,6 +140,18 @@ async def ask_route(request: Request, authorization: str | None = Header(default
     if not ok:
         return JSONResponse({"message": "Today's question budget is spent. Come back tomorrow, or browse the answers so far.",
                              "room_usd": LEDGER.room(state)}, status_code=429)
+    slack_reserved = False
+    slack_reserve = SLACK_RESERVE[mode]
+    if kind == "slack":                                    # Slack's own cap, inside the engine's ceiling
+        ok2, state2 = SLACK_LEDGER.start(slack_reserve)
+        if not ok2:
+            LEDGER.settle(0.0, reserve)
+            room = SLACK_LEDGER.room(state2)
+            busy = (state2 or {}).get("in_flight_usd", 0) > 0 and (state2 or {}).get("spend_usd", 0) + slack_reserve <= ASK_SLACK_DAILY_USD
+            msg = ("Agent Scout is answering other questions right now. Ask again in a minute." if busy else
+                   "Agent Scout's Slack budget for today is spent. Ask again tomorrow, or read the briefs at agent-scout.ai.")
+            return JSONResponse({"message": msg, "room_usd": room}, status_code=429)
+        slack_reserved = True
 
     q: queue.Queue = queue.Queue()
     asked_at = datetime.now().isoformat(timespec="seconds")
@@ -148,8 +172,11 @@ async def ask_route(request: Request, authorization: str | None = Header(default
                    on_stage=on_stage, record_id=record_id)
             a["asked_by"] = kind
             q.put({"done": True, "id": a["id"], "kind": a.get("kind", mode), "html": askui.answer_html(a, show_question=False, chat=True),
-                   "cost_usd": a["cost_usd"], "seconds": a["seconds"], "verified": a["verified"]})
+                   "cost_usd": a["cost_usd"], "seconds": a["seconds"], "verified": a["verified"],
+                   "answer": structured(a)})
             LEDGER.settle(a["cost_usd"], reserve)
+            if slack_reserved:
+                SLACK_LEDGER.settle(a["cost_usd"], slack_reserve)
         except Exception as e:
             # honest failure: a crashed run is NOT free. generate._drive attaches the cost so far
             # (a known 0.0 when the process died before its first message); an UNKNOWN cost (None)
@@ -163,6 +190,8 @@ async def ask_route(request: Request, authorization: str | None = Header(default
             text = f"{msg}. Try a narrower question, or one about a single company."
             q.put({"error": text, "cost_usd": round(spent, 2), "id": record_id})
             LEDGER.settle(spent, reserve)
+            if slack_reserved:
+                SLACK_LEDGER.settle(spent, slack_reserve)
             if record_id:
                 ask.persist_failure(record_id, question, text, spent, asked_at, kind=mode)
         finally:
@@ -207,13 +236,25 @@ def _stored(aid: str) -> dict | None:
     return None
 
 
+def structured(a: dict) -> dict:
+    """The answer as data (the same shape the MCP tool returns), for clients that render their own
+    surface (Slack, 2026-10-02). The panel keeps using `html`."""
+    return {"id": a.get("id"), "kind": a.get("kind"), "about": a.get("card") or a.get("competitor"),
+            "paragraphs": a.get("paragraphs") or [],
+            "sources": [{k: s.get(k) for k in ("n", "url", "class", "tier", "as_of", "excerpt")} for s in (a.get("sources") or [])],
+            "cut_log": a.get("cut_log") or [], "unanswered": a.get("unanswered") or [], "verified": a.get("verified"),
+            "seconds": a.get("seconds"), "cost_usd": a.get("cost_usd"),
+            "permalink": f"https://agent-scout.ai/answers/{a.get('id')}"}
+
+
 def _replay(rec: dict):
     """A finished record as one SSE frame: $0, no run."""
     if rec.get("failed"):
         yield _sse({"error": rec.get("error") or "Scout could not answer that.", "cost_usd": rec.get("cost_usd", 0), "id": rec["id"], "replay": True})
     else:
         yield _sse({"done": True, "id": rec["id"], "kind": rec.get("kind", "deep"), "html": askui.answer_html(rec, show_question=False, chat=True),
-                    "cost_usd": rec.get("cost_usd", 0), "seconds": rec.get("seconds", 0), "verified": rec.get("verified", False), "replay": True})
+                    "cost_usd": rec.get("cost_usd", 0), "seconds": rec.get("seconds", 0), "verified": rec.get("verified", False), "replay": True,
+                    "answer": structured(rec)})
 
 
 @app.get("/ask/dry")

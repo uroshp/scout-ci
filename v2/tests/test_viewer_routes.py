@@ -270,3 +270,29 @@ class ServerVisitGate(unittest.TestCase):
 
     def test_event_on_the_production_service(self):
         self.assertEqual(len(self._hit({"K_SERVICE": "agent-scout"})), 1)
+
+
+class SlackPage(unittest.TestCase):
+    """Agent Scout in Slack (2026-10-02): the item and page exist only for live paths."""
+    def test_hidden_until_configured(self):
+        from scout import config
+        c = _client()
+        with mock.patch.object(config, "SLACK_INVITE_URL", ""), mock.patch.object(config, "SLACK_APP_ID", ""), \
+             mock.patch.object(config, "SLACK_TEAM_ID", ""), mock.patch.object(config, "SLACK_INSTALL_URL", ""), \
+             mock.patch.object(config, "SLACK_PREVIEW", False):
+            self.assertEqual(c.get("/slack").status_code, 404)
+            self.assertNotIn("Agent Scout in Slack", c.get("/").data.decode())
+
+    def test_live_paths_only(self):
+        from scout import config
+        c = _client()
+        with mock.patch.object(config, "SLACK_INVITE_URL", "https://join.slack.com/t/demo/shared_invite/x"), \
+             mock.patch.object(config, "SLACK_APP_ID", "A1"), mock.patch.object(config, "SLACK_TEAM_ID", "T1"), \
+             mock.patch.object(config, "SLACK_INSTALL_URL", ""):
+            h = c.get("/slack").data.decode()
+            self.assertIn("Join the demo workspace", h)
+            self.assertIn("https://slack.com/app_redirect?app=A1&amp;team=T1", h)
+            self.assertNotIn("Add to your Slack", h)                     # V2 not live: not shown
+            home = c.get("/").data.decode()
+            self.assertIn('class="sc-btn sc-slackbtn"', home)
+            self.assertLess(home.index('href="/create"'), home.index('class="sc-btn sc-slackbtn"'))   # right of Create your own
