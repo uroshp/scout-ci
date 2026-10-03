@@ -1,7 +1,7 @@
 anthropic==0.105.2
 python-dotenv==1.2.2
 streamlit==1.58.0
-claude-agent-sdk==0.2.103
+claude-agent-sdk==0.2.163
 mcp==1.27.2
 jsonschema==4.26.0
 httpx==0.28.1

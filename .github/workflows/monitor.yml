@@ -1,7 +1,8 @@
 # Scout v2 monitoring — the headless writer (spec §2).
 #
 # TRIGGER: Google Cloud Scheduler (uptime SLA, timezone-aware) fires workflow_dispatch at
-# exactly 7:00 AM + 1:00 PM America/New_York — provisioned by v2/scripts/setup_cloud_scheduler.sh.
+# 7:00 AM America/New_York, Mon–Sat (one run a day since 2026-09; the header below predates that and
+# the Batman card is weekly, not opted out) — provisioned by v2/scripts/setup_cloud_scheduler.sh.
 # We moved OFF GitHub's `schedule:` cron entirely because it is best-effort and unreliable
 # (observed 2026-06-05: the 07:00 ET fire ran 09:46, and the 13:00 ET fire was dropped entirely;
 # observed 2026-07-01: the 23:00 UTC backstop fired 73 min late and, after a store reset, became
@@ -10,20 +11,23 @@
 # is skipped silently — the next morning's run scans since last_checked, so no coverage is lost,
 # only timing.
 #
-# FRESHNESS (the promise): a morning + midday refresh, the same way every day. The due-gate is
-# WINDOW-ANCHORED (scout.monitor._is_due vs config.MONITOR_ANCHORS_UTC = "11:00,17:00"): a card is
+# FRESHNESS (the promise): a morning refresh, the same way every day. The due-gate is
+# WINDOW-ANCHORED (scout.monitor._is_due vs config.MONITOR_ANCHORS_UTC = "11:00"): a card is
 # due only if it hasn't been checked since the most recent passed anchor — so updates never drift,
 # and any extra trigger in the same window is a cheap no-op (no API call). This also caps spend at
 # one paid check per card per window no matter how many times the workflow is triggered.
 #
 # DST is automatic: Cloud Scheduler tracks America/New_York for the trigger, and the UTC gate
-# anchors stay valid because EST fires land LATER in UTC (12:00/18:00) — still past the 11:00/17:00
-# anchors. No twice-yearly edit. (To pare down after week one, drop an anchor in config + its
-# Cloud Scheduler job.) A card opts out via "monitored": false (the Batman stress-test card does).
+# anchor stays valid because EST fires land LATER in UTC (12:00) — still past the 11:00 anchor.
+# No twice-yearly edit. A card opts out via "monitored": false (none does today; Batman runs weekly
+# via cadence_days).
 #
 # REQUIRED SECRETS (repo settings): ANTHROPIC_API_KEY, RESEND_API_KEY, SCOUT_ALERT_TO
 # (SCOUT_ALERT_FROM optional). The Cloud Scheduler dispatch PAT lives in GCP, not here.
 name: monitor
+# The run title names a rehearsal so the mini's canary can tell it from the production run
+# (it reads the latest completed run on main whose title is not a rehearsal).
+run-name: "${{ inputs.rehearsal && format('rehearsal {0}', inputs.rehearsal) || 'monitor' }}"
 
 on:
   workflow_dispatch:               # ONLY trigger — Cloud Scheduler at 7am ET, Mon–Sat
@@ -53,9 +57,23 @@ on:
         description: "why this run was dispatched (a signal poller's hint; the store is the truth)"
         type: string
         default: ""
+      # REHEARSAL (2026-10-03): the REAL write path on retired cards (comma list of v2/archive slugs),
+      # into a store root outside the checkout, with every private-store write under rehearsal/ and
+      # every email subject prefixed "[rehearsal]". The cards persist between rehearsals in the
+      # private store, so each rehearsal scans since the previous one. Nothing is committed. Legal
+      # on any ref: a rehearsal on main proves the code and the expressions the 4 AM run will use.
+      rehearsal:
+        description: "rehearsal: comma list of archive card slugs (live write path, isolated store, no commit)"
+        type: string
+        default: ""
+      since:
+        description: "force the detection cutoff (YYYY-MM-DD) for every checked card (rehearsals)"
+        type: string
+        default: ""
 
 concurrency:
-  group: scout-monitor
+  # a rehearsal has its own group: it never queues the scheduled run (its stores are isolated)
+  group: ${{ inputs.rehearsal && 'scout-rehearsal' || 'scout-monitor' }}
   cancel-in-progress: false
 
 permissions:
@@ -73,22 +91,35 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -q -r requirements.txt
+      - name: Rehearsal prep (restore or copy the retired cards into the isolated store)
+        if: ${{ inputs.rehearsal != '' }}
+        env:
+          SCOUT_SELFSERVE_DATA_PREFIX: rehearsal
+          SELFSERVE_GH_TOKEN: ${{ secrets.SELFSERVE_GH_TOKEN }}
+          SELFSERVE_REPO: ${{ secrets.SELFSERVE_REPO }}
+        run: python scripts/rehearse.py prep "${{ inputs.rehearsal }}" --root "$RUNNER_TEMP/rehearsal/battlecards"
       - name: Run monitoring checks (live)
         id: monitor
         env:
           SCOUT_MONITOR_LIVE: ${{ inputs.dry_run && '0' || '1' }}
-          SCOUT_MONITOR_SLUGS: ${{ inputs.slugs }}
-          SCOUT_MONITOR_FORCE: ${{ inputs.force && '1' || '0' }}
+          SCOUT_MONITOR_SLUGS: ${{ inputs.rehearsal || inputs.slugs }}
+          SCOUT_MONITOR_FORCE: ${{ (inputs.force || inputs.rehearsal) && '1' || '0' }}
+          SCOUT_MONITOR_SINCE: ${{ inputs.since }}
           SCOUT_SOURCES_TOOLS: ${{ inputs.sources_tools && '1' || '0' }}
           SCOUT_MONITOR_TRACE: ${{ inputs.dry_run && '1' || '0' }}
           SCOUT_MONITOR_REASON: ${{ inputs.reason }}
           SCOUT_LANE_ALERTS: "1"        # the lane's own runner: a refusal (preflight) may email
+          # REHEARSAL: the card store moves out of the checkout and the private store under
+          # rehearsal/; scout.monitor.preflight refuses the flag without both.
+          SCOUT_REHEARSAL: ${{ inputs.rehearsal && '1' || '0' }}
+          SCOUT_STORE_ROOT: ${{ inputs.rehearsal && format('{0}/rehearsal/battlecards', runner.temp) || '' }}
           # The store follows the ref: a run from `rc` reads and writes under rc/ (signals, ask
           # ledger, capture), never production's paths, and never falls back to them.
           # The truthy branch must be the NON-empty value: `cond && '' || 'rc'` yields 'rc' on
           # main too, because '' is falsy and the || takes over (the 2026-09-30 4 AM production
-          # run wrote its whole store output under rc/ that way).
-          SCOUT_SELFSERVE_DATA_PREFIX: ${{ github.ref_name == 'rc' && 'rc' || '' }}
+          # run wrote its whole store output under rc/ that way). A rehearsal writes under
+          # rehearsal/ on any ref; preflight asserts the result before any spend.
+          SCOUT_SELFSERVE_DATA_PREFIX: ${{ inputs.rehearsal && 'rehearsal' || (github.ref_name == 'rc' && 'rc' || '') }}
           # Signals (WS3): the run reads open filings / new-department events from the store and
           # puts them in front of triage, with the hiring context line. Off until promoted.
           SCOUT_SIGNALS: ${{ vars.SCOUT_SIGNALS || '0' }}
@@ -132,12 +163,22 @@ jobs:
           SELFSERVE_GH_TOKEN: ${{ secrets.SELFSERVE_GH_TOKEN }}
           SELFSERVE_REPO: ${{ secrets.SELFSERVE_REPO }}
         run: python -m scout.monitor
+      - name: Rehearsal save + summary (the cards live on in the rehearsal store)
+        if: ${{ !cancelled() && inputs.rehearsal != '' && steps.monitor.outcome != 'skipped' }}
+        env:
+          SCOUT_SELFSERVE_DATA_PREFIX: rehearsal
+          SELFSERVE_GH_TOKEN: ${{ secrets.SELFSERVE_GH_TOKEN }}
+          SELFSERVE_REPO: ${{ secrets.SELFSERVE_REPO }}
+        run: |
+          python scripts/rehearse.py save "${{ inputs.rehearsal }}" --root "$RUNNER_TEMP/rehearsal/battlecards"
+          python scripts/rehearse.py summary "${{ inputs.rehearsal }}" --root "$RUNNER_TEMP/rehearsal/battlecards" --out "$GITHUB_STEP_SUMMARY"
       - name: Commit per §9 policy (last_checked bump every run; content on material change)
         # Run even when the monitor step exits 1 (a PARTIAL failure: scout.monitor now
         # continues past a single bad card and exits non-zero only after every card ran),
         # so the cards that DID check successfully still get their results committed.
-        # Skipped only if the monitor never ran (checkout/pip failure) or was cancelled.
-        if: ${{ !cancelled() && steps.monitor.outcome != 'skipped' && !inputs.dry_run }}
+        # Skipped only if the monitor never ran (checkout/pip failure) or was cancelled, on a
+        # dry run, and on a rehearsal (its cards live outside the checkout; nothing to commit).
+        if: ${{ !cancelled() && steps.monitor.outcome != 'skipped' && !inputs.dry_run && inputs.rehearsal == '' }}
         run: |
           git config user.name "scout-monitor[bot]"
           git config user.email "scout-monitor@users.noreply.github.com"

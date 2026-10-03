@@ -1,7 +1,7 @@
 # The Ask Scout engine image (v2/engine/Dockerfile): the full engine deps (requirements.txt minus
 # the Streamlit viewer) plus the ASGI server. Pinned like the other requirement files.
 anthropic==0.105.2
-claude-agent-sdk==0.2.103
+claude-agent-sdk==0.2.163
 mcp==1.27.2
 httpx==0.28.1
 python-dotenv==1.2.2

@@ -7,6 +7,8 @@ silence means every lane left the evidence it should. Runs on the mini after the
 Checks (all skipped on a monitor skip day, i.e. Sunday, except the app probe):
   1. monitor: a cost ledger dated today at the PRODUCTION path (costs/<today>T*.json) and none of
      today's ledgers under rc/ from a main run (rc/costs/<today>* without an rc build is a misfile).
+  1b. steps (2026-10-03): the step table inside that ledger has a row per checked card and no
+     `failed` step (a crashed step inside a green workflow).
   2. capture: a call bundle dated today at calls/<month>/monitor_<today>*.json.
   3. replay: ~/scout-replay/state.json last_run is today AND its log's "newest bundle" line for
      today's run names a bundle dated today (the lane scored fresh calls, not a backlog).
@@ -45,6 +47,34 @@ def check_monitor(day: date) -> list[str]:
     misfiled = [n for n in (selfserve.list_data("rc/costs") or []) if n.startswith(stamp)]
     if misfiled:
         problems.append(f"monitor: {len(misfiled)} cost ledger(s) dated today under rc/costs/ ({', '.join(misfiled)}); a main run misfiled, or an rc run happened")
+    return problems
+
+
+def check_steps(day: date) -> list[str]:
+    """The step table inside today's PRODUCTION cost ledger (2026-10-03): every card the run checked
+    has a row, and no row says `failed`. A green workflow with a crashed step (the 10/3 audience
+    crash: four cards, no email, green canary) is what this catches. Rehearsal ledgers live under
+    rehearsal/ and are not read here."""
+    stamp = day.strftime("%Y%m%d")
+    names = sorted(n for n in (selfserve.list_data("costs") or []) if n.startswith(stamp))
+    if not names:
+        return []                                   # check_monitor already reports the missing ledger
+    problems = []
+    try:
+        doc = json.loads(selfserve.read_data(f"costs/{names[-1]}") or "{}")
+    except Exception as e:
+        return [f"steps: today's ledger costs/{names[-1]} is unreadable ({type(e).__name__})"]
+    cards = doc.get("cards") or []
+    if cards and not any("steps" in c for c in cards):
+        return []                                   # a ledger written by code that predates the step table
+    for c in cards:
+        steps = c.get("steps") or []
+        if not steps:
+            problems.append(f"steps: {c.get('slug')} has no step table in the ledger (the check did not record its steps)")
+            continue
+        failed = [r for r in steps if r.get("status") == "failed"]
+        for r in failed:
+            problems.append(f"steps: {c.get('slug')} {r.get('step')} FAILED: {str(r.get('detail') or '')[:160]}")
     return problems
 
 
@@ -136,6 +166,7 @@ def main(argv=None) -> int:
     problems = []
     if not skip_day:
         problems += check_monitor(day)
+        problems += check_steps(day)
         problems += check_capture(day)
         problems += check_replay(day)
     problems += check_app()

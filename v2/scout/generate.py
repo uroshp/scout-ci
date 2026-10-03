@@ -136,7 +136,7 @@ async def _run_retry(payload):
                        "append": RETRY_CONTRACT + sources_tool.note() + "\n\n" + WRITING_STYLE},
         mcp_servers={"scoutfetch": FETCH_SERVER, **sources_tool.servers()},
         allowed_tools=["WebSearch", FETCH_TOOL_NAME, *sources_tool.names()],  # re-source 'unreachable' claims via real fetch
-        disallowed_tools=["WebFetch"],
+        disallowed_tools=config.MODEL_DISALLOWED_TOOLS,
         permission_mode="bypassPermissions",
         max_turns=config.MAX_TURNS,
         max_budget_usd=config.GEN_MAX_BUDGET_USD,
