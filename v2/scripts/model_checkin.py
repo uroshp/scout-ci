@@ -72,6 +72,33 @@ def _recent_bundles(limit: int = 60) -> list:
     return bundles
 
 
+def _normalize_period_key(key: str | None, role: str) -> str | None:
+    """Periods are keyed per role on the instructions a call received (2026-10-03). A snapshot
+    written before that carries keys without the suffix; a baseline suffix (the role's recorded
+    baseline fingerprint, or 'baseline') means the same period as those, so it is dropped before
+    comparing. A changed-instructions suffix stays, and opens a new period, as intended."""
+    if not key:
+        return key
+    try:
+        parts = json.loads(key)
+    except Exception:
+        return key
+    from scout import modelcompare as _mc
+    base = _mc._baseline_instructions().get(role or "")
+    out = []
+    for p in parts:
+        if "+" in p:
+            head, suffix = p.rsplit("+", 1)
+            if suffix == "baseline" or (base and suffix == f"instr:{base}"):
+                p = head
+        out.append(p)
+    return json.dumps(sorted(out))
+
+
+def _same_period(prior_key, period_key, role) -> bool:
+    return _normalize_period_key(prior_key, role) == _normalize_period_key(period_key, role)
+
+
 def build(now: datetime) -> tuple[dict, str]:
     from scout import modelcompare
     results = modelcompare.load_results()
@@ -126,7 +153,7 @@ def build(now: datetime) -> tuple[dict, str]:
     for key, cell in sc["cells"].items():
         period_key = json.dumps(sorted((cell["full"].get("periods") or {}).keys()))
         prior = _prior(key)
-        if prior and prior.get("period_key") != period_key:
+        if prior and not _same_period(prior.get("period_key"), period_key, cell["role"]):
             prior = None
             new_period = True
         else:
