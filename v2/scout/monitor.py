@@ -1583,14 +1583,27 @@ def preflight(env: dict | None = None) -> str | None:
             return f"rehearsal with store prefix {prefix!r} (rehearsals write under rehearsal/ only)"
         if not (env.get("SCOUT_STORE_ROOT") or "").strip():
             return "rehearsal without SCOUT_STORE_ROOT (it would write the checkout's battlecards/)"
-        return None
+        return _cli_too_old(env)
     if prefix == "rehearsal":
         return "store prefix 'rehearsal' without SCOUT_REHEARSAL=1"
     if ref == "main" and prefix:
         return f"store prefix {prefix!r} on main (production runs write to the root paths)"
     if ref == "rc" and prefix != "rc":
         return f"store prefix {prefix!r} on rc (rc runs write under rc/ only)"
-    return None
+    return _cli_too_old(env)
+
+
+def _cli_too_old(env) -> str | None:
+    """LOCKSTEP (2026-10-03): the bundled Claude Code binary must be new enough for the configured
+    models, or the run refuses before any spend (every Opus call would 400 otherwise). Only on a
+    runner (GITHUB_REF_NAME set) or when asked (SCOUT_CHECK_CLI=1): a unit test must not shell out."""
+    if not ((env.get("GITHUB_REF_NAME") or "").strip() or (env.get("SCOUT_CHECK_CLI") or "") == "1"):
+        return None
+    try:
+        from scout import sdkcheck
+        return sdkcheck.too_old()
+    except Exception:
+        return None
 
 
 if __name__ == "__main__":
