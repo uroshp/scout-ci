@@ -278,7 +278,8 @@ class SlackPage(unittest.TestCase):
         from scout import config
         c = _client()
         with mock.patch.object(config, "SLACK_INVITE_URL", ""), mock.patch.object(config, "SLACK_APP_ID", ""), \
-             mock.patch.object(config, "SLACK_TEAM_ID", ""), mock.patch.object(config, "SLACK_INSTALL_URL", ""):
+             mock.patch.object(config, "SLACK_TEAM_ID", ""), mock.patch.object(config, "SLACK_INSTALL_URL", ""), \
+             mock.patch.object(config, "SLACK_PREVIEW", False):
             self.assertEqual(c.get("/slack").status_code, 404)
             self.assertNotIn("Agent Scout in Slack", c.get("/").data.decode())
 
@@ -292,4 +293,6 @@ class SlackPage(unittest.TestCase):
             self.assertIn("Join the demo workspace", h)
             self.assertIn("https://slack.com/app_redirect?app=A1&amp;team=T1", h)
             self.assertNotIn("Add to your Slack", h)                     # V2 not live: not shown
-            self.assertIn('href="/slack" class="sc-navlink">Agent Scout in Slack', c.get("/").data.decode())
+            home = c.get("/").data.decode()
+            self.assertIn('class="sc-btn sc-slackbtn"', home)
+            self.assertLess(home.index('href="/create"'), home.index('class="sc-btn sc-slackbtn"'))   # right of Create your own

@@ -426,7 +426,7 @@ def index():
 @app.get("/slack")
 def slack_page():
     """Agent Scout in Slack (2026-10-02): only live actions; 404 until one is configured."""
-    if not page.slack_live_paths():
+    if not page.slack_live_paths() and not config.SLACK_PREVIEW:
         abort(404)
     cards = _ordered_cards()
     return _doc(_chrome(False, None, cards) + page.slack_html(),

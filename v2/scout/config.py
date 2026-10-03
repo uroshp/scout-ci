@@ -428,3 +428,4 @@ SLACK_INVITE_URL = os.environ.get("SCOUT_SLACK_INVITE_URL", "").strip()      # t
 SLACK_APP_ID = os.environ.get("SCOUT_SLACK_APP_ID", "").strip()
 SLACK_TEAM_ID = os.environ.get("SCOUT_SLACK_TEAM_ID", "").strip()
 SLACK_INSTALL_URL = os.environ.get("SCOUT_SLACK_INSTALL_URL", "").strip()    # V2: "Add to your Slack"
+SLACK_PREVIEW = os.environ.get("SCOUT_SLACK_PREVIEW", "0") == "1"           # RC ONLY: show the button and page for layout review before the workspace exists
