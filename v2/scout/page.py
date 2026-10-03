@@ -88,6 +88,18 @@ def _top_wins(claims: list, n: int = 3) -> list:
     return [c for c in wins_all if c.get("persona") == p][:n]
 
 
+def _pulled_up_ids(claims: list) -> set:
+    """With an audience, the claims the briefing shows at the top (the buyer's top plays and
+    objections); the sections below leave them out, so nothing appears twice (2026-10-02)."""
+    p = _PERSONA.get()
+    if not p:
+        return set()
+    ids = {c.get("id") for c in _top_wins(claims)}
+    objs = sorted([c for c in claims if c.get("section") == "objection_handling" and c.get("persona") == p],
+                  key=lambda c: c.get("order", 0))[:4]
+    return ids | {c.get("id") for c in objs}
+
+
 def _fold(items: list, noun: str) -> str:
     if not items:
         return ""
@@ -741,8 +753,8 @@ def _briefing(claims: list, label: str = "Your Daily Briefing",
                       f'<p class="aud-none">No plays written for the {_html.escape(_PERSONA_LABELS.get(aud, aud).lower())} yet. '
                       'The full brief below is unchanged.</p>')
     if aud:   # the buyer's objections, pulled up: the other half of what a rep prepares for
-        objs = sorted([c for c in claims if c.get("section") == "objection_handling" and c.get("persona") == aud],
-                      key=lambda c: c.get("order", 0))[:4]
+        objs = [c for c in sorted(claims, key=lambda c: c.get("order", 0))
+                if c.get("section") == "objection_handling" and c.get("persona") == aud][:4]
         if objs:
             rows = []
             for c in objs:
@@ -1773,6 +1785,7 @@ def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retir
 
     secs, present = [], []
     aud = _PERSONA.get()
+    pulled = _pulled_up_ids(claims)
 
     def _opened(sid, cs):
         """With an audience: open the sections that hold that buyer's own material, plus the one
@@ -1788,6 +1801,8 @@ def _brief_sections(claims: list, md: str, recent_keys: set | None = None, retir
         if sid in _HIDDEN_SECTIONS:   # generated/stored but not shown (see _HIDDEN_SECTIONS)
             continue
         cs = sorted(by_sec.get(sid, []), key=lambda c: c.get("order", 0))
+        if pulled and sid in ("battlecard", "objection_handling"):
+            cs = [c for c in cs if c.get("id") not in pulled]      # already shown at the top
         opn = _opened(sid, cs)
         if sid == "recent_moves":
             # A chronological section: the latest development belongs on top, regardless of the

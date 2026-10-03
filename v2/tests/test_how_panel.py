@@ -166,3 +166,19 @@ class AudienceFocus(unittest.TestCase):
     def test_buyer_with_no_plays_gets_an_honest_line(self):
         h = page.content_html(self.slug, persona="eng_led")
         self.assertTrue(("No plays written for the eng-led champion" in h) or ("PLAY 01" in h))
+
+
+class NoRepeats(unittest.TestCase):
+    def test_pulled_up_plays_and_objections_do_not_appear_below(self):
+        import re
+        h = page.content_html("anthropic__vs__openai__enterprise-coding-developers", persona="economic_buyer")
+        top, rest = h[:h.find('class="divider"')], h[h.find('class="divider"'):]
+        titles = re.findall(r'<div class="play">.*?<h4>(.*?)</h4>', top, re.S)
+        self.assertTrue(titles)
+        for t in titles:
+            self.assertNotIn(t, rest)                       # a play shown at the top is not in the battlecard below
+        objs = re.findall(r'<div class="aud-obj">.*?<h4>(.*?)</h4>', top, re.S)
+        for t in objs:
+            self.assertNotIn(t, rest)
+        base = page.content_html("anthropic__vs__openai__enterprise-coding-developers")
+        self.assertIn(titles[0], base[base.find('class="divider"'):])   # without an audience the battlecard is complete
