@@ -28,13 +28,14 @@ class Plan(unittest.TestCase):
         self.assertEqual(pl["ops"], []); self.assertIn("audience._OP_BRIEF", pl["skipped"])
 
     def test_plans_one_add_per_buyer_with_enough_plays(self):
-        with mock.patch.object(judgment, "optional", return_value="Brief for the ⟦persona_label⟧: ⟦n_plays⟧ plays"):
+        with mock.patch.object(judgment, "optional", side_effect=lambda n, subs=None: "Brief for the ⟦persona_label⟧: ⟦n_plays⟧ plays" if n.endswith("_OP_BRIEF") else "x"):
             pl = audience.plan(_card())
         self.assertEqual(pl["personas"], ["economic_buyer"])          # security has 1 play: below the bar
         self.assertEqual([o["operation"] for o in pl["ops"]], ["add"])
         op = pl["ops"][0]
         self.assertEqual(op["section"], "executive_summary"); self.assertIsNone(op["zone"])
-        self.assertEqual(op["persona"], "economic_buyer"); self.assertEqual(op["derived_from"], "c_fact1")
+        self.assertEqual(op["persona"], "economic_buyer"); self.assertEqual(op["derived_from"], "c_fact2")   # the buyer's own win's fact
+        self.assertEqual(op["valence"], "front_foot")
         self.assertEqual(op["subject_key"], "audience-lead | economic_buyer | c_lead")
         self.assertIn("economic buyer: 2 plays", op["why"])
         self.assertEqual({f["id"] for f in pl["facts"]}, {"c_fact1", "c_fact2"})
@@ -59,11 +60,11 @@ class Plan(unittest.TestCase):
 class Refresh(unittest.TestCase):
     def _run(self, verdict, write=True):
         calls = {}
-        def author(meta, ops, facts, claims):
+        def author(meta, ops, facts, claims, **kw):
             calls["author"] = ops
             return {"ops": [dict(o, claim="**Angle for you.** body", claim_type="interpretation") for o in ops], "cost_usd": 0.05}
         def floor(op, surviving, active): return []
-        def judge(meta, facts, claims, indexed):
+        def judge(meta, facts, claims, indexed, **kw):
             calls["judged"] = [i for i, _ in indexed]
             return {"verdicts": {i: {"verdict": verdict, "judged_by": "claude-opus-4-8", "reason": "r"} for i, _ in indexed}, "cost_usd": 0.25}
         def apply(claims, confirmed, facts, slug, today):
@@ -90,7 +91,7 @@ class Refresh(unittest.TestCase):
         self.assertNotIn("applied", calls); self.assertTrue(out["applied"][0]["dry_run"])
 
     def test_cap_per_card_per_run(self):
-        card = _card() + [{"id": f"c_t{i}", "section": "battlecard", "zone": "contested", "persona": "technical_evaluator",
+        card = _card() + [{"id": f"c_t{i}", "section": "battlecard", "zone": "where_we_win", "persona": "technical_evaluator",
                            "claim": "t", "derived_from": "c_fact2", "subject_key": f"x | t{i}", "order": 20 + i} for i in range(2)]
         with mock.patch.object(judgment, "optional", return_value="b"), mock.patch.object(config, "AUDIENCE_MAX_PER_CARD_RUN", 1):
             self.assertEqual(len(audience.plan(card, limit=config.AUDIENCE_MAX_PER_CARD_RUN)["personas"]), 1)
@@ -146,3 +147,11 @@ class CheckinPeriod(unittest.TestCase):
             self.assertTrue(mck._same_period(old, json.dumps(['{"v": 1}|claude-opus-4-8+instr:cb6226799ecd']), "judge"))
             self.assertTrue(mck._same_period(old, json.dumps(['{"v": 1}|claude-opus-4-8+baseline']), "judge"))
             self.assertFalse(mck._same_period(old, json.dumps(['{"v": 1}|claude-opus-4-8+instr:ffffffffffff']), "judge"))
+
+
+class NoGroundedWin(unittest.TestCase):
+    def test_a_buyer_whose_wins_have_no_grounded_fact_is_skipped(self):
+        card = [c for c in _card() if c["id"] != "c_fact2"]           # the economic buyer's plays lose their anchor
+        with mock.patch.object(judgment, "optional", return_value="b"):
+            pl = audience.plan(card)
+        self.assertEqual(pl["ops"], []); self.assertEqual(pl["personas"], [])
