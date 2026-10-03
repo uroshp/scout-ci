@@ -783,9 +783,12 @@ def _sensors_lines(sensors: dict | None) -> tuple[list[str], str]:
     st = sensors.get("streak") or {}
     if st:
         last = (st.get("runs") or [{}])[-1]
-        tail = (f"Streak: {st.get('clean_streak', 0)} clean run(s) of {st.get('gate_runs', 7)} needed"
+        runs = [r for r in (st.get("runs") or []) if not r.get("baseline")]
+        checked = sum(int(r.get("triage_subst") or 0) for r in runs[-int(st.get("gate_runs") or 7):])
+        tail = (f"Checkpoint: {st.get('clean_streak', 0)} clean run(s) of {st.get('gate_runs', 7)}, {checked} substantial candidate(s) checked"
                 + (" (READY for your call)" if st.get("ready") else "")
-                + (f"; today not clean: {', '.join(last.get('reasons') or [])}" if last and not last.get("clean") else ""))
+                + ("; today was the baseline day" if last and last.get("baseline") else "")
+                + (f"; today not clean: {', '.join(last.get('reasons') or [])}" if last and not last.get("clean") and not last.get("baseline") else ""))
         lines.append(tail)
     else:
         tail = ""
