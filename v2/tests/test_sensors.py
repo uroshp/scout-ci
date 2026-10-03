@@ -261,12 +261,17 @@ class Compare(unittest.TestCase):
         self.assertEqual(len(lb["screen_only"]), 1)
         st = _Store()
         with mock.patch.object(compare.selfserve, "read_data", st.read), mock.patch.object(compare.selfserve, "write_data", st.write):
-            s1 = compare.update_streak("2026-10-06", [{"slug": "a", "misses_a": 0, "errors": 0, "sources": 10, "screen_cost": 0.01, "screen_subst": 1, "triage_subst": 2}], gate_runs=7, write=True)
+            s1 = compare.update_streak("2026-10-06", [{"slug": "a", "misses_a": 0, "errors": 0, "sources": 10, "screen_cost": 0.01, "screen_subst": 1, "triage_subst": 2, "findings": 2}], gate_runs=7, write=True)
             self.assertEqual(s1["clean_streak"], 1); self.assertFalse(s1["ready"])
-            s2 = compare.update_streak("2026-10-07", [{"slug": "a", "misses_a": 1, "errors": 0, "sources": 10, "screen_cost": 0.01, "screen_subst": 1, "triage_subst": 2}], gate_runs=7, write=True)
+            s2 = compare.update_streak("2026-10-07", [{"slug": "a", "misses_a": 1, "errors": 0, "sources": 10, "screen_cost": 0.01, "screen_subst": 1, "triage_subst": 2, "findings": 2}], gate_runs=7, write=True)
             self.assertEqual(s2["clean_streak"], 0); self.assertIn("1 Level A miss(es)", s2["runs"][-1]["reasons"])
-            s3 = compare.update_streak("2026-10-08", [{"slug": "a", "misses_a": 0, "errors": 0, "sources": 10, "screen_cost": 0.05, "screen_subst": 3, "triage_subst": 1}], gate_runs=7, write=True)
+            s3 = compare.update_streak("2026-10-08", [{"slug": "a", "misses_a": 0, "errors": 0, "sources": 10, "screen_cost": 0.05, "screen_subst": 3, "triage_subst": 1, "findings": 2}], gate_runs=7, write=True)
             self.assertEqual(s3["clean_streak"], 0); self.assertEqual(len(s3["runs"][-1]["reasons"]), 2)
+            # a baseline day (no findings anywhere) neither counts nor breaks the streak
+            s4 = compare.update_streak("2026-10-09", [{"slug": "a", "misses_a": 0, "errors": 0, "sources": 10, "screen_cost": 0.01, "screen_subst": 0, "triage_subst": 1, "findings": 0, "findings_recent": 0}], gate_runs=7, write=True)
+            self.assertTrue(s4["runs"][-1]["baseline"]); self.assertEqual(s4["clean_streak"], 0)
+            s5 = compare.update_streak("2026-10-10", [{"slug": "a", "misses_a": 0, "errors": 0, "sources": 10, "screen_cost": 0.01, "screen_subst": 1, "triage_subst": 1, "findings": 3, "findings_recent": 3}], gate_runs=7, write=True)
+            self.assertEqual(s5["clean_streak"], 1)
 
 
 class MonitorModes(unittest.TestCase):
