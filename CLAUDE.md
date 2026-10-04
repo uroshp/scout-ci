@@ -84,11 +84,17 @@ broke production this week. Every change to `scout/monitor.py`, `scout/propagate
    retired card in a store root outside the checkout, every private-store write under
    `rehearsal/`, every email subject prefixed `[rehearsal]`, nothing committed; the job summary
    holds the step table and the diff. Avoid 03:00–05:30 PT.
-3. Uroš approves; merge `rc` into `main`; **rehearse on main** the same way (it proves the exact
+3. Read the rehearsal's **lifecycle audit** (the `[lifecycle]` line in the run log, the FYI footer,
+   `lifecycle/<stamp>.json` under the rehearsal prefix; `python scripts/lifecycle_report.py <stamp>`
+   renders the page). It follows every finding from the searches to the card and into the eval
+   lanes against the promise's rules (focus coverage, boundary accounting, continuity, eval
+   continuity). A release is not green until the audit is GREEN and Uroš has seen the page: the
+   two 10/3-10/4 bugs that invalidated the tool were invisible to every other signal.
+4. Uroš approves; merge `rc` into `main`; **rehearse on main** the same way (it proves the exact
    code and workflow expressions the 4 AM run will use).
-4. The first morning is watched: the FYI footer's run-health line, the needs-you email (every
-   failed step is an item), the step table in `costs/<stamp>.json`, and the 09:00 PT canary's
-   `check_steps`.
+5. The first morning is watched: the FYI footer's run-health and lifecycle lines, the needs-you
+   email (every failed step and every red lifecycle rule is an item), the step table in
+   `costs/<stamp>.json`, and the 09:00 PT canary's `check_steps` and `check_lifecycle`.
 
 One rehearsed release per morning; a release may bundle several changes (the step rows attribute
 a failure to a step). Rollback levers that need no deploy: repo variables (`SCOUT_SIGNALS`,
