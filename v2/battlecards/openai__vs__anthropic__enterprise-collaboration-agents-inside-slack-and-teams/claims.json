@@ -254,25 +254,41 @@
   },
   {
     "subject_key": "anthropic | ipo-plan | current",
-    "claim": "Anthropic is expected to begin marketing an IPO in mid-October 2026, a listing some investors have said could reach roughly $2 trillion, per Reuters reporting via CNBC.",
+    "claim": "Anthropic pushed its IPO back about a month. It now aims to start marketing the offering as early as the week of November 9 and begin trading before Thanksgiving on November 26. It has an investor day on October 14, and prospective investors put its value at $1.8 trillion to $2 trillion, per Bloomberg reporting carried by Seoul Economic Daily, PYMNTS and SiliconANGLE. The timing could still change.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.cnbc.com/2026/09/05/anthropic-ipo-launch-shifts-toward-mid-october-reuters.html",
+    "source_url": "https://www.pymnts.com/news/artificial-intelligence/2026/anthropic-targets-pre-thanksgiving-ipo-at-2-trillion-valuation/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Anthropic is expected to begin marketing its initial public offering in mid-October at the earliest and complete the listing days before the U.S. midterm elections in November, people familiar with the matter said on Friday.",
-    "as_of": "2026-09-05",
-    "confidence": "high",
+    "evidence_excerpt": "The Wall Street Journal reported Sept. 18, citing unnamed sources, that Anthropic was planning to launch its IPO in November.",
+    "as_of": "2026-10-01",
+    "confidence": "medium",
     "id": "c_45702a341de6",
     "verified": true,
     "grounding": {
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-09-15",
+      "fetched_at": "2026-10-04",
       "detail": null
     },
+    "corroboration": [
+      {
+        "source_url": "https://siliconangle.com/2026/10/01/report-anthropic-targets-pre-thanksgiving-ipo-launch-despite-warning-of-ais-existential-risks/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "news"
+      },
+      {
+        "source_url": "https://en.sedaily.com/international/2026/10/02/anthropic-eyes-november-ipo-at-up-to-2-trillion-valuation",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
     "source_class": "news"
   },
   {
