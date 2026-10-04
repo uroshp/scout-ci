@@ -72,7 +72,7 @@ STANDARD_PATHS = {
 }
 SUBDOMAINS = {"status": "status.{host}", "ir": "ir.{host}", "investors": "investor.{host}", "blog": "blog.{host}", "news": "news.{host}"}
 MAX_CITED_PAGES = 6
-_FOCUS_STOP = {"general", "and", "vs", "for", "the", "of", "in", "ai", "features"}
+_FOCUS_STOP = {"general", "and", "vs", "for", "the", "of", "in", "inside", "ai", "features"}
 
 
 def _section_page(url: str) -> str:
