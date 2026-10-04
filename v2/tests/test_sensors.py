@@ -246,9 +246,11 @@ class Compare(unittest.TestCase):
         rows = compare.level_a(landed, findings, screen_cands, watched_hosts={"acme.example"}, names=["Acme"])
         self.assertEqual(rows[2].get("covered_by"), "screen")                      # the screen named the subject
         self.assertEqual([r.get("miss_reason") for r in rows if r.get("miss")],
-                         ["screened_out", "screened_out", "no_source", "no_finding"])
-        # row 0: a finding carried the excerpt; row 1: same URL as a finding; row 3: nothing watches
-        # theinformation.com; row 4: acme.example is watched, nothing was read on its docs page
+                         ["screened_out", "screened_out", "no_finding", "no_finding"])
+        # row 0: a finding carried the excerpt; row 1: same URL as a finding; row 3: theinformation.com
+        # is an indexed outlet with nothing new read; row 4: acme.example is watched, nothing read on docs
+        rows2 = compare.level_a([({"subject_key": "x | y", "source_url": "https://randomblog.example/p", "evidence_excerpt": "z" * 40}, {})], [], [], set(), names=["Acme"])
+        self.assertEqual(rows2[0]["miss_reason"], "no_source")
 
     def test_level_b_and_streak(self):
         triage = [{"signal": "Acme raises $500M Series D at a $5B valuation (Oct 3)", "subject_key": "NEW", "substantial": True},
@@ -505,3 +507,37 @@ class RenderedTier(unittest.TestCase):
         self.assertTrue(rendered.is_challenge("<html><title>Just a moment...</title></html>"))
         self.assertTrue(rendered.is_challenge("<p>Please verify you are a human</p>"))
         self.assertFalse(rendered.is_challenge("<html><title>Pricing</title><p>Team plan $20</p></html>", "Pricing"))
+
+
+class EvidenceInHand(unittest.TestCase):
+    """Part 3 #4 (gate mode): page findings carry the text code read; a paid step whose every candidate
+    carries it runs with the lower turn cap and the evidence note, and the capture flags the cell."""
+
+    def test_only_page_findings_carry_evidence(self):
+        f_page = dict(events.make("acme", "value_change", "https://acme.example/pricing", "pricing: a figure changed", "BEFORE: $20 AFTER: $25"), role="competitor")
+        f_news = dict(events.make("acme", "news", "https://techcrunch.com/a", "Acme raises $500M", "The round values Acme at $5B."), role="competitor")
+        _, index = screen.build_user({"competitor": "Acme"}, [], [f_page, f_news], "2026-10-02")
+        out = {"candidates": [{"finding_id": "f1", "signal": "price up", "subject_key": "NEW", "about": "competitor", "valence": "back_foot", "substantial": True, "why_new": ""},
+                              {"finding_id": "f2", "signal": "round", "subject_key": "NEW", "about": "competitor", "valence": "back_foot", "substantial": True, "why_new": ""}]}
+        cands = screen.validate(out, index)
+        self.assertIn("evidence", cands[0]); self.assertIn("$25", cands[0]["evidence"])
+        self.assertNotIn("evidence", cands[1])
+
+    def test_cap_and_note_only_when_every_candidate_has_evidence(self):
+        from scout import monitor, calllog
+        with mock.patch.object(monitor.judgment, "optional", return_value="NOTE"):
+            note, cap = monitor._evidence_in_hand([{"signal": "a", "evidence": "x"}, {"signal": "b", "evidence": "y"}])
+            self.assertEqual(cap, config.EVIDENCE_MAX_TURNS); self.assertIn("NOTE", note)
+            self.assertTrue(calllog._CTX.get("evidence_attached"))
+            note2, cap2 = monitor._evidence_in_hand([{"signal": "a", "evidence": "x"}, {"signal": "b"}])
+            self.assertEqual((note2, cap2), ("", config.MAX_TURNS)); self.assertNotIn("evidence_attached", calllog._CTX)
+            self.assertEqual(monitor._evidence_in_hand([]), ("", config.MAX_TURNS))
+
+    def test_how_panel_copy_follows_the_mode(self):
+        from scout import page
+        with mock.patch.object(config, "SENSORS_MODE", "gate"):
+            h = page._how_panel()
+        self.assertIn("Code reads each company", h); self.assertIn("Code sensors read the sources", h); self.assertNotIn("Scans each competitor", h)
+        with mock.patch.object(config, "SENSORS_MODE", "shadow"):
+            h = page._how_panel()
+        self.assertIn("Scans each competitor", h); self.assertNotIn("Code sensors read the sources", h)
