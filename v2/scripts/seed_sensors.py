@@ -122,11 +122,7 @@ def _main_host(hosts: Counter, name: str) -> str | None:
 
 # Product names worth their own news query, per entity (reviewed with the registries; a product entity
 # such as "Microsoft Teams" or "Google Cloud" must not inherit its parent company's list).
-PRODUCT_QUERIES = {
-    "anthropic": ["Claude"], "openai": ["ChatGPT"], "google": ["Gemini", "DeepMind"], "mistral": ["Magistral"],
-    "atlassian": ["Jira", "Confluence"], "aws": ["Bedrock"], "cognition": ["Devin"], "hubspot": ["Breeze"],
-    "salesforce": ["Agentforce"], "cursor": ["Anysphere"], "perplexity": ["Comet"],
-}
+from scout.sensors.vocab import PRODUCT_QUERIES  # noqa: E402  (shared with the lifecycle audit)
 
 
 def _aliases(name: str) -> list[str]:

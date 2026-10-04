@@ -107,6 +107,11 @@ def trace_summary() -> str:
         return f"[calllog] trace skipped ({type(e).__name__}: {e})"
 
 
+def current_calls() -> list[dict]:
+    """The calls captured so far in this process (the lifecycle audit reads them before the flush)."""
+    return list((_RUN or {}).get("calls") or [])
+
+
 def flush_run(write: bool = True) -> list[str]:
     """Write the run's bundle ONCE (split into parts under PART_MAX_BYTES). Returns the paths
     written ([] when disabled / no run / write=False / no creds). Never raises; resets the run."""

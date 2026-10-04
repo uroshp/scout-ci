@@ -78,6 +78,35 @@ def check_steps(day: date) -> list[str]:
     return problems
 
 
+def check_lifecycle(day: date) -> list[str]:
+    """The lifecycle audit of today's PRODUCTION run (2026-10-04): the run wrote lifecycle/<stamp>.json
+    and its verdict is not RED. A missing audit on a day with a ledger is itself a problem: the step
+    that follows every finding to the card and the evals did not run."""
+    stamp = day.strftime("%Y%m%d")
+    ledgers = sorted(n for n in (selfserve.list_data("costs") or []) if n.startswith(stamp))
+    if not ledgers:
+        return []
+    audits = sorted(n for n in (selfserve.list_data("lifecycle") or []) if n.startswith(stamp))
+    if not audits:
+        try:
+            doc = json.loads(selfserve.read_data(f"costs/{ledgers[-1]}") or "{}")
+            if not any("steps" in c for c in (doc.get("cards") or [])):
+                return []                           # a ledger from code that predates the audit
+        except Exception:
+            pass
+        return [f"lifecycle: no audit for today's run(s) ({', '.join(ledgers)}); the finding trace was not checked"]
+    problems = []
+    for n in audits:
+        try:
+            doc = json.loads(selfserve.read_data(f"lifecycle/{n}") or "{}")
+        except Exception as e:
+            problems.append(f"lifecycle: {n} unreadable ({type(e).__name__})")
+            continue
+        if doc.get("verdict") == "RED":
+            problems.append(f"lifecycle: {n} RED: {str(doc.get('summary') or '')[:300]}")
+    return problems
+
+
 SENSOR_READY_MARK = "sensors/_compare/_ready_notified.json"
 
 
@@ -214,6 +243,7 @@ def main(argv=None) -> int:
     if not skip_day:
         problems += check_monitor(day)
         problems += check_steps(day)
+        problems += check_lifecycle(day)
         problems += check_capture(day)
         problems += check_replay(day)
     problems += check_app()

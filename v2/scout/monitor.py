@@ -397,7 +397,7 @@ def _ground_best(claims: list[dict]) -> dict:
     corroboration. Falls back to single-anchor behavior when the judge supplied no candidates.
     Same {kept, failed, cut} contract as grounding.ground_claims so check()'s retry round can
     consume it unchanged. A claim only enters `failed` when EVERY candidate failed to ground."""
-    kept, failed, cut = [], [], []
+    kept, failed, cut, results = [], [], [], []
     for claim in claims:
         variants = _candidate_variants(claim)
         # Build one grounding-ready variant per candidate (candidate_sources is transient — it is
@@ -411,6 +411,7 @@ def _ground_best(claims: list[dict]) -> dict:
         if not vclaims:  # no usable source at all — let ground_claims emit the failure record
             vclaims = [{k: val for k, val in claim.items() if k != "candidate_sources"}]
         g = ground_claims(vclaims)
+        results += list(g.get("results") or [])        # per-claim instrumentation: the shadow capture reads it (10/4)
         if g["kept"]:
             best = min(g["kept"], key=lambda c: _source_rank(c.get("source_url"), c.get("source_tier")))
             # Demote the OTHER candidate sources (whatever their fate) to corroboration pointers.
@@ -430,7 +431,7 @@ def _ground_best(claims: list[dict]) -> dict:
                           else {"claim": vclaims[0], "status": "absent", "reason": CUT_ABSENT})
             if g["cut"]:
                 cut.append(g["cut"][0])
-    return {"kept": kept, "failed": failed, "cut": cut}
+    return {"kept": kept, "failed": failed, "cut": cut, "results": results}
 
 
 def _apply_updates(claims, material_grounded, alerted_fingerprints, updated_ids: set | None = None):
@@ -547,7 +548,8 @@ def _my_company_facts(slug, meta, since, my_substantial, claims):
         seen.add(c["id"])
         pairs.append((c, alert_by_id[c["id"]]))
     return {"grounded": pairs, "cost": mat.get("cost_usd"), "emitted": len(mdata.get("facts") or []),
-            "schema_rejected": rejected, "ungrounded": len(grounded.get("failed") or [])}
+            "schema_rejected": rejected, "ungrounded": len(grounded.get("failed") or []),
+            "grounding": grounded}                        # kept / failed / cut / results for the eval mirror (10/4)
 
 
 def _is_act(alert: dict) -> bool:
@@ -1142,9 +1144,11 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
     # persist the anchors (non-rendered) + alert, so the derived objections resolve their source and
     # the retire-cascade can track them; in SHADOW, in-memory only — the decision log is the record.
     my_grounded = []
+    my_grounding: dict = {"kept": [], "cut": [], "results": []}
     if do_my:
         try:
             myf = _my_company_facts(slug, meta, my_since, my_substantial, claims)
+            my_grounding = myf.get("grounding") or my_grounding
             result["cost"]["my_company"] = myf["cost"]
             my_grounded = myf["grounded"]
             result["my_company_facts"] = [
@@ -1333,8 +1337,13 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
     # Shadow-eval observer (v3.5): on a real escalated check, record the champion grounding
     # decisions for offline challenger scoring. No-op unless SCOUT_SHADOW_EVAL=1; never raises.
     if write:
-        shadow.capture(slug, "monitor", kept=grounded["kept"], cut=grounded["cut"],
-                       grounding=grounded, competitor=meta.get("competitor"),
+        # BOTH arms in one grounding record (2026-10-04: the own-side arm's grounding was never captured,
+        # and _ground_best dropped the per-claim results, so the eval lanes saw neither)
+        both = {"kept": list(grounded.get("kept") or []) + list(my_grounding.get("kept") or []),
+                "cut": list(grounded.get("cut") or []) + list(my_grounding.get("cut") or []),
+                "results": list(grounded.get("results") or []) + list(my_grounding.get("results") or [])}
+        shadow.capture(slug, "monitor", kept=both["kept"], cut=both["cut"],
+                       grounding=both, competitor=meta.get("competitor"),
                        my_company=meta.get("my_company"), focus=meta.get("focus"))
         # DERIVED CAPTURE (2026-09-28): today's new/revised interpretations WITH their parent facts,
         # so the challenger judges support on plays/objections/summaries too (live-mode applies land
@@ -1857,6 +1866,21 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
             "total": _run_total(cost),
             "steps": list(res.get("steps") or []),   # the step table rides the ledger: the canary reads it
         })
+    # LIFECYCLE AUDIT (Uroš 2026-10-04): every finding of this run followed from the searches to the
+    # card and to the eval lanes, against the promise's rules; RED reaches the needs-you email, the
+    # FYI footer and the canary. Reads what the run already wrote; never raises; $0.
+    lifecycle_doc = None
+    if write:
+        try:
+            from scout import calllog as _cl, lifecycle as _lc
+            lifecycle_doc = _lc.audit(run_started.strftime("%Y%m%dT%H%M%S"), rows=cost_rows, calls=_cl.current_calls(), write=True)
+            print(f"[lifecycle] {lifecycle_doc['verdict']}: {lifecycle_doc['summary']}")
+            for c in lifecycle_doc.get("cards") or []:
+                if c.get("failed"):
+                    errs = [f"lifecycle {i['id']}: {i['rule']} ({i['evidence'][:160]})" for i in c["invariants"] if i["status"] == "fail"]
+                    issue_cards.append({"slug": c["slug"], "meta": store.load_meta(c["slug"]) or {}, "errors": errs})
+        except Exception as e:
+            print(f"[lifecycle] audit skipped ({type(e).__name__}: {e})", file=sys.stderr)
     if send and config.PROPAGATE_MODE == "live":
         run_cost = sum(float(r.get("cost_usd") or _run_total(r.get("phases") or {}) or 0) for r in cost_rows)
         if quiet:
@@ -1882,7 +1906,8 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
                     print(f"[sensors] streak update skipped ({type(e).__name__}: {e})", file=sys.stderr)
                     sensors_block = {"mode": config.SENSORS_MODE, "rows": sensor_rows, "streak": None, "error": f"{type(e).__name__}: {e}"}
             try:
-                fyi = notify.send_run_fyi(fyi_cards, run_cost, dry_run=email_dry_run, health=health_rows, sensors=sensors_block)
+                fyi = notify.send_run_fyi(fyi_cards, run_cost, dry_run=email_dry_run, health=health_rows, sensors=sensors_block,
+                                          lifecycle=lifecycle_doc)
                 print(f"[monitor] run FYI: {fyi}")
             except Exception as e:
                 print(f"[monitor] run FYI skipped ({type(e).__name__}: {e})", file=sys.stderr)
