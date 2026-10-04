@@ -454,7 +454,7 @@ class Seeding(unittest.TestCase):
                                   {"focus": "Enterprise collaboration agents inside Slack and Teams"},
                                   {"focus": None}])
         self.assertIn('"OpenAI" enterprise sovereign developers agents', q)
-        self.assertIn('"OpenAI" enterprise collaboration agents inside slack teams', q)
+        self.assertIn('"OpenAI" enterprise collaboration agents slack teams', q)
         self.assertEqual(q[0], '"OpenAI"')
 
     def test_section_page_collapses_permalinks(self):
