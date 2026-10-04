@@ -42,8 +42,8 @@ OpenAI now says enterprise is the majority of its revenue at a \$40 billion run 
 
 ## Recent Strategic Moves
 
+- Anthropic pushed its IPO back about a month. It now aims to start marketing the offering as early as the week of November 9 and begin trading before Thanksgiving on November 26. It has an investor day on October 14, and prospective investors put its value at \$1.8 trillion to \$2 trillion, per Bloomberg reporting carried by Seoul Economic Daily, PYMNTS and SiliconANGLE. The timing could still change. ([pymnts.com](https://www.pymnts.com/news/artificial-intelligence/2026/anthropic-targets-pre-thanksgiving-ipo-at-2-trillion-valuation/))
 - On September 14 Anthropic cut Claude Code weekly usage limits by a net 17% for Pro, Max, Team and seat-based Enterprise plans, framing the change publicly as a permanent 25% increase because it expired a temporary 50% boost the day before. ([bleepingcomputer.com](https://www.bleepingcomputer.com/news/artificial-intelligence/anthropic-is-cutting-claude-codes-current-weekly-limits-by-17-percent/))
-- Anthropic is expected to begin marketing an IPO in mid-October 2026, a listing some investors have said could reach roughly \$2 trillion, per Reuters reporting via CNBC. ([cnbc.com](https://www.cnbc.com/2026/09/05/anthropic-ipo-launch-shifts-toward-mid-october-reuters.html))
 - On September 1 Anthropic reversed a controversial 30-day data-retention policy for business customers after heavy feedback, replacing it with a new offering it calls Enterprise Frontier Safeguards. ([cnbc.com](https://www.cnbc.com/2026/09/01/anthropic-data-retention.html))
 - Anthropic signed another large compute deal (a reported \$45 billion arrangement with Nscale) in August 2026, part of an eight-month run of capacity buys aimed at keeping pace with OpenAI, underscoring that its supply cannot yet meet Claude demand. ([techcrunch.com](https://techcrunch.com/2026/08/26/anthropic-continues-compute-gobbling-streak-in-45-billion-deal-with-nscale/))
 - On August 26 Salesforce and Anthropic launched Claudeforce, making Claude the default model across Slack AI, Slackbot and Agentforce Coworker, the first time Salesforce has attached its 'force' branding to another company's product. ([salesforce.com](https://www.salesforce.com/news/press-releases/2026/08/26/salesforce-and-anthropic-announce-claudeforce/))
@@ -133,7 +133,6 @@ The pause is real: on September 10 OpenAI stopped new \$200 consumer Pro subscri
 That reputation is worth testing against this month's record. A class action filed September 8 accuses Anthropic of failing to make clear the limits of its Max plan, days after it reversed a data-retention policy under enterprise pressure and cut Claude Code limits while calling it an increase. Being safety-branded and being consistently straight with customers on terms are different things.
 
 **So what:** When trust is the deciding factor, hand the buyer these dated facts and let the pattern speak. ([engadget.com](https://www.engadget.com/2253767/anthropic-users-are-taking-the-company-to-court-over-max-subscription-terms/))
-
 
 ## Cut Log
 
