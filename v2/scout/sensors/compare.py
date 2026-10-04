@@ -153,9 +153,12 @@ def load_streak() -> dict:
 
 def update_streak(date: str, cards: list[dict], *, gate_runs: int, write: bool) -> dict:
     """One row per scheduled run. A run is CLEAN when every card had zero Level A misses, the sensor
-    error ratio stayed under 10%, the screen cost at most $0.03 a card, and the screen surfaced no
-    more substantial candidates than triage did. `cards`: [{slug, misses_a, errors, sources, screen_cost,
-    screen_subst, triage_subst, unavailable}]."""
+    error ratio stayed under 10%, and the screen cost at most $0.03 a card. The screen's substantial
+    count is RECORDED next to triage's, not gated: the first real comparison (2026-10-03) had the
+    screen surface two Salesforce acquisitions triage missed in the same window, and a "no more than
+    triage" rule would have called better recall a failure. The bill is bounded by the run ceiling;
+    the checkpoint report projects it from the escalation rate so the call is informed.
+    `cards`: [{slug, misses_a, errors, sources, screen_cost, screen_subst, triage_subst, unavailable}]."""
     s = load_streak()
     misses = sum(int(c.get("misses_a") or 0) for c in cards)
     errors = sum(int(c.get("errors") or 0) for c in cards)
@@ -169,7 +172,7 @@ def update_streak(date: str, cards: list[dict], *, gate_runs: int, write: bool) 
     # the day the sensors only set their baselines (no finding anywhere, nothing screened) is not a
     # clean run and not a failed one: the streak starts the day after
     baseline = findings == 0 and screen_subst == 0 and sum(int(c.get("findings_recent") or 0) for c in cards) == 0
-    clean = (not baseline) and misses == 0 and err_ratio < 0.10 and (cost / n) <= 0.03 and screen_subst <= triage_subst
+    clean = (not baseline) and misses == 0 and err_ratio < 0.10 and (cost / n) <= 0.03
     reasons = []
     if baseline:
         reasons.append("baseline day: sensors read everything for the first time, no findings yet")
@@ -179,10 +182,11 @@ def update_streak(date: str, cards: list[dict], *, gate_runs: int, write: bool) 
         reasons.append(f"sensor errors {err_ratio:.0%}")
     if (cost / n) > 0.03:
         reasons.append(f"screen ${cost / n:.3f} a card")
-    if screen_subst > triage_subst:
-        reasons.append(f"screen {screen_subst} substantial vs triage {triage_subst}")
+    escalating = sum(1 for c in cards if int(c.get("screen_subst") or 0) > 0)
     row = {"date": date, "cards": len(cards), "misses_a": misses, "errors": errors, "sources": sources,
            "screen_cost": round(cost, 4), "screen_subst": screen_subst, "triage_subst": triage_subst,
+           "screen_escalating_cards": escalating,                 # cards that would pay for materiality in gate mode
+           "triage_escalating_cards": sum(1 for c in cards if int(c.get("triage_subst") or 0) > 0),
            "findings": findings, "baseline": baseline, "clean": clean, "reasons": reasons}
     s["runs"] = [r for r in s["runs"] if r.get("date") != date][-60:] + [row]
     streak = 0

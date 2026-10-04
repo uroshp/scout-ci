@@ -266,7 +266,8 @@ class Compare(unittest.TestCase):
             s2 = compare.update_streak("2026-10-07", [{"slug": "a", "misses_a": 1, "errors": 0, "sources": 10, "screen_cost": 0.01, "screen_subst": 1, "triage_subst": 2, "findings": 2}], gate_runs=7, write=True)
             self.assertEqual(s2["clean_streak"], 0); self.assertIn("1 Level A miss(es)", s2["runs"][-1]["reasons"])
             s3 = compare.update_streak("2026-10-08", [{"slug": "a", "misses_a": 0, "errors": 0, "sources": 10, "screen_cost": 0.05, "screen_subst": 3, "triage_subst": 1, "findings": 2}], gate_runs=7, write=True)
-            self.assertEqual(s3["clean_streak"], 0); self.assertEqual(len(s3["runs"][-1]["reasons"]), 2)
+            self.assertEqual(s3["clean_streak"], 0); self.assertEqual(s3["runs"][-1]["reasons"], ["screen $0.050 a card"])   # better recall than triage is not a failure
+            self.assertEqual(s3["runs"][-1]["screen_escalating_cards"], 1)
             # a baseline day (no findings anywhere) neither counts nor breaks the streak
             s4 = compare.update_streak("2026-10-09", [{"slug": "a", "misses_a": 0, "errors": 0, "sources": 10, "screen_cost": 0.01, "screen_subst": 0, "triage_subst": 1, "findings": 0, "findings_recent": 0}], gate_runs=7, write=True)
             self.assertTrue(s4["runs"][-1]["baseline"]); self.assertEqual(s4["clean_streak"], 0)

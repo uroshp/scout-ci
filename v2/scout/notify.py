@@ -785,7 +785,10 @@ def _sensors_lines(sensors: dict | None) -> tuple[list[str], str]:
         last = (st.get("runs") or [{}])[-1]
         runs = [r for r in (st.get("runs") or []) if not r.get("baseline")]
         checked = sum(int(r.get("triage_subst") or 0) for r in runs[-int(st.get("gate_runs") or 7):])
-        tail = (f"Checkpoint: {st.get('clean_streak', 0)} clean run(s) of {st.get('gate_runs', 7)}, {checked} substantial candidate(s) checked"
+        esc_s = sum(int(r.get("screen_escalating_cards") or 0) for r in runs[-int(st.get("gate_runs") or 7):])
+        esc_t = sum(int(r.get("triage_escalating_cards") or 0) for r in runs[-int(st.get("gate_runs") or 7):])
+        tail = (f"Checkpoint: {st.get('clean_streak', 0)} clean run(s) of {st.get('gate_runs', 7)}, {checked} substantial candidate(s) checked, "
+                f"escalations screen {esc_s} vs triage {esc_t}"
                 + (" (READY for your call)" if st.get("ready") else "")
                 + ("; today was the baseline day" if last and last.get("baseline") else "")
                 + (f"; today not clean: {', '.join(last.get('reasons') or [])}" if last and not last.get("clean") and not last.get("baseline") else ""))
