@@ -37,7 +37,7 @@ from scout.propagate import propagate, apply_ops, promote_lead
 from scout.grounding import CUT_ABSENT, ground_claims, is_excluded_source
 from scout.prompts import WRITING_STYLE
 from scout.render import claims_to_markdown, clean_output, extract_cut_log, format_report
-from scout.schema import ANCHOR_SECTION, SOURCE_TIERS, claim_id, pregrounding_errors, validation_errors
+from scout.schema import ANCHOR_SECTION, SOURCE_TIERS, claim_id, normalize_claim, pregrounding_errors, validation_errors
 from scout import judgment
 
 # Source-tier preference order for multi-source grounding (best first): a primary filing /
@@ -478,7 +478,7 @@ def _my_company_facts(slug, meta, since, my_substantial, claims):
         mdata = _extract_json(mat["text"])
     except Exception:
         mdata = {"facts": []}
-    alert_by_id, to_ground = {}, []
+    alert_by_id, to_ground, rejected = {}, [], []
     for m in (mdata.get("facts") or []):
         c = m.get("claim")
         if not isinstance(c, dict) or "subject_key" not in c:
@@ -487,11 +487,14 @@ def _my_company_facts(slug, meta, since, my_substantial, claims):
         c["claim_type"] = "fact"
         c["id"] = claim_id(slug, str(c["subject_key"]))
         c["verified"] = True
+        normalize_claim(c)                                   # representation is code's job (10/4)
         cand = _candidate_variants(c)
         if cand and not c.get("source_url"):
             c.update(source_url=cand[0]["source_url"], source_tier=cand[0]["source_tier"],
                      evidence_excerpt=cand[0]["evidence_excerpt"])
-        if pregrounding_errors({k: v for k, v in c.items() if k != "candidate_sources"}):
+        errs = pregrounding_errors({k: v for k, v in c.items() if k != "candidate_sources"})
+        if errs:
+            rejected.append(f"{c.get('subject_key')}: {errs[0]}")
             continue
         alert_by_id[c["id"]] = m.get("alert", {})
         to_ground.append(c)
@@ -503,7 +506,8 @@ def _my_company_facts(slug, meta, since, my_substantial, claims):
             continue
         seen.add(c["id"])
         pairs.append((c, alert_by_id[c["id"]]))
-    return {"grounded": pairs, "cost": mat.get("cost_usd")}
+    return {"grounded": pairs, "cost": mat.get("cost_usd"), "emitted": len(mdata.get("facts") or []),
+            "schema_rejected": rejected, "ungrounded": len(grounded.get("failed") or [])}
 
 
 def _is_act(alert: dict) -> bool:
@@ -606,21 +610,26 @@ def _competitor_arm(slug, meta, since, substantial, claims, result, sig_block: s
         mdata = _extract_json(mat["text"])
     except Exception:
         mdata = {"material": []}
-    alert_by_id, to_ground = {}, []
+    alert_by_id, to_ground, rejected = {}, [], []
     for m in (mdata.get("material") or []):
         c = m.get("claim")
         if not isinstance(c, dict) or "subject_key" not in c:
             continue
         c["id"] = claim_id(slug, str(c["subject_key"]))
         c["verified"] = True
+        normalize_claim(c)                                   # representation is code's job (10/4)
         cand = _candidate_variants(c)
         if cand and not c.get("source_url"):
             c.update(source_url=cand[0]["source_url"], source_tier=cand[0]["source_tier"],
                      evidence_excerpt=cand[0]["evidence_excerpt"])
-        if pregrounding_errors({k: v for k, v in c.items() if k != "candidate_sources"}):
+        errs = pregrounding_errors({k: v for k, v in c.items() if k != "candidate_sources"})
+        if errs:
+            rejected.append(f"{c.get('subject_key')}: {errs[0]}")
             continue
         alert_by_id[c["id"]] = m.get("alert", {})
         to_ground.append(c)
+    result["materiality_emitted"] = len(mdata.get("material") or [])
+    result["materiality_schema_rejected"] = rejected
 
     grounded = _ground_best(to_ground)
     kept = [c for c in grounded["kept"] if not validation_errors(c)]
@@ -638,6 +647,7 @@ def _competitor_arm(slug, meta, since, substantial, claims, result, sig_block: s
                 continue
             c["id"] = claim_id(slug, str(c["subject_key"]))
             c["verified"] = True
+            normalize_claim(c)
             if not pregrounding_errors({k: v for k, v in c.items() if k != "candidate_sources"}):
                 revised.append(c)
         reground = _ground_best(revised) if revised else {"kept": []}
@@ -823,6 +833,20 @@ def _sensor_compare(slug: str, meta: dict, sens: dict | None, candidates: list, 
         print(f"[sensors] compare FAILED ({type(e).__name__}: {e})", file=sys.stderr)
         _step(steps, "compare", "failed", f"{type(e).__name__}: {e}")
         return {"slug": slug, "misses_a": 0, "error": f"{type(e).__name__}: {e}"}
+
+
+def _arm_status(grounded: int, candidates: int, what: str, emitted: int, rejected: list) -> tuple[str, str]:
+    """(status, detail) for a materiality / own-company step row. Facts the model emitted that the
+    schema rejected BEFORE grounding are named (2026-10-04: Sonnet 5.5 wrote confidence as 0.9, every
+    own-side fact was dropped and the row said "0 grounded of 4", as if grounding had failed). When
+    the model emitted facts and the schema rejected every one, the step FAILED: it reaches the
+    needs-you email and the canary instead of reading like a quiet morning."""
+    detail = f"{grounded} {what} of {candidates} candidate(s)"
+    if rejected:
+        detail += f"; {len(rejected)} of {emitted} emitted fact(s) rejected by the schema before grounding: " + "; ".join(rejected[:3])
+        if grounded == 0 and emitted and len(rejected) >= emitted:
+            return "failed", detail
+    return "ran", detail
 
 
 def _step(steps: list, name: str, status: str, detail=None, cost=None) -> None:
@@ -1049,8 +1073,9 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
     if substantial:
         try:
             material_grounded, grounded, immaterial = _competitor_arm(slug, meta, since, substantial, claims, result, sig_block=sig_block + ctx_block)
-            _step(steps, "materiality", "ran",
-                  f"{len(material_grounded)} grounded of {len(substantial)} candidate(s)", result["cost"].get("materiality"))
+            _step(steps, "materiality", *_arm_status(len(material_grounded), len(substantial), "grounded",
+                                                      result.get("materiality_emitted", 0), result.get("materiality_schema_rejected") or []),
+                  result["cost"].get("materiality"))
         except Exception as e:
             comp_failed = True
             spent = getattr(e, "scout_cost_usd", None)
@@ -1082,8 +1107,9 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
                 new_claims, my_alerts = _apply_updates(
                     new_claims, my_grounded, meta.get("alerted_fingerprints", []))
                 new_alerts = new_alerts + my_alerts
-            _step(steps, "own_company", "ran",
-                  f"{len(my_grounded)} anchor fact(s) grounded of {len(my_substantial)} candidate(s)", myf.get("cost"))
+            _step(steps, "own_company", *_arm_status(len(my_grounded), len(my_substantial), "anchor fact(s) grounded",
+                                                     myf.get("emitted", 0), myf.get("schema_rejected") or []),
+                  myf.get("cost"))
         except Exception as e:  # NON-DISRUPTION: the new arm must never break the competitor monitor
             my_failed = True
             spent = getattr(e, "scout_cost_usd", None)

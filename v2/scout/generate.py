@@ -28,7 +28,7 @@ from claude_agent_sdk import AgentDefinition, ClaudeAgentOptions, query
 from scout import config, shadow, calllog, sources_tool
 from scout.prompts import SOURCE_HIERARCHY, WRITING_STYLE, load_methodology
 from scout.schema import (
-    SECTIONS, ZONES, claim_id, pregrounding_errors, validation_errors,
+    SECTIONS, ZONES, claim_id, normalize_claim, pregrounding_errors, validation_errors,
 )
 from scout.grounding import ground_claims, _fetch_response, _extract_text
 from scout.fetch_tool import (
@@ -476,6 +476,7 @@ def _generate_inner(target, perspective, focus, write, retry):
             continue
         c["id"] = claim_id(slug, str(c["subject_key"]))
         c["verified"] = True
+        normalize_claim(c)
         errs = pregrounding_errors(c)
         if errs:
             schema_problems.append((c.get("subject_key"), errs))
@@ -508,6 +509,7 @@ def _generate_inner(target, perspective, focus, write, retry):
                 continue
             c["id"] = claim_id(slug, c["subject_key"])
             c["verified"] = True
+            normalize_claim(c)
             if not pregrounding_errors(c):
                 revised.append(c)
         reground = ground_claims(revised) if revised else {"kept": [], "failed": []}
