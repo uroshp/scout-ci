@@ -70,7 +70,11 @@ def prep(slugs: list[str], root: str) -> None:
         else:
             src = os.path.join(ARCHIVE, slug)
             if not os.path.isdir(src) or not os.path.exists(os.path.join(src, "meta.json")):
-                sys.exit(f"rehearse prep: no rehearsal copy in the store and no archive card at {src}")
+                live = os.path.join(config.APP_ROOT, "battlecards", slug)        # a LIVE card, copied: the production card is never touched
+                if os.path.isdir(live) and os.path.exists(os.path.join(live, "meta.json")):
+                    src = live
+                else:
+                    sys.exit(f"rehearse prep: no rehearsal copy in the store, no archive card and no live card for {slug}")
             for name in FILES:
                 p = os.path.join(src, name)
                 if os.path.exists(p):
@@ -81,10 +85,10 @@ def prep(slugs: list[str], root: str) -> None:
                 # abandon the window on its first hold and the hold path would never be exercised
                 meta["unresolved_attempts"] = 0
             meta["monitored"] = True
-            meta["rehearsal"] = {"from": "archive", "first_prep": date.today().isoformat()}
+            meta["rehearsal"] = {"from": "archive" if src.startswith(ARCHIVE) else "live", "first_prep": date.today().isoformat()}
             with open(os.path.join(dest, "meta.json"), "w") as f:
                 json.dump(meta, f, indent=2, ensure_ascii=False)
-            print(f"[rehearse] {slug}: copied from the archive (attempt counter reset)")
+            print(f"[rehearse] {slug}: copied from {'the archive' if src.startswith(ARCHIVE) else 'the LIVE card (the production card is untouched)'} (attempt counter reset)")
         if os.path.isdir(before):
             shutil.rmtree(before)
         shutil.copytree(dest, before)
