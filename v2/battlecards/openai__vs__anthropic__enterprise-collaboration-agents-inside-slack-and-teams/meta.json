@@ -1,0 +1,11 @@
+{
+  "slug": "openai__vs__anthropic__enterprise-collaboration-agents-inside-slack-and-teams",
+  "my_company": "OpenAI",
+  "competitor": "Anthropic",
+  "focus": "Enterprise collaboration agents (inside Slack and Teams)",
+  "baseline_date": "2026-09-15",
+  "last_checked": "2026-09-15T17:56:26",
+  "cadence_hours": 24,
+  "alerted_fingerprints": [],
+  "monitored": true
+}
