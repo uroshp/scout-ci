@@ -1044,20 +1044,22 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
 
     result["alerts"] = new_alerts
 
-    # CARRY-OVER BOOKKEEPING: a failed arm re-presents its candidates next run. An arm that RAN and
-    # grounded nothing had its chance: the competitor case keeps its held window below (as before);
-    # the own-side case is recorded in the dismissal capture and dropped (it used to hold the
-    # COMPETITOR window, which re-scanned the wrong side). Bounded, then abandoned loudly.
+    # CARRY-OVER BOOKKEEPING: a failed arm re-presents its candidates next run. A competitor arm that
+    # RAN and grounded nothing keeps its held window below (as before). An own-side arm that ran and
+    # grounded nothing gets ONE more attempt next run (parity with the competitor side's re-scans; it
+    # used to hold the COMPETITOR window, which re-scanned the wrong side: the 10/3 ChatGPT Pro
+    # usage-limit cut on the OpenAI vs Anthropic card was found, not grounded, and would have been
+    # lost until the sweep). Bounded, then abandoned loudly.
     carry = {}
     if comp_failed:
         carry["competitor"] = substantial
-    if do_my and my_failed:
+    if do_my and (my_failed or (not my_grounded and int(pending.get("attempts") or 0) < 1)):
         carry["my_company"] = my_substantial
     if carry:
         attempts = int(pending.get("attempts") or 0) + 1
         if attempts < config.MONITOR_MAX_UNRESOLVED_RETRIES:
             meta["pending_candidates"] = {**carry, "since": since, "my_since": my_since, "attempts": attempts,
-                                          "reason": "failed step"}
+                                          "reason": "failed step" if (comp_failed or my_failed) else "own-side candidates did not ground"}
             result["carry_over"] = {k: len(v) for k, v in carry.items()}
         else:
             meta.pop("pending_candidates", None)

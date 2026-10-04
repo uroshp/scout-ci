@@ -246,9 +246,11 @@ class Compare(unittest.TestCase):
         rows = compare.level_a(landed, findings, screen_cands, watched_hosts={"acme.example"}, names=["Acme"])
         self.assertEqual(rows[2].get("covered_by"), "screen")                      # the screen named the subject
         self.assertEqual([r.get("miss_reason") for r in rows if r.get("miss")],
-                         ["screened_out", "screened_out", "no_source", "no_finding"])
-        # row 0: a finding carried the excerpt; row 1: same URL as a finding; row 3: nothing watches
-        # theinformation.com; row 4: acme.example is watched, nothing was read on its docs page
+                         ["screened_out", "screened_out", "no_finding", "no_finding"])
+        # row 0: a finding carried the excerpt; row 1: same URL as a finding; row 3: theinformation.com
+        # is an indexed outlet with nothing new read; row 4: acme.example is watched, nothing read on docs
+        rows2 = compare.level_a([({"subject_key": "x | y", "source_url": "https://randomblog.example/p", "evidence_excerpt": "z" * 40}, {})], [], [], set(), names=["Acme"])
+        self.assertEqual(rows2[0]["miss_reason"], "no_source")
 
     def test_level_b_and_streak(self):
         triage = [{"signal": "Acme raises $500M Series D at a $5B valuation (Oct 3)", "subject_key": "NEW", "substantial": True},
