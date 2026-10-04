@@ -128,18 +128,45 @@ def _hold_window(meta: dict, since: str | None, result: dict) -> None:
         _clear_window(meta)
 
 
-def _resolve_or_hold(meta: dict, new_alerts: list[dict], result: dict) -> None:
+def _norm_key(k) -> str:
+    """Subject keys compared spacing- and case-insensitively (claim ids already are)."""
+    from scout.schema import normalize_subject_key
+    return normalize_subject_key(str(k or ""))
+
+
+def _judged_immaterial_subjects(substantial: list[dict], immaterial: list[dict]) -> set:
+    """Normalized subject keys of the substantial candidates the materiality judge explicitly ruled
+    immaterial (the verdict echoes the candidate's signal text; keys are matched on the signal, exact
+    or by prefix). A decided subject must not hold the window (2026-10-04: the $517B compute deal was
+    ruled old news, yet the window stayed open for it, re-billed the next scan and was heading for an
+    'abandoned' needs-you item)."""
+    sigs = [str(i.get("signal") or "").strip().lower() for i in (immaterial or []) if isinstance(i, dict)]
+    out = set()
+    for c in substantial or []:
+        sig = str(c.get("signal") or "").strip().lower()
+        if not sig or not c.get("subject_key"):
+            continue
+        if any(sig == x or sig[:80] == x[:80] for x in sigs):
+            out.add(_norm_key(c.get("subject_key")))
+    return out
+
+
+def _resolve_or_hold(meta: dict, new_alerts: list[dict], result: dict, decided: set | None = None) -> None:
     """WINDOW-CLOSE FIX (the 2026-07-01 permanent miss): an alert resolves a held window ONLY when
     it matches a subject the window was held FOR. An unrelated catch (the Copilot alert) must not
     erase a pending act-grade miss (the Fable lift) — unmatched and legacy windows (no stored
-    subjects, so nothing can match) stay open, bounded as ever."""
+    subjects, so nothing can match) stay open, bounded as ever. A held subject the judge has since
+    ruled immaterial (`decided`) counts as settled too; the window closes once every held subject is
+    settled or alerted."""
     held = meta.get("unresolved_since")
     if not held:
         return
-    held_subjects = set(meta.get("unresolved_subjects") or [])
-    if held_subjects & {str(a.get("subject_key")) for a in new_alerts}:
+    held_subjects = {_norm_key(k) for k in (meta.get("unresolved_subjects") or [])}
+    alerted = {_norm_key(a.get("subject_key")) for a in new_alerts}
+    settled = alerted | set(decided or set())
+    if held_subjects & alerted or (held_subjects and held_subjects <= settled):
         _clear_window(meta)
-        result["unresolved_resolved"] = {"since": held}
+        result["unresolved_resolved"] = {"since": held, "by": "alert" if held_subjects & alerted else "judged immaterial"}
     else:
         _hold_window(meta, held, result)
 
@@ -406,18 +433,31 @@ def _ground_best(claims: list[dict]) -> dict:
     return {"kept": kept, "failed": failed, "cut": cut}
 
 
-def _apply_updates(claims, material_grounded, alerted_fingerprints):
+def _apply_updates(claims, material_grounded, alerted_fingerprints, updated_ids: set | None = None):
     """In-place update claims.json content + build new alert records (deduped).
-    material_grounded: list of (claim_dict, alert_dict). Returns (new_claims, new_alerts)."""
+    material_grounded: list of (claim_dict, alert_dict). Returns (new_claims, new_alerts).
+    `updated_ids` (optional, shared across the two arms of one run): a claim already revised this
+    run is not revised or alerted again (2026-10-04: the competitor arm and the own-company arm both
+    landed the DevDay @ChatGPT launch on the same claim id, two alerts for one development). A
+    revision keeps the stored key spelling; a new key takes the cards' `a | b | c` convention."""
+    from scout.schema import canonical_subject_key
     by_id = {c["id"]: c for c in claims}
     new_alerts = []
     seen = set(alerted_fingerprints)
+    done = updated_ids if updated_ids is not None else set()
     now = datetime.now()
     for claim, alert in material_grounded:
+        if claim["id"] in done:
+            continue  # the other arm already landed this development this run
+        if claim["id"] in by_id:
+            claim["subject_key"] = by_id[claim["id"]]["subject_key"]
+        else:
+            claim["subject_key"] = canonical_subject_key(claim["subject_key"])
         fp = _fingerprint(claim["subject_key"], str(alert.get("new_value", claim.get("claim", ""))))
         if fp in seen:
             continue  # already alerted this exact subject->value transition
         seen.add(fp)
+        done.add(claim["id"])
         by_id[claim["id"]] = claim  # in-place revise (same id) or add net-new
         new_alerts.append({
             "date": now.date().isoformat(),
@@ -758,7 +798,7 @@ def _sensor_screen(slug: str, meta: dict, claims: list, since: str | None, sig_b
         for f in opened:
             f = dict(f, role=e["role"])
             sens["findings"].append(f)
-        sens["by_entity"][e["key"]] = {"open": len(opened), **{k: sm.get(k) for k in ("pages_checked", "pages_changed", "pages_failed", "feed_items", "news_hits", "findings", "unavailable", "no_registry")}}
+        sens["by_entity"][e["key"]] = {"open": len(opened), **{k: sm.get(k) for k in ("pages_checked", "pages_changed", "pages_failed", "feed_items", "news_hits", "findings", "unavailable", "no_registry", "baselined_on")}}
     _step(steps, "sensors", "failed" if sens["unavailable"] else ("skipped" if sens["no_registry"] else "ran"),
           (f"{len(sens['findings'])} open finding(s) across {len(ents)} entit{'y' if len(ents) == 1 else 'ies'}: "
            + "; ".join(f"{k}: {v.get('pages_checked') or 0} pages ({v.get('pages_changed') or 0} changed), {v.get('feed_items') or 0} feed, {v.get('news_hits') or 0} news"
@@ -809,15 +849,19 @@ def _sensor_compare(slug: str, meta: dict, sens: dict | None, candidates: list, 
                 pass
         dates = [(datetime.fromisoformat(checked_at) - timedelta(days=d)).date().isoformat() for d in (1, 2, 3)]
         screen_window = list(sens["candidates"]) + compare.recent_screen_candidates(slug, dates)
+        baselines = [str(v.get("baselined_on")) for v in sens["by_entity"].values() if (v or {}).get("baselined_on")]
+        baseline = max(baselines) if baselines else today      # the youngest entity bounds what the sensors could have seen
         la = compare.level_a(material_grounded, recent, screen_window, set(sens.get("watched_hosts") or set()),
-                             names=sens.get("names") or []) if triage_ran else []
+                             names=sens.get("names") or [], baseline=baseline) if triage_ran else []
         lb = compare.level_b(candidates if triage_ran else [], sens["candidates"], recent, sens.get("names") or []) if triage_ran else {"matched": [], "misses": [], "screen_only": []}
         misses_a = [r for r in la if r.get("miss")]
+        pre_baseline = [r for r in la if r.get("covered_by") == "pre_baseline"]
         payload = {"mode": sens["mode"], "triage_ran": triage_ran, "entities": sens["entities"], "by_entity": sens["by_entity"],
                    "findings_open": len(sens["findings"]), "findings_recent": len(recent),
                    "screen": {"status": sens["status"], "cost_usd": sens["cost_usd"], "candidates": sens["candidates"]},
                    "triage": {"candidates": [{k: c.get(k) for k in ("signal", "subject_key", "about", "substantial", "source_hint")} for c in candidates]} if triage_ran else None,
-                   "landed": la, "misses_a": misses_a, "level_b": lb, "pass_error": sens.get("pass_error")}
+                   "landed": la, "misses_a": misses_a, "pre_baseline": len(pre_baseline), "baseline": baseline,
+                   "level_b": lb, "pass_error": sens.get("pass_error")}
         doc = compare.record(slug, today, payload, write)
         row = {"slug": slug, "misses_a": len(misses_a), "misses": misses_a, "level_b_misses": lb["misses"],
                "screen_only": lb["screen_only"], "errors": sum(int((v or {}).get("pages_failed") or 0) for v in sens["by_entity"].values()),
@@ -826,7 +870,8 @@ def _sensor_compare(slug: str, meta: dict, sens: dict | None, candidates: list, 
                "triage_subst": sum(1 for c in candidates if c.get("substantial") is True) if triage_ran else 0,
                "findings": len(sens["findings"]), "findings_recent": len(recent), "unavailable": sens["unavailable"], "by_entity": sens["by_entity"],
                "write_error": doc.get("write_error")}
-        _step(steps, "compare", "ran", f"{len(la)} landed alert(s) checked, {len(misses_a)} miss(es); "
+        _step(steps, "compare", "ran", f"{len(la)} landed alert(s) checked, {len(misses_a)} miss(es)"
+              + (f", {len(pre_baseline)} pre-baseline (events before {baseline}, not comparable)" if pre_baseline else "") + "; "
               f"level B: {len(lb['matched'])} matched, {len(lb['misses'])} unmatched, {len(lb['screen_only'])} screen-only")
         return row
     except Exception as e:
@@ -1087,8 +1132,9 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
     else:
         _step(steps, "materiality", "skipped", "no substantial competitor candidate")
         material_grounded, grounded, immaterial = [], {"kept": [], "cut": [], "results": []}, []
+    updated_ids: set = set()
     new_claims, new_alerts = _apply_updates(
-        claims, material_grounded, meta.get("alerted_fingerprints", []))
+        claims, material_grounded, meta.get("alerted_fingerprints", []), updated_ids)
     result["material"] = [
         {"subject_key": c["subject_key"], "alert": a} for c, a in material_grounded]
 
@@ -1105,7 +1151,7 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
                 {"subject_key": f["subject_key"], "alert": a} for f, a in my_grounded]
             if write and config.PROPAGATE_MODE == "live" and my_grounded:
                 new_claims, my_alerts = _apply_updates(
-                    new_claims, my_grounded, meta.get("alerted_fingerprints", []))
+                    new_claims, my_grounded, meta.get("alerted_fingerprints", []), updated_ids)
                 new_alerts = new_alerts + my_alerts
             _step(steps, "own_company", *_arm_status(len(my_grounded), len(my_substantial), "anchor fact(s) grounded",
                                                      myf.get("emitted", 0), myf.get("schema_rejected") or []),
@@ -1312,7 +1358,7 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
         # A landed alert resolves the held window ONLY if it matches a held subject — an unrelated
         # catch keeps the window open (the 7/1 miss: Copilot's alert erased the Fable window).
         had_window = bool(meta.get("unresolved_since"))
-        _resolve_or_hold(meta, new_alerts, result)
+        _resolve_or_hold(meta, new_alerts, result, decided=_judged_immaterial_subjects(substantial, immaterial))
         meta.setdefault("alerted_fingerprints", []).extend(a["fingerprint"] for a in new_alerts)
         # Regenerating the body from claims drops the Cut Log (it lives only in the
         # markdown, never in the claim store) — carry the existing one forward.
@@ -1336,15 +1382,28 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
         # alert resolves it. (An own-side arm that grounded nothing no longer holds this window: it
         # is the competitor cutoff, and re-scanning it never re-found an own-side story.)
         meta["last_checked"] = checked_at; meta["last_check_reason"] = check_reason
-        subs = {str(c.get("subject_key")) for c in substantial if c.get("subject_key")}
-        meta["unresolved_subjects"] = sorted(set(meta.get("unresolved_subjects") or []) | subs)
-        _hold_window(meta, since, result)
-        if "abandoned_window" in result:
-            # Bound hit: gave up re-scanning, but SURFACE the abandonment (never silent).
-            result["abandoned_substantial"] = [c.get("signal") for c in substantial]
+        decided = _judged_immaterial_subjects(substantial, immaterial)
+        open_subs = [c for c in substantial if c.get("subject_key") and _norm_key(c.get("subject_key")) not in decided]
+        subs = {str(c.get("subject_key")) for c in open_subs}
+        # hold ONLY for subjects still undecided: a verdict of immaterial is a decision, not a miss
+        if subs:
+            meta["unresolved_subjects"] = sorted(set(meta.get("unresolved_subjects") or []) | subs)
+            _hold_window(meta, since, result)
+            if "abandoned_window" in result:
+                # Bound hit: gave up re-scanning, but SURFACE the abandonment (never silent).
+                result["abandoned_substantial"] = [c.get("signal") for c in open_subs]
+            hold_note = "held window " + ("abandoned (bound reached)" if "abandoned_window" in result else f"kept open since {since}")
+        elif meta.get("unresolved_since"):
+            # an older window: closes when every subject it waits for has now been decided
+            _resolve_or_hold(meta, [], result, decided=decided)
+            hold_note = ("held window resolved (every held subject judged immaterial)" if result.get("unresolved_resolved")
+                         else "held window abandoned (bound reached)" if "abandoned_window" in result
+                         else f"held window kept open since {since}")
+        else:
+            hold_note = "nothing to hold"
         store.write_baseline(slug, claims, meta, _current_md(slug))
-        _step(steps, "write", "ran", "nothing landed; held window "
-              + ("abandoned (bound reached)" if "abandoned_window" in result else f"kept open since {since}"))
+        _step(steps, "write", "ran", "nothing landed; "
+              + (f"{len(decided)} candidate(s) judged immaterial; " if decided else "") + hold_note)
     elif write:
         # Escalated but nothing to write (a failed arm carried its candidates; the own-side arm ran
         # and grounded nothing; SHADOW/REVIEW propose without writing). Advance the gate.

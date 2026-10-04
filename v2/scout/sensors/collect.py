@@ -263,6 +263,12 @@ def run_pass(entities: dict, *, write: bool, today: str | None = None, days_by_e
             nf, news_failed, nerr = _news_findings(key, list(reg.get("news_queries") or []),
                                                    int((days_by_entity or {}).get(key) or 2), state, today, state["names"])
             found += nf
+            if not state.get("baselined_on") and (state.get("news_baselined") or any(p.get("baselined") for p in state.get("pages", {}).values())):
+                # sensors can only be measured on events from the first pass on; the seen set carries
+                # the day each item was first read, so an entity baselined before this field existed
+                # still gets its true first day
+                state["baselined_on"] = min(list((state.get("seen") or {}).values()) + [today])
+            s["baselined_on"] = state.get("baselined_on")
             s["news_hits"] = len(nf)
             s["news_failed"] = news_failed
             s["errors"] += nerr
