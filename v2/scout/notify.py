@@ -805,8 +805,16 @@ def _sensors_lines(sensors: dict | None) -> tuple[list[str], str]:
     return [title] + lines, html
 
 
+def _lifecycle_line(lc: dict | None) -> str:
+    """The lifecycle audit's one line (2026-10-04): the verdict, the counts, the failed rules by name."""
+    if not lc:
+        return ""
+    v = str(lc.get("verdict") or "?")
+    return f"Lifecycle audit: {v}, " + str(lc.get("summary") or "")
+
+
 def render_run_fyi(cards: list[dict], cost_total: float | None = None, health: list[dict] | None = None,
-                   sensors: dict | None = None) -> tuple[str, str, str]:
+                   sensors: dict | None = None, lifecycle: dict | None = None) -> tuple[str, str, str]:
     """(subject, text, html) for the run's single FYI. `cards`: [{meta, alerts, applied (decisions
     that landed), deferred_n, election}] for cards where anything happened. `health` (2026-10-03):
     every checked card's step table, rendered as the run-health footer. `sensors` (Release 2): the
@@ -860,18 +868,26 @@ def render_run_fyi(cards: list[dict], cost_total: float | None = None, health: l
         foot.append(f'<div style="font-size:13px;margin-top:8px;{"color:#b0301c;font-weight:700" if bad else _C_MUTED}">Run health: '
                     + "<br>".join(_esc(l) for l in hl) + '</div>')
         text_lines.append("Run health: " + " | ".join(hl))
+    ll = _lifecycle_line(lifecycle)
+    if ll:
+        red = str((lifecycle or {}).get("verdict")) == "RED"
+        amber = str((lifecycle or {}).get("verdict")) == "AMBER"
+        colour = "color:#b0301c;font-weight:700" if red else ("color:#8a6d00;font-weight:700" if amber else _C_MUTED)
+        foot.append(f'<div style="font-size:13px;margin-top:6px;{colour}">{_esc(ll)}</div>')
+        text_lines.append(ll)
     foot.append(f'<div style="{_C_MUTED};font-size:12px;margin-top:10px">— Scout (every claim verified against its '
                 'source; every applied update passed the authorship judge and the provenance gate)</div>')
     return subject, "\n".join(text_lines), _hdoc(lead, "".join(blocks), "".join(foot))
 
 
 def send_run_fyi(cards: list[dict], cost_total: float | None = None, dry_run: bool = True,
-                 health: list[dict] | None = None, sensors: dict | None = None) -> dict:
+                 health: list[dict] | None = None, sensors: dict | None = None, lifecycle: dict | None = None) -> dict:
     # the FYI goes out every run day while sensors run in SHADOW (his decision 10/3: he watches the
-    # streak); otherwise a quiet morning sends nothing, as before
-    if not cards and not (sensors and sensors.get("rows") and sensors.get("mode") == "shadow"):
+    # streak), and whenever the lifecycle audit is not green; otherwise a quiet morning sends nothing
+    if not cards and not (sensors and sensors.get("rows") and sensors.get("mode") == "shadow") \
+            and str((lifecycle or {}).get("verdict") or "GREEN") == "GREEN":
         return {"sent": False, "reason": "nothing to report"}
-    subject, text, html = render_run_fyi(cards, cost_total, health=health, sensors=sensors)
+    subject, text, html = render_run_fyi(cards, cost_total, health=health, sensors=sensors, lifecycle=lifecycle)
     return _dispatch(subject, text, dry_run=dry_run, html=html)
 
 
