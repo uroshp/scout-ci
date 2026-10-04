@@ -67,7 +67,11 @@ def render(doc: dict) -> str:
            "checked against the promise's rules. Nothing here asked a model anything.</p>"]
     for c in doc.get("cards") or []:
         tr, inv = c.get("trace") or {}, c.get("invariants") or []
-        out.append(f"<section class='card'><h2>{_e(_label(c['slug']))} <span class='verdict {c.get('verdict', 'EMPTY')}'>{_e(c.get('verdict'))}</span></h2>")
+        names = tr.get("names") or []
+        label = f"{names[1]} vs {names[0]}" if len(names) == 2 else _label(c["slug"])   # trace names = [competitor, my_company]
+        if tr.get("focused") and len(names) == 2:
+            label += f" · {tr.get('focus')}"
+        out.append(f"<section class='card'><h2>{_e(label)} <span class='verdict {c.get('verdict', 'EMPTY')}'>{_e(c.get('verdict'))}</span></h2>")
         if tr.get("focused"):
             out.append(f"<p class='sub'>Focus area: <strong>{_e(tr.get('focus'))}</strong> · focus words: "
                        + " ".join(f"<span class='chip'>{_e(t)}</span>" for t in tr.get("focus_terms") or []) + "</p>")
