@@ -4,10 +4,16 @@
   "competitor": "Anthropic",
   "focus": "Enterprise collaboration agents (inside Slack and Teams)",
   "baseline_date": "2026-09-15",
-  "last_checked": "2026-10-04T01:23:28",
+  "last_checked": "2026-10-04T04:12:59",
   "cadence_hours": 24,
   "alerted_fingerprints": [
-    "f_ea588c53a3d1"
+    "f_ea588c53a3d1",
+    "f_7c9833690ccd",
+    "f_c7efe4b34ded",
+    "f_4b1358f38e1c",
+    "f_fcddaafbca5e",
+    "f_65335932f1a6",
+    "f_3ce5938be09d"
   ],
   "monitored": true,
   "last_check_reason": "scheduled"
