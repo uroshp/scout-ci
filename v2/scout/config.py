@@ -52,7 +52,10 @@ GA_API_SECRET = os.environ.get("GA_MP_API_SECRET", "")
 # --- Guards (§10) -------------------------------------------------------------
 # Hard caps so an agent that can loop can't burn money. The SDK enforces both
 # natively (ClaudeAgentOptions.max_turns / max_budget_usd).
-MAX_TURNS = int(os.environ.get("SCOUT_MAX_TURNS", "40"))
+# 2026-10-03 (25 captured materiality + own-company runs: median 9-10 turns, max 16): 20 truncates no
+# successful run and stops a runaway before its dollar budget does (the Notion arm burned $1.50 for
+# nothing on 10/3). Lowered from 40.
+MAX_TURNS = int(os.environ.get("SCOUT_MAX_TURNS", "20"))
 # Tool surface (2026-10-03): under the SDK's bypassPermissions mode `allowed_tools` is a name only;
 # `disallowed_tools` is the block. Captured monitor calls showed the own-company step running Bash
 # (including grep over the card store) and a rewrite reading CLAUDE.md on the Actions runner. Every
@@ -443,6 +446,12 @@ SENSOR_SWEEP_DAYS = int(os.environ.get("SCOUT_SENSOR_SWEEP_DAYS", "7"))
 # as `challenge` and shown as unreadable until a browser infrastructure (TinyFish Fetch) is wired.
 SENSOR_RENDERED = os.environ.get("SCOUT_SENSOR_RENDERED", "1") == "1"
 SENSOR_TINYFISH_KEY = os.environ.get("SCOUT_TINYFISH_KEY", "").strip()      # reserved: the third tier, when he has a key
+# Evidence in hand (Part 3 #4, gate mode): when EVERY candidate a paid step receives carries the page
+# text code already read, the step searches less, so its turn cap drops to this (from MAX_TURNS=40).
+# Grounding still re-fetches. Only page findings carry evidence; a run with any evidence-less
+# candidate keeps the full cap. The captured calls carry `evidence_attached` so the eval lanes compare
+# within a cell.
+EVIDENCE_MAX_TURNS = int(os.environ.get("SCOUT_EVIDENCE_MAX_TURNS", "12"))
 
 # Rehearsal mode (2026-10-03): the monitor's REAL write path, run on a retired card that lives in a
 # store root outside the checkout (SCOUT_STORE_ROOT) with every private-store write under the

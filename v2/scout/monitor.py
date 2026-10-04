@@ -254,12 +254,26 @@ def _hiring_context(slug: str) -> str:
         return ""
 
 
+def _evidence_in_hand(candidates: list) -> tuple[str, int]:
+    """(the evidence note for the user prompt, the turn cap) when EVERY candidate carries the page text
+    code read (Part 3 #4, gate mode); otherwise ("", the full cap). The note is a private pack block;
+    without it the cap still applies but no framing is added. The capture context flags the cell."""
+    from scout import calllog as _calllog
+    with_ev = bool(candidates) and all(isinstance(c, dict) and c.get("evidence") for c in candidates)
+    _calllog.set_context(evidence_attached=True if with_ev else None)
+    if not with_ev:
+        return "", config.MAX_TURNS
+    note = judgment.optional("sensors._EVIDENCE_NOTE") or ""
+    return ("\n\n" + note if note else ""), config.EVIDENCE_MAX_TURNS
+
+
 async def _run_materiality(meta, since, candidates, claims, extra: str = ""):
     comp, me = meta.get("competitor"), meta.get("my_company")
+    ev_note, max_turns = _evidence_in_hand(candidates)
     user = (f"Competitor: {comp}" + (f" (we are {me})" if me else "") +
             f"\nChanges SINCE {since}.\n\nTRACKED SUBJECTS (subject_key — current value):\n"
             + _tracked_digest(claims) +
-            "\n\nCANDIDATE SIGNALS FROM TRIAGE:\n" + json.dumps(candidates, ensure_ascii=False) + (extra or ""))
+            "\n\nCANDIDATE SIGNALS FROM TRIAGE:\n" + json.dumps(candidates, ensure_ascii=False) + ev_note + (extra or ""))
     options = ClaudeAgentOptions(
         model=config.ORCHESTRATOR_MODEL,
         system_prompt={"type": "preset", "preset": "claude_code",
@@ -268,10 +282,14 @@ async def _run_materiality(meta, since, candidates, claims, extra: str = ""):
         allowed_tools=["WebSearch", FETCH_TOOL_NAME, *sources_tool.names()],
         disallowed_tools=config.MODEL_DISALLOWED_TOOLS,
         permission_mode="bypassPermissions",
-        max_turns=config.MAX_TURNS,
+        max_turns=max_turns,
         max_budget_usd=config.MAX_BUDGET_USD,
     )
-    return await _drive(user, options, "materiality")
+    try:
+        return await _drive(user, options, "materiality")
+    finally:
+        from scout import calllog as _calllog
+        _calllog.set_context(evidence_attached=None)
 
 
 def _candidate_variants(claim: dict) -> list[dict]:
@@ -376,9 +394,10 @@ _MY_FACTS_SYSTEM = judgment.get("monitor._MY_FACTS_SYSTEM", {'ANCHOR_SECTION': A
 
 async def _run_my_facts(meta, since, candidates, claims):
     comp, me = meta.get("competitor"), meta.get("my_company")
+    ev_note, max_turns = _evidence_in_hand(candidates)
     user = (f"We are {me} (competing against {comp}).\nOUR developments SINCE {since}.\n\n"
             "TRACKED SUBJECTS (subject_key — current value):\n" + _tracked_digest(claims) +
-            "\n\nCANDIDATE OWN-SIDE SIGNALS FROM TRIAGE:\n" + json.dumps(candidates, ensure_ascii=False))
+            "\n\nCANDIDATE OWN-SIDE SIGNALS FROM TRIAGE:\n" + json.dumps(candidates, ensure_ascii=False) + ev_note)
     options = ClaudeAgentOptions(
         # Sourcing work (search/fetch/verbatim excerpts), not judgment: SUBAGENT tier (2026-07-02
         # cost pass). Grounding verification stays deterministic; the Opus router/judge still gate
@@ -390,10 +409,14 @@ async def _run_my_facts(meta, since, candidates, claims):
         allowed_tools=["WebSearch", FETCH_TOOL_NAME, *sources_tool.names()],
         disallowed_tools=config.MODEL_DISALLOWED_TOOLS,
         permission_mode="bypassPermissions",
-        max_turns=config.MAX_TURNS,
+        max_turns=max_turns,
         max_budget_usd=config.MY_FACTS_MAX_BUDGET_USD,
     )
-    return await _drive(user, options, "my_facts")
+    try:
+        return await _drive(user, options, "my_facts")
+    finally:
+        from scout import calllog as _calllog
+        _calllog.set_context(evidence_attached=None)
 
 
 def _my_company_facts(slug, meta, since, my_substantial, claims):
