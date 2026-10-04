@@ -118,6 +118,9 @@ def validate(out: dict | None, index: dict) -> list[dict]:
             "source_class": f.get("source_class"),
             "finding_id": f.get("fingerprint"),
             "sensor_kind": f.get("kind"),
+            # EVIDENCE IN HAND (Part 3, gate mode): the page text code read, for page findings only. A
+            # feed summary or a news snippet is not the page and would ground "absent", so it is left out.
+            **({"evidence": (f.get("text") or "")[:1500]} if f.get("kind") in ("page_change", "value_change", "redesign") and f.get("text") else {}),
         })
     return cands
 
