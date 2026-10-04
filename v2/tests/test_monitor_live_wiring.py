@@ -301,6 +301,25 @@ class FailedArmCarryOver(_Live):
         self.assertNotIn("pending_candidates", _load(os.path.join(self.card, "meta.json")))
         self.assertEqual(len(res2["alerts"]), 1)
 
+    def test_own_side_candidates_that_do_not_ground_get_one_more_attempt(self):
+        def fake_my(slug, meta, my_since, my_substantial, claims):
+            return {"grounded": [], "cost": 0.4}
+        cand = {"signal": "Cursor cuts Pro usage limits", "subject_key": "NEW", "about": "my_company", "valence": "back_foot", "substantial": True}
+        with mock.patch.object(monitor, "_run_triage", _triage([cand])), \
+             mock.patch.object(monitor, "_my_company_facts", fake_my), mock.patch.object(monitor, "propagate", side_effect=AssertionError("nothing grounded")), \
+             mock.patch("scout.audience.refresh", self.audience_fake([])):
+            res = monitor.check(SLUG, write=True)
+        meta = _load(os.path.join(self.card, "meta.json"))
+        self.assertEqual([c["signal"] for c in meta["pending_candidates"]["my_company"]], [cand["signal"]])
+        self.assertEqual(meta["pending_candidates"]["reason"], "own-side candidates did not ground")
+        self.assertEqual(meta["unresolved_attempts"], 2, "the competitor window is not touched by an own-side miss")
+        # second morning: the arm grounds nothing again -> dropped, recorded, no third attempt
+        with mock.patch.object(monitor, "_run_triage", _triage([])), mock.patch.object(monitor, "_my_company_facts", fake_my), \
+             mock.patch.object(monitor, "propagate", side_effect=AssertionError("nothing grounded")), mock.patch("scout.audience.refresh", self.audience_fake([])):
+            res2 = monitor.check(SLUG, write=True)
+        self.assertEqual(self.rows(res2)["carry_over"]["status"], "ran")
+        self.assertNotIn("pending_candidates", _load(os.path.join(self.card, "meta.json")))
+
     def test_carry_over_abandons_loudly_at_the_bound(self):
         meta = _load(os.path.join(self.card, "meta.json"))
         meta["pending_candidates"] = {"competitor": [{"signal": "Series F", "subject_key": FACT_SK, "about": "competitor", "substantial": True}],
