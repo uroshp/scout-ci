@@ -100,11 +100,19 @@ def sensor_checkpoint(day: date, dry: bool) -> None:
         clean = runs[-int(st.get("gate_runs") or 7):]
         alerts = sum(int(r.get("triage_subst") or 0) for r in clean)
         cost = sum(float(r.get("screen_cost") or 0) for r in clean)
+        n_cards = sum(r.get("cards", 0) for r in clean) or 1
+        esc_s = sum(int(r.get("screen_escalating_cards") or 0) for r in clean)
+        esc_t = sum(int(r.get("triage_escalating_cards") or 0) for r in clean)
         body = (f"Sensors have run in shadow next to the morning triage and reached the checkpoint: "
                 f"{st.get('clean_streak')} consecutive clean runs (gate {st.get('gate_runs')}), {day.isoformat()}.\n\n"
-                f"Over those runs: {sum(r.get('cards', 0) for r in clean)} card checks, {alerts} substantial triage candidates, "
+                f"Over those runs: {n_cards} card checks, {alerts} substantial triage candidates, "
                 f"0 alerts that landed without a finding behind them, {sum(int(r.get('errors') or 0) for r in clean)} source errors, "
                 f"screen cost ${cost:.2f} in total.\n\n"
+                f"Cost projection for gate mode: the screen would have sent {esc_s} of {n_cards} card checks to the paid judge "
+                f"({esc_s / n_cards:.0%}); triage sent {esc_t} ({esc_t / n_cards:.0%}). At about $0.80 per escalation that is "
+                f"${esc_s / max(1, len(clean)) * 0.80:.2f} a day of materiality in gate against ${esc_t / max(1, len(clean)) * 0.80:.2f} today, "
+                f"plus about $0.15 a day of screens, minus the daily triage that stops (about $1.10 a day today). "
+                f"The run ceiling bounds any morning at ${_cfg.RUN_MAX_USD:.0f}.\n\n"
                 f"Your call: flip the repo variable SCOUT_SENSORS from shadow to gate (the screen's candidates replace the daily "
                 f"model search; the weekly sweep keeps auditing), or keep shadow longer. Nothing changes until you say so.\n\n"
                 f"Streak file: sensors/_compare/streak.json; compare records: sensors/_compare/<date>/<card>.json.")
