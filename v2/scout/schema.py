@@ -302,6 +302,54 @@ def validation_errors(claim: dict) -> list[str]:
     return _errors(_validator, claim) + render_structure_errors(claim)
 
 
+_CONFIDENCE = ("high", "medium", "low")
+_LOWERCASE_ENUMS = ("confidence", "source_tier", "claim_type")
+
+
+def normalize_confidence(value):
+    """Map what a model wrote for `confidence` onto the schema's enum, deterministically (the
+    control-vs-model boundary: the format is code's job, the judgment is the model's). Sonnet 5.5
+    (2026-10-03) writes 0.85 / 0.9 where Sonnet 5 wrote "high"; the prompts never spelled the enum
+    out, and the old code dropped every such fact before grounding without a word. Numbers on a
+    0-1 scale: >= 0.75 high, >= 0.45 medium, else low; 0-100 is scaled down; strings are trimmed
+    and lower-cased ("High" -> "high", "very high" -> "high"). Anything else is returned as is so
+    the schema check still names it."""
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        v = float(value)
+        if v > 1.0:
+            v = v / 100.0
+        return "high" if v >= 0.75 else "medium" if v >= 0.45 else "low"
+    if isinstance(value, str):
+        t = value.strip().lower()
+        if t in _CONFIDENCE:
+            return t
+        for c in _CONFIDENCE:
+            if t.endswith(c) or t.startswith(c):
+                return c
+        try:
+            return normalize_confidence(float(t))
+        except ValueError:
+            return value
+    return value
+
+
+def normalize_claim(claim: dict) -> dict:
+    """In-place, deterministic clean-up of a model-emitted claim BEFORE any schema check: enum-valued
+    strings trimmed and lower-cased, `confidence` mapped through normalize_confidence. Changes only
+    representation, never content. Returns the claim."""
+    if not isinstance(claim, dict):
+        return claim
+    for k in _LOWERCASE_ENUMS:
+        v = claim.get(k)
+        if isinstance(v, str) and v != v.strip().lower():
+            claim[k] = v.strip().lower()
+    if "confidence" in claim:
+        claim["confidence"] = normalize_confidence(claim["confidence"])
+    return claim
+
+
 def pregrounding_errors(claim: dict) -> list[str]:
     """Schema errors for a claim before grounding has been attached ([] if valid). Also enforces the
     render-structure contract, so generation rejects a markerless block claim before spending a fetch
