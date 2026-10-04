@@ -15,23 +15,23 @@
   },
   {
     "subject_key": "github-copilot | billing-backlash | 2026-06",
-    "claim": "**A strong secondary play on cost: Copilot's metered billing is a live, sourced pain point, as long as reps quote it as projections.**\n\nCopilot switched to token-based billing on June 1, 2026. GitHub itself warned that intense agentic users would likely pay more, developers projected jumps from about $29 to nearly $750 a month and from $50 to some $3,000, and forum users reported single agent requests eating about half a month's credits. No invoice totals have been published, so the number to lead with is the flat-rate contrast: Claude Code Pro at $20 and Max at $100 or $200, against a meter on OpenAI's own distribution channel.\n\n**So what:** Run the TCO play against the Copilot base with GitHub's own warning and the developer projections, quoted as projections, and let the buyer do the arithmetic against a flat plan.",
+    "claim": "**Copilot's metered billing now has documented numbers to quote, not only developer projections.**\n\nSince the June 1, 2026 switch to token billing (GitHub warned intense agentic users would likely pay more), GitHub cut included credits per seat on September 1: Business from $30 to $19 and Enterprise from $70 to $39, with seat prices unchanged at $19 and $39, and usage beyond the shared pool bills at per-credit rates by default unless an admin disables it.\n\n**Soundbite:** \"Your Copilot seat price didn't change, but the credits inside it dropped and overage bills automatically. Let's size a flat Claude Code plan against that.\"\n\n**So what:** Lead the TCO play with the credit cuts and default overage as documented facts, and the developer projections (about $29 to nearly $750 a month, $50 to some $3,000) as projections. No invoice totals are published, so let the buyer do the arithmetic against a flat Claude Code plan.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 2,
-    "as_of": "2026-06-01",
+    "as_of": "2026-10-01",
     "confidence": "high",
     "id": "c_db3a54cbabdd",
     "verified": true,
-    "updated_on": "2026-09-28",
-    "derived_from": "c_52b822fdf6ea",
+    "updated_on": "2026-10-04",
+    "derived_from": "c_9d14fac58d7e",
     "provenance": {
-      "source_url": "https://github.com/orgs/community/discussions/192948",
+      "source_url": "https://github.blog/news-insights/company-news/github-copilot-is-moving-to-usage-based-billing/",
       "source_tier": "primary",
-      "as_of": "2026-06-01",
-      "fact_id": "c_52b822fdf6ea",
-      "stamped_on": "2026-09-28",
+      "as_of": "2026-10-01",
+      "fact_id": "c_9d14fac58d7e",
+      "stamped_on": "2026-10-04",
       "source_class": "unknown"
     }
   },
@@ -179,17 +179,25 @@
   },
   {
     "subject_key": "openai | flagship-model | current",
-    "claim": "OpenAI's current flagship is GPT-6 Astra, released September 3, 2026 to a limited set of organizations, with general availability coming in the following days across ChatGPT Plus/Pro/Business/Enterprise, the OpenAI API, Microsoft Azure and AWS Bedrock. OpenAI states it is state-of-the-art on computer use, browsing, software engineering, cybersecurity and science, claims a win over Claude Opus 5 and Fable 5 on computer use at lower cost, and says it is the first OpenAI model to reach the 'Critical' cybersecurity threshold in its Preparedness Framework; all of those figures are OpenAI-stated. The dedicated coding model gpt-5.3-codex remains the LTS base model for all GitHub Copilot Business/Enterprise orgs.",
+    "claim": "OpenAI's top model is GPT-6 Astra, released September 3, 2026 to a limited set of organizations, with general availability following across ChatGPT Plus/Pro/Business/Enterprise, the OpenAI API, Microsoft Azure and AWS Bedrock. OpenAI states it is state-of-the-art on computer use, browsing, software engineering, cybersecurity and science, claims a win over Claude Opus 5 and Fable 5 on computer use at lower cost, and says it is the first OpenAI model to reach the 'Critical' cybersecurity threshold in its Preparedness Framework; all of those figures are OpenAI-stated. On September 29 at DevDay, OpenAI launched GPT-6.1 Sol, which it says nearly matches Astra on agentic coding, computer use and professional work at one-fifth of Astra's standard token prices. It went live that day in Codex and ChatGPT Work and is generally available in GitHub Copilot, after OpenAI dropped the planned GPT-6.1 Astra. The dedicated coding model gpt-5.3-codex remains the LTS base model for all GitHub Copilot Business/Enterprise orgs.",
     "claim_type": "interpretation",
     "section": "snapshot",
     "zone": null,
     "order": 4,
-    "as_of": "2026-09-03",
+    "as_of": "2026-09-29",
     "confidence": "high",
     "id": "c_26a09d4c1fe9",
     "verified": true,
-    "derived_from": "c_95433de0d222",
-    "updated_on": "2026-09-04"
+    "derived_from": "c_fcfe880ad067",
+    "updated_on": "2026-10-04",
+    "provenance": {
+      "source_url": "https://github.blog/changelog/2026-09-29-gpt-6-1-sol-in-github-copilot/",
+      "source_tier": "primary",
+      "as_of": "2026-09-29",
+      "fact_id": "c_fcfe880ad067",
+      "stamped_on": "2026-10-04",
+      "source_class": "unknown"
+    }
   },
   {
     "subject_key": "openai-codex | weekly-active-users | current",
@@ -1147,17 +1155,25 @@
   },
   {
     "subject_key": "openai | api-list-price | current",
-    "claim": "OpenAI now sells a three-tier GPT-6 lineup: Astra at $10/$50 per million tokens (matching Claude Fable 5.1), Sol at $2/$10 and Luna at $0.10/$0.50, both launched September 22, 2026. OpenAI states the Sol and Luna rates are permanent, not introductory, roughly 50% below their GPT-5.6 predecessors. The dedicated gpt-5.3-codex tier still lists at $1.75 input and $14 output per million tokens, the one OpenAI price point that undercuts Claude Opus on high-volume coding workloads.",
+    "claim": "OpenAI now sells a GPT-6 lineup: Astra at $10/$50 per million tokens (matching Claude Fable 5.1), Sol at $2/$10 and Luna at $0.10/$0.50, the last two launched September 22, 2026 and stated by OpenAI to be permanent rates roughly 50% below their GPT-5.6 predecessors. GPT-6.1 Sol followed on September 29 at one-fifth of Astra's standard token prices, with performance figures that are OpenAI's own. The dedicated gpt-5.3-codex tier still lists at $1.75 input and $14 output per million tokens, the one OpenAI price point that undercuts Claude Opus on high-volume coding workloads.",
     "claim_type": "interpretation",
     "section": "pricing",
     "zone": null,
     "order": 1,
-    "as_of": "2026-09-22",
+    "as_of": "2026-09-29",
     "confidence": "medium",
     "id": "c_3a6022395b0c",
     "verified": true,
-    "derived_from": "c_a2845849383e",
-    "updated_on": "2026-09-24"
+    "derived_from": "c_fcfe880ad067",
+    "updated_on": "2026-10-04",
+    "provenance": {
+      "source_url": "https://github.blog/changelog/2026-09-29-gpt-6-1-sol-in-github-copilot/",
+      "source_tier": "primary",
+      "as_of": "2026-09-29",
+      "fact_id": "c_fcfe880ad067",
+      "stamped_on": "2026-10-04",
+      "source_class": "unknown"
+    }
   },
   {
     "subject_key": "openai-gpt55-cyber-launch",
@@ -1232,25 +1248,25 @@
   },
   {
     "subject_key": "battlecard | token-price-undercut | contested",
-    "claim": "**OpenAI's new mid tier matches Claude's price, but cost per finished task still favors Claude at every tier.**\n\nOpenAI launched GPT-6 Sol on September 22, 2026 at $2/$10 per million tokens, matching Claude's mid-tier rate and priced at half of the new Claude Opus 5.5 flagship's $4/$20 (itself a 20% cut from Opus 5's $5/$25). GPT-6 Luna dropped to $0.10/$0.50, about 95% below that mid-tier rate and below anything Anthropic sells. OpenAI says both rates are permanent, not introductory. Anthropic now answers at the same price point: Claude Sonnet 5.5 keeps the $2/$10 rate but runs 30%+ faster than Sonnet 5 and costs up to 30% less for most work, on top of Opus 5.5 running about 40% cheaper than Opus 5 on typical workloads. No same-harness result yet pits Sol against either model.",
+    "claim": "**OpenAI's mid tier matches Claude's price, and its new GPT-6.1 Sol claims near-Astra performance at one-fifth of Astra's price. Cost per finished task is the open question.**\n\nOpenAI launched GPT-6 Sol on September 22, 2026 at $2/$10 per million tokens, matching Claude's mid-tier rate and half of Claude Opus 5.5's $4/$20 (itself a 20% cut from Opus 5's $5/$25). GPT-6 Luna dropped to $0.10/$0.50, below anything Anthropic sells. OpenAI says both rates are permanent. One week later, at DevDay on September 29, OpenAI launched GPT-6.1 Sol, which it says nearly matches GPT-6 Astra on agentic coding, computer use and professional work at one-fifth of Astra's standard token prices. Those figures are OpenAI's own. Anthropic answers at the same price point: Claude Sonnet 5.5 keeps $2/$10 but runs 30%+ faster than Sonnet 5 and costs up to 30% less for most work, and Opus 5.5 runs about 40% cheaper than Opus 5 on typical workloads. No same-harness result yet pits either Sol against these models.",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
     "order": 1,
-    "as_of": "2026-09-28",
+    "as_of": "2026-09-29",
     "confidence": "high",
     "id": "c_46eee6ef2add",
     "verified": true,
     "persona": "economic_buyer",
-    "derived_from": "c_e7f3b8a5c50d",
-    "updated_on": "2026-09-29",
+    "derived_from": "c_fcfe880ad067",
+    "updated_on": "2026-10-04",
     "provenance": {
-      "source_url": "https://www.anthropic.com/claude-sonnet-5-5",
+      "source_url": "https://github.blog/changelog/2026-09-29-gpt-6-1-sol-in-github-copilot/",
       "source_tier": "primary",
-      "as_of": "2026-09-28",
-      "fact_id": "c_e7f3b8a5c50d",
-      "stamped_on": "2026-09-29",
-      "source_class": "company_statement"
+      "as_of": "2026-09-29",
+      "fact_id": "c_fcfe880ad067",
+      "stamped_on": "2026-10-04",
+      "source_class": "unknown"
     }
   },
   {
@@ -1871,42 +1887,26 @@
   },
   {
     "subject_key": "anthropic | service-outage",
-    "claim": "On August 5, 2026, Claude suffered a broad outage across all four current model families: Mythos 5, Fable 5, Opus 5 and Sonnet 5. Per Anthropic's status page, elevated errors were identified at 07:05 UTC (3:05 AM ET), a fix was deployed and monitoring began at 13:08 UTC, and the multi-model incident was marked resolved at 14:14 UTC, about seven hours end to end. A separate Opus 5 degraded-performance incident was identified at 13:51 UTC and resolved by 14:34 UTC. Downdetector logged a spike in user reports and outlets described the disruption as widespread.",
+    "claim": "On September 29, 2026 Anthropic confirmed an outage that began at 14:21 UTC and hit Claude, Claude Code, Claude Cowork, the Claude API and the developer console. Single sign-on and Sign in with Apple failed, which blocked new chats and Claude Code or Cowork sessions. Third-party coverage counts 13 incidents on Anthropic's status page for September, while monthly uptime was reported at 99.70% for September versus 99.01% for July. Reports differ on how long the full recovery took, and no root cause had been published.",
     "claim_type": "fact",
     "section": "tracked_facts",
     "zone": null,
-    "order": 1,
-    "source_url": "https://status.claude.com/",
-    "source_tier": "primary",
-    "evidence_excerpt": "We have identified the cause of elevated errors on requests to Claude Mythos 5, Claude Fable 5, and Claude Opus 5, Claude Sonnet 5 and are working on a fix.",
-    "as_of": "2026-08-05",
-    "confidence": "high",
+    "order": 2,
+    "source_url": "https://www.cynoteck.com/news/claude-outage-september-29-2026",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "affecting Claude, Claude Code, Claude Cowork, the Claude API, and its developer console",
+    "as_of": "2026-09-29",
+    "confidence": "medium",
     "id": "c_317dbea2b021",
     "verified": true,
     "grounding": {
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-08-06",
+      "fetched_at": "2026-10-04",
       "detail": null
     },
-    "corroboration": [
-      {
-        "source_url": "https://www.androidauthority.com/claude-outage-august-5-2026-3694847/",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false,
-        "source_class": "unknown"
-      },
-      {
-        "source_url": "https://www.benzinga.com/markets/tech/26/08/60943268/is-claude-down-anthropic-says-its-working-on-a-fix-after-users-report-widespread-issues",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false,
-        "source_class": "news"
-      }
-    ],
-    "source_class": "company_statement"
+    "source_class": "unknown"
   },
   {
     "subject_key": "claude-code | feature-release",
@@ -3076,5 +3076,99 @@
       "stamped_on": "2026-10-03",
       "source_class": "company_statement"
     }
+  },
+  {
+    "subject_key": "openai | gpt-6-1-sol-launch",
+    "claim": "OpenAI launched GPT-6.1 Sol at DevDay on September 29, 2026, one week after GPT-6 Sol. OpenAI says it nearly matches GPT-6 Astra on agentic coding, computer use and professional work at one-fifth of Astra's standard token prices. It went live the same day in Codex and ChatGPT Work for Plus, Pro, Business, Enterprise and Edu users, and became generally available in GitHub Copilot for Pro+, Max, Business and Enterprise. The performance figures are OpenAI's own, and the launch came after OpenAI dropped the planned GPT-6.1 Astra.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://github.blog/changelog/2026-09-29-gpt-6-1-sol-in-github-copilot/",
+    "source_tier": "primary",
+    "evidence_excerpt": "GPT-6.1 Sol, the latest model from OpenAI, is now generally available and rolling out in GitHub Copilot.",
+    "as_of": "2026-09-29",
+    "confidence": "high",
+    "id": "c_fcfe880ad067",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-04",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/09/29/openai-launches-gpt-6-1-sol-says-it-nearly-matches-gpt-6-astra-and-costs-less/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "news"
+      }
+    ],
+    "source_class": "unknown"
+  },
+  {
+    "subject_key": "github-copilot | fall-billing-tightening",
+    "claim": "GitHub cut the AI credits included with Copilot Business and Enterprise seats when its launch promotion ended on September 1, 2026. Business fell from $30 to $19 of credits per user per month and Enterprise from $70 to $39, while seat prices stayed at $19 and $39. Usage beyond the shared pool is billed at per-credit rates by default unless an admin disables it. Since October 1, existing Business and Enterprise customers paying by card or PayPal must pay for seats upfront. On September 28 Copilot code review's default effort moved from Lite to Balanced, which runs deeper reviews and consumes more credits unless an admin explicitly selects Lite.",
+    "claim_type": "fact",
+    "section": "pricing",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://github.blog/news-insights/company-news/github-copilot-is-moving-to-usage-based-billing/",
+    "source_tier": "primary",
+    "evidence_excerpt": "existing Copilot Business and Copilot Enterprise customers will automatically receive promotional included usage for June, July, and August",
+    "as_of": "2026-10-01",
+    "confidence": "high",
+    "id": "c_9d14fac58d7e",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-04",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://docs.github.com/copilot/concepts/billing/usage-based-billing-for-organizations-and-enterprises",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      },
+      {
+        "source_url": "https://github.blog/changelog/2026-08-28-upcoming-changes-to-github-copilot-policies-and-billing/",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "unknown"
+  },
+  {
+    "subject_key": "anthropic | barclays-enterprise-scale-expansion",
+    "claim": "On October 1, 2026 Anthropic announced an expanded collaboration with Barclays. Barclays expects half of its developers to be using Claude Code by the end of 2026 and most of them by the end of 2027. The agreement also extends Claude across the bank's operations. Claude models in Global Markets process 120,000 client emails a day, and the Colleague Knowledge Assistant is used by more than 16,000 UK employees.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.pymnts.com/news/artificial-intelligence/2026/barclays-accelerates-ai-rollout-with-anthropic-claude-code/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "and most of them to be using it by the end of 2027, Anthropic said in a Thursday (Oct. 1) press release.",
+    "as_of": "2026-10-01",
+    "confidence": "high",
+    "id": "c_8a000963d21e",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-04",
+      "detail": null
+    },
+    "source_class": "news"
   }
 ]
