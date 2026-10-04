@@ -1245,5 +1245,51 @@
       }
     ],
     "source_class": "unknown"
+  },
+  {
+    "subject_key": "atlassian | rovo-chat-agent-orchestration",
+    "claim": "On September 17, 2026 Atlassian added four features to Rovo Chat: users can @mention any agent into a conversation, share whole chats with teammates, see and edit what Rovo remembers about them, and build custom skills by describing a workflow in plain language. Atlassian's launch post uses a marketing launch plan and customer support knowledge as examples, so it is pitching Rovo Chat to teams outside engineering. Each Rovo Chat or agent request still draws on Atlassian's per-user credit allowance.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.atlassian.com/blog/company-news/rovo-chat-new-features-september-2026",
+    "source_tier": "primary",
+    "evidence_excerpt": "We are introducing a new set of Rovo Chat capabilities: visible memory controls, @mentionable agents, shareable chats, and custom skills that turn repeated work into reusable workflows.",
+    "as_of": "2026-09-17",
+    "confidence": "high",
+    "id": "c_616c3114865f",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-04",
+      "detail": null
+    },
+    "source_class": "company_statement"
+  },
+  {
+    "subject_key": "notion | agent-skills-platform",
+    "claim": "On September 15, 2026 Notion shipped release 3.7 with Agent Skills: reusable instructions that teach Notion Agent how a team works, kept in a shared skills library and downloadable as SKILL.md files for Claude Code, Codex, Cursor, Gemini and Grok. The same release lets a Custom Agent call other Custom Agents as sub-agents, lets Custom Agents handle post-meeting work automatically on Business and Enterprise plans, and adds a model picker covering Opus 5, GPT-5.6 Sol and Kimi K3. Connected tools such as GitHub (via Custom MCP, in beta on Business and Enterprise) change nothing until the user approves.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.notion.com/releases/2026-09-15",
+    "source_tier": "primary",
+    "evidence_excerpt": "Skills are reusable instructions that teach AI how your team works.",
+    "as_of": "2026-09-15",
+    "confidence": "high",
+    "id": "c_a6ac93c9e407",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-04",
+      "detail": null
+    },
+    "source_class": "company_statement"
   }
 ]

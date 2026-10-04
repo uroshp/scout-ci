@@ -1492,5 +1492,136 @@
       }
     ],
     "source_class": "company_statement"
+  },
+  {
+    "subject_key": "aws | launch | bedrock-gpt6-astra-2026-09",
+    "claim": "On September 8, 2026, AWS made OpenAI's GPT-6 Astra generally available on Amazon Bedrock. OpenAI calls Astra its most capable model to date. It handles up to 1 million input tokens, and customers can point ChatGPT Work and Codex at Bedrock so that inference runs inside their AWS account. With Sol and Luna following on September 22, Bedrock now carries OpenAI's whole GPT-6 family. A buyer who has standardized on OpenAI can get the newest model through AWS procurement and controls.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://aws.amazon.com/about-aws/whats-new/2026/09/openai-gpt-6-astra-on-amazon-bedrock/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Today, AWS announces the general availability of GPT-6 Astra from OpenAI on Amazon Bedrock.",
+    "as_of": "2026-09-08",
+    "confidence": "high",
+    "id": "c_7d633daef6cc",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-04",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://aws.amazon.com/blogs/machine-learning/take-on-your-most-ambitious-work-with-gpt-6-astra-on-amazon-bedrock/",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "company_statement"
+      },
+      {
+        "source_url": "https://www.aboutamazon.com/news/aws/bedrock-openai-models",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "company_statement"
+      }
+    ],
+    "source_class": "company_statement"
+  },
+  {
+    "subject_key": "google-cloud | partnership | bnp-paribas-2026-09",
+    "claim": "On September 24, 2026, BNP Paribas and Google Cloud announced a five-year partnership expanding the bank's access to Google Cloud's AI-optimized infrastructure, Gemini models and Gemini Enterprise. Initial use cases put Gemini into LLM@CIB, the bank's internal assistant available to more than 65,000 employees, and deploy agents in Corporate & Institutional Banking. The bank describes it as part of its multi-cloud and multi-model approach.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.googlecloudpresscorner.com/2026-09-24-BNP-Paribas-and-Google-Cloud-Announce-New-Partnership-on-Agentic-AI-and-Cloud-Innovation",
+    "source_tier": "primary",
+    "evidence_excerpt": "Five-year agreement expands BNP Paribas's access to Google Cloud's AI-optimized infrastructure, Gemini models and Gemini Enterprise.",
+    "as_of": "2026-09-24",
+    "confidence": "high",
+    "id": "c_40279fdee2b3",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-04",
+      "detail": null
+    },
+    "source_class": "company_statement"
+  },
+  {
+    "subject_key": "google-cloud | partnership | salesforce-dreamforce-2026-09",
+    "claim": "On September 15, 2026 at Dreamforce, Salesforce and Google Cloud expanded their partnership to connect Salesforce workflows and Tableau analytics with Gemini Enterprise. Hyperforce already handles production traffic on Google Cloud, with select US customer migrations starting in Q4 2026 and North American general availability planned for November. Gemini also powers Agentforce's Reasoning Engine and Prompt Builder. Salesforce is extending its AWS integrations at the same time.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 2,
+    "source_url": "https://futurumgroup.com/insights/salesforce-and-google-cloud-expand-access-to-crm-workflows/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Hyperforce already handles production traffic, with select US customer migrations starting in Q4 and North American general availability planned for November.",
+    "as_of": "2026-09-18",
+    "confidence": "high",
+    "id": "c_497f693d1b7f",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-04",
+      "detail": null
+    },
+    "source_class": "unknown"
+  },
+  {
+    "subject_key": "google-cloud | model-launch | gemini-4-argon-2026-09",
+    "claim": "Google announced Gemini 4 Argon in September 2026 as its newest frontier model, with advanced reasoning and a 1-million-token output limit. It is currently rolling out only to trusted cyber defenders through the Fairwind Program. Google says it will expand availability to developers, enterprises and consumers after gathering early-tester feedback on guardrails.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 3,
+    "source_url": "https://blog.google/innovation-and-ai/technology/ai/google-ai-updates-september-2026/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Argon is currently rolling out to trusted cyber defenders through the Fairwind Program.",
+    "as_of": "2026-09-30",
+    "confidence": "high",
+    "id": "c_bad064b2377b",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-04",
+      "detail": null
+    },
+    "source_class": "company_statement"
+  },
+  {
+    "subject_key": "google-cloud | reliability-incident | sept-1-2026-us-central1",
+    "claim": "On September 1, 2026, a partial outage hit a portion of Google Cloud's us-central1-b zone from 07:41 to 11:52 PT. Google's service health report says traffic drop rates reached 100% at peak, leaving virtual machines unreachable. Google's preliminary root cause is a routine maintenance procedural error that unplugged 100% of fiber paths across all devices within 13 minutes. Technicians reseated the fibers and traffic normalized.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 4,
+    "source_url": "https://www.theregister.com/off-prem/2026/09/04/google-engineer-unplugged-every-fiber-they-could-see-and-surprise-took-down-a-chunk-of-the-g-cloud/5294418",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "A procedural error meant that the physical maintenance action sequentially unplugged 100% of fiber paths across all devices within 13 minutes.",
+    "as_of": "2026-09-04",
+    "confidence": "high",
+    "id": "c_0f5f08185dff",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-04",
+      "detail": null
+    },
+    "source_class": "news"
   }
 ]

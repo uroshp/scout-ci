@@ -185,15 +185,15 @@
   },
   {
     "subject_key": "anthropic | flagship-product | collaboration-agent",
-    "claim": "Anthropic's flagship collaboration agent is Claude Tag, a persistent Slack teammate launched in June 2026 that replaced the older Claude in Slack app; Anthropic says its goal is to extend it beyond Slack, meaning there is no shipping Teams version today.",
+    "claim": "Anthropic's flagship collaboration agent is still Claude Tag, a Slack teammate that remains in beta. On September 24 it gained personal connectors: each user's own calendar, drive and CRM access can serve their requests in a channel, with review or auto posting. The rollout is on Team plans now, with Enterprise to follow.",
     "claim_type": "fact",
     "section": "snapshot",
     "zone": null,
-    "order": 3,
-    "source_url": "https://venturebeat.com/technology/anthropic-launches-claude-tag-replacing-its-slack-app-with-a-persistent-ai-teammate-that-learns-monitors-and-works-autonomously",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "available today in beta for Claude Enterprise and Team customers, replaces Anthropic's existing Claude in Slack app",
-    "as_of": "2026-06-23",
+    "order": 1,
+    "source_url": "https://claude.com/blog/claude-tag-now-supports-personal-connectors-in-channels",
+    "source_tier": "primary",
+    "evidence_excerpt": "Personal connectors in Claude Tag are rolling out now on Team plans, with Enterprise to follow.",
+    "as_of": "2026-09-24",
     "confidence": "high",
     "id": "c_cf5b27af867b",
     "verified": true,
@@ -201,33 +201,33 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-09-15",
+      "fetched_at": "2026-10-04",
       "detail": null
     },
-    "source_class": "news"
+    "source_class": "company_statement"
   },
   {
     "subject_key": "openai | flagship-product | collaboration-agent",
-    "claim": "OpenAI's counterpart is Workspace Agents, launched April 2026 in ChatGPT Business and Enterprise, which plug into Slack and other apps and run on the Codex execution substrate rather than a plain chat loop.",
-    "claim_type": "fact",
+    "claim": "OpenAI's counterparts are Workspace Agents, launched April 2026 in ChatGPT Business and Enterprise (they plug into Slack and other apps and run on the Codex execution substrate), and Dots, launched at DevDay on September 29. Dots are always-on ChatGPT agents on GPT-6 Astra with their own cloud computer, reachable through ChatGPT, Slack and Microsoft Teams, and they work alongside staff on shared Pages in ChatGPT Space, which replaces Library for Pro, Business and Enterprise users.",
+    "claim_type": "interpretation",
     "section": "snapshot",
     "zone": null,
     "order": 4,
-    "source_url": "https://venturebeat.com/orchestration/openai-unveils-workspace-agents-a-successor-to-custom-gpts-for-enterprises-that-can-plug-directly-into-slack-salesforce-and-more",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "users can also add them to third-party apps like Slack, communicate with them across disparate channels",
-    "as_of": "2026-04-22",
+    "as_of": "2026-09-29",
     "confidence": "medium",
     "id": "c_87321b84b715",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-09-15",
-      "detail": null
-    },
-    "source_class": "news"
+    "source_class": "news",
+    "updated_on": "2026-10-04",
+    "derived_from": "c_b2db840c40ad",
+    "provenance": {
+      "source_url": "https://venturebeat.com/technology/openai-launches-dots-always-on-ai-agent-coworkers-and-chatgpt-space-where-they-can-collaborate-with-human-teams",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-09-29",
+      "fact_id": "c_b2db840c40ad",
+      "stamped_on": "2026-10-04",
+      "source_class": "news"
+    }
   },
   {
     "subject_key": "anthropic | rate-limit-change | 2026",
@@ -254,16 +254,16 @@
   },
   {
     "subject_key": "anthropic | ipo-plan | current",
-    "claim": "Anthropic pushed its IPO back about a month. It now aims to start marketing the offering as early as the week of November 9 and begin trading before Thanksgiving on November 26. It has an investor day on October 14, and prospective investors put its value at $1.8 trillion to $2 trillion, per Bloomberg reporting carried by Seoul Economic Daily, PYMNTS and SiliconANGLE. The timing could still change.",
+    "claim": "Anthropic still has no public S-1, but a draft prospectus leaked to Reuters on September 28. It shows a $42 billion net loss for 2025 (about $34 billion of it a non-cash accounting charge), $518 billion in planned cloud and infrastructure spending, $20.28 billion in cash, and nearly a quarter of 2025 revenue coming from two customers. Reuters reports the listing will likely come after the November midterms.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.pymnts.com/news/artificial-intelligence/2026/anthropic-targets-pre-thanksgiving-ipo-at-2-trillion-valuation/",
+    "source_url": "https://fortune.com/2026/09/29/anthropic-ipo-s-1-prospectus-income-statement/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "The Wall Street Journal reported Sept. 18, citing unnamed sources, that Anthropic was planning to launch its IPO in November.",
-    "as_of": "2026-10-01",
-    "confidence": "medium",
+    "evidence_excerpt": "Customer concentration is another risk: A quarter of Anthropic’s revenue comes from just two clients.",
+    "as_of": "2026-09-29",
+    "confidence": "high",
     "id": "c_45702a341de6",
     "verified": true,
     "grounding": {
@@ -275,18 +275,18 @@
     },
     "corroboration": [
       {
-        "source_url": "https://siliconangle.com/2026/10/01/report-anthropic-targets-pre-thanksgiving-ipo-launch-despite-warning-of-ais-existential-risks/",
+        "source_url": "https://www.cnbc.com/2026/09/28/anthropics-ipo-prospectus-shows-sweeping-ai-vision-surging-costs-reuters.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false,
         "source_class": "news"
       },
       {
-        "source_url": "https://en.sedaily.com/international/2026/10/02/anthropic-eyes-november-ipo-at-up-to-2-trillion-valuation",
+        "source_url": "https://finance.yahoo.com/technology/ai/articles/anthropic-1-expected-labor-day-021428972.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false,
-        "source_class": "unknown"
+        "source_class": "news"
       }
     ],
     "source_class": "news"
@@ -501,27 +501,27 @@
   },
   {
     "subject_key": "openai | differentiator | multi-surface",
-    "claim": "**OpenAI's agents already work across Slack and Teams; Claude Tag is Slack-only.**\n\nWorkspace Agents plug into Slack and other apps today, and GPT is native in Teams through Copilot. Anthropic itself says its goal is to bring Claude Tag to the many other places teams work, which is a roadmap statement, meaning Teams is not shipping now.\n\n**Soundbite:** *\"We follow your people across Slack and Teams today. Anthropic's own words are that reaching those other surfaces is still the goal, so a Teams team is buying a promise.\"*",
+    "claim": "**OpenAI's agents work across Slack and Teams today; Claude Tag is Slack-only.**\n\nWorkspace Agents plug into Slack and other apps today, and GPT is native in Teams through Copilot. Since September 29, Dots, OpenAI's always-on ChatGPT agents with their own cloud computer, talk to users in ChatGPT, Slack and Teams and share Pages with staff in ChatGPT Space. For Enterprise, Dots is a beta that an administrator enables. Anthropic itself says its goal is to bring Claude Tag to the many other places teams work, which is a roadmap statement, meaning Teams is not shipping now.\n\n**Soundbite:** *\"Our agents already work in Slack and Teams, and your people and the agent share one workspace. Anthropic's own words are that reaching those other surfaces is still the goal, so a Teams team is buying a promise.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_we_win",
     "order": 2,
-    "source_url": "https://venturebeat.com/technology/anthropic-launches-claude-tag-replacing-its-slack-app-with-a-persistent-ai-teammate-that-learns-monitors-and-works-autonomously",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "so that teams can tag @Claude in the many other places they work",
-    "as_of": "2026-06-23",
+    "as_of": "2026-09-29",
     "persona": "technical_evaluator",
     "confidence": "high",
     "id": "c_ec98f78437f2",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-09-15",
-      "detail": null
-    },
-    "source_class": "news"
+    "source_class": "news",
+    "updated_on": "2026-10-04",
+    "derived_from": "c_b2db840c40ad",
+    "provenance": {
+      "source_url": "https://venturebeat.com/technology/openai-launches-dots-always-on-ai-agent-coworkers-and-chatgpt-space-where-they-can-collaborate-with-human-teams",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-09-29",
+      "fact_id": "c_b2db840c40ad",
+      "stamped_on": "2026-10-04",
+      "source_class": "news"
+    }
   },
   {
     "subject_key": "coding-benchmarks | comparison | current",
@@ -806,5 +806,138 @@
       "detail": null
     },
     "source_class": "news"
+  },
+  {
+    "subject_key": "openai-vs-anthropic | legal | antitrust-slowdown",
+    "claim": "On September 18 four paying subscribers filed a proposed nationwide class action in the Northern District of California. It alleges that Anthropic, OpenAI, SpaceXAI and Google illegally agreed to slow AI development, and it points to Dario Amodei's September 12 pacing essay and the same-day endorsements from Altman, Musk and Hassabis. Both companies are defendants.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 2,
+    "source_url": "https://www.cnn.com/2026/09/19/business/ai-slowdown-lawsuit-antitrust",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "A new lawsuit claims Anthropic, OpenAI, SpaceXAI and Google made an illegal deal to slow the pace of their respective AI development.",
+    "as_of": "2026-09-18",
+    "confidence": "high",
+    "id": "c_8a0f4bce2c66",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-04",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.cbsnews.com/news/ai-slowdown-lawsuit-openai-anthropic-google/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "news"
+      }
+    ],
+    "source_class": "news"
+  },
+  {
+    "subject_key": "openai | flagship-product | dots-space",
+    "claim": "At DevDay on September 29, OpenAI launched Dots, always-on ChatGPT agents that run on GPT-6 Astra with their own cloud computer. A Dot talks to users through ChatGPT, Slack and Microsoft Teams. OpenAI also launched ChatGPT Space, a shared workspace that replaces Library for Pro, Business and Enterprise users, where staff and Dots work on the same Pages. A user's first Dot is included in Pro and Business Premium. Enterprise, Edu and Healthcare customers can try the beta once an administrator enables it.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://venturebeat.com/technology/openai-launches-dots-always-on-ai-agent-coworkers-and-chatgpt-space-where-they-can-collaborate-with-human-teams",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "communicate with users through ChatGPT, Slack and Microsoft Teams, and gradually learn an individual’s preferences",
+    "as_of": "2026-09-29",
+    "confidence": "high",
+    "id": "c_b2db840c40ad",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-04",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://techcrunch.com/2026/09/29/openai-takes-on-microsoft-with-the-launch-of-what-feels-a-whole-lot-like-chatgpts-own-office-suite/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "news"
+      }
+    ],
+    "source_class": "news"
+  },
+  {
+    "subject_key": "openai | revenue-run-rate",
+    "claim": "OpenAI is on pace for annualized revenue of almost $70 billion, per Axios reporting on September 29. That is a 70% increase since the start of the third quarter, and business-to-business revenue has grown more than 100% over the same period. Bloomberg reported in August that the run rate was above $40 billion.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 2,
+    "source_url": "https://www.pymnts.com/news/artificial-intelligence/2026/openai-annualized-revenue-nears-70-billion-amid-enterprise-growth/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "on pace to generate annualized revenue of almost $70 billion, Axios reported Tuesday (Sept. 29)",
+    "as_of": "2026-09-29",
+    "confidence": "high",
+    "id": "c_42ec48761f68",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-04",
+      "detail": null
+    },
+    "source_class": "news"
+  },
+  {
+    "subject_key": "openai | positioning | agent-365",
+    "claim": "OpenAI is working with Microsoft to integrate its specialist Dots into Microsoft Agent 365, so businesses can govern them through Microsoft's security and management systems. Specialist Dots have their own organizational identity, credentials and system access. They start as focused enterprise pilots with OpenAI engineers, and no commercial pricing has been disclosed.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 3,
+    "source_url": "https://venturebeat.com/technology/openai-launches-dots-always-on-ai-agent-coworkers-and-chatgpt-space-where-they-can-collaborate-with-human-teams",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "OpenAI is also working with Microsoft to integrate those specialist agents into Microsoft Agent 365",
+    "as_of": "2026-09-29",
+    "confidence": "high",
+    "id": "c_27a68545e0d7",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-04",
+      "detail": null
+    },
+    "source_class": "news"
+  },
+  {
+    "id": "c_9818138adb71",
+    "subject_key": "openai | pricing-model | collaboration-agent",
+    "claim": "A user's first Dot, OpenAI's always-on ChatGPT agent, is included in Pro and Business Premium. Enterprise, Edu and Healthcare customers can try the Dots beta once an administrator enables it. Do not quote a price for additional Dots.",
+    "claim_type": "interpretation",
+    "section": "pricing",
+    "zone": null,
+    "order": 4,
+    "as_of": "2026-09-29",
+    "updated_on": "2026-10-04",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_b2db840c40ad",
+    "persona": "economic_buyer",
+    "provenance": {
+      "source_url": "https://venturebeat.com/technology/openai-launches-dots-always-on-ai-agent-coworkers-and-chatgpt-space-where-they-can-collaborate-with-human-teams",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-09-29",
+      "fact_id": "c_b2db840c40ad",
+      "stamped_on": "2026-10-04",
+      "source_class": "news"
+    }
   }
 ]
