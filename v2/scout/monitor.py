@@ -175,8 +175,55 @@ def _supersede_hunt_targets(claims: list, today=None) -> list[dict]:
     return out
 
 
-async def _run_triage(meta, since, claims, my_since=None, extra: str = ""):
+def _focus_of(meta: dict) -> str | None:
+    """The card's focus area, or None for a general card ("General"/"None" count as none)."""
+    f = str((meta or {}).get("focus") or "").strip()
+    return None if not f or f.lower() in ("general", "none") else f
+
+
+def _focus_note(meta: dict, focus_searches: int) -> str:
+    """The two-scope framing for a focused card (private block monitor._FOCUS_NOTE), or "" for a
+    general card. Rides the USER message of triage, the judge and the own-company step: an input
+    the code owes the model, not a change to any instruction block."""
+    focus = _focus_of(meta)
+    if not focus:
+        return ""
+    note = judgment.optional("monitor._FOCUS_NOTE", {"focus": focus, "focus_searches": str(focus_searches)})
+    return ("\n\n" + note) if note else f"\n\nFOCUS AREA: {focus}. Developments in this area and the companies' corporate developments are both material."
+
+
+def _triage_budget(since: str | None, checked_at: str, focused: bool = False) -> tuple[int, int, float, int]:
+    """(searches, max_turns, budget, focus_searches) for the detection window. Up to three days: the
+    daily caps. A stale window earns two more searches per week of gap, up to
+    TRIAGE_CATCHUP_MAX_SEARCHES. A FOCUSED card adds TRIAGE_FOCUS_SEARCHES on top, reserved for the
+    focus area (Uroš 2026-10-03: no cap may cut off the area because corporate news was plentiful).
+    Turns follow the searches (a search is a turn; four for reading and the answer). Code-owned."""
+    try:
+        days = (datetime.fromisoformat(checked_at[:19]) - datetime.fromisoformat(str(since)[:10])).days
+    except Exception:
+        days = 1
+    if days <= 3:
+        searches, budget = config.TRIAGE_MAX_SEARCHES, config.TRIAGE_MAX_BUDGET_USD
+    else:
+        searches = min(config.TRIAGE_CATCHUP_MAX_SEARCHES, config.TRIAGE_MAX_SEARCHES + 2 * ((days + 6) // 7))
+        budget = max(config.TRIAGE_MAX_BUDGET_USD, config.TRIAGE_CATCHUP_BUDGET_USD)
+    focus_searches = 0
+    if focused:
+        focus_searches = max(config.TRIAGE_FOCUS_SEARCHES, (searches + 1) // 2 if days > 3 else config.TRIAGE_FOCUS_SEARCHES)
+        searches += config.TRIAGE_FOCUS_SEARCHES
+        budget = max(budget, 0.75)
+    if days <= 3 and not focused:
+        return searches, config.TRIAGE_MAX_TURNS, budget, 0          # the daily caps, untouched
+    return searches, searches + 4, budget, focus_searches
+
+
+async def _run_triage(meta, since, claims, my_since=None, extra: str = "", searches: int | None = None,
+                      max_turns: int | None = None, budget: float | None = None, focus_searches: int = 0):
     comp, me = meta.get("competitor"), meta.get("my_company")
+    # the system block is the module constant on a normal day (its fingerprint is the triage eval
+    # period); a catch-up window renders it with the larger search count, a separate period
+    system_block = _TRIAGE_SYSTEM if not searches or searches == config.TRIAGE_MAX_SEARCHES else \
+        judgment.text("monitor._TRIAGE_SYSTEM", {'config.TRIAGE_MAX_SEARCHES': searches, 'MATERIAL_CATEGORIES': MATERIAL_CATEGORIES})
     scope = (f"Scan BOTH sides and tag each candidate's 'about': the competitor {comp} AND your own "
              f"company {me}." if me else f"Scan the competitor {comp}.")
     # The own-side cutoff is the LAST SUCCESSFUL CHECK (~24h in normal daily operation; wider only
@@ -199,20 +246,21 @@ async def _run_triage(meta, since, claims, my_since=None, extra: str = ""):
             f"\nCUTOFF (competitor): {since}. Surface ONLY competitor developments dated on/after "
             f"{since} that are NOT already reflected in the tracked subjects below (apply both "
             f"strict filters)."
-            + my_cut + "\n\n"
+            + my_cut + _focus_note(meta, focus_searches or config.TRIAGE_FOCUS_SEARCHES) + "\n\n"
             f"TRACKED SUBJECTS (subject_key — current value already known):\n"
             + _tracked_digest(claims) + hunt_block + (extra or ""))
     options = ClaudeAgentOptions(
         model=config.FAST_MODEL,
-        system_prompt={"type": "preset", "preset": "claude_code", "append": _TRIAGE_SYSTEM + sources_tool.note("triage")},
+        system_prompt={"type": "preset", "preset": "claude_code", "append": system_block + sources_tool.note("triage")},
         mcp_servers={"scoutfetch": FETCH_SERVER, **sources_tool.servers()},
         allowed_tools=["WebSearch", FETCH_TOOL_NAME, *sources_tool.names("triage")],
         disallowed_tools=config.MODEL_DISALLOWED_TOOLS,
         permission_mode="bypassPermissions",
         # Triage-specific tight caps (lever B): few turns structurally bound the number of
-        # searches, and a sub-dollar budget hard-stops the routine check at pennies.
-        max_turns=config.TRIAGE_MAX_TURNS,
-        max_budget_usd=config.TRIAGE_MAX_BUDGET_USD,
+        # searches, and a sub-dollar budget hard-stops the routine check at pennies. A catch-up
+        # window (see _triage_budget) raises all three together.
+        max_turns=max_turns or config.TRIAGE_MAX_TURNS,
+        max_budget_usd=budget or config.TRIAGE_MAX_BUDGET_USD,
     )
     return await _drive(user, options, "triage")
 
@@ -271,7 +319,7 @@ async def _run_materiality(meta, since, candidates, claims, extra: str = ""):
     comp, me = meta.get("competitor"), meta.get("my_company")
     ev_note, max_turns = _evidence_in_hand(candidates)
     user = (f"Competitor: {comp}" + (f" (we are {me})" if me else "") +
-            f"\nChanges SINCE {since}.\n\nTRACKED SUBJECTS (subject_key — current value):\n"
+            f"\nChanges SINCE {since}." + _focus_note(meta, 0) + "\n\nTRACKED SUBJECTS (subject_key — current value):\n"
             + _tracked_digest(claims) +
             "\n\nCANDIDATE SIGNALS FROM TRIAGE:\n" + json.dumps(candidates, ensure_ascii=False) + ev_note + (extra or ""))
     options = ClaudeAgentOptions(
@@ -395,7 +443,7 @@ _MY_FACTS_SYSTEM = judgment.get("monitor._MY_FACTS_SYSTEM", {'ANCHOR_SECTION': A
 async def _run_my_facts(meta, since, candidates, claims):
     comp, me = meta.get("competitor"), meta.get("my_company")
     ev_note, max_turns = _evidence_in_hand(candidates)
-    user = (f"We are {me} (competing against {comp}).\nOUR developments SINCE {since}.\n\n"
+    user = (f"We are {me} (competing against {comp}).\nOUR developments SINCE {since}." + _focus_note(meta, 0) + "\n\n"
             "TRACKED SUBJECTS (subject_key — current value):\n" + _tracked_digest(claims) +
             "\n\nCANDIDATE OWN-SIDE SIGNALS FROM TRIAGE:\n" + json.dumps(candidates, ensure_ascii=False) + ev_note)
     options = ClaudeAgentOptions(
@@ -870,9 +918,15 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
         candidates = list(sens["candidates"])
         _step(steps, "triage", "skipped", "gate: the screen's candidates stand in; no model search today")
     else:
-        # Stage 1: triage (cheap)
+        # Stage 1: triage (cheap on a normal day; a stale window earns a catch-up budget)
+        t_searches, t_turns, t_budget, t_focus = _triage_budget(since, checked_at, focused=bool(_focus_of(meta)))
+        if t_searches != config.TRIAGE_MAX_SEARCHES:
+            _step(steps, "triage_budget", "ran", f"window since {since}" + (f", focus area '{_focus_of(meta)}' ({t_focus} searches reserved)" if t_focus else "")
+                  + f": {t_searches} searches, {t_turns} turns, ${t_budget:.2f}")
+        # extra kwargs only when the budget differs from the daily caps (the test fakes keep their shape)
+        t_kw = {} if t_searches == config.TRIAGE_MAX_SEARCHES else {"searches": t_searches, "max_turns": t_turns, "budget": t_budget, "focus_searches": t_focus}
         try:
-            triage = asyncio.run(_run_triage(meta, since, claims, my_since=my_since, extra=sig_block))
+            triage = asyncio.run(_run_triage(meta, since, claims, my_since=my_since, extra=sig_block, **t_kw))
         except BaseException as e:
             _step(steps, "triage", "failed", f"{type(e).__name__}: {e}", getattr(e, "scout_cost_usd", None))
             raise

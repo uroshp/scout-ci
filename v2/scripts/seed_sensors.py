@@ -133,29 +133,41 @@ def _aliases(name: str) -> list[str]:
     return list(PRODUCT_QUERIES.get(name.lower(), []))
 
 
-def _focus_phrase(cards: list[dict], name: str) -> str | None:
+def _focus_phrase(card: dict, name: str) -> str | None:
+    """One card's focus area as a query phrase (its own words, the company name and stop words removed)."""
     words = []
+    for w in re.findall(r"[a-z][a-z0-9]{2,}", str(card.get("focus") or "").lower().replace("-", " ")):
+        if w not in _FOCUS_STOP and w not in name.lower() and w not in words:
+            words.append(w)
+    return " ".join(words[:6]) or None
+
+
+def _focus_phrases(cards: list[dict], name: str) -> list[str]:
+    """One phrase PER CARD, never merged across cards (2026-10-03: a merged three-word phrase for OpenAI kept
+    the sovereign-enterprise card's words and dropped the collaboration card's; the focus area is a scope of
+    its own on every card and no cap may cut it)."""
+    out = []
     for c in cards:
-        for w in re.findall(r"[a-z][a-z0-9]{2,}", str(c.get("focus") or "").lower().replace("-", " ")):
-            if w not in _FOCUS_STOP and w not in name.lower() and w not in words:
-                words.append(w)
-    return " ".join(words[:3]) or None
+        fp = _focus_phrase(c, name)
+        if fp and fp not in out:
+            out.append(fp)
+    return out
 
 
 def _queries(name: str, cards: list[dict]) -> list[str]:
-    """The display name (unless it is a broad word like Google: then only qualified forms), each
-    product alias on its own, and the name with the card's focus phrase."""
+    """The display name (unless it is a broad word like Google: then only qualified forms), up to two
+    product aliases, and the name with EACH card's focus phrase (one query per focused card, uncapped)."""
     q = []
     if name.lower() not in BROAD_NAMES:
         q.append(f'"{name}"')
-    for a in _aliases(name):
+    for a in _aliases(name)[:2]:
         q.append(f'"{a}"' if a.lower() not in BROAD_NAMES else f'"{name}" {a}')
-    fp = _focus_phrase(cards, name)
-    if fp:
+    fps = _focus_phrases(cards, name)
+    for fp in fps:
         q.append(f'"{name}" {fp}')
-    elif name.lower() in BROAD_NAMES:
+    if not fps and name.lower() in BROAD_NAMES:
         q.append(f'"{name}" AI')
-    return list(dict.fromkeys(q))[:4]
+    return list(dict.fromkeys(q))
 
 
 def _is_company_page(host: str, name: str) -> tuple[bool, bool]:

@@ -436,3 +436,53 @@ class StoreRootAndDryGate(unittest.TestCase):
                 reformat.DRY.reset(tok)
         self.assertIn("pending_publish/slug/", path)
         self.assertFalse(reformat.DRY.get())
+
+
+class CatchUpTriage(unittest.TestCase):
+    """A stale window earns more searches (the 19-day first check on the promoted card, 2026-10-03)."""
+
+    def test_budget_scales_with_the_window_and_the_focus(self):
+        from scout import config as c
+        day = "2026-10-04T01:00:00"
+        self.assertEqual(monitor._triage_budget("2026-10-03", day), (c.TRIAGE_MAX_SEARCHES, c.TRIAGE_MAX_TURNS, c.TRIAGE_MAX_BUDGET_USD, 0))
+        self.assertEqual(monitor._triage_budget("2026-10-01", day), (c.TRIAGE_MAX_SEARCHES, c.TRIAGE_MAX_TURNS, c.TRIAGE_MAX_BUDGET_USD, 0))
+        s, t, b, f = monitor._triage_budget("2026-09-15", day)              # 19 days: 5 + 2 * 3 weeks
+        self.assertEqual((s, t, b, f), (11, 15, max(c.TRIAGE_MAX_BUDGET_USD, c.TRIAGE_CATCHUP_BUDGET_USD), 0))
+        self.assertEqual(monitor._triage_budget("2026-06-01", day)[0], c.TRIAGE_CATCHUP_MAX_SEARCHES)
+        self.assertEqual(monitor._triage_budget(None, day)[0], c.TRIAGE_MAX_SEARCHES)
+        # a FOCUSED card: extra searches reserved for the focus area, on a normal day and on a catch-up
+        s, t, b, f = monitor._triage_budget("2026-10-03", day, focused=True)
+        self.assertEqual((s, t, f), (c.TRIAGE_MAX_SEARCHES + c.TRIAGE_FOCUS_SEARCHES, c.TRIAGE_MAX_SEARCHES + c.TRIAGE_FOCUS_SEARCHES + 4, c.TRIAGE_FOCUS_SEARCHES))
+        self.assertGreaterEqual(b, 0.75)
+        s, t, b, f = monitor._triage_budget("2026-09-15", day, focused=True)
+        self.assertEqual(s, 11 + c.TRIAGE_FOCUS_SEARCHES); self.assertGreaterEqual(f, 6)   # half of a catch-up goes to the area
+
+    def test_focused_card_gets_both_scopes_in_every_paid_step(self):
+        """2026-10-03: the daily check never received the card's focus; its five searches on the
+        collaboration-agents card were all corporate news and missed DevDay's agent updates."""
+        meta = {"competitor": "Anthropic", "my_company": "OpenAI", "focus": "Enterprise collaboration agents (inside Slack and Teams)"}
+        with mock.patch.object(monitor.judgment, "optional", side_effect=lambda name, subs=None: f"FOCUS NOTE {subs['focus']} / {subs['focus_searches']}" if name == "monitor._FOCUS_NOTE" else None):
+            self.assertIn("FOCUS NOTE Enterprise collaboration agents (inside Slack and Teams) / 3", monitor._focus_note(meta, 3))
+            self.assertEqual(monitor._focus_note({"competitor": "A", "focus": "General"}, 3), "")
+            self.assertEqual(monitor._focus_note({"competitor": "A"}, 3), "")
+        # the fallback when the pack lacks the block still names the focus and both scopes
+        with mock.patch.object(monitor.judgment, "optional", return_value=None):
+            n = monitor._focus_note(meta, 3)
+            self.assertIn("FOCUS AREA: Enterprise collaboration agents", n); self.assertIn("corporate developments are both material", n)
+
+    def test_catch_up_renders_the_block_with_the_larger_count_and_records_a_step(self):
+        seen = {}
+
+        async def fake_drive(user, options, role):
+            seen["system"] = options.system_prompt["append"]; seen["turns"] = options.max_turns; seen["budget"] = options.max_budget_usd
+            return {"text": json.dumps({"has_candidates": False, "candidates": []}), "cost_usd": 0.3}
+        with mock.patch.object(monitor, "_drive", fake_drive), \
+             mock.patch.object(monitor.judgment, "text", return_value="TRIAGE BLOCK WITH 11 SEARCHES") as jt, \
+             mock.patch.object(monitor.store, "load_meta", return_value={"competitor": "A", "my_company": "B", "last_checked": "2026-09-15T10:00:00", "baseline_date": "2026-09-15"}), \
+             mock.patch.object(monitor.store, "load_claims", return_value=[]), mock.patch.object(monitor.store, "write_baseline"), \
+             mock.patch.object(monitor, "_current_md", return_value="# c"), mock.patch.object(config, "SIGNALS_ENABLED", False), \
+             mock.patch.object(config, "PROPAGATE_MODE", "off"), mock.patch.object(config, "SENSORS_MODE", "off"):
+            res = monitor.check("card-x", write=True)
+        self.assertIn("11 SEARCHES", seen["system"]); self.assertEqual(seen["turns"], 15); self.assertEqual(seen["budget"], 1.0)
+        self.assertEqual(jt.call_args.args[1]["config.TRIAGE_MAX_SEARCHES"], 11)
+        self.assertEqual({r["step"]: r for r in res["steps"]}["triage_budget"]["status"], "ran")

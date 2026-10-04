@@ -80,6 +80,17 @@ GEN_MAX_BUDGET_USD = float(os.environ.get("SCOUT_GEN_MAX_BUDGET_USD", "10.0"))
 TRIAGE_MAX_TURNS = int(os.environ.get("SCOUT_TRIAGE_MAX_TURNS", "8"))
 TRIAGE_MAX_BUDGET_USD = float(os.environ.get("SCOUT_TRIAGE_MAX_BUDGET_USD", "0.50"))
 TRIAGE_MAX_SEARCHES = int(os.environ.get("SCOUT_TRIAGE_MAX_SEARCHES", "5"))
+# CATCH-UP (2026-10-03): a stale detection window (a promoted card, a skipped stretch, a held window)
+# earns more searches, scaled to its length, up to this cap. The first check on the OpenAI vs
+# Anthropic collaboration card squeezed 19 days with DevDay in them through the daily five searches
+# and surfaced three candidates. Windows of up to 3 days keep the daily cap.
+TRIAGE_CATCHUP_MAX_SEARCHES = int(os.environ.get("SCOUT_TRIAGE_CATCHUP_MAX_SEARCHES", "12"))
+TRIAGE_CATCHUP_BUDGET_USD = float(os.environ.get("SCOUT_TRIAGE_CATCHUP_BUDGET_USD", "1.00"))
+# FOCUS (2026-10-03, Uroš): a card with a focus has TWO scopes, both material: the focus area (first)
+# and the companies' corporate developments. The daily check never received the focus before this
+# date, so its searches drifted to corporate news on every focused card. A focused card gets these
+# extra searches, reserved for the focus area, so a busy corporate week can never crowd it out.
+TRIAGE_FOCUS_SEARCHES = int(os.environ.get("SCOUT_TRIAGE_FOCUS_SEARCHES", "3"))
 # Surface router (propagation step 3a, scout/route.py): tools-off Opus deciding which brief surfaces
 # an act-grade change reshapes, across all sections. One judgment call per change-set; it reasons over
 # the facts + the card, never searches. Absorbs the old separate strategic-lead pass, so it is

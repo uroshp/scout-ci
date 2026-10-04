@@ -376,7 +376,7 @@ class MonitorModes(unittest.TestCase):
         self.monitor._SENSORS["today"] = day
         seen = {}
 
-        async def tri(meta, since, claims, my_since=None, extra=""):
+        async def tri(meta, since, claims, my_since=None, extra="", **kw):
             seen["since"] = since
             return {"text": json.dumps({"has_candidates": True, "candidates": [{"signal": "Acme opens Berlin office", "subject_key": "NEW", "about": "competitor", "substantial": True}]}), "cost_usd": 0.15}
         screen_c = [{"signal": "Team seat $20 -> $25", "subject_key": "acme | pricing | team", "about": "competitor", "valence": "back_foot",
@@ -446,6 +446,16 @@ class Seeding(unittest.TestCase):
         self.assertEqual(m._queries("Google", [{"focus": None}]), ['"Gemini"', '"DeepMind"', '"Google" AI'])
         self.assertEqual(m._queries("Microsoft Teams", [{"focus": None}]), ['"Microsoft Teams"'])
         self.assertEqual(m._queries("Anthropic", [{"focus": "enterprise coding developers"}]), ['"Anthropic"', '"Claude"', '"Anthropic" enterprise coding developers'])
+
+    def test_every_focused_card_keeps_its_own_query(self):
+        """Two cards on one company: each focus area gets its own query; neither is merged or cut (10/3 bug)."""
+        m = self.m
+        q = m._queries("OpenAI", [{"focus": "Enterprise (sovereign), developers, agents"},
+                                  {"focus": "Enterprise collaboration agents inside Slack and Teams"},
+                                  {"focus": None}])
+        self.assertIn('"OpenAI" enterprise sovereign developers agents', q)
+        self.assertIn('"OpenAI" enterprise collaboration agents inside slack teams', q)
+        self.assertEqual(q[0], '"OpenAI"')
 
     def test_section_page_collapses_permalinks(self):
         m = self.m
