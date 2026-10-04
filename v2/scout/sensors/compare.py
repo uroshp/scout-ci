@@ -72,12 +72,15 @@ def recent_screen_candidates(slug: str, dates: list[str]) -> list[dict]:
 
 
 def level_a(landed: list[tuple[dict, dict]], findings: list[dict], screen_cands: list[dict],
-            watched_hosts: set, names: list[str] | None = None) -> list[dict]:
+            watched_hosts: set, names: list[str] | None = None, baseline: str | None = None) -> list[dict]:
     """One row per landed (claim, alert): would the SENSOR PATH have produced this alert?
     covered_by `screen` when a screen candidate names its subject key or shares three distinctive
     tokens with the claim; otherwise a MISS whose reason says where the chain broke:
     `screened_out` (a finding carried it: same URL, the excerpt, or a story sharing three tokens),
-    `no_finding` (the host is watched, nothing new was read there), `no_source` (nothing watches it)."""
+    `no_finding` (the host is watched, nothing new was read there), `no_source` (nothing watches it).
+    An alert whose event (`as_of`) predates the sensors' baseline day is `pre_baseline`: not a miss,
+    not covered, not comparable (2026-10-04: a 19-day catch-up landed nine alerts about events the
+    sensors never had a chance to read, and every one counted as a miss)."""
     rows = []
     ent = entity_tokens(names or [])
     f_texts = [(_norm((f.get("title") or "") + " " + (f.get("text") or "")), tokens((f.get("title") or "") + " " + (f.get("text") or "")[:400], ent), f) for f in findings]
@@ -92,7 +95,11 @@ def level_a(landed: list[tuple[dict, dict]], findings: list[dict], screen_cands:
         excerpt = _norm(claim.get("evidence_excerpt") or "")
         ctoks = tokens((claim.get("claim") or "") + " " + (alert.get("headline") or ""), ent)
         row = {"subject_key": sk, "source_url": url, "host": host}
-        if sk in sk_cands or any(len(ctoks & t) >= 3 for t in cand_toks):
+        as_of = str(claim.get("as_of") or "")[:10]
+        if baseline and as_of and as_of < baseline:
+            row["covered_by"] = "pre_baseline"
+            row["as_of"] = as_of
+        elif sk in sk_cands or any(len(ctoks & t) >= 3 for t in cand_toks):
             row["covered_by"] = "screen"
         else:
             row["miss"] = True

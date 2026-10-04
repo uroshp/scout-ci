@@ -335,6 +335,14 @@ def normalize_confidence(value):
     return value
 
 
+def canonical_subject_key(key) -> str:
+    """The cards' spelling of a subject key: fields separated by ` | ` (every live card, 2026-10-04:
+    510 of 510 piped keys). Ids ignore the spacing already; this keeps the stored text uniform so a
+    rail or a digest never shows `a|b` next to `a | b`."""
+    k = str(key or "").strip()
+    return re.sub(r"\s*\|\s*", " | ", k) if "|" in k else k
+
+
 def normalize_claim(claim: dict) -> dict:
     """In-place, deterministic clean-up of a model-emitted claim BEFORE any schema check: enum-valued
     strings trimmed and lower-cased, `confidence` mapped through normalize_confidence. Changes only

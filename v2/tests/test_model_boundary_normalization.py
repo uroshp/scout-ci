@@ -123,3 +123,88 @@ class StepRowNamesSchemaRejects(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class OneUpdatePerClaimPerRun(unittest.TestCase):
+    """2026-10-04: both arms landed the DevDay @ChatGPT launch on the same claim id -> two alerts."""
+
+    def _claim(self, key, text):
+        from scout.schema import claim_id
+        return {"id": claim_id("s", key), "subject_key": key, "claim": text, "claim_type": "fact",
+                "section": "tracked_facts", "zone": None, "order": 1, "source_url": "https://x.test/a",
+                "source_tier": "primary", "evidence_excerpt": "e", "as_of": "2026-09-29", "confidence": "high", "verified": True}
+
+    def test_second_arm_cannot_re_alert_the_same_claim(self):
+        stored = [self._claim("openai | flagship-product | collaboration-agent", "old text")]
+        comp = (self._claim("openai | flagship-product | collaboration-agent", "competitor-arm text"),
+                {"new_value": "v1", "headline": "h1", "severity": "act"})
+        own = (self._claim("openai|flagship-product|collaboration-agent", "own-arm text"),
+               {"new_value": "v2", "headline": "h2", "severity": "act"})
+        self.assertEqual(comp[0]["id"], own[0]["id"])              # ids already ignore the spacing
+        updated = set()
+        claims, alerts = monitor._apply_updates(stored, [comp], [], updated)
+        claims, alerts2 = monitor._apply_updates(claims, [own], [], updated)
+        self.assertEqual(len(alerts), 1)
+        self.assertEqual(alerts2, [])
+        self.assertEqual(len(claims), 1)
+        self.assertEqual(claims[0]["claim"], "competitor-arm text")
+        self.assertEqual(claims[0]["subject_key"], "openai | flagship-product | collaboration-agent")
+
+    def test_revision_keeps_the_stored_spelling_and_new_keys_take_the_convention(self):
+        stored = [self._claim("anthropic | list-price | enterprise", "old")]
+        rev = (self._claim("anthropic|list-price|enterprise", "new"), {"new_value": "n", "headline": "h", "severity": "watch"})
+        new = (self._claim("openai|pro-plan|reopen-halved", "brand new"), {"new_value": "n2", "headline": "h2", "severity": "act"})
+        claims, alerts = monitor._apply_updates(stored, [rev, new], [])
+        keys = sorted(c["subject_key"] for c in claims)
+        self.assertEqual(keys, ["anthropic | list-price | enterprise", "openai | pro-plan | reopen-halved"])
+        self.assertEqual([a["subject_key"] for a in alerts], ["anthropic | list-price | enterprise", "openai | pro-plan | reopen-halved"])
+
+
+class DecidedSubjectsDoNotHoldTheWindow(unittest.TestCase):
+    """2026-10-04: the $517B compute deal was judged immaterial (old news) and still held the window."""
+
+    def test_judged_immaterial_subjects_are_matched_on_the_signal(self):
+        subst = [{"signal": "2026-10-02: Anthropic secures $517 billion in compute", "subject_key": "anthropic|compute-strain"},
+                 {"signal": "2026-09-29: OpenAI puts @ChatGPT in Slack", "subject_key": "openai | flagship-product | collaboration-agent"}]
+        imm = [{"signal": "2026-10-02: Anthropic secures $517 billion in compute", "why_not": "old news"}]
+        self.assertEqual(monitor._judged_immaterial_subjects(subst, imm), {"anthropic|compute strain"})
+
+    def test_a_window_held_for_a_now_decided_subject_closes(self):
+        meta = {"unresolved_since": "2026-09-15", "unresolved_attempts": 1, "unresolved_subjects": ["anthropic|compute-strain"]}
+        result = {}
+        monitor._resolve_or_hold(meta, [], result, decided={"anthropic|compute strain"})
+        self.assertIsNone(meta.get("unresolved_since"))
+        self.assertEqual(result["unresolved_resolved"]["by"], "judged immaterial")
+
+    def test_an_undecided_held_subject_keeps_the_window(self):
+        meta = {"unresolved_since": "2026-09-15", "unresolved_attempts": 1, "unresolved_subjects": ["anthropic|compute-strain", "openai|x"]}
+        result = {}
+        monitor._resolve_or_hold(meta, [], result, decided={"anthropic|compute strain"})
+        self.assertEqual(meta.get("unresolved_since"), "2026-09-15")
+        self.assertEqual(meta.get("unresolved_attempts"), 2)
+
+    def test_an_alert_on_a_held_subject_resolves_regardless_of_spacing(self):
+        meta = {"unresolved_since": "2026-09-15", "unresolved_attempts": 1, "unresolved_subjects": ["openai|flagship-product|collaboration-agent"]}
+        result = {}
+        monitor._resolve_or_hold(meta, [{"subject_key": "openai | flagship-product | collaboration-agent"}], result)
+        self.assertIsNone(meta.get("unresolved_since"))
+        self.assertEqual(result["unresolved_resolved"]["by"], "alert")
+
+
+class PreBaselineAlertsAreNotMisses(unittest.TestCase):
+    def test_level_a_marks_events_before_the_baseline(self):
+        from scout.sensors import compare
+        landed = [({"subject_key": "k1", "as_of": "2026-09-29", "claim": "OpenAI launched ChatGPT Space at DevDay", "source_url": "https://thenextweb.com/a"},
+                   {"headline": "h"}),
+                  ({"subject_key": "k2", "as_of": "2026-10-06", "claim": "Anthropic raised the price of Opus", "source_url": "https://www.anthropic.com/news/x"},
+                   {"headline": "h"})]
+        rows = compare.level_a(landed, [], [], set(), names=["OpenAI", "Anthropic"], baseline="2026-10-05")
+        self.assertEqual(rows[0].get("covered_by"), "pre_baseline")
+        self.assertFalse(rows[0].get("miss"))
+        self.assertTrue(rows[1].get("miss"))
+
+    def test_without_a_baseline_nothing_changes(self):
+        from scout.sensors import compare
+        landed = [({"subject_key": "k1", "as_of": "2026-09-29", "claim": "x y z", "source_url": "https://thenextweb.com/a"}, {"headline": "h"})]
+        rows = compare.level_a(landed, [], [], set(), names=[])
+        self.assertTrue(rows[0].get("miss"))
