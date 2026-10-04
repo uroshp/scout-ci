@@ -985,7 +985,12 @@ def _how_panel() -> str:
     (2026-10-02): every model lane looks the same."""
     fast, orch, sub = (_model_label(m) for m in
                        (config.FAST_MODEL, config.ORCHESTRATOR_MODEL, config.SUBAGENT_MODEL))
-    steps = (("Step 1", "Watch", "Scans each competitor for what changed since yesterday.", fast),
+    # Sensors (Release 2): once the gate is flipped, code does the reading and a model reads only what
+    # changed. The copy follows the mode so the panel never describes a system that is not running.
+    sensors_on = getattr(config, "SENSORS_MODE", "off") == "gate"
+    watch = ("Code reads each company\u2019s own pages and feeds and two news indexes every morning; a model reads only what changed."
+             if sensors_on else "Scans each competitor for what changed since yesterday.")
+    steps = (("Step 1", "Watch", watch, fast),
              ("Step 2", "Weigh", "Decides whether a change matters in a deal and which parts of the card it touches.", orch),
              ("Step 3", "Write", "Drafts the edit from the source, with its link and date attached.", sub),
              ("Step 4", "Judge", "Checks the edit against the source and rules on it.", orch))
@@ -1007,6 +1012,11 @@ def _how_panel() -> str:
               f'<span class="hw-num">{fig["cards"]}</span> cards, <span class="hw-num">{fig["updates"]}</span> '
               f'update{"" if fig["updates"] == 1 else "s"} {fig["when"]}.</li>') if fig else ""
     asof = ""                                              # the footer carries links only (2026-10-02 night)
+    build_bullet = (('<li><b>Code sensors read the sources,</b> a pipeline runs the daily checks, event triggers between runs, '
+                     'and <b>an agent answers Ask Scout,</b> because a question&rsquo;s path cannot be planned ahead.</li>')
+                    if sensors_on else
+                    ('<li><b>A pipeline for the daily checks,</b> event triggers between runs, and <b>an agent for Ask Scout,</b> '
+                     'because a question&rsquo;s path cannot be planned ahead.</li>'))
     return (
         '<div class="how" id="how" hidden>'
         '<button type="button" class="hw-close" data-how aria-expanded="true" aria-controls="how" aria-label="Close">&#215;</button>'
@@ -1038,8 +1048,7 @@ def _how_panel() -> str:
         '<li><b>The Cut Log</b> shows what was unverified or stale, and why it went.</li>'
         f'{fig_li}</ul></div>'
         '<div class="hw-col"><h4>The build</h4><ul>'
-        '<li><b>A pipeline for the daily checks,</b> event triggers between runs, and <b>an agent for Ask Scout,</b> '
-        'because a question&rsquo;s path cannot be planned ahead.</li>'
+        + build_bullet +
         '<li><b>Also an MCP tool,</b> so other agents can call Ask Scout; it answers in Slack too.</li>'
         '<li><b>Code keeps the gates:</b> cost, retries, links, dates, format. <b>Models do the judgment,</b> and the cheapest model that passes its eval gets the job.</li>'
         '<li><b>Two fallbacks:</b> first a model, then the human author.</li>'

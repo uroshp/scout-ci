@@ -21,6 +21,7 @@ from datetime import datetime
 
 from scout import selfserve
 from scout.sensors import feeds
+from scout.sources import classify
 
 RECORD = "sensors/_compare/{date}/{slug}.json"
 STREAK = "sensors/_compare/streak.json"
@@ -100,10 +101,10 @@ def level_a(landed: list[tuple[dict, dict]], findings: list[dict], screen_cands:
                     or any(len(ctoks & ft) >= 3 for _, ft, _ in f_texts))
             if seen:
                 row["miss_reason"] = "screened_out"
-            elif host and (host in watched_hosts or host in f_hosts):
-                row["miss_reason"] = "no_finding"
+            elif host and (host in watched_hosts or host in f_hosts or classify.classify(f"https://{host}/") in ("news", "company_statement", "filing", "government", "research")):
+                row["miss_reason"] = "no_finding"          # a watched page or an indexed outlet: nothing new was read there
             else:
-                row["miss_reason"] = "no_source"
+                row["miss_reason"] = "no_source"           # nothing watches this host and no index carries it
         rows.append(row)
     return rows
 
