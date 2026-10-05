@@ -415,6 +415,19 @@ if __name__ == "__main__":
     unittest.main()
 
 
+class UnseededEntity(unittest.TestCase):
+    def test_a_missing_registry_is_skipped_not_an_outage(self):
+        """2026-10-05: no registry set `unavailable`, the sensors step read FAILED and the lifecycle audit
+        went RED on every rehearsal run; an unseeded entity takes the model path quietly."""
+        from unittest import mock
+        from scout.sensors import collect, registry
+        with mock.patch.object(registry, "load", return_value=None):
+            out = collect.run_pass({"nobody": {"name": "Nobody", "names": ["Nobody"], "cards": []}}, write=False, today="2026-10-05")
+        s = out["nobody"]
+        self.assertTrue(s["no_registry"])
+        self.assertFalse(s["unavailable"])
+
+
 class Seeding(unittest.TestCase):
     """scripts/seed_sensors.py: the registry planner's deterministic parts (no network)."""
 
