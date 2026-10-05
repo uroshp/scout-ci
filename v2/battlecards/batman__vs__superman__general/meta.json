@@ -4,7 +4,7 @@
   "competitor": "Superman",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-09-28T11:02:28",
+  "last_checked": "2026-10-05T11:08:43",
   "cadence_hours": 72,
   "cadence_days": 7,
   "alerted_fingerprints": [
@@ -24,5 +24,12 @@
     "f_cc759ed3bbfc",
     "f_52d6ff77f1cd"
   ],
-  "monitored": true
+  "monitored": true,
+  "last_check_reason": "scheduled",
+  "unresolved_subjects": [
+    "man_of_tomorrow",
+    "superman | key-person-concentration"
+  ],
+  "unresolved_since": "2026-09-28",
+  "unresolved_attempts": 1
 }
