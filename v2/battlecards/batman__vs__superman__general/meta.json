@@ -4,7 +4,7 @@
   "competitor": "Superman",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-10-05T11:08:43",
+  "last_checked": "2026-10-05T18:12:51",
   "cadence_hours": 72,
   "cadence_days": 7,
   "alerted_fingerprints": [
@@ -22,7 +22,9 @@
     "f_bc0604ae148a",
     "f_b35e03462cff",
     "f_cc759ed3bbfc",
-    "f_52d6ff77f1cd"
+    "f_52d6ff77f1cd",
+    "f_d5f8b03b39f9",
+    "f_a17112a0a505"
   ],
   "monitored": true,
   "last_check_reason": "scheduled",
@@ -31,5 +33,9 @@
     "superman | key-person-concentration"
   ],
   "unresolved_since": "2026-09-28",
-  "unresolved_attempts": 1
+  "unresolved_attempts": 2,
+  "lead_election": {
+    "last_promoted_on": "2026-10-05",
+    "lead_subject_key": "competitive-verdict | sequel-gap-exposure | current"
+  }
 }
