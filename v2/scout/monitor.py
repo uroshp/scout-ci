@@ -1460,7 +1460,10 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
     if write:
         _sensor_consume(slug, sens, checked_at)
     if sens:
-        result["sensors"] = _sensor_compare(slug, meta, sens, candidates, material_grounded, steps, write, checked_at, triage_ran)
+        # BOTH arms' landed facts are compared (2026-10-05: own-side alerts were never checked against
+        # the sensors, so a Level A miss on our own news could not be counted)
+        result["sensors"] = _sensor_compare(slug, meta, sens, candidates, list(material_grounded) + list(my_grounded),
+                                            steps, write, checked_at, triage_ran)
     return result
 
 
