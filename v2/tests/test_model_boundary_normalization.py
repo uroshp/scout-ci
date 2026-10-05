@@ -208,3 +208,50 @@ class PreBaselineAlertsAreNotMisses(unittest.TestCase):
         landed = [({"subject_key": "k1", "as_of": "2026-09-29", "claim": "x y z", "source_url": "https://thenextweb.com/a"}, {"headline": "h"})]
         rows = compare.level_a(landed, [], [], set(), names=[])
         self.assertTrue(rows[0].get("miss"))
+
+
+class ZoneAliasesAndStoredHome(unittest.TestCase):
+    """2026-10-05, the first audited morning: Opus 5.5 wrote `zone: "weaknesses"` on a fact keyed like a
+    stored play minus its last field; the schema dropped it and Batman's window stayed held."""
+
+    def test_zone_aliases_read_from_our_side(self):
+        self.assertEqual(schema.normalize_zone("weaknesses"), "where_we_win")
+        self.assertEqual(schema.normalize_zone("Their strengths"), "where_they_win")
+        self.assertEqual(schema.normalize_zone("toss-up"), "contested")
+        self.assertEqual(schema.normalize_zone("where_we_win"), "where_we_win")
+        self.assertEqual(schema.normalize_zone("bogus"), "bogus")          # still named by the schema
+
+    def test_resolve_subject_key(self):
+        stored = ["superman | key-person-concentration | current", "superman | box-office | opening", "superman | box-office | total"]
+        self.assertEqual(schema.resolve_subject_key("superman|key-person-concentration|current", stored), stored[0])
+        self.assertEqual(schema.resolve_subject_key("superman | key-person-concentration", stored), stored[0])   # unique prefix
+        self.assertEqual(schema.resolve_subject_key("superman | box-office", stored), "superman | box-office")   # ambiguous: unchanged
+        self.assertEqual(schema.resolve_subject_key("superman | new-thing", stored), "superman | new-thing")
+
+    def _stored(self):
+        return [{"subject_key": "superman | key-person-concentration | current", "claim_type": "interpretation",
+                 "section": "battlecard", "zone": "where_we_win", "id": "c_1"}]
+
+    def test_a_fact_aimed_at_a_play_lands_in_recent_moves_under_its_own_key(self):
+        c = {"subject_key": "superman | key-person-concentration", "claim_type": "fact", "section": "battlecard", "zone": "weaknesses", "confidence": 0.9}
+        schema.normalize_claim(c)
+        monitor._adopt_home(c, self._stored())
+        self.assertEqual(c["subject_key"], "superman | key-person-concentration | current | fact")
+        self.assertEqual((c["section"], c["zone"], c["persona"]), ("recent_moves", None, None))
+
+    def test_an_interpretation_revision_keeps_the_stored_home_when_the_zone_is_unknown(self):
+        c = {"subject_key": "superman | key-person-concentration", "claim_type": "interpretation", "section": "battlecard", "zone": "bogus"}
+        monitor._adopt_home(schema.normalize_claim(c), self._stored())
+        self.assertEqual(c["subject_key"], "superman | key-person-concentration | current")
+        self.assertEqual(c["zone"], "where_we_win")
+
+    def test_a_valid_different_zone_is_the_judges_call_and_stays(self):
+        c = {"subject_key": "superman | key-person-concentration | current", "claim_type": "interpretation", "section": "battlecard", "zone": "contested"}
+        monitor._adopt_home(schema.normalize_claim(c), self._stored())
+        self.assertEqual(c["zone"], "contested")
+
+    def test_a_new_fact_in_a_fact_section_is_untouched(self):
+        c = {"subject_key": "superman | sequel | greenlight", "claim_type": "fact", "section": "recent_moves", "zone": None}
+        monitor._adopt_home(schema.normalize_claim(c), self._stored())
+        self.assertEqual(c["subject_key"], "superman | sequel | greenlight")
+        self.assertEqual(c["section"], "recent_moves")

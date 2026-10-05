@@ -343,10 +343,34 @@ def canonical_subject_key(key) -> str:
     return re.sub(r"\s*\|\s*", " | ", k) if "|" in k else k
 
 
+# A zone the model named by its meaning instead of its label (2026-10-05: Opus 5.5 wrote
+# `zone: "weaknesses"` for a claim about the competitor, the schema dropped the fact and Batman's
+# window stayed held). Seen FROM OUR SIDE: the competitor's weakness is where we win.
+_ZONE_ALIASES = {
+    "where_we_win": "where_we_win", "where we win": "where_we_win", "we_win": "where_we_win", "weakness": "where_we_win",
+    "weaknesses": "where_we_win", "their_weakness": "where_we_win", "their weaknesses": "where_we_win", "risk": "where_we_win",
+    "risks": "where_we_win", "gap": "where_we_win", "gaps": "where_we_win", "our_strength": "where_we_win", "our strengths": "where_we_win",
+    "where_they_win": "where_they_win", "where they win": "where_they_win", "they_win": "where_they_win", "strength": "where_they_win",
+    "strengths": "where_they_win", "their_strength": "where_they_win", "their strengths": "where_they_win", "advantage": "where_they_win",
+    "advantages": "where_they_win", "our_weakness": "where_they_win", "our weaknesses": "where_they_win",
+    "contested": "contested", "mixed": "contested", "neutral": "contested", "even": "contested", "toss_up": "contested",
+    "toss-up": "contested", "parity": "contested", "both": "contested",
+}
+
+
+def normalize_zone(value):
+    """A battlecard zone label, or the value unchanged when no alias matches (the schema names it)."""
+    if not isinstance(value, str):
+        return value
+    t = value.strip().lower().replace("-", "_") if value.strip().lower() not in _ZONE_ALIASES else value.strip().lower()
+    return _ZONE_ALIASES.get(t, _ZONE_ALIASES.get(value.strip().lower(), value))
+
+
 def normalize_claim(claim: dict) -> dict:
     """In-place, deterministic clean-up of a model-emitted claim BEFORE any schema check: enum-valued
-    strings trimmed and lower-cased, `confidence` mapped through normalize_confidence. Changes only
-    representation, never content. Returns the claim."""
+    strings trimmed and lower-cased, `confidence` mapped through normalize_confidence, `zone` through
+    normalize_zone (the competitor's perspective: both monitor arms emit claims about the competitor
+    or force the anchor section). Changes only representation, never content. Returns the claim."""
     if not isinstance(claim, dict):
         return claim
     for k in _LOWERCASE_ENUMS:
@@ -355,7 +379,28 @@ def normalize_claim(claim: dict) -> dict:
             claim[k] = v.strip().lower()
     if "confidence" in claim:
         claim["confidence"] = normalize_confidence(claim["confidence"])
+    if isinstance(claim.get("zone"), str):
+        z = normalize_zone(claim["zone"])
+        claim["zone"] = z if z in ZONES else (None if z.strip().lower() in ("", "none", "null", "n/a") else z)
+    if isinstance(claim.get("section"), str):
+        claim["section"] = claim["section"].strip().lower().replace("-", "_").replace(" ", "_")
     return claim
+
+
+def resolve_subject_key(key, existing_keys) -> str:
+    """The stored key a model-emitted key refers to: an exact match (spacing and case aside), else the
+    one stored key the emitted key is a field-wise prefix of (2026-10-05: the judge wrote
+    `superman | key-person-concentration` for the stored `... | current`, which would have become a
+    second claim). Otherwise the emitted key, unchanged."""
+    k = normalize_subject_key(str(key or ""))
+    if not k:
+        return key
+    by_norm = {normalize_subject_key(str(e)): e for e in (existing_keys or []) if e}
+    if k in by_norm:
+        return by_norm[k]
+    fields = k.split("|")
+    hits = [e for n, e in by_norm.items() if n.split("|")[:len(fields)] == fields and len(n.split("|")) > len(fields)]
+    return hits[0] if len(hits) == 1 else key
 
 
 def pregrounding_errors(claim: dict) -> list[str]:
