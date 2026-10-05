@@ -2253,15 +2253,15 @@
   },
   {
     "subject_key": "openai | executive-change | safety-departures-2026",
-    "claim": "OpenAI dismissed three members of its safety team. On October 1, 2026 OpenAI confirmed it parted ways with two safety researchers and a program manager for mishandling sensitive company information, some of it shared with an outside AI-evaluation organization. The firings landed two days after a New York Times report that OpenAI executives had brushed aside employee safety warnings, and the same week OpenAI scrapped its GPT-6.1 Astra launch over safety. OpenAI says the three were not dismissed for raising safety concerns.",
+    "claim": "OpenAI's safety report lead quit and said in public that the company's culture is broken. David Robinson spent three and a half years at OpenAI, helped draft its preparedness framework and oversaw the safety reports for 12 frontier-model launches. In an essay The Atlantic published on October 3, 2026, he wrote that OpenAI is failing to take the care its models now need. He named the Hugging Face agent breach as an example and said the company's release-first, fix-later approach no longer works. His resignation came days after OpenAI dismissed three safety team members on October 1. OpenAI disputes his account and says it pauses training or holds back models when it needs to slow down.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 3,
-    "source_url": "https://techcrunch.com/2026/10/01/openai-cuts-ties-with-three-safety-researchers-wsj-reports/",
+    "order": 1,
+    "source_url": "https://www.thedailystar.net/news/technology/news/ex-openai-safety-employee-says-company-culture-broken-4290116",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "OpenAI has parted ways with three researchers on its safety team who allegedly shared confidential company information with a third-party AI safety organization",
-    "as_of": "2026-10-01",
+    "evidence_excerpt": "Robinson spent three and a half years at the company, helped draft its preparedness framework, and oversaw safety reports for 12 frontier-model launches.",
+    "as_of": "2026-10-03",
     "confidence": "high",
     "id": "c_3d378977dac8",
     "verified": true,
@@ -2269,19 +2269,26 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-10-03",
+      "fetched_at": "2026-10-05",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://www.theregister.com/ai-and-ml/2026/10/02/openai_shows_three_staff_the_door_over_alleged_information_misuse/5300820",
+        "source_url": "https://www.calcalistech.com/ctechnews/article/zienaylz5",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false,
-        "source_class": "news"
+        "source_class": "unknown"
+      },
+      {
+        "source_url": "https://www.macobserver.com/news/openai-safety-employee-quits-says-the-companys-culture-is-broken/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
       }
     ],
-    "source_class": "news"
+    "source_class": "unknown"
   },
   {
     "subject_key": "openai | pricing-model | pro-200-usage-cut-2026",
