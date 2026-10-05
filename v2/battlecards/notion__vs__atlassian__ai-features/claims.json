@@ -1056,23 +1056,23 @@
   },
   {
     "subject_key": "notion | workers-pricing",
-    "claim": "Notion Workers, the automation feature that runs custom code to sync data and power Custom Agent tool calls, is free during its beta on Business and Enterprise plans (including Business trials). Per Notion's help center, that changes on October 15, 2026, when Workers will require Notion credits, priced at roughly $0.0023 per run (about 4,348 runs per 1,000 monthly credits, i.e. $10).",
+    "claim": "Notion Workers, which run custom code for data syncs, Custom Agent tool calls and webhooks, are free during the beta on Business and Enterprise plans and will move to Notion credits at about $0.0023 per run (roughly 4,348 runs per 1,000 monthly credits at $10). Notion's own pages say Workers will 'eventually' require credits and give no date. A third-party blog reports billing starts October 15, 2026, which Notion has not confirmed in the pages checked.",
     "claim_type": "fact",
     "section": "tracked_facts",
     "zone": null,
-    "order": 2,
+    "order": 1,
     "source_url": "https://www.notion.com/help/understand-pricing-for-workers",
     "source_tier": "primary",
-    "evidence_excerpt": "During the beta, Workers are free to try on Business and Enterprise plans (including Business trials). Starting on October 15, 2026, they'll require Notion credits.",
-    "as_of": "2026-08-08",
-    "confidence": "high",
+    "evidence_excerpt": "Workers typically cost $0.0023 per run, which works out to ~4,348 runs per 1,000 monthly Notion credits ($10).",
+    "as_of": "2026-10-05",
+    "confidence": "medium",
     "id": "c_f08e2a514a31",
     "verified": true,
     "grounding": {
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-08-08",
+      "fetched_at": "2026-10-05",
       "detail": null
     },
     "corroboration": [
@@ -1082,6 +1082,13 @@
         "note": "tier-ranked alternate source for the same development",
         "grounded": false,
         "source_class": "company_statement"
+      },
+      {
+        "source_url": "https://fayedtion.com/notion-ai-credits-explained-2026/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
       }
     ],
     "source_class": "company_statement"

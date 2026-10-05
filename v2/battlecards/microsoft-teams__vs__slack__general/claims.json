@@ -1244,5 +1244,37 @@
       "stamped_on": "2026-10-03",
       "source_class": "company_statement"
     }
+  },
+  {
+    "subject_key": "microsoft-teams | feature-retirement-live-chat",
+    "claim": "Microsoft is retiring Teams Live chat, the website chat widget that routed visitor conversations into a Teams channel for Microsoft 365 Business Basic, Standard and Premium customers. New customers could not set it up after August 6, 2026. From October 5, 2026 it is unsupported and widget chats are no longer relayed to Teams. Widgets left on websites are hidden, and Microsoft lists Dynamics 365 Contact Center and Copilot Studio contact center solutions as replacements. Existing chat data stays in Teams channels and Lists under tenant retention policies.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://learn.microsoft.com/en-us/microsoftteams/set-up-live-chat",
+    "source_tier": "primary",
+    "evidence_excerpt": "Starting October 5, 2026, Microsoft Teams Live chat is no longer supported, and incoming chats from the widget are no longer relayed to Teams.",
+    "as_of": "2026-10-05",
+    "confidence": "high",
+    "id": "c_8c8661f62597",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-05",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://blog.admindroid.com/microsoft-teams-live-chat-retirement/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "company_statement"
   }
 ]
