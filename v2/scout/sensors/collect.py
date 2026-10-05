@@ -234,8 +234,10 @@ def run_pass(entities: dict, *, write: bool, today: str | None = None, days_by_e
         summary[key] = s
         reg = registry.load(key)
         if not reg:
+            # an unseeded entity is a configuration state, not an outage: the card takes the model
+            # triage path and the step is SKIPPED, never failed (2026-10-05: a rehearsal store without
+            # registries failed the sensors step and the lifecycle audit on every run)
             s["no_registry"] = True
-            s["unavailable"] = True
             continue
         try:
             state = registry.load_state(key)
