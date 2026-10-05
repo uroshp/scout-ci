@@ -37,7 +37,7 @@ from scout.propagate import propagate, apply_ops, promote_lead
 from scout.grounding import CUT_ABSENT, ground_claims, is_excluded_source
 from scout.prompts import WRITING_STYLE
 from scout.render import claims_to_markdown, clean_output, extract_cut_log, format_report
-from scout.schema import ANCHOR_SECTION, SOURCE_TIERS, claim_id, normalize_claim, pregrounding_errors, validation_errors
+from scout.schema import ANCHOR_SECTION, SECTIONS as SECTIONS_KNOWN, SOURCE_TIERS, ZONES, claim_id, normalize_claim, pregrounding_errors, resolve_subject_key, validation_errors
 from scout import judgment
 
 # Source-tier preference order for multi-source grounding (best first): a primary filing /
@@ -657,9 +657,10 @@ def _competitor_arm(slug, meta, since, substantial, claims, result, sig_block: s
         c = m.get("claim")
         if not isinstance(c, dict) or "subject_key" not in c:
             continue
+        normalize_claim(c)                                   # representation is code's job (10/4)
+        _adopt_home(c, claims)                               # a revision keeps the stored key and home (10/5)
         c["id"] = claim_id(slug, str(c["subject_key"]))
         c["verified"] = True
-        normalize_claim(c)                                   # representation is code's job (10/4)
         cand = _candidate_variants(c)
         if cand and not c.get("source_url"):
             c.update(source_url=cand[0]["source_url"], source_tier=cand[0]["source_tier"],
@@ -687,9 +688,10 @@ def _competitor_arm(slug, meta, since, substantial, claims, result, sig_block: s
         for c in rdata.get("revised", []):
             if not isinstance(c, dict) or "subject_key" not in c:
                 continue
+            normalize_claim(c)
+            _adopt_home(c, claims)
             c["id"] = claim_id(slug, str(c["subject_key"]))
             c["verified"] = True
-            normalize_claim(c)
             if not pregrounding_errors({k: v for k, v in c.items() if k != "candidate_sources"}):
                 revised.append(c)
         reground = _ground_best(revised) if revised else {"kept": []}
@@ -880,6 +882,37 @@ def _sensor_compare(slug: str, meta: dict, sens: dict | None, candidates: list, 
         print(f"[sensors] compare FAILED ({type(e).__name__}: {e})", file=sys.stderr)
         _step(steps, "compare", "failed", f"{type(e).__name__}: {e}")
         return {"slug": slug, "misses_a": 0, "error": f"{type(e).__name__}: {e}"}
+
+
+def _adopt_home(c: dict, claims: list) -> dict:
+    """A model-emitted claim keyed like a stored claim is a REVISION of it: take the stored key spelling
+    (a field-wise prefix resolves to the one stored key it names) and, when the emitted section or
+    zone is not one the schema knows, keep the stored home instead of losing the fact (2026-10-05).
+    A valid, different zone is the judge's call and stays."""
+    existing = {str(x.get("subject_key")): x for x in (claims or []) if x.get("subject_key")}
+    key = resolve_subject_key(c.get("subject_key"), list(existing))
+    if key != c.get("subject_key"):
+        c["subject_key"] = key
+    old = existing.get(key)
+    if old:
+        if c.get("section") not in SECTIONS_KNOWN:
+            c["section"] = old.get("section")
+        if c.get("section") == "battlecard" and c.get("zone") not in ZONES:
+            c["zone"] = old.get("zone")
+    # A FACT aimed at a block section (a play, the summary, an objection) is mis-homed: those sections
+    # hold interpretations with a render contract (soundbite, persona). The fact lands in recent_moves,
+    # the fact section for developments, under its own key when the stored claim it named is an
+    # interpretation; propagation then derives the play's revision from it (its job, not the judge's).
+    if c.get("claim_type") == "fact" and c.get("section") in _BLOCK_SECTIONS:
+        c["section"], c["zone"], c["persona"] = "recent_moves", None, None
+        if old and old.get("claim_type") != "fact":
+            c["subject_key"] = f"{key} | fact"
+    if c.get("section") != "battlecard" and c.get("zone") is not None:
+        c["zone"] = None
+    return c
+
+
+_BLOCK_SECTIONS = ("battlecard", "executive_summary", "objection_handling")
 
 
 def _arm_status(grounded: int, candidates: int, what: str, emitted: int, rejected: list) -> tuple[str, str]:
