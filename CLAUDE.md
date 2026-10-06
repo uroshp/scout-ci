@@ -96,9 +96,13 @@ broke production this week. Every change to `scout/monitor.py`, `scout/propagate
    email (every failed step and every red lifecycle rule is an item), the step table in
    `costs/<stamp>.json`, and the 09:00 PT canary's `check_steps` and `check_lifecycle`.
 
-One rehearsed release per morning; a release may bundle several changes (the step rows attribute
-a failure to a step). Rollback levers that need no deploy: repo variables (`SCOUT_SIGNALS`,
-`SCOUT_SENSORS`), and the env in `monitor.yml` for everything else.
+Rehearsals cost real model calls ($0.20 for a quiet card, up to $3 with news) and run ONLY when
+Uroš asks for one (2026-10-05: "enough with rehearsals"). The standing gate for a change is the unit
+suite plus the lifecycle audit that runs inside every real morning run and emails when a rule
+breaks; steps 2 and 4 above are reserved for changes he judges risky, on his say-so. A release may
+bundle several changes (the step rows attribute a failure to a step). Rollback levers that need no
+deploy: repo variables (`SCOUT_SIGNALS`, `SCOUT_SENSORS`), and the env in `monitor.yml` for
+everything else.
 
 ## Conventions specific to this repo
 
