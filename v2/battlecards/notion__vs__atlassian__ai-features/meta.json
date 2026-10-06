@@ -4,7 +4,7 @@
   "competitor": "Atlassian",
   "focus": "AI features",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-10-05T11:17:47",
+  "last_checked": "2026-10-06T11:15:01",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_af44b318b691",
@@ -39,5 +39,22 @@
       }
     ]
   },
-  "last_check_reason": "scheduled"
+  "last_check_reason": "scheduled",
+  "pending_candidates": {
+    "my_company": [
+      {
+        "signal": "October 15, 2026: Notion Workers billing moves from free beta to paid, charging credits per run (~$0.0023/run against existing Custom Agent credit allowance)",
+        "subject_key": "notion | workers-pricing",
+        "about": "my_company",
+        "valence": "back_foot",
+        "substantial": true,
+        "why_new": "The tracked subject signaled Workers would transition from free beta to paid billing but did not specify the execution date or billing model. The October 15 cutover (beta/free → GA/paid) is the concrete status flip and execution of a signaled change, which the battlecard's AI-pricing narrative must address. This introduces metered cost to Notion's \"bundled, flat rate\" positioning against Atlassian's credit-capped model.",
+        "source_hint": "https://releasebot.io/updates/notion"
+      }
+    ],
+    "since": "2026-10-05",
+    "my_since": "2026-10-05",
+    "attempts": 1,
+    "reason": "own-side candidates did not ground"
+  }
 }
