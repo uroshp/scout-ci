@@ -3202,5 +3202,69 @@
       }
     ],
     "source_class": "news"
+  },
+  {
+    "subject_key": "openai | dots-always-on-agents",
+    "claim": "OpenAI launched Dots at DevDay on September 29, 2026: always-on agents running on GPT-6 Astra, each with its own cloud computer, that pursue user goals in the background across the 4,000+ apps that already connect to ChatGPT. Users reach their Dot through ChatGPT, Codex, Slack or Teams, and OpenAI pitches one use as a developer's Dot that watches customer feedback and ships bug fixes on its own. Access is limited to Pro ($100 to $500 a month), Business Premium and some Enterprise customers, and Dots are unavailable in the EU and UK. Altman calls it a premium product held back by compute cost.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://techcrunch.com/2026/09/29/openai-launches-dots-its-bubbly-agentic-avatar/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Dots will be available starting Tuesday in ChatGPT, for Pro and Business Premium users in eligible markets.",
+    "as_of": "2026-09-29",
+    "confidence": "high",
+    "id": "c_e4ca2fe73e37",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-06",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.nbcnews.com/tech/tech-news/openai-launches-dots-ai-agents-safety-questions-rcna600338",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "news"
+      }
+    ],
+    "source_class": "news"
+  },
+  {
+    "subject_key": "claude-code | mods-plugin-system",
+    "claim": "Anthropic released Mods for Claude Code in early October 2026. Mods are JavaScript or TypeScript functions, delivered through plugins, that hook into events such as tool calls, user prompts and UI rendering. Developers can use them to add custom panels, intercept tool calls or wire up new commands. They work in the CLI and desktop app and partly in the VS Code extension, and organizations can control which Mods are allowed to load. Mods run with the user's permissions and are not sandboxed, and Anthropic warns users to install them only from trusted sources. Some built-in features such as the /diff command were rebuilt as Mods.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.289",
+    "source_tier": "primary",
+    "evidence_excerpt": "Fixed installed mods not loading in the first session after an upgrade",
+    "as_of": "2026-10-03",
+    "confidence": "high",
+    "id": "c_be087fa005ee",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-06",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://the-decoder.com/claude-codes-new-mods-system-lets-developers-rewrite-the-ai-coding-tool-from-the-inside/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "news"
+      }
+    ],
+    "source_class": "unknown"
   }
 ]

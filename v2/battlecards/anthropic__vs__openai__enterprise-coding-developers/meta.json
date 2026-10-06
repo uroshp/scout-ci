@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise coding/developers",
   "baseline_date": "2026-06-04",
-  "last_checked": "2026-10-05T11:04:47",
+  "last_checked": "2026-10-06T11:05:23",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_e5e52edeb211",
@@ -56,7 +56,9 @@
     "f_49ffea2de926",
     "f_b438a75ddb1c",
     "f_b006eb068190",
-    "f_0e1fcc07e0e6"
+    "f_0e1fcc07e0e6",
+    "f_ddcb6ea17519",
+    "f_f0daa4df6f4f"
   ],
   "monitored": true,
   "lead_election": {
@@ -75,23 +77,5 @@
       }
     ]
   },
-  "last_check_reason": "scheduled",
-  "pending_candidates": {
-    "my_company": [
-      {
-        "signal": "Claude Code 2.1.289 released October 4, 2026, with plugin/terminal safety fixes and agent improvements",
-        "subject_key": "claude-code | feature-release",
-        "about": "my_company",
-        "valence": "front_foot",
-        "substantial": true,
-        "why_new": "Version 2.1.289 (Oct 4) is newer than last tracked 2.1.224 (Aug 7), but updates are routine incremental fixes, not material product event or status flip.",
-        "source_hint": "Releasebot, Anthropic Release Notes",
-        "escalated_by": "tracked_subject_floor"
-      }
-    ],
-    "since": "2026-10-04",
-    "my_since": "2026-10-04",
-    "attempts": 1,
-    "reason": "own-side candidates did not ground"
-  }
+  "last_check_reason": "scheduled"
 }

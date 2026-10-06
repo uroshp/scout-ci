@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise and sovereign AI for developers and agents",
   "baseline_date": "2026-06-17",
-  "last_checked": "2026-10-05T11:13:55",
+  "last_checked": "2026-10-06T11:11:28",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_911e9a6938ba",
@@ -80,5 +80,27 @@
       }
     ]
   },
-  "last_check_reason": "scheduled"
+  "last_check_reason": "scheduled",
+  "pending_candidates": {
+    "my_company": [
+      {
+        "signal": "Mistral Small 4 announced October 5, 2026 — new developer model in small-model tier",
+        "subject_key": "NEW",
+        "about": "my_company",
+        "valence": "front_foot",
+        "substantial": true,
+        "why_new": "Mistral Small 4 is a new product launch on Oct 5 not reflected in tracked claims, which document Devstral 2, Devstral Small 2, Mistral Medium 3.5, and Mistral Large 3 but not Mistral Small 4. New model announcements are material to the competitive landscape.",
+        "source_hint": "mistral.ai/news/mistral-small-4/"
+      }
+    ],
+    "since": "2026-10-05",
+    "my_since": "2026-10-05",
+    "attempts": 1,
+    "reason": "own-side candidates did not ground"
+  },
+  "unresolved_subjects": [
+    "NEW"
+  ],
+  "unresolved_since": "2026-10-05",
+  "unresolved_attempts": 1
 }
