@@ -5,7 +5,7 @@
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
-    "order": 0,
+    "order": 1,
     "source_url": "https://www.hollywoodreporter.com/movies/movie-news/superman-superhero-pic-box-office-1236351240/",
     "source_tier": "reputable_secondary",
     "evidence_excerpt": "Superman is the first DC release to achieve the $600 million milestone since The Batman in 2022. That pic topped out at $772.5 million globally, not adjusted for inflation.",
@@ -24,17 +24,25 @@
   },
   {
     "subject_key": "competitive-verdict | sequel-gap-exposure | current",
-    "claim": "**Our real exposure is the calendar: Batman Part II now doesn't arrive until February 2028.**\n\nSuperman's universe is visibly in motion (Man of Tomorrow began filming in April 2026 for a July 2027 release) while our sequel has slipped a third time, from October 2027 to February 18, 2028, landing in the four-day Presidents Day weekend. That's now roughly seven months behind Superman's next release, and a buyer reads the widening gap as platform risk.\n\n**So what:** Raise the delay yourself before the buyer does. Frame the wait as discipline, not stalling: Reeves ships only when the film is ready, the same rule that made the first film land.",
+    "claim": "**Our real exposure is the calendar: Batman Part II is paused in production and dated February 2028.**\n\nFilming paused October 5 with no restart date, on top of three release delays, while Superman's Man of Tomorrow began filming in April 2026 for a July 2027 release. The February 18, 2028 date still stands, and a buyer will read the gap with Superman as platform risk.\n\n**Soundbite:** \"Yes, filming is paused while Matt Reeves handles a family matter, and the studio still has February 18, 2028. Batman doesn't need a shared universe to work, so nothing else has to line up for it.\"\n\n**So what:** Raise the pause before the buyer does and use the studio's wording: temporary, date unchanged. Do not guess at a restart or a new date. Then pivot to Batman's standalone strength.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
-    "order": 1,
-    "as_of": "2026-07-15",
+    "order": 0,
+    "as_of": "2026-10-05",
     "confidence": "high",
     "id": "c_08d48d129ca9",
     "verified": true,
-    "derived_from": "c_25e03255e339",
-    "updated_on": "2026-08-03"
+    "derived_from": "c_a72ca7c3a5f1",
+    "updated_on": "2026-10-05",
+    "provenance": {
+      "source_url": "https://deadline.com/2026/10/the-batman-part-ii-production-pause-matt-reeves-1237146807/",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-10-05",
+      "fact_id": "c_a72ca7c3a5f1",
+      "stamped_on": "2026-10-05",
+      "source_class": "news"
+    }
   },
   {
     "subject_key": "competitive-verdict | superman-international-weakness | current",
@@ -153,17 +161,25 @@
   },
   {
     "subject_key": "the batman part ii | release-date | current",
-    "claim": "The Batman Part II is now scheduled for February 18, 2028 (nearly six years after the original), after the script was completed in late June 2025 and the project endured three release-date delays. The latest delay moved the film from October 1, 2027 into the four-day Presidents Day weekend, giving director Matt Reeves more time in post-production.",
+    "claim": "Filming in London on The Batman Part II was paused on October 5, 2026 while director Matt Reeves steps away for a family matter, and the studio gives no restart date. The release date is still February 18, 2028, after three delays (the latest moved it from October 1, 2027 into the four-day Presidents Day weekend), and Deadline's sources say it is too early to tell whether the pause affects that date.",
     "claim_type": "interpretation",
     "section": "snapshot",
     "zone": null,
     "order": 3,
-    "as_of": "2026-07-15",
+    "as_of": "2026-10-05",
     "confidence": "high",
     "id": "c_503b87431bde",
     "verified": true,
-    "derived_from": "c_25e03255e339",
-    "updated_on": "2026-08-03"
+    "derived_from": "c_a72ca7c3a5f1",
+    "updated_on": "2026-10-05",
+    "provenance": {
+      "source_url": "https://deadline.com/2026/10/the-batman-part-ii-production-pause-matt-reeves-1237146807/",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-10-05",
+      "fact_id": "c_a72ca7c3a5f1",
+      "stamped_on": "2026-10-05",
+      "source_class": "news"
+    }
   },
   {
     "subject_key": "supergirl | box-office-tracking | 2026",
@@ -665,93 +681,109 @@
   },
   {
     "subject_key": "the batman part ii | delay-objection | current",
-    "claim": "**\"Batman can't even ship a sequel. It's been delayed three times and now won't arrive until 2028.\"**\n\nIt's true the sequel has slipped again, from October 2027 to February 18, 2028, its third delay. Gunn said the earlier delays came down to the script not being finished; this one buys Reeves more time in post-production, the same discipline that produced the acclaimed, $772M original.\n\n**So what:** Explain the delay as a quality gate: Reeves only ships when the film is ready, and Superman's mixed reviews show what rushing produces.",
+    "claim": "**\"Batman can't even ship a sequel. It's been delayed three times, and now production has stopped.\"**\n\nProduction on The Batman Part II was temporarily paused on October 5, 2026 while director Matt Reeves steps away for a family matter, per a Warner Bros. and DC Studios statement. The release date is still February 18, 2028. The studio gives no restart date, and Deadline's sources say it is too early to tell whether the pause affects that date. The three earlier delays are history: Gunn said they came down to the unfinished script, and the last one gave Reeves more post-production time on a sequel to the $772M original.\n\n**So what:** Bring up the pause yourself and repeat the studio's words: temporary, date unchanged, no restart date announced. Do not guess at a restart. Then move to what Batman owns: it works without a shared universe, so its value does not depend on anyone else's slate.\n",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 0,
-    "as_of": "2026-07-15",
+    "as_of": "2026-10-05",
     "confidence": "high",
     "id": "c_0bc1ab5163b1",
     "verified": true,
     "persona": "exec_top_down",
-    "derived_from": "c_25e03255e339",
-    "updated_on": "2026-08-03"
+    "derived_from": "c_a72ca7c3a5f1",
+    "updated_on": "2026-10-05",
+    "provenance": {
+      "source_url": "https://deadline.com/2026/10/the-batman-part-ii-production-pause-matt-reeves-1237146807/",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-10-05",
+      "fact_id": "c_a72ca7c3a5f1",
+      "stamped_on": "2026-10-05",
+      "source_class": "news"
+    }
   },
   {
     "subject_key": "the batman | dcu-exclusion-objection | current",
-    "claim": "**\"Batman isn't even in the main DC Universe. It's a sidelined Elseworlds story.\"**\n\nDC labels our Batman 'DC-Elseworlds,' outside Gunn's DCU. That gives it creative freedom, and it's the only Batman film actually shooting. The DCU's own Batman, 'The Brave and the Bold,' has no cast and no date.\n\n**So what:** Outside the DCU, The Batman is insulated from the reboot's risks, and it's the only Batman story audiences can count on seeing right now.",
+    "claim": "**\"Batman isn't even in the main DC Universe. It's a sidelined Elseworlds story.\"**\n\nDC labels our Batman 'DC-Elseworlds,' outside Gunn's DCU. That gives it creative freedom, and it is the Batman with a release date: February 18, 2028. Filming has been paused since October 5 with no restart date. The DCU's own Batman, 'The Brave and the Bold,' has no cast and no date.\n\n**So what:** Outside the DCU, The Batman is insulated from the reboot's risks, and it is the only Batman story with a date on the calendar. Say the pause out loud, then point to the date.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 1,
-    "source_url": "https://deadline.com/2023/01/dc-movie-tv-plan-james-gunn-peter-safran-batman-swamp-thing-green-lantern-1235244926/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "labeled clearly as DC-Elseworlds, just like the comics do.",
-    "as_of": "2023-01-31",
+    "as_of": "2026-10-05",
     "confidence": "high",
     "id": "c_1b50f1567ffd",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
     "persona": "exec_top_down",
-    "source_class": "news"
+    "source_class": "news",
+    "updated_on": "2026-10-05",
+    "derived_from": "c_a72ca7c3a5f1",
+    "provenance": {
+      "source_url": "https://deadline.com/2026/10/the-batman-part-ii-production-pause-matt-reeves-1237146807/",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-10-05",
+      "fact_id": "c_a72ca7c3a5f1",
+      "stamped_on": "2026-10-05",
+      "source_class": "news"
+    }
   },
   {
     "subject_key": "the batman | sequel-momentum-gap-objection | current",
-    "claim": "**\"Superman has visible momentum (Man of Tomorrow is filming) and Batman has nothing new until 2028.\"**\n\nFair, and the gap is wider now. The sequel's release moved again, to February 18, 2028, about seven months behind Man of Tomorrow's planned July 2027 date. The honest answer is that the original's $772M proves the wait pays off, and a deliberate timeline is how that quality was achieved.\n\n**So what:** Concede the gap, then pivot to track record: our delayed-but-disciplined model produced the higher-grossing, better-reviewed film, while speed is exactly where Superman drew its sharpest criticism.",
+    "claim": "**\"Superman has visible momentum (Man of Tomorrow is filming) and Batman has nothing new until 2028.\"**\n\nThe gap is wider now. Our sequel's date moved to February 18, 2028, about seven months behind Man of Tomorrow's planned July 2027 date, and our own filming was temporarily paused on October 5 while Matt Reeves steps away for a family matter. The studio still holds the February 18, 2028 date and has given no restart date. The original grossed $772M on a deliberate timeline.\n\n**So what:** Concede the gap and state the pause and the unchanged date as the studio did. Then pivot to track record: the original made $772M, and Batman stands on its own without a shared universe.\n",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 2,
-    "as_of": "2026-07-15",
+    "as_of": "2026-10-05",
     "confidence": "high",
     "id": "c_5850718f858c",
     "verified": true,
     "persona": "exec_top_down",
-    "derived_from": "c_25e03255e339",
-    "updated_on": "2026-08-03"
+    "derived_from": "c_a72ca7c3a5f1",
+    "updated_on": "2026-10-05",
+    "provenance": {
+      "source_url": "https://deadline.com/2026/10/the-batman-part-ii-production-pause-matt-reeves-1237146807/",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-10-05",
+      "fact_id": "c_a72ca7c3a5f1",
+      "stamped_on": "2026-10-05",
+      "source_class": "news"
+    }
   },
   {
     "subject_key": "batman | talent-commitment-objection | current",
-    "claim": "**\"Batman talent burns out: Ben Affleck called the role 'a really excruciating experience' and quit the genre.\"**\n\nThat quote is real, but it's about the *previous* regime's DCEU Batman, not Reeves' film. Affleck's frustration was with a project Robert Pattinson's grounded, acclaimed Batman has nothing to do with, and Pattinson is signed and shooting the sequel.\n\n**So what:** Separate the eras cleanly: the unhappy exit belongs to the universe Superman is rebooting away from, while our current Batman has a committed star and a finished script.",
+    "claim": "**\"Batman talent burns out: Ben Affleck called the role 'a really excruciating experience' and quit the genre.\"**\n\nThat quote is real, but it's about the *previous* regime's DCEU Batman, not Reeves' film. Affleck's frustration was with a project that Robert Pattinson's grounded, acclaimed Batman has nothing to do with. Pattinson is signed and the sequel's script is finished. Production is temporarily paused while Reeves steps away for a family matter, per the studio.\n\n**So what:** Separate the eras cleanly: the unhappy exit belongs to the universe Superman is rebooting away from, while our current Batman has a signed star and a finished script.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 3,
-    "source_url": "https://variety.com/2025/film/news/ben-affleck-batman-excruciating-experience-1236347358/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "There are a number of reasons why that was a really excruciating experience,",
-    "as_of": "2025-03-25",
+    "as_of": "2026-10-05",
     "confidence": "high",
     "id": "c_8ad5dd98c06c",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
     "persona": "technical_evaluator",
-    "source_class": "news"
+    "source_class": "news",
+    "updated_on": "2026-10-05",
+    "derived_from": "c_a72ca7c3a5f1",
+    "provenance": {
+      "source_url": "https://deadline.com/2026/10/the-batman-part-ii-production-pause-matt-reeves-1237146807/",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-10-05",
+      "fact_id": "c_a72ca7c3a5f1",
+      "stamped_on": "2026-10-05",
+      "source_class": "news"
+    }
   },
   {
     "subject_key": "the batman part ii | production-status",
-    "claim": "The Batman Part II began principal photography in London on June 12, 2026, with director Matt Reeves posting the first-shot slate to confirm cameras are rolling. The sequel holds its October 1, 2027 release date, so Batman now has a film actively shooting rather than only a finished script, which narrows the visible-momentum gap against Superman's Man of Tomorrow to a pure release-date difference.",
+    "claim": "Production on The Batman Part II was temporarily paused on October 5, 2026 while director Matt Reeves steps away for a family matter, per a Warner Bros. and DC Studios statement. Filming had been underway in London. The film's release date is still February 18, 2028, and Deadline's sources say it is too early to tell whether the pause will affect that date. The studio gives no restart date.",
     "claim_type": "fact",
-    "section": "recent_moves",
+    "section": "tracked_facts",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.justjared.com/2026/06/12/the-batman-part-ii-begins-filming-writer-director-matt-reeves-confirms/",
+    "source_url": "https://deadline.com/2026/10/the-batman-part-ii-production-pause-matt-reeves-1237146807/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Writer and director Matt Reeves confirmed the start of production on Friday (June 12), sharing a photo from the set.",
-    "as_of": "2026-06-12",
+    "evidence_excerpt": "Sources say it is too early to say whether the stoppage will have an effect on the release date.",
+    "as_of": "2026-10-05",
     "confidence": "high",
     "id": "c_a72ca7c3a5f1",
     "verified": true,
@@ -759,19 +791,19 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-13",
+      "fetched_at": "2026-10-05",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://www.comingsoon.net/movies/news/2147851-the-batman-2-director-matt-revees-announces-filming-start-with-new-photo",
+        "source_url": "https://variety.com/2026/film/news/the-batman-2-pauses-production-matt-reeves-steps-away-1236899247/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false,
-        "source_class": "unknown"
+        "source_class": "news"
       }
     ],
-    "source_class": "unknown"
+    "source_class": "news"
   },
   {
     "subject_key": "supergirl | box-office-tracking",
