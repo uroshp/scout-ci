@@ -21,7 +21,7 @@ class HowPanel(unittest.TestCase):
         self.assertIn(page._SYSTEM_LINE, self.panel)                   # first line of the panel
         self.assertNotIn("livebox", self.html)
         self.assertNotIn("orchestra", self.html)
-        for state in ("<b>Publish</b><span>Along with source and date</span>", "<b>Cut</b>", "<b>Hold</b>"):
+        for state in ("<b>Publish</b><span>With its source and date</span>", "<b>Cut</b>", "<b>Hold</b>"):
             self.assertIn(state, self.panel)
         self.assertLess(self.panel.index("Default: <i>Anthropic</i>"), self.panel.index("Evaluated"))
         self.assertLess(self.panel.index("Evaluated"), self.panel.index(">Mistral<"))

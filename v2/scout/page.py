@@ -979,26 +979,29 @@ def _how_figures() -> dict | None:
 
 
 def _how_panel() -> str:
-    """The 'How this works' panel: what the system does, in one diagram and three short columns.
-    It explains the system and stops there; per-claim evidence stays in the card's Verification
-    trail (no surface restates another). No run cost and no model performance, by decision
-    (2026-10-02): every model lane looks the same."""
+    """The 'How Scout works' panel (rewritten 2026-10-07, Uroš: "super simple and first principles",
+    "a showcase people glance at", less content, both audiences served inside the same frame): one
+    diagram and three columns of three one-line bullets, each line plain for a non-technical reader
+    and precise for a technical one. It explains the system and stops there; per-claim evidence stays
+    in the card's Verification trail (no surface restates another). No run cost and no model
+    performance figures, by decision (2026-10-02): every model lane looks the same."""
     fast, orch, sub = (_model_label(m) for m in
                        (config.FAST_MODEL, config.ORCHESTRATOR_MODEL, config.SUBAGENT_MODEL))
-    # Sensors (Release 2): once the gate is flipped, code does the reading and a model reads only what
-    # changed. The copy follows the mode so the panel never describes a system that is not running.
+    # Sensors (Release 2): the copy follows the mode so the panel never describes a system that is
+    # not running; shadow is internal and says nothing until the gate flips (his call, 2026-10-03).
     sensors_on = getattr(config, "SENSORS_MODE", "off") == "gate"
-    watch = ("Code reads each company\u2019s own pages and feeds and two news indexes every morning; a model reads only what changed."
-             if sensors_on else "Scans each competitor for what changed since yesterday.")
+    watch = ("Code reads each company\u2019s pages and news every morning; a model reads only what changed."
+             if sensors_on else
+             "Finds what changed since yesterday: company news and the card\u2019s focus area.")
     steps = (("Step 1", "Watch", watch, fast),
-             ("Step 2", "Weigh", "Decides whether a change matters in a deal and which parts of the card it touches.", orch),
-             ("Step 3", "Write", "Drafts the edit from the source, with its link and date attached.", sub),
-             ("Step 4", "Judge", "Checks the edit against the source and rules on it.", orch))
+             ("Step 2", "Weigh", "Decides whether a change moves a deal.", orch),
+             ("Step 3", "Write", "Writes the edit from the source, with its link and date.", sub),
+             ("Step 4", "Judge", "Checks the edit against the source and decides.", orch))
     flow = "".join(f'<div class="hw-step"><div class="hw-n">{n} <span class="hw-m">{_html.escape(m)}</span></div><div class="hw-t">{t}</div>'
                    f'<div class="hw-d">{d}</div></div>' for n, t, d, m in steps)
     flow += ('<div class="hw-step hw-dec"><div class="hw-n">Output</div><div class="hw-t">Decision</div>'
              '<div class="hw-states">'
-             '<div class="hw-state pub"><b>Publish</b><span>Along with source and date</span></div>'
+             '<div class="hw-state pub"><b>Publish</b><span>With its source and date</span></div>'
              '<div class="hw-state cut"><b>Cut</b><span>In the Cut Log, with the reason</span></div>'
              '<div class="hw-state held"><b>Hold</b><span>Waits for a person</span></div>'
              '</div></div>')
@@ -1011,57 +1014,47 @@ def _how_panel() -> str:
     fig_li = (f'<li>Claims: <span class="hw-num">{fig["claims"]}</span> total on '
               f'<span class="hw-num">{fig["cards"]}</span> cards, <span class="hw-num">{fig["updates"]}</span> '
               f'update{"" if fig["updates"] == 1 else "s"} {fig["when"]}.</li>') if fig else ""
-    asof = ""                                              # the footer carries links only (2026-10-02 night)
-    build_bullet = (('<li><b>Code sensors read the sources,</b> a pipeline runs the daily checks, event triggers between runs, '
-                     'and <b>an agent answers Ask Scout,</b> because a question&rsquo;s path cannot be planned ahead.</li>')
-                    if sensors_on else
-                    ('<li><b>A pipeline for the daily checks,</b> event triggers between runs, and <b>an agent for Ask Scout,</b> '
-                     'because a question&rsquo;s path cannot be planned ahead.</li>'))
+    evaluated = ('Every decision is recorded and replayed by four other models. '
+                 'When they disagree, a blind arbiter rules from the source.')
+    sensors_li = ('<li><b>Code reads every source each morning;</b> a model reads only what changed.</li>' if sensors_on else "")
     return (
         '<div class="how" id="how" hidden>'
         '<button type="button" class="hw-close" data-how aria-expanded="true" aria-controls="how" aria-label="Close">&#215;</button>'
         f'<div><div class="hw-sys">{_SYSTEM_LINE}</div>'
-        '<div class="hw-h">How Scout keeps briefs true and useful</div>'
-        '<p class="hw-lede">AI agents search for changes, decide what is material, and track the '
-        'provenance and accuracy of every claim. Each model has one job. No decision is approved by '
-        'the model that made it.</p></div>'
+        '<div class="hw-h">How Scout keeps briefs true</div>'
+        '<p class="hw-lede">Each morning Scout finds what changed at every competitor, decides what matters in a deal, '
+        'writes the edit from the source, and checks it before it reaches the card. '
+        'Each model has one job, and none approves its own work.</p></div>'
         '<div class="hw-diagram" role="img" aria-label="Four steps in order: watch, weigh, write, judge, '
         'ending in a decision: publish, cut or hold. Below, five model lanes run across all five stages: '
         'the default models, then Mistral, Google, NVIDIA and Apple.">'
         f'<div class="hw-row"><div class="hw-ln"></div><div class="hw-flow">{flow}</div></div>'
         f'<div class="hw-lanes">{default_lane}'
-        '<div class="hw-ev"><div class="hw-evh">Evaluated</div>'
-        '<p>Every decision above is logged and replayed by challenger models. Disputed calls go to a '
-        'blind arbiter.</p></div>'
+        f'<div class="hw-ev"><div class="hw-evh">Evaluated</div><p>{evaluated}</p></div>'
         f'{lanes}</div>'
-        '<div class="hw-chal"><div class="hw-evh">Evaluated</div>'
-        '<p>Every decision above is logged and replayed by challenger models. Disputed calls go to a blind arbiter.</p>'
+        f'<div class="hw-chal"><div class="hw-evh">Evaluated</div><p>{evaluated}</p>'
         '<div class="hw-chips"><span class="hw-chip"><b>Default</b> Anthropic</span>'
         + "".join(f'<span class="hw-chip"><b>{_html.escape(co)}</b> {_html.escape(mo)}</span>' for co, mo in _HOW_CHALLENGERS)
         + '</div></div></div>'
         '<div class="hw-cols">'
         '<div class="hw-col"><h4>The product</h4><ul>'
-        '<li><b>Every claim is a deal-mover.</b></li>'
-        '<li><b>Calibrated by the author,</b> decision by decision, over months.</li>'
-        '<li><b>Verified for accuracy,</b> with a link to the source and its date on every claim.</li>'
-        '<li><b>Ask Scout</b> answers only from verified claims.</li>'
-        '<li><b>The Cut Log</b> shows what was unverified or stale, and why it went.</li>'
+        '<li><b>Every claim carries its source and date.</b></li>'
+        '<li><b>Unverified claims are cut;</b> the Cut Log says why.</li>'
+        '<li><b>Ask Scout answers only from verified claims,</b> in the app, in Slack, or as an MCP tool.</li>'
         f'{fig_li}</ul></div>'
         '<div class="hw-col"><h4>The build</h4><ul>'
-        + build_bullet +
-        '<li><b>Also an MCP tool,</b> so other agents can call Ask Scout; it answers in Slack too.</li>'
-        '<li><b>Code keeps the gates:</b> cost, retries, links, dates, format. <b>Models do the judgment,</b> and the cheapest model that passes its eval gets the job.</li>'
-        '<li><b>Two fallbacks:</b> first a model, then the human author.</li>'
-        '<li><b>Built with Claude Code on a Mac mini;</b> Google Cloud, GitHub, Ollama and Resend around it.</li></ul></div>'
+        '<li><b>Code enforces the rules:</b> cost, links, dates, format.</li>'
+        '<li><b>Models judge,</b> one job each, none approving its own.</li>'
+        '<li><b>If a step fails, a second model tries;</b> then a person decides.</li>'
+        '<li><b>Every morning audits itself,</b> from the first search to the published claim.</li>'
+        + sensors_li +
+        '</ul></div>'
         '<div class="hw-col"><h4>The evals</h4><ul>'
-        '<li><b>Every decision is captured</b> with its inputs, so any call can be replayed.</li>'
-        '<li><b>Challengers replay the same calls</b> on a Mac mini: Mistral, Google, NVIDIA and Apple models.</li>'
-        '<li><b>Measured per role and per period:</b> agreement with the reference, Cohen&rsquo;s kappa, precision on adjudicated '
-        'disagreements with a 95% interval, coverage, parse rate and latency.</li>'
-        '<li><b>Disputes go to a blind arbiter</b> that rules from the source and names the failure from a fixed list; '
-        'the author reviews every ruling.</li>'
-        '<li><b>Comparable or nothing:</b> arms are compared only on the same calls under the same instructions; '
-        'a model takes over a job only after it passes.</li></ul></div>'
+        '<li><b>Every decision is recorded</b> and replayed by four other models on a Mac mini.</li>'
+        '<li><b>Same calls, same instructions,</b> so the models are compared fairly.</li>'
+        '<li><b>Disagreements go to a blind arbiter;</b> the author reviews every ruling.</li>'
+        '<li><b>A model earns a job</b> by proving itself on those calls.</li>'
+        '</ul></div>'
         '</div>'
         '<div class="hw-foot"><span class="hw-links">'
         f'<a href="{_html.escape(config.SOURCE_REPO_URL)}" target="_blank" rel="noopener">Code on GitHub</a>'

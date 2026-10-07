@@ -560,10 +560,10 @@ class EvidenceInHand(unittest.TestCase):
         from scout import page
         with mock.patch.object(config, "SENSORS_MODE", "gate"):
             h = page._how_panel()
-        self.assertIn("Code reads each company", h); self.assertIn("Code sensors read the sources", h); self.assertNotIn("Scans each competitor", h)
+        self.assertIn("Code reads each company", h); self.assertIn("Code reads every source each morning", h); self.assertNotIn("Finds what changed since yesterday", h)
         with mock.patch.object(config, "SENSORS_MODE", "shadow"):
             h = page._how_panel()
-        self.assertIn("Scans each competitor", h); self.assertNotIn("Code sensors read the sources", h)
+        self.assertIn("Finds what changed since yesterday", h); self.assertNotIn("Code reads every source each morning", h)
 
 
 class ScreenPrecisionSample(unittest.TestCase):
