@@ -793,6 +793,14 @@ def _sensors_lines(sensors: dict | None) -> tuple[list[str], str]:
                 + ("; today was the baseline day" if last and last.get("baseline") else "")
                 + (f"; today not clean: {', '.join(last.get('reasons') or [])}" if last and not last.get("clean") and not last.get("baseline") else ""))
         lines.append(tail)
+        # the screen's precision from the shadow sample (2026-10-07): judged screen-only candidates
+        runs = st.get("runs") or []
+        sj = sum(int(r.get("sample_judged") or 0) for r in runs)
+        sm = sum(int(r.get("sample_material") or 0) for r in runs)
+        sc = sum(float(r.get("sample_cost") or 0) for r in runs)
+        if sj:
+            lines.append(f"Screen precision: {sm} of {sj} sampled screen-only candidate(s) judged material so far "
+                         f"({sm / sj:.0%}; ${sc:.2f} spent on the sample)")
     else:
         tail = ""
     if sensors.get("pass_error"):

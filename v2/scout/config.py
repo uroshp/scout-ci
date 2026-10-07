@@ -450,6 +450,14 @@ SENSORS_MODE = (os.environ.get("SCOUT_SENSORS", "off").strip().lower() or "off")
 if SENSORS_MODE not in ("off", "shadow", "gate"):
     SENSORS_MODE = "off"
 SENSOR_GATE_RUNS = int(os.environ.get("SCOUT_SENSOR_GATE_RUNS", "7"))
+# Screen precision sampling in SHADOW (Uroš 2026-10-07: "surfacing more is good; find everything material
+# and handle it, not limit it artificially"): a few screen-only candidates per run go through the
+# materiality judge, nothing lands, the verdicts measure the screen's precision. Stops on its own at
+# SCREEN_SAMPLE_MAX_TOTAL judged (a week at 5 a day); 0 turns it off.
+SCREEN_SAMPLE_PER_RUN = int(os.environ.get("SCOUT_SCREEN_SAMPLE_PER_RUN", "5"))
+SCREEN_SAMPLE_PER_CARD = int(os.environ.get("SCOUT_SCREEN_SAMPLE_PER_CARD", "2"))
+SCREEN_SAMPLE_BUDGET_USD = float(os.environ.get("SCOUT_SCREEN_SAMPLE_BUDGET_USD", "2.00"))
+SCREEN_SAMPLE_MAX_TOTAL = int(os.environ.get("SCOUT_SCREEN_SAMPLE_MAX_TOTAL", "35"))
 SENSOR_SWEEP = os.environ.get("SCOUT_SENSOR_SWEEP", "1") == "1"       # the weekly model-triage audit in gate mode
 SENSOR_SWEEP_DAYS = int(os.environ.get("SCOUT_SENSOR_SWEEP_DAYS", "7"))
 # The rendered-fetch tier (headless Chromium via Playwright) for pages the plain fetcher cannot read

@@ -191,8 +191,12 @@ def update_streak(date: str, cards: list[dict], *, gate_runs: int, write: bool) 
     if (cost / n) > 0.03:
         reasons.append(f"screen ${cost / n:.3f} a card")
     escalating = sum(1 for c in cards if int(c.get("screen_subst") or 0) > 0)
+    sample_judged = sum(int(((c.get("sample") or {}).get("judged")) or 0) for c in cards)
+    sample_material = sum(int(((c.get("sample") or {}).get("material")) or 0) for c in cards)
+    sample_cost = sum(float(((c.get("sample") or {}).get("cost")) or 0) for c in cards)
     row = {"date": date, "cards": len(cards), "misses_a": misses, "errors": errors, "sources": sources,
            "screen_cost": round(cost, 4), "screen_subst": screen_subst, "triage_subst": triage_subst,
+           "sample_judged": sample_judged, "sample_material": sample_material, "sample_cost": round(sample_cost, 4),
            "screen_escalating_cards": escalating,                 # cards that would pay for materiality in gate mode
            "triage_escalating_cards": sum(1 for c in cards if int(c.get("triage_subst") or 0) > 0),
            "findings": findings, "baseline": baseline, "clean": clean, "reasons": reasons}
@@ -215,3 +219,25 @@ def update_streak(date: str, cards: list[dict], *, gate_runs: int, write: bool) 
         except Exception as e:
             s["write_error"] = f"{type(e).__name__}: {e}"
     return s
+
+
+def sample_total(path: str = STREAK) -> int:
+    """How many screen-only candidates the shadow sample has judged so far (the self-stopping cap)."""
+    try:
+        doc = json.loads(selfserve.read_data(path) or "{}")
+    except Exception:
+        return 0
+    return sum(int(r.get("sample_judged") or 0) for r in (doc.get("runs") or []))
+
+
+def sample_precision(path: str = STREAK) -> dict:
+    """{judged, material, precision, cost} over every run in the streak file."""
+    try:
+        doc = json.loads(selfserve.read_data(path) or "{}")
+    except Exception:
+        doc = {}
+    runs = doc.get("runs") or []
+    j = sum(int(r.get("sample_judged") or 0) for r in runs)
+    m = sum(int(r.get("sample_material") or 0) for r in runs)
+    c = sum(float(r.get("sample_cost") or 0) for r in runs)
+    return {"judged": j, "material": m, "precision": round(m / j, 2) if j else None, "cost": round(c, 2)}

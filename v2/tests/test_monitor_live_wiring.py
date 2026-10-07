@@ -14,6 +14,7 @@ import os
 import shutil
 import tempfile
 import unittest
+from datetime import datetime
 from unittest import mock
 
 from scout import config, monitor, selfserve, store
@@ -483,6 +484,9 @@ class CatchUpTriage(unittest.TestCase):
              mock.patch.object(monitor, "_current_md", return_value="# c"), mock.patch.object(config, "SIGNALS_ENABLED", False), \
              mock.patch.object(config, "PROPAGATE_MODE", "off"), mock.patch.object(config, "SENSORS_MODE", "off"):
             res = monitor.check("card-x", write=True)
-        self.assertIn("11 SEARCHES", seen["system"]); self.assertEqual(seen["turns"], 15); self.assertEqual(seen["budget"], 1.0)
-        self.assertEqual(jt.call_args.args[1]["config.TRIAGE_MAX_SEARCHES"], 11)
+        # the window is "since 2026-09-15 until now": the search count grows with the calendar up to the
+        # catch-up cap, so the assertions follow the budget function rather than a frozen number
+        exp_s, exp_t, exp_b, _ = monitor._triage_budget("2026-09-15", datetime.now().isoformat(timespec="seconds"), focused=False)
+        self.assertIn("11 SEARCHES", seen["system"]); self.assertEqual(seen["turns"], exp_t); self.assertEqual(seen["budget"], exp_b)
+        self.assertEqual(jt.call_args.args[1]["config.TRIAGE_MAX_SEARCHES"], exp_s)
         self.assertEqual({r["step"]: r for r in res["steps"]}["triage_budget"]["status"], "ran")
