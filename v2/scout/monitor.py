@@ -342,7 +342,7 @@ def _evidence_in_hand(candidates: list) -> tuple[str, int]:
     return ("\n\n" + note if note else ""), config.EVIDENCE_MAX_TURNS
 
 
-async def _run_materiality(meta, since, candidates, claims, extra: str = ""):
+async def _run_materiality(meta, since, candidates, claims, extra: str = "", role: str = "materiality"):
     comp, me = meta.get("competitor"), meta.get("my_company")
     ev_note, max_turns = _evidence_in_hand(candidates)
     user = (f"Competitor: {comp}" + (f" (we are {me})" if me else "") +
@@ -361,7 +361,7 @@ async def _run_materiality(meta, since, candidates, claims, extra: str = ""):
         max_budget_usd=config.MAX_BUDGET_USD,
     )
     try:
-        return await _drive(user, options, "materiality")
+        return await _drive(user, options, role)
     finally:
         from scout import calllog as _calllog
         _calllog.set_context(evidence_attached=None)
@@ -915,6 +915,61 @@ def _adopt_home(c: dict, claims: list) -> dict:
 _BLOCK_SECTIONS = ("battlecard", "executive_summary", "objection_handling")
 
 
+def _screen_sample(slug: str, meta: dict, since: str, claims: list, sens: dict, row: dict, steps: list,
+                   write: bool, checked_at: str) -> dict | None:
+    """SHADOW precision sample (2026-10-07): up to SCREEN_SAMPLE_PER_CARD screen-only competitor-side
+    candidates of this card go through the materiality judge, bounded per run by SCREEN_SAMPLE_PER_RUN
+    and SCREEN_SAMPLE_BUDGET_USD and overall by SCREEN_SAMPLE_MAX_TOTAL. Nothing lands: the verdicts
+    are recorded (sensors/_sample/<date>/<slug>.json) and tallied into the streak row, so the
+    screen's precision is a measured number before any cutover. Never raises."""
+    if config.SENSORS_MODE != "shadow" or not write or config.SCREEN_SAMPLE_PER_RUN <= 0:
+        return None
+    tally = _SENSORS.setdefault("sample", {"judged": 0, "material": 0, "cost": 0.0, "cards": 0})
+    if tally["judged"] >= config.SCREEN_SAMPLE_PER_RUN or tally["cost"] >= config.SCREEN_SAMPLE_BUDGET_USD:
+        _step(steps, "screen_sample", "skipped", "run sample cap reached")
+        return None
+    try:
+        from scout.sensors import compare as _compare
+        if _compare.sample_total() >= config.SCREEN_SAMPLE_MAX_TOTAL:
+            _step(steps, "screen_sample", "skipped", f"sample complete ({config.SCREEN_SAMPLE_MAX_TOTAL} judged); set SCOUT_SCREEN_SAMPLE_MAX_TOTAL to continue")
+            return None
+    except Exception:
+        pass
+    only = [c for c in (sens.get("candidates") or []) if c.get("substantial") is True
+            and str(c.get("about") or "").lower() != "my_company"
+            and any((c.get("signal") or "")[:160] == so.get("signal") for so in (row.get("screen_only") or []))]
+    room = min(config.SCREEN_SAMPLE_PER_CARD, config.SCREEN_SAMPLE_PER_RUN - tally["judged"])
+    picked = only[:room]
+    if not picked:
+        _step(steps, "screen_sample", "skipped", "no screen-only competitor candidate")
+        return None
+    try:
+        mat = asyncio.run(_run_materiality(meta, since, picked, claims, role="screen_sample"))
+        cost = float(mat.get("cost_usd") or 0)
+        try:
+            d = _extract_json(mat["text"])
+        except Exception:
+            d = {}
+        material = [m.get("claim", {}).get("subject_key") if isinstance(m.get("claim"), dict) else None for m in (d.get("material") or [])]
+        immaterial = [{"signal": str(i.get("signal") or "")[:160], "why_not": str(i.get("why_not") or "")[:200]} for i in (d.get("immaterial") or []) if isinstance(i, dict)]
+        judged = len(picked)
+        n_material = min(judged, len([m for m in (d.get("material") or []) if isinstance(m, dict)]))
+        tally["judged"] += judged; tally["material"] += n_material; tally["cost"] += cost; tally["cards"] += 1
+        rec = {"slug": slug, "run_ts": checked_at, "sampled": [{k: c.get(k) for k in ("signal", "subject_key", "about", "source_hint")} for c in picked],
+               "material": material, "immaterial": immaterial, "judged": judged, "n_material": n_material, "cost_usd": round(cost, 4)}
+        try:
+            selfserve.write_data(f"sensors/_sample/{checked_at[:10]}/{slug}.json", json.dumps(rec, indent=1, ensure_ascii=False, default=str),
+                                 f"sensors: screen sample {checked_at[:10]} {slug}")
+        except Exception as e:
+            rec["write_error"] = f"{type(e).__name__}: {e}"
+        _step(steps, "screen_sample", "ran", f"{n_material} material of {judged} screen-only candidate(s) judged (shadow, nothing lands)", cost)
+        return rec
+    except Exception as e:
+        print(f"[sensors] screen sample FAILED ({type(e).__name__}: {e})", file=sys.stderr)
+        _step(steps, "screen_sample", "failed", f"{type(e).__name__}: {e}", getattr(e, "scout_cost_usd", None))
+        return None
+
+
 def _arm_status(grounded: int, candidates: int, what: str, emitted: int, rejected: list) -> tuple[str, str]:
     """(status, detail) for a materiality / own-company step row. Facts the model emitted that the
     schema rejected BEFORE grounding are named (2026-10-04: Sonnet 5.5 wrote confidence as 0.9, every
@@ -1464,6 +1519,10 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
         # the sensors, so a Level A miss on our own news could not be counted)
         result["sensors"] = _sensor_compare(slug, meta, sens, candidates, list(material_grounded) + list(my_grounded),
                                             steps, write, checked_at, triage_ran)
+        if result["sensors"] and not result["sensors"].get("error"):
+            sample = _screen_sample(slug, meta, since, claims, sens, result["sensors"], steps, write, checked_at)
+            if sample:
+                result["sensors"]["sample"] = {"judged": sample["judged"], "material": sample["n_material"], "cost": sample["cost_usd"]}
     return result
 
 

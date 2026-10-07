@@ -564,3 +564,74 @@ class EvidenceInHand(unittest.TestCase):
         with mock.patch.object(config, "SENSORS_MODE", "shadow"):
             h = page._how_panel()
         self.assertIn("Scans each competitor", h); self.assertNotIn("Code sensors read the sources", h)
+
+
+class ScreenPrecisionSample(unittest.TestCase):
+    """2026-10-07 (Uroš: find everything material, don't limit it artificially): a few screen-only
+    candidates per run are judged in shadow so the screen's precision is measured; nothing lands."""
+
+    def _sens(self):
+        return {"candidates": [
+            {"signal": "Acme ships widgets v2 with agents", "subject_key": "NEW", "about": "competitor", "substantial": True, "source_hint": "https://x.test/a"},
+            {"signal": "Acme CFO resigns", "subject_key": "NEW", "about": "competitor", "substantial": True, "source_hint": "https://x.test/b"},
+            {"signal": "Beta raises prices", "subject_key": "NEW", "about": "my_company", "substantial": True, "source_hint": "https://x.test/c"},
+            {"signal": "Acme minor blog post", "subject_key": "NEW", "about": "competitor", "substantial": False}]}
+
+    def _row(self):
+        return {"screen_only": [{"signal": "Acme ships widgets v2 with agents"}, {"signal": "Acme CFO resigns"}, {"signal": "Beta raises prices"}]}
+
+    def test_samples_competitor_side_screen_only_candidates_and_records_the_verdicts(self):
+        from unittest import mock
+        import json as _json
+        from scout import monitor, config
+        monitor._SENSORS["sample"] = {"judged": 0, "material": 0, "cost": 0.0, "cards": 0}
+        seen = {}
+
+        async def fake_mat(meta, since, cands, claims, extra="", role="materiality"):
+            seen["role"] = role; seen["n"] = len(cands); seen["about"] = {c["about"] for c in cands}
+            return {"text": _json.dumps({"material": [{"claim": {"subject_key": "acme | widgets"}, "alert": {}}],
+                                         "immaterial": [{"signal": "Acme CFO resigns", "why_not": "routine"}]}), "cost_usd": 0.31}
+        written = {}
+        steps = []
+        with mock.patch.object(config, "SENSORS_MODE", "shadow"), mock.patch.object(config, "SCREEN_SAMPLE_PER_RUN", 5), \
+             mock.patch.object(config, "SCREEN_SAMPLE_PER_CARD", 2), mock.patch.object(monitor, "_run_materiality", fake_mat), \
+             mock.patch("scout.sensors.compare.sample_total", return_value=0), \
+             mock.patch.object(monitor.selfserve, "write_data", side_effect=lambda p, t, m: written.setdefault(p, t)):
+            rec = monitor._screen_sample("acme__vs__beta__x", {"competitor": "Acme", "my_company": "Beta"}, "2026-10-06", [], self._sens(), self._row(), steps, True, "2026-10-07T04:00:00")
+        self.assertEqual(seen["role"], "screen_sample")
+        self.assertEqual(seen["n"], 2)
+        self.assertEqual(seen["about"], {"competitor"})           # own-side candidates are not the judge's job
+        self.assertEqual((rec["judged"], rec["n_material"]), (2, 1))
+        self.assertEqual(list(written), ["sensors/_sample/2026-10-07/acme__vs__beta__x.json"])
+        self.assertEqual(steps[-1]["step"], "screen_sample"); self.assertEqual(steps[-1]["status"], "ran")
+        self.assertEqual(monitor._SENSORS["sample"]["judged"], 2)
+
+    def test_run_cap_and_overall_cap_stop_the_sample(self):
+        from unittest import mock
+        from scout import monitor, config
+        steps = []
+        monitor._SENSORS["sample"] = {"judged": 5, "material": 2, "cost": 1.2, "cards": 3}
+        with mock.patch.object(config, "SENSORS_MODE", "shadow"), mock.patch.object(config, "SCREEN_SAMPLE_PER_RUN", 5):
+            self.assertIsNone(monitor._screen_sample("s", {}, "2026-10-06", [], self._sens(), self._row(), steps, True, "2026-10-07T04:00:00"))
+        self.assertIn("cap", steps[-1]["detail"])
+        monitor._SENSORS["sample"] = {"judged": 0, "material": 0, "cost": 0.0, "cards": 0}
+        with mock.patch.object(config, "SENSORS_MODE", "shadow"), mock.patch("scout.sensors.compare.sample_total", return_value=35):
+            self.assertIsNone(monitor._screen_sample("s", {}, "2026-10-06", [], self._sens(), self._row(), steps, True, "2026-10-07T04:00:00"))
+        self.assertIn("sample complete", steps[-1]["detail"])
+
+    def test_off_outside_shadow_and_dry_runs(self):
+        from unittest import mock
+        from scout import monitor, config
+        with mock.patch.object(config, "SENSORS_MODE", "gate"):
+            self.assertIsNone(monitor._screen_sample("s", {}, "d", [], self._sens(), self._row(), [], True, "2026-10-07T04:00:00"))
+        with mock.patch.object(config, "SENSORS_MODE", "shadow"):
+            self.assertIsNone(monitor._screen_sample("s", {}, "d", [], self._sens(), self._row(), [], False, "2026-10-07T04:00:00"))
+
+    def test_precision_tally_rides_the_streak(self):
+        from unittest import mock
+        import json as _json
+        from scout.sensors import compare
+        doc = {"runs": [{"sample_judged": 5, "sample_material": 3, "sample_cost": 1.5}, {"sample_judged": 4, "sample_material": 1, "sample_cost": 1.1}]}
+        with mock.patch.object(compare.selfserve, "read_data", return_value=_json.dumps(doc)):
+            self.assertEqual(compare.sample_total(), 9)
+            self.assertEqual(compare.sample_precision(), {"judged": 9, "material": 4, "precision": 0.44, "cost": 2.6})
