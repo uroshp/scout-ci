@@ -979,16 +979,15 @@ def _how_figures() -> dict | None:
 
 
 def _how_panel() -> str:
-    """The 'How Scout works' panel (rewritten 2026-10-07, Uroš: "super simple and first principles",
-    "a showcase people glance at", less content, both audiences served inside the same frame): one
-    diagram and three columns of three one-line bullets, each line plain for a non-technical reader
-    and precise for a technical one. It explains the system and stops there; per-claim evidence stays
-    in the card's Verification trail (no surface restates another). No run cost and no model
-    performance figures, by decision (2026-10-02): every model lane looks the same."""
+    """The 'How Scout works' panel. The column copy is Uroš's own (2026-10-07), word for word where
+    it could be: a showcase people glance at, plain for a non-technical reader and complete for a
+    technical one. It explains the system and stops there; per-claim evidence stays in the card's
+    Verification trail (no surface restates another). No run cost and no model performance figures,
+    by decision (2026-10-02): every model lane looks the same."""
     fast, orch, sub = (_model_label(m) for m in
                        (config.FAST_MODEL, config.ORCHESTRATOR_MODEL, config.SUBAGENT_MODEL))
-    # Sensors (Release 2): the copy follows the mode so the panel never describes a system that is
-    # not running; shadow is internal and says nothing until the gate flips (his call, 2026-10-03).
+    # Sensors (Release 2): the Watch step follows the mode so the panel never describes a system
+    # that is not running; shadow says nothing until the gate flips (his call, 2026-10-03).
     sensors_on = getattr(config, "SENSORS_MODE", "off") == "gate"
     watch = ("Code reads each company\u2019s pages and news every morning; a model reads only what changed."
              if sensors_on else
@@ -1011,12 +1010,21 @@ def _how_panel() -> str:
     lanes = "".join(f'<div class="hw-lane"><div class="hw-ln">{co}</div>'
                     f'<div class="hw-track"><span>{mo}</span></div></div>' for co, mo in _HOW_CHALLENGERS)
     fig = _how_figures()
-    fig_li = (f'<li>Claims: <span class="hw-num">{fig["claims"]}</span> total on '
+    fig_li = (f'<li><b>Claims tracked:</b> <span class="hw-num">{fig["claims"]}</span> on '
               f'<span class="hw-num">{fig["cards"]}</span> cards, <span class="hw-num">{fig["updates"]}</span> '
               f'update{"" if fig["updates"] == 1 else "s"} {fig["when"]}.</li>') if fig else ""
+    # the Cut Log link goes to the most recently checked card's Cut Log section
+    cut_href = "#"
+    try:
+        slugs = display.list_battlecards()
+        latest = max(slugs, key=lambda sl: str((store.load_meta(sl) or {}).get("last_checked") or "")) if slugs else None
+        if latest:
+            cut_href = f"/c/{latest}#cut"
+    except Exception:
+        pass
+    mcp_href = f"{_html.escape(config.SOURCE_REPO_URL)}/blob/main/v2/docs/mcp.md"
     evaluated = ('Every decision is recorded and replayed by four other models. '
                  'When they disagree, a blind arbiter rules from the source.')
-    sensors_li = ('<li><b>Code reads every source each morning;</b> a model reads only what changed.</li>' if sensors_on else "")
     return (
         '<div class="how" id="how" hidden>'
         '<button type="button" class="hw-close" data-how aria-expanded="true" aria-controls="how" aria-label="Close">&#215;</button>'
@@ -1038,27 +1046,29 @@ def _how_panel() -> str:
         + '</div></div></div>'
         '<div class="hw-cols">'
         '<div class="hw-col"><h4>The product</h4><ul>'
-        '<li><b>Every claim carries its source and date.</b></li>'
-        '<li><b>Unverified claims are cut;</b> the Cut Log says why.</li>'
-        '<li><b>Ask Scout answers only from verified claims,</b> in the app, in Slack, or as an MCP tool.</li>'
+        '<li><b>Always up-to-date competitive intelligence briefs.</b></li>'
+        f'<li><b>All claims are deal-movers and verified.</b> The rest is <a href="{cut_href}">cut and logged</a>.</li>'
+        f'<li><b>The Ask Scout agent answers only with verified claims,</b> in the app, in <a href="/slack">Slack</a> or via <a href="{mcp_href}" target="_blank" rel="noopener">MCP</a>.</li>'
         f'{fig_li}</ul></div>'
         '<div class="hw-col"><h4>The build</h4><ul>'
-        '<li><b>Code enforces the rules:</b> cost, links, dates, format.</li>'
-        '<li><b>Models judge,</b> one job each, none approving its own.</li>'
-        '<li><b>If a step fails, a second model tries;</b> then a person decides.</li>'
-        '<li><b>Every morning audits itself,</b> from the first search to the published claim.</li>'
-        + sensors_li +
+        '<li><b>Models do the judgement</b> (materiality, routing, consequence, authorship) <b>and the writing.</b> '
+        'No model approves its own output. Model judgement is calibrated iteratively by the human author.</li>'
+        '<li><b>Code enforces the hard rules:</b> cost, links, dates, format, and reads every claim\u2019s source.</li>'
+        '<li><b>If a step fails, a second model tries;</b> the human author is the last fallback.</li>'
+        '<li><b>The tool self-audits</b> to reduce failure.</li>'
+        '<li><b>Built with a coding agent on a Mac mini.</b> Additional infra: Google Cloud, GitHub, Ollama, Resend.</li>'
         '</ul></div>'
         '<div class="hw-col"><h4>The evals</h4><ul>'
-        '<li><b>Every decision is recorded</b> and replayed by four other models on a Mac mini.</li>'
-        '<li><b>Same calls, same instructions,</b> so the models are compared fairly.</li>'
-        '<li><b>Disagreements go to a blind arbiter;</b> the author reviews every ruling.</li>'
-        '<li><b>A model earns a job</b> by proving itself on those calls.</li>'
+        '<li><b>Every decision made by the frontier models is run through on-device challengers:</b> Mistral, Google, NVIDIA and Apple.</li>'
+        '<li><b>Evaluated:</b> agreement with the reference, Cohen\u2019s kappa, precision on adjudicated disagreements with a 95% interval, '
+        'coverage, parse rate and latency.</li>'
+        '<li><b>Disputes go to a blind arbiter model;</b> the human author reviews every ruling.</li>'
+        '<li><b>The goal is to learn when on-device models can take on a job.</b></li>'
         '</ul></div>'
         '</div>'
         '<div class="hw-foot"><span class="hw-links">'
         f'<a href="{_html.escape(config.SOURCE_REPO_URL)}" target="_blank" rel="noopener">Code on GitHub</a>'
-        f'<a href="{_html.escape(config.SOURCE_REPO_URL)}/blob/main/v2/docs/mcp.md" target="_blank" rel="noopener">Agent Scout via MCP</a>'
+        f'<a href="{mcp_href}" target="_blank" rel="noopener">Agent Scout via MCP</a>'
         f'<a href="{_html.escape(config.AUTHOR_LINKEDIN)}" target="_blank" rel="noopener">Contact me</a>'
         '</span></div>'
         '</div>')
@@ -1379,6 +1389,7 @@ _OVERRIDES = """
 #scout-page .hw-col ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
 #scout-page .hw-col li{font-size:13px;line-height:1.45;color:var(--ink);padding-left:13px;position:relative;margin:0}
 #scout-page .hw-col li b{font-weight:600;color:var(--ink)}
+#scout-page .hw-col li a{color:var(--accent-deep);font-weight:600;text-decoration:none;border-bottom:1px solid var(--accent-line)}
 #scout-page .hw-col li::before{content:"";position:absolute;left:0;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--accent-line)}
 #scout-page .hw-num{font-family:var(--mono);font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;background:var(--line2);border-radius:3px;padding:0 4px;white-space:nowrap}
 #scout-page .hw-foot{display:flex;gap:8px 22px;flex-wrap:wrap;align-items:baseline;justify-content:space-between;border-top:1px solid var(--line2);padding-top:11px;font-size:12.5px;color:var(--muted)}

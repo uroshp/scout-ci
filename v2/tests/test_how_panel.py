@@ -53,10 +53,10 @@ class HowPanel(unittest.TestCase):
     def test_figures_are_live_or_absent(self):
         fig = page._how_figures()
         self.assertIsNotNone(fig)
-        self.assertIn(f'<span class="hw-num">{fig["claims"]}</span> total on', self.panel)
+        self.assertIn(f'<span class="hw-num">{fig["claims"]}</span> on', self.panel)
         with mock.patch.object(page, "_how_figures", return_value=None):
             html = page.masthead_html()
-        self.assertNotIn("Claims:", html)
+        self.assertNotIn("Claims tracked:", html)
         self.assertNotIn("hw-asof", html)
         self.assertIn('id="how"', html)
 
