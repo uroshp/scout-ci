@@ -548,18 +548,35 @@
   },
   {
     "subject_key": "battlecard | contested | nvidia-gpu-availability",
-    "claim": "**Raw Nvidia GPU availability is a shared constraint, and reserved AWS capacity is getting expensive fast.**\n\nBoth clouds are supply-limited on top-end Nvidia capacity (TSMC CoWoS and HBM bottlenecks), and both are co-engineering with Nvidia on next-gen Rubin systems. AWS is raising Capacity Block reservation prices a second time in six months: effective July 1, 2026, the per-accelerator hourly rate for reserved P6-B300 hits $14.04, P5e at $5.97 and P5 at $5.191, up roughly 20% from the prior set. A buyer committing to reserved Nvidia capacity on AWS now pays a rising premium for that scarcity. TPU compute gives a buyer a second supply line that reduces both GPU-queue risk and the cost exposure that comes with repeated reservation-price hikes.\n\n**Soundbite:** *\"Blackwell is scarce for everyone. AWS just raised reserved GPU prices 20% in six months. TPUs give you the compute at a predictable rate, on capacity you can actually get.\"*",
+    "claim": "**Both clouds are short on top-end Nvidia GPUs, and AWS keeps raising what it charges to reserve them.**\n\nWe concede that both clouds are supply-limited on top-end Nvidia capacity. The difference is the price of a guaranteed slot. AWS has raised Capacity Block prices three times in 2026: about 15% in January, about 20% in July and 15% more on October 7. A B300 block now lists at $16.146 per GPU-hour and B200 at $14.208. AWS's own pricing page says these rates move with supply and demand, so a buyer budgeting a 2027 training run on AWS reservations should plan for more increases. Point those buyers to Google's committed-use and sustained-use discounts, and to TPU capacity for workloads that can run on it.",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
-    "order": 1,
-    "as_of": "2026-06-26",
-    "confidence": "medium",
+    "order": 2,
+    "source_url": "https://aws.amazon.com/ec2/capacityblocks/pricing/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Amazon EC2 Capacity Blocks for ML reservation prices are dynamic and are updated periodically based on supply and demand.",
+    "as_of": "2026-10-07",
+    "confidence": "high",
     "id": "c_00a0bf6dd457",
     "verified": true,
-    "persona": "technical_evaluator",
-    "derived_from": "c_d810a5c63b1d",
-    "updated_on": "2026-06-28"
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-07",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://cryptobriefing.com/aws-gpu-capacity-block-price-increase/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "battlecard | lose | aws-incumbency-data-gravity",
@@ -1034,7 +1051,11 @@
         "source_class": "news"
       }
     ],
-    "source_class": "company_statement"
+    "source_class": "company_statement",
+    "status": "retired",
+    "retired_on": "2026-10-07",
+    "retired_reason": "invalidated: Removed the July Capacity Block pricing line. AWS raised those reservation rates another 15% on October 7, so the July prices are out of date, and the October pricing line now carries all three 2026 hikes.",
+    "derived_from": "c_53371adc139e"
   },
   {
     "subject_key": "battlecard | contested | delivery-deployment-muscle",
@@ -1623,5 +1644,60 @@
       "detail": null
     },
     "source_class": "news"
+  },
+  {
+    "subject_key": "aws | list-price | capacity-block-gpu-hike-2026-10",
+    "claim": "Effective October 7, 2026, AWS raised EC2 Capacity Block prices for ML by 15% on every listed Nvidia tier. B300 goes from $14.04 to $16.146 per GPU-hour and B200 from $12.355 to $14.208. H200 (P5e) goes from $5.97 to $6.866 and H100 (P5) from $5.191 to $5.970. This is AWS's third Capacity Block increase of 2026, after about 15% in January and about 20% on July 1. Because each hike compounds on the last, reserved H200 capacity now costs well over 50% more than it did at the start of the year. On-Demand and Savings Plans prices did not change.",
+    "claim_type": "fact",
+    "section": "pricing",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://aws.amazon.com/ec2/capacityblocks/pricing/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Effective October 7, 2026, hourly rates per accelerator across all available AWS Regions will be: P6-B300 at $16.146",
+    "as_of": "2026-10-07",
+    "confidence": "high",
+    "id": "c_53371adc139e",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-07",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://cryptobriefing.com/aws-gpu-capacity-block-price-increase/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "company_statement"
+  },
+  {
+    "id": "c_d81a288e1e91",
+    "subject_key": "audience-lead | technical_evaluator | c_df2638986581",
+    "claim": "**Gemini 3.8 Flash scores 73.7% on long-horizon software engineering, up from 65.3%, and is generally available today.**\n\nPer Google, Gemini 3.8 Flash scored 73.7% on DeepSWE v1.1 versus 65.3% for 3.7 Flash. It is generally available in Google AI Studio, the Gemini API and Android Studio, so an evaluator can run their own repos against it this week. It costs $0.75 input and $3.75 output per million tokens through December 31, 2026, then $1.50 and $7.50 from January 1, 2027. Bedrock's GPT-5.6 Luna is cheaper per token at $0.20 and $1.20.\n\n**Soundbite:** \"Gemini 3.8 Flash went from 65.3% to 73.7% on DeepSWE. Run your own repos on it in AI Studio today and judge it on your results.\"\n\n**Soundbite:** \"Luna costs less per token, and our price doubles on January 1, 2027. Compare both on your workload at the 2027 price.\"\n\n**So what:** Offer a side-by-side trial of Gemini 3.8 Flash on the evaluator's own code, and price the result at the January 2027 rates.",
+    "claim_type": "interpretation",
+    "section": "executive_summary",
+    "zone": null,
+    "order": 4,
+    "as_of": "2026-09-02",
+    "updated_on": "2026-10-07",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_37405faa45f0",
+    "persona": "technical_evaluator",
+    "provenance": {
+      "source_url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/3-8-flash-and-3-8-flash-cyber/",
+      "source_tier": "primary",
+      "as_of": "2026-09-02",
+      "fact_id": "c_37405faa45f0",
+      "stamped_on": "2026-10-07",
+      "source_class": "company_statement"
+    }
   }
 ]

@@ -1858,5 +1858,28 @@
       "stamped_on": "2026-10-02",
       "source_class": "company_statement"
     }
+  },
+  {
+    "id": "c_45247fcd0bd6",
+    "subject_key": "audience-lead | economic_buyer | c_b5664c37e73b",
+    "claim": "**Agent work run on your own Nvidia hardware consumes no billing credits.**\n\nPerplexity's Portable Computer runs the Computer agent entirely on local hardware. Work completed locally consumes no billing credits, and a step goes to a cloud frontier model only after the user gives permission. Cloud spend on agent tasks therefore happens only when someone approves it. The cost to be straight about is hardware: it needs Nvidia's DGX Spark or a Linux machine with an RTX GPU (24GB+ VRAM). It ships on Linux for Pro, Max, Enterprise Pro and Enterprise Max subscribers, with Windows support announced for September.\n\n**Soundbite:** \"Agent tasks you run on your own Nvidia machine use no billing credits. Cloud models only get involved when your user approves the step.\"\n\n**So what:** Ask which team runs agent workloads and whether they have a DGX Spark or an RTX machine with 24GB+ VRAM. If they do, price the pilot on Pro or Enterprise Pro with local runs as the default.",
+    "claim_type": "interpretation",
+    "section": "executive_summary",
+    "zone": null,
+    "order": 6,
+    "as_of": "2026-08-25",
+    "updated_on": "2026-10-07",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_b3aefc0588f0",
+    "persona": "economic_buyer",
+    "provenance": {
+      "source_url": "https://venturebeat.com/infrastructure/perplexity-partners-with-nvidia-to-launch-portable-computer-a-fully-local-ai-agent-with-zero-token-costs/",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-08-25",
+      "fact_id": "c_b3aefc0588f0",
+      "stamped_on": "2026-10-07",
+      "source_class": "news"
+    }
   }
 ]
