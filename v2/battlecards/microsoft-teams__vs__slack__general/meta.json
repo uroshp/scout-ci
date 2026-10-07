@@ -4,7 +4,7 @@
   "competitor": "Slack",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-10-06T11:10:30",
+  "last_checked": "2026-10-07T11:11:15",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7e46a6f50a55",
@@ -27,5 +27,10 @@
     ],
     "job_boards": []
   },
-  "last_check_reason": "scheduled"
+  "last_check_reason": "scheduled",
+  "unresolved_subjects": [
+    "slack | service-level-agreement"
+  ],
+  "unresolved_since": "2026-10-06",
+  "unresolved_attempts": 1
 }

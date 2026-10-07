@@ -46,6 +46,14 @@ Hybrid Compute masks sensitive data like names, addresses and account numbers on
 
 **So what:** Lead security-conscious buyers with Hybrid Compute as the default answer to data-residency concerns, no new hardware or API key required. ([9to5mac.com](https://9to5mac.com/2026/09/01/perplexity-launches-privacy-minded-hybrid-compute-ai-feature-for-mac/))
 
+**Agent work run on your own Nvidia hardware consumes no billing credits.**
+
+Perplexity's Portable Computer runs the Computer agent entirely on local hardware. Work completed locally consumes no billing credits, and a step goes to a cloud frontier model only after the user gives permission. Cloud spend on agent tasks therefore happens only when someone approves it. The cost to be straight about is hardware: it needs Nvidia's DGX Spark or a Linux machine with an RTX GPU (24GB+ VRAM). It ships on Linux for Pro, Max, Enterprise Pro and Enterprise Max subscribers, with Windows support announced for September.
+
+**Soundbite:** "Agent tasks you run on your own Nvidia machine use no billing credits. Cloud models only get involved when your user approves the step."
+
+**So what:** Ask which team runs agent workloads and whether they have a DGX Spark or an RTX machine with 24GB+ VRAM. If they do, price the pilot on Pro or Enterprise Pro with local runs as the default. ([venturebeat.com](https://venturebeat.com/infrastructure/perplexity-partners-with-nvidia-to-launch-portable-computer-a-fully-local-ai-agent-with-zero-token-costs/))
+
 ## Snapshot
 
 - Alphabet reported Q1 2026 revenue of \$109.9 billion, up 22% year-over-year (audited public filing), beating estimates as Cloud growth accelerated and net income more than doubled. ([finance.yahoo.com](https://finance.yahoo.com/markets/stocks/articles/alphabet-q1-2026-earnings-google-202101883.html))

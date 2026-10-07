@@ -4,7 +4,7 @@
   "competitor": "Anthropic",
   "focus": "Enterprise collaboration agents (inside Slack and Teams)",
   "baseline_date": "2026-09-15",
-  "last_checked": "2026-10-06T11:17:10",
+  "last_checked": "2026-10-07T11:16:32",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_ea588c53a3d1",
@@ -17,23 +17,6 @@
   ],
   "monitored": true,
   "last_check_reason": "scheduled",
-  "pending_candidates": {
-    "my_company": [
-      {
-        "signal": "OpenAI launches Pro 500 plan at $500/month, highest usage tier in Pro lineup; includes access to Astra Ultrafast (Oct 5, 2026)",
-        "subject_key": "openai | pricing-model | pro-tier",
-        "about": "my_company",
-        "valence": "front_foot",
-        "substantial": true,
-        "why_new": "Tracked claims cover ChatGPT Business at $20/month flat and earlier Pro/Business/Enterprise SKUs, but Pro 500 is a NEW premium tier with highest included usage. Pricing tier introduction is material commercial move in focus area (enterprise collaboration).",
-        "source_hint": "Releasebot (releasebot.io/updates/openai), OpenAI Oct 5 product announcements"
-      }
-    ],
-    "since": "2026-10-05",
-    "my_since": "2026-10-05",
-    "attempts": 1,
-    "reason": "own-side candidates did not ground"
-  },
   "unresolved_subjects": [
     "anthropic | flagship-product | collaboration-agent",
     "anthropic | service-reliability | 2026"
