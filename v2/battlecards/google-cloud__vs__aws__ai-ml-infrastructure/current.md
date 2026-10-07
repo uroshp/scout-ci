@@ -28,6 +28,16 @@ Google Cloud's June 2025 global outage (70+ services) and Pichai's own "compute 
 
 **So what:** Don't lead with reliability. Lead with AI economics and roadmap control, and have a rehearsed, evidence-based answer ready for the outage and capacity objections (see Objection Handling). A prepared answer beats a defensive one. ([cnbc.com](https://www.cnbc.com/2025/06/16/google-cloud-outage-apology.html))
 
+**Gemini 3.8 Flash scores 73.7% on long-horizon software engineering, up from 65.3%, and is generally available today.**
+
+Per Google, Gemini 3.8 Flash scored 73.7% on DeepSWE v1.1 versus 65.3% for 3.7 Flash. It is generally available in Google AI Studio, the Gemini API and Android Studio, so an evaluator can run their own repos against it this week. It costs \$0.75 input and \$3.75 output per million tokens through December 31, 2026, then \$1.50 and \$7.50 from January 1, 2027. Bedrock's GPT-5.6 Luna is cheaper per token at \$0.20 and \$1.20.
+
+**Soundbite:** "Gemini 3.8 Flash went from 65.3% to 73.7% on DeepSWE. Run your own repos on it in AI Studio today and judge it on your results."
+
+**Soundbite:** "Luna costs less per token, and our price doubles on January 1, 2027. Compare both on your workload at the 2027 price."
+
+**So what:** Offer a side-by-side trial of Gemini 3.8 Flash on the evaluator's own code, and price the result at the January 2027 rates. ([blog.google](https://blog.google/innovation-and-ai/models-and-research/gemini-models/3-8-flash-and-3-8-flash-cyber/))
+
 ## Snapshot
 
 - AWS posted Q1 2026 net sales of \$37.6B (up 28% YoY) with operating income of \$14.16B, an audited beat that materially topped the ~\$12.84B consensus. AWS remains Amazon's primary profit engine. ([cnbc.com](https://www.cnbc.com/2026/04/29/aws-earnings-q1-2026.html))
@@ -65,9 +75,9 @@ Google Cloud's June 2025 global outage (70+ services) and Pichai's own "compute 
 ## Pricing and Packaging
 
 - Unlike AWS, Google Cloud applies automatic sustained-use discounts to eligible attached GPUs as monthly usage rises (no upfront commitment required), on top of optional committed-use discounts. This is a structural flexibility advantage for variable AI workloads. ([cloud.google.com](https://cloud.google.com/compute/gpus-pricing))
+- Effective October 7, 2026, AWS raised EC2 Capacity Block prices for ML by 15% on every listed Nvidia tier. B300 goes from \$14.04 to \$16.146 per GPU-hour and B200 from \$12.355 to \$14.208. H200 (P5e) goes from \$5.97 to \$6.866 and H100 (P5) from \$5.191 to \$5.970. This is AWS's third Capacity Block increase of 2026, after about 15% in January and about 20% on July 1. Because each hike compounds on the last, reserved H200 capacity now costs well over 50% more than it did at the start of the year. On-Demand and Savings Plans prices did not change. ([aws.amazon.com](https://aws.amazon.com/ec2/capacityblocks/pricing/))
 - Google's pitch that shifting about 80% of workloads to Gemini Flash could save enterprises \$1B plus annually now runs on Gemini 3.8 Flash, launched September 2, 2026 at the same \$0.75 per million input tokens and \$3.75 per million output tokens as 3.7 Flash, holding through December 31, 2026 before rising to \$1.50 and \$7.50 on January 1, 2027. AWS narrowed the raw per-token gap on August 3, 2026 by cutting Bedrock prices for OpenAI's GPT-5.6 Luna 80% to \$0.20 per million input tokens and \$1.20 per million output tokens, but that price cut is AWS discounting a model it resells from OpenAI, so the number to compare is full workload cost on owned infrastructure, rather than one AWS-set list price. ([blog.google](https://blog.google/innovation-and-ai/models-and-research/gemini-models/3-8-flash-and-3-8-flash-cyber/))
 - On August 3, 2026, AWS cut Bedrock on-demand inference prices for OpenAI's GPT-5.6 models, effective July 30: GPT-5.6 Luna dropped 80% to \$0.20 per million input tokens and \$1.20 per million output tokens, and GPT-5.6 Terra dropped 20%. AWS calls Luna one of the most affordable frontier-class models available. ([aws.amazon.com](https://aws.amazon.com/blogs/aws/aws-weekly-roundup-price-reduction-of-gpt-models-in-bedrock-cloudwatch-managed-collectors-for-prometheus-metrics-and-more-august-3-2026/))
-- AWS is raising EC2 Capacity Block reservation prices for its top Nvidia GPU instances about 20% effective July 1, 2026, its second guaranteed-GPU price hike in six months after January's roughly 15% H200 increase. Per-accelerator hourly reservation rates rise to \$5.191 for P5, \$5.97 for P5e and \$14.04 for the Blackwell P6-B300, on the scarce reserved-capacity product enterprises buy for large training runs. ([aws.amazon.com](https://aws.amazon.com/ec2/capacityblocks/pricing/))
 
 ## Competitive Battlecard
 
@@ -117,11 +127,9 @@ Both platforms offer 200+ models. Bedrock's June addition of OpenAI GPT-5.5 alon
 
 **Soundbite:** *"Both clouds give you a model menu. Only Google owns the model and the chip running it."* ([aboutamazon.com](https://www.aboutamazon.com/news/aws/bedrock-openai-models))
 
-**Raw Nvidia GPU availability is a shared constraint, and reserved AWS capacity is getting expensive fast.**
+**Both clouds are short on top-end Nvidia GPUs, and AWS keeps raising what it charges to reserve them.**
 
-Both clouds are supply-limited on top-end Nvidia capacity (TSMC CoWoS and HBM bottlenecks), and both are co-engineering with Nvidia on next-gen Rubin systems. AWS is raising Capacity Block reservation prices a second time in six months: effective July 1, 2026, the per-accelerator hourly rate for reserved P6-B300 hits \$14.04, P5e at \$5.97 and P5 at \$5.191, up roughly 20% from the prior set. A buyer committing to reserved Nvidia capacity on AWS now pays a rising premium for that scarcity. TPU compute gives a buyer a second supply line that reduces both GPU-queue risk and the cost exposure that comes with repeated reservation-price hikes.
-
-**Soundbite:** *"Blackwell is scarce for everyone. AWS just raised reserved GPU prices 20% in six months. TPUs give you the compute at a predictable rate, on capacity you can actually get."* ([aws.amazon.com](https://aws.amazon.com/ec2/capacityblocks/pricing/))
+We concede that both clouds are supply-limited on top-end Nvidia capacity. The difference is the price of a guaranteed slot. AWS has raised Capacity Block prices three times in 2026: about 15% in January, about 20% in July and 15% more on October 7. A B300 block now lists at \$16.146 per GPU-hour and B200 at \$14.208. AWS's own pricing page says these rates move with supply and demand, so a buyer budgeting a 2027 training run on AWS reservations should plan for more increases. Point those buyers to Google's committed-use and sustained-use discounts, and to TPU capacity for workloads that can run on it. ([aws.amazon.com](https://aws.amazon.com/ec2/capacityblocks/pricing/))
 
 Agent-platform maturity is a contested fight. On August 6, 2026, AWS made Bedrock AgentCore runtime instances generally available: AWS-managed EC2 for production agents that can run up to 14 days, with GPU support and several agents collaborating on one host and shared file system. Combined with the production-agent stack AWS shipped at AWS Summit New York (June 17, 2026), AWS now covers long-running, multi-agent and GPU-backed workloads that Vertex AI reps used to pitch as a Google-only strength. ([aws.amazon.com](https://aws.amazon.com/about-aws/whats-new/2026/08/aws-bedrock-agentcore-runtime-instances-generally-available/))
 
