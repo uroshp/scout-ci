@@ -4,7 +4,7 @@
   "competitor": "Google",
   "focus": null,
   "baseline_date": "2026-06-06",
-  "last_checked": "2026-10-06T11:19:35",
+  "last_checked": "2026-10-07T11:18:00",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_9ea436272f2a",
@@ -27,7 +27,8 @@
     "f_7f74d84b90c8",
     "f_c47cab622c25",
     "f_1bfefd745900",
-    "f_60c7f7083585"
+    "f_60c7f7083585",
+    "f_34a21879fca9"
   ],
   "monitored": true,
   "lead_election": {
@@ -45,5 +46,22 @@
       }
     ]
   },
-  "last_check_reason": "scheduled"
+  "last_check_reason": "scheduled",
+  "pending_candidates": {
+    "my_company": [
+      {
+        "signal": "Mozilla announces Perplexity as a default search option in Firefox, October 2026",
+        "subject_key": "perplexity | distribution | firefox-default",
+        "about": "my_company",
+        "valence": "front_foot = good for us / bad for them",
+        "substantial": true,
+        "why_new": "Distribution partnership not previously tracked. Firefox inclusion directly undermines the tracked claim that 'Google's distribution is overwhelming: its AI is the default for over a billion people at zero acquisition cost.' Firefox is a top-tier browser (~100M+ users globally); adding Perplexity as a competing default search option is a concrete partnership shift that weakens Google's distribution moat narrative.",
+        "source_hint": "Search result from latest Perplexity news scan; specific date unclear ('In October' stated, likely Oct 1-7 range; needs verification)"
+      }
+    ],
+    "since": "2026-10-06",
+    "my_since": "2026-10-06",
+    "attempts": 1,
+    "reason": "own-side candidates did not ground"
+  }
 }
