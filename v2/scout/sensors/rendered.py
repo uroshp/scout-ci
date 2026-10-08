@@ -64,14 +64,34 @@ def is_challenge(html: str, title: str = "") -> bool:
 
 
 def fetch(url: str) -> dict:
-    """{"status": int|None, "text": html|None, "error": str|None, "challenge": bool, "title": str}."""
+    """{"status": int|None, "text": html|None, "error": str|None, "challenge": bool, "title": str}.
+    The browser work runs on a daemon thread with a hard wall-clock bound (2026-10-08: a synchronous
+    Playwright call after a certificate error never returned and the whole morning waited on it).
+    A renderer that hangs once is retired for the rest of the process; the plain tier carries on."""
     try:
         grounding._assert_fetchable(url)
     except Exception as e:
         return {"status": None, "text": None, "error": f"blocked: {e}", "challenge": False, "title": ""}
+    if _STATE.get("unavailable"):
+        return {"status": None, "text": None, "error": f"renderer unavailable ({_STATE['unavailable']})", "challenge": False, "title": ""}
     if not available():
         _STATE["unavailable"] = "playwright not installed"
         return {"status": None, "text": None, "error": "renderer unavailable (playwright not installed)", "challenge": False, "title": ""}
+    import threading
+    from scout import config as _cfg
+    box: dict = {}
+    t = threading.Thread(target=lambda: box.update(_fetch_blocking(url)), daemon=True)
+    t.start()
+    t.join(timeout=_cfg.SENSOR_RENDER_HARD_TIMEOUT_S)
+    if t.is_alive():
+        _STATE["unavailable"] = f"renderer hung on {url[:60]}"
+        _STATE.update({"pw": None, "browser": None, "context": None})      # never touch the stuck browser again
+        print(f"[sensors] rendered fetch HUNG for {url}: renderer retired for this run", file=sys.stderr, flush=True)
+        return {"status": None, "text": None, "error": "renderer hung", "challenge": False, "title": ""}
+    return box or {"status": None, "text": None, "error": "renderer returned nothing", "challenge": False, "title": ""}
+
+
+def _fetch_blocking(url: str) -> dict:
     page = None
     try:
         ctx = _context()
