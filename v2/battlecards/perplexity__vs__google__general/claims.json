@@ -1881,5 +1881,28 @@
       "stamped_on": "2026-10-07",
       "source_class": "news"
     }
+  },
+  {
+    "id": "c_00ffd3798304",
+    "subject_key": "audience-lead | security_regulated | c_b5664c37e73b",
+    "claim": "**Sensitive data is masked or kept on the Mac before any cloud step runs.**\n\nSince September 1, 2026, Perplexity's Hybrid Compute lets Computer start a task in the cloud and hand steps touching private files or sensitive data to a local model on the Mac. An on-device classifier masks names, addresses and account numbers before anything leaves the Mac and restores them when the cloud answers; credentials, payment card numbers and government IDs stay local, refused or rewritten. Enterprise admins set org-wide rules and audit logs for what stays on device; Perplexity open-sourced the PII-Tracer classifier. It needs an Apple silicon Mac, macOS 15 or later and 24GB of unified memory; steps with no sensitive data still run in the cloud.\n\n**Soundbite:** \"Names, addresses and account numbers are masked on your Mac before anything leaves it. Credentials, card numbers and government IDs get the strictest handling.\"\n\n**So what:** Ask whether their Macs are Apple silicon with 24GB or more; if yes, walk security through the admin rules and audit logs.",
+    "claim_type": "interpretation",
+    "section": "executive_summary",
+    "zone": null,
+    "order": 7,
+    "as_of": "2026-10-08",
+    "updated_on": "2026-10-08",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_b147a43c7c5b",
+    "persona": "security_regulated",
+    "provenance": {
+      "source_url": "https://9to5mac.com/2026/09/01/perplexity-launches-privacy-minded-hybrid-compute-ai-feature-for-mac/",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-09-01",
+      "fact_id": "c_b147a43c7c5b",
+      "stamped_on": "2026-10-08",
+      "source_class": "news"
+    }
   }
 ]
