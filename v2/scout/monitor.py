@@ -1007,6 +1007,8 @@ def _step(steps: list, name: str, status: str, detail=None, cost=None) -> None:
     if cost:
         row["cost"] = round(float(cost), 4)
     steps.append(row)
+    # the live log says where the run is (2026-10-08: two hung runs left no trace of their progress)
+    print(f"[step] {name}: {status}" + (f" ({str(detail)[:160]})" if detail else "") + (f" ${float(cost):.3f}" if cost else ""), flush=True)
 
 
 def _merge_candidates(base: list, extra: list) -> list:
@@ -1054,6 +1056,7 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
     # stories every day a window stays open (2026-07-02 cost pass; Uroš's design).
     my_since = _since_date(since_override or meta.get("last_checked") or meta.get("baseline_date"))
     checked_at = datetime.now().isoformat(timespec="seconds")  # full timestamp, not just a date
+    print(f"[monitor] checking {slug} at {checked_at}", flush=True)
     # a signal-dispatched run counts as the day's check for the due gate (WS3): the reason rides meta
     check_reason = "signal" if os.environ.get("SCOUT_MONITOR_REASON", "").strip() else "scheduled"
     from scout import calllog
