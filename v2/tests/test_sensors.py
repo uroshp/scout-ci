@@ -693,3 +693,24 @@ class PassAndRendererDeadlines(unittest.TestCase):
             r2 = rendered.fetch("https://example.test/b")          # retired: answers at once
             self.assertIn("renderer unavailable", r2["error"])
         rendered._STATE["unavailable"] = None
+
+
+class StampCheckIsLinear(unittest.TestCase):
+    """2026-10-08: the stamp-only regex backtracked exponentially on a long run of letters that failed
+    late (one third-party page); three morning runs hung on it. The check is token-based now."""
+
+    def test_pathological_blocks_return_at_once(self):
+        import time
+        from scout.sensors import pagediff
+        for b in ("a" * 60 + "!", "Supercalifragilisticexpialidocious" * 4 + "&", ("abcdefghij" * 8) + "?"):
+            t = time.time()
+            pagediff.is_noise(b)
+            self.assertLess(time.time() - t, 0.05, b[:30])
+
+    def test_stamps_are_still_noise_and_prose_is_not(self):
+        from scout.sensors import pagediff
+        for b in ("Updated October 3, 2026", "Last updated: 2026-10-03", "12:40 PM PT", "© 2026 Acme", "1,204 views", "Posted by admin on March 4"):
+            self.assertTrue(pagediff.is_noise(b), b)
+        for b in ("Anthropic raises prices for Opus 5.5 by 20 percent, effective next month.",
+                  "Slack now lets Claude Tag reach each user's personal connectors inside channels."):
+            self.assertFalse(pagediff.is_noise(b), b)

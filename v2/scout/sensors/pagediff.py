@@ -33,9 +33,39 @@ _WS = re.compile(r"\s+")
 _DIGITS = re.compile(r"\d")
 # a block that is only a stamp: "Updated October 3, 2026", "Last updated: 2026-10-03", "12:40 PM PT",
 # "© 2026 Acme", "1,204 views". Letters other than the stamp words give it away as prose.
-_STAMP_WORDS = r"(?:updated|last updated|published|posted|as of|effective|modified|copyright|©|all rights reserved|views|likes|comments|replies|stars|forks|am|pm|utc|pt|et|est|pst|gmt)"
-_DATE_ONLY = re.compile(
-    r"^(?:" + _STAMP_WORDS + r"|[A-Za-z]{3,9}\.?|\d[\d,./:-]*|\s|,|:|\.|-)+$", re.I)
+# (2026-10-08: the old alternation regex `(?:word|[A-Za-z]{3,9}|digits|...)+$` backtracked
+# exponentially on a long run of letters that failed late; one third-party page hung the morning run,
+# locally and on the runner. The check is now token-based and linear.)
+_STAMP_WORDS = {"updated", "last", "published", "posted", "as", "of", "effective", "modified", "copyright", "all",
+                "rights", "reserved", "views", "likes", "comments", "replies", "stars", "forks", "am", "pm", "utc",
+                "pt", "et", "est", "pst", "gmt", "on", "at", "by", "in"}
+_TOKEN = re.compile(r"[A-Za-z]+|\d[\d,./:-]*")
+_STAMP_MAX_CHARS = 80
+
+
+def _stamp_only(b: str) -> bool:
+    """True for a block that is only a date or counter stamp ("Updated October 3, 2026",
+    "Last updated: 2026-10-03", "12:40 PM PT", "© 2026 Acme", "1,204 views"): at most 80 characters,
+    every alphabetic token a stamp word or a short word (a month, a weekday, a zone), and at least one
+    digit or stamp word present. Linear in the block length."""
+    if len(b) > _STAMP_MAX_CHARS:
+        return False
+    toks = _TOKEN.findall(b)
+    if not toks or len(toks) > 8:
+        return not toks
+    has_digit = any(t[0].isdigit() for t in toks)
+    has_word, other = False, 0
+    for t in toks:
+        if t[0].isdigit():
+            continue
+        tl = t.lower()
+        if tl in _STAMP_WORDS:
+            has_word = True
+        elif len(tl) > 9:
+            return False
+        else:
+            other += 1                    # a month, a weekday, a zone, a name: at most two of them
+    return other <= 2 and (has_digit or has_word)
 
 
 def _norm(s: str) -> str:
@@ -81,7 +111,7 @@ def is_noise(block: str) -> bool:
     b = _norm(block)
     if not b:
         return True
-    if _DATE_ONLY.match(b):
+    if _stamp_only(b):
         return True
     digits_and_symbols = sum(1 for ch in b if not ch.isalpha() and not ch.isspace())
     letters = sum(1 for ch in b if ch.isalpha())

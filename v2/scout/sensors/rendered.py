@@ -47,7 +47,7 @@ def _context():
     return ctx
 
 
-def close() -> None:
+def _close_blocking() -> None:
     try:
         if _STATE["browser"] is not None:
             _STATE["browser"].close()
@@ -58,16 +58,65 @@ def close() -> None:
     _STATE.update({"pw": None, "browser": None, "context": None})
 
 
+def close() -> None:
+    """Close the browser on the renderer thread, bounded; a close that hangs is abandoned."""
+    if _WORKER["thread"] is None or not _WORKER["thread"].is_alive() or _STATE["browser"] is None:
+        _STATE.update({"pw": None, "browser": None, "context": None})
+        return
+    if _submit("__close__", 15) is None:
+        _WORKER.update({"thread": None, "q": None})
+        _STATE.update({"pw": None, "browser": None, "context": None})
+
+
 def is_challenge(html: str, title: str = "") -> bool:
     low = ((title or "") + " " + (html or "")[:20000]).lower()
     return any(m in low for m in CHALLENGE_MARKERS)
 
 
+_WORKER: dict = {"thread": None, "q": None}
+
+
+def _worker_loop(q) -> None:
+    """The ONE thread that ever touches Playwright's sync API (it binds to the thread that started it;
+    a call from any other thread fails with "cannot switch to a different thread", 2026-10-08)."""
+    while True:
+        job = q.get()
+        if job is None:
+            return
+        url, box, done = job
+        try:
+            if url == "__close__":
+                _close_blocking()
+            else:
+                box.update(_fetch_blocking(url))
+        except Exception as e:
+            box.update({"status": None, "text": None, "error": f"{type(e).__name__}", "challenge": False, "title": ""})
+        finally:
+            done.set()
+
+
+def _submit(url: str, timeout_s: float) -> dict | None:
+    """Run one job on the worker thread and wait at most timeout_s; None when it did not come back."""
+    import queue
+    import threading
+    if _WORKER["thread"] is None or not _WORKER["thread"].is_alive():
+        q: "queue.Queue" = queue.Queue()
+        t = threading.Thread(target=_worker_loop, args=(q,), daemon=True, name="scout-renderer")
+        t.start()
+        _WORKER.update({"thread": t, "q": q})
+    box: dict = {}
+    done = threading.Event()
+    _WORKER["q"].put((url, box, done))
+    if not done.wait(timeout=timeout_s):
+        return None
+    return box
+
+
 def fetch(url: str) -> dict:
     """{"status": int|None, "text": html|None, "error": str|None, "challenge": bool, "title": str}.
-    The browser work runs on a daemon thread with a hard wall-clock bound (2026-10-08: a synchronous
-    Playwright call after a certificate error never returned and the whole morning waited on it).
-    A renderer that hangs once is retired for the rest of the process; the plain tier carries on."""
+    The browser work runs on the renderer thread with a hard wall-clock bound (2026-10-08: a browser
+    call after a certificate error never returned and the whole morning waited on it). A renderer
+    that hangs once is retired for the rest of the process; the plain tier carries on."""
     try:
         grounding._assert_fetchable(url)
     except Exception as e:
@@ -77,15 +126,12 @@ def fetch(url: str) -> dict:
     if not available():
         _STATE["unavailable"] = "playwright not installed"
         return {"status": None, "text": None, "error": "renderer unavailable (playwright not installed)", "challenge": False, "title": ""}
-    import threading
     from scout import config as _cfg
-    box: dict = {}
-    t = threading.Thread(target=lambda: box.update(_fetch_blocking(url)), daemon=True)
-    t.start()
-    t.join(timeout=_cfg.SENSOR_RENDER_HARD_TIMEOUT_S)
-    if t.is_alive():
+    box = _submit(url, _cfg.SENSOR_RENDER_HARD_TIMEOUT_S)
+    if box is None:
         _STATE["unavailable"] = f"renderer hung on {url[:60]}"
-        _STATE.update({"pw": None, "browser": None, "context": None})      # never touch the stuck browser again
+        _WORKER.update({"thread": None, "q": None})            # the stuck worker is abandoned, never joined
+        _STATE.update({"pw": None, "browser": None, "context": None})
         print(f"[sensors] rendered fetch HUNG for {url}: renderer retired for this run", file=sys.stderr, flush=True)
         return {"status": None, "text": None, "error": "renderer hung", "challenge": False, "title": ""}
     return box or {"status": None, "text": None, "error": "renderer returned nothing", "challenge": False, "title": ""}
