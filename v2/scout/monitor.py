@@ -743,7 +743,16 @@ def _sensor_pass(slugs: list, write: bool, today: str) -> dict:
                 gap = 2
             for e in _sensor_entities([slug]):
                 days[e] = max(days.get(e, 1), min(14, max(1, gap + 1)))
-        summary = collect.run_pass(ents, write=write, today=today, days_by_entity=days)
+        # the pass on a daemon thread with a deadline: a hang inside it (a browser call that never
+        # returns, a feed that never closes) abandons the sensors for the day instead of the morning
+        import threading
+        box: dict = {}
+        t = threading.Thread(target=lambda: box.update(collect.run_pass(ents, write=write, today=today, days_by_entity=days)), daemon=True)
+        t.start()
+        t.join(timeout=config.SENSOR_PASS_TIMEOUT_S)
+        if t.is_alive():
+            raise TimeoutError(f"sensor pass exceeded {config.SENSOR_PASS_TIMEOUT_S}s and was abandoned for today; every card takes the model path")
+        summary = dict(box)
         _SENSORS.update({"summary": summary, "entities": ents, "today": today})
         found = sum(v.get("findings", 0) for v in summary.values())
         print(f"[sensors] pass: {len(ents)} entit{'y' if len(ents) == 1 else 'ies'}, {found} finding(s), "
@@ -782,7 +791,10 @@ def _sensor_screen(slug: str, meta: dict, claims: list, since: str | None, sig_b
     for e in ents:
         sm = summary.get(e["key"]) or {}
         if not sm:
-            sens["no_registry"] = True        # the pass never saw this entity (no registry, or the pass failed)
+            if sens["pass_error"]:
+                sens["unavailable"] = True    # the pass died or ran out of time: a failure, named in the step row
+            else:
+                sens["no_registry"] = True    # the pass never saw this entity (no registry)
         if sm.get("unavailable"):
             sens["unavailable"] = True
         if sm.get("no_registry"):
@@ -807,7 +819,7 @@ def _sensor_screen(slug: str, meta: dict, claims: list, since: str | None, sig_b
           (f"{len(sens['findings'])} open finding(s) across {len(ents)} entit{'y' if len(ents) == 1 else 'ies'}: "
            + "; ".join(f"{k}: {v.get('pages_checked') or 0} pages ({v.get('pages_changed') or 0} changed), {v.get('feed_items') or 0} feed, {v.get('news_hits') or 0} news"
                        for k, v in sens["by_entity"].items()))
-          + (" | news channel down: model triage today" if sens["unavailable"] else "")
+          + ((f" | pass failed: {sens['pass_error']}; model triage today" if sens["pass_error"] else " | news channel down: model triage today") if sens["unavailable"] else "")
           + (" | no registry for an entity: model triage today" if sens["no_registry"] else ""))
     if sens["findings"] and not sens["unavailable"]:
         r = _screen.run(meta, claims, sens["findings"], since or "", sig_block)

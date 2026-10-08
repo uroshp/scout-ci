@@ -462,6 +462,12 @@ MODEL_CALL_TIMEOUT_S = int(os.environ.get("SCOUT_MODEL_CALL_TIMEOUT_S", "1200"))
 # connection, a tool that never answers), not thinking; the call is cancelled and retried ONCE from
 # a fresh process, then fails the step. Honest calls stream something every few seconds.
 MODEL_CALL_IDLE_S = int(os.environ.get("SCOUT_MODEL_CALL_IDLE_S", "300"))
+# The sensor pass runs before the card loop and is SHADOW: it must never hold the morning. The pass
+# as a whole and every rendered (headless-browser) read get a wall-clock bound; past it the pass is
+# abandoned for the day, every entity reads as unavailable and the cards take the model path
+# (2026-10-08: two runs hung inside the pass right after a browser error and never reached a card).
+SENSOR_PASS_TIMEOUT_S = int(os.environ.get("SCOUT_SENSOR_PASS_TIMEOUT_S", "900"))
+SENSOR_RENDER_HARD_TIMEOUT_S = int(os.environ.get("SCOUT_SENSOR_RENDER_HARD_TIMEOUT_S", "60"))
 MODEL_CALL_STALL_RETRIES = int(os.environ.get("SCOUT_MODEL_CALL_STALL_RETRIES", "1"))
 SCREEN_SAMPLE_PER_RUN = int(os.environ.get("SCOUT_SCREEN_SAMPLE_PER_RUN", "5"))
 SCREEN_SAMPLE_PER_CARD = int(os.environ.get("SCOUT_SCREEN_SAMPLE_PER_CARD", "2"))

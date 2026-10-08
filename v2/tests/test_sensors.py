@@ -635,3 +635,61 @@ class ScreenPrecisionSample(unittest.TestCase):
         with mock.patch.object(compare.selfserve, "read_data", return_value=_json.dumps(doc)):
             self.assertEqual(compare.sample_total(), 9)
             self.assertEqual(compare.sample_precision(), {"judged": 9, "material": 4, "precision": 0.44, "cost": 2.6})
+
+
+class PassAndRendererDeadlines(unittest.TestCase):
+    """2026-10-08: two morning runs hung inside the sensor pass after a browser error and never
+    reached a card. The pass and every rendered read now run on daemon threads with a deadline."""
+
+    def test_a_hung_pass_is_abandoned_and_named_not_waited_for(self):
+        import time
+        from unittest import mock
+        from scout import monitor, config
+        from scout.sensors import collect
+
+        def hang(*a, **k):
+            time.sleep(30)
+            return {}
+        monitor._SENSORS.clear(); monitor._SENSORS.update({"summary": {}, "today": None})
+        with mock.patch.object(config, "SENSORS_MODE", "shadow"), mock.patch.object(config, "SENSOR_PASS_TIMEOUT_S", 1), \
+             mock.patch.object(collect, "run_pass", side_effect=hang), \
+             mock.patch.object(monitor, "_sensor_entities", return_value={"acme": {"name": "Acme", "names": ["Acme"], "cards": ["s"]}}), \
+             mock.patch.object(monitor.store, "load_meta", return_value={"last_checked": "2026-10-07T04:00:00"}):
+            t0 = time.time()
+            out = monitor._sensor_pass(["s"], write=False, today="2026-10-08")
+        self.assertLess(time.time() - t0, 10)
+        self.assertEqual(out, {})
+        self.assertIn("exceeded 1s", monitor._SENSORS.get("error") or "")
+
+    def test_a_pass_failure_reads_as_a_failed_sensors_step(self):
+        from unittest import mock
+        from scout import monitor, config
+        monitor._SENSORS.clear(); monitor._SENSORS.update({"summary": {}, "today": "2026-10-08", "error": "sensor pass exceeded 900s"})
+        steps = []
+        with mock.patch.object(config, "SENSORS_MODE", "shadow"), \
+             mock.patch("scout.sensors.registry.entities_for", return_value=[{"key": "acme", "name": "Acme", "role": "competitor"}]), \
+             mock.patch("scout.sensors.registry.load", return_value={}), \
+             mock.patch("scout.sensors.events.open_for", return_value=[]), \
+             mock.patch.object(monitor, "_sweep_day", return_value=False):
+            monitor._sensor_screen("s", {"competitor": "Acme"}, [], "2026-10-07", "", steps, "scheduled")
+        row = next((r for r in steps if r["step"] == "sensors"), None)
+        self.assertIsNotNone(row)
+        self.assertEqual(row["status"], "failed")
+        self.assertIn("pass failed", row["detail"])
+
+    def test_a_hung_renderer_is_retired_for_the_process(self):
+        import time
+        from unittest import mock
+        from scout.sensors import rendered
+        from scout import config
+        rendered._STATE.update({"unavailable": None, "pw": None, "browser": None, "context": None})
+        with mock.patch.object(rendered, "available", return_value=True), mock.patch.object(config, "SENSOR_RENDER_HARD_TIMEOUT_S", 1), \
+             mock.patch.object(rendered, "_fetch_blocking", side_effect=lambda url: (time.sleep(30), {})[1]), \
+             mock.patch.object(rendered.grounding, "_assert_fetchable", lambda u: None):
+            t0 = time.time()
+            r = rendered.fetch("https://example.test/a")
+            self.assertLess(time.time() - t0, 10)
+            self.assertEqual(r["error"], "renderer hung")
+            r2 = rendered.fetch("https://example.test/b")          # retired: answers at once
+            self.assertIn("renderer unavailable", r2["error"])
+        rendered._STATE["unavailable"] = None
