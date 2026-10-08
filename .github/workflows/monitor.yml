@@ -86,6 +86,9 @@ permissions:
 jobs:
   monitor:
     runs-on: ubuntu-latest
+    # a morning never needs more than an hour; a hang must not hold the runner (and the concurrency
+    # group, and every dispatch behind it) for GitHub's six-hour default (2026-10-08)
+    timeout-minutes: 90
     defaults:
       run:
         working-directory: v2          # the v2 app lives in v2/; run all steps from there
@@ -179,7 +182,7 @@ jobs:
           SCOUT_CALL_CAPTURE: "1"
           SELFSERVE_GH_TOKEN: ${{ secrets.SELFSERVE_GH_TOKEN }}
           SELFSERVE_REPO: ${{ secrets.SELFSERVE_REPO }}
-        run: python -m scout.monitor
+        run: python -u -m scout.monitor
       - name: Rehearsal save + summary (the cards live on in the rehearsal store)
         if: ${{ !cancelled() && inputs.rehearsal != '' && steps.monitor.outcome != 'skipped' }}
         env:

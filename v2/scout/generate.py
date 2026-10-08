@@ -287,7 +287,56 @@ def _merge_role_totals(by_role: dict) -> None:
             t[k] += d.get(k, 0)
 
 
+class ModelCallTimeout(RuntimeError):
+    """One model call ran past config.MODEL_CALL_TIMEOUT_S, or its stream went silent for longer
+    than config.MODEL_CALL_IDLE_S and the retry stalled too (2026-10-08: the 4 AM run hung for six
+    hours inside one call). Carries `scout_cost_usd` like every other mid-stream failure so the
+    ledger and the carry-over see the spend."""
+
+
+def _deadline_hit(e: BaseException) -> bool:
+    """True when the absolute deadline fired (asyncio.timeout marks its own expiry), False for the
+    per-message watchdog's wait_for."""
+    return bool(getattr(e, "_scout_deadline", False))
+
+
+async def _stream(prompt: str, options):
+    """The SDK stream with two clocks: an inactivity watchdog (no message for MODEL_CALL_IDLE_S
+    raises asyncio.TimeoutError) and the absolute deadline (MODEL_CALL_TIMEOUT_S). A stream that
+    keeps talking is never cut, however long the work."""
+    try:
+        async with asyncio.timeout(config.MODEL_CALL_TIMEOUT_S) as deadline:
+            it = query(prompt=prompt, options=options).__aiter__()
+            while True:
+                try:
+                    message = await asyncio.wait_for(it.__anext__(), timeout=config.MODEL_CALL_IDLE_S)
+                except StopAsyncIteration:
+                    return
+                yield message
+    except TimeoutError as e:
+        if deadline.expired():
+            e._scout_deadline = True
+        raise
+
+
 async def _drive(prompt: str, options, top_role: str) -> dict:
+    """One model call, retried once from a fresh process when its stream stalls (2026-10-08). Every
+    role driven here is read-only on the world: the writes happen in code after the call returns,
+    so a retry repeats work, never an effect."""
+    last: BaseException | None = None
+    for attempt in range(1 + max(0, config.MODEL_CALL_STALL_RETRIES)):
+        try:
+            return await _drive_once(prompt, options, top_role)
+        except ModelCallTimeout as e:
+            last = e
+            if attempt >= config.MODEL_CALL_STALL_RETRIES or not getattr(e, "stalled", False):
+                raise
+            print(f"[generate] {top_role}: stream stalled, retrying once from a fresh process "
+                  f"(spend so far {getattr(e, 'scout_cost_usd', None)})", file=sys.stderr, flush=True)
+    raise last  # pragma: no cover
+
+
+async def _drive_once(prompt: str, options, top_role: str) -> dict:
     """Run a query loop and capture per-agent token usage (orchestrator vs each
     subagent), cache hits, cost, and wall/api time — the Phase-1 instrumentation."""
     judgment.require()                          # no model call without the judgment pack
@@ -306,30 +355,47 @@ async def _drive(prompt: str, options, top_role: str) -> dict:
 
     cap = calllog.start(top_role, prompt, options)      # call capture: None unless enabled + run open
     try:
-        async for message in query(prompt=prompt, options=options):
-            kind = type(message).__name__
-            parent = getattr(message, "parent_tool_use_id", None)
-            role = top_role if parent is None else agent_names.get(parent, "subagent")
-            if cap is not None:
-                cap.event(message, role)
-            if kind == "AssistantMessage":
-                # First sighting of a research/verify subagent = a REAL pipeline stage boundary
-                # for the live progress UI. Fires once per role per drive; fail-soft.
-                if role in ("researcher", "verifier") and role not in by_role:
-                    _emit_stage("researching" if role == "researcher" else "verifying")
-                bump(role, getattr(message, "usage", None))
-                for b in getattr(message, "content", []) or []:
-                    bk = type(b).__name__
-                    if bk == "ToolUseBlock":
-                        inp = getattr(b, "input", {}) or {}
-                        if getattr(b, "name", "") == "Agent":
-                            agent_names[getattr(b, "id", "")] = inp.get("subagent_type") or "subagent"
-                        _emit_tool(getattr(b, "name", "") or "", inp if isinstance(inp, dict) else {})
-                    elif bk == "TextBlock":
-                        last_text = getattr(b, "text", "") or last_text
-            elif kind == "ResultMessage":
-                result = message
-                final_text = getattr(message, "result", None)
+      # A hung call (a stalled stream, a CLI waiting on nothing) must fail LOUDLY inside the run, not
+      # eat the runner's six hours: the watchdog and the deadline raise, the arm records the step as
+      # failed with the spend so far, and the morning goes on (2026-10-08).
+      if True:
+        async for message in _stream(prompt, options):
+              kind = type(message).__name__
+              parent = getattr(message, "parent_tool_use_id", None)
+              role = top_role if parent is None else agent_names.get(parent, "subagent")
+              if cap is not None:
+                  cap.event(message, role)
+              if kind == "AssistantMessage":
+                  # First sighting of a research/verify subagent = a REAL pipeline stage boundary
+                  # for the live progress UI. Fires once per role per drive; fail-soft.
+                  if role in ("researcher", "verifier") and role not in by_role:
+                      _emit_stage("researching" if role == "researcher" else "verifying")
+                  bump(role, getattr(message, "usage", None))
+                  for b in getattr(message, "content", []) or []:
+                      bk = type(b).__name__
+                      if bk == "ToolUseBlock":
+                          inp = getattr(b, "input", {}) or {}
+                          if getattr(b, "name", "") == "Agent":
+                              agent_names[getattr(b, "id", "")] = inp.get("subagent_type") or "subagent"
+                          _emit_tool(getattr(b, "name", "") or "", inp if isinstance(inp, dict) else {})
+                      elif bk == "TextBlock":
+                          last_text = getattr(b, "text", "") or last_text
+              elif kind == "ResultMessage":
+                  result = message
+                  final_text = getattr(message, "result", None)
+    except TimeoutError as e:
+        tok = sum(d["input"] + d["output"] + d["cache_creation"] for d in by_role.values())
+        msgs = sum(d["messages"] for d in by_role.values())
+        stalled = isinstance(e, asyncio.TimeoutError) and not _deadline_hit(e)
+        err = ModelCallTimeout(f"{top_role} call " + (f"went silent for {config.MODEL_CALL_IDLE_S}s" if stalled
+                                                      else f"exceeded {config.MODEL_CALL_TIMEOUT_S}s")
+                               + f" ({msgs} msgs, ~{tok} non-cache tokens before that)")
+        err.stalled = stalled
+        print(f"[generate] {err}", file=sys.stderr, flush=True)
+        if cap is not None:
+            cap.fail(err, by_role)
+        err.scout_cost_usd = 0.0 if msgs == 0 else getattr(result, "total_cost_usd", None)
+        raise err from e
     except BaseException as e:
         # A crash mid-stream still costs money: the subagents already ran their web searches
         # and model calls server-side. Make that LOUD so a failed run is never mistaken for free.
