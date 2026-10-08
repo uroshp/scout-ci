@@ -54,6 +54,14 @@ Perplexity's Portable Computer runs the Computer agent entirely on local hardwar
 
 **So what:** Ask which team runs agent workloads and whether they have a DGX Spark or an RTX machine with 24GB+ VRAM. If they do, price the pilot on Pro or Enterprise Pro with local runs as the default. ([venturebeat.com](https://venturebeat.com/infrastructure/perplexity-partners-with-nvidia-to-launch-portable-computer-a-fully-local-ai-agent-with-zero-token-costs/))
 
+**Sensitive data is masked or kept on the Mac before any cloud step runs.**
+
+Since September 1, 2026, Perplexity's Hybrid Compute lets Computer start a task in the cloud and hand steps touching private files or sensitive data to a local model on the Mac. An on-device classifier masks names, addresses and account numbers before anything leaves the Mac and restores them when the cloud answers; credentials, payment card numbers and government IDs stay local, refused or rewritten. Enterprise admins set org-wide rules and audit logs for what stays on device; Perplexity open-sourced the PII-Tracer classifier. It needs an Apple silicon Mac, macOS 15 or later and 24GB of unified memory; steps with no sensitive data still run in the cloud.
+
+**Soundbite:** "Names, addresses and account numbers are masked on your Mac before anything leaves it. Credentials, card numbers and government IDs get the strictest handling."
+
+**So what:** Ask whether their Macs are Apple silicon with 24GB or more; if yes, walk security through the admin rules and audit logs. ([9to5mac.com](https://9to5mac.com/2026/09/01/perplexity-launches-privacy-minded-hybrid-compute-ai-feature-for-mac/))
+
 ## Snapshot
 
 - Alphabet reported Q1 2026 revenue of \$109.9 billion, up 22% year-over-year (audited public filing), beating estimates as Cloud growth accelerated and net income more than doubled. ([finance.yahoo.com](https://finance.yahoo.com/markets/stocks/articles/alphabet-q1-2026-earnings-google-202101883.html))
