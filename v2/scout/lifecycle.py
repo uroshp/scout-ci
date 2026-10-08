@@ -438,7 +438,8 @@ def check_card(tr: dict) -> list[dict]:
                 bad.append(f"{a['subject_key']}: fact without a grounding match")
         add("C2", "continuity", "every alert has a verified, grounded claim behind it on the card",
             "pass" if not bad else "fail", "; ".join(bad) if bad else f"{len(tr['alerts'])} alert(s) checked")
-    committed = [d for d in tr["decisions"] if d.get("committed")]
+    # an audience lead is applied to the audience store, not to the claims (same exemption as C2)
+    committed = [d for d in tr["decisions"] if d.get("committed") and not str(d.get("subject_key") or "").startswith("audience-lead")]
     if committed:
         keys = {_nk(cl.get("subject_key")) for cl in (tr.get("_claims") or [])}
         missing = [d["subject_key"] for d in committed if d.get("subject_key") and _nk(d["subject_key"]) not in keys]

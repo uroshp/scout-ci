@@ -135,6 +135,11 @@ class TheTwoBugsTurnRed(unittest.TestCase):
         self.assertIn("ghost", ev)
         self.assertNotIn("audience-lead", ev)
 
+    def test_an_applied_audience_lead_is_not_a_missing_claim(self):
+        tr = _trace(decisions=[{"operation": "add", "subject_key": "audience-lead | security_regulated | c_1", "verdict": "confirm", "reason": "r", "committed": True}])
+        st = _by_id(lifecycle.check_card(tr))
+        self.assertNotIn("C3", st)
+
     def test_a_role_that_ran_but_was_not_captured(self):
         tr = _trace(evals=dict(_trace()["evals"], captured_roles=["triage", "materiality"]))
         st = _by_id(lifecycle.check_card(tr))
