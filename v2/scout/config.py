@@ -454,6 +454,15 @@ SENSOR_GATE_RUNS = int(os.environ.get("SCOUT_SENSOR_GATE_RUNS", "7"))
 # and handle it, not limit it artificially"): a few screen-only candidates per run go through the
 # materiality judge, nothing lands, the verdicts measure the screen's precision. Stops on its own at
 # SCREEN_SAMPLE_MAX_TOTAL judged (a week at 5 a day); 0 turns it off.
+# Wall-clock deadline for ONE model call (2026-10-08: the 4 AM run hung for six hours inside a single
+# call, GitHub killed the job, the morning was lost and nothing was written). The longest honest call
+# on the ledger is a catch-up triage at a few minutes; twenty is room, not a cap on work.
+MODEL_CALL_TIMEOUT_S = int(os.environ.get("SCOUT_MODEL_CALL_TIMEOUT_S", "1200"))
+# Inactivity watchdog on the stream: no message for this long means the call is stuck (a dropped
+# connection, a tool that never answers), not thinking; the call is cancelled and retried ONCE from
+# a fresh process, then fails the step. Honest calls stream something every few seconds.
+MODEL_CALL_IDLE_S = int(os.environ.get("SCOUT_MODEL_CALL_IDLE_S", "300"))
+MODEL_CALL_STALL_RETRIES = int(os.environ.get("SCOUT_MODEL_CALL_STALL_RETRIES", "1"))
 SCREEN_SAMPLE_PER_RUN = int(os.environ.get("SCOUT_SCREEN_SAMPLE_PER_RUN", "5"))
 SCREEN_SAMPLE_PER_CARD = int(os.environ.get("SCOUT_SCREEN_SAMPLE_PER_CARD", "2"))
 SCREEN_SAMPLE_BUDGET_USD = float(os.environ.get("SCOUT_SCREEN_SAMPLE_BUDGET_USD", "2.00"))
