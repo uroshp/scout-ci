@@ -65,3 +65,59 @@ These are directions I chose not to take, noted so the boundaries are clear:
 - **Quick-scan / cheap tier** — built, measured and removed. A deliberately lower-quality mode next to the verified one undercut the credibility the product rests on.
 - **Multi-perspective cards** — each card arms one side. A neutral “both sides” view is a different product (market analysis, not a battlecard) and wasn’t the goal.
 - **Real-time alerting** — the monitoring cadence is daily-to-weekly by design. Sub-hour breaking-news alerting would require the looser triage and the live-status infra above, and isn’t what a battlecard needs.
+
+## Writing: say more with less (todo, 2026-10-08)
+
+Owner's principle (Uroš, 2026-10-08): the 170-word render cap was an artificial limit put in because
+paragraphs ran long. The real issue is saying more with less: what does a sales rep need to hear,
+plainly, in English, not in telegraph, so they can have the conversation and digest it fast. If it
+can be said in 50 words, great; in 100, great; 170 is a last resort for dense text. The models
+should not be writing toward the cap and then cutting every time; told to cut, they produce
+telegraph. It comes down to only the information that is relevant, said plainly.
+
+Assessment and plan (the message as discussed, kept verbatim):
+
+You have the diagnosis right, and the fix is in the incentives, not in the number.
+
+Why it keeps happening. Two rules push in the same direction. The author is asked to be faithful and
+complete, so it writes everything the source supports. Then the fidelity judge, whose job is to catch
+invented or altered facts, rejects any condensed version that "deletes a still-true fact". So
+completeness is rewarded twice, relevance is never judged, and the only thing that ever says "too
+much" is a word counter at the end. The condenser is then told to shorten, which is how you get
+telegraph: it drops articles and connectors because every fact is protected and the words are not.
+Today's lead is the pattern in miniature: 224 words, two Soundbites that restated the body, and six
+sentences of mechanism. A rep needs the one-line claim, the one condition, one line to say, and the
+ask. About 70 words.
+
+What to change. Three rules, all in the private instruction blocks, none in code:
+
+1. The author writes for a rep with thirty seconds, once. The target is "what does a rep need to
+   say, plainly, to have the conversation", with the principle you stated: if it fits in 50 words,
+   50. The budget by claim type is guidance, not a target. One Soundbite at most, and it may not
+   restate the body.
+2. The condense judge guards truth, not completeness. Its rule becomes: nothing false added, every
+   number and date intact, meaning preserved. Leaving out detail a rep does not need is allowed, and
+   that is the whole point of a condense. Today's verdict ("deletes still-true facts") is the rule
+   that makes every cut fail.
+3. The authorship judge gets a relevance question. Alongside "is it faithful", it asks "is there a
+   sentence here a rep does not need", and rejects on that too. That moves the judgment to where the
+   text is born instead of to a counter at the end.
+
+The 170 cap stays as the backstop, raised to 180 since you said a few words over is fine, and it
+should rarely fire once the author is aiming at 70.
+
+On "Claude writes horribly". Partly true and partly the prompt. Told to compress, any of these models
+writes telegraph. Told to write for a specific reader with a specific job, they write readable
+English. The second and third rules above make that the standing instruction, so it is worth trying
+before paying for a different writer.
+
+How you would see it working. Nothing new to read. The ten applied edits you grade each week are the
+sample; if the leads landing from next week read like something you would say on a call, it worked.
+I would add one number to the weekly check-in, median lead length, and nothing else.
+
+These are edits to three instruction blocks in the private pack, which you calibrate. When you want
+them, I draft the wording for you to approve, and they take effect on the next morning run.
+
+Status: edits drafted for the owner's approval (private pack blocks: the writing style, the
+propagation author and judge, the condense reformatter and its fidelity judge, the audience author
+addendum) plus the code backstop raise to 180. Not applied until approved.
