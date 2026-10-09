@@ -255,3 +255,20 @@ class ZoneAliasesAndStoredHome(unittest.TestCase):
         monitor._adopt_home(schema.normalize_claim(c), self._stored())
         self.assertEqual(c["subject_key"], "superman | sequel | greenlight")
         self.assertEqual(c["section"], "recent_moves")
+
+
+class DecidedSubjectsMatchOnMeaning(unittest.TestCase):
+    """2026-10-09: three windows were 'abandoned' in the owner's email after three mornings of paid
+    re-checks, every one for a subject the judge had already ruled immaterial, because the judge echoes
+    the signal in its own words and the exact-prefix match failed."""
+
+    def test_the_judges_paraphrase_still_counts_as_decided(self):
+        subst = [{"signal": "Slack reworked its service-level agreement to be less generous, reducing SLA credits from 100× to 10× customer fees",
+                  "subject_key": "slack | service-level-agreement"}]
+        imm = [{"signal": "Slack reworked its SLA to be less generous (credits cut from 100x to 10x)", "why_not": "a 2019 story"}]
+        self.assertEqual(monitor._judged_immaterial_subjects(subst, imm), {"slack|service level agreement"})
+
+    def test_unrelated_stories_do_not_match(self):
+        subst = [{"signal": "Anthropic raises prices for Opus 5.5 by 20 percent", "subject_key": "anthropic | list-price"}]
+        imm = [{"signal": "Slack reworked its SLA to be less generous", "why_not": "old"}]
+        self.assertEqual(monitor._judged_immaterial_subjects(subst, imm), set())

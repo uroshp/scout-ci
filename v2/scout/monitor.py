@@ -141,14 +141,35 @@ def _judged_immaterial_subjects(substantial: list[dict], immaterial: list[dict])
     ruled old news, yet the window stayed open for it, re-billed the next scan and was heading for an
     'abandoned' needs-you item)."""
     sigs = [str(i.get("signal") or "").strip().lower() for i in (immaterial or []) if isinstance(i, dict)]
+    subst = [c for c in (substantial or []) if c.get("signal") and c.get("subject_key")]
     out = set()
-    for c in substantial or []:
+    for c in subst:
         sig = str(c.get("signal") or "").strip().lower()
-        if not sig or not c.get("subject_key"):
-            continue
-        if any(sig == x or sig[:80] == x[:80] for x in sigs):
+        if any(sig == x or sig[:80] == x[:80] or _same_story(sig, x) for x in sigs):
             out.add(_norm_key(c.get("subject_key")))
     return out
+
+
+_STORY_STOP = {"the", "and", "for", "with", "from", "that", "this", "its", "into", "than", "over", "after", "before",
+               "2024", "2025", "2026", "october", "september", "november", "oct", "sep", "nov", "new", "announces",
+               "announced", "launches", "launched", "reported", "starting", "effective"}
+
+
+def _story_tokens(s: str) -> set:
+    return {w for w in re.findall(r"[a-z0-9][a-z0-9x$%.-]{2,}", (s or "").lower()) if w not in _STORY_STOP}
+
+
+def _same_story(a: str, b: str) -> bool:
+    """The judge echoes a candidate's signal in its own words (2026-10-09: 'Slack reworked its
+    service-level agreement...' came back as 'Slack reworked its SLA to be less generous...', the
+    exact-prefix match failed, the decided subject held the window for three mornings and was then
+    'abandoned' in the owner's email). Two signals are the same story when they share at least four
+    distinctive tokens or half of the shorter one's tokens."""
+    ta, tb = _story_tokens(a), _story_tokens(b)
+    if not ta or not tb:
+        return False
+    shared = len(ta & tb)
+    return shared >= 4 or shared >= max(2, min(len(ta), len(tb)) // 2)
 
 
 def _resolve_or_hold(meta: dict, new_alerts: list[dict], result: dict, decided: set | None = None) -> None:
@@ -1495,11 +1516,17 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
         # is the competitor cutoff, and re-scanning it never re-found an own-side story.)
         meta["last_checked"] = checked_at; meta["last_check_reason"] = check_reason
         decided = _judged_immaterial_subjects(substantial, immaterial)
-        open_subs = [c for c in substantial if c.get("subject_key") and _norm_key(c.get("subject_key")) not in decided]
+        if immaterial and len(immaterial) + len(material_grounded) >= len(substantial):
+            decided |= {_norm_key(c.get("subject_key")) for c in substantial if c.get("subject_key")}   # the judge ruled on every candidate
+        # a subject the judge has decided never holds; "NEW" cannot be matched by key and never holds either
+        open_subs = [c for c in substantial if c.get("subject_key") and str(c.get("subject_key")).upper() != "NEW"
+                     and _norm_key(c.get("subject_key")) not in decided]
         subs = {str(c.get("subject_key")) for c in open_subs}
         # hold ONLY for subjects still undecided: a verdict of immaterial is a decision, not a miss
         if subs:
             meta["unresolved_subjects"] = sorted(set(meta.get("unresolved_subjects") or []) | subs)
+            meta["unresolved_reasons"] = {**(meta.get("unresolved_reasons") or {}),
+                                          **{str(c.get("subject_key")): "found but not verified against a source" for c in open_subs}}
             _hold_window(meta, since, result)
             if "abandoned_window" in result:
                 # Bound hit: gave up re-scanning, but SURFACE the abandonment (never silent).
@@ -1816,8 +1843,10 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
         step_errors = [f"{r['step']}: {r.get('detail') or 'failed'}" for r in (res.get("steps") or []) if r.get("status") == "failed"]
         if res.get("abandoned_window"):
             aw = res["abandoned_window"]
-            step_errors.append(f"held window abandoned after {config.MONITOR_MAX_UNRESOLVED_RETRIES} attempts since {aw.get('since')}: "
-                               + (", ".join(aw.get("subjects") or []) or "; ".join(str(x) for x in (res.get("abandoned_substantial") or []))[:300]))
+            subjects = [x for x in (aw.get("subjects") or []) if str(x).upper() != "NEW"]
+            if subjects:
+                step_errors.append(f"not verified after {config.MONITOR_MAX_UNRESOLVED_RETRIES} mornings of re-checks since {aw.get('since')}, "
+                                   "no longer re-checked (a source Scout could not match the claim against): " + ", ".join(subjects))
         if res.get("abandoned_carry_over"):
             step_errors.append("carried candidates abandoned: " + "; ".join(res["abandoned_carry_over"])[:300])
         if res.get("ceiling_deferred"):
