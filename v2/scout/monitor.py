@@ -111,6 +111,7 @@ def _clear_window(meta: dict) -> None:
     meta.pop("unresolved_since", None)
     meta.pop("unresolved_attempts", None)
     meta.pop("unresolved_subjects", None)
+    meta.pop("unresolved_signals", None)
 
 
 def _hold_window(meta: dict, since: str | None, result: dict) -> None:
@@ -124,7 +125,7 @@ def _hold_window(meta: dict, since: str | None, result: dict) -> None:
         result["unresolved_held"] = {"since": since, "attempt": attempts}
     else:
         result["abandoned_window"] = {
-            "since": since, "subjects": meta.get("unresolved_subjects") or []}
+            "since": since, "subjects": meta.get("unresolved_subjects") or [], "signals": meta.get("unresolved_signals") or []}
         _clear_window(meta)
 
 
@@ -1518,15 +1519,14 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
         decided = _judged_immaterial_subjects(substantial, immaterial)
         if immaterial and len(immaterial) + len(material_grounded) >= len(substantial):
             decided |= {_norm_key(c.get("subject_key")) for c in substantial if c.get("subject_key")}   # the judge ruled on every candidate
-        # a subject the judge has decided never holds; "NEW" cannot be matched by key and never holds either
-        open_subs = [c for c in substantial if c.get("subject_key") and str(c.get("subject_key")).upper() != "NEW"
-                     and _norm_key(c.get("subject_key")) not in decided]
+        # a subject the judge has decided never holds; an undecided one (the judge said nothing about it) does,
+        # including a NEW one, which is matched later by its story, not its key
+        open_subs = [c for c in substantial if c.get("subject_key") and _norm_key(c.get("subject_key")) not in decided]
         subs = {str(c.get("subject_key")) for c in open_subs}
         # hold ONLY for subjects still undecided: a verdict of immaterial is a decision, not a miss
         if subs:
             meta["unresolved_subjects"] = sorted(set(meta.get("unresolved_subjects") or []) | subs)
-            meta["unresolved_reasons"] = {**(meta.get("unresolved_reasons") or {}),
-                                          **{str(c.get("subject_key")): "found but not verified against a source" for c in open_subs}}
+            meta["unresolved_signals"] = sorted(set(meta.get("unresolved_signals") or []) | {str(c.get("signal") or "")[:160] for c in open_subs})
             _hold_window(meta, since, result)
             if "abandoned_window" in result:
                 # Bound hit: gave up re-scanning, but SURFACE the abandonment (never silent).
@@ -1843,10 +1843,12 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
         step_errors = [f"{r['step']}: {r.get('detail') or 'failed'}" for r in (res.get("steps") or []) if r.get("status") == "failed"]
         if res.get("abandoned_window"):
             aw = res["abandoned_window"]
-            subjects = [x for x in (aw.get("subjects") or []) if str(x).upper() != "NEW"]
-            if subjects:
-                step_errors.append(f"not verified after {config.MONITOR_MAX_UNRESOLVED_RETRIES} mornings of re-checks since {aw.get('since')}, "
-                                   "no longer re-checked (a source Scout could not match the claim against): " + ", ".join(subjects))
+            named = [x for x in (aw.get("subjects") or []) if str(x).upper() != "NEW"]
+            stories = [str(x) for x in (res.get("abandoned_substantial") or aw.get("signals") or []) if x]
+            what = ", ".join(named) + ("; " if named and stories else "") + "; ".join(stories)[:300]
+            if what:
+                step_errors.append(f"found but never verified against a source in {config.MONITOR_MAX_UNRESOLVED_RETRIES} mornings of re-checks "
+                                   f"since {aw.get('since')}; no longer re-checked: " + what)
         if res.get("abandoned_carry_over"):
             step_errors.append("carried candidates abandoned: " + "; ".join(res["abandoned_carry_over"])[:300])
         if res.get("ceiling_deferred"):
