@@ -4,7 +4,7 @@
   "competitor": "Anthropic",
   "focus": "Enterprise collaboration agents (inside Slack and Teams)",
   "baseline_date": "2026-09-15",
-  "last_checked": "2026-10-08T19:27:50",
+  "last_checked": "2026-10-09T11:16:35",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_ea588c53a3d1",
@@ -16,11 +16,5 @@
     "f_3ce5938be09d"
   ],
   "monitored": true,
-  "last_check_reason": "scheduled",
-  "unresolved_subjects": [
-    "anthropic | flagship-product | collaboration-agent",
-    "anthropic | service-reliability | 2026"
-  ],
-  "unresolved_since": "2026-10-05",
-  "unresolved_attempts": 2
+  "last_check_reason": "scheduled"
 }

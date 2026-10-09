@@ -1276,5 +1276,37 @@
       }
     ],
     "source_class": "company_statement"
+  },
+  {
+    "subject_key": "microsoft-copilot | copilot-credits-pricing",
+    "claim": "Microsoft 365 Copilot Business gets default usage-based billing for eligible new purchases made directly from Microsoft starting October 19, 2026. Microsoft creates the Azure resources and applies a spending policy with default limits, so credit-metered agentic experiences such as Copilot Cowork work from day one. Credits cost $0.01 each with a default cap of 4,000 per user per month. Existing subscriptions and existing spending policies stay as they are. Microsoft pushed the Cloud Solution Provider default from November 2 to December 1, 2026, per an October 1 announcement as reported by TIKR.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://pupuweb.com/mc1476200-simplifying-ai-access-introducing-usage-based-billing/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Starting October 19, 2026: The change applies to eligible new purchases made directly from Microsoft",
+    "as_of": "2026-10-06",
+    "confidence": "high",
+    "id": "c_69b0e52b707c",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-09",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.tikr.com/blog/microsoft-caps-copilot-business-at-4000-credits-per-user-by-default",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "unknown"
   }
 ]
