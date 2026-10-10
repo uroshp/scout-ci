@@ -1,24 +1,24 @@
 [
   {
     "subject_key": "perplexity-vs-google | competitive-frame | 2026",
-    "claim": "**Pick the best model for each task, and keep the freedom to switch vendors.**\n\nGoogle shipped Gemini 4 Argon on September 30, its first flagship frontier model since February, but it is locked to vetted cyber defenders in Google's Fairwind Program with no public release date, so no buyer can evaluate or buy it yet. Google also lost four senior Gemini and AlphaFold researchers in two weeks. Perplexity runs across 19 models including Claude and GPT, so each task goes to the model that handles it best, Gemini included once it is actually available.\n\n**Soundbite:** \"Use the best model for each task, and switch the moment a better one ships. No vendor lock-in.\"\n\n**So what:** Ask which models their teams rely on today, then show all of them available through Perplexity, so a slip or price hike from any single vendor never stalls their work.",
+    "claim": "**Pick the best model for each task, and keep the freedom to switch vendors.**\n\nGoogle's new Gemini agent routes each task to Gemini or Anthropic's Claude, two model families, and it is in private preview, with general availability expected around the end of October or early November. Perplexity routes across 19 models today, including Claude, Gemini, GPT and Grok, so each task goes to the model that handles it best. Google's Gemini 4 Argon is locked to vetted cyber defenders in Google's Fairwind Program with no public release date, and Google lost four senior Gemini and AlphaFold researchers in two weeks.\n\n**Soundbite:** \"Use the best model for each task, and switch the moment a better one ships. No vendor lock-in.\"\n\n**So what:** Ask which models their teams rely on today, then show all of them available through Perplexity, so a slip or price hike from any single vendor never stalls their work.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 1,
-    "as_of": "2026-09-30",
+    "as_of": "2026-10-08",
     "confidence": "high",
     "id": "c_008fe507dba8",
     "verified": true,
-    "updated_on": "2026-10-02",
+    "updated_on": "2026-10-10",
     "source_class": "news",
-    "derived_from": "c_e8ae5a7a745d",
+    "derived_from": "c_8caf0c4e9078",
     "provenance": {
-      "source_url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon/",
+      "source_url": "https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/gemini-at-work/",
       "source_tier": "primary",
-      "as_of": "2026-09-30",
-      "fact_id": "c_e8ae5a7a745d",
-      "stamped_on": "2026-10-02",
+      "as_of": "2026-10-08",
+      "fact_id": "c_8caf0c4e9078",
+      "stamped_on": "2026-10-10",
       "source_class": "company_statement"
     }
   },
