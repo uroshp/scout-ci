@@ -77,6 +77,7 @@ Since September 1, 2026, Perplexity's Hybrid Compute lets Computer start a task 
 
 ## Recent Strategic Moves
 
+- On October 8, 2026 Google Cloud announced the Gemini agent, a single enterprise agent that plans and finishes work across Workspace, Microsoft 365, Slack and systems like Salesforce, ServiceNow and Snowflake. It routes each task to Gemini or Anthropic's Claude models, with spend caps and admin controls. It is in private preview, with general availability expected around the end of October or early November. ([blog.google](https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/gemini-at-work/))
 - Googlebook laptops go on sale October 4, 2026 in the US and October 5 in Canada, the UK, Ireland, France, Germany and Australia, starting at \$899 from Acer, Dell, HP, ASUS and Lenovo. Every unit bundles 12 months of Google AI Pro with 5TB cloud storage and Gemini Advanced, so Google is subsidizing a full year of its \$19.99/month paid AI tier (about \$240 of value) onto every buyer to embed Gemini in the laptop. ([9to5google.com](https://9to5google.com/2026/09/21/googlebook-launch/))
 - On September 30, 2026 Google launched Gemini 4 Argon, its first flagship frontier model since February, saying it leads benchmarks in long-horizon coding, finance and legal work and lifting the output limit to 1 million tokens. Access is restricted to vetted cyber defenders in Google's Fairwind Program with no public release date; broader access begins later with paid API customers and Google AI Ultra subscribers, at an introductory \$2 per million input and \$10 per million output tokens (rising to \$4 and \$20). ([blog.google](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon/))
 - Google launched an 'AI contribution pilot' revealed on September 17, 2026 that pays some websites when their content shapes an AI answer in the Gemini app, AI Overviews or AI Mode. Earnings show up as a monthly panel in Search Console. It reaches at least dozens of mostly small and mid-sized publishers, the payout math is undisclosed (one exec called it 'quite black box'), and publishers in the pilot say the early money is 'peanuts' next to ad revenue. ([9to5google.com](https://9to5google.com/2026/09/17/google-ai-contribution-pilot-tests-paying-websites-when-theyre-used-in-ai-results/))
@@ -104,7 +105,7 @@ Since September 1, 2026, Perplexity's Hybrid Compute lets Computer start a task 
 - Perplexity positions itself as an 'answer engine' replacing ranked blue links with a single synthesized, cited answer, and frames accuracy as foundational. CEO Aravind Srinivas: 'hallucination is a bug,' not a feature (the company's own positioning). ([fortune.com](https://fortune.com/article/perplexity-ceo-aravind-srinivas-ai/))
 - Perplexity's June 2026 repositioning from answer engine to a 'hybrid neutral orchestration layer' (a model- and chip-agnostic platform routing each task across device and cloud, a company claim) is now backed by two shipped products. Portable Computer, launched August 25, 2026 with Nvidia, runs the Computer agent entirely on local hardware and escalates to the cloud only with permission, while Hybrid Compute, launched September 1, 2026, splits a task between cloud and a local Mac model and hands off steps involving private files without restarting the task. ([9to5mac.com](https://9to5mac.com/2026/09/01/perplexity-launches-privacy-minded-hybrid-compute-ai-feature-for-mac/))
 - Perplexity abandoned advertising entirely in early 2026, with an executive arguing 'a user needs to believe this is the best possible answer', positioning trust and freedom from commercial bias against Google's structurally ad-funded search (company claim). ([macrumors.com](https://www.macrumors.com/2026/02/18/perplexity-abandons-ai-advertising/))
-- Google positions itself as a full-stack, billion-user AI company (custom silicon to models to products touching billions) and now openly adopts the 'answer' and 'agent' framing Perplexity pioneered, but backed by distribution Perplexity cannot match (company claim). ([blog.google](https://blog.google/innovation-and-ai/sundar-pichai-io-2026/))
+- Google positions itself as a full-stack, billion-user AI company (custom silicon to models to products touching billions) and now openly adopts the 'answer' and 'agent' framing Perplexity pioneered, backed by distribution Perplexity cannot match (company claim). Its Gemini agent, announced October 8, 2026, works across Workspace, Microsoft 365, Slack and systems like Salesforce, ServiceNow and Snowflake, and routes each task to Gemini or Anthropic's Claude. ([blog.google](https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/gemini-at-work/))
 
 ## Pricing and Packaging
 
@@ -119,11 +120,11 @@ Since September 1, 2026, Perplexity's Hybrid Compute lets Computer start a task 
 
 ### Where Perplexity wins
 
-**Best-of-breed model choice in one product. Google can only give you Gemini.**
+**Best-of-breed model choice in one product. Google's new agent routes between Gemini and Claude, we route across 19 models.**
 
-Perplexity's Computer orchestrates 19 models (Claude, Gemini, GPT, Grok) and routes each subtask to the strongest one; architects who don't want to bet their whole AI stack on a single vendor get real optionality that a Gemini-only Google cannot offer.
+Perplexity's Computer orchestrates 19 models (Claude, Gemini, GPT, Grok) and routes each subtask to the strongest one, and it ships today. Google's Gemini agent sends each task to Gemini or Anthropic's Claude, and it is in private preview with general availability expected around the end of October or early November. Architects who don't want to bet their whole AI stack on one vendor get the wider choice from us now.
 
-**Soundbite:** *"With us you route medical research to one model and coding to another, automatically. With Google, every answer is Gemini, whether it's the best tool for that job or not."* ([venturebeat.com](https://venturebeat.com/technology/perplexity-ai-unveils-hybrid-local-cloud-inference-system-at-computex-2026))
+**Soundbite:** *"Google's new agent picks between two model families and is still in private preview. We route across 19 models, including GPT and Grok, today."* ([blog.google](https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/gemini-at-work/))
 
 **Ad-free, cited answers a buyer can defend. Google's answers are ad-supported and increasingly wrong at scale.**
 
@@ -151,11 +152,11 @@ Perplexity's Hybrid Compute splits a Computer task between cloud frontier models
 
 ### Where it's a fight
 
-**The agentic race is genuinely contested: both are shipping autonomous agents right now.**
+**The agentic race is contested: Google has agents live and a cross-system enterprise agent in preview, and Perplexity has Computer for Enterprise shipping.**
 
-Google launched 24/7 background Search Agents at I/O while Perplexity shipped Computer for Enterprise with 100+ connectors; neither has a decisive deployment lead, so deals turn on integration fit and trust, not on who has 'agents' at all.
+Google launched 24/7 background Search Agents at I/O. On October 8, 2026 it announced the Gemini agent, which works across Workspace, Microsoft 365, Slack and systems like Salesforce, ServiceNow and Snowflake. It is in private preview, with general availability expected around the end of October or early November. Perplexity shipped Computer for Enterprise with 100+ connectors. Neither has a decisive deployment lead, so deals turn on integration fit and trust, not on who has 'agents' at all.
 
-**Soundbite:** *"Everyone's demoing agents. Ours plug into your actual stack and cite their sources on every answer."* ([blog.google](https://blog.google/products-and-platforms/products/search/search-io-2026/))
+**Soundbite:** *"Everyone's demoing agents. Ours plug into your actual stack and cite their sources on every answer."* ([blog.google](https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/gemini-at-work/))
 
 **At the Pro tier, price is a wash, so don't let the deal become a price contest.**
 
@@ -240,6 +241,12 @@ Users did complain on Reddit about tighter rate limits in 2026, and it's a fair 
 Argon is real, but it is not something your team can put hands on. Google is rolling it out only to vetted cyber defenders through its Fairwind Program, with no public release date, and broader access to paid API customers and Google AI Ultra subscribers comes later still at introductory pricing of \$2 per million input and \$10 per million output tokens. Whatever a buyer could evaluate yesterday is exactly what they can evaluate today. Perplexity already routes across 19 models including Gemini, so a team gets the strongest available model for each task without waiting on Google's rollout schedule.
 
 **So what:** Tell the buyer to run their evaluation on what is actually available now, Gemini included, inside Perplexity's multi-model routing, instead of waiting on Argon's undated rollout. ([blog.google](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon/))
+
+**"Google just said its agent routes to Claude too. Isn't that multi-model already?"**
+
+Google's Gemini agent does route each task to Gemini or Anthropic's Claude, with spend caps and admin controls, and it works across Workspace, Microsoft 365 and Slack. Two things separate it from what we sell. It is in private preview, with general availability expected around the end of October or early November. And it covers two model families. Perplexity's Computer orchestrates 19 models (Claude, Gemini, GPT, Grok), routes each subtask to the strongest one, and is available today.
+
+**So what:** Acknowledge Google's Claude routing, then ask which models their teams rely on. Show every one of them running together in Perplexity today, including GPT and Grok, which Google's agent does not route to. ([blog.google](https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/gemini-at-work/))
 
 ## Cut Log
 

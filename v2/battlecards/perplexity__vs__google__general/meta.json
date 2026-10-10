@@ -4,7 +4,7 @@
   "competitor": "Google",
   "focus": null,
   "baseline_date": "2026-06-06",
-  "last_checked": "2026-10-09T11:18:11",
+  "last_checked": "2026-10-10T11:15:18",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_9ea436272f2a",
@@ -28,7 +28,8 @@
     "f_c47cab622c25",
     "f_1bfefd745900",
     "f_60c7f7083585",
-    "f_34a21879fca9"
+    "f_34a21879fca9",
+    "f_c6249b314e3e"
   ],
   "monitored": true,
   "lead_election": {
@@ -46,5 +47,31 @@
       }
     ]
   },
-  "last_check_reason": "scheduled"
+  "last_check_reason": "scheduled",
+  "pending_candidates": {
+    "my_company": [
+      {
+        "signal": "Perplexity launches Health product rolling out to Pro/Max subscribers, Oct 10, 2026",
+        "subject_key": "NEW",
+        "about": "my_company",
+        "valence": "front_foot",
+        "substantial": true,
+        "why_new": "Health is an entirely new product category for Perplexity not mentioned in any tracked claim; represents material product expansion into healthcare AI",
+        "source_hint": "riorundown.substack.com (Trending AI News, Oct 10, 2026)"
+      },
+      {
+        "signal": "Perplexity Computer in Email feature launches, Oct 10, 2026",
+        "subject_key": "perplexity | product | computer",
+        "about": "my_company",
+        "valence": "front_foot",
+        "substantial": true,
+        "why_new": "Computer product tracked (Aug 25 launch), but Email integration workflow is new and not in tracked claims; significant expansion of agent availability to new use case",
+        "source_hint": "riorundown.substack.com (Trending AI News, Oct 10, 2026)"
+      }
+    ],
+    "since": "2026-10-09",
+    "my_since": "2026-10-09",
+    "attempts": 1,
+    "reason": "own-side candidates did not ground"
+  }
 }

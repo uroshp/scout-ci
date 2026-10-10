@@ -560,26 +560,26 @@
   },
   {
     "subject_key": "google | positioning | full-stack-agentic",
-    "claim": "Google positions itself as a full-stack, billion-user AI company (custom silicon to models to products touching billions) and now openly adopts the 'answer' and 'agent' framing Perplexity pioneered, but backed by distribution Perplexity cannot match (company claim).",
+    "claim": "Google positions itself as a full-stack, billion-user AI company (custom silicon to models to products touching billions) and now openly adopts the 'answer' and 'agent' framing Perplexity pioneered, backed by distribution Perplexity cannot match (company claim). Its Gemini agent, announced October 8, 2026, works across Workspace, Microsoft 365, Slack and systems like Salesforce, ServiceNow and Snowflake, and routes each task to Gemini or Anthropic's Claude.",
     "claim_type": "interpretation",
     "section": "positioning",
     "zone": null,
     "order": 3,
-    "source_url": "https://blog.google/innovation-and-ai/sundar-pichai-io-2026/",
-    "source_tier": "primary",
-    "evidence_excerpt": "from our custom silicon and secure foundation, to our world-class research and models, to our products and platforms that touch billions of people",
-    "as_of": "2026-05-19",
+    "as_of": "2026-10-08",
     "confidence": "high",
     "id": "c_e674534c9d93",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-06",
-      "detail": null
-    },
-    "source_class": "company_statement"
+    "source_class": "company_statement",
+    "updated_on": "2026-10-10",
+    "derived_from": "c_8caf0c4e9078",
+    "provenance": {
+      "source_url": "https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/gemini-at-work/",
+      "source_tier": "primary",
+      "as_of": "2026-10-08",
+      "fact_id": "c_8caf0c4e9078",
+      "stamped_on": "2026-10-10",
+      "source_class": "company_statement"
+    }
   },
   {
     "subject_key": "perplexity | list-price | max-tier",
@@ -708,27 +708,27 @@
   },
   {
     "subject_key": "perplexity | battlecard | multi-model-orchestration",
-    "claim": "**Best-of-breed model choice in one product. Google can only give you Gemini.**\n\nPerplexity's Computer orchestrates 19 models (Claude, Gemini, GPT, Grok) and routes each subtask to the strongest one; architects who don't want to bet their whole AI stack on a single vendor get real optionality that a Gemini-only Google cannot offer.\n\n**Soundbite:** *\"With us you route medical research to one model and coding to another, automatically. With Google, every answer is Gemini, whether it's the best tool for that job or not.\"*",
+    "claim": "**Best-of-breed model choice in one product. Google's new agent routes between Gemini and Claude, we route across 19 models.**\n\nPerplexity's Computer orchestrates 19 models (Claude, Gemini, GPT, Grok) and routes each subtask to the strongest one, and it ships today. Google's Gemini agent sends each task to Gemini or Anthropic's Claude, and it is in private preview with general availability expected around the end of October or early November. Architects who don't want to bet their whole AI stack on one vendor get the wider choice from us now.\n\n**Soundbite:** *\"Google's new agent picks between two model families and is still in private preview. We route across 19 models, including GPT and Grok, today.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_we_win",
     "order": 0,
-    "source_url": "https://venturebeat.com/technology/perplexity-ai-unveils-hybrid-local-cloud-inference-system-at-computex-2026",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Perplexity launched Computer, a multi-model AI agent that orchestrates 19 different AI models to complete complex, long-running tasks on behalf of users.",
-    "as_of": "2026-06-02",
+    "as_of": "2026-10-08",
     "confidence": "high",
     "persona": "technical_evaluator",
     "id": "c_54518b13c10f",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "fuzzy",
-      "fetched_at": "2026-06-06",
-      "detail": "partial_ratio 0.994"
-    },
-    "source_class": "news"
+    "source_class": "news",
+    "updated_on": "2026-10-10",
+    "derived_from": "c_8caf0c4e9078",
+    "provenance": {
+      "source_url": "https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/gemini-at-work/",
+      "source_tier": "primary",
+      "as_of": "2026-10-08",
+      "fact_id": "c_8caf0c4e9078",
+      "stamped_on": "2026-10-10",
+      "source_class": "company_statement"
+    }
   },
   {
     "subject_key": "perplexity | battlecard | ad-free-cited",
@@ -780,27 +780,27 @@
   },
   {
     "subject_key": "perplexity-vs-google | battlecard | agentic-race",
-    "claim": "**The agentic race is genuinely contested: both are shipping autonomous agents right now.**\n\nGoogle launched 24/7 background Search Agents at I/O while Perplexity shipped Computer for Enterprise with 100+ connectors; neither has a decisive deployment lead, so deals turn on integration fit and trust, not on who has 'agents' at all.\n\n**Soundbite:** *\"Everyone's demoing agents. Ours plug into your actual stack and cite their sources on every answer.\"*",
+    "claim": "**The agentic race is contested: Google has agents live and a cross-system enterprise agent in preview, and Perplexity has Computer for Enterprise shipping.**\n\nGoogle launched 24/7 background Search Agents at I/O. On October 8, 2026 it announced the Gemini agent, which works across Workspace, Microsoft 365, Slack and systems like Salesforce, ServiceNow and Snowflake. It is in private preview, with general availability expected around the end of October or early November. Perplexity shipped Computer for Enterprise with 100+ connectors. Neither has a decisive deployment lead, so deals turn on integration fit and trust, not on who has 'agents' at all.\n\n**Soundbite:** *\"Everyone's demoing agents. Ours plug into your actual stack and cite their sources on every answer.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
     "order": 0,
-    "source_url": "https://blog.google/products-and-platforms/products/search/search-io-2026/",
-    "source_tier": "primary",
-    "evidence_excerpt": "We're entering the era of Search agents, where you can easily create, customize and manage multiple AI agents for your many tasks, right in Search.",
-    "as_of": "2026-05-19",
+    "as_of": "2026-10-08",
     "confidence": "high",
     "persona": "eng_led",
     "id": "c_6f8b218921ad",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-06",
-      "detail": null
-    },
-    "source_class": "company_statement"
+    "source_class": "company_statement",
+    "updated_on": "2026-10-10",
+    "derived_from": "c_8caf0c4e9078",
+    "provenance": {
+      "source_url": "https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/gemini-at-work/",
+      "source_tier": "primary",
+      "as_of": "2026-10-08",
+      "fact_id": "c_8caf0c4e9078",
+      "stamped_on": "2026-10-10",
+      "source_class": "company_statement"
+    }
   },
   {
     "subject_key": "perplexity-vs-google | battlecard | price-parity",
@@ -1903,6 +1903,61 @@
       "fact_id": "c_b147a43c7c5b",
       "stamped_on": "2026-10-08",
       "source_class": "news"
+    }
+  },
+  {
+    "subject_key": "google | product-launch | gemini-agent-enterprise",
+    "claim": "On October 8, 2026 Google Cloud announced the Gemini agent, a single enterprise agent that plans and finishes work across Workspace, Microsoft 365, Slack and systems like Salesforce, ServiceNow and Snowflake. It routes each task to Gemini or Anthropic's Claude models, with spend caps and admin controls. It is in private preview, with general availability expected around the end of October or early November.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/gemini-at-work/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Today at Gemini at Work 2026, Google Cloud announced the Gemini agent, a universal agent for work.",
+    "as_of": "2026-10-08",
+    "confidence": "high",
+    "id": "c_8caf0c4e9078",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-10",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://constellationr.com/insights/news/google-cloud-launches-gemini-agent-work-across-enterprise-systems",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "company_statement"
+  },
+  {
+    "id": "c_2686f99697c9",
+    "subject_key": "objection | google-gemini-agent-routes-to-claude",
+    "claim": "**\"Google just said its agent routes to Claude too. Isn't that multi-model already?\"**\n\nGoogle's Gemini agent does route each task to Gemini or Anthropic's Claude, with spend caps and admin controls, and it works across Workspace, Microsoft 365 and Slack. Two things separate it from what we sell. It is in private preview, with general availability expected around the end of October or early November. And it covers two model families. Perplexity's Computer orchestrates 19 models (Claude, Gemini, GPT, Grok), routes each subtask to the strongest one, and is available today.\n\n**So what:** Acknowledge Google's Claude routing, then ask which models their teams rely on. Show every one of them running together in Perplexity today, including GPT and Grok, which Google's agent does not route to.",
+    "claim_type": "interpretation",
+    "section": "objection_handling",
+    "zone": null,
+    "order": 8,
+    "as_of": "2026-10-08",
+    "updated_on": "2026-10-10",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_8caf0c4e9078",
+    "persona": "exec_top_down",
+    "provenance": {
+      "source_url": "https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/gemini-at-work/",
+      "source_tier": "primary",
+      "as_of": "2026-10-08",
+      "fact_id": "c_8caf0c4e9078",
+      "stamped_on": "2026-10-10",
+      "source_class": "company_statement"
     }
   }
 ]
