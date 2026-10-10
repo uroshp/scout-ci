@@ -12,11 +12,11 @@ Google AI Mode is free to 1B+ users and Gemini rides inside paid Workspace seats
 
 **Pick the best model for each task, and keep the freedom to switch vendors.**
 
-Google shipped Gemini 4 Argon on September 30, its first flagship frontier model since February, but it is locked to vetted cyber defenders in Google's Fairwind Program with no public release date, so no buyer can evaluate or buy it yet. Google also lost four senior Gemini and AlphaFold researchers in two weeks. Perplexity runs across 19 models including Claude and GPT, so each task goes to the model that handles it best, Gemini included once it is actually available.
+Google's new Gemini agent routes each task to Gemini or Anthropic's Claude, two model families, and it is in private preview, with general availability expected around the end of October or early November. Perplexity routes across 19 models today, including Claude, Gemini, GPT and Grok, so each task goes to the model that handles it best. Google's Gemini 4 Argon is locked to vetted cyber defenders in Google's Fairwind Program with no public release date, and Google lost four senior Gemini and AlphaFold researchers in two weeks.
 
 **Soundbite:** "Use the best model for each task, and switch the moment a better one ships. No vendor lock-in."
 
-**So what:** Ask which models their teams rely on today, then show all of them available through Perplexity, so a slip or price hike from any single vendor never stalls their work. ([blog.google](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon/))
+**So what:** Ask which models their teams rely on today, then show all of them available through Perplexity, so a slip or price hike from any single vendor never stalls their work. ([blog.google](https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/gemini-at-work/))
 
 **Perplexity is growing fast but small and legally exposed, so go in with the litigation answer already loaded.**
 
