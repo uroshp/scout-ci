@@ -1308,5 +1308,37 @@
       }
     ],
     "source_class": "unknown"
+  },
+  {
+    "subject_key": "microsoft-teams | product-feature-discontinuation",
+    "claim": "Microsoft is retiring the standalone Microsoft Whiteboard apps for Windows, iOS and Android on October 16, 2026, for both work or school accounts and personal Microsoft accounts. Whiteboard itself is not retiring for work or school accounts: users keep it in Microsoft Teams (meetings, chat tabs and the Whiteboard app) and on the web. Installed apps will show a retirement experience instead of the Whiteboard gallery.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://support.microsoft.com/whiteboard/retirement-standalone-microsoft-whiteboard-apps",
+    "source_tier": "primary",
+    "evidence_excerpt": "The standalone Microsoft Whiteboard apps for Windows, iOS, and Android retire on October 16, 2026.",
+    "as_of": "2026-10-10",
+    "confidence": "high",
+    "id": "c_71ccdb733b8a",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-10",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://mc.merill.net/message/MC1469557",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "company_statement"
   }
 ]
