@@ -39,7 +39,7 @@ python -m scout.monitor         # daily re-check (run from v2/; SCOUT_MONITOR_LI
 python -m unittest discover -s tests   # v2 unit tests (run from v2/; security + scheduling invariants)
 ```
 
-No build step, no linter. v2 has a focused stdlib-`unittest` suite in `v2/tests/` (security + scheduling invariants — no extra deps); run it from `v2/` with `python -m unittest discover -s tests`. `v1/test.py` and `v1/sdk_test.py` are ad-hoc scratch scripts, not part of it. Environment: copy the root `.env.example` to a `.env` and set `ANTHROPIC_API_KEY` (and `APP_PASSWORD`). Dependencies are per-folder: `pip install -r v1/requirements.txt` or `pip install -r v2/requirements.txt`.
+No build step, no linter. v2 has a focused stdlib-`unittest` suite in `v2/tests/` (security + scheduling invariants — no extra deps); run it from `v2/` with `python -m unittest discover -s tests`. Under the test runner `scout.selfserve` never uses the GitHub backend and its local fallback is a temp store (2026-10-10: the mini's shell carries the private-store token, and one test wrote 40 fake lifecycle audits into production over a week); a test that drives a written run still fakes `read_data`/`update_data`/`write_data` so it can assert on them. `v1/test.py` and `v1/sdk_test.py` are ad-hoc scratch scripts, not part of it. Environment: copy the root `.env.example` to a `.env` and set `ANTHROPIC_API_KEY` (and `APP_PASSWORD`). Dependencies are per-folder: `pip install -r v1/requirements.txt` or `pip install -r v2/requirements.txt`.
 
 ## Architecture (v1)
 
