@@ -268,7 +268,7 @@ def repair_or_hold(slug: str, claim: dict, *, reformatter=reformat_claim,
                 hold(slug, fixed, f"condense failed re-verification: {reason}", alert=alert)
                 return ("held", fixed)
         return ("repaired", fixed)
-    # Carry the EXACT violations into the hold reason (e.g. "201 words exceeds the 170-word render
+    # Carry the EXACT violations into the hold reason (e.g. "201 words exceeds the 180-word render
     # cap") — the proposals email shows this verbatim so the human knows what to cure.
     hold(slug, fixed, "render-structure repair exhausted: " + "; ".join(residual), alert=alert)
     return ("held", fixed)

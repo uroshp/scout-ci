@@ -1818,12 +1818,10 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
                 # non-zero when any card errored, so the Actions run still notifies.
                 summary.append({"slug": slug, "error": f"{type(e).__name__}: {e}"})
                 steps_so_far = list(getattr(e, "scout_steps", None) or [])
+                # EMAIL POLICY (Uroš 2026-10-10): a check that did not finish is one plain line in the
+                # FYI's run health (the row below carries it), never a second email.
                 health_rows.append({"slug": slug, "meta": store.load_meta(slug) or {}, "steps": steps_so_far,
                                     "error": f"{type(e).__name__}: {e}"})
-                if send and config.PROPAGATE_MODE == "live":     # a failed card is a "needs you" item
-                    errs = [f"check failed twice: {type(e).__name__}: {e}"]
-                    errs += [f"{r['step']}: {r.get('detail') or 'failed'}" for r in steps_so_far if r.get("status") == "failed"]
-                    issue_cards.append({"slug": slug, "meta": store.load_meta(slug) or {}, "errors": errs})
                 continue
         # $/claim (2026-07-08, his metric): claims this run = direct material patches + judge-
         # CONFIRMED proposals (confirmed = produced and sent for approval; a later human decline
@@ -1834,13 +1832,22 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
                                               if d.get("judge_verdict") == "confirm")
         card_cost = _run_total(res["cost"])
         run_spend += card_cost
-        health_rows.append({"slug": slug, "meta": store.load_meta(slug) or {}, "steps": list(res.get("steps") or []),
-                            "cost": card_cost, "alerts": len(res.get("alerts") or [])})
+        health_row = {"slug": slug, "meta": store.load_meta(slug) or {}, "steps": list(res.get("steps") or []),
+                      "cost": card_cost, "alerts": len(res.get("alerts") or []), "notes": []}
+        health_rows.append(health_row)
         if res.get("sensors"):
             sensor_rows.append(dict(res["sensors"], meta=store.load_meta(slug) or {}))
-        # STEP FAILURES ARE NEEDS-YOU ITEMS (2026-10-03): every failed step row, an abandoned held
-        # window, an abandoned carry-over and a ceiling deferral reach the owner, in live mode.
-        step_errors = [f"{r['step']}: {r.get('detail') or 'failed'}" for r in (res.get("steps") or []) if r.get("status") == "failed"]
+        # RUN HEALTH (Uroš 2026-10-10, replacing the 10/3 rule that made every failed step a needs-you
+        # item): a failed step, an abandoned held window, an abandoned carry-over, a ceiling deferral
+        # and a propagation crash are the run's health. Each is one plain line in the FYI footer,
+        # never a second email and never the word ERROR. The needs-you email carries only what waits
+        # on him. Failed step rows are read from `steps` by the FYI; the rest ride `notes`.
+        step_errors = health_row["notes"]
+        if res.get("pipeline_health"):
+            step_errors.append(f"propagation did not finish: {res['pipeline_health']}")
+        if res.get("my_company_error") and not any(r.get("step") == "own_company" and r.get("status") == "failed"
+                                                   for r in (res.get("steps") or [])):
+            step_errors.append(f"own company: {res['my_company_error']}")
         if res.get("abandoned_window"):
             aw = res["abandoned_window"]
             named = [x for x in (aw.get("subjects") or []) if str(x).upper() != "NEW"]
@@ -1877,28 +1884,19 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
             confirmed_not_applied = [d for d in decisions if d.get("judge_verdict") == "confirm" and not d.get("held_for_format")
                                      and (d.get("subject_key"), d.get("operation")) not in applied_keys
                                      and str(d.get("judged_by") or "").startswith("fallback:")]
-            errors = list(step_errors)
-            if res.get("my_company_error") and not any(e_.startswith("own_company:") for e_ in errors):
-                errors.append(res["my_company_error"])
+            # A deal-moving point that could not be written (the cure loop exhausted, or the judge
+            # found no grounded expression) is ONE needs-you item carrying the judge's diagnosis;
+            # the separate URGENT email is gone (Uroš 2026-10-10: one email per thing that waits on him).
+            undrafted = [d for d in decisions if d.get("rewrite_exhausted")]
+            for d in decisions:
+                if d.get("material_uncured") and d not in undrafted:
+                    undrafted.append(dict(d, held_reason="the judge found no grounded correct expression in the facts"))
             issue = {"slug": slug, "meta": meta, "held": held + [dict(d, held_reason="confirmed by the fallback judge only; not applied unattended") for d in confirmed_not_applied],
                      "unjudged": [d for d in decisions if d.get("judge_verdict") == "judge_unavailable"],
-                     "exhausted": [d for d in decisions if d.get("rewrite_exhausted")],
-                     "provenance_issues": prop0.get("provenance_issues") or [],
-                     "pipeline_health": res.get("pipeline_health"),
-                     "errors": errors}
-            if any(issue[k] for k in ("held", "unjudged", "exhausted", "provenance_issues", "pipeline_health", "errors")):
+                     "exhausted": undrafted,
+                     "provenance_issues": prop0.get("provenance_issues") or []}
+            if any(issue[k] for k in ("held", "unjudged", "exhausted", "provenance_issues")):
                 issue_cards.append(issue)
-            urgent = [d for d in decisions if d.get("material_uncured")]
-            if urgent and config.PROPAGATE_URGENT_EMAIL and not quiet:
-                try:
-                    notify.send_urgent_material(slug, meta, urgent, dry_run=email_dry_run)
-                except Exception as e:
-                    print(f"[monitor] urgent-material alert skipped ({type(e).__name__}: {e})", file=sys.stderr)
-            elif urgent and quiet:
-                issue["exhausted"] = list(issue["exhausted"]) + [dict(d, held_reason="urgent, from a dispatched run") for d in urgent
-                                                                 if d not in issue["exhausted"]]
-                if issue not in issue_cards:
-                    issue_cards.append(issue)
             if write and prop0 and config.CONSEQUENTIAL_FILTER != "off" and prop0.get("run_verdict"):   # a dry run writes nothing (2026-10-03)
                 shadow.filter_capture(slug, run_ts=res.get("last_checked"), verdict=prop0["run_verdict"],
                                       act_subject_keys=[m["subject_key"] for m in res.get("material", [])],
@@ -2016,10 +2014,8 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
             from scout import calllog as _cl, lifecycle as _lc
             lifecycle_doc = _lc.audit(run_started.strftime("%Y%m%dT%H%M%S"), rows=cost_rows, calls=_cl.current_calls(), write=True)
             print(f"[lifecycle] {lifecycle_doc['verdict']}: {lifecycle_doc['summary']}")
-            for c in lifecycle_doc.get("cards") or []:
-                if c.get("failed"):
-                    errs = [f"lifecycle {i['id']}: {i['rule']} ({i['evidence'][:160]})" for i in c["invariants"] if i["status"] == "fail"]
-                    issue_cards.append({"slug": c["slug"], "meta": store.load_meta(c["slug"]) or {}, "errors": errs})
+            # a failed rule is named, per card, in the FYI's lifecycle lines (notify._lifecycle_lines);
+            # the FYI always goes out when the verdict is not GREEN
         except Exception as e:
             print(f"[lifecycle] audit skipped ({type(e).__name__}: {e})", file=sys.stderr)
     if send and config.PROPAGATE_MODE == "live":

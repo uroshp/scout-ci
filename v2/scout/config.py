@@ -133,7 +133,7 @@ PROPAGATE_REWRITE_MODEL = os.environ.get("SCOUT_PROPAGATE_REWRITE_MODEL", SUBAGE
 # only (via the monitor gate). Empty/0/false disables.
 PROPAGATE_URGENT_EMAIL = os.environ.get("SCOUT_PROPAGATE_URGENT_EMAIL", "1").strip().lower() not in ("0", "false", "off", "")
 # Length-cure loop (2026-07-25, the 182-word hold): a judge-CONFIRMED op over the deterministic
-# 170-word render cap gets its OWN bounded condense -> blind-re-judge budget, separate from
+# The render cap (schema.RENDER_MAX_WORDS) gets its OWN bounded condense -> blind-re-judge budget, separate from
 # PROPAGATE_MAX_REWRITES, so a content rewrite that consumed the rewrite budget (exactly the 7/25
 # case) can't starve the cure. Uncured -> the op is RESTORED to its confirmed state and the render
 # gate condenses-or-holds it (never an exhausted reject). 0 disables (hold-at-gate behavior).

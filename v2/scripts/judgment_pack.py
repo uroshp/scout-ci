@@ -7,6 +7,8 @@
   rewrite  replace each registered block's literal in the module source with judgment.get(...)
   verify   golden check: every block, loaded through the modules, hashes to the frozen sha256
   show N   print one block;  names  list the registry
+  set N F  replace block N with the text of file F in BOTH pack copies, re-hash it and re-version
+           the pack (a changed version opens a new eval period for the roles that receive the block)
 
 The registry below names blocks only; it contains no instruction text.
 """
@@ -196,6 +198,28 @@ def addfuncs() -> None:
     print(f"pack version {pack['version']}, {len(pack['blocks'])} blocks")
 
 
+def set_block(name: str, text: str) -> str:
+    """Replace one block's template in BOTH pack copies (judgment/ and rc/judgment/), re-hash it and
+    re-version the pack. Only for blocks without template tokens (their hash is the text itself); a
+    tokenized block is edited in its module and re-frozen. Returns the new pack version."""
+    fp = os.path.join(MIRROR, "judgment/pack.json")
+    pack = json.load(open(fp))
+    if name not in pack["blocks"]:
+        raise SystemExit(f"unknown block {name}")
+    if pack.get("exprs", {}).get(name):
+        raise SystemExit(f"{name} carries template tokens {pack['exprs'][name]}; edit its module and re-freeze")
+    if not text.strip():
+        raise SystemExit(f"refusing to set {name} to empty text")
+    pack["blocks"][name] = text
+    pack["sha256"][name] = _sha(text)
+    pack["version"] = _sha(json.dumps(pack["blocks"], sort_keys=True, ensure_ascii=False))[:16]
+    pack["frozen_at"] = datetime.now().isoformat(timespec="seconds")
+    out = json.dumps(pack, indent=1, ensure_ascii=False)
+    for rel in ("judgment/pack.json", "rc/judgment/pack.json"):
+        open(os.path.join(MIRROR, rel), "w").write(out)
+    return pack["version"]
+
+
 def verify() -> int:
     from scout import judgment
     pack = judgment._load()
@@ -240,6 +264,9 @@ if __name__ == "__main__":
         addfuncs()
     elif cmd == "verify":
         raise SystemExit(verify())
+    elif cmd == "set" and len(sys.argv) > 3:
+        ver = set_block(sys.argv[2], open(sys.argv[3]).read())
+        print(f"set {sys.argv[2]}; pack version {ver} (both copies; commit and push the private repo)")
     elif cmd == "show" and len(sys.argv) > 2:
         from scout import judgment
         print(judgment.get(sys.argv[2]))

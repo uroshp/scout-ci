@@ -7,8 +7,9 @@ silence means every lane left the evidence it should. Runs on the mini after the
 Checks (all skipped on a monitor skip day, i.e. Sunday, except the app probe):
   1. monitor: a cost ledger dated today at the PRODUCTION path (costs/<today>T*.json) and none of
      today's ledgers under rc/ from a main run (rc/costs/<today>* without an rc build is a misfile).
-  1b. steps (2026-10-03): the step table inside that ledger has a row per checked card and no
-     `failed` step (a crashed step inside a green workflow).
+  1b. steps (2026-10-03): the step table inside that ledger has a row per checked card. A step that
+     did not finish is already a line in the morning FYI (email policy 2026-10-10), so it is not
+     repeated here; a card with no step table at all is.
   2. capture: a call bundle dated today at calls/<month>/monitor_<today>*.json.
   3. replay: ~/scout-replay/state.json last_run is today AND its log's "newest bundle" line for
      today's run names a bundle dated today (the lane scored fresh calls, not a backlog).
@@ -52,9 +53,9 @@ def check_monitor(day: date) -> list[str]:
 
 def check_steps(day: date) -> list[str]:
     """The step table inside today's PRODUCTION cost ledger (2026-10-03): every card the run checked
-    has a row, and no row says `failed`. A green workflow with a crashed step (the 10/3 audience
-    crash: four cards, no email, green canary) is what this catches. Rehearsal ledgers live under
-    rehearsal/ and are not read here."""
+    has a row. A failed step inside the table is the FYI's job (one plain line in run health, and the
+    FYI always goes out when health is not clean, 2026-10-10); what this catches is a card whose
+    steps were never recorded at all. Rehearsal ledgers live under rehearsal/ and are not read here."""
     stamp = day.strftime("%Y%m%d")
     names = sorted(n for n in (selfserve.list_data("costs") or []) if n.startswith(stamp))
     if not names:
@@ -71,17 +72,14 @@ def check_steps(day: date) -> list[str]:
         steps = c.get("steps") or []
         if not steps:
             problems.append(f"steps: {c.get('slug')} has no step table in the ledger (the check did not record its steps)")
-            continue
-        failed = [r for r in steps if r.get("status") == "failed"]
-        for r in failed:
-            problems.append(f"steps: {c.get('slug')} {r.get('step')} FAILED: {str(r.get('detail') or '')[:160]}")
     return problems
 
 
 def check_lifecycle(day: date) -> list[str]:
-    """The lifecycle audit of today's PRODUCTION run (2026-10-04): the run wrote lifecycle/<stamp>.json
-    and its verdict is not RED. A missing audit on a day with a ledger is itself a problem: the step
-    that follows every finding to the card and the evals did not run."""
+    """The lifecycle audit of today's PRODUCTION run (2026-10-04): the run wrote lifecycle/<stamp>.json.
+    A missing audit on a day with a ledger is the problem: the step that follows every finding to the
+    card and the evals did not run. A RED verdict is said in the morning FYI, rule by rule (email
+    policy 2026-10-10), so it is not repeated here."""
     stamp = day.strftime("%Y%m%d")
     ledgers = sorted(n for n in (selfserve.list_data("costs") or []) if n.startswith(stamp))
     if not ledgers:
@@ -102,8 +100,8 @@ def check_lifecycle(day: date) -> list[str]:
         except Exception as e:
             problems.append(f"lifecycle: {n} unreadable ({type(e).__name__})")
             continue
-        if doc.get("verdict") == "RED":
-            problems.append(f"lifecycle: {n} RED: {str(doc.get('summary') or '')[:300]}")
+        if not doc.get("verdict"):
+            problems.append(f"lifecycle: {n} carries no verdict (the audit did not finish)")
     return problems
 
 
@@ -252,7 +250,7 @@ def main(argv=None) -> int:
     for p in problems:
         print("  -", p)
     if problems:
-        notify.send_could_not_run("lanes canary", f"{len(problems)} lane check(s) failed on {day}",
+        notify.send_could_not_run("lanes canary", f"{len(problems)} lane check(s) did not pass on {day}",
                                   "\n".join(problems), dry_run=dry)
         return 1
     return 0

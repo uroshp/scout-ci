@@ -45,7 +45,7 @@ ZONES = ["where_we_win", "contested", "where_they_win"]
 # Render-contract word cap for block claims (exec summary / objections / battlecard): over this,
 # a claim is a wall no rep reads — condensed by the repair path, rejected at generation. Healthy
 # claims run 95-115 words (2026-07-02 audit); 170 leaves room for a genuinely layered story.
-RENDER_MAX_WORDS = int(os.environ.get("SCOUT_RENDER_MAX_WORDS", "170"))
+RENDER_MAX_WORDS = int(os.environ.get("SCOUT_RENDER_MAX_WORDS", "180"))   # a backstop, not a target (Uroš 2026-10-08)
 SOURCE_TIERS = ["primary", "reputable_secondary", "sentiment_only"]
 # SOURCE CLASS (2026-09-28, WS0): what KIND of source a URL is, decided by code from the host
 # (scout/sources/classify.py) and shown to the reader as a chip. Optional and additive: the tier

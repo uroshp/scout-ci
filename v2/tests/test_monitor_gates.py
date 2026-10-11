@@ -182,19 +182,52 @@ class LiveMode(unittest.TestCase):
              mock.patch.object(config, "PROPAGATE_MODE", "live"), mock.patch.object(config, "CONSEQUENTIAL_FILTER", "off"), \
              mock.patch("scout.notify.send_digest") as digest, mock.patch("scout.notify.send_propagation_proposals") as props, \
              mock.patch("scout.notify.send_lead_election_fyi") as lead, mock.patch("scout.notify._dispatch") as disp, \
-             mock.patch("scout.notify.send_run_fyi", side_effect=lambda cards, cost, dry_run=True, **kw: sent.__setitem__("fyi", (cards, cost)) or {"sent": True}) as fyi, \
+             mock.patch("scout.notify.send_run_fyi", side_effect=lambda cards, cost, dry_run=True, **kw: sent.__setitem__("fyi", (cards, cost, kw)) or {"sent": True}) as fyi, \
              mock.patch("scout.notify.send_run_issues", side_effect=lambda cards, dry_run=True: sent.__setitem__("issues", cards) or {"sent": True}) as iss:
             monitor._run_all_impl(write=False, send=True, email_dry_run=True, force=True)
         digest.assert_not_called(); props.assert_not_called(); lead.assert_not_called(); disp.assert_not_called()
         fyi.assert_called_once(); iss.assert_called_once()
-        cards, cost = sent["fyi"]
+        cards, cost, kw = sent["fyi"]
         self.assertEqual([c["slug"] for c in cards], ["a", "b"])                       # d was quiet, c had only issues
         self.assertEqual([d["subject_key"] for d in cards[0]["applied"]], ["x | y"])   # the held op is NOT in "applied"
         self.assertEqual(cards[1]["deferred_n"], 1); self.assertAlmostEqual(cost, 1.2)
         issues = sent["issues"]
         self.assertEqual([c["slug"] for c in issues], ["a", "c"])
         self.assertEqual([d["subject_key"] for d in issues[0]["held"]], ["h | h"])
-        self.assertEqual(issues[1]["provenance_issues"], ["citation mismatch on z"]); self.assertIn("judge unavailable", issues[1]["pipeline_health"])
+        self.assertEqual(issues[1]["provenance_issues"], ["citation mismatch on z"])
+        # EMAIL POLICY (2026-10-10): a propagation crash is run health (one FYI line), not a needs-you item
+        self.assertNotIn("pipeline_health", issues[1]); self.assertNotIn("errors", issues[1])
+        health = {h["slug"]: h for h in kw["health"]}
+        self.assertTrue(any("judge unavailable on c" in n for n in health["c"]["notes"]))
+
+    def test_an_undrafted_material_point_is_one_needs_you_item_and_no_urgent_email(self):
+        from scout import monitor, config
+        exhausted = {"subject_key": "lead | x", "operation": "revise", "judge_verdict": "reject", "material": True, "cure": "prose",
+                     "rewrite_exhausted": True, "material_uncured": True, "rewrite_attempts": 2, "judge_reason": "three defects",
+                     "attempts": [{"claim": "v1", "reason": "r1"}, {"claim": "v2", "reason": "r2"}, {"claim": "v3", "reason": "three defects"}]}
+        never = {"subject_key": "obj | y", "operation": "add", "judge_verdict": "reject", "material": True, "cure": "none",
+                 "rewrite_exhausted": False, "material_uncured": True, "judge_reason": "no grounded expression"}
+        res = self._res("a", decisions=[exhausted, never])
+        sent = {}
+        with mock.patch("scout.display.list_battlecards", return_value=["a"]), \
+             mock.patch.object(monitor, "check", side_effect=lambda slug, write=False: res), \
+             mock.patch.object(monitor.store, "load_meta", return_value={"monitored": True, "competitor": "X", "my_company": "Y"}), \
+             mock.patch.object(monitor, "_persist_run_cost"), mock.patch("scout.conseq.maybe_notify_ready"), \
+             mock.patch.object(config, "PROPAGATE_MODE", "live"), mock.patch.object(config, "CONSEQUENTIAL_FILTER", "off"), \
+             mock.patch("scout.notify.send_urgent_material") as urgent, mock.patch("scout.notify._dispatch") as disp, \
+             mock.patch("scout.notify.send_run_fyi", return_value={"sent": False}), \
+             mock.patch("scout.notify.send_run_issues", side_effect=lambda cards, dry_run=True: sent.__setitem__("issues", cards) or {"sent": True}):
+            monitor._run_all_impl(write=False, send=True, email_dry_run=True, force=True)
+        urgent.assert_not_called(); disp.assert_not_called()
+        items = sent["issues"][0]["exhausted"]
+        self.assertEqual([d["subject_key"] for d in items], ["lead | x", "obj | y"])
+        self.assertIn("no grounded correct expression", items[1]["held_reason"])
+        from scout import notify
+        subject, text, html = notify.render_run_issues(sent["issues"])
+        self.assertEqual(subject, "Scout needs you: 2 items on 1 card")
+        self.assertIn("three defects", html); self.assertIn("v3", html); self.assertIn("Could not be written", html)
+        for word in ("URGENT", "ERROR", "AUTHORING FAILED"):
+            self.assertNotIn(word, subject + text + html)
 
     def test_review_mode_emails_are_unchanged(self):
         from scout import monitor, config

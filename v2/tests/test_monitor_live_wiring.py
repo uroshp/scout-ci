@@ -17,7 +17,7 @@ import unittest
 from datetime import datetime
 from unittest import mock
 
-from scout import config, monitor, selfserve, store
+from scout import notify, config, monitor, selfserve, store
 
 SLUG = "cursor__vs__cognition__general"
 ARCHIVE = os.path.join(config.APP_ROOT, "archive", SLUG)
@@ -355,9 +355,11 @@ class RunCeiling(_Live):
 
 
 class RunAllReportsSteps(unittest.TestCase):
-    """A failed step is a needs-you item and the FYI footer carries every card's health."""
+    """EMAIL POLICY (2026-10-10): a failed step, a ceiling deferral and a check that did not finish are
+    run health, one plain line each in the FYI (which then always goes out); the needs-you email
+    carries only what waits on the owner, so none of these makes a needs-you item."""
 
-    def test_failed_step_reaches_the_needs_you_email_and_the_ceiling_trips(self):
+    def test_failed_step_reaches_the_fyi_health_not_needs_you_and_the_ceiling_trips(self):
         res_ok = {"slug": "a", "alerts": [{"headline": "h", "subject_key": "s", "old_value": "1", "new_value": "2"}], "material": [],
                   "cost": {"triage": 0.1, "materiality": 9.0}, "no_change": False, "last_checked": "t",
                   "steps": [{"step": "triage", "status": "ran"}, {"step": "audience", "status": "failed", "detail": "NameError: today"}],
@@ -382,15 +384,26 @@ class RunAllReportsSteps(unittest.TestCase):
             monitor._run_all_impl(write=False, send=True, email_dry_run=True, force=True)
         self.assertEqual(seen["a"], {})
         self.assertEqual(seen["b"], {"escalate": False})                          # card a spent $9.1 > the $5 ceiling
-        issues = {c["slug"]: c for c in sent["issues"]}
-        self.assertIn("audience: NameError: today", issues["a"]["errors"])
-        self.assertTrue(any("run ceiling" in e for e in issues["b"]["errors"]))
+        self.assertEqual(sent["issues"], [])                                      # nothing waits on him: no needs-you item
         cards, cost, kw = sent["fyi"]
         health = kw["health"]
         self.assertEqual([h["slug"] for h in health], ["a", "b"])
         self.assertEqual(health[0]["steps"][1]["status"], "failed")
+        self.assertTrue(any("run ceiling" in n for n in health[1]["notes"]))
+        lines = notify._health_lines(health)
+        self.assertTrue(any("audience did not finish (NameError: today)" in l for l in lines), lines)
+        self.assertTrue(any("run ceiling" in l for l in lines), lines)
+        self.assertFalse(notify._health_clean(health))
+        for word in ("ERROR", "FAILED", "URGENT"):
+            self.assertNotIn(word, " ".join(lines))
+        # the FYI goes out on health alone, even on a quiet morning
+        self.assertNotEqual(notify.send_run_fyi([], 0.0, dry_run=True, health=health).get("reason"), "nothing to report")
+        quiet = notify.send_run_fyi([], 0.0, dry_run=True, health=[{"slug": "a", "meta": {}, "steps": [{"step": "triage", "status": "ran"}], "notes": []}])
+        self.assertEqual(quiet, {"sent": False, "reason": "nothing to report"})
+        subject, text, html = notify.render_run_fyi([], 0.0, health=health)
+        self.assertIn("audience did not finish", text)
 
-    def test_double_failure_carries_the_steps_to_the_needs_you_email(self):
+    def test_double_failure_is_a_health_line_not_a_needs_you_item(self):
         def boom(slug, write=False, **kw):
             e = RuntimeError("store down")
             e.scout_steps = [{"step": "triage", "status": "failed", "detail": "RuntimeError: store down"}]
@@ -401,13 +414,17 @@ class RunAllReportsSteps(unittest.TestCase):
              mock.patch.object(monitor.store, "load_meta", return_value={"monitored": True}), \
              mock.patch.object(monitor, "_persist_run_cost"), mock.patch("scout.conseq.maybe_notify_ready"), \
              mock.patch.object(config, "PROPAGATE_MODE", "live"), mock.patch.object(config, "REHEARSAL", False), \
-             mock.patch("scout.notify.send_run_fyi", return_value={"sent": False}), \
+             mock.patch("scout.notify.send_run_fyi", side_effect=lambda cards, cost, dry_run=True, **kw: sent.__setitem__("fyi", kw) or {"sent": True}), \
              mock.patch("scout.notify.send_run_issues", side_effect=lambda cards, dry_run=True: sent.__setitem__("issues", cards) or {"sent": True}):
             out = monitor._run_all_impl(write=False, send=True, email_dry_run=True, force=True)
         self.assertIn("error", out[0])
-        errs = sent["issues"][0]["errors"]
-        self.assertTrue(any(e.startswith("check failed twice") for e in errs))
-        self.assertIn("triage: RuntimeError: store down", errs)
+        self.assertEqual(sent["issues"], [])
+        health = sent["fyi"]["health"]
+        self.assertEqual(health[0]["error"], "RuntimeError: store down")
+        self.assertEqual(health[0]["steps"][0]["status"], "failed")
+        lines = notify._health_lines(health)
+        self.assertTrue(any("not checked this morning" in l and "store down" in l for l in lines), lines)
+        self.assertFalse(notify._health_clean(health))
 
 
 if __name__ == "__main__":
