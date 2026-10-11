@@ -292,11 +292,13 @@ class DispatchedRun(unittest.TestCase):
         files = {}
         st_read = lambda p: files.get(p)
         st_update = lambda p, tx, msg, **kw: files.__setitem__(p, tx(files.get(p))) or True
+        st_write = lambda p, text, msg, **kw: files.__setitem__(p, text) or True
         res_a = self._res("a", alerts=[{"headline": "8-K: guidance raised", "triggered_by": {"kind": "filing", "summary": "New 8-K"}}])
         common = [mock.patch("scout.display.list_battlecards", return_value=["a"]), mock.patch.object(monitor.store, "load_meta", return_value={"monitored": True, "competitor": "X", "my_company": "Y"}),
                   mock.patch.object(monitor, "_persist_run_cost"), mock.patch("scout.conseq.maybe_notify_ready"),
                   mock.patch.object(config, "PROPAGATE_MODE", "live"), mock.patch.object(config, "CONSEQUENTIAL_FILTER", "off"),
-                  mock.patch("scout.selfserve.read_data", side_effect=st_read), mock.patch("scout.selfserve.update_data", side_effect=st_update)]
+                  mock.patch("scout.selfserve.read_data", side_effect=st_read), mock.patch("scout.selfserve.update_data", side_effect=st_update),
+                  mock.patch("scout.selfserve.write_data", side_effect=st_write)]
         from contextlib import ExitStack
         with ExitStack() as es:
             for c in common:
@@ -323,6 +325,10 @@ class DispatchedRun(unittest.TestCase):
         self.assertEqual(cards[0]["meta"]["competitor"], "X")                                              # meta re-attached
         self.assertAlmostEqual(cost, 0.8)                                                                 # both runs' cost in one line
         self.assertEqual(json.loads(files["signals/_pending_fyi.json"]), [])                                # cleared once taken
+        # the lifecycle audit of a written run lands in the SAME fake store (2026-10-10: it reached the real one)
+        self.assertGreaterEqual(len([p for p in files if p.startswith("lifecycle/")]), 1)   # both runs may share a second
+        from scout import selfserve
+        self.assertFalse(selfserve.use_github())                                                           # never under the runner
 
     def test_due_gate_counts_a_signal_run(self):
         from scout import monitor, config

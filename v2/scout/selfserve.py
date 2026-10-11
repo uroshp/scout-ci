@@ -38,12 +38,28 @@ STATE_PATH = "selfserve/state.json"
 REQUESTS_DIR = "selfserve/requests"
 RESULTS_DIR = "user_reports"
 _GH_API = "https://api.github.com"
+def _under_test_runner() -> bool:
+    """True inside `python -m unittest ...` or pytest. The unit suite must never reach the private store
+    (2026-10-10: a test drove the whole run with write=True on the mini, whose shell carries the
+    store token; every other write in it was faked, and the lifecycle audit, added 10/4, wrote 40
+    fake audits into the production store over a week before anyone looked)."""
+    a0 = sys.argv[0] if sys.argv else ""
+    return a0.endswith(("unittest", "pytest", "unittest/__main__.py")) or "pytest" in sys.modules
+
+
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _under_test_runner():                      # the local fallback lands in a temp store, never the checkout
+    import tempfile as _tempfile
+    _REPO_ROOT = _tempfile.mkdtemp(prefix="scout-test-store-")
 
 
 # --- backend switch ----------------------------------------------------------
 def use_github() -> bool:
-    """True when the GitHub-API backend is configured (the deployed app)."""
+    """True when the GitHub-API backend is configured (the deployed app) and this is not the unit-test
+    runner: under the runner every read and write takes the local fallback (a temp store), whatever
+    the shell carries."""
+    if _under_test_runner():
+        return False
     return bool(config.SELFSERVE_GH_TOKEN and config.SELFSERVE_REPO)
 
 
