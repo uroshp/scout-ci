@@ -157,19 +157,32 @@ class RunHealthAndRehearsal(unittest.TestCase):
         subject, text, html = notify.render_run_fyi(cards, 3.21, health=health)
         self.assertIn("Run health:", text)
         self.assertIn("1 card checked, every step ran or was skipped by design", text)
-        self.assertIn("FAILED audience (NameError", text)
-        self.assertIn("CHECK FAILED (RuntimeError: store down", text)
+        # EMAIL POLICY (2026-10-10): plain words, never ERROR or FAILED; the footer is coloured, not red-alarmed
+        self.assertIn("audience did not finish (NameError", text)
+        self.assertIn("not checked this morning, the check did not finish (RuntimeError: store down", text)
         self.assertIn("skipped (not monitored)", text)
         self.assertIn("Run health:", html)
-        self.assertIn("#b0301c", html)                                     # a failure colours the footer red
+        self.assertIn("#8a4a1c", html)                                     # something did not finish: the footer is coloured
+        for word in ("ERROR", "FAILED", "URGENT"):
+            self.assertNotIn(word, text)
         self.assertNotIn("today' is not defined", subject)                  # the subject stays the headline
+        # notes (an abandoned window, a ceiling deferral) are one line each, and lifecycle rules are named per card
+        health2 = [{"slug": "a", "meta": {"my_company": "A", "competitor": "B"}, "steps": [{"step": "triage", "status": "ran"}],
+                    "notes": ["found but never verified against a source in 3 mornings of re-checks since 2026-10-06; no longer re-checked: Argon GA"]}]
+        lc = {"verdict": "RED", "summary": "1 of 7 cards failed a rule", "cards": [{"slug": "a", "failed": True, "invariants": [
+            {"id": "A1", "rule": "focus coverage", "status": "fail", "evidence": "0 focus searches"}]}]}
+        _, text2, html2 = notify.render_run_fyi([], 0.0, health=health2, lifecycle=lc)
+        self.assertIn("no longer re-checked: Argon GA", text2)
+        self.assertIn("Lifecycle audit: RED, 1 of 7 cards failed a rule", text2)
+        self.assertIn("a: rule A1 did not hold, focus coverage (0 focus searches)", text2)
+        self.assertFalse(notify._health_clean(health2)); self.assertTrue(notify._health_clean(health[:1]))
 
     def test_clean_health_footer_is_muted(self):
         health = [{"slug": "a", "meta": {"my_company": "A", "competitor": "B"}, "steps": [{"step": "triage", "status": "ran"}]}]
         cards = [{"meta": {"my_company": "A", "competitor": "B"}, "alerts": [{"headline": "h", "subject_key": "s"}], "applied": []}]
         _, text, html = notify.render_run_fyi(cards, 1.0, health=health)
         self.assertIn("1 card checked, every step ran or was skipped by design", text)
-        self.assertNotIn("#b0301c", html.split("Run health:")[1])
+        self.assertNotIn("#8a4a1c", html.split("Run health:")[1])
 
     def test_rehearsal_prefixes_every_subject_once(self):
         from unittest import mock

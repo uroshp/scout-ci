@@ -9,7 +9,7 @@ import json
 import unittest
 from unittest import mock
 
-from scout import config, notify, propagate
+from scout import config, notify, propagate, schema
 from scout.propagate import (_decision_records, _parse_verdicts, _rewritable_indices,
                              _rewrite_worklist, _active_targets)
 
@@ -350,7 +350,7 @@ class LengthCureLoop(unittest.TestCase):
         self.assertEqual(len(res["confirmed"]), 1)
         final = res["confirmed"][0]["claim"]
         self.assertEqual(final, self.SHORT)
-        self.assertLessEqual(len(final.split()), 170)
+        self.assertLessEqual(len(final.split()), schema.RENDER_MAX_WORDS)
         # the cure worklist carried the DETERMINISTIC cap reason as the judge feedback
         self.assertIn("render cap", rewrite_calls[1][0]["judge_reason"])
         rec = res["decisions"][0]

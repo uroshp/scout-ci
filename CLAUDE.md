@@ -92,9 +92,13 @@ broke production this week. Every change to `scout/monitor.py`, `scout/propagate
    two 10/3-10/4 bugs that invalidated the tool were invisible to every other signal.
 4. Uroš approves; merge `rc` into `main`; **rehearse on main** the same way (it proves the exact
    code and workflow expressions the 4 AM run will use).
-5. The first morning is watched: the FYI footer's run-health and lifecycle lines, the needs-you
-   email (every failed step and every red lifecycle rule is an item), the step table in
-   `costs/<stamp>.json`, and the 09:00 PT canary's `check_steps` and `check_lifecycle`.
+5. The first morning is watched: the FYI footer's run-health and lifecycle lines (email policy
+   2026-10-10: a failed step, a failed check, an abandoned window and a red lifecycle rule are one
+   plain line each THERE, never a second email and never the word ERROR; the needs-you email
+   carries only what waits on Uroš: a held or unjudged update, a deal-moving point that could not
+   be written with the judge's diagnosis, a provenance block), the step table in
+   `costs/<stamp>.json`, and the 09:00 PT canary (`check_steps` and `check_lifecycle` report a
+   MISSING step table or audit; what the FYI already said is not repeated).
 
 Rehearsals cost real model calls ($0.20 for a quiet card, up to $3 with news) and run ONLY when
 Uroš asks for one (2026-10-05: "enough with rehearsals"). The standing gate for a change is the unit

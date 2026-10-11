@@ -64,7 +64,7 @@ class RenderStructure(unittest.TestCase):
 
 
 class WordCap(unittest.TestCase):
-    """The deterministic 170-word render cap (2026-07-25: first unit coverage — the rule shipped
+    """The deterministic render cap (schema.RENDER_MAX_WORDS, 180 since 2026-10-10) (2026-07-25: first unit coverage — the rule shipped
     2026-07-02 untested) and its public factor-out word_cap_errors, which the propagation length
     floor and the condense repair trigger both key off. The two must agree byte-for-byte."""
 

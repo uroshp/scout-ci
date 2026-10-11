@@ -15,6 +15,11 @@ import httpx
 
 from scout import config
 
+
+def _cap() -> int:
+    from scout import schema
+    return schema.RENDER_MAX_WORDS
+
 RESEND_ENDPOINT = "https://api.resend.com/emails"
 
 # --- HTML email styling (2026-07-31: the plain-text WHAT-CHANGED diff was unreadable). Inline
@@ -309,7 +314,7 @@ def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict],
     reading the prose.
 
     `held` are judge-confirmed updates the PRE-EMAIL render gate could not auto-repair (e.g. over
-    the 170-word render cap): durably stored in pending_publish, owed to the card, never dropped —
+    the render cap): durably stored in pending_publish, owed to the card, never dropped —
     this email is their loud flag (2026-07-18: a held op previously rode the email looking fine and
     was held silently at approve time)."""
     exhausted, unjudged, held = exhausted or [], unjudged or [], held or []
@@ -353,7 +358,7 @@ def render_propagation_proposals(slug: str, meta: dict, decisions: list[dict],
         # 2026-07-25 length-cure loop: an auto-condensed body is flagged so the owner knows the NEW
         # text above is a machine condense that a blind judge re-verified — read it with that lens.
         if d.get("length_cured") or d.get("condensed_at_gate"):
-            out += ["", "Note: auto-condensed to fit the 170-word render cap after judge "
+            out += ["", f"Note: auto-condensed to fit the {_cap()}-word render cap after judge "
                         "confirmation; re-verified by a blind judge — the NEW text above is the "
                         "condensed version."]
         if d.get("trigger_source_url"):
@@ -443,7 +448,7 @@ def _decision_card_html(d: dict) -> str:
                      + _hblock(d.get("new_text")))
     if d.get("length_cured") or d.get("condensed_at_gate"):
         parts.append('<div style="color:#8a6322;font-size:14px;margin-top:8px">Auto-condensed to '
-                     'the 170-word cap after confirmation, re-verified by a blind judge.</div>')
+                     f'the {_cap()}-word cap after confirmation, re-verified by a blind judge.</div>')
     # Feed note and Judge: each its OWN readable block, same body font, labeled — not tiny grey.
     if d.get("feed_note"):
         parts.append('<div style="margin-top:12px"><div style="font-weight:600">Feed note</div>'
@@ -727,8 +732,10 @@ def _alert_block_html(a: dict) -> str:
 
 
 def _health_lines(health: list[dict]) -> list[str]:
-    """One line per card from the step tables (2026-10-03): what ran, what was skipped and why,
-    what failed. Cards whose every step ran or was skipped by design collapse into one count."""
+    """One plain line per thing from the step tables (2026-10-03; wording per the email policy of
+    2026-10-10: say what did not finish, never ERROR or FAILED): a check that did not finish, a step
+    that did not finish, and the run's notes (an abandoned window, a ceiling deferral, a propagation
+    crash). Cards whose every step ran or was skipped by design collapse into one count."""
     clean, lines = 0, []
     for h in health or []:
         label = _card_label(h.get("meta") or {}) if h.get("meta") else h.get("slug", "?")
@@ -736,16 +743,29 @@ def _health_lines(health: list[dict]) -> list[str]:
             lines.append(f"{label}: skipped ({h['skipped']})")
             continue
         if h.get("error"):
-            lines.append(f"{label}: CHECK FAILED ({_flat(h['error'])[:160]})")
+            lines.append(f"{label}: not checked this morning, the check did not finish ({_flat(h['error'])[:160]}); it runs again next morning")
             continue
         steps = h.get("steps") or []
         failed = [r for r in steps if r.get("status") == "failed"]
+        notes = [str(n) for n in (h.get("notes") or []) if n]
         if failed:
-            lines.append(f"{label}: FAILED " + "; ".join(f"{r['step']} ({_flat(r.get('detail') or '')[:120]})" for r in failed))
-            continue
-        clean += 1
+            lines.append(f"{label}: " + "; ".join(f"{r['step']} did not finish ({_flat(r.get('detail') or '')[:120]})" for r in failed))
+        for n in notes:
+            lines.append(f"{label}: {_flat(n)[:300]}")
+        if not failed and not notes:
+            clean += 1
     head = [f"{clean} card{'s' if clean != 1 else ''} checked, every step ran or was skipped by design"] if clean else []
     return head + lines
+
+
+def _health_clean(health: list[dict]) -> bool:
+    """True when nothing in the run's health needs a word: no check or step that did not finish, no note."""
+    for h in health or []:
+        if h.get("error") or any(n for n in (h.get("notes") or [])):
+            return False
+        if any(r.get("status") == "failed" for r in (h.get("steps") or [])):
+            return False
+    return True
 
 
 def _sensors_lines(sensors: dict | None) -> tuple[list[str], str]:
@@ -821,6 +841,20 @@ def _lifecycle_line(lc: dict | None) -> str:
     return f"Lifecycle audit: {v}, " + str(lc.get("summary") or "")
 
 
+def _lifecycle_lines(lc: dict | None) -> list[str]:
+    """The verdict line, then one line per rule that did not hold, per card (2026-10-10: a red rule
+    is said here, in the FYI, instead of a second email)."""
+    head = _lifecycle_line(lc)
+    if not head:
+        return []
+    out = [head]
+    for c in (lc or {}).get("cards") or []:
+        for i in c.get("invariants") or []:
+            if i.get("status") == "fail":
+                out.append(f"{c.get('slug')}: rule {i.get('id')} did not hold, {i.get('rule')} ({str(i.get('evidence') or '')[:160]})")
+    return out
+
+
 def render_run_fyi(cards: list[dict], cost_total: float | None = None, health: list[dict] | None = None,
                    sensors: dict | None = None, lifecycle: dict | None = None) -> tuple[str, str, str]:
     """(subject, text, html) for the run's single FYI. `cards`: [{meta, alerts, applied (decisions
@@ -872,17 +906,17 @@ def render_run_fyi(cards: list[dict], cost_total: float | None = None, health: l
         text_lines.append(f"Run cost: ${cost_total:.2f}")
     hl = _health_lines(health or [])
     if hl:
-        bad = any(("FAILED" in l) for l in hl)
-        foot.append(f'<div style="font-size:13px;margin-top:8px;{"color:#b0301c;font-weight:700" if bad else _C_MUTED}">Run health: '
+        bad = not _health_clean(health or [])
+        foot.append(f'<div style="font-size:13px;margin-top:8px;{"color:#8a4a1c;font-weight:600" if bad else _C_MUTED}">Run health: '
                     + "<br>".join(_esc(l) for l in hl) + '</div>')
         text_lines.append("Run health: " + " | ".join(hl))
-    ll = _lifecycle_line(lifecycle)
-    if ll:
+    lls = _lifecycle_lines(lifecycle)
+    if lls:
         red = str((lifecycle or {}).get("verdict")) == "RED"
         amber = str((lifecycle or {}).get("verdict")) == "AMBER"
-        colour = "color:#b0301c;font-weight:700" if red else ("color:#8a6d00;font-weight:700" if amber else _C_MUTED)
-        foot.append(f'<div style="font-size:13px;margin-top:6px;{colour}">{_esc(ll)}</div>')
-        text_lines.append(ll)
+        colour = "color:#8a4a1c;font-weight:600" if red else ("color:#8a6d00;font-weight:600" if amber else _C_MUTED)
+        foot.append(f'<div style="font-size:13px;margin-top:6px;{colour}">' + "<br>".join(_esc(l) for l in lls) + '</div>')
+        text_lines += lls
     foot.append(f'<div style="{_C_MUTED};font-size:12px;margin-top:10px">— Scout (every claim verified against its '
                 'source; every applied update passed the authorship judge and the provenance gate)</div>')
     return subject, "\n".join(text_lines), _hdoc(lead, "".join(blocks), "".join(foot))
@@ -891,23 +925,46 @@ def render_run_fyi(cards: list[dict], cost_total: float | None = None, health: l
 def send_run_fyi(cards: list[dict], cost_total: float | None = None, dry_run: bool = True,
                  health: list[dict] | None = None, sensors: dict | None = None, lifecycle: dict | None = None) -> dict:
     # the FYI goes out every run day while sensors run in SHADOW (his decision 10/3: he watches the
-    # streak), and whenever the lifecycle audit is not green; otherwise a quiet morning sends nothing
+    # streak), whenever the lifecycle audit is not green, and whenever the run's health has something
+    # to say (2026-10-10: a failure is one line here, never a second email); a quiet morning sends nothing
     if not cards and not (sensors and sensors.get("rows") and sensors.get("mode") == "shadow") \
-            and str((lifecycle or {}).get("verdict") or "GREEN") == "GREEN":
+            and str((lifecycle or {}).get("verdict") or "GREEN") == "GREEN" and _health_clean(health or []):
         return {"sent": False, "reason": "nothing to report"}
     subject, text, html = render_run_fyi(cards, cost_total, health=health, sensors=sensors, lifecycle=lifecycle)
     return _dispatch(subject, text, dry_run=dry_run, html=html)
 
 
+ISSUE_KINDS = ("held", "unjudged", "exhausted", "provenance_issues")   # what waits on him; nothing else is an item
+
+
+def _undrafted_card_html(d: dict) -> str:
+    """A deal-moving point that could not be written, as the owner authors it by hand: why it stopped,
+    the judge's final diagnosis (the material point and the correct approach), the last attempt."""
+    why = (d.get("held_reason") or ("the judge found no grounded correct expression in the facts" if d.get("cure") == "none"
+                                    else f"the judge rejected {d.get('rewrite_attempts', 0) + 1} version(s); the rewrite loop stopped"))
+    att = d.get("attempts") or []
+    last = next((a.get("claim") for a in reversed(att) if a.get("claim")), None)
+    inner = (_hhead(str(d.get("operation", "")).upper(), d.get("section", ""), d.get("zone"), d.get("change_kind"), d.get("subject_key"), accent="#8a4a1c")
+             + f'<div style="{_C_MUTED};font-size:13px">Why it stopped: {_esc(_flat(why))}</div>'
+             + (f'<div style="font-weight:600;margin:8px 0 2px">The judge\'s diagnosis (the point to keep, and the approach)</div>' + _hblock(d["judge_reason"])
+                if d.get("judge_reason") else "")
+             + (f'<div style="font-weight:600;margin:8px 0 2px">Last version (not accepted)</div>' + _hblock(last) if last else "")
+             + (f'<div style="font-size:13px;margin-top:6px"><a style="{_C_LINK}" href="{_esc(d["trigger_source_url"])}">source</a></div>'
+                if d.get("trigger_source_url") else "")
+             + '<div style="font-size:13px;margin-top:6px">The card is unchanged on this point. Author it from the diagnosis and apply it through the judge, or leave it.</div>')
+    return _hcard(inner, accent="#d9b48a")
+
+
 def render_run_issues(cards: list[dict]) -> tuple[str, str, str]:
     """(subject, text, html) for the run's "needs you" email. `cards`: [{meta, held, unjudged,
-    exhausted, provenance_issues, pipeline_health, errors}] for cards with at least one item."""
-    n = sum(len(c.get("held") or []) + len(c.get("unjudged") or []) + len(c.get("exhausted") or [])
-            + len(c.get("provenance_issues") or []) + (1 if c.get("pipeline_health") else 0) + len(c.get("errors") or [])
-            for c in cards)
+    exhausted, provenance_issues}] for cards with at least one item. EMAIL POLICY (Uroš 2026-10-10):
+    an item is something that waits on him (a held or unjudged update, a deal-moving point that could
+    not be written, a provenance block). A step or check that did not finish is a line in the FYI's
+    run health, never an item here; the words URGENT and ERROR appear nowhere."""
+    n = sum(len(c.get(k) or []) for c in cards for k in ISSUE_KINDS)
     subject = f"Scout needs you: {n} item{'s' if n != 1 else ''} on {len(cards)} card{'s' if len(cards) != 1 else ''}"
-    lead = ('<p><strong>These did not go on a card by themselves.</strong> Each says why and what to do; '
-            'everything else this morning was applied and is in the FYI.</p>')
+    lead = ('<p><strong>These wait on you.</strong> Each says why and what to do. Everything else this morning '
+            'is in the FYI, including anything that did not finish.</p>')
     blocks, text_lines = [], [subject, ""]
     for c in cards:
         meta = c.get("meta") or {}
@@ -915,38 +972,29 @@ def render_run_issues(cards: list[dict]) -> tuple[str, str, str]:
         blocks.append(f'<h2 style="font-size:17px;margin:22px 0 8px">{_esc(label)}</h2>')
         text_lines.append(f"== {label} ==")
         for d in c.get("held") or []:
-            blocks.append(_hcard(f'<div style="font-weight:700;color:#8a6322">HELD, needs curing</div>'
+            blocks.append(_hcard(f'<div style="font-weight:700;color:#8a6322">Held: confirmed, not applied</div>'
                                  f'<div style="{_C_MUTED};font-size:13px;margin:4px 0 8px">{_esc(_flat(d.get("held_reason") or d.get("format_reason") or "render gate"))}'
                                  '. Cure it, then approve with scout-proposals.</div>' + _decision_card_html(d), accent="#e2c98a"))
             text_lines.append(f"- HELD {d.get('subject_key')}: {_flat(d.get('held_reason') or 'render gate')}")
         for d in c.get("unjudged") or []:
-            blocks.append(_hcard('<div style="font-weight:700;color:#8a6322">UNJUDGED (judge unavailable)</div>'
-                                 f'<div style="{_C_MUTED};font-size:13px;margin:4px 0 8px">Not applied. Approve manually with allow_unjudged if it holds up.</div>'
+            blocks.append(_hcard('<div style="font-weight:700;color:#8a6322">Not judged: the judge was unavailable</div>'
+                                 f'<div style="{_C_MUTED};font-size:13px;margin:4px 0 8px">Not applied. Approve with allow_unjudged if it holds up.</div>'
                                  + _decision_card_html(d), accent="#e2c98a"))
-            text_lines.append(f"- UNJUDGED {d.get('subject_key')}")
+            text_lines.append(f"- NOT JUDGED {d.get('subject_key')}")
         for d in c.get("exhausted") or []:
-            att = d.get("attempts") or []
-            rows = "".join(f"<li>{_esc(_flat(a.get('reason') or '(no reason)'))}</li>" for a in att)
-            blocks.append(_hcard('<div style="font-weight:700;color:#b0301c">AUTHORING FAILED</div>'
-                                 f'<div style="margin-top:4px">{_esc(d.get("subject_key") or "")}</div><ul>{rows}</ul>', accent="#e5a99a"))
-            text_lines.append(f"- AUTHORING FAILED {d.get('subject_key')}")
+            blocks.append(_hcard('<div style="font-weight:700;color:#8a4a1c">Could not be written</div>' + _undrafted_card_html(d), accent="#d9b48a"))
+            text_lines.append(f"- COULD NOT BE WRITTEN {d.get('subject_key')}: {_flat(d.get('judge_reason') or '')[:400]}")
         for i in c.get("provenance_issues") or []:
-            blocks.append(_hcard('<div style="font-weight:700;color:#b0301c">PROVENANCE GATE: nothing from this card\'s propagation was written</div>'
-                                 f'<div style="margin-top:4px">{_esc(str(i))}</div>', accent="#e5a99a"))
+            blocks.append(_hcard('<div style="font-weight:700;color:#8a4a1c">Provenance gate: nothing from this card\'s propagation was written</div>'
+                                 f'<div style="margin-top:4px">{_esc(str(i))}</div>', accent="#d9b48a"))
             text_lines.append(f"- PROVENANCE {i}")
-        if c.get("pipeline_health"):
-            blocks.append(_hcard(f'<div style="font-weight:700;color:#b0301c">PIPELINE HEALTH</div><div style="margin-top:4px">{_esc(str(c["pipeline_health"]))}</div>', accent="#e5a99a"))
-            text_lines.append(f"- HEALTH {c['pipeline_health']}")
-        for e in c.get("errors") or []:
-            blocks.append(_hcard(f'<div style="font-weight:700;color:#b0301c">ERROR</div><div style="margin-top:4px">{_esc(str(e))}</div>', accent="#e5a99a"))
-            text_lines.append(f"- ERROR {e}")
         text_lines.append("")
     foot = [f'<div style="{_C_MUTED};font-size:12px;margin-top:10px">— Scout</div>']
     return subject, "\n".join(text_lines), _hdoc(lead, "".join(blocks), "".join(foot))
 
 
 def send_run_issues(cards: list[dict], dry_run: bool = True) -> dict:
-    cards = [c for c in cards if any(c.get(k) for k in ("held", "unjudged", "exhausted", "provenance_issues", "pipeline_health", "errors"))]
+    cards = [c for c in cards if any(c.get(k) for k in ISSUE_KINDS)]
     if not cards:
         return {"sent": False, "reason": "no issues"}
     subject, text, html = render_run_issues(cards)
