@@ -2024,13 +2024,16 @@ def _run_all_impl(write: bool = True, send: bool = True, email_dry_run: bool = T
             # a DISPATCHED run never emails on its own (Uroš 2026-09-29): what it found waits in the
             # store and rides the next scheduled run's FYI / needs-you email
             if write:
-                _stash_pending_fyi(run_started, fyi_cards, issue_cards, run_cost)
+                _stash_pending_fyi(run_started, fyi_cards, issue_cards, run_cost, health_rows)
             print(f"[monitor] quiet run: {len(fyi_cards)} FYI card(s), {len(issue_cards)} issue card(s) stashed for the next FYI")
         else:
             prior = _take_pending_fyi() if write else []
             for p_ in prior:
                 fyi_cards = [dict(c, meta=store.load_meta(c["slug"]) or {}) for c in p_.get("fyi_cards", [])] + fyi_cards
                 issue_cards = [dict(c, meta=store.load_meta(c["slug"]) or {}) for c in p_.get("issue_cards", [])] + issue_cards
+                # a dispatched run's health (a step that did not finish) rides the next FYI too (2026-10-10)
+                health_rows = [dict(h, meta=store.load_meta(h["slug"]) or {}, dispatched=p_.get("run_ts"))
+                               for h in p_.get("health_rows", [])] + health_rows
                 run_cost += float(p_.get("cost_usd") or 0)
             sensors_block = None
             if config.SENSORS_MODE != "off" and sensor_rows:
@@ -2069,13 +2072,18 @@ def _strip_meta(cards: list) -> list:
     return [{k: v for k, v in c.items() if k != "meta"} for c in cards]
 
 
-def _stash_pending_fyi(run_started, fyi_cards: list, issue_cards: list, cost_usd: float) -> None:
-    """A dispatched run's would-be emails, appended to the store for the next scheduled run."""
-    if not fyi_cards and not issue_cards:
+def _stash_pending_fyi(run_started, fyi_cards: list, issue_cards: list, cost_usd: float, health_rows: list | None = None) -> None:
+    """A dispatched run's would-be emails, appended to the store for the next scheduled run. Health rows
+    with something to say (a check or step that did not finish, a note) ride along (2026-10-10), so a
+    dispatched run's failure is still one line in the next FYI."""
+    from scout import notify
+    unwell = [h for h in (health_rows or []) if not notify._health_clean([h])]
+    if not fyi_cards and not issue_cards and not unwell:
         return
     from scout import selfserve
     entry = {"run_ts": run_started.isoformat(timespec="seconds"), "reason": os.environ.get("SCOUT_MONITOR_REASON", "")[:200],
-             "fyi_cards": _strip_meta(fyi_cards), "issue_cards": _strip_meta(issue_cards), "cost_usd": round(cost_usd, 4)}
+             "fyi_cards": _strip_meta(fyi_cards), "issue_cards": _strip_meta(issue_cards), "cost_usd": round(cost_usd, 4),
+             "health_rows": _strip_meta(unwell)}
     def tx(cur):
         try:
             arr = json.loads(cur) if cur else []
