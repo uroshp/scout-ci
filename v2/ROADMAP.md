@@ -66,7 +66,7 @@ These are directions I chose not to take, noted so the boundaries are clear:
 - **Multi-perspective cards** — each card arms one side. A neutral “both sides” view is a different product (market analysis, not a battlecard) and wasn’t the goal.
 - **Real-time alerting** — the monitoring cadence is daily-to-weekly by design. Sub-hour breaking-news alerting would require the looser triage and the live-status infra above, and isn’t what a battlecard needs.
 
-## Writing: say more with less (todo, 2026-10-08)
+## Writing: say more with less (approved and applied 2026-10-10)
 
 Owner's principle (Uroš, 2026-10-08): the 170-word render cap was an artificial limit put in because
 paragraphs ran long. The real issue is saying more with less: what does a sales rep need to hear,
@@ -118,6 +118,16 @@ I would add one number to the weekly check-in, median lead length, and nothing e
 These are edits to three instruction blocks in the private pack, which you calibrate. When you want
 them, I draft the wording for you to approve, and they take effect on the next morning run.
 
-Status: edits drafted for the owner's approval (private pack blocks: the writing style, the
-propagation author and judge, the condense reformatter and its fidelity judge, the audience author
-addendum) plus the code backstop raise to 180. Not applied until approved.
+Status: approved by the owner on 2026-10-10 ("go for all 3") and applied the same day: six
+private pack blocks (the writing style, the propagation author and judge, the condense reformatter
+and its fidelity judge, the audience author addendum) in pack version 92c86b0f862b38fe, and the code
+backstop raised to 180 (`schema.RENDER_MAX_WORDS`). A changed block opens a new eval period for the
+roles that receive it. How it is judged: the weekly ten applied edits, plus median lead length in
+the check-in. The first case: the 10/10 Perplexity lead the author failed three times (an invented
+commitment, a still-true line erased, the contrast buried) was authored to the judge's diagnosis and
+confirmed by the judge on the first call under the new rules.
+
+Email policy (same day, his decision): one needs-you email carries only what waits on him (a held or
+unjudged update, a point that could not be written with the judge's diagnosis, a provenance block);
+a failed step, a failed check, an abandoned window and a red lifecycle rule are one plain line each
+in the FYI; the words URGENT and ERROR appear nowhere; the canary reports only a missing artifact.
