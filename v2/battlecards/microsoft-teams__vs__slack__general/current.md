@@ -30,7 +30,7 @@ Microsoft's redesigned meeting controls, with a separated Leave button and a two
 
 **Soundbite:** "The screen-share mix-up Slack keeps citing has a dated fix shipping to everyone by September, so let's talk about what's actually still open."
 
-**So what:** Concede the meeting-UI complaint is fixed and dated, then steer the objection to what's still real: the memory footprint and the outage history, so the prospect argues the right point. ([techcommunity.microsoft.com](https://techcommunity.microsoft.com/blog/microsoftteamsblog/what%e2%80%99s-new-in-microsoft-teams--june-2026-%e2%80%93-infocomm-edition/4531968))
+**So what:** Concede the meeting-UI complaint is fixed and dated, then steer the objection to what's still real: the memory footprint and the outage history, so the prospect argues the right point. ([mc.merill.net](https://mc.merill.net/message/MC1317197))
 
 ## Snapshot
 
@@ -109,7 +109,7 @@ Slack's marketplace and integration culture run deep (Salesforce touts AI-enable
 ## Sentiment
 
 - Sentiment: Slack is rated #1 for business instant messaging in G2's Winter 2026 report at 4.5/5, edging Teams (~4.4) on day-to-day user satisfaction, a small but persistent gap reflecting Slack's messaging UX. ([learn.g2.com](https://learn.g2.com/slack-pricing))
-- Sentiment: users complained Teams' meeting controls were cluttered enough to cause accidental screen-shares, a gripe serious enough that Microsoft publicly acknowledged it in May 2026. Microsoft has since shipped the fix: a redesigned toolbar with center-aligned controls, a separated Leave button and a two-step share confirmation, rolling out to Targeted Release users in early July 2026 and reaching worldwide general availability in early September 2026. ([techcommunity.microsoft.com](https://techcommunity.microsoft.com/blog/microsoftteamsblog/what%e2%80%99s-new-in-microsoft-teams--june-2026-%e2%80%93-infocomm-edition/4531968))
+- Sentiment: users complained Teams' meeting controls were cluttered enough to cause accidental screen-shares, a gripe serious enough that Microsoft publicly acknowledged it in May 2026. Microsoft has since shipped the fix: a redesigned toolbar with center-aligned controls, a separated Leave button and a two-step share confirmation, rolling out to Targeted Release users in early July 2026 and reaching worldwide general availability in early September 2026. ([mc.merill.net](https://mc.merill.net/message/MC1317197))
 - Sentiment: users repeatedly find Teams' channels clunky and hard to navigate, with many defaulting to plain chat instead, a recurring confusion about where conversations belong. ([buckleyplanet.com](https://buckleyplanet.com/2025/09/are-microsoft-teams-channels-overrated/))
 - Sentiment: Slack's free-tier 90-day message-history cap is a frequent reviewer frustration, making older conversations hard to retrieve and nudging teams toward paid plans. ([learn.g2.com](https://learn.g2.com/slack-pricing))
 - Sentiment: Slack drew developer-community backlash in September 2025 after threatening to deactivate teen-coding nonprofit Hack Club's 11-year message history unless it paid \$200,000/year; the CEO publicly apologized and reversed course, but the episode dented Slack's developer-friendly image. ([news.ycombinator.com](https://news.ycombinator.com/item?id=45283887))
@@ -156,7 +156,7 @@ Acknowledge it: Teams had worldwide disruptions in late 2025 with message delays
 
 That was a real complaint, serious enough that Microsoft publicly acknowledged it. The fix is now dated and shipping: center-aligned controls with a separated Leave button and a two-step share confirmation, reaching Targeted Release users in early July 2026 and worldwide general availability in early September 2026.
 
-**So what:** Raise this objection yourself before the prospect does, name the fix and its September general availability date, and turn a Slack talking point into proof that Teams ships fixes on a public timeline. ([techcommunity.microsoft.com](https://techcommunity.microsoft.com/blog/microsoftteamsblog/what%e2%80%99s-new-in-microsoft-teams--june-2026-%e2%80%93-infocomm-edition/4531968))
+**So what:** Raise this objection yourself before the prospect does, name the fix and its September general availability date, and turn a Slack talking point into proof that Teams ships fixes on a public timeline. ([mc.merill.net](https://mc.merill.net/message/MC1317197))
 
 **"Why can't we just run our coding agents inside Slack instead of Teams?"**
 

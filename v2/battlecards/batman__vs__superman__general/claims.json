@@ -885,15 +885,15 @@
   },
   {
     "subject_key": "warner-bros-discovery-paramount-acquisition",
-    "claim": "Paramount Skydance settled the antitrust suit brought by a dozen state attorneys general on September 21, 2026, clearing the last obstacle to its roughly $111B takeover of Warner Bros. Discovery, the studio behind Superman and DC Studios. Paramount told staff it expects to close in about two weeks, ahead of a $7M-per-day ticking fee that would have started Oct. 1. Settlement terms make the combined company negotiate cable packages separately, keep both studios' Los Angeles lots and hold Superman and Warner Bros. film operations as separate businesses for a period, but WBD's studio and streaming assets pass to Paramount control.",
+    "claim": "Paramount closed its roughly $110B purchase of Warner Bros. Discovery on October 6, 2026, and renamed the combined company Skydance. David Ellison is chairman and CEO, and Ynon Kreiz, the former Mattel CEO, is co-CEO running day-to-day operations. Warner Bros. releases both Superman and The Batman, so Skydance now makes the slate and budget calls for both franchises. The new company has committed to at least 30 theatrical films a year, each with a minimum 45-day theatrical window, and is targeting at least $6 billion in synergies within three years. Cost targets that size usually bring a slate review.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.hollywoodreporter.com/business/business-news/paramount-antitrust-suit-settlement-deal-state-ags-warners-1236704473/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Paramount Skydance and the state attorneys general have settled the blockbuster antitrust lawsuit over the $111 billion Warner Bros. Discovery acquisition.",
-    "as_of": "2026-09-21",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/0002041610/000110465926113913/tm2626659d7_ex99-1.htm",
+    "source_tier": "primary",
+    "evidence_excerpt": "PARAMOUNT COMPLETES ACQUISITION OF WARNER BROS. DISCOVERY, CREATING A NEW GLOBAL ENTERTAINMENT LEADER, SKYDANCE",
+    "as_of": "2026-10-06",
     "confidence": "high",
     "id": "c_d56e29441dcb",
     "verified": true,
@@ -901,26 +901,19 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-09-28",
+      "fetched_at": "2026-10-12",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://deadline.com/2026/09/paramount-settles-antitrust-suit-to-seal-warner-bros-deal-1237109223/",
+        "source_url": "https://www.irishnews.com/news/uk/paramount-and-warner-bros-wrap-up-mega-deal-to-create-skydance-KSA57R5Q5NMYVERPDOOUKWRQYI/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false,
-        "source_class": "news"
-      },
-      {
-        "source_url": "https://www.cnbc.com/2026/09/21/paramount-reaches-settlement-over-warner-bros-merger.html",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false,
-        "source_class": "news"
+        "source_class": "unknown"
       }
     ],
-    "source_class": "news"
+    "source_class": "filing"
   },
   {
     "subject_key": "the batman part ii | release-date",

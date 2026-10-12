@@ -926,15 +926,15 @@
   },
   {
     "subject_key": "microsoft-teams | product-quality-exposure",
-    "claim": "Microsoft's Teams Message Center notice MC1317197 (last updated July 1, 2026) says the meeting toolbar and share panel have grown crowded, causing mis-clicks between Share, Leave and Raise Hand and accidental shares of unintended content, and announces a redesign: center-aligned controls with a separated Leave button and customizable pinning, plus a share panel with live previews and two-step share confirmation. Rollout to Targeted Release users begins early July 2026, with worldwide general availability beginning early September 2026. Microsoft's own June 30, 2026 Teams blog post lists 'Redesigned in-meeting controls' among the month's shipped features.",
+    "claim": "Microsoft's redesigned Teams meeting controls (center-aligned controls, a separated Leave button, a reorganized More menu and a two-step share confirmation) were re-timed in a September 23, 2026 update to Message Center notice MC1317197. Worldwide general availability now begins in mid-October 2026 and completes by late October 2026 (previously late September). GCC and GCC High run from late October to mid-December 2026, and DoD from mid-December 2026 to early January 2027. The new experience is on by default with no tenant-level disable, and users can temporarily opt out during rollout.",
     "claim_type": "fact",
     "section": "tracked_facts",
     "zone": null,
     "order": 1,
-    "source_url": "https://techcommunity.microsoft.com/blog/microsoftteamsblog/what%e2%80%99s-new-in-microsoft-teams--june-2026-%e2%80%93-infocomm-edition/4531968",
-    "source_tier": "primary",
-    "evidence_excerpt": "Redesigned in-meeting controls: Customize your meeting controls around how you work, and share with more confidence through an improved experience",
-    "as_of": "2026-07-01",
+    "source_url": "https://mc.merill.net/message/MC1317197",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "General Availability (Worldwide): We will begin rolling out in mid-October 2026 (previously late September) and expect to complete by late October 2026",
+    "as_of": "2026-09-23",
     "confidence": "high",
     "id": "c_3c85afbc882a",
     "verified": true,
@@ -942,26 +942,10 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-07-04",
+      "fetched_at": "2026-10-12",
       "detail": null
     },
-    "corroboration": [
-      {
-        "source_url": "https://mc.merill.net/message/MC1317197",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false,
-        "source_class": "unknown"
-      },
-      {
-        "source_url": "https://www.uctoday.com/unified-communications/microsoft-teams-admits-its-meeting-controls-are-broken-heres-how-its-fixing-them/",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false,
-        "source_class": "news"
-      }
-    ],
-    "source_class": "company_statement"
+    "source_class": "unknown"
   },
   {
     "id": "c_e9386f83db03",
