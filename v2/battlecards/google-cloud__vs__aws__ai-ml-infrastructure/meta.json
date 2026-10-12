@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-10-10T11:05:28",
+  "last_checked": "2026-10-12T11:10:16",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -31,7 +31,8 @@
     "f_0c919cce7bb3",
     "f_1f86681394ca",
     "f_f3060f7222f3",
-    "f_b25437a52bcf"
+    "f_b25437a52bcf",
+    "f_a37606c597e5"
   ],
   "monitored": true,
   "watch": {
@@ -41,5 +42,31 @@
     ],
     "job_boards": []
   },
-  "last_check_reason": "scheduled"
+  "last_check_reason": "scheduled",
+  "pending_candidates": {
+    "my_company": [
+      {
+        "signal": "Google Cloud Next 2026: Gemini Enterprise Agent Platform launch, Agentic Defense (Wiz-integrated security), Gemini Agent for Work in private preview — announced October 10-12, 2026",
+        "subject_key": "google-cloud | agent-platform-launch",
+        "about": "my_company",
+        "valence": "front_foot = good for us / bad for them",
+        "substantial": true,
+        "why_new": "Google Cloud Next 2026 is a MAJOR EVENT (Oct 10-12, confirmed) announcing three substantive agent/security platform expansions not in the tracked claims. Status flip: Gemini Enterprise Agent Platform moves from partnership mentions into formal GA launch with Agentic Defense integrating post-Wiz-acquisition security. Bedrock AgentCore (Aug 6) now has a direct Google counter-move (Gemini Agent GA, not pilot). The velocity matters: Google is shipping frontier model wins faster than AWS can follow.",
+        "source_hint": "https://www.hpcwire.com/aiwire/tag/gemini-enterprise-agent-platform/, https://www.ncloudx.com/blog"
+      },
+      {
+        "signal": "Google acquires Wiz for $32B all-cash deal — Google's largest acquisition ever, cloud security startup, expected to close in 2026. Wiz capabilities now powering Google Cloud's Agentic Defense",
+        "subject_key": "google-cloud | wiz-acquisition-m-and-a",
+        "about": "my_company",
+        "valence": "front_foot = good for us / bad for them",
+        "substantial": true,
+        "why_new": "M&A deal ($32B, all-cash, largest Google acquisition on record) not in tracked claims. Announced October 2026 (definitive agreement signed; prior $23B bid failed July 2026). Fills strategic gap in cloud security for AI/agentic workloads. The deal integrates directly into the Agentic Defense platform announced Oct 10-12 at Google Cloud Next 2026. This is material to competitive positioning: Google just bought security depth to embed in its agent platform.",
+        "source_hint": "https://finance.yahoo.com/news/google-acquires-wiz-biggest-deal-150230622.html, https://websiteplanet.com/news/google-to-buy-wiz-for-32-billion-usd"
+      }
+    ],
+    "since": "2026-10-10",
+    "my_since": "2026-10-10",
+    "attempts": 1,
+    "reason": "own-side candidates did not ground"
+  }
 }

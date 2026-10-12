@@ -1298,5 +1298,44 @@
       "detail": null
     },
     "source_class": "company_statement"
+  },
+  {
+    "subject_key": "atlassian | openai-partnership | 2026-10",
+    "claim": "On October 6, 2026 Atlassian and OpenAI expanded their partnership. Atlassian says OpenAI models now power reasoning across Rovo and the wider Atlassian platform, alongside the Gemini models added in April, and press coverage reports the deal brings OpenAI's GPT-6 family into Jira and Confluence. Customers can also connect ChatGPT and Codex to Jira and Confluence through Atlassian's MCP server. The deeper pieces, such as autonomous agents picking up work items and running tests, are still in design. Rovo now runs on two frontier model vendors, so the 'Atlassian is locked to one model' argument does not hold. Notion's model-choice win has to rest on buyers choosing and switching the model themselves.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.atlassian.com/blog/company-news/atlassian-openai-strategic-partnership",
+    "source_tier": "primary",
+    "evidence_excerpt": "Available now: OpenAI models power intelligent reasoning across Rovo and the Atlassian platform.",
+    "as_of": "2026-10-06",
+    "confidence": "high",
+    "id": "c_0740ba2933f8",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-12",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.channelinsider.com/channel-business/news-openai-atlassian-partnership-gpt-6-rovo/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      },
+      {
+        "source_url": "https://cryptobriefing.com/atlassian-openai-expand-partnership-gpt-6/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "company_statement"
   }
 ]

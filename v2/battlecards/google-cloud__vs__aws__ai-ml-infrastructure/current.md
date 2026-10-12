@@ -38,6 +38,14 @@ Per Google, Gemini 3.8 Flash scored 73.7% on DeepSWE v1.1 versus 65.3% for 3.7 F
 
 **So what:** Offer a side-by-side trial of Gemini 3.8 Flash on the evaluator's own code, and price the result at the January 2027 rates. ([blog.google](https://blog.google/innovation-and-ai/models-and-research/gemini-models/3-8-flash-and-3-8-flash-cyber/))
 
+**Verizon now runs most of its inbound customer calls and chats on Google's Gemini Enterprise.**
+
+On August 24, 2026, Google Cloud announced a strategic partnership with Verizon. Gemini Enterprise for Customer Experience handles the majority of Verizon's monthly inbound consumer calls and chats. Verizon is also consolidating its legacy data lakes on Google's Agentic Data Cloud over several years and building an autonomous network intelligence framework with Google Cloud.
+
+**Soundbite:** "Verizon already runs most of its inbound customer calls and chats on Gemini Enterprise. Which of your functions should we put there first?"
+
+**So what:** Open the executive conversation with the Verizon deployment as proof that Gemini Enterprise runs at enterprise scale, then ask which business function they want AI to take on first. ([googlecloudpresscorner.com](https://www.googlecloudpresscorner.com/2026-08-24-Google-Cloud-Announces-Strategic-Partnership-with-Verizon-to-Scale-Enterprise-AI))
+
 ## Snapshot
 
 - AWS posted Q1 2026 net sales of \$37.6B (up 28% YoY) with operating income of \$14.16B, an audited beat that materially topped the ~\$12.84B consensus. AWS remains Amazon's primary profit engine. ([cnbc.com](https://www.cnbc.com/2026/04/29/aws-earnings-q1-2026.html))
