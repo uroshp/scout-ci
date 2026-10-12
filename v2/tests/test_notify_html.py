@@ -177,6 +177,38 @@ class RunHealthAndRehearsal(unittest.TestCase):
         self.assertIn("a: rule A1 did not hold, focus coverage (0 focus searches)", text2)
         self.assertFalse(notify._health_clean(health2)); self.assertTrue(notify._health_clean(health[:1]))
 
+    def test_a_day_with_no_card_due_sends_nothing_and_a_forced_fyi_says_why(self):
+        """2026-10-11: the Sunday run (no card due) wrote an EMPTY audit and the FYI still went out,
+        "quiet run" across 0 cards. Nothing happened, so nothing is sent. When the FYI exists only
+        because something did not finish or the audit did not hold, its subject says so."""
+        empty = {"verdict": "EMPTY", "summary": "0 check(s) on 0 card(s), 0 failed", "cards": []}
+        self.assertEqual(notify.send_run_fyi([], 0.0, dry_run=True, health=[], lifecycle=empty), {"sent": False, "reason": "nothing to report"})
+        self.assertEqual(notify.send_run_fyi([], 0.0, dry_run=True, health=[], lifecycle=None), {"sent": False, "reason": "nothing to report"})
+        green = {"verdict": "GREEN", "summary": "3 check(s) on 3 card(s), 0 failed", "cards": []}
+        clean = [{"slug": "a", "meta": {"my_company": "A", "competitor": "B"}, "steps": [{"step": "triage", "status": "ran"}], "notes": []}]
+        self.assertEqual(notify.send_run_fyi([], 0.0, dry_run=True, health=clean, lifecycle=green), {"sent": False, "reason": "nothing to report"})
+        # red or amber still forces the FYI out, and the subject names it instead of "quiet run"
+        red = {"verdict": "RED", "summary": "1 of 3 cards failed a rule", "cards": [{"slug": "a", "failed": True, "invariants": [
+            {"id": "A1", "rule": "focus coverage", "status": "fail", "evidence": "0 focus searches"}]}]}
+        r = notify.send_run_fyi([], 0.0, dry_run=True, health=clean, lifecycle=red)
+        self.assertNotEqual(r.get("reason"), "nothing to report")
+        self.assertEqual(r["subject"], "Scout this morning: lifecycle audit RED")
+        amber = dict(red, verdict="AMBER")
+        self.assertEqual(notify.render_run_fyi([], 0.0, health=clean, lifecycle=amber)[0], "Scout this morning: lifecycle audit AMBER")
+        # something that did not finish: the subject is the footer's first line, never ERROR or FAILED
+        unwell = [{"slug": "a", "meta": {"my_company": "A", "competitor": "B"}, "steps": [{"step": "triage", "status": "ran"},
+                   {"step": "propagation", "status": "failed", "detail": "TimeoutError"}], "notes": []}]
+        r2 = notify.send_run_fyi([], 0.0, dry_run=True, health=unwell, lifecycle=green)
+        self.assertNotEqual(r2.get("reason"), "nothing to report")
+        self.assertTrue(r2["subject"].startswith("Scout this morning: A vs B: propagation did not finish"), r2["subject"])
+        for word in ("ERROR", "FAILED", "URGENT", "quiet run"):
+            self.assertNotIn(word, r2["subject"])
+        # both reasons at once, in one subject; a morning with material changes keeps its headline
+        both = notify.render_run_fyi([], 0.0, health=unwell, lifecycle=red)[0]
+        self.assertIn("propagation did not finish", both); self.assertIn("lifecycle audit RED", both)
+        cards = [{"meta": {"my_company": "A", "competitor": "B"}, "alerts": [{"headline": "h", "subject_key": "s"}], "applied": []}]
+        self.assertEqual(notify.render_run_fyi(cards, 1.0, health=unwell, lifecycle=red)[0], "Scout this morning: 1 material change (1 card)")
+
     def test_clean_health_footer_is_muted(self):
         health = [{"slug": "a", "meta": {"my_company": "A", "competitor": "B"}, "steps": [{"step": "triage", "status": "ran"}]}]
         cards = [{"meta": {"my_company": "A", "competitor": "B"}, "alerts": [{"headline": "h", "subject_key": "s"}], "applied": []}]
