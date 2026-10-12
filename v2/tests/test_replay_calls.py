@@ -69,7 +69,13 @@ class _Store:
         self.writes.append(path)
 
 
-def _run(argv, store, *, replay=None, loop=None, now=None):
+# the fixture bundle is stamped 2026-09-27; the runner's default window is the last LOOKBACK_DAYS, so the
+# tests run on a frozen clock two days after the bundle (2026-10-11: four tests went red on the real clock
+# the day the fixture aged out of the window, with nothing wrong in the runner)
+FROZEN_NOW = datetime(2026, 9, 29, 3, 0, 0)
+
+
+def _run(argv, store, *, replay=None, loop=None, now=FROZEN_NOW):
     ok = {"status": "ok", "reason": None, "text": JUDGE_REF, "duration_ms": 5, "backend_model": "m",
           "backend_version": {"v": 1}, "cost_usd": 0.0}
     patches = [
