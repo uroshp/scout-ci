@@ -870,7 +870,21 @@ def render_run_fyi(cards: list[dict], cost_total: float | None = None, health: l
     if n_applied:
         bits.append(f"{n_applied} card update{'s' if n_applied != 1 else ''} applied")
     n_checked = len([h for h in (health or []) if not h.get("skipped")]) or n_cards
-    subject = "Scout this morning: " + (", ".join(bits) if bits else "quiet run") + (f" ({n_cards} card{'s' if n_cards != 1 else ''})" if n_cards else "")
+    # a morning with nothing material is not "quiet" when the email exists because something did not
+    # finish or the audit did not hold: the subject carries that reason, in the footer's own words
+    # (2026-10-11), so the inbox says why the email is there
+    if not bits:
+        why = []
+        if not _health_clean(health or []):
+            hl0 = _health_lines([h for h in (health or []) if not _health_clean([h])])   # only what did not finish
+            why.append(_flat(hl0[0])[:90] if hl0 else "run health")
+        v0 = str((lifecycle or {}).get("verdict") or "")
+        if v0 in ("RED", "AMBER"):
+            why.append(f"lifecycle audit {v0}")
+        head = "; ".join(why) if why else "quiet run"
+    else:
+        head = ", ".join(bits)
+    subject = "Scout this morning: " + head + (f" ({n_cards} card{'s' if n_cards != 1 else ''})" if n_cards else "")
     lead = (f'<p><strong>{", ".join(bits) if bits else "Nothing material"}</strong> across {n_cards or n_checked} '
             f'card{"s" if (n_cards or n_checked) != 1 else ""}. Updates are already on the cards; nothing here needs approval.</p>')
     text_lines = [subject, ""]
@@ -925,10 +939,12 @@ def render_run_fyi(cards: list[dict], cost_total: float | None = None, health: l
 def send_run_fyi(cards: list[dict], cost_total: float | None = None, dry_run: bool = True,
                  health: list[dict] | None = None, sensors: dict | None = None, lifecycle: dict | None = None) -> dict:
     # the FYI goes out every run day while sensors run in SHADOW (his decision 10/3: he watches the
-    # streak), whenever the lifecycle audit is not green, and whenever the run's health has something
-    # to say (2026-10-10: a failure is one line here, never a second email); a quiet morning sends nothing
+    # streak), whenever the lifecycle audit is red or amber, and whenever the run's health has something
+    # to say (2026-10-10: a failure is one line here, never a second email); a quiet morning sends nothing.
+    # An EMPTY audit means no card was due (a Sunday): nothing happened, so nothing is sent (2026-10-11,
+    # Uroš: "i dont want to get useless alerts"; the Sunday "quiet run" email was one).
     if not cards and not (sensors and sensors.get("rows") and sensors.get("mode") == "shadow") \
-            and str((lifecycle or {}).get("verdict") or "GREEN") == "GREEN" and _health_clean(health or []):
+            and str((lifecycle or {}).get("verdict") or "GREEN") in ("GREEN", "EMPTY") and _health_clean(health or []):
         return {"sent": False, "reason": "nothing to report"}
     subject, text, html = render_run_fyi(cards, cost_total, health=health, sensors=sensors, lifecycle=lifecycle)
     return _dispatch(subject, text, dry_run=dry_run, html=html)
