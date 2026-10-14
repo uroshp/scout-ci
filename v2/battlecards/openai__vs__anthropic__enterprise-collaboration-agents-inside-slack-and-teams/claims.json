@@ -254,42 +254,35 @@
   },
   {
     "subject_key": "anthropic | ipo-plan | current",
-    "claim": "Anthropic still has no public S-1, but a draft prospectus leaked to Reuters on September 28. It shows a $42 billion net loss for 2025 (about $34 billion of it a non-cash accounting charge), $518 billion in planned cloud and infrastructure spending, $20.28 billion in cash, and nearly a quarter of 2025 revenue coming from two customers. Reuters reports the listing will likely come after the November midterms.",
+    "claim": "Anthropic has pushed its IPO back to mid-November, per Bloomberg on October 1. It could start formal marketing the week of November 9 and begin trading before Thanksgiving on November 26, and it still expects to list by the end of the year. It met selected institutional investors at its San Francisco headquarters on October 14. The S-1 is still not public. Under the SEC's 15-day rule, a November 9 roadshow means the full filing, with audited losses and compute commitments, has to reach EDGAR by about October 23. Until then the only financials available are the ones in the leaked draft: a $42 billion net loss for 2025, about $34 billion of it from convertible-financing accounting charges.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
     "order": 1,
-    "source_url": "https://fortune.com/2026/09/29/anthropic-ipo-s-1-prospectus-income-statement/",
+    "source_url": "https://news.bgov.com/banking-law/anthropic-said-to-target-mega-ipo-before-thanksgiving-holiday",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Customer concentration is another risk: A quarter of Anthropic’s revenue comes from just two clients.",
-    "as_of": "2026-09-29",
-    "confidence": "high",
+    "evidence_excerpt": "The firm behind Claude could start formal marketing for its IPO as soon as the week of Nov. 9, putting it in line to begin trading before Thanksgiving, the people said.",
+    "as_of": "2026-10-14",
+    "confidence": "medium",
     "id": "c_45702a341de6",
     "verified": true,
     "grounding": {
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-10-04",
+      "fetched_at": "2026-10-14",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://www.cnbc.com/2026/09/28/anthropics-ipo-prospectus-shows-sweeping-ai-vision-surging-costs-reuters.html",
+        "source_url": "https://financefeeds.com/anthropics-14-october-investor-day-nears-but-its-s-1-still-isnt-public-the-ipo-timeline-explained/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false,
-        "source_class": "news"
-      },
-      {
-        "source_url": "https://finance.yahoo.com/technology/ai/articles/anthropic-1-expected-labor-day-021428972.html",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false,
-        "source_class": "news"
+        "source_class": "unknown"
       }
     ],
-    "source_class": "news"
+    "source_class": "unknown"
   },
   {
     "subject_key": "anthropic | data-retention | 2026",
