@@ -28,6 +28,16 @@ COSTLY_LABEL = {"judge": "confirm", "gate_judge": "confirm", "challenger": "keep
                 "materiality": "immaterial", "triage": "quiet", "ask_verify": "confirm",
                 "screen": "minor", "audience_judge": "confirm"}   # ask_quick: generative, no label
 
+# Roles whose unit is a candidate the rater itself names (the screen's findings, materiality's
+# candidates): a reference item the candidate never named is its implicit verdict in the quiet
+# direction, not a shrug. The scorecard counts such an item as a disagreement with that label when
+# the reference said the other thing (a substantial finding left unnamed, a material candidate left
+# out); a quiet reference item left unnamed stays an abstain, so agreement is never inflated. No
+# delta id: a verdict that was never written gives the arbiter nothing to grade, so these never enter
+# the adjudication queues. (2026-10-19: Nemotron returned an empty screen list on 79 of 79 calls and
+# read as "agree n/a"; materiality read 100% on the 14 of 75 items the matcher aligned.)
+MISS_IS_VERDICT = {"screen": "minor", "screen_sample": "immaterial", "materiality": "immaterial"}
+
 
 _BASELINE_INSTR = None
 
@@ -418,10 +428,18 @@ def _score_cell(rows: list, labels: dict) -> dict:
     miss_kinds = defaultdict(int)
     role = rows[0]["role"] if rows else None
     costly_label = COSTLY_LABEL.get(role)
+    implied = MISS_IS_VERDICT.get(role)
+    missed_costly = candidate_only = 0
     for r in ok:
         cmp_ = r.get("comparison") or {}
         slips += len((cmp_.get("extra") or {}).get("candidate_slips") or {})
+        candidate_only += len((cmp_.get("summary") or {}).get("candidate_only_material") or [])
         for it in cmp_.get("items") or []:
+            if (implied and it["status"] == "abstain" and it.get("slip_kind") == "missing"
+                    and it.get("reference") not in (None, implied)):
+                ca.append(it["reference"]); cb.append(implied)      # unnamed = the quiet verdict (see MISS_IS_VERDICT)
+                missed_costly += 1
+                continue
             if it["status"] in ("agree", "disagree"):
                 ca.append(it["reference"]); cb.append(it["candidate"])
             if it["status"] == "disagree":
@@ -462,6 +480,8 @@ def _score_cell(rows: list, labels: dict) -> dict:
         "agreement_rate": round(sum(1 for x, y in zip(ca, cb) if x == y) / len(ca), 3) if ca else None,
         "kappa_candidate_vs_reference": (round(k, 3) if ca and (k := challenger.cohens_kappa(ca, cb)) is not None else None),
         "disagreements": len(disagreements), "adjudicated": len(adjud_c),
+        "missed_costly": missed_costly if implied else None,          # reference items the candidate never named
+        "candidate_only": candidate_only if implied else None,        # items only the candidate named (materiality)
         "candidate_right": right, "candidate_wrong": len(adjud_c) - right,
         "precision": round(right / len(adjud_c), 3) if adjud_c else None,
         "precision_ci95": _wilson(right, len(adjud_c)),
@@ -477,34 +497,61 @@ def _score_cell(rows: list, labels: dict) -> dict:
     }
 
 
-COMMON_MIN_RESULTS = 20   # an arm joins the `common` population once it has attempted this many calls
+COMMON_MIN_RESULTS = 20   # an arm has really run (is not "warming up") once it has attempted this many calls
+COMMON_COVERAGE = 0.9     # an arm joins a ROLE's common population once it attempted this share of the role's calls
+REFERENCE_ARM = "anthropic"   # the paid self-consistency re-run: scored like any arm, never defines a common population
 
 
 def scorecard(results: list, labels: dict | None = None) -> dict:
-    """Per (backend, role): the cell above on `full` (all that backend's results) and on `common`
-    (call_ids every enabled backend attempted, i.e. not context_exceeded/truncated)."""
+    """Per (backend, role): the cell above on `full` (all that backend's results) and on `common`.
+    The common population is PER ROLE (2026-10-19): the call_ids every COMPARABLE arm attempted (not
+    context_exceeded/truncated), an arm being comparable for a role once it attempted at least
+    COMMON_COVERAGE of the role's calls. Until then one intersection ran across every established
+    arm, so Apple (8k context, 14% of the calls) and the paid reference re-run (judge and triage
+    only) emptied it for arms that had run the whole set, and the 1st/15th brief printed "n/a on 0".
+    The reference arm never defines a common population; a cell on an arm that is not comparable for
+    its role is marked so and reports its partial numbers for what they are."""
     labels = labels if labels is not None else load_labels()
     by_cell = defaultdict(list)
     backends = sorted({r["backend"] for r in results})
+    calls_by_role = defaultdict(set)
+    attempted = defaultdict(set)                       # (backend, role) -> attempted call_ids
     attempted_by_backend = defaultdict(set)
     for r in results:
         if r.get("mode", "exact") != "exact" or r.get("rep"):
             continue
         by_cell[(r["backend"], r["role"])].append(r)
+        calls_by_role[r["role"]].add(r["call_id"])
         if r.get("reason") not in ("context_exceeded", "truncated"):
+            attempted[(r["backend"], r["role"])].add(r["call_id"])
             attempted_by_backend[r["backend"]].add(r["call_id"])
-    # `common` spans the arms that have really run (>= COMMON_MIN_RESULTS attempted calls in this
-    # period); an arm still warming up (a model added mid-period, or one the window cut short)
-    # reports `full` only, so it cannot shrink the established arms' common population (2026-09-30).
+    # an arm still warming up (a model added mid-period, or one the window cut short) is reported as
+    # such; it is kept out of every common population by the coverage rule below (2026-09-30).
     established = [b for b in backends if len(attempted_by_backend[b]) >= COMMON_MIN_RESULTS]
-    if not established:                 # early in a period every arm is small: plain intersection
-        established = list(backends)
-    common_ids = set.intersection(*(attempted_by_backend[b] for b in established)) if established else set()
-    out = {"backends": backends, "common_n": len(common_ids), "cells": {},
+    coverage_of_role, comparable_by_role, common_by_role = {}, {}, {}
+    for role, ids in calls_by_role.items():
+        arms = []
+        for b in backends:
+            cov = len(attempted[(b, role)] & ids) / len(ids) if ids else 0.0
+            coverage_of_role[(b, role)] = round(cov, 3)
+            if b != REFERENCE_ARM and cov >= COMMON_COVERAGE:
+                arms.append(b)
+        comparable_by_role[role] = arms
+        common_by_role[role] = set.intersection(*(attempted[(b, role)] for b in arms)) if arms else set()
+    headline = "judge" if "judge" in common_by_role else (max(calls_by_role, key=lambda k: len(calls_by_role[k])) if calls_by_role else None)
+    out = {"backends": backends, "headline_role": headline,
+           "common_n": len(common_by_role.get(headline, set())) if headline else 0,    # the headline role's; per role below
+           "common_n_by_role": {role: len(ids) for role, ids in sorted(common_by_role.items())},
+           "comparable_by_role": {role: arms for role, arms in sorted(comparable_by_role.items())},
+           "reference_arm": REFERENCE_ARM, "cells": {},
            "warming_up": [b for b in backends if b not in established]}
     for (b, role), rows in sorted(by_cell.items()):
+        common_ids = common_by_role.get(role, set())
         out["cells"][f"{b}|{role}"] = {
             "backend": b, "role": role, "family": (rolespecs.spec(role) or {}).get("family"),
+            "coverage_of_role": coverage_of_role.get((b, role)),
+            "comparable": b in comparable_by_role.get(role, []),
+            "common_n": len(common_ids),
             "full": _score_cell(rows, labels),
             "common": _score_cell([r for r in rows if r["call_id"] in common_ids], labels),
             "slices": scorecard_slices(rows, labels),

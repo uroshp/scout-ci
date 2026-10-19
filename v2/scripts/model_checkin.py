@@ -23,7 +23,7 @@ CHECKIN_DIR = "model_checkin"
 BAR = 0.50
 MARGIN = 0.0                      # a $0-justified margin is a number Uroš writes here (e.g. 0.10)
 MIN_ADJUDICATED = 15
-ELIGIBLE_COVERAGE = 0.9     # an arm must run at least this share of the exact calls to be compared
+ELIGIBLE_COVERAGE = 0.9     # an arm must run at least this share of a ROLE's calls to be compared on it (= modelcompare.COMMON_COVERAGE)
 
 
 def _load_env():
@@ -108,7 +108,7 @@ def build(now: datetime) -> tuple[dict, str]:
     cells_out, lines = {}, []
     lines.append(f"# On-device model comparison check-in — {now.date()}")
     lines.append(f"results={len(results)}  labels={len(labels)}  backends={sc['backends']}  "
-                 f"common population n={sc['common_n']}  bar={BAR - MARGIN} "
+                 f"common population per role={sc.get('common_n_by_role')}  bar={BAR - MARGIN} "
                  f"({'parity' if not MARGIN else f'margin -{MARGIN}'}); metric = candidate-right vs the live model on "
                  f"human-adjudicated disagreements\n")
     # Arms (2026-09-30): every configured local arm, its vendor + tag, how many results it left
@@ -136,15 +136,22 @@ def build(now: datetime) -> tuple[dict, str]:
         # attempted, one settings period each); an arm that ran under ELIGIBLE_COVERAGE of them is
         # ineligible for comparison (Uroš 2026-10-01: "different dates, different sets are not
         # eligible"; Apple, at ~38%, is out until Private Cloud Compute).
-        judge = sc["cells"].get(f"{name}|judge", {}).get("common") or {}
+        judge_cell = sc["cells"].get(f"{name}|judge", {})
+        judge = judge_cell.get("common") or {}
         cov = round(len(ok) / len(exact), 2) if exact else None
+        # Comparable = the arm attempted at least ELIGIBLE_COVERAGE of the JUDGE role's calls (the
+        # scorecard's per-role rule, 2026-10-19), not of every call the lane ever captured: Apple's
+        # 8k context takes it out, a Magistral arm two weeks behind takes it out, a role an arm never
+        # ran does not.
         brief_arms.append({"backend": name, "vendor": vendor, "tag": tag, "results": len(rows),
                            "today": sum(1 for r in rows if str(r.get("replayed_at", ""))[:10] == today),
                            "exact_coverage": cov,
+                           "judge_coverage": judge_cell.get("coverage_of_role"),
                            "judge_agree": judge.get("agreement_rate"), "judge_n": judge.get("n_results"),
                            "judge_p50_ms": judge.get("latency_ms_p50"),
+                           "comparable_roles": [role for role, arms in (sc.get("comparable_by_role") or {}).items() if name in arms],
                            "warming_up": name in (sc.get("warming_up") or []),
-                           "eligible": bool(cov is not None and cov >= ELIGIBLE_COVERAGE and name not in (sc.get("warming_up") or []))})
+                           "eligible": bool(judge_cell.get("comparable")) and name not in (sc.get("warming_up") or [])})
     brief = {"results": len(results), "labels": len(labels), "common_n": sc["common_n"], "arms": brief_arms,
              "eligible_coverage": ELIGIBLE_COVERAGE}
     lines.append(f"| backend | role | pop | n | coverage | parse_ok | refusal | agree | kappa | disagreements | "
@@ -161,9 +168,13 @@ def build(now: datetime) -> tuple[dict, str]:
         v = modelcompare.verdict_for_cell(cell, prior, bar=BAR - MARGIN, min_adjudicated=MIN_ADJUDICATED)
         for pop in ("full", "common"):
             c = cell[pop]
-            lines.append(f"| {cell['backend']} | {cell['role']} | {pop} | {c['n_results']} | {c['coverage']} | "
+            pop_label = pop if (pop == "full" or cell.get("comparable")) else (
+                "common (the reference arm: scored, never defines the population)" if cell["backend"] == modelcompare.REFERENCE_ARM
+                else f"common, NOT comparable (ran {cell.get('coverage_of_role')} of the role's calls)")
+            unnamed = f" (+{c['missed_costly']} unnamed)" if c.get("missed_costly") else ""
+            lines.append(f"| {cell['backend']} | {cell['role']} | {pop_label} | {c['n_results']} | {c['coverage']} | "
                          f"{c['parse_ok']} | {c['refusal_rate']} | {c['agreement_rate']} | "
-                         f"{c['kappa_candidate_vs_reference']} | {c['disagreements']} | {c['adjudicated']} | "
+                         f"{c['kappa_candidate_vs_reference']} | {c['disagreements']}{unnamed} | {c['adjudicated']} | "
                          f"{c['precision']} | {c['precision_ci95']} | {c['costly_error_rate']}/{c['reference_costly_error_rate']} | "
                          f"{c['latency_ms_p50']} | {v['status'] if pop == 'full' else ''}"
                          f"{' (new period, no prior)' if pop == 'full' and new_period else ''} |")
@@ -213,6 +224,7 @@ def main():
     from scout import selfserve
     if not selfserve.use_github():
         sys.exit("CREDS MISSING: SELFSERVE_GH_TOKEN / SELFSERVE_REPO not set")
+    print(selfserve.mirror_note())                  # bulk reads from the local clone when SCOUT_STORE_MIRROR is set
     now = datetime.now()
     snap, body = build(now)
     print(body)
