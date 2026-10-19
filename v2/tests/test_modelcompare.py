@@ -215,11 +215,15 @@ class Scorecard(unittest.TestCase):
         did = mc.delta_id("c_1", "0")
         labels = {did: {"delta_id": did, "truth": "reject"}}      # the truth: reject (both candidates right)
         sc = mc.scorecard([a1, a2, o1, o2], labels)
-        self.assertEqual(sc["common_n"], 1)                          # only c_1 was attempted by both
+        # Apple attempted 1 of the 2 judge calls (50%): not comparable, so it does not shrink the
+        # population; ollama alone defines it (2026-10-19, per-role rule). Before, the intersection
+        # across every arm made it 1.
+        self.assertEqual(sc["common_n"], 2)
         ap, ol = sc["cells"]["apple_ondevice|judge"], sc["cells"]["ollama|judge"]
         self.assertEqual(ap["full"]["coverage"], 0.5)
+        self.assertEqual((ap["comparable"], ap["coverage_of_role"]), (False, 0.5))
         self.assertEqual(ol["full"]["coverage"], 1.0)
-        self.assertEqual(ol["common"]["n_results"], 1)
+        self.assertEqual((ol["comparable"], ol["common"]["n_results"]), (True, 2))
         for cell in (ap, ol):
             self.assertEqual(cell["full"]["adjudicated"], 1)
             self.assertEqual(cell["full"]["candidate_right"], 1)
@@ -228,6 +232,50 @@ class Scorecard(unittest.TestCase):
             self.assertEqual(cell["full"]["reference_costly_error_rate"], 1.0)   # reference confirmed a bad op
             self.assertEqual(cell["full"]["costly_error_rate"], 0.0)
         self.assertEqual(len(ap["full"]["pending_disagreements"]), 0)
+
+    def test_common_population_is_per_role_and_skips_the_reference_arm(self):
+        J = '{"verdicts":[{"op_index":0,"verdict":"confirm","reason":"x"},{"op_index":1,"verdict":"reject","reason":"x"}]}'
+        rows = []
+        for i in range(10):          # judge: gemma ran all 10, nemotron 9 (90%), apple 1 (8k context), the reference all 10
+            rows.append(self._res("ollama_gemma4", f"c_{i}", J))
+            rows.append(self._res("anthropic", f"c_{i}", J))
+            if i < 9:
+                rows.append(self._res("ollama_nemotron", f"c_{i}", J))
+            if i < 1:
+                rows.append(self._res("apple_ondevice", f"c_{i}", J))
+        s = rec("screen", '{"candidates":[{"finding_id":"f1","substantial":true}]}', call_id="c_s1")
+        sp = rep('{"candidates":[{"finding_id":"f1","substantial":true}]}', backend="ollama_gemma4")
+        rows.append(mc.result_record(s, sp, mc.compare_call(s, sp), backend="ollama_gemma4", mode="exact"))
+        sc = mc.scorecard(rows, {})
+        self.assertEqual(sc["comparable_by_role"]["judge"], ["ollama_gemma4", "ollama_nemotron"])   # the reference never defines it
+        self.assertEqual(sc["common_n_by_role"], {"judge": 9, "screen": 1})
+        self.assertEqual((sc["headline_role"], sc["common_n"]), ("judge", 9))
+        self.assertTrue(sc["cells"]["ollama_nemotron|judge"]["comparable"])
+        self.assertFalse(sc["cells"]["anthropic|judge"]["comparable"])
+        ap = sc["cells"]["apple_ondevice|judge"]
+        self.assertFalse(ap["comparable"]); self.assertEqual(ap["coverage_of_role"], 0.1)
+        self.assertEqual(ap["common"]["n_results"], 1)                    # its partial numbers, marked as such
+        self.assertEqual(sc["cells"]["ollama_gemma4|screen"]["coverage_of_role"], 1.0)
+        self.assertNotIn("ollama_nemotron|screen", sc["cells"])            # a role an arm never ran is simply absent
+
+    def test_unnamed_candidate_items_score_as_the_quiet_verdict(self):
+        REF = '{"candidates":[{"finding_id":"f1","substantial":true},{"finding_id":"f2","substantial":false}]}'
+        r = rec("screen", REF, call_id="c_s1")
+        rp = rep('{"candidates":[]}', backend="ollama_nemotron")             # the empty list Nemotron returned 79 of 79 times
+        res = mc.result_record(r, rp, mc.compare_call(r, rp), backend="ollama_nemotron", mode="exact")
+        self.assertEqual(res["comparison"]["summary"]["judged"], 0)          # the stored alignment is unchanged
+        cell = mc.scorecard([res], {})["cells"]["ollama_nemotron|screen"]["full"]
+        self.assertEqual(cell["items_judged"], 1)                            # f1 (substantial, unnamed) reads as "minor"
+        self.assertEqual((cell["agree"], cell["agreement_rate"], cell["missed_costly"]), (0, 0.0, 1))
+        self.assertEqual(cell["disagreements"], 0)                           # nothing for the arbiter: no verdict was written
+        self.assertEqual(cell["pending_disagreements"], [])
+        named = rep('{"candidates":[{"finding_id":"f1","substantial":true}]}', backend="ollama_gemma4")
+        res2 = mc.result_record(r, named, mc.compare_call(r, named), backend="ollama_gemma4", mode="exact")
+        cell2 = mc.scorecard([res2], {})["cells"]["ollama_gemma4|screen"]["full"]
+        self.assertEqual((cell2["items_judged"], cell2["agree"], cell2["missed_costly"]), (1, 1, 0))   # f2 (minor, unnamed) stays an abstain
+        j = self._res("ollama", "c_1", '{"verdicts":[{"op_index":0,"verdict":"confirm","reason":"x"}]}')
+        jc = mc.scorecard([j], {})["cells"]["ollama|judge"]["full"]
+        self.assertIsNone(jc["missed_costly"]); self.assertEqual(jc["items_judged"], 1)     # no implied verdict for a judge
 
     def test_unlabeled_disagreements_are_pending(self):
         a1 = self._res("apple_ondevice", "c_1", '{"verdicts":[{"op_index":0,"verdict":"reject","reason":"x"},{"op_index":1,"verdict":"reject","reason":"x"}]}')

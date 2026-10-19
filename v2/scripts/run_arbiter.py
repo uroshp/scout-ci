@@ -13,7 +13,7 @@ if os.path.exists(ENV_PATH):                       # the mini's creds (the repla
     for line in open(ENV_PATH):
         if "=" in line and not line.startswith("#"):
             k, v = line.strip().split("=", 1); os.environ.setdefault(k, v.strip().strip('"').strip("'"))
-from scout import adjudicate_models, arbiter, ledger, modelcompare  # noqa: E402
+from scout import adjudicate_models, arbiter, ledger, modelcompare, selfserve  # noqa: E402
 
 
 def main() -> int:
@@ -23,6 +23,7 @@ def main() -> int:
     ap.add_argument("--role", default="judge", help="role to arbitrate (default judge; 'all' for every role)")
     ap.add_argument("--searches", type=int, default=arbiter.ARBITER_SEARCHES)
     args = ap.parse_args()
+    print(selfserve.mirror_note())                  # bulk reads from the local clone when SCOUT_STORE_MIRROR is set
 
     pend = adjudicate_models.pending(role=None if args.role == "all" else args.role)
     pend.sort(key=lambda p: (p.get("slug") or "", p.get("delta_id")))
