@@ -189,6 +189,8 @@ def check_replay(day: date) -> list[str]:
     problems += arm_problems(today_log)
     if "=== replay end ===" not in today_log:
         problems.append("replay: no '=== replay end ===' today (aborted or still running)")
+    else:
+        problems += arbiter_problems(today_log)
     return problems
 
 
@@ -218,6 +220,31 @@ def arm_problems(today_log: str) -> list[str]:
     if "apple arm exit" not in today_log and "apple arm skipped" not in today_log:
         out.append("replay: the Apple arm left no exit line today")
     return out
+
+
+def arbiter_problems(today_log: str) -> list[str]:
+    """The research layer must leave its count in today's log once the run has ended: "[arbiter] N
+    arbitrated" with N > 0, or nothing to rule on ("not yet arbitrated 0"), or the daily ceiling
+    already reached. A traceback in the arbiter section, a missing count line, or an exit line other
+    than 0 is a finding (2026-10-11 to 10-19: the arbiter died on a 403 nine mornings running; run.sh
+    logged tail's exit 0 after the pipe and this canary looked only at the arms)."""
+    if not today_log or "=== replay end ===" not in today_log:
+        return []
+    if "--- arbiter ---" not in today_log:
+        return ["arbiter: today's run has no arbiter section (an old runner, or the run ended before it)"]
+    sec = today_log[today_log.rfind("--- arbiter ---"):]
+    count = re.search(r"\[arbiter\] (\d+) arbitrated", sec)
+    todo = re.search(r"not yet arbitrated (\d+)", sec)
+    exit_line = re.search(r"arbiter exit (\d+)", sec)
+    if "Traceback" in sec or count is None:
+        errs = [ln.strip() for ln in sec.splitlines() if re.match(r"\s*[\w.]*(Error|Exception)\b", ln)]
+        why = errs[-1][:140] if errs else "no '[arbiter] N arbitrated' line"
+        return [f"arbiter: did not rule today ({why})"]
+    if exit_line and exit_line.group(1) != "0":
+        return [f"arbiter: exit {exit_line.group(1)} today after ruling on {count.group(1)}"]
+    if int(count.group(1)) == 0 and todo and int(todo.group(1)) > 0 and "daily ceiling reached" not in sec:
+        return [f"arbiter: ruled on 0 of {todo.group(1)} pending today (see the replay log)"]
+    return []
 
 
 def check_app() -> list[str]:

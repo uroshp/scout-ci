@@ -37,8 +37,13 @@ could hold that role. Nothing here changes the older lanes' bars.
     builds are 23-25 GB on Ollama and cannot sit fully on a 24 GB box, so the edge-class model
     represents the vendor; its arm is read as "edge model vs 24B-class", like Apple's.
   - `ollama_gemma4` = Google, Gemma 4 26B (26B/4B-active MoE, QAT build, 16 GB; added 2026-09-30).
-  A swap of any arm's tag is a new period, never silent. An arm joins the `common` population
-  once it has attempted 20 calls in the period; until then it reports `full` only ("warming up").
+  A swap of any arm's tag is a new period, never silent. An arm is "warming up" until it has
+  attempted 20 calls in the period. The `common` population is per ROLE (2026-10-19): an arm joins
+  a role's population once it attempted at least 90% of that role's calls (`COMMON_COVERAGE`); an
+  arm under that reports its partial numbers marked "NOT comparable". The paid reference re-run
+  (`anthropic`) is scored like any arm and never defines a population. Until 10/19 one intersection
+  ran across every arm, so Apple's 8k context and the reference re-run emptied it for arms that had
+  run the whole set.
 
 ## Ground truth and the metric (same as the older lanes)
 
@@ -72,10 +77,14 @@ live escalation; materiality missed material.
 
 ## Populations and periods
 
-- Every field is computed twice: on the `common` population (call_ids where every enabled backend
-  returned something other than `context_exceeded`) for the backend-vs-backend headline, and on
-  `full` for each backend's own bar. Refusals and parse failures stay in and count against their
-  backend.
+- Every field is computed twice: on the role's `common` population (call_ids every comparable arm
+  returned something other than `context_exceeded` for; see above) for the backend-vs-backend
+  headline, and on `full` for each backend's own bar. Refusals and parse failures stay in and count
+  against their backend. For the roles whose unit is a candidate the rater itself names (screen,
+  screen_sample, materiality) a reference item the candidate never named counts as the quiet
+  verdict (minor, immaterial): a disagreement when the reference said otherwise, an abstain when it
+  agreed, and never an item for the arbiter (no verdict was written). The table prints these as
+  "+N unnamed" next to the disagreements (2026-10-19: an empty candidate list read as agreement n/a).
 - Period key = `(backend_version, reference_model)`. A new key resets the streak and prints "new
   period, no prior". Results are never pooled across periods.
 - Reference eligibility: `status == ok`, parses with the live parser, `record.model` equals the

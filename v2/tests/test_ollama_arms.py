@@ -76,14 +76,18 @@ class Scorecard(unittest.TestCase):
                 "reason": None, "comparison": {"summary": {"agree": 1, "judged": 1}}, "duration_ms": 10,
                 "reference": {"eligible": True}}
 
-    def test_warming_arm_does_not_shrink_common(self):
+    def test_warming_or_lagging_arm_never_shrinks_common(self):
         rows = [self._row("ollama", f"c{i}") for i in range(25)] + [self._row("apple_ondevice", f"c{i}") for i in range(25)]
         rows += [self._row("ollama_gemma4", "c1")]        # one result: warming up
         sc = mc.scorecard(rows, labels={})
         self.assertEqual(sc["common_n"], 25); self.assertEqual(sc["warming_up"], ["ollama_gemma4"])
-        rows += [self._row("ollama_gemma4", f"c{i}") for i in range(2, 22)]   # crosses the threshold
+        rows += [self._row("ollama_gemma4", f"c{i}") for i in range(2, 22)]   # 21 of 25 = 84%: no longer warming, still not comparable
         sc = mc.scorecard(rows, labels={})
-        self.assertEqual(sc["warming_up"], []); self.assertEqual(sc["common_n"], 21)
+        self.assertEqual(sc["warming_up"], []); self.assertEqual(sc["common_n"], 25)
+        self.assertFalse(sc["cells"]["ollama_gemma4|gate_judge"]["comparable"])
+        rows += [self._row("ollama_gemma4", f"c{i}") for i in (22, 23)]      # 23 of 25 = 92%: joins, and the population is its 23
+        sc = mc.scorecard(rows, labels={})
+        self.assertTrue(sc["cells"]["ollama_gemma4|gate_judge"]["comparable"]); self.assertEqual(sc["common_n"], 23)
 
 
 class Blind(unittest.TestCase):
@@ -110,6 +114,24 @@ class Canary(unittest.TestCase):
         self.assertEqual(len(probs), 1); self.assertIn("ollama_gemma4", probs[0])
         self.assertEqual(lc.arm_problems(log + "2026-10-01 06:50:00 PDT  ollama_gemma4 arm exit 0\n"), [])
         self.assertEqual(lc.arm_problems("2026-10-01 05:15:00 PDT  ollama arms skipped tonight\n"), [])
+
+    def test_arbiter_silence_is_a_finding(self):
+        lc = _script("lanes_canary")
+        base = "2026-10-19 05:15:00 PDT  === replay start\n2026-10-19 10:56:38 PDT  --- arbiter ---\n"
+        end = "2026-10-19 11:03:54 PDT  === replay end ===\n"
+        ok = "[arbiter] pending 41, not yet arbitrated 7, this run up to 20\n[arbiter] 7 arbitrated\n2026-10-19 11:03:54 PDT  arbiter exit 0\n"
+        self.assertEqual(lc.arbiter_problems(base + ok + end), [])
+        self.assertEqual(lc.arbiter_problems(base + "[arbiter] pending 41, not yet arbitrated 0, this run up to 20\n[arbiter] 0 arbitrated\narbiter exit 0\n" + end), [])
+        dead = lc.arbiter_problems(base + "Traceback (most recent call last):\n  File x\nhttpx.HTTPStatusError: Client error '403 Forbidden' for url 'u'\n"
+                                   "2026-10-19 11:03:54 PDT  arbiter exit 1\n" + end)
+        self.assertEqual(len(dead), 1); self.assertIn("did not rule today", dead[0]); self.assertIn("403", dead[0])
+        self.assertEqual(lc.arbiter_problems(base + "[arbiter] 7 arbitrated\narbiter exit 1\n" + end), ["arbiter: exit 1 today after ruling on 7"])
+        stuck = lc.arbiter_problems(base + "[arbiter] pending 41, not yet arbitrated 7, this run up to 20\n[arbiter] 0 arbitrated\narbiter exit 0\n" + end)
+        self.assertEqual(len(stuck), 1); self.assertIn("0 of 7", stuck[0])
+        capped = base + "[arbiter] pending 41, not yet arbitrated 7, this run up to 20\n[arbiter] daily ceiling reached ($5.00); stopping\n[arbiter] 0 arbitrated\n" + end
+        self.assertEqual(lc.arbiter_problems(capped), [])
+        self.assertEqual(lc.arbiter_problems("2026-10-19 05:15:00 PDT  === replay start\n"), [])     # still running: not a finding
+        self.assertEqual(len(lc.arbiter_problems("2026-10-19 05:15:00 PDT  === replay start\n" + end)), 1)   # ended without the section
 
 
 if __name__ == "__main__":
