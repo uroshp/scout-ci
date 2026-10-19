@@ -12,7 +12,10 @@ name: scout-eval-checkin
 on:
   workflow_dispatch: {}              # manual check-in any time
   schedule:
-    - cron: "0 13 1,15 * *"          # 1st + 15th, 13:00 UTC — best-effort, ~14 days apart
+    # 1st + 15th at 23:45 UTC = 16:45 PDT / 15:45 PST: after the mini's replay window (deadline
+    # 15:00 PT), so the on-device lane is scored on the day's finished arms (2026-10-19: at 13:00 UTC
+    # it ran while the arms were still working and the lane read "did not run today").
+    - cron: "45 23 1,15 * *"
 
 concurrency:
   group: scout-eval-checkin
@@ -43,10 +46,19 @@ jobs:
           SELFSERVE_REPO: ${{ secrets.SELFSERVE_REPO }}
           SCOUT_CALL_CAPTURE: "1"     # capture the challenger calls for the on-device comparison
         run: python scripts/run_challenger.py --run --write --limit 25
+      - name: Clone the private store as a read mirror (bulk reads from disk, not one API call per file)
+        uses: actions/checkout@v5
+        continue-on-error: true       # without it the report reads through the API, as before
+        with:
+          repository: ${{ secrets.SELFSERVE_REPO }}
+          token: ${{ secrets.SELFSERVE_GH_TOKEN }}
+          path: store-mirror
+          fetch-depth: 1
       - name: Check-in report (metrics + trend + verdict) -> email + snapshot
         env:
           SELFSERVE_GH_TOKEN: ${{ secrets.SELFSERVE_GH_TOKEN }}
           SELFSERVE_REPO: ${{ secrets.SELFSERVE_REPO }}
+          SCOUT_STORE_MIRROR: ${{ github.workspace }}/store-mirror
           SCOUT_GMAIL_USER: ${{ secrets.SCOUT_GMAIL_USER }}
           SCOUT_GMAIL_APP_PASSWORD: ${{ secrets.SCOUT_GMAIL_APP_PASSWORD }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}

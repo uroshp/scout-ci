@@ -276,8 +276,8 @@ def brief_html(now: datetime, ver: dict, auth: dict, v_ver: dict, v_auth: dict, 
         cards.append(_lane_card("3. On-device models", "Could a model running on the Mac mini take over a Scout role from Claude?",
                                 "ACCUMULATE" if not b.get("labels") else "BASELINE",
                                 [("The number", f"<b>{b.get('labels')}</b> human labels across {b.get('results')} replays, so there is no verdict yet. "
-                                                f"Agreement and speed below are on the comparable set: the {b.get('common_n')} calls every established arm ran under one setting. "
-                                                f"An arm that ran under {int((b.get('eligible_coverage') or 0.9) * 100)}% of the calls is not comparable."),
+                                                f"Agreement and speed below are on the comparable set: the {b.get('common_n')} judge calls every comparable arm ran under one setting. "
+                                                f"An arm that ran under {int((b.get('eligible_coverage') or 0.9) * 100)}% of the judge calls is not comparable."),
                                  ("", table),
                                  ("What it means", e("Agreement is a sanity check, not the metric. The metric is whether the local model was right when it disagreed, and that needs blind labels.")),
                                  ("Next step", "Label 15 judge disagreements blind with <code>python -m scout.adjudicate_models</code>; precision appears at the next check-in.")],

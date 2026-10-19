@@ -166,11 +166,120 @@ def _local(path: str) -> str:
     return os.path.join(_REPO_ROOT, path)
 
 
+# --- bulk-read mirror (2026-10-19) ----------------------------------------------------------------
+# The result and capture directories hold thousands of small files, and reading them one by one over
+# the Contents API spent the token's hourly request budget every morning from 10/11 to 10/19: the
+# arms persist a few hundred results, the read-out then reads every result file, the arbiter reads
+# them all again, and the token answers 403 for the rest of the hour (the arbiter died nine mornings
+# running, run.sh logged tail's exit code, and the label tool was 403 in the same hour). With
+# SCOUT_STORE_MIRROR set to a git clone of the private store, reads under the BULK directories come
+# from disk and everything else stays on the API: label files, state, ledgers, research rulings and
+# every write, so nothing a concurrent writer appends is read stale. OPT-IN PER PROCESS: the replay
+# arms never set it, because their "already done" listing must see what the same morning persisted
+# a minute earlier through the API. The same variable names the judgment pack's mirror
+# (scout/judgment.py), so one clone serves both.
+MIRROR_DIRS_DEFAULT = ("shadow_models/", "calls/", "shadow_eval/", "propagation/")
+_NO_MIRROR = object()
+
+
+def mirror_root() -> str | None:
+    """The configured store mirror, or None when unset or not a directory."""
+    m = os.environ.get("SCOUT_STORE_MIRROR")
+    if not m:
+        return None
+    m = os.path.expanduser(m)
+    return m if os.path.isdir(m) else None
+
+
+def _mirror_dirs() -> tuple:
+    raw = os.environ.get("SCOUT_STORE_MIRROR_DIRS")
+    if not raw:
+        return MIRROR_DIRS_DEFAULT
+    return tuple(d.strip().strip("/") + "/" for d in raw.split(",") if d.strip())
+
+
+def _mirror_serves(path: str) -> bool:
+    return (path.strip("/") + "/").startswith(_mirror_dirs()) and not path.endswith("labels.jsonl")
+
+
+def _mirror_candidates(path: str) -> list[str]:
+    """Local paths to try for a bulk read: the prefixed one, then (read-through, see _read) the
+    production one. Empty when no mirror serves this path."""
+    root = mirror_root()
+    if root is None or not _mirror_serves(path):
+        return []
+    out = [os.path.join(root, _repo_path(path))]
+    if _read_fallback_on():
+        out.append(os.path.join(root, path))
+    return out
+
+
+def _mirror_read(path: str):
+    cands = _mirror_candidates(path)
+    if not cands:
+        return _NO_MIRROR
+    for fp in cands:
+        if os.path.isfile(fp):
+            with open(fp) as f:
+                return f.read()
+    return None
+
+
+def _mirror_list(path: str, include_dirs: bool = False):
+    """Files only by default, like the GitHub listing the callers were written against."""
+    cands = _mirror_candidates(path)
+    if not cands:
+        return _NO_MIRROR
+    for fp in cands:
+        if os.path.isdir(fp):
+            names = sorted(os.listdir(fp))
+            names = names if include_dirs else [n for n in names if os.path.isfile(os.path.join(fp, n))]
+            if names:
+                return names
+    return []
+
+
+def refresh_mirror(timeout: int = 180) -> dict:
+    """`git pull --ff-only` the mirror so the morning's persisted results are on disk before a bulk
+    read. Never raises: a failed pull leaves what is on disk, and the caller prints the outcome so a
+    stale read-out says so. Returns {ok, head, error}."""
+    import subprocess
+    root = mirror_root()
+    if root is None:
+        return {"ok": False, "head": None, "error": "no mirror configured"}
+    try:
+        r = subprocess.run(["git", "-C", root, "pull", "-q", "--ff-only", "origin", config.SELFSERVE_BRANCH],
+                           capture_output=True, text=True, timeout=timeout)
+        ok = r.returncode == 0
+        err = None if ok else (r.stderr or r.stdout).strip()[:200]
+    except Exception as e:
+        ok, err = False, f"{type(e).__name__}: {str(e)[:160]}"
+    try:
+        head = subprocess.run(["git", "-C", root, "log", "-1", "--format=%h %cI"], capture_output=True,
+                              text=True, timeout=30).stdout.strip() or None
+    except Exception:
+        head = None
+    return {"ok": ok, "head": head, "error": err}
+
+
+def mirror_note() -> str:
+    """Pull the mirror and say what happened, one line for a script's log."""
+    if mirror_root() is None:
+        return "[store] no mirror configured (SCOUT_STORE_MIRROR unset): bulk reads go through the API"
+    r = refresh_mirror()
+    if r["ok"]:
+        return f"[store] mirror {r['head']} (pulled; bulk reads from disk)"
+    return f"[store] mirror pull failed ({r['error']}); reading what is on disk ({r['head']})"
+
+
 def _read(path: str) -> str | None:
     """Store read. READ-THROUGH (RC, 2026-09-28): under a data prefix with the read fallback on, a
     miss under the prefix falls through to the unprefixed production path. Reads only: `_write`
     and `update_data` fetch their sha via `_gh_get(path)` directly, so a writer can never pick up
     a production file's sha and PUT it under the prefix."""
+    mirrored = _mirror_read(path)
+    if mirrored is not _NO_MIRROR:                # a bulk directory served from the local clone
+        return mirrored
     if use_github():
         text = _gh_get(path)[0]
         if text is None and _read_fallback_on():
@@ -200,6 +309,9 @@ def _listdir(path: str, include_dirs: bool = False) -> list[str]:
     """Entries in a store directory, backend-aware (GitHub API or local FS). Default = files only on
     the GitHub backend; include_dirs=True also returns subdirectories (local os.listdir already
     returns both, so the flag only changes the GitHub path)."""
+    mirrored = _mirror_list(path, include_dirs)
+    if mirrored is not _NO_MIRROR:
+        return mirrored
     if use_github():
         names = _gh_list(path, include_dirs)
         if not names and _read_fallback_on():
