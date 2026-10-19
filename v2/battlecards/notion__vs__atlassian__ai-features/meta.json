@@ -4,7 +4,7 @@
   "competitor": "Atlassian",
   "focus": "AI features",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-10-17T11:10:36",
+  "last_checked": "2026-10-19T11:10:56",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_af44b318b691",
@@ -40,22 +40,5 @@
       }
     ]
   },
-  "last_check_reason": "scheduled",
-  "pending_candidates": {
-    "my_company": [
-      {
-        "signal": "Notion adds Claude Opus 5 model to its AI agent toolset (on or after Oct 16, 2026)",
-        "subject_key": "notion | flagship-ai-product",
-        "about": "my_company",
-        "valence": "front_foot",
-        "substantial": true,
-        "why_new": "Tracked claims specify Claude support but don't name Opus 5. This is a concrete model upgrade within the focus area (AI features) supporting Notion's existing positioning on model choice and cutting-edge capabilities.",
-        "source_hint": "createwith.com — notion adds claude opus 5 model to its ai toolset for smarter workflows"
-      }
-    ],
-    "since": "2026-10-16",
-    "my_since": "2026-10-16",
-    "attempts": 1,
-    "reason": "own-side candidates did not ground"
-  }
+  "last_check_reason": "scheduled"
 }
