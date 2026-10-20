@@ -91,6 +91,17 @@ TRIAGE_CATCHUP_BUDGET_USD = float(os.environ.get("SCOUT_TRIAGE_CATCHUP_BUDGET_US
 # date, so its searches drifted to corporate news on every focused card. A focused card gets these
 # extra searches, reserved for the focus area, so a busy corporate week can never crowd it out.
 TRIAGE_FOCUS_SEARCHES = int(os.environ.get("SCOUT_TRIAGE_FOCUS_SEARCHES", "3"))
+# FOCUS GUARANTEE (2026-10-19, Uroš: "it's not an even game if the model sometimes is not looking at the
+# right thing"). The reserve above was an instruction, and the model spent one or two of the three
+# searches on the focus area most mornings, none on 10/19. Now code owns the deterministic part: it
+# writes the reserved searches from the focus area's own words (the lifecycle audit's matcher), lists
+# them in the request to run verbatim, reads the searches the call actually ran, and runs the missing
+# ones itself in a bounded second pass under the same instructions. A focused card therefore gets
+# its focus searches every morning or the step says it did not. SCOUT_TRIAGE_FOCUS_FORCE=0 turns the
+# listing and the second pass off (the audit keeps grading either way).
+TRIAGE_FOCUS_FORCE = os.environ.get("SCOUT_TRIAGE_FOCUS_FORCE", "1").strip().lower() not in ("0", "", "false", "off", "no")
+TRIAGE_FOCUS_RETRY_TURNS = int(os.environ.get("SCOUT_TRIAGE_FOCUS_RETRY_TURNS", "5"))
+TRIAGE_FOCUS_RETRY_BUDGET_USD = float(os.environ.get("SCOUT_TRIAGE_FOCUS_RETRY_BUDGET_USD", "0.20"))
 # Surface router (propagation step 3a, scout/route.py): tools-off Opus deciding which brief surfaces
 # an act-grade change reshapes, across all sections. One judgment call per change-set; it reasons over
 # the facts + the card, never searches. Absorbs the old separate strategic-lead pass, so it is
