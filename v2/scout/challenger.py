@@ -25,6 +25,7 @@ Two agreement numbers (don't conflate):
 import asyncio
 import hashlib
 import json
+import re
 import sys
 from datetime import datetime
 
@@ -107,11 +108,47 @@ def _items(record: dict) -> tuple[list, dict]:
     return model_items, champion
 
 
-async def _run_challenger(slug: str, model_items: list, system: str = _CHALLENGER_SYSTEM) -> dict:
+_SIG_TOKEN = re.compile(r"[A-Z][A-Za-z0-9.\-]{2,}|[A-Za-z]*\d[\w.\-]*")
+_SIG_NUM = re.compile(r"\$?\d[\d,]*(?:\.\d+)?%?")
+_SIG_STOP = {"the", "this", "that", "with", "from", "its", "their", "and", "but", "for", "not", "now", "new",
+             "after", "before", "what", "when", "where", "which", "who", "why", "how", "ask", "soundbite",
+             "so", "what:", "openai", "anthropic"}
+
+
+def _signals(text) -> set:
+    """The numbers and proper names in a text: what a grounding judge has to find a licence for."""
+    t = str(text or "")
+    out = {m.lower().strip(".,:;") for m in _SIG_TOKEN.findall(t)} | {m.lower() for m in _SIG_NUM.findall(t)}
+    return {x for x in out if x and x not in _SIG_STOP}
+
+
+def _relevant_facts(card_facts: list, model_items: list, cap: int = 40) -> list:
+    """The card facts a derived item may draw on (2026-10-19): the ones that share a number or a name
+    with any derived item's text, capped; all of them (capped) when that filter would leave fewer
+    than three. [] when nothing is derived or no facts are known. Pure function."""
+    derived = [i for i in model_items or [] if i.get("evidence_mode") == "parent_fact"]
+    if not card_facts or not derived:
+        return []
+    want = set()
+    for i in derived:
+        want |= _signals(i.get("claim"))
+    hits = [f for f in card_facts if isinstance(f, dict)
+            and ((_signals(f.get("claim")) | _signals(f.get("evidence_excerpt"))) & want)]
+    if len(hits) < 3:
+        hits = [f for f in card_facts if isinstance(f, dict)]
+    return hits[:cap]
+
+
+async def _run_challenger(slug: str, model_items: list, system: str = _CHALLENGER_SYSTEM,
+                          card_facts: list | None = None) -> dict:
     user = (
         f"Card: {slug}. Judge each of the following {len(model_items)} claims keep-or-cut on "
         "groundedness, independently.\n\n" + json.dumps(model_items, ensure_ascii=False, indent=2)
     )
+    if card_facts:
+        # the card's other sourced facts: the instructions say how a supporting_fact item may use them
+        user += ("\n\nCARD FACTS (the sourced facts on this card at the time, each with its own excerpt "
+                 "and source):\n\n" + json.dumps(card_facts, ensure_ascii=False, indent=2))
     options = ClaudeAgentOptions(
         model=config.CHALLENGER_MODEL,                # Sonnet — decision-log §11
         system_prompt=system,
@@ -133,8 +170,18 @@ def judge_record(record: dict, variant: str = "neutral") -> dict:
     model_items, _ = _items(record)
     if not model_items:
         return {"verdicts": {}, "cost_usd": 0.0, "model": config.CHALLENGER_MODEL}
+    facts = record.get("card_facts")
+    if not facts and any(i.get("evidence_mode") == "parent_fact" for i in model_items):
+        # a record captured before 2026-10-19 carries no facts: read the card as it is now
+        try:
+            from scout import shadow, store
+            facts = shadow.card_facts(store.load_claims(record.get("slug")))
+        except Exception as e:
+            print(f"[challenger] card facts unavailable ({type(e).__name__}: {e})", file=sys.stderr)
+            facts = None
     res = asyncio.run(_run_challenger(record.get("slug", "?"), model_items,
-                                      _SYSTEMS.get(variant, _CHALLENGER_SYSTEM)))
+                                      _SYSTEMS.get(variant, _CHALLENGER_SYSTEM),
+                                      card_facts=_relevant_facts(facts or [], model_items)))
     verdicts = {}
     try:
         for v in _extract_json(res["text"]).get("verdicts", []) or []:
