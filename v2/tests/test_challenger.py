@@ -1,6 +1,7 @@
 """Unit tests for the shadow-eval challenger's MODEL-FREE logic: Cohen's kappa, champion-vs-
 challenger classification, idempotency hashing, and scorecard aggregation. No model/API calls —
 judge_record/_run_challenger (which hit the SDK) are not exercised here."""
+import asyncio
 import unittest
 from unittest import mock
 
@@ -125,6 +126,61 @@ class Scorecard(unittest.TestCase):
         self.assertEqual(sc["cost_usd"], 0.02)
         # every pending disagreement must carry slug (the print path KeyError'd without this)
         self.assertTrue(all(d.get("slug") for d in sc["pending_disagreements"]))
+
+
+class CardFactsReachTheChallenger(unittest.TestCase):
+    """2026-10-19: a derived item is judged against the card's facts, not one parent."""
+    FACTS = [
+        {"id": "c_sol", "claim": "GPT-6 Sol costs $2/$10 per million tokens.", "evidence_excerpt": "Sol is priced at $2 input and $10 output", "source_url": "https://x/sol"},
+        {"id": "c_astra", "claim": "GPT-6 Astra lists at $10/$50.", "evidence_excerpt": "Astra: $10 / $50", "source_url": "https://x/astra"},
+        {"id": "c_luna", "claim": "GPT-6 Luna costs $0.10/$0.50.", "evidence_excerpt": "Luna at $0.10 and $0.50", "source_url": "https://x/luna"},
+        {"id": "c_hr", "claim": "OpenAI hired a new CFO.", "evidence_excerpt": "named chief financial officer", "source_url": "https://x/cfo"},
+        {"id": "c_office", "claim": "OpenAI opened a Tokyo office.", "evidence_excerpt": "Tokyo office opens", "source_url": "https://x/tokyo"},
+    ]
+    DERIVED = {"item_id": "c_prose", "evidence_mode": "parent_fact", "supporting_fact": "GPT-6.1 Sol launched September 29.",
+               "claim": "OpenAI now sells a GPT-6 lineup: Astra at $10/$50, Sol at $2/$10 and Luna at $0.10/$0.50.", "evidence": "x", "source_url": "https://x/61"}
+
+    def test_relevant_facts_share_a_number_or_a_name_with_the_prose(self):
+        rel = challenger._relevant_facts(self.FACTS, [self.DERIVED])
+        self.assertEqual([f["id"] for f in rel], ["c_sol", "c_astra", "c_luna"])
+        self.assertEqual(challenger._relevant_facts(self.FACTS, [{"item_id": "f", "evidence_mode": "own_excerpt", "claim": "x"}]), [])
+        self.assertEqual(challenger._relevant_facts([], [self.DERIVED]), [])
+        few = challenger._relevant_facts(self.FACTS[3:], [self.DERIVED])        # under three hits: everything, capped
+        self.assertEqual([f["id"] for f in few], ["c_hr", "c_office"])
+        self.assertEqual(len(challenger._relevant_facts(self.FACTS * 20, [self.DERIVED], cap=7)), 7)
+
+    def test_the_request_carries_the_facts_only_when_given(self):
+        seen = {}
+
+        async def fake_drive(prompt, options, role):
+            seen["prompt"] = prompt
+            return {"text": '{"verdicts": []}', "cost_usd": 0.0}
+        with mock.patch.object(challenger, "_drive", fake_drive):
+            asyncio.run(challenger._run_challenger("a__vs__b__x", [self.DERIVED], "sys", card_facts=self.FACTS[:3]))
+            self.assertIn("CARD FACTS", seen["prompt"])
+            self.assertIn("Luna at $0.10 and $0.50", seen["prompt"])
+            asyncio.run(challenger._run_challenger("a__vs__b__x", [self.DERIVED], "sys"))
+            self.assertNotIn("CARD FACTS", seen["prompt"])
+
+    def test_judge_record_uses_the_captured_facts_or_reads_the_card(self):
+        calls = []
+
+        async def fake_run(slug, items, system, card_facts=None):
+            calls.append(card_facts)
+            return {"text": '{"verdicts": [{"item_id": "c_prose", "verdict": "keep", "reason": "licensed", "confidence": "high"}]}', "cost_usd": 0.01}
+        kept = [{"id": "c_prose", "claim": self.DERIVED["claim"], "evidence_excerpt": None,
+                 "parent": {"claim": "GPT-6.1 Sol launched September 29.", "evidence_excerpt": "x", "source_url": "https://x/61"}}]
+        with mock.patch.object(challenger, "_run_challenger", fake_run):
+            out = challenger.judge_record({"slug": "a__vs__b__x", "run_ts": "t", "kept": kept, "cut": [], "card_facts": self.FACTS})
+            self.assertEqual(out["verdicts"]["c_prose"]["verdict"], "keep")
+            self.assertEqual([f["id"] for f in calls[-1]], ["c_sol", "c_astra", "c_luna"])
+            with mock.patch("scout.store.load_claims", return_value=[dict(f, status="active") for f in self.FACTS]):
+                challenger.judge_record({"slug": "a__vs__b__x", "run_ts": "t", "kept": kept, "cut": []})   # an older record
+            self.assertEqual([f["id"] for f in calls[-1]], ["c_sol", "c_astra", "c_luna"])
+            with mock.patch("scout.store.load_claims", side_effect=FileNotFoundError("no card")):
+                challenger.judge_record({"slug": "gone", "run_ts": "t", "kept": kept, "cut": []})
+            self.assertEqual(calls[-1], [])                                           # unreadable card: judged as before
+
 
 
 if __name__ == "__main__":

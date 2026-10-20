@@ -71,6 +71,45 @@ class FlagGatesCapture(unittest.TestCase):
             self.assertEqual(ratios["c_2"], 1.0)
 
 
+class CardFactsRideTheDerivedCapture(unittest.TestCase):
+    """2026-10-19: prose is written from several facts; the challenger must see them all."""
+    CLAIMS = [
+        {"id": "c_fact1", "subject_key": "pricing.sol", "section": "pricing", "status": "active", "as_of": "2026-09-22",
+         "claim": "GPT-6 Sol costs $2/$10 per million tokens.", "evidence_excerpt": "Sol is priced at $2 input and $10 output", "source_url": "https://x/sol", "source_tier": "primary"},
+        {"id": "c_fact2", "subject_key": "pricing.astra", "section": "pricing", "status": "active",
+         "claim": "GPT-6 Astra lists at $10/$50.", "evidence_excerpt": "Astra: $10 / $50", "source_url": "https://x/astra", "source_tier": "primary"},
+        {"id": "c_retired", "subject_key": "old", "section": "pricing", "status": "retired",
+         "claim": "Old price.", "evidence_excerpt": "old", "source_url": "https://x/old"},
+        {"id": "c_prose", "subject_key": "battlecard.price", "section": "battlecard", "status": "active", "derived_from": "c_fact1",
+         "claim": "OpenAI now sells Astra at $10/$50 and Sol at $2/$10.", "evidence_excerpt": None, "updated_on": "2026-10-04"},
+    ]
+
+    def test_card_facts_are_the_active_sourced_claims_trimmed(self):
+        facts = shadow.card_facts(self.CLAIMS)
+        self.assertEqual([f["id"] for f in facts], ["c_fact1", "c_fact2"])     # no retired, no prose
+        self.assertEqual(facts[0]["source_url"], "https://x/sol")
+        long = [dict(self.CLAIMS[0], id=f"c_{i}", claim="x" * 900, evidence_excerpt="y" * 900) for i in range(5)]
+        trimmed = shadow.card_facts(long, cap=3)
+        self.assertEqual(len(trimmed), 3)
+        self.assertEqual((len(trimmed[0]["claim"]), len(trimmed[0]["evidence_excerpt"])), (600, 400))
+
+    def test_the_derived_capture_carries_the_cards_facts(self):
+        with mock.patch.object(shadow.config, "SHADOW_EVAL_ENABLED", True), \
+             mock.patch.object(shadow.selfserve, "write_data") as w:
+            shadow.capture_derived("a__vs__b__x", "monitor", self.CLAIMS, changed_on="2026-10-04", competitor="OpenAI", my_company="Anthropic")
+            w.assert_called_once()
+            rec = json.loads(w.call_args.args[1])
+        self.assertEqual(rec["source"], "monitor-derived")
+        self.assertEqual([k["id"] for k in rec["kept"]], ["c_prose"])
+        self.assertEqual(rec["kept"][0]["evidence_mode"], "parent_fact")
+        self.assertEqual([f["id"] for f in rec["card_facts"]], ["c_fact1", "c_fact2"])
+        with mock.patch.object(shadow.config, "SHADOW_EVAL_ENABLED", True), \
+             mock.patch.object(shadow.selfserve, "write_data") as w:
+            shadow.capture("a__vs__b__x", "monitor", kept=KEPT, cut=CUT, grounding=_grounding())
+            rec = json.loads(w.call_args.args[1])
+        self.assertNotIn("card_facts", rec)                 # a plain fact capture carries none
+
+
 class NeverRaises(unittest.TestCase):
     """The hook sits in the live write path — it must swallow EVERYTHING."""
 

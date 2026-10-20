@@ -79,6 +79,30 @@ def _kept_rows(kept):
     return rows
 
 
+FACTS_CAP = 120
+
+
+def card_facts(claims: list, cap: int = FACTS_CAP) -> list:
+    """Every active, sourced fact on the card, trimmed to what a grounding judge needs (2026-10-19,
+    Uroš: the challenger "abdicates" on prose that names several versions, prices and dates). Card
+    prose is written from several facts, while its provenance names one parent; judged against that
+    one fact alone, every number from the others read as unlicensed and the challenger cut sound
+    claims five times out of five. These are the facts an interpretation may draw on. Pure function."""
+    out = []
+    for c in claims or []:
+        if not isinstance(c, dict) or str(c.get("status", "active")) != "active":
+            continue
+        ex = str(c.get("evidence_excerpt") or "").strip()
+        if not ex:
+            continue
+        out.append({"id": c.get("id"), "subject_key": c.get("subject_key"), "section": c.get("section"),
+                    "claim": str(c.get("claim") or "")[:600], "evidence_excerpt": ex[:400],
+                    "source_url": c.get("source_url"), "source_tier": c.get("source_tier"), "as_of": c.get("as_of")})
+        if len(out) >= cap:
+            break
+    return out
+
+
 def derived_rows(claims: list, changed_on: str | None = None) -> list:
     """Active derived claims (derived_from set, no own excerpt) paired with their parent fact —
     {claim, evidence_excerpt, source_url, source_tier, subject_key}. `changed_on` restricts to claims
@@ -118,7 +142,7 @@ def capture_derived(slug, source, claims, changed_on=None, *, competitor=None, m
         if not rows:
             return
         capture(slug, f"{source}-derived", kept=rows, cut=[], grounding=[],
-                competitor=competitor, my_company=my_company, focus=focus)
+                competitor=competitor, my_company=my_company, focus=focus, card_facts=card_facts(claims))
     except Exception as e:
         print(f"[shadow] derived capture skipped ({type(e).__name__}: {e})", file=sys.stderr)
 
@@ -138,7 +162,7 @@ def _cut_rows(cut):
 
 
 def capture(slug, source, *, kept, cut, grounding,
-            competitor=None, my_company=None, focus=None):
+            competitor=None, my_company=None, focus=None, card_facts=None):
     """Record one run's champion decisions for shadow eval. No-op unless SHADOW_EVAL_ENABLED.
 
     GUARANTEED never to raise — the caller sits in the live write path, so any failure here is
@@ -160,6 +184,8 @@ def capture(slug, source, *, kept, cut, grounding,
             "cut": _cut_rows(cut),
             "grounding_results": _ground_rows(grounding),
         }
+        if card_facts:
+            record["card_facts"] = list(card_facts)       # what a derived claim may draw on (2026-10-19)
         stamp = now.strftime("%Y%m%dT%H%M%S")
         path = f"{SHADOW_DIR}/{slug}/{stamp}.json"
         selfserve.write_data(
