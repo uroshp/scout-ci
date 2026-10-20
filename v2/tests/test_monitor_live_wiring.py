@@ -159,6 +159,63 @@ class QuietMorning(_Live):
         self.assertEqual(_load(os.path.join(self.card, "claims.json")), self.claims0)
 
 
+class FocusedQuiet(_Live):
+    """The focus guarantee (2026-10-19) on the real write path: a focused card whose first triage pass
+    skipped the reserved searches gets them run by code in a second pass before the morning goes on."""
+
+    def _focus(self):
+        meta = _load(os.path.join(self.card, "meta.json"))
+        meta["focus"] = "agentic coding developers"
+        with open(os.path.join(self.card, "meta.json"), "w") as f:
+            json.dump(meta, f)
+        return meta
+
+    def _triage_with_searches(self, per_call, calls):
+        async def _fake(meta, since, claims, my_since=None, extra="", **kw):
+            calls.append({"extra": extra, **kw})
+            qs = per_call[min(len(calls) - 1, len(per_call) - 1)]
+            return {"text": json.dumps({"has_candidates": False, "candidates": []}), "cost_usd": 0.05,
+                    "tool_uses": [{"name": "WebSearch", "input": {"query": q}} for q in qs]}
+        return _fake
+
+    def test_missing_reserve_is_run_by_code_before_the_morning_goes_on(self):
+        meta = self._focus()
+        forced = monitor._focus_queries(meta)
+        calls, leads = [], []
+        with mock.patch.object(monitor, "_run_triage", self._triage_with_searches([["Cognition funding", "Cursor hiring"], forced], calls)), \
+             mock.patch.object(monitor, "_competitor_arm", side_effect=AssertionError("must not run")), \
+             mock.patch.object(monitor, "_my_company_facts", side_effect=AssertionError("must not run")), \
+             mock.patch.object(monitor, "propagate", side_effect=AssertionError("must not run")), \
+             mock.patch("scout.audience.refresh", self.audience_fake(leads)):
+            res = monitor.check(SLUG, write=True)
+        self.assertTrue(res["no_change"])
+        self.assert_no_failed(res)
+        rows = self.rows(res)
+        self.assertEqual(rows["triage"]["status"], "ran")
+        self.assertEqual(rows["focus_reserve"]["status"], "ran")
+        self.assertIn("the forced pass ran 3 of 3", rows["focus_reserve"]["detail"])
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(calls[1]["focus_queries"], [])
+        for q in forced:
+            self.assertIn(q, calls[1]["extra"])
+        self.assertAlmostEqual(res["cost"]["triage"], 0.10)       # both passes on the ledger's triage line
+
+    def test_a_reserve_that_cannot_be_met_is_a_failed_row_and_the_check_still_completes(self):
+        self._focus()
+        calls, leads = [], []
+        with mock.patch.object(monitor, "_run_triage", self._triage_with_searches([["Cognition funding"]], calls)), \
+             mock.patch.object(monitor, "_competitor_arm", side_effect=AssertionError("must not run")), \
+             mock.patch.object(monitor, "_my_company_facts", side_effect=AssertionError("must not run")), \
+             mock.patch.object(monitor, "propagate", side_effect=AssertionError("must not run")), \
+             mock.patch("scout.audience.refresh", self.audience_fake(leads)):
+            res = monitor.check(SLUG, write=True)
+        rows = self.rows(res)
+        self.assertEqual(rows["focus_reserve"]["status"], "failed")
+        self.assertIn("0 of 3 in total", rows["focus_reserve"]["detail"])
+        self.assertEqual(rows["write"]["status"], "ran")
+        self.assertEqual(len(calls), 2)
+
+
 class EscalatedNoActFact(_Live):
     """The 10/3 crash branch: a competitor development lands as WATCH, propagation has nothing act-grade,
     and the audience step runs with a name that exists."""

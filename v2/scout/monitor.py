@@ -38,6 +38,7 @@ from scout.grounding import CUT_ABSENT, ground_claims, is_excluded_source
 from scout.prompts import WRITING_STYLE
 from scout.render import claims_to_markdown, clean_output, extract_cut_log, format_report
 from scout.schema import ANCHOR_SECTION, SECTIONS as SECTIONS_KNOWN, SOURCE_TIERS, ZONES, claim_id, normalize_claim, pregrounding_errors, resolve_subject_key, validation_errors
+from scout.sensors.vocab import PRODUCT_QUERIES
 from scout import judgment
 
 # Source-tier preference order for multi-source grounding (best first): a primary filing /
@@ -241,6 +242,116 @@ def _focus_note(meta: dict, focus_searches: int) -> str:
     return ("\n\n" + note) if note else f"\n\nFOCUS AREA: {focus}. Developments in this area and the companies' corporate developments are both material."
 
 
+def _focus_phrase(meta: dict) -> str:
+    """The focus area's own words in their original order, minus stop words and the companies' names,
+    graded by the lifecycle audit's matcher (`lifecycle.focus_terms`): 'enterprise and sovereign AI for
+    developers and agents' -> 'enterprise sovereign AI developers agents'. "" for a general card or a
+    focus that leaves no distinctive word (the audit reports those as n/a)."""
+    focus = _focus_of(meta)
+    if not focus:
+        return ""
+    from scout import lifecycle
+    names = [n for n in (meta.get("competitor"), meta.get("my_company")) if n]
+    terms = lifecycle.focus_terms(focus, names)
+    words = re.findall(r"[A-Za-z][A-Za-z0-9]+", focus.replace("/", " ").replace("-", " "))
+    return " ".join(w for w in words if w.lower() in terms)
+
+
+def _focus_queries(meta: dict, now: datetime | None = None) -> list[str]:
+    """THE FOCUS GUARANTEE, part 1 (2026-10-19, Uroš: "it's not an even game if the model sometimes is
+    not looking at the right thing, because sensors are looking for the right thing always"). The
+    reserved focus searches, written by code from the focus area's words: the competitor in the focus
+    area, its product in the focus area this month, and our own company in the focus area. Each one
+    grades `focus` under the audit's matcher by construction. [] for a general card."""
+    phrase = _focus_phrase(meta)
+    if not phrase:
+        return []
+    comp, me = meta.get("competitor"), meta.get("my_company")
+    prods = [p for key, ps in PRODUCT_QUERIES.items() if key in str(comp or "").lower() for p in ps]
+    month = (now or datetime.now()).strftime("%B %Y")
+    out = [f"{comp} {phrase}",
+           f"{prods[0]} {phrase} {month}" if prods else f"{comp} {phrase} announcement {month}",
+           f"{me} {phrase}" if me else f"{comp} {phrase} launch OR partnership OR pricing"]
+    return out[:config.TRIAGE_FOCUS_SEARCHES]
+
+
+def _focus_search_block(queries: list[str]) -> str:
+    """The user-message listing of the reserved searches (an input the code owes the model, like the
+    cutoffs; no instruction block changes, so the triage eval period does not move)."""
+    if not queries:
+        return ""
+    return ("\n\nFOCUS SEARCHES (the reserved ones, written for this card): run each of these verbatim as "
+            "its own WebSearch call before your own searches:\n"
+            + "\n".join(f"{i}. {q}" for i, q in enumerate(queries, 1)))
+
+
+def _focus_retry_block(ran: int, need: int, total: int, queries: list[str]) -> str:
+    return (f"\n\nFOCUS RESERVE UNMET: the first pass ran {total} search(es), {ran} of the {need} reserved "
+            "focus searches among them. Run EXACTLY these searches now, one WebSearch call each, then "
+            "report candidates in the same schema (an empty candidates list is a valid answer):\n"
+            + "\n".join(f"{i}. {q}" for i, q in enumerate(queries, 1)))
+
+
+def _focus_searches_ran(call: dict, meta: dict) -> tuple[int, int, list[str]]:
+    """(focus searches, all searches, the queries) one triage call ran, graded with the audit's matcher."""
+    from scout import lifecycle
+    names = [n for n in (meta.get("competitor"), meta.get("my_company")) if n]
+    terms = lifecycle.focus_terms(_focus_of(meta), names)
+    queries = [str((tu.get("input") or {}).get("query") or "") for tu in (call.get("tool_uses") or [])
+               if tu.get("name") == "WebSearch"]
+    n_focus = sum(1 for q in queries if lifecycle.search_scope(q, terms, names) == "focus")
+    return n_focus, len(queries), queries
+
+
+def _focus_reserve(meta: dict, since, claims, my_since, triage: dict, candidates: list, steps: list,
+                   t_kw: dict | None = None) -> tuple[dict, list]:
+    """THE FOCUS GUARANTEE, part 2: code reads the searches the triage call actually ran and, when fewer
+    than the reserve named the focus area, runs the missing ones itself in a bounded second pass under
+    the same instructions (same eval period), merging its candidates and its spend into the morning's
+    triage. A focused card therefore gets its focus searches every morning, or the step row says so
+    and the FYI carries the line. Never aborts the check: the first pass's candidates stand either way.
+    Off with SCOUT_TRIAGE_FOCUS_FORCE=0 (the audit keeps grading)."""
+    queries = _focus_queries(meta)
+    if not config.TRIAGE_FOCUS_FORCE or not queries:
+        return triage, candidates
+    need = min(config.TRIAGE_FOCUS_SEARCHES, len(queries))
+    n_focus, n_all, ran = _focus_searches_ran(triage, meta)
+    if n_focus >= need:
+        _step(steps, "focus_reserve", "ran", f"{n_focus} of {need} reserved focus searches ran in the first pass ({n_all} searches)")
+        return triage, candidates
+    ran_norm = {" ".join(q.lower().split()) for q in ran}
+    missing = [q for q in queries if " ".join(q.lower().split()) not in ran_norm][: need - n_focus] or queries[: need - n_focus]
+    t_kw = t_kw or {}
+    try:
+        second = asyncio.run(_run_triage(meta, since, claims, my_since=my_since,
+                                         extra=_focus_retry_block(n_focus, need, n_all, missing),
+                                         max_turns=config.TRIAGE_FOCUS_RETRY_TURNS, budget=config.TRIAGE_FOCUS_RETRY_BUDGET_USD,
+                                         focus_searches=t_kw.get("focus_searches") or config.TRIAGE_FOCUS_SEARCHES,
+                                         focus_queries=[]))
+    except Exception as e:
+        _step(steps, "focus_reserve", "failed",
+              f"{n_focus} of {need} reserved focus searches ran in the first pass; the forced pass died: {type(e).__name__}: {e}",
+              getattr(e, "scout_cost_usd", None))
+        return triage, candidates
+    try:
+        sdata = _extract_json(second.get("text") or "")
+    except Exception:
+        sdata = {"has_candidates": False, "candidates": []}
+    added = [c for c in (sdata.get("candidates", []) if sdata.get("has_candidates") else []) if isinstance(c, dict)]
+    merged = _merge_candidates(candidates, added)
+    n2, _all2, _ = _focus_searches_ran(second, meta)
+    out = dict(triage)
+    out["cost_usd"] = round((triage.get("cost_usd") or 0.0) + (second.get("cost_usd") or 0.0), 6)
+    out["tool_uses"] = list(triage.get("tool_uses") or []) + list(second.get("tool_uses") or [])
+    out["focus_retry"] = {"queries": missing, "ran": n2, "cost_usd": second.get("cost_usd"), "candidates_added": len(merged) - len(candidates)}
+    total = n_focus + n2
+    _step(steps, "focus_reserve", "ran" if total >= need else "failed",
+          f"{n_focus} of {need} reserved focus searches ran in the first pass; the forced pass ran {n2} of {len(missing)} "
+          f"for ${(second.get('cost_usd') or 0.0):.2f}, {len(merged) - len(candidates)} candidate(s) added"
+          + ("" if total >= need else f"; {total} of {need} in total"))
+    return out, merged
+
+
 def _triage_budget(since: str | None, checked_at: str, focused: bool = False) -> tuple[int, int, float, int]:
     """(searches, max_turns, budget, focus_searches) for the detection window. Up to three days: the
     daily caps. A stale window earns two more searches per week of gap, up to
@@ -267,8 +378,12 @@ def _triage_budget(since: str | None, checked_at: str, focused: bool = False) ->
 
 
 async def _run_triage(meta, since, claims, my_since=None, extra: str = "", searches: int | None = None,
-                      max_turns: int | None = None, budget: float | None = None, focus_searches: int = 0):
+                      max_turns: int | None = None, budget: float | None = None, focus_searches: int = 0,
+                      focus_queries: list | None = None):
     comp, me = meta.get("competitor"), meta.get("my_company")
+    # the reserved focus searches, written by code (None = derive from the card; [] = none, the forced
+    # second pass lists its own in `extra`)
+    fq = (_focus_queries(meta) if focus_queries is None else focus_queries) if config.TRIAGE_FOCUS_FORCE else []
     # the system block is the module constant on a normal day (its fingerprint is the triage eval
     # period); a catch-up window renders it with the larger search count, a separate period
     system_block = _TRIAGE_SYSTEM if not searches or searches == config.TRIAGE_MAX_SEARCHES else \
@@ -295,7 +410,7 @@ async def _run_triage(meta, since, claims, my_since=None, extra: str = "", searc
             f"\nCUTOFF (competitor): {since}. Surface ONLY competitor developments dated on/after "
             f"{since} that are NOT already reflected in the tracked subjects below (apply both "
             f"strict filters)."
-            + my_cut + _focus_note(meta, focus_searches or config.TRIAGE_FOCUS_SEARCHES) + "\n\n"
+            + my_cut + _focus_note(meta, focus_searches or config.TRIAGE_FOCUS_SEARCHES) + _focus_search_block(fq) + "\n\n"
             f"TRACKED SUBJECTS (subject_key — current value already known):\n"
             + _tracked_digest(claims) + hunt_block + (extra or ""))
     options = ClaudeAgentOptions(
@@ -897,7 +1012,8 @@ def _sensor_compare(slug: str, meta: dict, sens: dict | None, candidates: list, 
         payload = {"mode": sens["mode"], "triage_ran": triage_ran, "entities": sens["entities"], "by_entity": sens["by_entity"],
                    "findings_open": len(sens["findings"]), "findings_recent": len(recent),
                    "screen": {"status": sens["status"], "cost_usd": sens["cost_usd"], "candidates": sens["candidates"]},
-                   "triage": {"candidates": [{k: c.get(k) for k in ("signal", "subject_key", "about", "substantial", "source_hint")} for c in candidates]} if triage_ran else None,
+                   "triage": {"candidates": [{k: c.get(k) for k in ("signal", "subject_key", "about", "substantial", "source_hint")} for c in candidates],
+                              "focus_guarantee": bool(config.TRIAGE_FOCUS_FORCE and _focus_of(meta))} if triage_ran else None,
                    "landed": la, "misses_a": misses_a, "pre_baseline": len(pre_baseline), "baseline": baseline,
                    "level_b": lb, "pass_error": sens.get("pass_error")}
         doc = compare.record(slug, today, payload, write)
@@ -1131,6 +1247,9 @@ def _check(slug: str, write: bool, since_override: str | None, escalate: bool, s
         except Exception:
             tdata = {"has_candidates": False, "candidates": []}
         candidates = tdata.get("candidates", []) if tdata.get("has_candidates") else []
+        if _focus_of(meta):
+            # the focus guarantee: the reserved searches ran, or code runs them now (one bounded pass)
+            triage, candidates = _focus_reserve(meta, since, claims, my_since, triage, candidates, steps, t_kw)
         if sens and sens.get("sweep"):
             # the sweep's catches already handled by sensors this week are not re-escalated
             seen_sk = {str(c.get("subject_key")) for c in sens["candidates"] if c.get("subject_key") and c.get("subject_key") != "NEW"}

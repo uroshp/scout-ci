@@ -133,6 +133,16 @@ class Canary(unittest.TestCase):
         self.assertEqual(lc.arbiter_problems("2026-10-19 05:15:00 PDT  === replay start\n"), [])     # still running: not a finding
         self.assertEqual(len(lc.arbiter_problems("2026-10-19 05:15:00 PDT  === replay start\n" + end)), 1)   # ended without the section
 
+    def test_mirror_pull_failure_is_a_finding(self):
+        lc = _script("lanes_canary")
+        base = "2026-10-20 05:15:00 PDT  === replay start\n2026-10-20 09:40:00 PDT  --- read-out ---\n"
+        end = "2026-10-20 10:03:54 PDT  === replay end ===\n"
+        self.assertEqual(lc.mirror_problems(base + "[store] mirror a611f49e (pulled; bulk reads from disk)\n" + end), [])
+        bad = lc.mirror_problems(base + "[store] mirror pull failed (fatal: could not read Username); reading what is on disk (a611f49e)\n" + end)
+        self.assertEqual(len(bad), 1); self.assertIn("stale copy", bad[0]); self.assertIn("could not read Username", bad[0])
+        self.assertEqual(lc.mirror_problems(base + "[store] mirror pull failed (x)\n"), [])    # still running: not yet a finding
+        self.assertEqual(lc.mirror_problems(""), [])
+
 
 if __name__ == "__main__":
     unittest.main()

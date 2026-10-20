@@ -191,6 +191,7 @@ def check_replay(day: date) -> list[str]:
         problems.append("replay: no '=== replay end ===' today (aborted or still running)")
     else:
         problems += arbiter_problems(today_log)
+        problems += mirror_problems(today_log)
     return problems
 
 
@@ -220,6 +221,18 @@ def arm_problems(today_log: str) -> list[str]:
     if "apple arm exit" not in today_log and "apple arm skipped" not in today_log:
         out.append("replay: the Apple arm left no exit line today")
     return out
+
+
+def mirror_problems(today_log: str) -> list[str]:
+    """A failed pull of the store's clone (2026-10-19): the read-out and the arbiter then read yesterday's
+    copy, and nothing else reports it (the pull never raises by design). Judged only after the run ended."""
+    if not today_log or "=== replay end ===" not in today_log:
+        return []
+    fails = [ln.strip() for ln in today_log.splitlines() if "[store] mirror pull failed" in ln]
+    if not fails:
+        return []
+    why = fails[-1].split("pull failed", 1)[1].strip().strip("();: ")[:140]
+    return [f"store mirror: {len(fails)} pull(s) failed today, so the read-out and the arbiter read a stale copy ({why})"]
 
 
 def arbiter_problems(today_log: str) -> list[str]:

@@ -180,6 +180,34 @@ class AuditEndToEnd(unittest.TestCase):
         self.assertEqual(_by_id(card["invariants"])["A2"], ["pass"])
 
 
+class FocusSearchesAcrossTwoTriageCalls(unittest.TestCase):
+    def test_a1_counts_the_forced_pass_with_the_first(self):
+        """The focus guarantee (2026-10-19) runs the missing reserved searches in a second triage call of
+        the same card; the audit grades the morning's searches as one set, so a first pass of one focus
+        search plus a forced pass of two reads pass, not warn."""
+        rows = [{"slug": "a__vs__b__x", "steps": [{"step": "triage", "status": "ran", "cost": 0.1},
+                                                  {"step": "focus_reserve", "status": "ran", "cost": 0.05}], "total": 0.15}]
+        mk = lambda qs: {"slug": "a__vs__b__x", "role": "triage", "user": "Changes since. FOCUS AREA: widgets. both scopes",
+                         "judgment_version": "v1", "instructions_sha": "s",
+                         "transcript": [{"kind": "tool_use", "name": "WebSearch", "input": {"query": q}} for q in qs],
+                         "result": {"text": json.dumps({"has_candidates": False, "candidates": []})}}
+        calls = [mk(["Acme widgets launch", "Acme funding", "Beta CEO", "Acme layoffs", "Beta office"]),
+                 mk(["Acme widgets pricing", "Beta widgets"])]
+        meta = {"competitor": "Acme", "my_company": "Beta", "focus": "widgets"}
+        with mock.patch.object(lifecycle, "_card_file", side_effect=lambda slug, name: {"meta.json": json.dumps(meta), "claims.json": "[]", "alerts.jsonl": ""}.get(name)), \
+             mock.patch.object(lifecycle, "_records_for", return_value=[]), \
+             mock.patch.object(lifecycle, "next_run_stamp", return_value=None):
+            doc = lifecycle.audit("20261020T120000", rows=rows, calls=calls, write=False)
+        card = doc["cards"][0]
+        self.assertEqual(len(card["trace"]["searches"]), 7)
+        self.assertEqual(_by_id(card["invariants"])["A1"], ["pass"])
+        with mock.patch.object(lifecycle, "_card_file", side_effect=lambda slug, name: {"meta.json": json.dumps(meta), "claims.json": "[]", "alerts.jsonl": ""}.get(name)), \
+             mock.patch.object(lifecycle, "_records_for", return_value=[]), \
+             mock.patch.object(lifecycle, "next_run_stamp", return_value=None):
+            doc = lifecycle.audit("20261020T120000", rows=rows, calls=calls[:1], write=False)
+        self.assertEqual(_by_id(doc["cards"][0]["invariants"])["A1"], ["warn"])     # the first pass alone: one of three
+
+
 class BothArmsReachTheEvalMirror(unittest.TestCase):
     def test_ground_best_keeps_the_per_claim_results(self):
         claim = {"subject_key": "k", "claim": "t", "source_url": "https://x.test/a", "source_tier": "primary", "evidence_excerpt": "e"}
