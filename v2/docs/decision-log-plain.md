@@ -145,3 +145,19 @@ comparison period for the search role continues unbroken, and the daily comparis
 mornings that ran under the guarantee, so the trend before and after the change can be read side by
 side. Cost: nothing extra on mornings the model runs the listed searches, about ten cents on a
 focused card when the second pass fires.
+
+## 2026-10-19 — The verification challenger judges card prose against the whole card, not one fact
+
+The shadow challenger re-checks every claim the code grader kept. For card prose, which is written
+from several facts, it was handed the one fact the provenance names and told that any number or
+name beyond it was unsupported. So a pricing paragraph built from four facts read as unsupported
+four times over, and the challenger cut sound claims five times out of five. Uroš's labels said so,
+and the same shape had been ruled an over-cut once before, in June, on claims with no excerpt at all.
+
+Now the morning capture carries the card's sourced facts with each derived claim, the challenger
+receives the ones that share a number or a name with the prose, and its instructions say an
+interpretation may draw on any of them: a number or name that a card fact states is never a reason
+to cut. The labeling tool shows the same facts to the person judging. The challenger's comparison
+period restarts with the new instructions, so its earlier number is read as what it was, strict
+single-fact grounding. Recording every fact a paragraph drew on at writing time, instead of one, is
+the next step and is not built.
