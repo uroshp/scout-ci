@@ -343,6 +343,8 @@ async def _drive_once(prompt: str, options, top_role: str) -> dict:
     judgment.assert_clean(prompt, getattr(options, "system_prompt", None))
     by_role, agent_names = {}, {}
     final_text, last_text, result = None, "", None
+    tool_uses: list[dict] = []                    # the top role's own tool calls, in order (2026-10-19: the
+                                                  # focus reserve reads the searches triage actually ran)
 
     def bump(role, usage):
         d = by_role.setdefault(role, {"input": 0, "output": 0, "cache_read": 0,
@@ -377,6 +379,8 @@ async def _drive_once(prompt: str, options, top_role: str) -> dict:
                           inp = getattr(b, "input", {}) or {}
                           if getattr(b, "name", "") == "Agent":
                               agent_names[getattr(b, "id", "")] = inp.get("subagent_type") or "subagent"
+                          if role == top_role:
+                              tool_uses.append({"name": getattr(b, "name", "") or "", "input": inp if isinstance(inp, dict) else {}})
                           _emit_tool(getattr(b, "name", "") or "", inp if isinstance(inp, dict) else {})
                       elif bk == "TextBlock":
                           last_text = getattr(b, "text", "") or last_text
@@ -427,6 +431,7 @@ async def _drive_once(prompt: str, options, top_role: str) -> dict:
         "num_turns": getattr(result, "num_turns", None),
         "by_role": by_role,
         "model_usage": getattr(result, "model_usage", None),
+        "tool_uses": tool_uses,
     }
     if cap is not None:
         cap.finish(out)

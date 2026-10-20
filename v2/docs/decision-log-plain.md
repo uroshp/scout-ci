@@ -124,3 +124,24 @@ point. The checker also has to spell out the correct approach the first time, no
 rounds later. The tool now gets up to three tries instead of one, and if a genuinely deal-moving
 point still can't be written honestly, it sends an urgent email so a person can write it by hand.
 Nothing that would help close a deal disappears quietly again.
+
+## 2026-10-19 — The morning search must look at the focus area every day, not most days
+
+A card with a focus area (say, enterprise and sovereign AI for developers and agents) is supposed to
+spend three of its morning searches on that area. Until today that was an instruction to the model,
+and the model mostly spent one or two of them there, and on one morning none: the Mistral card's
+search found nothing while the sensors running alongside it flagged two focus-area items. Uroš's
+read: a model can be made to look at the right thing, and until it is, the comparison between the
+model search and the code sensors is not an even game, because the sensors look at the right thing
+every day.
+
+The fix moves the deterministic part into code. Code writes the three focus searches from the focus
+area's own words (the same words the daily audit uses to grade searches), lists them in the request
+to be run verbatim, reads the searches the model actually ran, and if any reserved search is
+missing, runs it itself in a short second pass under the same instructions, adding whatever it finds
+to the morning's candidates. If even that fails, the run says so in one line of the daily email and
+the audit goes red. The model keeps its own searches on top. No instruction text changed, so the
+comparison period for the search role continues unbroken, and the daily comparison record marks the
+mornings that ran under the guarantee, so the trend before and after the change can be read side by
+side. Cost: nothing extra on mornings the model runs the listed searches, about ten cents on a
+focused card when the second pass fires.
