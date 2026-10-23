@@ -114,6 +114,9 @@ class Canary(unittest.TestCase):
         self.assertEqual(len(probs), 1); self.assertIn("ollama_gemma4", probs[0])
         self.assertEqual(lc.arm_problems(log + "2026-10-01 06:50:00 PDT  ollama_gemma4 arm exit 0\n"), [])
         self.assertEqual(lc.arm_problems("2026-10-01 05:15:00 PDT  ollama arms skipped tonight\n"), [])
+        # an arm the runner skipped on purpose (the run's deadline passed before it started) left its trace
+        self.assertEqual(lc.arm_problems(log + "2026-10-24 06:31:00 PDT  ollama_gemma4 arm skipped (deadline 06:30 "
+                                               "passed before it started; it catches up tomorrow night)\n"), [])
 
     def test_arbiter_silence_is_a_finding(self):
         lc = _script("lanes_canary")
