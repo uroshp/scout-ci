@@ -1,8 +1,8 @@
 """Lanes canary (2026-09-30): did today's unattended lanes do their job? Checks the ARTIFACTS, not
 the process status: a green workflow that wrote to the wrong place, or a replay that scored a
 backlog, both exit 0. Emails "Scout could not run: lanes canary" only when something is missing;
-silence means every lane left the evidence it should. Runs on the mini after the replay window
-(launchd com.urosh.scout-lanes-canary, 09:00 PT). $0: no model calls.
+silence means every lane left the evidence it should. Runs on the mini from ~/scout-tools/scout-canary
+(launchd com.urosh.scout-canary, 09:00 and 15:15 PT). $0: no model calls.
 
 Checks (all skipped on a monitor skip day, i.e. Sunday, except the app probe):
   1. monitor: a cost ledger dated today at the PRODUCTION path (costs/<today>T*.json) and none of
@@ -11,8 +11,9 @@ Checks (all skipped on a monitor skip day, i.e. Sunday, except the app probe):
      did not finish is already a line in the morning FYI (email policy 2026-10-10), so it is not
      repeated here; a card with no step table at all is.
   2. capture: a call bundle dated today at calls/<month>/monitor_<today>*.json.
-  3. replay: ~/scout-replay/state.json last_run is today AND its log's "newest bundle" line for
-     today's run names a bundle dated today (the lane scored fresh calls, not a backlog).
+  3. replay: the newest run in ~/scout-replay/launchd.out.log (the lane fires at 23:00 PT) ended, state.json
+     advanced within 30 h, its "newest bundle" line is that day's capture or the day before's (a backlog
+     scored instead is a finding), every arm left an exit line, the arbiter ruled, the mirror pulled.
   4. app: the viewer and the engine answer their health checks.
 Usage: python scripts/lanes_canary.py [--dry] [--date YYYY-MM-DD]
 """
@@ -22,7 +23,7 @@ import json
 import os
 import re
 import sys
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 import httpx
 
@@ -31,6 +32,7 @@ from scout import config, notify, selfserve
 VIEWER = os.environ.get("SCOUT_CANARY_VIEWER", "https://agent-scout.ai/healthcheck")
 ENGINE = os.environ.get("SCOUT_CANARY_ENGINE", "https://scout-engine-y5fw7otaqa-uw.a.run.app/healthcheck")
 REPLAY_DIR = os.path.expanduser(os.environ.get("SCOUT_REPLAY_DIR", "~/scout-replay"))
+_now = datetime.now          # patched by tests
 
 
 def _today(argv) -> date:
@@ -161,37 +163,58 @@ def check_capture(day: date) -> list[str]:
     return []
 
 
+def latest_replay_run(log: str) -> str:
+    """The newest run in launchd.out.log: from its '=== replay start' line to the end of the file. The
+    lane fires at 23:00 PT (2026-10-23; 05:15 before that), so the run the 09:00 pass judges began the
+    day before, and a by-hand catch-up can begin at any hour: a run is found by its marker, not by date."""
+    i = log.rfind("=== replay start")
+    if i < 0:
+        return ""
+    return log[log.rfind("\n", 0, i) + 1:]
+
+
 def check_replay(day: date) -> list[str]:
-    problems = []
+    """Last night's replay left its evidence: state.json advanced within the last 30 h; the newest run in
+    the log scored the newest bundle that existed when it began (that day's 4 AM capture, or the day
+    before's after a Sunday or for a catch-up started after midnight); every arm left an exit line; the
+    run ended; the arbiter ruled; the mirror pulled."""
     try:
         st = json.load(open(os.path.join(REPLAY_DIR, "state.json")))
-        last = str(st.get("last_run") or "")[:10]
+        last_run = datetime.fromisoformat(str(st.get("last_run") or ""))
     except Exception as e:
         return [f"replay: state.json unreadable ({type(e).__name__})"]
-    if _replay_running():
-        # The window is wide on purpose (2026-10-02: "let's not artificially limit anything"), so a
-        # replay can still be working at the 09:00 pass. In progress is not a finding; the 15:15
-        # pass, after the backstop deadline, checks the finished run.
-        return []
-    if last != day.isoformat():
-        problems.append(f"replay: last_run is {last or 'unknown'}, not today (the 05:15 replay did not run)")
-        return problems
     try:
         log = open(os.path.join(REPLAY_DIR, "launchd.out.log")).read()
     except OSError:
-        return problems + ["replay: launchd.out.log unreadable"]
-    today_log = log[log.find(f"{day.isoformat()} ") :] if f"{day.isoformat()} " in log else ""
-    newest = re.findall(r"newest bundle: (\S+)", today_log)
+        return ["replay: launchd.out.log unreadable"]
+    run_log = latest_replay_run(log)
+    try:
+        started = datetime.strptime(run_log[:19], "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        started = None
+    if _replay_running():
+        # A run in progress is not a finding (the 09:00 pass can meet a long night). One still alive
+        # 12 h after it began has run through its 06:30 backstop, and is.
+        if started and (_now() - started).total_seconds() > 12 * 3600:
+            return [f"replay: still running {(_now() - started).total_seconds() / 3600:.0f} h after it began at "
+                    f"{started:%H:%M} (through its backstop deadline)"]
+        return []
+    age_h = (_now() - last_run).total_seconds() / 3600
+    if age_h > 30:
+        return [f"replay: last_run is {last_run:%Y-%m-%d %H:%M}, {age_h:.0f} h ago (the 23:00 replay did not run)"]
+    problems = []
+    newest = re.findall(r"newest bundle: (\S+)", run_log)
+    fresh = {(started.date() - timedelta(days=d)).strftime("%Y%m%d") for d in (0, 1)} if started else set()
     if not newest:
-        problems.append("replay: today's run printed no 'newest bundle' line (old runner or aborted before listing)")
-    elif not any(n.startswith(day.strftime("%Y%m%d")) for n in newest):
-        problems.append(f"replay: scored a backlog, newest bundle {newest[-1]} is not today's")
-    problems += arm_problems(today_log)
-    if "=== replay end ===" not in today_log:
-        problems.append("replay: no '=== replay end ===' today (aborted or still running)")
+        problems.append("replay: the last run printed no 'newest bundle' line (old runner or aborted before listing)")
+    elif not any(n[:8] in fresh for n in newest):
+        problems.append(f"replay: scored a backlog, newest bundle {newest[-1]} is older than the capture before the run began")
+    problems += arm_problems(run_log)
+    if "=== replay end ===" not in run_log:
+        problems.append("replay: the last run has no '=== replay end ===' line (aborted)")
     else:
-        problems += arbiter_problems(today_log)
-        problems += mirror_problems(today_log)
+        problems += arbiter_problems(run_log)
+        problems += mirror_problems(run_log)
     return problems
 
 

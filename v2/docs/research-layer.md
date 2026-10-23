@@ -12,7 +12,7 @@ ones stay a separate line. Decided with Uroš on 2026-10-01 after a three-item c
   ratification), `scripts/run_arbiter.py` (daily caps: per item, $5 and 20 items a day,
   `research/arbiter_state.json`), `scout/research.py` (aggregates), `scripts/research_report.py`.
 - Records: `research/arbiter/<YYYY-MM>/<delta_id>.json` in the private store.
-- Runs: on the mini after the morning replay (`~/scout-replay/run.sh`, "--- arbiter ---").
+- Runs: on the mini at the end of the nightly replay (`~/scout-replay/run.sh`, fires 23:00 PT, "--- arbiter ---").
 - Review: `~/scout-tools/scout-labels` queue 0 (Enter = agree; `overrule confirm|reject <why>`).
 - Digest: `~/scout-tools/scout-research`; the check-in brief carries the short form (card 4).
 

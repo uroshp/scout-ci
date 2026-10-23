@@ -12,9 +12,10 @@ name: scout-eval-checkin
 on:
   workflow_dispatch: {}              # manual check-in any time
   schedule:
-    # 1st + 15th at 23:45 UTC = 16:45 PDT / 15:45 PST: after the mini's replay window (deadline
-    # 15:00 PT), so the on-device lane is scored on the day's finished arms (2026-10-19: at 13:00 UTC
-    # it ran while the arms were still working and the lane read "did not run today").
+    # 1st + 15th at 23:45 UTC = 16:45 PDT / 15:45 PST: long after the mini's nightly replay (fires
+    # 23:00 PT, deadline 06:30 PT; until 2026-10-22 it ran 05:15 to 15:00), so the on-device lane is
+    # scored on finished arms (2026-10-19: at 13:00 UTC it ran while the arms were still working and
+    # the lane read "did not run today").
     - cron: "45 23 1,15 * *"
 
 concurrency:
