@@ -1,5 +1,5 @@
 """Arbitrate pending on-device disagreements (the research layer, scout/arbiter.py). Runs on the
-mini after the morning replay, or by hand. Caps: per-item (ARBITER_MAX_USD), per day (dollars and
+mini at the end of the nightly replay (23:00 PT; mornings until 2026-10-22), or by hand. Caps: per-item (ARBITER_MAX_USD), per day (dollars and
 items, research/arbiter_state.json). $ spend: Opus 5.5 via the API key.
 Usage: python scripts/run_arbiter.py [--limit N] [--dry] [--role judge] [--searches 3]
 """
