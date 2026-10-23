@@ -229,9 +229,11 @@ def _replay_running() -> bool:
 
 
 def arm_problems(today_log: str) -> list[str]:
-    """Every configured Ollama arm must leave a trace in today's log: an "<arm> arm exit" line, or
-    the runner's explicit skip ("ollama arms skipped ..."). A silent arm is a finding (2026-09-30:
-    one oversize call zeroed the Apple arm for days and nothing said so)."""
+    """Every configured Ollama arm must leave a trace in today's log: an "<arm> arm exit" line, the
+    runner's explicit skip of that arm ("<arm> arm skipped ...": the run's deadline passed before it
+    started, 2026-10-23; it catches up the next night) or of all of them ("ollama arms skipped ...").
+    A silent arm is a finding (2026-09-30: one oversize call zeroed the Apple arm for days and
+    nothing said so)."""
     from scout import replaybackends
     if not today_log:
         return []
@@ -239,7 +241,7 @@ def arm_problems(today_log: str) -> list[str]:
         return []
     out = []
     for name in replaybackends.OLLAMA_MODELS:
-        if f"{name} arm exit" not in today_log:
+        if f"{name} arm exit" not in today_log and f"{name} arm skipped" not in today_log:
             out.append(f"replay: arm {name} left no exit line today (never started, or the runner predates it)")
     if "apple arm exit" not in today_log and "apple arm skipped" not in today_log:
         out.append("replay: the Apple arm left no exit line today")
