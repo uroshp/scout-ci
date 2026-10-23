@@ -4,7 +4,7 @@
   "competitor": "Anthropic",
   "focus": "Enterprise collaboration agents (inside Slack and Teams)",
   "baseline_date": "2026-09-15",
-  "last_checked": "2026-10-22T11:10:12",
+  "last_checked": "2026-10-23T11:10:47",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_ea588c53a3d1",
@@ -14,43 +14,10 @@
     "f_fcddaafbca5e",
     "f_65335932f1a6",
     "f_3ce5938be09d",
-    "f_e473435f3c92"
+    "f_e473435f3c92",
+    "f_aef5eb5c1c6f",
+    "f_88ca470ae2b7"
   ],
   "monitored": true,
-  "last_check_reason": "scheduled",
-  "pending_candidates": {
-    "my_company": [
-      {
-        "signal": "OpenAI cuts Pro plan Work and Codex usage allowance 50% from October 30, 2026; $2,500 one-time credit offered to existing subscribers",
-        "subject_key": "openai | pro-usage-limits",
-        "about": "my_company",
-        "valence": "back_foot",
-        "substantial": true,
-        "why_new": "Not tracked. October 2026 announcement for October 30 implementation—mirrors Anthropic's September 14 usage-limit cut but on OpenAI side, post-cutoff. Signals capacity constraint on consumer tier.",
-        "source_hint": "techjacksolutions.com (OpenAI DevDay coverage)"
-      },
-      {
-        "signal": "OpenAI restructures Pro subscription into three tiers: Pro 100 ($100/mo), Pro 200 ($200/mo, limits halved), Pro 500 ($500/mo with Ultrafast), announced October 2026",
-        "subject_key": "openai | pro-tier-restructure",
-        "about": "my_company",
-        "valence": "front_foot",
-        "substantial": true,
-        "why_new": "Not tracked. New pricing packaging strategy announced post-DevDay (Sept 29) for October deployment. Represents material restructure tying Ultrafast speed and Dots agents to premium tier.",
-        "source_hint": "techjacksolutions.com"
-      },
-      {
-        "signal": "OpenAI cuts API pricing 50%: GPT-6 Sol to $2.00/$10.00 per million tokens, GPT-6 Luna to $0.10/$0.50, effective October 2026",
-        "subject_key": "openai | api-pricing-october",
-        "about": "my_company",
-        "valence": "front_foot",
-        "substantial": true,
-        "why_new": "Tracked lists prior Enterprise and Business pricing but not October 2026 50% rate reduction on flagship API models. Material pricing cut announced post-cutoff.",
-        "source_hint": "techjacksolutions.com"
-      }
-    ],
-    "since": "2026-10-21",
-    "my_since": "2026-10-21",
-    "attempts": 1,
-    "reason": "own-side candidates did not ground"
-  }
+  "last_check_reason": "scheduled"
 }
