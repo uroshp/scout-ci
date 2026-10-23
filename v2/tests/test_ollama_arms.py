@@ -133,6 +133,55 @@ class Canary(unittest.TestCase):
         self.assertEqual(lc.arbiter_problems("2026-10-19 05:15:00 PDT  === replay start\n"), [])     # still running: not a finding
         self.assertEqual(len(lc.arbiter_problems("2026-10-19 05:15:00 PDT  === replay start\n" + end)), 1)   # ended without the section
 
+    def test_night_lane_run_is_judged_by_its_start_marker(self):
+        import json as _json, os as _os, tempfile
+        from datetime import date as _date, datetime as _dt
+        lc = _script("lanes_canary")
+        run = ("2026-10-23 23:00:05 PDT  === replay start (deadline 06:30, arm cap 240 min) ===\n"
+               "bundles=22 since=20261009T230005  calls=269  planned=403  backends=['apple_ondevice']\n"
+               "newest bundle: 20261023T110053\n"
+               "2026-10-23 23:07:00 PDT  apple arm exit 0 (attempt 1)\n"
+               "2026-10-24 01:30:00 PDT  ollama arm exit 0 (attempt 1)\n"
+               "2026-10-24 02:00:00 PDT  ollama_nemotron arm exit 0 (attempt 1)\n"
+               "2026-10-24 02:25:00 PDT  ollama_gemma4 arm exit 0 (attempt 1)\n"
+               "2026-10-24 02:26:00 PDT  --- arbiter ---\n[store] mirror abc (pulled; bulk reads from disk)\n"
+               "[arbiter] pending 41, not yet arbitrated 0, this run up to 20\n[arbiter] 0 arbitrated\n"
+               "2026-10-24 02:26:10 PDT  arbiter exit 0\n2026-10-24 02:26:10 PDT  === replay end ===\n")
+        old = ("2026-10-22 05:15:05 PDT  === replay start (window 05:00-15:00, deadline 15:00) ===\n"
+               "newest bundle: 20261022T110053\n2026-10-22 10:50:10 PDT  === replay end ===\n")
+        self.assertTrue(lc.latest_replay_run(old + run).startswith("2026-10-23 23:00:05"))
+        self.assertEqual(lc.latest_replay_run("no runs here"), "")
+        with tempfile.TemporaryDirectory() as d:
+            def write(text):
+                open(_os.path.join(d, "launchd.out.log"), "w").write(text)
+            _json.dump({"last_run": "2026-10-24T02:25:00"}, open(_os.path.join(d, "state.json"), "w"))
+            write(old + run)
+            with mock.patch.object(lc, "REPLAY_DIR", d), mock.patch.object(lc, "_replay_running", return_value=False):
+                with mock.patch.object(lc, "_now", return_value=_dt(2026, 10, 24, 9, 0)):     # the morning after: clean
+                    self.assertEqual(lc.check_replay(_date(2026, 10, 24)), [])
+                with mock.patch.object(lc, "_now", return_value=_dt(2026, 10, 24, 15, 15)):   # the afternoon pass: still clean
+                    self.assertEqual(lc.check_replay(_date(2026, 10, 24)), [])
+                with mock.patch.object(lc, "_now", return_value=_dt(2026, 10, 25, 9, 0)):     # the next night did not run
+                    probs = lc.check_replay(_date(2026, 10, 25))
+                    self.assertEqual(len(probs), 1); self.assertIn("did not run", probs[0])
+                # a catch-up started after midnight scores the morning before: fresh, not a backlog
+                write(old + run.replace("2026-10-23 23:00:05", "2026-10-24 00:22:43"))
+                with mock.patch.object(lc, "_now", return_value=_dt(2026, 10, 24, 9, 0)):
+                    self.assertEqual(lc.check_replay(_date(2026, 10, 24)), [])
+                # a run that scored only old bundles is still a finding
+                write(old + run.replace("newest bundle: 20261023T110053", "newest bundle: 20261020T110053"))
+                with mock.patch.object(lc, "_now", return_value=_dt(2026, 10, 24, 9, 0)):
+                    probs = lc.check_replay(_date(2026, 10, 24))
+                    self.assertEqual(len(probs), 1); self.assertIn("scored a backlog", probs[0])
+            # in progress is not a finding; alive 12 h after it began is
+            write(old + run)
+            with mock.patch.object(lc, "REPLAY_DIR", d), mock.patch.object(lc, "_replay_running", return_value=True):
+                with mock.patch.object(lc, "_now", return_value=_dt(2026, 10, 24, 9, 0)):
+                    self.assertEqual(lc.check_replay(_date(2026, 10, 24)), [])
+                with mock.patch.object(lc, "_now", return_value=_dt(2026, 10, 24, 12, 0)):
+                    probs = lc.check_replay(_date(2026, 10, 24))
+                    self.assertEqual(len(probs), 1); self.assertIn("still running", probs[0])
+
     def test_mirror_pull_failure_is_a_finding(self):
         lc = _script("lanes_canary")
         base = "2026-10-20 05:15:00 PDT  === replay start\n2026-10-20 09:40:00 PDT  --- read-out ---\n"
