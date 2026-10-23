@@ -1959,5 +1959,28 @@
       "stamped_on": "2026-10-10",
       "source_class": "company_statement"
     }
+  },
+  {
+    "subject_key": "perplexity | legal-action | copyright-cases",
+    "claim": "Dow Jones & Company v. Perplexity AI (S.D.N.Y., case 1:24-cv-07984, filed October 21, 2024 by Dow Jones and the New York Post) is past fact discovery and heading toward a jury trial, which both sides estimate at 10 to 14 days. No trial date is reported. The complaint, later amended with trademark dilution and false designation of origin claims, alleges Perplexity answers invent quotes and attribute them to the Wall Street Journal. Startup Fortune's report gives conflicting dates for the close of fact discovery (July 20 and October 15, 2026), so the exact date is not stated here.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://startupfortune.com/dow-jones-and-new-york-post-press-copyright-case-as-perplexity-nears-trial/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "with both sides estimating a 10-to-14-day jury trial",
+    "as_of": "2026-10-22",
+    "confidence": "medium",
+    "id": "c_f56a6d7611c8",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-23",
+      "detail": null
+    },
+    "source_class": "unknown"
   }
 ]

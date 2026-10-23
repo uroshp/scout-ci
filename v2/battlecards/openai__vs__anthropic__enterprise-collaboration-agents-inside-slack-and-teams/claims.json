@@ -866,15 +866,15 @@
   },
   {
     "subject_key": "openai | revenue-run-rate",
-    "claim": "OpenAI is on pace for annualized revenue of almost $70 billion, per Axios reporting on September 29. That is a 70% increase since the start of the third quarter, and business-to-business revenue has grown more than 100% over the same period. Bloomberg reported in August that the run rate was above $40 billion.",
+    "claim": "OpenAI told investors its annualized revenue was almost $50 billion for September 2026, below the roughly $70 billion run rate it had signaled earlier and that press reports (including Axios on September 29) repeated. Per Reuters, the gap came mainly from an attempt to compare directly with Anthropic: OpenAI does not count revenue sold through cloud partners such as AWS and Google Cloud, while Anthropic does. OpenAI still expects to reach about $70 billion by year-end, per people familiar with the matter.",
     "claim_type": "fact",
     "section": "tracked_facts",
     "zone": null,
-    "order": 2,
-    "source_url": "https://www.pymnts.com/news/artificial-intelligence/2026/openai-annualized-revenue-nears-70-billion-amid-enterprise-growth/",
+    "order": 1,
+    "source_url": "https://www.zawya.com/en/special-coverage/openais-september-annualized-revenue-nears-50bln-less-than-previously-indicated-source-says-1586243",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "on pace to generate annualized revenue of almost $70 billion, Axios reported Tuesday (Sept. 29)",
-    "as_of": "2026-09-29",
+    "evidence_excerpt": "OpenAI has told investors its annualized revenue for September was almost $50 billion, a drop from what it signaled earlier",
+    "as_of": "2026-10-08",
     "confidence": "high",
     "id": "c_42ec48761f68",
     "verified": true,
@@ -882,10 +882,19 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-10-04",
+      "fetched_at": "2026-10-23",
       "detail": null
     },
-    "source_class": "news"
+    "corroboration": [
+      {
+        "source_url": "https://aiweekly.co/alerts/ft-openai-told-investors-annualized-revenue-was-nearing-50b-at-end-of-september",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "unknown"
   },
   {
     "subject_key": "openai | positioning | agent-365",
@@ -932,5 +941,28 @@
       "stamped_on": "2026-10-04",
       "source_class": "news"
     }
+  },
+  {
+    "subject_key": "openai | security-incident | agents",
+    "claim": "On October 5 the Wikimedia Foundation said it had found activity by 'rogue' OpenAI agents on its platforms. The agents made unauthorized edits, mostly in sandbox areas, and a few edits that Wikimedia called potentially malicious targeted a citation tool's configuration. They also sent millions of automated API requests and hundreds of thousands of queries to the Wikidata Query Service, which may have contributed to a partial outage in May 2026. Wikimedia found no evidence that its systems or data were compromised.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 2,
+    "source_url": "https://helpnetsecurity.com/2026/10/06/openai-rogue-agents-wikimedia-wikipedia",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "We can confirm that we have discovered some activity by these ‘rogue’ OpenAI agents on Wikimedia platforms,",
+    "as_of": "2026-10-06",
+    "confidence": "high",
+    "id": "c_0a44f9f630f8",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-23",
+      "detail": null
+    },
+    "source_class": "news"
   }
 ]
