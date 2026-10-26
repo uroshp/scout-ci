@@ -105,6 +105,25 @@ class Blind(unittest.TestCase):
         self.assertIn("disagreed by 2 arms", out)
 
 
+class Freshness(unittest.TestCase):
+    def test_capture_staleness_follows_the_monitor_calendar(self):
+        """2026-10-25: the monitor skips Sunday, so the Sunday 23:00 replay found Saturday's capture
+        and seven invocations each emailed "no fresh capture". The rule is the monitor's calendar,
+        not an hour count, and the script only logs; the lanes canary reports a missing capture."""
+        rc_ = _script("replay_calls")
+        from datetime import datetime
+        sat = "20261024T110142"                                   # Saturday 10/24, 04:01 PDT
+        self.assertIsNone(rc_.stale_capture(sat, datetime(2026, 10, 25, 23, 0)))          # Sunday night
+        why = rc_.stale_capture(sat, datetime(2026, 10, 26, 23, 0))                          # Monday night
+        self.assertIn("Sat 10/24", why); self.assertIn("Mon 10/26", why)
+        self.assertIsNone(rc_.stale_capture("20261022T110053", datetime(2026, 10, 23, 0, 22)))   # 00:22 catch-up
+        self.assertIsNone(rc_.stale_capture("20261026T110000", datetime(2026, 10, 26, 23, 0)))
+        self.assertEqual(rc_.stale_capture(None, datetime(2026, 10, 26, 23, 0)), "no capture bundle at all")
+        self.assertIn("unreadable", rc_.stale_capture("garbage", datetime(2026, 10, 26, 23, 0)))
+        src = open(os.path.join(_SCRIPTS, "replay_calls.py")).read()
+        self.assertNotIn("send_could_not_run", src)
+
+
 class Canary(unittest.TestCase):
     def test_silent_arm_is_a_finding(self):
         lc = _script("lanes_canary")

@@ -14,6 +14,8 @@ Creds come from ~/scout-replay/env (600), loaded by absolute path; the runner ha
 store call if they are missing, and runs a positive-control read on costs/ (an empty store read is a
 broken read, not an empty store). Runs only inside --window (default 05:00-08:30 PT) unless
 --no-window; --deadline HH:MM and --max-minutes stop it cleanly, partial progress already persisted.
+A newest bundle older than the last monitor day is logged, never emailed: the lanes canary owns a
+missing capture (2026-10-25: the Sunday 23:00 run emailed seven times about the monitor's skip day).
 """
 import argparse
 import json
@@ -22,7 +24,7 @@ import sys
 import time
 
 import httpx
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -158,26 +160,19 @@ def main():
     print(f"bundles={len(paths)} since={since or 'all'}  calls={len(calls)}  planned={len(plan)}  "
           f"backends={args.backend}  modes={modes}")
     # Freshness (2026-09-30): the lane exists to score TODAY's production calls. If the newest
-    # bundle is older than the monitor's cadence allows, the scorecard would be a backlog dressed
-    # as the day's result (that morning's capture had landed under rc/ and nobody was told). Say
-    # so by email, print the bundle dates it will score, and carry on with what exists.
+    # bundle is older than the last monitor day, the scorecard would be a backlog dressed as the
+    # day's result (that morning's capture had landed under rc/ and nobody was told). Say so in
+    # the log and carry on with what exists. Never by email (2026-10-25): the monitor skips Sunday,
+    # the 23:00 lane saw Saturday's capture as "36 h old" and each of run.sh's seven invocations
+    # sent "Scout could not run". A missing capture is the monitor's artifact; the lanes canary
+    # reports it once (check_capture at 09:00, then check_replay's "scored a backlog").
     newest = max((os.path.basename(p).split("_")[1] for p in paths if "_" in os.path.basename(p)), default=None)
     print(f"newest bundle: {newest or 'none'}")
     if run and not args.since and not os.environ.get("SCOUT_REPLAY_NO_FRESH_CHECK"):
-        fresh_h = float(os.environ.get("SCOUT_REPLAY_FRESH_HOURS", "30"))
-        age_h = None
-        try:
-            age_h = (datetime.now() - datetime.strptime(newest, "%Y%m%dT%H%M%S")).total_seconds() / 3600 if newest else None
-        except ValueError:
-            pass
-        if age_h is None or age_h > fresh_h:
-            from scout import notify
-            why = "no capture bundle at all" if newest is None else f"newest capture is {age_h:.0f} h old (limit {fresh_h:.0f} h)"
-            print(f"  NO FRESH CAPTURE: {why}; scoring the backlog and emailing", file=sys.stderr)
-            notify.send_could_not_run("on-device replay", f"no fresh capture: {why}",
-                                      f"newest bundle {newest or 'none'}; {len(paths)} bundle(s) since {since}. "
-                                      "Check the monitor ran and wrote calls/ at the production path.",
-                                      dry_run=os.environ.get("SCOUT_REPLAY_LIVE") != "1")
+        why = stale_capture(newest, datetime.now())
+        if why:
+            print(f"  NO FRESH CAPTURE: {why}; scoring the backlog (the lanes canary reports a missing capture)",
+                  file=sys.stderr)
     by_role = {}
     for mode, c in plan:
         by_role[(mode, c["role"])] = by_role.get((mode, c["role"]), 0) + 1
@@ -295,6 +290,32 @@ def main():
         st["last_replays"] = done_total
         _save_state(st)
     print(f"\ndone: {done_total} replays" + (" (persisted)" if args.write else " (NOT persisted; add --write)"))
+
+
+def expected_capture_day(now: datetime) -> date:
+    """The last day the monitor should have captured on: the latest weekday not in
+    config.MONITOR_SKIP_WEEKDAYS, counting today only once its 4 AM capture has had time to land
+    (06:00 PT). At 23:00 on a Sunday that is Saturday; at 00:22 on a Friday it is Thursday."""
+    from scout import config
+    d = now.date() if now.hour >= 6 else now.date() - timedelta(days=1)
+    while d.weekday() in config.MONITOR_SKIP_WEEKDAYS:
+        d -= timedelta(days=1)
+    return d
+
+
+def stale_capture(newest: str | None, now: datetime) -> str | None:
+    """One line when the newest bundle predates the expected capture day, else None. Bundle stamps
+    are UTC (monitor_20261024T110142 landed 04:01 PDT); the comparison is on the local date."""
+    if not newest:
+        return "no capture bundle at all"
+    try:
+        landed = datetime.strptime(newest, "%Y%m%dT%H%M%S").replace(tzinfo=timezone.utc).astimezone().date()
+    except ValueError:
+        return f"unreadable bundle stamp {newest}"
+    want = expected_capture_day(now)
+    if landed < want:
+        return f"newest capture landed {landed:%a %m/%d}, the last monitor day was {want:%a %m/%d}"
+    return None
 
 
 if __name__ == "__main__":
