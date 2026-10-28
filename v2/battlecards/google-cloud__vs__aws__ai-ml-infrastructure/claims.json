@@ -107,15 +107,15 @@
   },
   {
     "subject_key": "google-cloud | q-revenue | q1-2026",
-    "claim": "Google Cloud posted Q1 2026 revenue of $20.03B, up 63% YoY, beating the $18.05B estimate, its first quarter above $20B and more than double AWS's growth rate.",
+    "claim": "Google Cloud posted Q3 2026 revenue of $30.7B, up 103% year over year from $15.2B, per Alphabet's October 28, 2026 earnings release. Cloud operating income rose to $11.1B from $3.6B a year earlier. Alphabet credits growth in enterprise AI infrastructure and AI solutions, and says TPU system sales were a meaningful contributor. Cloud growth has now climbed from 63% in Q1 to 103% in Q3.",
     "claim_type": "fact",
     "section": "snapshot",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.cnbc.com/2026/04/29/alphabet-googl-q1-2026-earnings.html",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Google Cloud: $20.03 billion vs. $18.05 billion estimated",
-    "as_of": "2026-04-29",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000080/googexhibit991q32026.htm",
+    "source_tier": "primary",
+    "evidence_excerpt": "Google Cloud delivered record growth as revenues increased 103% to $30.7 billion",
+    "as_of": "2026-10-28",
     "confidence": "high",
     "id": "c_7fe950f2d032",
     "verified": true,
@@ -123,10 +123,10 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-05",
+      "fetched_at": "2026-10-28",
       "detail": null
     },
-    "source_class": "news"
+    "source_class": "filing"
   },
   {
     "subject_key": "cloud-market | market-share | q1-2026",
@@ -548,59 +548,50 @@
   },
   {
     "subject_key": "battlecard | contested | nvidia-gpu-availability",
-    "claim": "**Both clouds are short on top-end Nvidia GPUs, and AWS keeps raising what it charges to reserve them.**\n\nWe concede that both clouds are supply-limited on top-end Nvidia capacity. The difference is the price of a guaranteed slot. AWS has raised Capacity Block prices three times in 2026: about 15% in January, about 20% in July and 15% more on October 7. A B300 block now lists at $16.146 per GPU-hour and B200 at $14.208. AWS's own pricing page says these rates move with supply and demand, so a buyer budgeting a 2027 training run on AWS reservations should plan for more increases. Point those buyers to Google's committed-use and sustained-use discounts, and to TPU capacity for workloads that can run on it.",
+    "claim": "**Both clouds are short on top-end Nvidia GPUs, and AWS keeps raising what it charges to reserve them.**\n\nWe concede that both clouds are supply-limited on top-end Nvidia capacity. The difference is the price of a guaranteed slot. AWS has raised Capacity Block prices three times in 2026: about 15% in January, about 20% in July and 15% more on October 7. A B300 block now lists at $16.146 per GPU-hour and B200 at $14.208. AWS's own pricing page says these rates move with supply and demand. On October 23, Jassy said AWS's 2027 capacity is largely sold out, with some held back for on-demand EC2 and Bedrock inference, so a buyer planning a 2027 training run on AWS reservations should expect fewer large blocks available. Point those buyers to Google's committed-use and sustained-use discounts, and to TPU capacity for workloads that can run on it.",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
     "order": 2,
-    "source_url": "https://aws.amazon.com/ec2/capacityblocks/pricing/",
-    "source_tier": "primary",
-    "evidence_excerpt": "Amazon EC2 Capacity Blocks for ML reservation prices are dynamic and are updated periodically based on supply and demand.",
-    "as_of": "2026-10-07",
+    "as_of": "2026-10-23",
     "confidence": "high",
     "id": "c_00a0bf6dd457",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-10-07",
-      "detail": null
-    },
-    "corroboration": [
-      {
-        "source_url": "https://cryptobriefing.com/aws-gpu-capacity-block-price-increase/",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false,
-        "source_class": "unknown"
-      }
-    ],
-    "source_class": "company_statement"
+    "source_class": "company_statement",
+    "updated_on": "2026-10-28",
+    "derived_from": "c_176b249d264e",
+    "provenance": {
+      "source_url": "https://wsau.com/?p=1029422",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-10-23",
+      "fact_id": "c_176b249d264e",
+      "stamped_on": "2026-10-28",
+      "source_class": "unknown"
+    }
   },
   {
     "subject_key": "battlecard | lose | aws-incumbency-data-gravity",
-    "claim": "**AWS wins on incumbency and data gravity. Be honest about it.**\n\nWith ~28% market share and revenue nearly double ours, AWS holds the install base, and Jassy's pitch is blunt: customers want inference next to data that already lives in AWS. For a CIO with a decade of AWS footprint, switching cost is the dominant force in the deal.\n\n**Soundbite:** *\"Keep AWS. Run your highest-value AI workloads where the silicon and economics are best, and connect back to your AWS data.\"*",
+    "claim": "**AWS wins on incumbency and data gravity. Be honest about it.**\n\nWith ~28% market share to our 14%, AWS holds the larger install base, and Jassy's pitch is blunt: customers want inference next to data that already lives in AWS. For a CIO with a decade of AWS footprint, switching cost is the dominant force in the deal.\n\n**Soundbite:** *\"Keep AWS. Run your highest-value AI workloads where the silicon and economics are best, and connect back to your AWS data.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_they_win",
     "order": 0,
-    "source_url": "https://www.aboutamazon.com/news/company-news/amazon-ceo-andy-jassy-aws-ai-q1-2026-earnings",
-    "source_tier": "primary",
-    "evidence_excerpt": "much more of it resides in AWS than anyplace else",
-    "as_of": "2026-04-29",
+    "as_of": "2026-10-28",
     "confidence": "medium",
     "id": "c_1c7e56cc3d28",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
     "persona": "economic_buyer",
-    "source_class": "company_statement"
+    "source_class": "company_statement",
+    "updated_on": "2026-10-28",
+    "derived_from": "c_7fe950f2d032",
+    "provenance": {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000080/googexhibit991q32026.htm",
+      "source_tier": "primary",
+      "as_of": "2026-10-28",
+      "fact_id": "c_7fe950f2d032",
+      "stamped_on": "2026-10-28",
+      "source_class": "filing"
+    }
   },
   {
     "subject_key": "battlecard | lose | aws-anthropic-claude-depth",
@@ -628,27 +619,27 @@
   },
   {
     "subject_key": "battlecard | lose | aws-service-breadth-ecosystem",
-    "claim": "**AWS's service breadth and partner ecosystem are a default-platform advantage.**\n\nThousands of services, the largest ISV and SI ecosystem and the broadest compliance coverage make AWS the safe anchor for multi-cloud enterprises. Our $20B revenue and ~14% share mean proportionally fewer integrations and certifications, a gap the rep should acknowledge and route around.\n\n**Soundbite:** *\"AWS has more services. On AI/ML, our silicon and economics win, and you keep the rest of your AWS estate.\"*",
+    "claim": "**AWS's service breadth and partner ecosystem are a default-platform advantage.**\n\nThousands of services, the largest ISV and SI ecosystem and the broadest compliance coverage make AWS the safe anchor for multi-cloud enterprises. Even with $30.7B in Q3 2026 revenue, our ~14% share means proportionally fewer integrations and certifications, a gap the rep should acknowledge and route around.\n\n**Soundbite:** *\"AWS has more services. On AI/ML, our silicon and economics win, and you keep the rest of your AWS estate.\"*",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "where_they_win",
     "order": 2,
-    "source_url": "https://www.aboutamazon.com/news/company-news/amazon-ceo-andy-jassy-aws-ai-q1-2026-earnings",
-    "source_tier": "primary",
-    "evidence_excerpt": "compute, storage, databases, analytics, security",
-    "as_of": "2026-04-29",
+    "as_of": "2026-10-28",
     "confidence": "low",
     "id": "c_6f56e7c58a2f",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
     "persona": "exec_top_down",
-    "source_class": "company_statement"
+    "source_class": "company_statement",
+    "updated_on": "2026-10-28",
+    "derived_from": "c_7fe950f2d032",
+    "provenance": {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000080/googexhibit991q32026.htm",
+      "source_tier": "primary",
+      "as_of": "2026-10-28",
+      "fact_id": "c_7fe950f2d032",
+      "stamped_on": "2026-10-28",
+      "source_class": "filing"
+    }
   },
   {
     "subject_key": "aws | sentiment | bedrock-billing-surprises",
@@ -767,27 +758,27 @@
   },
   {
     "subject_key": "objection | gcp-june-2025-outage | current",
-    "claim": "**\"Google Cloud had that massive 2025 outage. Why trust critical AI to them?\"**\n\nOwn it directly: the June 12, 2025 outage took down 70+ services for hours after an untested global config change, and Google publicly apologized and committed to feature-flagged rollouts and isolation so one fault can't cascade. Every hyperscaler has had a major outage (AWS's us-east-1 included); the question is the fix trajectory, and the market clearly hasn't defected, given 63% Q1 2026 growth.\n\n**So what:** Don't minimize it: acknowledge, point to the concrete process changes and pivot the reliability conversation to forward architecture, not past incidents.",
+    "claim": "**\"Google Cloud had that massive 2025 outage. Why trust critical AI to them?\"**\n\nOwn it directly: the June 12, 2025 outage took down 70+ services for hours after an untested global config change, and Google publicly apologized and committed to feature-flagged rollouts and isolation so one fault can't cascade. Every hyperscaler has had a major outage (AWS's us-east-1 included). The question is the fix trajectory, and the market clearly hasn't defected: Google Cloud's Q3 2026 revenue grew 103% to $30.7B.\n\n**So what:** Don't minimize it: acknowledge, point to the concrete process changes and pivot the reliability conversation to forward architecture, not past incidents.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 0,
-    "source_url": "https://www.cnbc.com/2025/06/16/google-cloud-outage-apology.html",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "We deeply apologize for the impact this outage has had",
-    "as_of": "2025-06-16",
+    "as_of": "2026-10-28",
     "confidence": "high",
     "id": "c_6a66acdb7659",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
     "persona": "security_regulated",
-    "source_class": "news"
+    "source_class": "news",
+    "updated_on": "2026-10-28",
+    "derived_from": "c_7fe950f2d032",
+    "provenance": {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000080/googexhibit991q32026.htm",
+      "source_tier": "primary",
+      "as_of": "2026-10-28",
+      "fact_id": "c_7fe950f2d032",
+      "stamped_on": "2026-10-28",
+      "source_class": "filing"
+    }
   },
   {
     "subject_key": "objection | google-deprecates-products | current",
@@ -815,27 +806,27 @@
   },
   {
     "subject_key": "objection | gcp-compute-constrained | current",
-    "claim": "**\"Even Pichai says Google Cloud is compute-constrained. We'll be stuck in a queue.\"**\n\nTrue, Pichai said it: \"We are compute constrained in the near term.\" Demand is outrunning supply, and Google is spending \\$180 to 190B in 2026 plus standing up the Blackstone TPU venture to close the gap. AWS admits the same constraint, with Trainium sold out. The right move is to secure committed capacity through the account team now, not to assume an equally-constrained AWS is more available.\n\n**So what:** Turn the constraint into proof of demand, and lock in committed capacity now, because AWS is just as supply-limited.",
+    "claim": "**\"Even Pichai says Google Cloud is compute-constrained. We'll be stuck in a queue.\"**\n\nTrue, Pichai said it: \"We are compute constrained in the near term.\" Demand is outrunning supply, and Google is spending \\$180 to 190B in 2026 plus standing up the Blackstone TPU venture to close the gap. AWS is in the same position. On October 23, Jassy said AWS capacity for 2026 is sold out, 2027 is largely sold out and a good chunk of 2028 is committed. AWS holds back some capacity for on-demand EC2 and Bedrock inference, but the big blocks are gone. Securing committed capacity through the account team now beats assuming AWS is more available.\n\n**So what:** Turn the constraint into proof of demand, and lock in committed capacity now, because AWS's big blocks are largely sold out through 2027.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 2,
-    "source_url": "https://www.cnbc.com/2026/04/29/alphabet-googl-q1-2026-earnings.html",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "We are compute constrained in the near term",
-    "as_of": "2026-04-29",
+    "as_of": "2026-10-23",
     "confidence": "high",
     "id": "c_4fa73e9786a7",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
     "persona": "economic_buyer",
-    "source_class": "news"
+    "source_class": "news",
+    "updated_on": "2026-10-28",
+    "derived_from": "c_176b249d264e",
+    "provenance": {
+      "source_url": "https://wsau.com/?p=1029422",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-10-23",
+      "fact_id": "c_176b249d264e",
+      "stamped_on": "2026-10-28",
+      "source_class": "unknown"
+    }
   },
   {
     "subject_key": "objection | claude-only-on-bedrock | current",
@@ -863,27 +854,27 @@
   },
   {
     "subject_key": "objection | aws-market-share-lead | current",
-    "claim": "**\"AWS is the market leader. That's the safe pick.\"**\n\nFair on today's numbers: AWS holds ~28% share to Google's 14% (Synergy). But Google Cloud is growing 63% a year to AWS's 28%, led by enterprise AI, so the safe pick three to five years out is the platform winning on AI economics and owning its own model.\n\n**So what:** Concede the current-share point, then redirect to a 3 to 5 year trajectory framing where the growth gap and AI differentiation favor Google.",
+    "claim": "**\"AWS is the market leader. That's the safe pick.\"**\n\nAWS holds ~28% share to Google's 14% (Synergy), and that is true today. But Google Cloud's Q3 2026 revenue rose 103% year over year to $30.7B, and its growth has climbed from 63% in Q1 to 103% in Q3. Cloud operating income rose to $11.1B from $3.6B a year earlier. Alphabet credits growth in enterprise AI infrastructure and AI solutions. The safe pick three to five years out is the platform winning on AI economics and owning its own model, and it is also profitable at scale.\n\n**So what:** Concede the current-share point, then lead with Q3: 103% growth and $11.1B in quarterly operating income, and ask the buyer which platform they want to be on in three to five years.",
     "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 5,
-    "source_url": "https://www.srgresearch.com/articles/cloud-market-annual-revenue-run-rate-topped-half-a-trillion-dollars-in-q1-as-growth-surge-continues",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Their Q1 worldwide market shares were 28%, 21%, and 14% respectively.",
-    "as_of": "2026-04-29",
+    "as_of": "2026-10-28",
     "confidence": "high",
     "id": "c_70e5f7ace402",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-05",
-      "detail": null
-    },
     "persona": "exec_top_down",
-    "source_class": "unknown"
+    "source_class": "unknown",
+    "updated_on": "2026-10-28",
+    "derived_from": "c_7fe950f2d032",
+    "provenance": {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000080/googexhibit991q32026.htm",
+      "source_tier": "primary",
+      "as_of": "2026-10-28",
+      "fact_id": "c_7fe950f2d032",
+      "stamped_on": "2026-10-28",
+      "source_class": "filing"
+    }
   },
   {
     "subject_key": "aws | launch | graviton5-2026-06",
@@ -1722,5 +1713,60 @@
       "stamped_on": "2026-10-12",
       "source_class": "company_statement"
     }
+  },
+  {
+    "subject_key": "aws | capacity-sold-out | 2027",
+    "claim": "On October 23, 2026, Amazon CEO Andy Jassy said AWS capacity for 2026 is sold out, 2027 is largely sold out and a good chunk of 2028 is already committed, per Reuters. He said AWS holds back some capacity for on-demand EC2 and Bedrock inference, but the big blocks are gone. This widens the April 2026 shortage, which covered only Trainium2, to AWS capacity as a whole.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://wsau.com/?p=1029422",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Amazon cloud capacity sold out through 2027, CEO Jassy says",
+    "as_of": "2026-10-23",
+    "confidence": "high",
+    "id": "c_176b249d264e",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-28",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://kfgo.com/?p=1367457",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "unknown"
+  },
+  {
+    "subject_key": "google-cloud | q3-revenue-2026",
+    "claim": "Alphabet reported Q3 2026 results on October 28, 2026. Google Cloud revenue reached $30.7 billion, ahead of the $28.7 billion analysts expected. CNBC also reports that Gemini app reached 1 billion users. The triage figure of $20.0B for Cloud revenue did not match the source and is not used. Alphabet shares fell more than 7% on the day because free cash flow dropped to $9.07 billion and total revenue and operating income missed estimates.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.cnbc.com/2026/10/28/alphabet-googl-earnings-q3-2026.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Cloud revenue reached $30.7 billion, surpassing the $28.7 billion, or 90% growth expected by analysts.",
+    "as_of": "2026-10-28",
+    "confidence": "high",
+    "id": "c_77149d87a6c5",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-28",
+      "detail": null
+    },
+    "source_class": "news"
   }
 ]

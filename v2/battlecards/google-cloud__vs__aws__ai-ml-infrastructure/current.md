@@ -49,12 +49,13 @@ On August 24, 2026, Google Cloud announced a strategic partnership with Verizon.
 ## Snapshot
 
 - AWS posted Q1 2026 net sales of \$37.6B (up 28% YoY) with operating income of \$14.16B, an audited beat that materially topped the ~\$12.84B consensus. AWS remains Amazon's primary profit engine. ([cnbc.com](https://www.cnbc.com/2026/04/29/aws-earnings-q1-2026.html))
-- Google Cloud posted Q1 2026 revenue of \$20.03B, up 63% YoY, beating the \$18.05B estimate, its first quarter above \$20B and more than double AWS's growth rate. ([cnbc.com](https://www.cnbc.com/2026/04/29/alphabet-googl-q1-2026-earnings.html))
+- Google Cloud posted Q3 2026 revenue of \$30.7B, up 103% year over year from \$15.2B, per Alphabet's October 28, 2026 earnings release. Cloud operating income rose to \$11.1B from \$3.6B a year earlier. Alphabet credits growth in enterprise AI infrastructure and AI solutions, and says TPU system sales were a meaningful contributor. Cloud growth has now climbed from 63% in Q1 to 103% in Q3. ([sec.gov](https://www.sec.gov/Archives/edgar/data/1652044/000165204426000080/googexhibit991q32026.htm))
 - Worldwide cloud-infrastructure market share in Q1 2026 (Synergy Research ESTIMATE): AWS 28%, Microsoft Azure 21%, Google Cloud 14%. AWS still leads, but Azure and Google are growing materially faster, narrowing the gap. ([srgresearch.com](https://www.srgresearch.com/articles/cloud-market-annual-revenue-run-rate-topped-half-a-trillion-dollars-in-q1-as-growth-surge-continues))
 - Matt Garman is the current CEO of AWS, in the role through the AWS re:Invent 2025 cycle and Q1 2026 reporting. ([cnbc.com](https://www.cnbc.com/2026/04/29/aws-earnings-q1-2026.html))
 
 ## Recent Strategic Moves
 
+- On October 23, 2026, Amazon CEO Andy Jassy said AWS capacity for 2026 is sold out, 2027 is largely sold out and a good chunk of 2028 is already committed, per Reuters. He said AWS holds back some capacity for on-demand EC2 and Bedrock inference, but the big blocks are gone. This widens the April 2026 shortage, which covered only Trainium2, to AWS capacity as a whole. ([wsau.com](https://wsau.com/?p=1029422))
 - On September 22, 2026, AWS made OpenAI's GPT-6 Sol and GPT-6 Luna generally available on Amazon Bedrock, extending the GPT-6 family (alongside Astra) with two models that support up to 1M tokens of context and ship at lower prices than their GPT-5.6 predecessors. This lands the same week AWS also added Claude Opus 5.5 to Bedrock. ([aws.amazon.com](https://aws.amazon.com/about-aws/whats-new/2026/09/openai-gpt-6-sol-luna-on-amazon-bedrock/))
 - On September 8, 2026, AWS made OpenAI's GPT-6 Astra generally available on Amazon Bedrock. OpenAI calls Astra its most capable model to date. It handles up to 1 million input tokens, and customers can point ChatGPT Work and Codex at Bedrock so that inference runs inside their AWS account. With Sol and Luna following on September 22, Bedrock now carries OpenAI's whole GPT-6 family. A buyer who has standardized on OpenAI can get the newest model through AWS procurement and controls. ([aws.amazon.com](https://aws.amazon.com/about-aws/whats-new/2026/09/openai-gpt-6-astra-on-amazon-bedrock/))
 - On August 26, 2026, AWS signed a definitive agreement to acquire DuckLabs, the Amsterdam company behind DuckDB, the open source in-process analytical database that runs SQL directly against files on local disk or Amazon S3. DuckDB itself stays open source under the MIT license and the independent DuckDB Foundation, and co-founders Hannes Muhleisen and Mark Raasveldt keep leading its technical direction. AWS is buying the engineering team and plans to fold DuckDB's speed on S3 data into its analytics stack (Redshift, Athena, EMR, Glue and SageMaker Lakehouse). The deal is expected to close in early September 2026. ([aboutamazon.com](https://www.aboutamazon.com/news/company-news/aws-ducklabs))
@@ -137,7 +138,7 @@ Both platforms offer 200+ models. Bedrock's June addition of OpenAI GPT-5.5 alon
 
 **Both clouds are short on top-end Nvidia GPUs, and AWS keeps raising what it charges to reserve them.**
 
-We concede that both clouds are supply-limited on top-end Nvidia capacity. The difference is the price of a guaranteed slot. AWS has raised Capacity Block prices three times in 2026: about 15% in January, about 20% in July and 15% more on October 7. A B300 block now lists at \$16.146 per GPU-hour and B200 at \$14.208. AWS's own pricing page says these rates move with supply and demand, so a buyer budgeting a 2027 training run on AWS reservations should plan for more increases. Point those buyers to Google's committed-use and sustained-use discounts, and to TPU capacity for workloads that can run on it. ([aws.amazon.com](https://aws.amazon.com/ec2/capacityblocks/pricing/))
+We concede that both clouds are supply-limited on top-end Nvidia capacity. The difference is the price of a guaranteed slot. AWS has raised Capacity Block prices three times in 2026: about 15% in January, about 20% in July and 15% more on October 7. A B300 block now lists at \$16.146 per GPU-hour and B200 at \$14.208. AWS's own pricing page says these rates move with supply and demand. On October 23, Jassy said AWS's 2027 capacity is largely sold out, with some held back for on-demand EC2 and Bedrock inference, so a buyer planning a 2027 training run on AWS reservations should expect fewer large blocks available. Point those buyers to Google's committed-use and sustained-use discounts, and to TPU capacity for workloads that can run on it. ([wsau.com](https://wsau.com/?p=1029422))
 
 Agent-platform maturity is a contested fight. On August 6, 2026, AWS made Bedrock AgentCore runtime instances generally available: AWS-managed EC2 for production agents that can run up to 14 days, with GPU support and several agents collaborating on one host and shared file system. Combined with the production-agent stack AWS shipped at AWS Summit New York (June 17, 2026), AWS now covers long-running, multi-agent and GPU-backed workloads that Vertex AI reps used to pitch as a Google-only strength. ([aws.amazon.com](https://aws.amazon.com/about-aws/whats-new/2026/08/aws-bedrock-agentcore-runtime-instances-generally-available/))
 
@@ -147,9 +148,9 @@ On June 30, 2026 at AWS Summit Washington DC, AWS launched Forward Deployed Engi
 
 **AWS wins on incumbency and data gravity. Be honest about it.**
 
-With ~28% market share and revenue nearly double ours, AWS holds the install base, and Jassy's pitch is blunt: customers want inference next to data that already lives in AWS. For a CIO with a decade of AWS footprint, switching cost is the dominant force in the deal.
+With ~28% market share to our 14%, AWS holds the larger install base, and Jassy's pitch is blunt: customers want inference next to data that already lives in AWS. For a CIO with a decade of AWS footprint, switching cost is the dominant force in the deal.
 
-**Soundbite:** *"Keep AWS. Run your highest-value AI workloads where the silicon and economics are best, and connect back to your AWS data."* ([aboutamazon.com](https://www.aboutamazon.com/news/company-news/amazon-ceo-andy-jassy-aws-ai-q1-2026-earnings))
+**Soundbite:** *"Keep AWS. Run your highest-value AI workloads where the silicon and economics are best, and connect back to your AWS data."* ([sec.gov](https://www.sec.gov/Archives/edgar/data/1652044/000165204426000080/googexhibit991q32026.htm))
 
 **If a buyer has standardized on Claude, AWS has the deepest native path.**
 
@@ -159,9 +160,9 @@ Over 100,000 customers run Claude on Bedrock, Trainium handles the majority of B
 
 **AWS's service breadth and partner ecosystem are a default-platform advantage.**
 
-Thousands of services, the largest ISV and SI ecosystem and the broadest compliance coverage make AWS the safe anchor for multi-cloud enterprises. Our \$20B revenue and ~14% share mean proportionally fewer integrations and certifications, a gap the rep should acknowledge and route around.
+Thousands of services, the largest ISV and SI ecosystem and the broadest compliance coverage make AWS the safe anchor for multi-cloud enterprises. Even with \$30.7B in Q3 2026 revenue, our ~14% share means proportionally fewer integrations and certifications, a gap the rep should acknowledge and route around.
 
-**Soundbite:** *"AWS has more services. On AI/ML, our silicon and economics win, and you keep the rest of your AWS estate."* ([aboutamazon.com](https://www.aboutamazon.com/news/company-news/amazon-ceo-andy-jassy-aws-ai-q1-2026-earnings))
+**Soundbite:** *"AWS has more services. On AI/ML, our silicon and economics win, and you keep the rest of your AWS estate."* ([sec.gov](https://www.sec.gov/Archives/edgar/data/1652044/000165204426000080/googexhibit991q32026.htm))
 
 ## Sentiment
 
@@ -175,9 +176,9 @@ Thousands of services, the largest ISV and SI ecosystem and the broadest complia
 
 **"Google Cloud had that massive 2025 outage. Why trust critical AI to them?"**
 
-Own it directly: the June 12, 2025 outage took down 70+ services for hours after an untested global config change, and Google publicly apologized and committed to feature-flagged rollouts and isolation so one fault can't cascade. Every hyperscaler has had a major outage (AWS's us-east-1 included); the question is the fix trajectory, and the market clearly hasn't defected, given 63% Q1 2026 growth.
+Own it directly: the June 12, 2025 outage took down 70+ services for hours after an untested global config change, and Google publicly apologized and committed to feature-flagged rollouts and isolation so one fault can't cascade. Every hyperscaler has had a major outage (AWS's us-east-1 included). The question is the fix trajectory, and the market clearly hasn't defected: Google Cloud's Q3 2026 revenue grew 103% to \$30.7B.
 
-**So what:** Don't minimize it: acknowledge, point to the concrete process changes and pivot the reliability conversation to forward architecture, not past incidents. ([cnbc.com](https://www.cnbc.com/2025/06/16/google-cloud-outage-apology.html))
+**So what:** Don't minimize it: acknowledge, point to the concrete process changes and pivot the reliability conversation to forward architecture, not past incidents. ([sec.gov](https://www.sec.gov/Archives/edgar/data/1652044/000165204426000080/googexhibit991q32026.htm))
 
 **"Google kills products. You just retired Vertex AI. Why bet our ML platform on that?"**
 
@@ -187,9 +188,9 @@ This is grounded and fair to raise. But the April 22, 2026 change is an evolutio
 
 **"Even Pichai says Google Cloud is compute-constrained. We'll be stuck in a queue."**
 
-True, Pichai said it: "We are compute constrained in the near term." Demand is outrunning supply, and Google is spending \$180 to 190B in 2026 plus standing up the Blackstone TPU venture to close the gap. AWS admits the same constraint, with Trainium sold out. The right move is to secure committed capacity through the account team now, not to assume an equally-constrained AWS is more available.
+True, Pichai said it: "We are compute constrained in the near term." Demand is outrunning supply, and Google is spending \$180 to 190B in 2026 plus standing up the Blackstone TPU venture to close the gap. AWS is in the same position. On October 23, Jassy said AWS capacity for 2026 is sold out, 2027 is largely sold out and a good chunk of 2028 is committed. AWS holds back some capacity for on-demand EC2 and Bedrock inference, but the big blocks are gone. Securing committed capacity through the account team now beats assuming AWS is more available.
 
-**So what:** Turn the constraint into proof of demand, and lock in committed capacity now, because AWS is just as supply-limited. ([cnbc.com](https://www.cnbc.com/2026/04/29/alphabet-googl-q1-2026-earnings.html))
+**So what:** Turn the constraint into proof of demand, and lock in committed capacity now, because AWS's big blocks are largely sold out through 2027. ([wsau.com](https://wsau.com/?p=1029422))
 
 **"We want Claude, and that means AWS Bedrock."**
 
@@ -199,9 +200,9 @@ Not exclusive: Anthropic itself states Claude is available on all three major cl
 
 **"AWS is the market leader. That's the safe pick."**
 
-Fair on today's numbers: AWS holds ~28% share to Google's 14% (Synergy). But Google Cloud is growing 63% a year to AWS's 28%, led by enterprise AI, so the safe pick three to five years out is the platform winning on AI economics and owning its own model.
+AWS holds ~28% share to Google's 14% (Synergy), and that is true today. But Google Cloud's Q3 2026 revenue rose 103% year over year to \$30.7B, and its growth has climbed from 63% in Q1 to 103% in Q3. Cloud operating income rose to \$11.1B from \$3.6B a year earlier. Alphabet credits growth in enterprise AI infrastructure and AI solutions. The safe pick three to five years out is the platform winning on AI economics and owning its own model, and it is also profitable at scale.
 
-**So what:** Concede the current-share point, then redirect to a 3 to 5 year trajectory framing where the growth gap and AI differentiation favor Google. ([srgresearch.com](https://www.srgresearch.com/articles/cloud-market-annual-revenue-run-rate-topped-half-a-trillion-dollars-in-q1-as-growth-surge-continues))
+**So what:** Concede the current-share point, then lead with Q3: 103% growth and \$11.1B in quarterly operating income, and ask the buyer which platform they want to be on in three to five years. ([sec.gov](https://www.sec.gov/Archives/edgar/data/1652044/000165204426000080/googexhibit991q32026.htm))
 
 ## Cut Log
 
