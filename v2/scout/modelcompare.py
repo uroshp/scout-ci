@@ -13,9 +13,9 @@ import json
 import re
 import math
 from collections import defaultdict
-from datetime import datetime
+from datetime import date, datetime, timedelta, timezone
 
-from scout import judgment, challenger, evalrule, rolespecs, selfserve
+from scout import config, judgment, challenger, evalrule, rolespecs, selfserve
 
 SCHEMA_VERSION = 1
 SHADOW_MODELS_DIR = "shadow_models"
@@ -666,3 +666,30 @@ def verdict_for_cell(cell: dict, prior: dict | None, *, bar: float = 0.50, min_a
     if v["status"] == "ELIGIBLE":
         v["note"] += " Non-inferior and sustained; no production switch exists."
     return v
+
+
+def expected_capture_day(now: datetime) -> date:
+    """The last day the monitor should have captured on: the latest weekday not in
+    config.MONITOR_SKIP_WEEKDAYS, counting today only once its 4 AM capture has had time to land
+    (06:00 PT). At 23:00 on a Sunday that is Saturday; at 00:22 on a Friday it is Thursday."""
+    d = now.date() if now.hour >= 6 else now.date() - timedelta(days=1)
+    while d.weekday() in config.MONITOR_SKIP_WEEKDAYS:
+        d -= timedelta(days=1)
+    return d
+
+
+def stale_capture(newest: str | None, now: datetime) -> str | None:
+    """One line when the newest bundle predates the expected capture day, else None. The one freshness
+    rule for the replay lane (its log line) and the lanes canary (its finding), 2026-10-29. Bundle stamps
+    are UTC (monitor_20261024T110142 landed 04:01 PDT; a signal-dispatched check at 17:17 PDT on 10/28
+    landed as monitor_20261029T001811), so the comparison is on the local date."""
+    if not newest:
+        return "no capture bundle at all"
+    try:
+        landed = datetime.strptime(newest, "%Y%m%dT%H%M%S").replace(tzinfo=timezone.utc).astimezone().date()
+    except ValueError:
+        return f"unreadable bundle stamp {newest}"
+    want = expected_capture_day(now)
+    if landed < want:
+        return f"newest capture landed {landed:%a %m/%d}, the last monitor day was {want:%a %m/%d}"
+    return None
