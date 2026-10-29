@@ -23,11 +23,11 @@ import json
 import os
 import re
 import sys
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 
 import httpx
 
-from scout import config, notify, selfserve
+from scout import config, modelcompare, notify, selfserve
 
 VIEWER = os.environ.get("SCOUT_CANARY_VIEWER", "https://agent-scout.ai/healthcheck")
 ENGINE = os.environ.get("SCOUT_CANARY_ENGINE", "https://scout-engine-y5fw7otaqa-uw.a.run.app/healthcheck")
@@ -175,9 +175,10 @@ def latest_replay_run(log: str) -> str:
 
 def check_replay(day: date) -> list[str]:
     """Last night's replay left its evidence: state.json advanced within the last 30 h; the newest run in
-    the log scored the newest bundle that existed when it began (that day's 4 AM capture, or the day
-    before's after a Sunday or for a catch-up started after midnight); every arm left an exit line; the
-    run ended; the arbiter ruled; the mirror pulled."""
+    the log began with a capture from the last monitor day (that day's 4 AM capture, or the day before's
+    after a Sunday or for a catch-up started after midnight), judged by the lane's own calendar rule
+    (modelcompare.stale_capture); every arm left an exit line; the run ended; the arbiter ruled; the
+    mirror pulled."""
     try:
         st = json.load(open(os.path.join(REPLAY_DIR, "state.json")))
         last_run = datetime.fromisoformat(str(st.get("last_run") or ""))
@@ -204,11 +205,15 @@ def check_replay(day: date) -> list[str]:
         return [f"replay: last_run is {last_run:%Y-%m-%d %H:%M}, {age_h:.0f} h ago (the 23:00 replay did not run)"]
     problems = []
     newest = re.findall(r"newest bundle: (\S+)", run_log)
-    fresh = {(started.date() - timedelta(days=d)).strftime("%Y%m%d") for d in (0, 1)} if started else set()
     if not newest:
         problems.append("replay: the last run printed no 'newest bundle' line (old runner or aborted before listing)")
-    elif not any(n[:8] in fresh for n in newest):
-        problems.append(f"replay: scored a backlog, newest bundle {newest[-1]} is older than the capture before the run began")
+    elif started:
+        # The first listing is what the run saw when it began. Bundle stamps are UTC: a signal-dispatched
+        # check at 17:17 PT on 10/28 landed as 20261029T001811, and a date-prefix rule called that clean
+        # night a backlog (2026-10-29). The calendar rule compares local dates and skips Sunday.
+        why = modelcompare.stale_capture(newest[0], started)
+        if why:
+            problems.append(f"replay: scored a backlog: {why} (newest bundle {newest[0]})")
     problems += arm_problems(run_log)
     if "=== replay end ===" not in run_log:
         problems.append("replay: the last run has no '=== replay end ===' line (aborted)")
@@ -229,9 +234,11 @@ def _replay_running() -> bool:
 
 
 def arm_problems(today_log: str) -> list[str]:
-    """Every configured Ollama arm must leave a trace in today's log: an "<arm> arm exit" line, or
-    the runner's explicit skip ("ollama arms skipped ..."). A silent arm is a finding (2026-09-30:
-    one oversize call zeroed the Apple arm for days and nothing said so)."""
+    """Every configured Ollama arm must leave a trace in today's log: an "<arm> arm exit" line, the
+    runner's explicit skip of that arm ("<arm> arm skipped ...": the run's deadline passed before it
+    started, 2026-10-23; it catches up the next night) or of all of them ("ollama arms skipped ...").
+    A silent arm is a finding (2026-09-30: one oversize call zeroed the Apple arm for days and
+    nothing said so)."""
     from scout import replaybackends
     if not today_log:
         return []
@@ -239,7 +246,7 @@ def arm_problems(today_log: str) -> list[str]:
         return []
     out = []
     for name in replaybackends.OLLAMA_MODELS:
-        if f"{name} arm exit" not in today_log:
+        if f"{name} arm exit" not in today_log and f"{name} arm skipped" not in today_log:
             out.append(f"replay: arm {name} left no exit line today (never started, or the runner predates it)")
     if "apple arm exit" not in today_log and "apple arm skipped" not in today_log:
         out.append("replay: the Apple arm left no exit line today")
