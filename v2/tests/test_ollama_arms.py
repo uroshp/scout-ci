@@ -109,9 +109,10 @@ class Freshness(unittest.TestCase):
     def test_capture_staleness_follows_the_monitor_calendar(self):
         """2026-10-25: the monitor skips Sunday, so the Sunday 23:00 replay found Saturday's capture
         and seven invocations each emailed "no fresh capture". The rule is the monitor's calendar,
-        not an hour count, and the script only logs; the lanes canary reports a missing capture."""
-        rc_ = _script("replay_calls")
+        not an hour count, and the script only logs; the lanes canary reports a missing capture.
+        2026-10-29: one rule (modelcompare.stale_capture) behind the lane's log line and the canary's finding."""
         from datetime import datetime
+        rc_ = mc
         sat = "20261024T110142"                                   # Saturday 10/24, 04:01 PDT
         self.assertIsNone(rc_.stale_capture(sat, datetime(2026, 10, 25, 23, 0)))          # Sunday night
         why = rc_.stale_capture(sat, datetime(2026, 10, 26, 23, 0))                          # Monday night
@@ -122,6 +123,8 @@ class Freshness(unittest.TestCase):
         self.assertIn("unreadable", rc_.stale_capture("garbage", datetime(2026, 10, 26, 23, 0)))
         src = open(os.path.join(_SCRIPTS, "replay_calls.py")).read()
         self.assertNotIn("send_could_not_run", src)
+        self.assertIn("modelcompare.stale_capture(", src)
+        self.assertIn("modelcompare.stale_capture(", open(os.path.join(_SCRIPTS, "lanes_canary.py")).read())
 
 
 class Canary(unittest.TestCase):
@@ -190,11 +193,22 @@ class Canary(unittest.TestCase):
                 write(old + run.replace("2026-10-23 23:00:05", "2026-10-24 00:22:43"))
                 with mock.patch.object(lc, "_now", return_value=_dt(2026, 10, 24, 9, 0)):
                     self.assertEqual(lc.check_replay(_date(2026, 10, 24)), [])
-                # a run that scored only old bundles is still a finding
+                # a run that scored only old bundles is still a finding, dated in Pacific
                 write(old + run.replace("newest bundle: 20261023T110053", "newest bundle: 20261020T110053"))
                 with mock.patch.object(lc, "_now", return_value=_dt(2026, 10, 24, 9, 0)):
                     probs = lc.check_replay(_date(2026, 10, 24))
                     self.assertEqual(len(probs), 1); self.assertIn("scored a backlog", probs[0])
+                    self.assertIn("Tue 10/20", probs[0]); self.assertIn("Fri 10/23", probs[0])
+                # 2026-10-29: a signal-dispatched check at 17:17 PT carries the next day's UTC date
+                # (20261029T001811 landed Wed 10/28); the Wednesday night that scored it is clean, and a
+                # later listing of Thursday's capture (the last repeat floor ran past 04:00) changes nothing
+                _json.dump({"last_run": "2026-10-29T04:31:51"}, open(_os.path.join(d, "state.json"), "w"))
+                write(old + run.replace("2026-10-23 23:00:05", "2026-10-28 23:00:02")
+                                .replace("newest bundle: 20261023T110053",
+                                         "newest bundle: 20261029T001811\n2026-10-28 23:06:19 PDT  apple arm exit 0 (attempt 1)\n"
+                                         "newest bundle: 20261029T110050"))
+                with mock.patch.object(lc, "_now", return_value=_dt(2026, 10, 29, 9, 0)):
+                    self.assertEqual(lc.check_replay(_date(2026, 10, 29)), [])
             # in progress is not a finding; alive 12 h after it began is
             write(old + run)
             with mock.patch.object(lc, "REPLAY_DIR", d), mock.patch.object(lc, "_replay_running", return_value=True):

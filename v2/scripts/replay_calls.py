@@ -24,7 +24,7 @@ import sys
 import time
 
 import httpx
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -165,11 +165,12 @@ def main():
     # the log and carry on with what exists. Never by email (2026-10-25): the monitor skips Sunday,
     # the 23:00 lane saw Saturday's capture as "36 h old" and each of run.sh's seven invocations
     # sent "Scout could not run". A missing capture is the monitor's artifact; the lanes canary
-    # reports it once (check_capture at 09:00, then check_replay's "scored a backlog").
+    # reports it once (check_capture at 09:00, then check_replay's "scored a backlog") by the same
+    # calendar rule, modelcompare.stale_capture (2026-10-29).
     newest = max((os.path.basename(p).split("_")[1] for p in paths if "_" in os.path.basename(p)), default=None)
     print(f"newest bundle: {newest or 'none'}")
     if run and not args.since and not os.environ.get("SCOUT_REPLAY_NO_FRESH_CHECK"):
-        why = stale_capture(newest, datetime.now())
+        why = modelcompare.stale_capture(newest, datetime.now())
         if why:
             print(f"  NO FRESH CAPTURE: {why}; scoring the backlog (the lanes canary reports a missing capture)",
                   file=sys.stderr)
@@ -290,32 +291,6 @@ def main():
         st["last_replays"] = done_total
         _save_state(st)
     print(f"\ndone: {done_total} replays" + (" (persisted)" if args.write else " (NOT persisted; add --write)"))
-
-
-def expected_capture_day(now: datetime) -> date:
-    """The last day the monitor should have captured on: the latest weekday not in
-    config.MONITOR_SKIP_WEEKDAYS, counting today only once its 4 AM capture has had time to land
-    (06:00 PT). At 23:00 on a Sunday that is Saturday; at 00:22 on a Friday it is Thursday."""
-    from scout import config
-    d = now.date() if now.hour >= 6 else now.date() - timedelta(days=1)
-    while d.weekday() in config.MONITOR_SKIP_WEEKDAYS:
-        d -= timedelta(days=1)
-    return d
-
-
-def stale_capture(newest: str | None, now: datetime) -> str | None:
-    """One line when the newest bundle predates the expected capture day, else None. Bundle stamps
-    are UTC (monitor_20261024T110142 landed 04:01 PDT); the comparison is on the local date."""
-    if not newest:
-        return "no capture bundle at all"
-    try:
-        landed = datetime.strptime(newest, "%Y%m%dT%H%M%S").replace(tzinfo=timezone.utc).astimezone().date()
-    except ValueError:
-        return f"unreadable bundle stamp {newest}"
-    want = expected_capture_day(now)
-    if landed < want:
-        return f"newest capture landed {landed:%a %m/%d}, the last monitor day was {want:%a %m/%d}"
-    return None
 
 
 if __name__ == "__main__":
