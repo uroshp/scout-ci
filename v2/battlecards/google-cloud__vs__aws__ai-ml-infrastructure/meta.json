@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-10-28T20:18:52",
+  "last_checked": "2026-10-29T13:18:32",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -45,5 +45,22 @@
     ],
     "job_boards": []
   },
-  "last_check_reason": "signal"
+  "last_check_reason": "signal",
+  "pending_candidates": {
+    "my_company": [
+      {
+        "signal": "Alphabet raised 2026 capex guidance to $195–205B (Oct 28, 2026)",
+        "subject_key": "alphabet | capex-guidance | 2026-q3",
+        "about": "my_company",
+        "valence": "front_foot",
+        "substantial": true,
+        "why_new": "Not tracked in current subjects. Alphabet's full-year 2026 capex guidance (announced with Q3 earnings Oct 28) raised to $195–205B range (from prior $180–190B), signaling aggressive AI/ML infrastructure buildout driven by Google Cloud demand and competitive position vs AWS ($220B for all of Amazon, per July guidance).",
+        "source_hint": "Alphabet Q3 2026 earnings announcement (Oct 28, 2026) / 10-Q filing (Oct 29, 2026); reporting by Outlook Business, W Media"
+      }
+    ],
+    "since": "2026-10-28",
+    "my_since": "2026-10-28",
+    "attempts": 1,
+    "reason": "own-side candidates did not ground"
+  }
 }
