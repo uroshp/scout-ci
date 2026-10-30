@@ -1324,5 +1324,28 @@
       }
     ],
     "source_class": "company_statement"
+  },
+  {
+    "subject_key": "slack | support-plans | success-plans-2026",
+    "claim": "On October 27, 2026 Slack moved its customer support onto Salesforce Success Plans. Each customer's tier depends on its Slack plan. Pro and self-serve Business+ get the Standard Success Plan. Business+ bought through a Salesforce rep on an order form, plus Enterprise+ and Enterprise Grid, get Premier. Slack says the switch costs nothing extra, but only for the rest of the current plan term. Anything above the included tier is an upsell sold through Slack's sales team. Support terms now fall under Salesforce's Success Plan terms, and support cases run through Salesforce Help.",
+    "claim_type": "fact",
+    "section": "pricing",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://slack.com/help/articles/55485987413011-Understand-your-new-Salesforce-Success-Plan-for-Slack",
+    "source_tier": "primary",
+    "evidence_excerpt": "On October 27, 2026, we brought Salesforce Success Plans to Slack.",
+    "as_of": "2026-10-28",
+    "confidence": "high",
+    "id": "c_a1f8eec362cb",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-10-30",
+      "detail": null
+    },
+    "source_class": "company_statement"
   }
 ]
