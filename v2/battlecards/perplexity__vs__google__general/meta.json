@@ -4,7 +4,7 @@
   "competitor": "Google",
   "focus": null,
   "baseline_date": "2026-06-06",
-  "last_checked": "2026-10-30T01:18:40",
+  "last_checked": "2026-10-31T11:10:39",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_9ea436272f2a",
@@ -52,5 +52,5 @@
       }
     ]
   },
-  "last_check_reason": "signal"
+  "last_check_reason": "scheduled"
 }
