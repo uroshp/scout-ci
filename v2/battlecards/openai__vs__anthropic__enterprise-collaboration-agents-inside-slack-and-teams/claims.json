@@ -70,26 +70,26 @@
   },
   {
     "subject_key": "anthropic | capacity-ceiling | current",
-    "claim": "**Anthropic keeps hitting a compute ceiling, which is exactly wrong for an always-on Slack teammate.**\n\nAnthropic has signed a string of emergency compute deals and still tightens Claude Code limits each quarter, even as it sells Claude Tag as a persistent agent that lives in every channel. An always-on teammate that gets throttled mid-week is a broken promise.\n\n**So what:** For reliability-sensitive buyers, press the persistence-versus-throttling gap. Frame OpenAI's capacity around Enterprise commitments backed by Microsoft, and be ready that OpenAI paused new consumer Pro sign-ups on September 10.",
+    "claim": "**Anthropic keeps hitting a compute ceiling, which is exactly wrong for an always-on Slack teammate.**\n\nAnthropic's S-1 states that it asked its cloud providers for more compute than they were willing to supply, and it still tightens Claude Code limits each quarter while selling Claude Tag as a persistent agent in every channel.\n\n**Soundbite:** \"Anthropic's own SEC filing says its cloud providers would not give it all the compute it asked for, and an always-on agent needs that compute every day.\"\n\n**So what:** For reliability-sensitive buyers, cite the filing and press the persistence-versus-throttling gap. Frame OpenAI's capacity around Enterprise commitments backed by Microsoft, and be ready that OpenAI paused new consumer Pro sign-ups on September 10.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 3,
-    "source_url": "https://www.bleepingcomputer.com/news/artificial-intelligence/anthropic-is-cutting-claude-codes-current-weekly-limits-by-17-percent/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Compared to today, this works out to a 17% reduction in weekly limits on Claude Code,",
-    "as_of": "2026-09-14",
+    "as_of": "2026-10-26",
     "confidence": "high",
     "id": "c_99c3a1fe240a",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-09-15",
-      "detail": null
-    },
-    "source_class": "news"
+    "source_class": "news",
+    "updated_on": "2026-11-02",
+    "derived_from": "c_45702a341de6",
+    "provenance": {
+      "source_url": "https://www.anthropic.com/news",
+      "source_tier": "primary",
+      "as_of": "2026-10-26",
+      "fact_id": "c_45702a341de6",
+      "stamped_on": "2026-11-02",
+      "source_class": "company_statement"
+    }
   },
   {
     "subject_key": "openai | distribution-moat | current",
@@ -116,26 +116,26 @@
   },
   {
     "subject_key": "anthropic | latest-funding-round | current",
-    "claim": "Anthropic raised $65 billion at a $965 billion post-money valuation in May 2026, its last private round before a planned public listing, per TechCrunch reporting.",
-    "claim_type": "fact",
+    "claim": "Anthropic raised $65 billion at a $965 billion post-money valuation in May 2026, per TechCrunch reporting. On October 26, 2026 it filed an S-1 to list on Nasdaq under ticker ANT, and the price range and share count are still blank.",
+    "claim_type": "interpretation",
     "section": "snapshot",
     "zone": null,
     "order": 0,
-    "source_url": "https://techcrunch.com/2026/05/28/anthropic-raises-65-billion-nears-1t-valuation-ahead-of-ipo/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Anthropic has snagged $65 billion in funding at a $965 billion post-money valuation in its latest funding round, marking what could be the AI startup's last private fundraising before debuting on the public markets.",
-    "as_of": "2026-05-28",
+    "as_of": "2026-10-26",
     "confidence": "high",
     "id": "c_0b5b6dc9866a",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-09-15",
-      "detail": null
-    },
-    "source_class": "news"
+    "source_class": "news",
+    "updated_on": "2026-11-02",
+    "derived_from": "c_45702a341de6",
+    "provenance": {
+      "source_url": "https://www.anthropic.com/news",
+      "source_tier": "primary",
+      "as_of": "2026-10-26",
+      "fact_id": "c_45702a341de6",
+      "stamped_on": "2026-11-02",
+      "source_class": "company_statement"
+    }
   },
   {
     "subject_key": "openai | valuation | current",
@@ -254,35 +254,35 @@
   },
   {
     "subject_key": "anthropic | ipo-plan | current",
-    "claim": "Anthropic has pushed its IPO back to mid-November, per Bloomberg on October 1. It could start formal marketing the week of November 9 and begin trading before Thanksgiving on November 26, and it still expects to list by the end of the year. It met selected institutional investors at its San Francisco headquarters on October 14. The S-1 is still not public. Under the SEC's 15-day rule, a November 9 roadshow means the full filing, with audited losses and compute commitments, has to reach EDGAR by about October 23. Until then the only financials available are the ones in the leaked draft: a $42 billion net loss for 2025, about $34 billion of it from convertible-financing accounting charges.",
+    "claim": "Anthropic filed its S-1 with the SEC on October 26, 2026, to list on Nasdaq under the ticker ANT, with Goldman Sachs and Morgan Stanley leading 22 underwriters. The filing shows $16.3 billion of revenue in the first half of 2026, up from $1.2 billion a year earlier, and a first-half operating loss of $693 million. The price range and share count are still blank. The Wall Street Journal reports a listing as soon as the week of November 16 at a valuation of $1.5 trillion to $2 trillion, which is not in the filing. The S-1 also states that Anthropic has asked its cloud providers for more compute than they were willing to supply.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
     "order": 1,
-    "source_url": "https://news.bgov.com/banking-law/anthropic-said-to-target-mega-ipo-before-thanksgiving-holiday",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "The firm behind Claude could start formal marketing for its IPO as soon as the week of Nov. 9, putting it in line to begin trading before Thanksgiving, the people said.",
-    "as_of": "2026-10-14",
-    "confidence": "medium",
+    "source_url": "https://www.anthropic.com/news",
+    "source_tier": "primary",
+    "evidence_excerpt": "Today, Anthropic, PBC filed a registration statement on Form S-1 with the U.S. Securities and Exchange Commission relating to its proposed initial public offering of its Class A common stock.",
+    "as_of": "2026-10-26",
+    "confidence": "high",
     "id": "c_45702a341de6",
     "verified": true,
     "grounding": {
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-10-14",
+      "fetched_at": "2026-11-02",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://financefeeds.com/anthropics-14-october-investor-day-nears-but-its-s-1-still-isnt-public-the-ipo-timeline-explained/",
+        "source_url": "https://ppc.land/anthropic-files-for-nasdaq-ipo-with-16-3bn-in-first-half-revenue/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false,
         "source_class": "unknown"
       }
     ],
-    "source_class": "unknown"
+    "source_class": "company_statement"
   },
   {
     "subject_key": "anthropic | data-retention | 2026",
@@ -682,27 +682,27 @@
   },
   {
     "subject_key": "anthropic | q2-revenue-lead | 2026",
-    "claim": "**\"Anthropic passed you in revenue, so why would we bet on OpenAI?\"**\n\nIt is a fair number to raise: Bloomberg-reviewed internal documents put Anthropic's Q2 2026 revenue at $11.5 billion against OpenAI's $6.7 billion. The answer is that OpenAI now runs at a $40 billion annualized rate with enterprise as the majority, reaches every Microsoft 365 seat, and is not turning away demand for lack of compute the way Anthropic is.\n\n**So what:** Do not dispute the quarter. Compete on trajectory, distribution and the capacity to actually serve what you sell.",
-    "claim_type": "fact",
+    "claim": "**\"Anthropic passed you in revenue, so why would we bet on OpenAI?\"**\n\nYour buyer can now quote the filing. Anthropic's S-1 shows $16.3 billion of revenue in the first half of 2026, up from $1.2 billion a year earlier, with a first-half operating loss of $693 million. Concede those numbers. Then point to what the buyer's own stack looks like: Microsoft made GPT-5.6 the preferred model across Word, Excel, PowerPoint and Copilot, so OpenAI reaches every Microsoft 365 user with no new procurement. OpenAI's agents also run in Slack and Teams today, while Claude Tag is Slack-only. The same S-1 says Anthropic asked its cloud providers for more compute than they were willing to supply.\n\n**So what:** Concede the filing's numbers, then compete on reach and on the capacity to serve what you sell.",
+    "claim_type": "interpretation",
     "section": "objection_handling",
     "zone": null,
     "order": 0,
-    "source_url": "https://finance.yahoo.com/technology/ai/articles/anthropic-q2-revenue-overtook-openai-015716271.html",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Anthropic generated $11.5 billion in revenue during the second quarter of 2026, comfortably outpacing OpenAI's $6.7 billion for the same period",
-    "as_of": "2026-08-21",
+    "as_of": "2026-10-26",
     "persona": "economic_buyer",
     "confidence": "medium",
     "id": "c_f57b0514d651",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-09-15",
-      "detail": null
-    },
-    "source_class": "news"
+    "source_class": "news",
+    "updated_on": "2026-11-02",
+    "derived_from": "c_45702a341de6",
+    "provenance": {
+      "source_url": "https://www.anthropic.com/news",
+      "source_tier": "primary",
+      "as_of": "2026-10-26",
+      "fact_id": "c_45702a341de6",
+      "stamped_on": "2026-11-02",
+      "source_class": "company_statement"
+    }
   },
   {
     "subject_key": "openai | objection | microsoft-offers-claude",
