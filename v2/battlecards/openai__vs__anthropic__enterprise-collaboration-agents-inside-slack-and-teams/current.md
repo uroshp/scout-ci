@@ -22,9 +22,11 @@ On September 1 Anthropic reversed a 30-day data-retention policy after enterpris
 
 **Anthropic keeps hitting a compute ceiling, which is exactly wrong for an always-on Slack teammate.**
 
-Anthropic has signed a string of emergency compute deals and still tightens Claude Code limits each quarter, even as it sells Claude Tag as a persistent agent that lives in every channel. An always-on teammate that gets throttled mid-week is a broken promise.
+Anthropic's S-1 states that it asked its cloud providers for more compute than they were willing to supply, and it still tightens Claude Code limits each quarter while selling Claude Tag as a persistent agent in every channel.
 
-**So what:** For reliability-sensitive buyers, press the persistence-versus-throttling gap. Frame OpenAI's capacity around Enterprise commitments backed by Microsoft, and be ready that OpenAI paused new consumer Pro sign-ups on September 10. ([bleepingcomputer.com](https://www.bleepingcomputer.com/news/artificial-intelligence/anthropic-is-cutting-claude-codes-current-weekly-limits-by-17-percent/))
+**Soundbite:** "Anthropic's own SEC filing says its cloud providers would not give it all the compute it asked for, and an always-on agent needs that compute every day."
+
+**So what:** For reliability-sensitive buyers, cite the filing and press the persistence-versus-throttling gap. Frame OpenAI's capacity around Enterprise commitments backed by Microsoft, and be ready that OpenAI paused new consumer Pro sign-ups on September 10. ([anthropic.com](https://www.anthropic.com/news))
 
 **OpenAI's real moat is distribution: GPT is the preferred model inside Microsoft 365 and Teams.**
 
@@ -34,7 +36,7 @@ OpenAI now says enterprise is the majority of its revenue at a \$40 billion run 
 
 ## Snapshot
 
-- Anthropic raised \$65 billion at a \$965 billion post-money valuation in May 2026, its last private round before a planned public listing, per TechCrunch reporting. ([techcrunch.com](https://techcrunch.com/2026/05/28/anthropic-raises-65-billion-nears-1t-valuation-ahead-of-ipo/))
+- Anthropic raised \$65 billion at a \$965 billion post-money valuation in May 2026, per TechCrunch reporting. On October 26, 2026 it filed an S-1 to list on Nasdaq under ticker ANT, and the price range and share count are still blank. ([anthropic.com](https://www.anthropic.com/news))
 - OpenAI closed a record \$122 billion funding round at an \$852 billion post-money valuation in March 2026, and said it was generating \$2 billion in revenue per month after \$13.1 billion in revenue the prior year. ([cnbc.com](https://www.cnbc.com/2026/03/31/openai-funding-round-ipo.html))
 - Anthropic's flagship collaboration agent is still Claude Tag, a Slack teammate that remains in beta. On September 24 it gained personal connectors: each user's own calendar, drive and CRM access can serve their requests in a channel, with review or auto posting. The rollout is on Team plans now, with Enterprise to follow. ([claude.com](https://claude.com/blog/claude-tag-now-supports-personal-connectors-in-channels))
 - OpenAI's annualized revenue run rate reached \$40 billion by August 2026, and CFO Sarah Friar told investors enterprise revenue had overtaken consumer for the first time. ([cnbc.com](https://www.cnbc.com/2026/08/14/openai-cfo-friar-tells-investors-that-enterprise-bigger-than-consumer.html))
@@ -42,7 +44,7 @@ OpenAI now says enterprise is the majority of its revenue at a \$40 billion run 
 
 ## Recent Strategic Moves
 
-- Anthropic has pushed its IPO back to mid-November, per Bloomberg on October 1. It could start formal marketing the week of November 9 and begin trading before Thanksgiving on November 26, and it still expects to list by the end of the year. It met selected institutional investors at its San Francisco headquarters on October 14. The S-1 is still not public. Under the SEC's 15-day rule, a November 9 roadshow means the full filing, with audited losses and compute commitments, has to reach EDGAR by about October 23. Until then the only financials available are the ones in the leaked draft: a \$42 billion net loss for 2025, about \$34 billion of it from convertible-financing accounting charges. ([news.bgov.com](https://news.bgov.com/banking-law/anthropic-said-to-target-mega-ipo-before-thanksgiving-holiday))
+- Anthropic filed its S-1 with the SEC on October 26, 2026, to list on Nasdaq under the ticker ANT, with Goldman Sachs and Morgan Stanley leading 22 underwriters. The filing shows \$16.3 billion of revenue in the first half of 2026, up from \$1.2 billion a year earlier, and a first-half operating loss of \$693 million. The price range and share count are still blank. The Wall Street Journal reports a listing as soon as the week of November 16 at a valuation of \$1.5 trillion to \$2 trillion, which is not in the filing. The S-1 also states that Anthropic has asked its cloud providers for more compute than they were willing to supply. ([anthropic.com](https://www.anthropic.com/news))
 - On September 18 four paying subscribers filed a proposed nationwide class action in the Northern District of California. It alleges that Anthropic, OpenAI, SpaceXAI and Google illegally agreed to slow AI development, and it points to Dario Amodei's September 12 pacing essay and the same-day endorsements from Altman, Musk and Hassabis. Both companies are defendants. ([cnn.com](https://www.cnn.com/2026/09/19/business/ai-slowdown-lawsuit-antitrust))
 - On September 14 Anthropic cut Claude Code weekly usage limits by a net 17% for Pro, Max, Team and seat-based Enterprise plans, framing the change publicly as a permanent 25% increase because it expired a temporary 50% boost the day before. ([bleepingcomputer.com](https://www.bleepingcomputer.com/news/artificial-intelligence/anthropic-is-cutting-claude-codes-current-weekly-limits-by-17-percent/))
 - On September 1 Anthropic reversed a controversial 30-day data-retention policy for business customers after heavy feedback, replacing it with a new offering it calls Enterprise Frontier Safeguards. ([cnbc.com](https://www.cnbc.com/2026/09/01/anthropic-data-retention.html))
@@ -108,9 +110,9 @@ Menlo Ventures' enterprise survey put Anthropic at roughly 54% of the coding-mod
 
 **"Anthropic passed you in revenue, so why would we bet on OpenAI?"**
 
-It is a fair number to raise: Bloomberg-reviewed internal documents put Anthropic's Q2 2026 revenue at \$11.5 billion against OpenAI's \$6.7 billion. The answer is that OpenAI now runs at a \$40 billion annualized rate with enterprise as the majority, reaches every Microsoft 365 seat, and is not turning away demand for lack of compute the way Anthropic is.
+Your buyer can now quote the filing. Anthropic's S-1 shows \$16.3 billion of revenue in the first half of 2026, up from \$1.2 billion a year earlier, with a first-half operating loss of \$693 million. Concede those numbers. Then point to what the buyer's own stack looks like: Microsoft made GPT-5.6 the preferred model across Word, Excel, PowerPoint and Copilot, so OpenAI reaches every Microsoft 365 user with no new procurement. OpenAI's agents also run in Slack and Teams today, while Claude Tag is Slack-only. The same S-1 says Anthropic asked its cloud providers for more compute than they were willing to supply.
 
-**So what:** Do not dispute the quarter. Compete on trajectory, distribution and the capacity to actually serve what you sell. ([finance.yahoo.com](https://finance.yahoo.com/technology/ai/articles/anthropic-q2-revenue-overtook-openai-015716271.html))
+**So what:** Concede the filing's numbers, then compete on reach and on the capacity to serve what you sell. ([anthropic.com](https://www.anthropic.com/news))
 
 **"Even Microsoft offers Claude in Copilot, so why not just use Claude?"**
 

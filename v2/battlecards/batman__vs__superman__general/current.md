@@ -2,13 +2,13 @@
 
 ## Executive Summary
 
-**Our real exposure is the calendar: Batman Part II is paused in production and dated February 2028.**
+**Our real exposure is the calendar: Batman Part II is filming again but dated February 2028.**
 
-Filming paused October 5 with no restart date, on top of three release delays, while Superman's Man of Tomorrow began filming in April 2026 for a July 2027 release. The February 18, 2028 date still stands, and a buyer will read the gap with Superman as platform risk.
+Production resumed after the October 5 pause, with Steven Soderbergh helping finish principal photography, and the date is still February 18, 2028. Superman's Man of Tomorrow began filming in April 2026 for a July 2027 release, and a buyer will read that gap as platform risk.
 
-**Soundbite:** "Yes, filming is paused while Matt Reeves handles a family matter, and the studio still has February 18, 2028. Batman doesn't need a shared universe to work, so nothing else has to line up for it."
+**Soundbite:** "Filming paused and is back under way, and the studio still has February 18, 2028. Batman doesn't need a shared universe to work, so nothing else has to line up for it."
 
-**So what:** Raise the pause before the buyer does and use the studio's wording: temporary, date unchanged. Do not guess at a restart or a new date. Then pivot to Batman's standalone strength. ([deadline.com](https://deadline.com/2026/10/the-batman-part-ii-production-pause-matt-reeves-1237146807/))
+**So what:** Raise the pause before the buyer does: filming has resumed and the date is unchanged. Do not guess at a new date. Then pivot to Batman's standalone strength. ([entertainmentnow.com](https://entertainmentnow.com/news/robert-pattinson-batman-part-two-production-pause/))
 
 **Our hero still out-earns the rebooted Superman by about \$154M, on a smaller budget.**
 
@@ -33,7 +33,7 @@ James Gunn writes it and directs it, and he runs the studio that releases it. He
 - The Batman (2022), directed by Matt Reeves and starring Robert Pattinson, grossed \$772.8M worldwide: \$369.8M domestic and \$403.0M international (52% of the total from overseas). ([boxofficemojo.com](https://www.boxofficemojo.com/title/tt1877830/))
 - James Gunn's Superman (2025), starring David Corenswet, grossed \$618.7M worldwide: \$354.2M domestic and \$264.5M international, with only 42.7% of the total coming from overseas. ([boxofficemojo.com](https://www.boxofficemojo.com/title/tt5950044/))
 - The two properties live in separate continuities: Superman anchors Gunn's rebooted DCU ('Gods and Monsters' phase), while The Batman sits in a standalone 'Batman Epic Crime Saga' outside that shared universe. ([deadline.com](https://deadline.com/2025/07/james-gunn-matt-reeves-the-batman-ii-script-finished-1236451553/))
-- Filming in London on The Batman Part II was paused on October 5, 2026 while director Matt Reeves steps away for a family matter, and the studio gives no restart date. The release date is still February 18, 2028, after three delays (the latest moved it from October 1, 2027 into the four-day Presidents Day weekend), and Deadline's sources say it is too early to tell whether the pause affects that date. ([deadline.com](https://deadline.com/2026/10/the-batman-part-ii-production-pause-matt-reeves-1237146807/))
+- Production on The Batman Part II has resumed after the October 5, 2026 pause. Steven Soderbergh is helping complete the final weeks of principal photography while director Matt Reeves attends to a family matter, and Reeves is reported to retake the reins when the film enters post-production. The release date is still February 18, 2028, after three delays. ([entertainmentnow.com](https://entertainmentnow.com/news/robert-pattinson-batman-part-two-production-pause/))
 
 ## Recent Strategic Moves
 
@@ -113,27 +113,27 @@ The reboot opened to \$125M, the biggest DC debut since The Batman, with strong 
 
 **"Batman can't even ship a sequel. It's been delayed three times, and now production has stopped."**
 
-Production on The Batman Part II was temporarily paused on October 5, 2026 while director Matt Reeves steps away for a family matter, per a Warner Bros. and DC Studios statement. The release date is still February 18, 2028. The studio gives no restart date, and Deadline's sources say it is too early to tell whether the pause affects that date. The three earlier delays are history: Gunn said they came down to the unfinished script, and the last one gave Reeves more post-production time on a sequel to the \$772M original.
+Production has not stopped. It resumed after the October 5 pause, with Steven Soderbergh helping complete the final weeks of principal photography while Matt Reeves attends to a family matter. Reeves is reported to return for post-production, and the date is still February 18, 2028. The three earlier delays are history: Gunn said they came down to the unfinished script, and the last one gave Reeves more post-production time on a sequel to the \$772M original.
 
-**So what:** Bring up the pause yourself and repeat the studio's words: temporary, date unchanged, no restart date announced. Do not guess at a restart. Then move to what Batman owns: it works without a shared universe, so its value does not depend on anyone else's slate. ([deadline.com](https://deadline.com/2026/10/the-batman-part-ii-production-pause-matt-reeves-1237146807/))
+**So what:** Bring up the pause yourself: filming has resumed and the date is unchanged. Then move to what Batman owns: it works without a shared universe, so its value does not depend on anyone else's slate. ([entertainmentnow.com](https://entertainmentnow.com/news/robert-pattinson-batman-part-two-production-pause/))
 
 **"Batman isn't even in the main DC Universe. It's a sidelined Elseworlds story."**
 
-DC labels our Batman 'DC-Elseworlds,' outside Gunn's DCU. That gives it creative freedom, and it is the Batman with a release date: February 18, 2028. Filming has been paused since October 5 with no restart date. The DCU's own Batman, 'The Brave and the Bold,' has no cast and no date.
+DC labels our Batman 'DC-Elseworlds,' outside Gunn's DCU. That gives it creative freedom, and it is the Batman with a release date: February 18, 2028. Filming paused on October 5 and has resumed. The DCU's own Batman, 'The Brave and the Bold,' has no cast and no date.
 
-**So what:** Outside the DCU, The Batman is insulated from the reboot's risks, and it is the only Batman story with a date on the calendar. Say the pause out loud, then point to the date. ([deadline.com](https://deadline.com/2026/10/the-batman-part-ii-production-pause-matt-reeves-1237146807/))
+**So what:** Outside the DCU, The Batman is insulated from the reboot's risks, and it is the only Batman story with a date on the calendar. Say filming is back under way, then point to the date. ([entertainmentnow.com](https://entertainmentnow.com/news/robert-pattinson-batman-part-two-production-pause/))
 
 **"Superman has visible momentum (Man of Tomorrow is filming) and Batman has nothing new until 2028."**
 
-The gap is wider now. Our sequel's date moved to February 18, 2028, about seven months behind Man of Tomorrow's planned July 2027 date, and our own filming was temporarily paused on October 5 while Matt Reeves steps away for a family matter. The studio still holds the February 18, 2028 date and has given no restart date. The original grossed \$772M on a deliberate timeline.
+The gap is real. Our sequel is dated February 18, 2028, about seven months behind Man of Tomorrow's planned July 2027 date. Our own filming paused on October 5 and has since resumed, with Steven Soderbergh helping complete principal photography, and the studio still holds the date. The original grossed \$772M on a deliberate timeline.
 
-**So what:** Concede the gap and state the pause and the unchanged date as the studio did. Then pivot to track record: the original made \$772M, and Batman stands on its own without a shared universe. ([deadline.com](https://deadline.com/2026/10/the-batman-part-ii-production-pause-matt-reeves-1237146807/))
+**So what:** Concede the seven-month gap and say filming is back under way with the date unchanged. Then pivot to track record: the original made \$772M, and Batman stands on its own without a shared universe. ([entertainmentnow.com](https://entertainmentnow.com/news/robert-pattinson-batman-part-two-production-pause/))
 
 **"Batman talent burns out: Ben Affleck called the role 'a really excruciating experience' and quit the genre."**
 
-That quote is real, but it's about the *previous* regime's DCEU Batman, not Reeves' film. Affleck's frustration was with a project that Robert Pattinson's grounded, acclaimed Batman has nothing to do with. Pattinson is signed and the sequel's script is finished. Production is temporarily paused while Reeves steps away for a family matter, per the studio.
+That quote is real, but it's about the *previous* regime's DCEU Batman, not Reeves' film. Affleck's frustration was with a project that Robert Pattinson's grounded, acclaimed Batman has nothing to do with. Pattinson is signed and the sequel's script is finished. Production resumed after a pause while Reeves attends to a family matter, and Pattinson said on October 26 that he would return in a couple of days.
 
-**So what:** Separate the eras cleanly: the unhappy exit belongs to the universe Superman is rebooting away from, while our current Batman has a signed star and a finished script. ([deadline.com](https://deadline.com/2026/10/the-batman-part-ii-production-pause-matt-reeves-1237146807/))
+**So what:** Separate the eras cleanly: the unhappy exit belongs to the universe Superman is rebooting away from, while our current Batman has a signed star, a finished script and a production that is back under way. ([entertainmentnow.com](https://entertainmentnow.com/news/robert-pattinson-batman-part-two-production-pause/))
 
 ## Cut Log
 
