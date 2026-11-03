@@ -28,9 +28,11 @@ ChatGPT remains the most-used AI assistant in the world at over 1.1 billion mont
 
 **But OpenAI's footing is slipping, and that opens the 'safe default' wedge.**
 
-By the end of May, ChatGPT's assistant market share fell to 46.4%, below 50% for the first time, as Gemini and Claude climbed. The inevitability narrative that wins OpenAI its default deals is weakening.
+ChatGPT's assistant market share fell to 46.4% by the end of May, below 50% for the first time, and OpenAI has now retired two agent-building products in about three months: the Assistants API on August 26 and Agent Builder on November 30.
 
-**So what:** Challenge the 'nobody gets fired for buying OpenAI' reflex with the share trend plus their model-deprecation churn. ([techcrunch.com](https://techcrunch.com/2026/06/16/chatgpts-market-share-slips-below-50-for-first-time/))
+**Soundbite:** "OpenAI is the popular choice, but it has retired two agent-building products in three months, and what you build on Mistral runs on infrastructure you control."
+
+**So what:** Challenge the 'nobody gets fired for buying OpenAI' reflex with the share trend plus the two retired agent products, then offer to rebuild their agents on Mistral. ([developers.openai.com](https://developers.openai.com/api/docs/deprecations.md))
 
 **Mistral's real exposure is scale, and reps should name it before the buyer does.**
 
@@ -104,6 +106,7 @@ On September 25 OpenAI disclosed that its agents touched Education, Commerce and
 - On June 24, 2026 OpenAI and Broadcom unveiled Jalapeño, OpenAI's first custom inference chip, an ASIC designed end to end in nine months and built by Broadcom. OpenAI frames it as building 'the full stack' to serve inference more cheaply and cut its dependence on Nvidia GPUs, with early results cited as significantly better performance-per-watt than current state of the art. It is not shipping yet: initial deployment is targeted by the end of 2026 with small prototypes late this year, ramping in 2027 and reaching full scale in the first half of 2028. ([cnbc.com](https://www.cnbc.com/2026/06/24/openai-and-broadcom-reveal-jalapeno-first-ai-chip-in-partnership.html))
 - On June 14 OpenAI launched its first formal global Partner Network, a \$150 million program with Accenture, Bain, BCG, McKinsey and PwC, targeting 300,000 certified consultants by year-end. It is a channel land-grab that Anthropic beat to market by three months. ([techtimes.com](https://www.techtimes.com/articles/318436/20260615/openai-launches-partner-network-150m-bet-that-implementation-beats-model-power.htm))
 - OpenAI's Codex hit back-to-back service incidents in June, including a June 3 outage with elevated error rates across Codex, ChatGPT and the Responses API. Reliability of the agentic coding surface is a live concern for enterprise developers. ([status.openai.com](https://status.openai.com/incidents/01KT5XJ5ATD6RMYP908WS69FVD))
+- OpenAI is shutting down Agent Builder, its visual tool for building agents, on November 30, 2026. Its Evals dashboard and API and its reusable prompt objects shut down the same day, and existing evals became read-only on October 31. OpenAI announced the shutdown on June 3 and points customers to its Agents SDK or ChatGPT Workspace Agents, so anything built in Agent Builder has to be rebuilt by the end of the month. This follows OpenAI's retirement of the Assistants API on August 26, 2026, which means OpenAI has now retired two of its agent-building products within about three months. ([developers.openai.com](https://developers.openai.com/api/docs/deprecations.md))
 - On June 1 Florida's Attorney General sued OpenAI and named CEO Sam Altman personally, alleging the company put profit over user safety. It is one of several active legal and regulatory actions that OpenAI must disclose ahead of its IPO. ([nbcnews.com](https://www.nbcnews.com/tech/tech-news/florida-sues-openai-sam-altman-saying-put-profit-safety-rcna347602))
 - On April 27 OpenAI and Microsoft restructured their deal: the IP license is no longer exclusive, OpenAI can now serve products on any cloud, and Microsoft stopped paying revenue share. It frees OpenAI to compete on AWS and Google but ends Azure-only routing. ([cnbc.com](https://www.cnbc.com/2026/04/27/openai-microsoft-partnership-revenue-cap.html))
 
@@ -164,6 +167,12 @@ Work Mode runs long-running multi-step tasks across Google Workspace, Outlook, S
 Mistral OCR 4 launched June 23, 2026, returning bounding boxes, typed-block classification (titles, tables, equations, signatures), and per-page and per-word confidence scores alongside extracted text. It covers 170 languages across 10 language groups and ships as a single container for fully air-gapped deployment. Pricing is \$4 per 1,000 pages, dropping to \$2 with the Batch API. Mistral reports a 72% average win rate in blind human evaluations against leading systems and the top score on OlmOCRBench (85.20); Mistral itself notes these benchmark figures are directional rather than definitive.
 
 **Soundbite:** Our document-intelligence model runs on-prem in a single container at \$2 per 1,000 pages with the Batch API, covering 170 languages, with no data leaving your infrastructure. ([mistral.ai](https://mistral.ai/news/ocr-4/))
+
+**Anything built in OpenAI's Agent Builder has to be rebuilt this month.**
+
+OpenAI shuts down Agent Builder on November 30, along with its Evals dashboard and API and its reusable prompt objects. Existing evals went read-only on October 31. OpenAI points customers to its Agents SDK or ChatGPT Workspace Agents, so every Agent Builder customer is rebuilding either way. That rebuild can land on Mistral instead, where our Apache 2.0 models run on infrastructure you control.
+
+**Soundbite:** "You have to rebuild those agents by November 30 whichever vendor you pick, so rebuild them on models you can run on your own hardware." ([developers.openai.com](https://developers.openai.com/api/docs/deprecations.md))
 
 ### Where it's a fight
 

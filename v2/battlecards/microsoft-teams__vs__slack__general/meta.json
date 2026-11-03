@@ -4,7 +4,7 @@
   "competitor": "Slack",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-11-02T12:10:04",
+  "last_checked": "2026-11-03T12:09:26",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7e46a6f50a55",
@@ -21,7 +21,8 @@
     "f_db91c33dbae4",
     "f_9fc5521d0bc4",
     "f_909dd18024f6",
-    "f_848b51ea8170"
+    "f_848b51ea8170",
+    "f_553dd52c78d3"
   ],
   "monitored": true,
   "watch": {
@@ -31,22 +32,5 @@
     ],
     "job_boards": []
   },
-  "last_check_reason": "scheduled",
-  "pending_candidates": {
-    "my_company": [
-      {
-        "signal": "Microsoft Teams: Enhanced Copilot access controls for meetings reach GA in November 2026 on Mac; organizers manage Copilot availability per meeting",
-        "subject_key": "microsoft-teams | copilot-meeting-access-gating",
-        "about": "my_company",
-        "valence": "front_foot",
-        "substantial": true,
-        "why_new": "New governance feature enabling organizers/admins to gate Copilot access in meetings, announced for GA in November 2026. This status flip (preview→GA) is not captured in existing tracked claims on Teams' Copilot features and represents a new control-plane capability.",
-        "source_hint": "https://m365admin.handsontek.net/?p=25308"
-      }
-    ],
-    "since": "2026-10-31",
-    "my_since": "2026-10-31",
-    "attempts": 1,
-    "reason": "own-side candidates did not ground"
-  }
+  "last_check_reason": "scheduled"
 }
