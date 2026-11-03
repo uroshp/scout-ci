@@ -151,6 +151,10 @@ class Runner(unittest.TestCase):
         self.assertEqual(store.writes, []); self.assertIn("0 replayed, 2 already done", out)
         out = _run(["--backend", "ollama_gemma4", "--no-window", "--run", "--write", "--redo-period"], store)
         self.assertEqual(store.writes, ["shadow_models/ollama_gemma4/2026-09/c_1.json"])
+        # newest first under --redo-period: a later capture is replayed before an earlier stale one
+        store2 = _Store([call("c_old", run_ts="2026-09-27T04:10:00"), call("c_new", run_ts="2026-09-28T04:10:00")])
+        _run(["--backend", "ollama_gemma4", "--no-window", "--run", "--write", "--redo-period"], store2)
+        self.assertEqual([w.rsplit("/", 1)[1] for w in store2.writes], ["c_new.json", "c_old.json"])
         self.assertIn("1 of 2 stored results are from an earlier settings period", out); self.assertIn("1 replayed, 1 already done", out)
 
     def test_backends_run_in_the_given_order_each_with_its_own_done_set(self):

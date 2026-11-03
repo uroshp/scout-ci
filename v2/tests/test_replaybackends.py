@@ -124,7 +124,9 @@ class Backends(unittest.TestCase):
         self.assertEqual((gpt["think"], gpt["think_level"], gpt["temperature"], gpt["top_p"]), (True, "medium", 1.0, None))
         self.assertEqual(rb.settings_key("ollama_gptoss")["sampling"]["think_level"], "medium")
         self.assertIsNone(rb.ollama_cfg("ollama_bolt")["think_level"])
-        self.assertEqual(len(rb.OLLAMA_MODELS), 4)   # Bolt E4B joins with the Ollama upgrade (see the registry comment)
+        self.assertEqual(len(rb.OLLAMA_MODELS), 5)   # Magistral, Gemma 4, gpt-oss, Bolt E4B, Nano 30B (2026-11-02)
+        n30 = rb.ollama_cfg("ollama_nano30b")
+        self.assertEqual((n30["vendor"], n30["think"], n30["temperature"], n30["top_p"], n30["think_reserve"]), ("NVIDIA", True, 0.6, 0.95, 8192))
 
     def test_ollama_request_carries_the_arm_sampling(self):
         body = {"message": {"role": "assistant", "content": '{"verdict":"confirm","reason":"r"}', "thinking": "t"},

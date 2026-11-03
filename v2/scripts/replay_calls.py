@@ -158,6 +158,11 @@ def main():
             if mode in ("frozen", "loop") and not tools_on:
                 continue
             plan.append((mode, c))
+    if args.redo_period:
+        # a backfill works newest-first (2026-11-02, Uroš: the machine is free in windows he names):
+        # tonight's capture before yesterday's stale rows, and a window that ends mid-way leaves
+        # the freshest calls done
+        plan.sort(key=lambda mc: mc[1].get("run_ts") or "", reverse=True)
     if args.limit is not None:
         plan = plan[:args.limit]
     print(f"bundles={len(paths)} since={since or 'all'}  calls={len(calls)}  planned={len(plan)}  "

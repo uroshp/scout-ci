@@ -114,6 +114,13 @@ OLLAMA_MODELS = {
     # 1.0, top_p 0.95, top_k 64. Smoke 11/2: 10 of 10 answered and parsed, 27 s to 196 s a call.
     "ollama_bolt": _arm("BOLT", "nemotron-3.5-bolt:e4b-q8_0", "NVIDIA", think=True, think_reserve=8192,
                         temperature=1.0, top_p=0.95, top_k=64),
+    # NVIDIA Nemotron 3 Nano 30B-A3B, the peer to Gemma 4 26B-A4B (30B total, ~3.5B active, hybrid
+    # Mamba-2 MoE). Ollama's own builds are 24 GB (GGUF) or MLX-only (18 GB, gated to 32 GB Macs);
+    # this is unsloth's IQ4_XS GGUF, 18.2 GB, which fits once macOS lets the GPU take 21 GB
+    # (`sudo sysctl iogpu.wired_limit_mb=21504`, Uroš 2026-11-02; resets at reboot). NVIDIA's Nano
+    # card: reasoning on at temperature 0.6, top_p 0.95; budget 8192 like the other arms.
+    "ollama_nano30b": _arm("NANO30B", "hf.co/unsloth/Nemotron-3-Nano-30B-A3B-GGUF:IQ4_XS", "NVIDIA",
+                           think=True, think_reserve=8192, temperature=0.6, top_p=0.95),
 }
 BACKENDS = ("apple_ondevice", *OLLAMA_MODELS, "anthropic")
 LOCAL_BACKENDS = ("apple_ondevice", *OLLAMA_MODELS)
