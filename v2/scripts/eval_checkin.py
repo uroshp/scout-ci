@@ -83,6 +83,14 @@ def _slices_block(sl: dict | None) -> str:
     out = f"  - PERIODS (derived-capture fix {sl['fix_stamp'][:10]}):\n"
     out += one("  pre-fix (old capture, interpretations judged blind)", sl["period"]["pre_fix"])
     out += one("  post-fix", sl["period"]["post_fix"])
+    if sl.get("periods"):
+        out += f"  - NAMED PERIODS (current: {sl.get('current')}; an instruction or model change opens one):\n"
+        for n, x in sl["periods"].items():
+            out += one(f"  {n}", x)
+    if sl.get("by_model"):
+        out += "  - BY CHALLENGER MODEL:\n"
+        for m, x in sl["by_model"].items():
+            out += one(f"  {m}", x)
     out += "  - BY EVIDENCE MODE:\n"
     for m, x in sl["by_evidence_mode"].items():
         out += one(f"  {m}", x)

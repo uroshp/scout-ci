@@ -197,7 +197,7 @@ MY_FACTS_MAX_BUDGET_USD = float(os.environ.get("SCOUT_MY_FACTS_MAX_BUDGET_USD", 
 # so its model must not move — changing it would break the running comparison against the accumulated
 # data. Decoupled from SUBAGENT_MODEL on 2026-06-30 when that moved to Sonnet 5. Revisit once the
 # current eval concludes.
-CHALLENGER_MODEL = os.environ.get("CHALLENGER_MODEL", "claude-sonnet-4-6")
+CHALLENGER_MODEL = os.environ.get("CHALLENGER_MODEL", "claude-sonnet-5-5")   # Sonnet 4.6 until 2026-11-02 (Uroš: latest); period boundary in challenger.PERIODS
 CHALLENGER_MAX_TURNS = int(os.environ.get("SCOUT_CHALLENGER_MAX_TURNS", "4"))
 CHALLENGER_MAX_BUDGET_USD = float(os.environ.get("SCOUT_CHALLENGER_MAX_BUDGET_USD", "0.50"))
 # Propagation mode (step 5) — the shadow-first ladder for the AUTHORSHIP judge (spec §17):

@@ -142,15 +142,15 @@ class Runner(unittest.TestCase):
         # redone with --redo-period; one under the current settings stays done; without the flag
         # both count as done (the nightly lane never backfills on its own)
         store = _Store([call("c_1"), call("c_2")])
-        old = {"backend": "ollama_nemotron", "call_id": "c_1", "backend_version":
-               {"tag": "nemotron-3-nano:4b-q8_0", "num_ctx": 49152, "thinking": False, "vendor": "NVIDIA"}}
-        cur = {"backend": "ollama_nemotron", "call_id": "c_2", "backend_version": {**rb.settings_key("ollama_nemotron"), "digest": "d"}}
-        store.files["shadow_models/ollama_nemotron/2026-09/c_1.json"] = json.dumps(old)
-        store.files["shadow_models/ollama_nemotron/2026-09/c_2.json"] = json.dumps(cur)
-        out = _run(["--backend", "ollama_nemotron", "--no-window", "--run", "--write"], store)
+        old = {"backend": "ollama_gemma4", "call_id": "c_1", "backend_version":
+               {"tag": "gemma4:26b-a4b-it-qat", "num_ctx": 32768, "thinking": False, "vendor": "Google"}}
+        cur = {"backend": "ollama_gemma4", "call_id": "c_2", "backend_version": {**rb.settings_key("ollama_gemma4"), "digest": "d"}}
+        store.files["shadow_models/ollama_gemma4/2026-09/c_1.json"] = json.dumps(old)
+        store.files["shadow_models/ollama_gemma4/2026-09/c_2.json"] = json.dumps(cur)
+        out = _run(["--backend", "ollama_gemma4", "--no-window", "--run", "--write"], store)
         self.assertEqual(store.writes, []); self.assertIn("0 replayed, 2 already done", out)
-        out = _run(["--backend", "ollama_nemotron", "--no-window", "--run", "--write", "--redo-period"], store)
-        self.assertEqual(store.writes, ["shadow_models/ollama_nemotron/2026-09/c_1.json"])
+        out = _run(["--backend", "ollama_gemma4", "--no-window", "--run", "--write", "--redo-period"], store)
+        self.assertEqual(store.writes, ["shadow_models/ollama_gemma4/2026-09/c_1.json"])
         self.assertIn("1 of 2 stored results are from an earlier settings period", out); self.assertIn("1 replayed, 1 already done", out)
 
     def test_backends_run_in_the_given_order_each_with_its_own_done_set(self):

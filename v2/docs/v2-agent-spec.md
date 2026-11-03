@@ -55,7 +55,7 @@ Defaults verified against Anthropic docs (June 2026), but **never hardcoded** â€
 
 ```
 ORCHESTRATOR_MODEL=claude-opus-4-8     # judgment: planning, materiality, synthesis, consistency
-SUBAGENT_MODEL=claude-sonnet-4-6       # legwork: research + verification, run in parallel
+SUBAGENT_MODEL=claude-sonnet-5-5       # legwork: research + verification, run in parallel
 FAST_MODEL=claude-sonnet-4-6           # cheap triage gate (could be a haiku-class model)
 ```
 

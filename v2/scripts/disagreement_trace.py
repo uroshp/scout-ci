@@ -27,7 +27,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 
 from scout import arbiter, modelcompare, selfserve  # noqa: E402
 
-LOCAL = ("ollama", "ollama_gemma4", "ollama_nemotron", "apple_ondevice")
+LOCAL = ("ollama", "ollama_gemma4", "ollama_gptoss", "ollama_bolt", "ollama_nemotron", "apple_ondevice")   # nemotron = retired, history
 REFERENCE = "anthropic"
 
 

@@ -127,7 +127,18 @@ def build(now: datetime) -> tuple[dict, str]:
         state = "did not run today" if n_today == 0 else f"{n_today} today"
         warm = "  (warming up: below the common-population threshold)" if name in (sc.get("warming_up") or []) else ""
         hist = f"  (+{history[name]} from earlier settings, set aside)" if history.get(name) else ""
-        lines.append(f"- {name}: {vendor} {tag}: {n_all} results, {state}{warm}{hist}")
+        # Reasoning traces (2026-11-02): an arm set to reason whose answers carry no trace is a
+        # finding, not a setting. Magistral ran five weeks with "thinking on" and 0 traces in 910
+        # answers before anyone looked at the output instead of the config.
+        ok_today = [r for r in results if r.get("backend") == name and str(r.get("replayed_at", ""))[:10] == today and r.get("status") == "ok"]
+        traced = sum(1 for r in ok_today if (r.get("thinking") or "").strip())
+        think_on = name == "apple_ondevice" and False or bool((_rb.OLLAMA_MODELS.get(name) or {}).get("think"))
+        trace_note = ""
+        if think_on and ok_today:
+            hits = sum(1 for r in ok_today if (r.get("budget") or {}).get("budget_hit"))
+            trace_note = (f"; reasoning traces {traced} of {len(ok_today)} answers today, budget hit {hits}"
+                          + ("  <-- REASONING SET ON BUT NO TRACE" if traced == 0 else ""))
+        lines.append(f"- {name}: {vendor} {tag}: {n_all} results, {state}{warm}{hist}{trace_note}")
     lines.append("")
     # brief-ready summary (2026-10-01): what the executive brief needs, without re-reading results
     brief_arms = []
