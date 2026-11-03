@@ -289,6 +289,23 @@ class Scorecard(unittest.TestCase):
         sc = mc.scorecard([a1, a2], {})
         self.assertEqual(len(sc["cells"]["apple_ondevice|judge"]["full"]["periods"]), 2)
 
+    def test_earlier_period_rows_are_history_not_pooled(self):
+        # 2026-11-02: an Ollama arm's rows written under other settings (here: reasoning off) are set
+        # aside and reported, never pooled with the current period; rows with no settings on record
+        # and other arms pass through
+        from scout import replaybackends as rb
+        cur = {**rb.settings_key("ollama_nemotron"), "digest": "d"}
+        off = {"tag": "nemotron-3-nano:4b-q8_0", "num_ctx": 49152, "thinking": False, "vendor": "NVIDIA"}
+        n1 = self._res("ollama_nemotron", "c_1", self.JUDGE_REF, version=cur)
+        n2 = self._res("ollama_nemotron", "c_2", self.JUDGE_REF, version=off)
+        a1 = self._res("apple_ondevice", "c_1", self.JUDGE_REF, version={"macos_build": "x"})
+        sc = mc.scorecard([n1, n2, a1], {})
+        self.assertEqual(sc["cells"]["ollama_nemotron|judge"]["full"]["n_results"], 1)
+        self.assertEqual(sc["history"], {"ollama_nemotron": 1})
+        self.assertEqual(sc["cells"]["apple_ondevice|judge"]["full"]["n_results"], 1)
+        kept, hist = mc.current_period([n1, n2, a1])
+        self.assertEqual([r["call_id"] for r in kept if r["backend"] == "ollama_nemotron"], ["c_1"]); self.assertEqual(hist, {"ollama_nemotron": 1})
+
     def test_prompt_size_slices(self):
         a1 = self._res("apple_ondevice", "c_1", self.JUDGE_REF, est=2000)
         a2 = self._res("apple_ondevice", "c_2", self.JUDGE_REF, est=9000)

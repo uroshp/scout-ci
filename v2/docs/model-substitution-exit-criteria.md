@@ -25,12 +25,29 @@ could hold that role. Nothing here changes the older lanes' bars.
 - The Ollama arms (one backend NAME per model, each its own results folder, scorecard column and
   streak; run one after another, each alone on the box, unloaded before the next loads; the order
   rotates by weekday; per-arm cap 45 min inside the 05:00-08:30 window). Registry:
-  `replaybackends.OLLAMA_MODELS`. Temperature 0, seed, generation bounded by the role's output
-  reserve plus the arm's thinking reserve (`num_predict`). Magistral: thinking on, `num_ctx`
-  49152 (raised from 16384 on 2026-09-29: Scout's largest prompt is ~15.6k tokens). Gemma 4 and
-  Nemotron: thinking OFF (with it on, both looped through 8192 reasoning tokens on a research
-  prompt and answered nothing, three tries on 2026-09-30); Gemma at `num_ctx` 32768 (the 48k KV
-  cache spilled off the GPU), Nemotron at 49152.
+  `replaybackends.OLLAMA_MODELS`. Seed, generation bounded by the role's output reserve plus the
+  arm's reasoning reserve (`num_predict`). Reasoning ON for all three since 2026-11-02 (Uroš: a
+  local arm that cannot reason is not a fair comparison against a cloud judge that does). Magistral:
+  temperature 0, reserve 2048, `num_ctx` 49152 (raised from 16384 on 2026-09-29: Scout's largest
+  prompt is ~15.6k tokens). Nemotron and Gemma 4 ran reasoning OFF from 2026-09-30 to 2026-11-02
+  because, at temperature 0, both looped through the whole reasoning budget on a long prompt and
+  answered nothing; the vendor cards say greedy decoding is for reasoning-off mode. Each now runs its
+  vendor's recommended reasoning-mode sampling (NVIDIA Nano card: temperature 0.6, top_p 0.95;
+  Gemma 4 card: temperature 1.0, top_p 0.95, top_k 64) with a reasoning reserve of 8192 (NVIDIA's RAG
+  blueprint uses the same budget). A call still reasoning at the bound is continued ONCE: the trace,
+  cut at its last newline, goes back as the assistant's thinking (the renderer puts it in the think
+  block), reasoning off, and the model answers under the schema with the role's output reserve; the
+  result records `budget_hit`, `continuation` and `done_reason`. Gemma at `num_ctx` 32768 (the 48k
+  KV cache spilled off the GPU), Nemotron at 49152. The reasoning budget ADAPTS to the room a prompt
+  leaves (`replaybackends.ollama_budget`, 2026-11-02, Uroš: no exclusions): a prompt that leaves
+  the role's answer reserve plus 512 tokens runs, with a smaller budget when it must; only a prompt
+  that leaves less is `context_exceeded`. Borderline prompts are counted exactly on the server (a
+  one-token call whose evaluation the real call re-uses from the cache); the chars/3 estimate ran
+  0.78 to 1.12 of the count on the 11/2 smoke. On the last 14 days of captures nothing is excluded on
+  any arm (the longest prompt, a 28.7k-estimate materiality call, counts about 23k tokens).
+  Smoke 2026-11-02 (reasoning on, nothing written): Nemotron 10 of 10 answered and parsed in 19 s to
+  190 s a call, traces 1.1k to 7.5k characters; Gemma 9 of 10 (the skip above), 52 s to 258 s,
+  traces 5k to 15k characters; no budget hit on either.
   - `ollama` = Mistral AI, Magistral Small 1.2 24B q4_K_M (the original arm; the name stays so
     its labels and streaks hold).
   - `ollama_nemotron` = NVIDIA, Nemotron 3 Nano 4B q8_0 (added 2026-09-30). NVIDIA's 30B MoE
@@ -86,7 +103,13 @@ live escalation; materiality missed material.
   agreed, and never an item for the arbiter (no verdict was written). The table prints these as
   "+N unnamed" next to the disagreements (2026-10-19: an empty candidate list read as agreement n/a).
 - Period key = `(backend_version, reference_model)`. A new key resets the streak and prints "new
-  period, no prior". Results are never pooled across periods.
+  period, no prior". Results are never pooled across periods: the scorecard keeps, per Ollama arm,
+  only the rows whose recorded settings (tag, context, reasoning, sampling: `replaybackends.settings_key`)
+  are the arm's current ones and reports the rest as `history` (enforced since 2026-11-02; before
+  that the rule was documented, not applied). A settings change therefore starts the arm's cells
+  empty ("warming up" until 20 calls); `scripts/replay_calls.py --redo-period` re-runs the window's
+  calls whose stored result is from an earlier period (run it with the store mirror env so the
+  per-result reads come from the clone, not the API).
 - Reference eligibility: `status == ok`, parses with the live parser, `record.model` equals the
   role's primary model. Fallback-judged and unparsed references are tallied `reference_unusable`.
 

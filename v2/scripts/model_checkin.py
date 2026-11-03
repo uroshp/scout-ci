@@ -101,7 +101,7 @@ def _same_period(prior_key, period_key, role) -> bool:
 
 def build(now: datetime) -> tuple[dict, str]:
     from scout import modelcompare
-    results = modelcompare.load_results()
+    results, history = modelcompare.current_period(modelcompare.load_results())   # earlier settings periods set aside (2026-11-02)
     labels = modelcompare.load_labels()
     sc = modelcompare.scorecard(results, labels)
     cost = modelcompare.cost_view(_recent_bundles())
@@ -111,6 +111,8 @@ def build(now: datetime) -> tuple[dict, str]:
                  f"common population per role={sc.get('common_n_by_role')}  bar={BAR - MARGIN} "
                  f"({'parity' if not MARGIN else f'margin -{MARGIN}'}); metric = candidate-right vs the live model on "
                  f"human-adjudicated disagreements\n")
+    if history:
+        lines.append(f"earlier-period results set aside, never pooled (an arm's settings changed): {history}\n")
     # Arms (2026-09-30): every configured local arm, its vendor + tag, how many results it left
     # TODAY, and whether it is still warming up (below the common-population threshold). An arm
     # with nothing today reads "did not run"; the lanes canary looks for that line.
@@ -124,7 +126,8 @@ def build(now: datetime) -> tuple[dict, str]:
         n_today = sum(1 for r in results if r.get("backend") == name and str(r.get("replayed_at", ""))[:10] == today)
         state = "did not run today" if n_today == 0 else f"{n_today} today"
         warm = "  (warming up: below the common-population threshold)" if name in (sc.get("warming_up") or []) else ""
-        lines.append(f"- {name}: {vendor} {tag}: {n_all} results, {state}{warm}")
+        hist = f"  (+{history[name]} from earlier settings, set aside)" if history.get(name) else ""
+        lines.append(f"- {name}: {vendor} {tag}: {n_all} results, {state}{warm}{hist}")
     lines.append("")
     # brief-ready summary (2026-10-01): what the executive brief needs, without re-reading results
     brief_arms = []

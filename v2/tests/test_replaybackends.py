@@ -101,9 +101,114 @@ class Backends(unittest.TestCase):
         self.assertEqual(sent["format"]["properties"]["verdict"]["enum"], ["confirm", "reject"])
         self.assertEqual(r["thinking"], "hmm"); self.assertEqual(r["reasoning"], "thinking")
         big = rec("judge", user="w" * (rb.OLLAMA_NUM_CTX * 3))
-        with mock.patch.object(rb, "ollama_version", return_value={}), mock.patch.object(rb.httpx, "post") as post:
+        with mock.patch.object(rb, "ollama_version", return_value={}), mock.patch.object(rb.httpx, "post") as post, \
+             mock.patch.object(rb, "ollama_count_tokens", return_value=None):
             r2 = rb.drive_replay(big, "ollama")
         self.assertEqual((r2["status"], r2["reason"]), ("skipped", "context_exceeded")); post.assert_not_called()
+
+    def test_small_arms_reason_with_vendor_sampling_and_magistral_key_is_unchanged(self):
+        # 2026-11-02 (Uroš): reasoning ON for Nemotron and Gemma under their vendors' reasoning-mode
+        # sampling and a budget; Magistral untouched, so its settings key (its period) is unchanged.
+        nem, gem, mag = rb.ollama_cfg("ollama_nemotron"), rb.ollama_cfg("ollama_gemma4"), rb.ollama_cfg("ollama")
+        self.assertTrue(nem["think"]); self.assertEqual((nem["temperature"], nem["top_p"], nem["think_reserve"]), (0.6, 0.95, 8192))
+        self.assertTrue(gem["think"]); self.assertEqual((gem["temperature"], gem["top_p"], gem["top_k"]), (1.0, 0.95, 64))
+        self.assertTrue(mag["think"]); self.assertEqual((mag["temperature"], mag["top_p"], mag["top_k"]), (0.0, None, None))
+        self.assertEqual(rb.settings_key("ollama"), {"tag": mag["tag"], "num_ctx": mag["num_ctx"], "thinking": True, "vendor": "Mistral AI"})
+        self.assertEqual(rb.settings_key("ollama_nemotron")["sampling"], {"temperature": 0.6, "top_p": 0.95, "top_k": None, "think_reserve": 8192})
+
+    def test_ollama_request_carries_the_arm_sampling(self):
+        body = {"message": {"role": "assistant", "content": '{"verdict":"confirm","reason":"r"}', "thinking": "t"},
+                "done_reason": "stop", "prompt_eval_count": 80, "eval_count": 30}
+        with mock.patch.object(rb, "ollama_version", return_value={"tag": "n"}), \
+             mock.patch.object(rb.httpx, "post", return_value=_Resp(200, body)) as post:
+            r = rb.drive_replay(rec("gate_judge"), "ollama_nemotron")
+        sent = post.call_args.kwargs["json"]
+        self.assertTrue(sent["think"]); self.assertEqual(sent["options"]["temperature"], 0.6)
+        self.assertEqual(sent["options"]["top_p"], 0.95); self.assertNotIn("top_k", sent["options"])
+        self.assertEqual(sent["options"]["num_predict"], rb.rolespecs.output_reserve("gate_judge") + 8192)
+        self.assertEqual(post.call_count, 1); self.assertIs(r["budget_hit"], False); self.assertIsNone(r["continuation"])
+        self.assertEqual(r["done_reason"], "stop"); self.assertEqual(r["tokens"]["thinking_chars"], 1)
+
+    def test_ollama_budget_hit_is_continued_once_with_the_trace_closed(self):
+        # the model was still reasoning at num_predict: the trace (cut at its last newline) goes back
+        # as the assistant's thinking, reasoning off, and the model answers under the schema
+        first = {"message": {"role": "assistant", "content": "", "thinking": "step one\nstep two\nstep three unfin"},
+                 "done_reason": "length", "prompt_eval_count": 100, "eval_count": 8200}
+        second = {"message": {"role": "assistant", "content": '{"verdict":"reject","reason":"r"}'},
+                  "done_reason": "stop", "eval_count": 20}
+        with mock.patch.object(rb, "ollama_version", return_value={"tag": "n"}), \
+             mock.patch.object(rb.httpx, "post", side_effect=[_Resp(200, first), _Resp(200, second)]) as post:
+            r = rb.drive_replay(rec("gate_judge"), "ollama_nemotron")
+        self.assertEqual(post.call_count, 2)
+        follow = post.call_args_list[1].kwargs["json"]
+        self.assertFalse(follow["think"]); self.assertIn("format", follow)
+        self.assertEqual(follow["messages"][2], {"role": "assistant", "content": "", "thinking": "step one\nstep two"})
+        self.assertEqual(follow["messages"][3], {"role": "user", "content": rb.BUDGET_NUDGE})
+        self.assertEqual(follow["options"]["num_predict"], rb.rolespecs.output_reserve("gate_judge"))
+        self.assertEqual(follow["options"]["temperature"], 0.6)
+        self.assertEqual(r["text"], '{"verdict":"reject","reason":"r"}'); self.assertIs(r["budget_hit"], True)
+        self.assertEqual(r["continuation"], "chat_think_off"); self.assertEqual(r["tokens"]["output"], 8220)
+        self.assertEqual(r["reasoning"], "thinking"); self.assertEqual(r["status"], "ok")
+
+    def test_ollama_answer_cut_after_a_long_trace_is_also_continued(self):
+        # the smoke's judge call: the trace finished, the JSON answer hit the bound mid-way
+        first = {"message": {"role": "assistant", "content": '{ "verdicts": [ { "op_index": 0,', "thinking": "t1\nt2"},
+                 "done_reason": "length", "eval_count": 9000}
+        second = {"message": {"role": "assistant", "content": '{"verdict":"confirm","reason":"r"}'}, "done_reason": "stop", "eval_count": 30}
+        with mock.patch.object(rb, "ollama_version", return_value={"tag": "n"}), \
+             mock.patch.object(rb.httpx, "post", side_effect=[_Resp(200, first), _Resp(200, second)]) as post:
+            r = rb.drive_replay(rec("gate_judge"), "ollama_nemotron")
+        self.assertEqual(post.call_count, 2); self.assertIs(r["budget_hit"], True)
+        self.assertEqual(r["text"], '{"verdict":"confirm","reason":"r"}')
+        # Magistral (reasoning on, temperature 0) gets the same rescue
+        with mock.patch.object(rb, "ollama_version", return_value={"tag": "m"}), \
+             mock.patch.object(rb.httpx, "post", side_effect=[_Resp(200, first), _Resp(200, second)]) as post:
+            r = rb.drive_replay(rec("gate_judge"), "ollama")
+        self.assertEqual(post.call_count, 2); self.assertEqual(post.call_args_list[1].kwargs["json"]["options"]["temperature"], 0)
+
+    def test_ollama_reasoning_budget_adapts_to_the_room_left(self):
+        # 2026-11-02 (Uroš: no exclusions): a long prompt on Gemma's 32k window runs with a smaller
+        # reasoning budget instead of being skipped; the exact count comes from the server only
+        # for borderline prompts; below the minimum room the call is skipped
+        rb._count_cache.clear()
+        ok_body = {"message": {"role": "assistant", "content": '{"material":[]}', "thinking": "t"}, "done_reason": "stop",
+                   "prompt_eval_count": 23000, "eval_count": 40}
+        long = rec("materiality", user="w" * (25000 * 3))
+        with mock.patch.object(rb, "ollama_version", return_value={"tag": "g"}), \
+             mock.patch.object(rb, "ollama_count_tokens", return_value=23000) as count, \
+             mock.patch.object(rb.httpx, "post", return_value=_Resp(200, ok_body)) as post:
+            r = rb.drive_replay(long, "ollama_gemma4")
+        expect = 32768 - 23000 - rb.rolespecs.output_reserve("materiality") - rb.FIT_MARGIN
+        self.assertEqual(count.call_count, 1); self.assertEqual(r["think_budget"], expect); self.assertLess(expect, 8192)
+        self.assertEqual(post.call_args.kwargs["json"]["options"]["num_predict"], rb.rolespecs.output_reserve("materiality") + expect)
+        self.assertEqual((r["status"], r["prompt_count"]), ("ok", "counted"))
+        with mock.patch.object(rb, "ollama_version", return_value={"tag": "g"}), \
+             mock.patch.object(rb, "ollama_count_tokens", return_value=30500), mock.patch.object(rb.httpx, "post") as post:
+            r = rb.drive_replay(long, "ollama_gemma4")
+        self.assertEqual((r["status"], r["reason"], r["observed_token_count"]), ("skipped", "context_exceeded", 30500)); post.assert_not_called()
+        # the common case: no count, the full reserve
+        with mock.patch.object(rb, "ollama_version", return_value={"tag": "g"}), \
+             mock.patch.object(rb, "ollama_count_tokens") as count, mock.patch.object(rb.httpx, "post", return_value=_Resp(200, ok_body)):
+            r = rb.drive_replay(rec("judge"), "ollama_gemma4")
+        count.assert_not_called(); self.assertEqual((r["think_budget"], r["prompt_count"]), (8192, "estimate"))
+
+    def test_ollama_failed_continuation_keeps_the_empty_answer(self):
+        first = {"message": {"role": "assistant", "content": "", "thinking": "a\nb"}, "done_reason": "length", "eval_count": 5}
+        with mock.patch.object(rb, "ollama_version", return_value={"tag": "n"}), \
+             mock.patch.object(rb.httpx, "post", side_effect=[_Resp(200, first), _Resp(500, text="boom")]):
+            r = rb.drive_replay(rec("gate_judge"), "ollama_nemotron")
+        self.assertEqual(r["text"], ""); self.assertEqual(r["continuation"], "failed:500"); self.assertIs(r["budget_hit"], True)
+
+    def test_is_current_period_compares_settings_only(self):
+        cur = {**rb.settings_key("ollama_nemotron"), "digest": "abc", "quant": "Q8_0"}
+        self.assertTrue(rb.is_current_period({"backend": "ollama_nemotron", "backend_version": cur}))
+        off = {"tag": "nemotron-3-nano:4b-q8_0", "num_ctx": 49152, "thinking": False, "vendor": "NVIDIA", "digest": "abc"}
+        self.assertFalse(rb.is_current_period({"backend": "ollama_nemotron", "backend_version": off}))
+        mag16 = {"tag": rb.OLLAMA_TAG, "num_ctx": 16384, "thinking": True, "vendor": "Mistral AI"}
+        self.assertFalse(rb.is_current_period({"backend": "ollama", "backend_version": mag16}))
+        self.assertTrue(rb.is_current_period({"backend": "ollama", "backend_version": {**mag16, "num_ctx": rb.OLLAMA_NUM_CTX}}))
+        self.assertTrue(rb.is_current_period({"backend": "apple_ondevice", "backend_version": {"macos_build": "x"}}))
+        self.assertTrue(rb.is_current_period({"backend": "ollama", "backend_version": {"v": 1}}))   # no tag on record: kept
 
     def test_anthropic_refuses_without_allow_spend(self):
         with mock.patch.object(rb.httpx, "post") as post:
