@@ -37,7 +37,8 @@ from scout import config, rolespecs
 # "OLLAMA_" ("MAGISTRAL" for the legacy name; the legacy SCOUT_OLLAMA_TAG/NUM_CTX still apply to it).
 def _arm(key: str, tag: str, vendor: str, num_ctx: int = 49152, chars_per_token: float = 3.0,
          think: bool = True, think_reserve: int = 2048, temperature: float = 0.0,
-         top_p: float | None = None, top_k: int | None = None) -> dict:
+         top_p: float | None = None, top_k: int | None = None, think_level: str | None = None,
+         system_prefix: str | None = None) -> dict:
     # think_reserve: output tokens a model may spend reasoning before its answer, on top of the
     # role's output reserve; together they bound generation (num_predict) and feed the fit check.
     # A call still reasoning at that bound is continued once with the trace closed (see _ollama).
@@ -56,30 +57,63 @@ def _arm(key: str, tag: str, vendor: str, num_ctx: int = 49152, chars_per_token:
             "chars_per_token": chars_per_token, "think": think,
             "think_reserve": _f("THINK_RESERVE", think_reserve, int),
             "temperature": _f("TEMPERATURE", temperature, float),
-            "top_p": _f("TOP_P", top_p, float), "top_k": _f("TOP_K", top_k, int)}
+            "top_p": _f("TOP_P", top_p, float), "top_k": _f("TOP_K", top_k, int),
+            # a reasoning LEVEL for models that take one (gpt-oss: low / medium / high); sent as the
+            # `think` value in place of the boolean; part of the settings key
+            "think_level": _f("THINK_LEVEL", think_level, str),
+            # text prepended to Scout's system prompt for a model whose reasoning is triggered by its
+            # own system prompt (Magistral); part of the settings key as a hash
+            "system_prefix": system_prefix}
 
+
+# Mistral's own default system prompt for Magistral, verbatim from the Ollama model's `system` layer
+# (magistral:24b). It is what makes the model open a <think> block. Scout's judge/challenger prompts
+# REPLACE the system prompt, so with it absent Magistral never reasoned: 910 of 910 stored answers
+# carry an empty trace (found 2026-11-02). Public vendor text, not Scout methodology.
+MAGISTRAL_SYSTEM = (
+    "A user will ask you to solve a task. You should first draft your thinking process (inner monologue) "
+    "until you have derived the final answer. Afterwards, write a self-contained summary of your thoughts "
+    "(i.e. your summary should be succinct but contain all the critical steps you needed to reach the "
+    "conclusion). You should use Markdown and Latex to format your response. Write both your thoughts and "
+    "summary in the same language as the task posed by the user.\n\nYour thinking process must follow the "
+    "template below:\n<think>\nYour thoughts or/and draft, like working through an exercise on scratch paper. "
+    "Be as casual and as long as you want until you are confident to generate a correct answer.\n</think>")
+
+# Arms retired from the nightly rotation keep their history: the scorecard reads their rows under the
+# settings they last ran with (2026-11-02: Nemotron 3 Nano 4B retired, Bolt E4B is NVIDIA's edge arm).
+RETIRED_OLLAMA = {
+    "ollama_nemotron": {"tag": "nemotron-3-nano:4b-q8_0", "num_ctx": 49152, "thinking": False, "vendor": "NVIDIA"},
+}
 
 OLLAMA_MODELS = {
     # Defaults are the LANE's settings (2026-11-02): the period filter compares stored results with
     # these from any process (the nightly read-out, the 1st/15th check-in Action, the canary), so a
     # value that only lives in ~/scout-replay/env would set every real result aside as history.
+    # Magistral: reasoning REAL since 2026-11-02 (Uroš). Mistral's own reasoning instruction goes in
+    # front of Scout's prompt (MAGISTRAL_SYSTEM) and the model runs its recommended 0.7 / 0.95; both
+    # are in the settings key, so the 948 earlier rows (no trace, temperature 0) are history.
     "ollama": _arm("MAGISTRAL", os.environ.get("SCOUT_OLLAMA_TAG", "magistral:24b"), "Mistral AI",
-                   num_ctx=int(os.environ.get("SCOUT_OLLAMA_NUM_CTX", "49152"))),     # 49152 since 2026-09-29
-    # NVIDIA's 30B MoE builds (Lightning, Cascade 2, Nano 30B) are 23-25 GB on disk at Q4 and cannot
-    # sit fully on a 24 GB box; Nano 4B (q8, 4 GB, 256k ctx) is NVIDIA's edge-class model and fits.
-    # Reasoning ON for both small models since 2026-11-02 (Uroš's decision: a local arm that cannot
-    # reason is not a fair comparison against a cloud judge that does). They ran reasoning OFF from
-    # 2026-09-30 because, at temperature 0, both looped through the whole reasoning budget on a long
-    # prompt and answered nothing; the vendor cards say greedy decoding is for reasoning-off mode.
-    # Each now runs its vendor's recommended reasoning-mode sampling with a budget: NVIDIA Nano card
-    # (temperature 0.6, top_p 0.95 for structured and tool-style calls; budget 8192 as in NVIDIA's
-    # RAG blueprint), Gemma 4 card (temperature 1.0, top_p 0.95, top_k 64). A call still reasoning
-    # at the budget is continued once with the trace closed (_ollama). New settings period for both.
-    "ollama_nemotron": _arm("NEMOTRON", "nemotron-3-nano:4b-q8_0", "NVIDIA", think=True, think_reserve=8192,
-                            temperature=0.6, top_p=0.95),
+                   num_ctx=int(os.environ.get("SCOUT_OLLAMA_NUM_CTX", "49152")),     # 49152 since 2026-09-29
+                   temperature=0.7, top_p=0.95, system_prefix=MAGISTRAL_SYSTEM),
+    # NVIDIA Nemotron 3 Nano 4B ran as the NVIDIA arm 2026-09-30 to 2026-11-02 (reasoning off; the
+    # 30B MoE builds, 23-25 GB at Q4, cannot sit fully on a 24 GB box) and is RETIRED in favour of
+    # Bolt E4B below (Uroš, 11/2); its 1,117 results stay as history (RETIRED_OLLAMA).
     # Gemma 4 26B is a 26B/4B-active MoE; the QAT build is 16 GB, Magistral's footprint.
     "ollama_gemma4": _arm("GEMMA4", "gemma4:26b-a4b-it-qat", "Google", num_ctx=32768,     # 48k KV spilled off the GPU (9/30)
                           think=True, think_reserve=8192, temperature=1.0, top_p=0.95, top_k=64),
+    # OpenAI gpt-oss 20B (21B total, 3.6B active, MXFP4, 13.8 GB; added 2026-11-02, Uroš: "the
+    # absolute top that fits"). Reasoning is native and levelled; "medium" is OpenAI's default and
+    # what the Ollama template assumes. Temperature 1 is the model's own parameter file; no top_p.
+    # Its cache is small (sliding-window attention on half the layers), so 49152 fits in 24 GB.
+    "ollama_gptoss": _arm("GPTOSS", "gpt-oss:20b", "OpenAI", think=True, think_reserve=8192,
+                          temperature=1.0, think_level="medium"),
+    # NVIDIA Nemotron 3.5 Bolt E4B (8B total, 4B effective, Gemma-4-E4B architecture, released
+    # 2026-10-23; q8_0 9.8 GB; 64k window): NVIDIA's current edge model and the Nano 4B's successor
+    # (its card: MultiChallenge 53 vs 35). Added 2026-11-02 with the Ollama 0.40.13 upgrade (0.34.4
+    # refused the pull). Reasoning on; the card and the model's own parameter file say temperature
+    # 1.0, top_p 0.95, top_k 64. Smoke 11/2: 10 of 10 answered and parsed, 27 s to 196 s a call.
+    "ollama_bolt": _arm("BOLT", "nemotron-3.5-bolt:e4b-q8_0", "NVIDIA", think=True, think_reserve=8192,
+                        temperature=1.0, top_p=0.95, top_k=64),
 }
 BACKENDS = ("apple_ondevice", *OLLAMA_MODELS, "anthropic")
 LOCAL_BACKENDS = ("apple_ondevice", *OLLAMA_MODELS)
@@ -227,12 +261,33 @@ def _result(**kw) -> dict:
     return base
 
 
+_apple_asset_cache: dict = {}
+
+
+def apple_asset() -> str:
+    """The on-device model `fm` serves as "system", from `fm models` (2026-11-02: after macOS 27.2 the
+    line reads "system (AFM 3 Core Advanced)", the 20B sparse model, where the arm had assumed the
+    3B "instruct_3b" since 9/28). Recorded in the arm's version so a model change is a new period.
+    Falls back to the historical label when fm cannot answer (licence not accepted, older macOS)."""
+    if "asset" not in _apple_asset_cache:
+        asset = "instruct_3b"
+        try:
+            out = subprocess.run(["fm", "models"], capture_output=True, text=True, timeout=20).stdout
+            m = re.search(r"system\s*\(([^)]+)\)", re.sub(r"\x1b\[[0-9;]*m", "", out))
+            if m:
+                asset = m.group(1).strip()
+        except Exception:
+            pass
+        _apple_asset_cache["asset"] = asset
+    return _apple_asset_cache["asset"]
+
+
 def apple_version() -> dict:
     try:
         build = subprocess.run(["sw_vers", "-buildVersion"], capture_output=True, text=True, timeout=10).stdout.strip()
     except Exception:
         build = None
-    return {"macos_build": build, "asset": "instruct_3b", "guardrails": "default", "use_case": "general",
+    return {"macos_build": build, "asset": apple_asset(), "guardrails": "default", "use_case": "general",
             "context": APPLE_CONTEXT}
 
 
@@ -330,9 +385,14 @@ def settings_key(backend: str) -> dict:
     byte-identical to every result it has already written (2026-11-02)."""
     cfg = ollama_cfg(backend)
     key = {"tag": cfg["tag"], "num_ctx": cfg["num_ctx"], "thinking": cfg["think"], "vendor": cfg["vendor"]}
-    if cfg["temperature"] or cfg["top_p"] is not None or cfg["top_k"] is not None:
+    if cfg["temperature"] or cfg["top_p"] is not None or cfg["top_k"] is not None or cfg["think_level"]:
         key["sampling"] = {"temperature": cfg["temperature"], "top_p": cfg["top_p"], "top_k": cfg["top_k"],
                            "think_reserve": cfg["think_reserve"]}
+        if cfg["think_level"]:
+            key["sampling"]["think_level"] = cfg["think_level"]
+    if cfg.get("system_prefix"):
+        import hashlib
+        key["system_prefix"] = hashlib.sha256(cfg["system_prefix"].encode()).hexdigest()[:12]
     return key
 
 
@@ -343,6 +403,12 @@ def is_current_period(result: dict) -> bool:
     (2026-11-02: the doc said "never pooled" while the window held Magistral's 16k and 48k results,
     and the 9/30 reasoning-on smoke rows, side by side)."""
     backend = result.get("backend")
+    if backend in RETIRED_OLLAMA:
+        bv = result.get("backend_version") or {}
+        if not bv.get("tag"):
+            return True
+        cur = RETIRED_OLLAMA[backend]
+        return all(bv.get(k) == v for k, v in cur.items()) and "sampling" not in bv
     if backend not in OLLAMA_MODELS:
         return True
     bv = result.get("backend_version") or {}
@@ -350,6 +416,16 @@ def is_current_period(result: dict) -> bool:
         return True
     cur = settings_key(backend)
     return all(bv.get(k) == v for k, v in cur.items()) and ("sampling" in cur or "sampling" not in bv)
+
+
+def ollama_server_version() -> str | None:
+    """The running server's version (provenance only; an engine upgrade is recorded on every result
+    but is NOT part of the settings key, or no upgrade could ever happen without resetting every
+    arm; 2026-11-02, the 0.34.4 -> 0.40.13 upgrade for Bolt)."""
+    try:
+        return httpx.get(f"{OLLAMA_URL}/api/version", timeout=10).json().get("version")
+    except Exception:
+        return None
 
 
 def ollama_version(backend: str = "ollama") -> dict:
@@ -360,7 +436,7 @@ def ollama_version(backend: str = "ollama") -> dict:
         det = r.get("details") or {}
         return {**base, "digest": (r.get("modelinfo") or {}).get("general.uuid") or r.get("digest"),
                 "quant": det.get("quantization_level"), "family": det.get("family"),
-                "parameter_size": det.get("parameter_size")}
+                "parameter_size": det.get("parameter_size"), "server": ollama_server_version()}
     except Exception:
         return base
 
@@ -415,8 +491,11 @@ def _ollama(record: dict, system: str, user: str, timeout: float = 900.0, backen
         options["top_p"] = cfg["top_p"]
     if cfg["top_k"] is not None:
         options["top_k"] = cfg["top_k"]
+    if cfg.get("system_prefix"):
+        system = cfg["system_prefix"] + "\n\n" + system
     messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
-    body = {"model": cfg["tag"], "stream": False, "think": cfg["think"], "keep_alive": "20m",
+    think_value = cfg["think_level"] if (cfg["think"] and cfg["think_level"]) else cfg["think"]
+    body = {"model": cfg["tag"], "stream": False, "think": think_value, "keep_alive": "20m",
             "messages": messages, "options": options}
     if schema:
         body["format"] = schema
@@ -449,10 +528,13 @@ def _ollama(record: dict, system: str, user: str, timeout: float = 900.0, backen
     if cfg["think"] and done_reason == "length" and thinking:
         budget_hit = True
         trace = _cut_trace(thinking)
-        follow = {**body, "think": False,
+        # A levelled model (gpt-oss) keeps reasoning with think=False and answered nothing in the
+        # 11/2 forced pass; it continues at its lowest level with room for a short trace instead.
+        follow_think = "low" if cfg["think_level"] else False
+        follow = {**body, "think": follow_think,
                   "messages": messages + [{"role": "assistant", "content": "", "thinking": trace},
                                           {"role": "user", "content": BUDGET_NUDGE}],
-                  "options": {**options, "num_predict": reserve}}
+                  "options": {**options, "num_predict": reserve + (1024 if cfg["think_level"] else 0)}}
         t1 = time.monotonic()
         try:
             r2 = httpx.post(f"{OLLAMA_URL}/api/chat", json=follow, timeout=timeout)

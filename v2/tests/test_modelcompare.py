@@ -294,17 +294,17 @@ class Scorecard(unittest.TestCase):
         # aside and reported, never pooled with the current period; rows with no settings on record
         # and other arms pass through
         from scout import replaybackends as rb
-        cur = {**rb.settings_key("ollama_nemotron"), "digest": "d"}
-        off = {"tag": "nemotron-3-nano:4b-q8_0", "num_ctx": 49152, "thinking": False, "vendor": "NVIDIA"}
-        n1 = self._res("ollama_nemotron", "c_1", self.JUDGE_REF, version=cur)
-        n2 = self._res("ollama_nemotron", "c_2", self.JUDGE_REF, version=off)
+        cur = {**rb.settings_key("ollama_gemma4"), "digest": "d"}
+        off = {"tag": "gemma4:26b-a4b-it-qat", "num_ctx": 32768, "thinking": False, "vendor": "Google"}
+        n1 = self._res("ollama_gemma4", "c_1", self.JUDGE_REF, version=cur)
+        n2 = self._res("ollama_gemma4", "c_2", self.JUDGE_REF, version=off)
         a1 = self._res("apple_ondevice", "c_1", self.JUDGE_REF, version={"macos_build": "x"})
         sc = mc.scorecard([n1, n2, a1], {})
-        self.assertEqual(sc["cells"]["ollama_nemotron|judge"]["full"]["n_results"], 1)
-        self.assertEqual(sc["history"], {"ollama_nemotron": 1})
+        self.assertEqual(sc["cells"]["ollama_gemma4|judge"]["full"]["n_results"], 1)
+        self.assertEqual(sc["history"], {"ollama_gemma4": 1})
         self.assertEqual(sc["cells"]["apple_ondevice|judge"]["full"]["n_results"], 1)
         kept, hist = mc.current_period([n1, n2, a1])
-        self.assertEqual([r["call_id"] for r in kept if r["backend"] == "ollama_nemotron"], ["c_1"]); self.assertEqual(hist, {"ollama_nemotron": 1})
+        self.assertEqual([r["call_id"] for r in kept if r["backend"] == "ollama_gemma4"], ["c_1"]); self.assertEqual(hist, {"ollama_gemma4": 1})
 
     def test_prompt_size_slices(self):
         a1 = self._res("apple_ondevice", "c_1", self.JUDGE_REF, est=2000)
@@ -328,6 +328,14 @@ class Scorecard(unittest.TestCase):
 
 
 class Persist(unittest.TestCase):
+    def test_result_record_keeps_the_budget_story(self):
+        r = rec("judge", self.JUDGE_REF if hasattr(self, "JUDGE_REF") else '{"verdicts":[]}')
+        rp = {**rep('{"verdicts":[]}', backend="ollama_gemma4"), "budget_hit": True, "continuation": "chat_think_off",
+              "done_reason": "stop", "think_budget": 7464, "prompt_count": "counted"}
+        out = mc.result_record(r, rp, mc.compare_call(r, rp), backend="ollama_gemma4", mode="exact")
+        self.assertEqual(out["budget"], {"think_budget": 7464, "budget_hit": True, "continuation": "chat_think_off",
+                                         "done_reason": "stop", "prompt_count": "counted"})
+
     def test_paths_encode_backend_month_mode_rep(self):
         # month-sharded by the LIVE call's run_ts (Contents API lists ≤1000 entries per dir)
         self.assertEqual(mc.result_path("ollama", "c_1", run_ts="2026-09-28T04:10:00"), "shadow_models/ollama/2026-09/c_1.json")

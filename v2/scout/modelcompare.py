@@ -335,6 +335,9 @@ def result_record(record: dict, replay: dict, comparison: dict, *, backend: str,
         "duration_ms": replay.get("duration_ms"), "tokens": replay.get("tokens"),
         "cost_usd": replay.get("cost_usd") or 0.0, "schema_enforced": replay.get("schema_enforced"),
         "reasoning": replay.get("reasoning"), "text": replay.get("text"), "thinking": replay.get("thinking"),
+        # the reasoning budget's story for this call (2026-11-02): was the bound hit, was the answer
+        # rescued by a continuation, how the prompt was counted, what budget it got
+        "budget": {k: replay.get(k) for k in ("think_budget", "budget_hit", "continuation", "done_reason", "prompt_count")},
         "judgment_version": record.get("judgment_version"),
         "instructions_sha": record.get("instructions_sha") or judgment.instructions_sha(record.get("system")),
         "reference": {"model": record.get("model"), "cost_usd": (record.get("result") or {}).get("cost_usd"),

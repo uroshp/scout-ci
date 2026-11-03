@@ -323,6 +323,23 @@ def load_labels() -> dict:
 # capture (interpretations shown with no evidence -> the June over-cuts, then skipped). The
 # scoreboard keeps every label but reports the two periods separately rather than resetting.
 DERIVED_FIX_STAMP = "2026-09-28T00:00:00"
+# Named periods (2026-11-02; the 10/19 brief asked for a list, not one stamp): a row belongs to the
+# last period whose start is at or before its judged_at. pre_fix / post_fix stay as the two legacy
+# slices the check-in prints; `periods` carries every boundary and `current` names the live one.
+PERIODS = [
+    ("pre_fix", ""),                                    # old capture: interpretations judged blind
+    ("post_fix", DERIVED_FIX_STAMP),                    # derived capture with the parent fact
+    ("card_facts", "2026-10-19T19:30:00"),              # pack 883a36c25267c7a6: CARD FACTS handed to the challenger
+    ("sonnet_5_5", "2026-11-03T00:00:00"),              # challenger model claude-sonnet-4-6 -> claude-sonnet-5-5
+]
+
+
+def period_of(judged_at: str | None) -> str:
+    name = PERIODS[0][0]
+    for n, start in PERIODS:
+        if (judged_at or "") >= start:
+            name = n
+    return name
 
 
 def _slice(disagreements: list, labels: dict) -> dict:
@@ -342,14 +359,18 @@ def scorecard_slices(results: list) -> dict:
     for r in results:
         for it in r.get("items", []):
             if it["status"] == "disagree":
-                rows.append({**it, "judged_at": r.get("judged_at") or ""})
+                rows.append({**it, "judged_at": r.get("judged_at") or "", "challenger_model": r.get("challenger_model")})
     pre = [d for d in rows if d["judged_at"] < DERIVED_FIX_STAMP]
     post = [d for d in rows if d["judged_at"] >= DERIVED_FIX_STAMP]
     modes = {}
     for m in sorted({d.get("evidence_mode") or "legacy" for d in rows}):
         modes[m] = _slice([d for d in rows if (d.get("evidence_mode") or "legacy") == m], labels)
+    named = {n: _slice([d for d in rows if period_of(d["judged_at"]) == n], labels) for n, _ in PERIODS}
     return {"fix_stamp": DERIVED_FIX_STAMP,
             "period": {"pre_fix": _slice(pre, labels), "post_fix": _slice(post, labels)},
+            "periods": named, "current": PERIODS[-1][0],
+            "by_model": {m: _slice([d for d in rows if (d.get("challenger_model") or "?") == m], labels)
+                         for m in sorted({d.get("challenger_model") or "?" for d in rows})},
             "by_evidence_mode": modes}
 
 

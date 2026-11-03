@@ -203,7 +203,8 @@ supported; a fully custom domain is not, on the free tier — acceptable for the
 
 **Decision:** The v3.5 verification-judge **challenger** (`scout/challenger.py`, run by
 `scripts/run_challenger.py` and the `shadow-eval.yml` Action) runs on **Sonnet**
-(`config.CHALLENGER_MODEL`, default `claude-sonnet-4-6`), not the Haiku the vnext roadmap originally
+(`config.CHALLENGER_MODEL`, default `claude-sonnet-4-6`; `claude-sonnet-5-5` since 2026-11-02, a new
+named period in `challenger.PERIODS`), not the Haiku the vnext roadmap originally
 penciled in. Opus is reserved as a by-hand tie-breaker on the hardest band, not the default.
 
 **Why (grounded against 2026 LLM-judge research + lab eval practice, not assertion):**

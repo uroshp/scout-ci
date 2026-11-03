@@ -1,6 +1,7 @@
 """The 14-day check-in's pre-registered go/no-go rule (docs/eval-exit-criteria.md), the promotion
 instrument for the v3.5 takeover judges. Pure-function tests of the verdict logic incl. the kill branch."""
 import unittest
+from unittest import mock
 import sys
 sys.path.insert(0, "scripts")
 import eval_checkin as ec
@@ -44,6 +45,27 @@ if __name__ == "__main__":
 
 class Brief(unittest.TestCase):
     """The check-in opens with the executive brief (2026-10-01); detail is the appendix."""
+
+    def test_named_periods_and_model_slices(self):
+        # 2026-11-02: the challenger moved to Sonnet 5.5; rows are sliced by named period (stamp) and
+        # by the model that judged them, and the legacy pre/post slices still print
+        from scout import challenger as ch
+        self.assertEqual(ch.period_of("2026-09-01T00:00:00"), "pre_fix")
+        self.assertEqual(ch.period_of("2026-10-01T00:00:00"), "post_fix")
+        self.assertEqual(ch.period_of("2026-10-20T00:00:00"), "card_facts")
+        self.assertEqual(ch.period_of("2026-11-03T04:00:00"), "sonnet_5_5")
+        rows = [{"judged_at": "2026-11-03T04:00:00", "challenger_model": "claude-sonnet-5-5",
+                 "items": [{"status": "disagree", "delta_id": "d1"}]},
+                {"judged_at": "2026-10-20T04:00:00", "challenger_model": "claude-sonnet-4-6",
+                 "items": [{"status": "disagree", "delta_id": "d2"}, {"status": "agree", "delta_id": "d3"}]}]
+        with mock.patch.object(ch, "load_labels", return_value={"d1": "agree"}):
+            sl = ch.scorecard_slices(rows)
+        self.assertEqual(sl["current"], "sonnet_5_5")
+        self.assertEqual(sl["periods"]["sonnet_5_5"]["adjudicated"], 1); self.assertEqual(sl["periods"]["card_facts"]["disagreements"], 1)
+        self.assertEqual(sl["by_model"]["claude-sonnet-5-5"]["precision"], 1.0)
+        self.assertEqual(sl["period"]["post_fix"]["disagreements"], 2)
+        txt = ec._slices_block(sl)
+        self.assertIn("NAMED PERIODS (current: sonnet_5_5", txt); self.assertIn("claude-sonnet-4-6", txt)
 
     def test_brief_leads_with_number_meaning_next_step(self):
         import importlib.util, os

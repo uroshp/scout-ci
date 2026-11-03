@@ -20,13 +20,14 @@ could hold that role. Nothing here changes the older lanes' bars.
 
 - Reference: the live paid model as it ran (one sample; its self-agreement ceiling is `unmeasured`
   until the optional paid re-run is authorised).
-- `apple_ondevice`: Apple's on-device `SystemLanguageModel` (macOS 27, one fixed setting, no
-  reasoning level, guardrails default), via `fm serve`, temperature 0, schema-constrained JSON.
+- `apple_ondevice`: Apple's on-device model as `fm serve` exposes it (macOS 27, one fixed setting,
+  no reasoning level, guardrails default), temperature 0, schema-constrained JSON; the served
+  model's name is read from `fm models` and recorded in the version (see below).
 - The Ollama arms (one backend NAME per model, each its own results folder, scorecard column and
   streak; run one after another, each alone on the box, unloaded before the next loads; the order
   rotates by weekday; per-arm cap 45 min inside the 05:00-08:30 window). Registry:
   `replaybackends.OLLAMA_MODELS`. Seed, generation bounded by the role's output reserve plus the
-  arm's reasoning reserve (`num_predict`). Reasoning ON for all three since 2026-11-02 (Uroš: a
+  arm's reasoning reserve (`num_predict`). Reasoning ON for every arm since 2026-11-02 (Uroš: a
   local arm that cannot reason is not a fair comparison against a cloud judge that does). Magistral:
   temperature 0, reserve 2048, `num_ctx` 49152 (raised from 16384 on 2026-09-29: Scout's largest
   prompt is ~15.6k tokens). Nemotron and Gemma 4 ran reasoning OFF from 2026-09-30 to 2026-11-02
@@ -54,6 +55,34 @@ could hold that role. Nothing here changes the older lanes' bars.
     builds are 23-25 GB on Ollama and cannot sit fully on a 24 GB box, so the edge-class model
     represents the vendor; its arm is read as "edge model vs 24B-class", like Apple's.
   - `ollama_gemma4` = Google, Gemma 4 26B (26B/4B-active MoE, QAT build, 16 GB; added 2026-09-30).
+  - `ollama_gptoss` = OpenAI, gpt-oss 20B (21B/3.6B-active MoE, MXFP4, 13.8 GB; added 2026-11-02
+    as the strongest reasoning model that fits the box unchanged; reasoning level "medium", the
+    model's default; temperature 1 from its own parameter file; `num_ctx` 49152).
+  - `ollama_bolt` = NVIDIA, Nemotron 3.5 Bolt E4B (8B total, 4B effective, Gemma-4-E4B
+    architecture, released 2026-10-23, q8_0 9.8 GB, 64k window; added 2026-11-02 with the Ollama
+    0.40.13 upgrade, which 0.34.4 forced: it refused the pull). NVIDIA's current edge model and the
+    Nano 4B's successor; reasoning on, temperature 1.0, top_p 0.95, top_k 64 per its card and its
+    own parameter file. Smoke 11/2: 10 of 10 answered and parsed, 27 s to 196 s a call. The 74B Bolt
+    (2-bit experts, 22 GB of weights, NVIDIA's recipes start at a 32 GB RTX card or a 64 GB Spark)
+    does not fit a 24 GB Mac, whose GPU gets 17.8 GB by default and about 21.5 GB at most.
+  - `ollama_nemotron` = NVIDIA, Nemotron 3 Nano 4B q8_0: RETIRED 2026-11-02 (ran 9/30 to 11/2,
+    reasoning off). Its 1,117 results stay as history under the settings they ran with
+    (`replaybackends.RETIRED_OLLAMA`); it is not in the rotation, the canary or the How panel.
+  - Engine: Ollama 0.40.13 since 2026-11-02 (0.34.4 from 9/23). Every result records the server
+    version (`backend_version.server`) for provenance; the engine is NOT part of the settings key,
+    or no upgrade could happen without resetting every arm. Gate before the switch: three stored
+    Magistral answers replayed on the new engine came back byte-identical.
+  - Magistral's reasoning (found 2026-11-02): in all 910 stored answers the trace is empty. The
+    model opens its <think> block only when its own system prompt asks for it (the text in the
+    Ollama model's `system` layer), and Scout's prompts replace the system prompt; it also ran at
+    temperature 0 against its own 0.7 / 0.95. So "thinking on" was nominal. The harness now takes a
+    per-arm `system_prefix` (hashed into the settings key) for exactly this; Magistral runs with
+    `MAGISTRAL_SYSTEM` + 0.7 / 0.95 since the night of 2026-11-02 (Uroš: "tonight"), a new period;
+    the nightly read-out prints "reasoning traces N of M answers today" per arm and flags zero.
+  - `apple_ondevice`'s version records the model `fm models` reports as "system" (2026-11-02:
+    "AFM 3 Core Advanced", the 20B sparse model, since macOS 27.2; the arm had assumed the 3B
+    "instruct_3b" from 9/28). Its window is still 8,192 tokens (probed 11/2: 8,070 answered,
+    9,570 refused), so its coverage does not change.
   A swap of any arm's tag is a new period, never silent. An arm is "warming up" until it has
   attempted 20 calls in the period. The `common` population is per ROLE (2026-10-19): an arm joins
   a role's population once it attempted at least 90% of that role's calls (`COMMON_COVERAGE`); an
