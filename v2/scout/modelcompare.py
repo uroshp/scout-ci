@@ -372,6 +372,25 @@ def existing(backend: str, month: str) -> set:
     return set(selfserve.list_data(f"{SHADOW_MODELS_DIR}/{backend}/{month}") or [])
 
 
+def stale_period_names(backend: str, month: str) -> set:
+    """Result files of one arm and month written under settings other than the arm's current ones
+    (`scripts/replay_calls.py --redo-period` replays those; one read per file, so run it with the
+    store mirror env). Empty for non-Ollama arms."""
+    from scout import replaybackends
+    if not replaybackends.is_ollama(backend):
+        return set()
+    stale = set()
+    for fn in existing(backend, month):
+        raw = selfserve.read_data(f"{SHADOW_MODELS_DIR}/{backend}/{month}/{fn}")
+        try:
+            r = json.loads(raw) if raw else None
+        except json.JSONDecodeError:
+            r = None
+        if r and not replaybackends.is_current_period(r):
+            stale.add(fn)
+    return stale
+
+
 def load_results(backend: str | None = None) -> list:
     out = []
     for b in (selfserve.list_data(SHADOW_MODELS_DIR, include_dirs=True) or []):
@@ -394,6 +413,21 @@ def load_results(backend: str | None = None) -> list:
 
 def load_labels() -> dict:
     return evalrule.load_label_rows(LABELS_PATH)
+
+
+def current_period(results: list) -> tuple[list, dict]:
+    """Rows written under each Ollama arm's CURRENT settings, plus how many earlier-period rows were
+    set aside per backend. Results are never pooled across settings periods (the doc's rule since
+    9/30; until 2026-11-02 nothing enforced it, and the window held Magistral's 16k and 48k results
+    and the 9/30 reasoning-on smoke rows side by side). Other arms pass through untouched."""
+    from scout import replaybackends
+    kept, history = [], defaultdict(int)
+    for r in results:
+        if replaybackends.is_current_period(r):
+            kept.append(r)
+        else:
+            history[r.get("backend")] += 1
+    return kept, dict(history)
 
 
 # --- scorecard ----------------------------------------------------------------------------------------
@@ -510,8 +544,10 @@ def scorecard(results: list, labels: dict | None = None) -> dict:
     arm, so Apple (8k context, 14% of the calls) and the paid reference re-run (judge and triage
     only) emptied it for arms that had run the whole set, and the 1st/15th brief printed "n/a on 0".
     The reference arm never defines a common population; a cell on an arm that is not comparable for
-    its role is marked so and reports its partial numbers for what they are."""
+    its role is marked so and reports its partial numbers for what they are. Rows an Ollama arm
+    wrote under earlier settings are set aside first (`history`), never pooled (2026-11-02)."""
     labels = labels if labels is not None else load_labels()
+    results, history = current_period(results)
     by_cell = defaultdict(list)
     backends = sorted({r["backend"] for r in results})
     calls_by_role = defaultdict(set)
@@ -557,6 +593,7 @@ def scorecard(results: list, labels: dict | None = None) -> dict:
             "slices": scorecard_slices(rows, labels),
         }
     out["modes"] = mode_summary(results, labels)
+    out["history"] = history            # earlier-period rows per backend, set aside (2026-11-02)
     return out
 
 
@@ -609,6 +646,7 @@ def repeat_floor(results: list) -> dict:
     """$0 local-vs-local variance floor: for each loop call with a rep>0 twin, do the two local runs
     agree with each other? A loop-vs-live gap inside this floor is not a model effect (plan C)."""
     base, reps = {}, defaultdict(list)
+    results, _ = current_period(results)
     for r in results:
         if r.get("mode") != "loop":
             continue

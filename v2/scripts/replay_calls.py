@@ -120,6 +120,9 @@ def main():
     ap.add_argument("--run", action="store_true")
     ap.add_argument("--write", action="store_true")
     ap.add_argument("--force", action="store_true")
+    ap.add_argument("--redo-period", action="store_true",
+                    help="also replay calls whose stored result for this arm was written under earlier settings "
+                         "(reasoning, sampling, context, tag); reads each stored result once, so run with the store mirror env")
     ap.add_argument("--allow-spend", action="store_true")
     ap.add_argument("--window", default="05:00-08:30")
     ap.add_argument("--no-window", action="store_true")
@@ -200,7 +203,13 @@ def main():
             if args.force:
                 return set()
             if month not in have_by_month:
-                have_by_month[month] = modelcompare.existing(backend, month)
+                names = modelcompare.existing(backend, month)
+                if args.redo_period:
+                    stale = modelcompare.stale_period_names(backend, month)
+                    print(f"  {backend} {month}: {len(stale)} of {len(names)} stored results are from an earlier "
+                          f"settings period and will be redone")
+                    names = names - stale
+                have_by_month[month] = names
             return have_by_month[month]
         searx_ok = True
         if "loop" in modes:
