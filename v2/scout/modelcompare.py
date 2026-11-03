@@ -10,6 +10,7 @@ enabled backend could attempt) and on `full` (that backend's own eligibility).
 """
 import hashlib
 import json
+import os
 import re
 import math
 from collections import defaultdict
@@ -383,6 +384,20 @@ def stale_period_names(backend: str, month: str) -> set:
     if not replaybackends.is_ollama(backend):
         return set()
     stale = set()
+    mirror = os.environ.get("SCOUT_REPLAY_STALE_MIRROR")      # the store's clone on the mini: one read per file costs nothing there
+    if mirror and os.path.isdir(os.path.join(mirror, SHADOW_MODELS_DIR, backend, month)):
+        folder = os.path.join(mirror, SHADOW_MODELS_DIR, backend, month)
+        for fn in sorted(os.listdir(folder)):
+            if not fn.endswith(".json"):
+                continue
+            try:
+                with open(os.path.join(folder, fn)) as fh:
+                    r = json.load(fh)
+            except (OSError, json.JSONDecodeError):
+                continue
+            if not replaybackends.is_current_period(r):
+                stale.add(fn)
+        return stale
     for fn in existing(backend, month):
         raw = selfserve.read_data(f"{SHADOW_MODELS_DIR}/{backend}/{month}/{fn}")
         try:

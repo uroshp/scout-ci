@@ -336,6 +336,18 @@ class Persist(unittest.TestCase):
         self.assertEqual(out["budget"], {"think_budget": 7464, "budget_hit": True, "continuation": "chat_think_off",
                                          "done_reason": "stop", "prompt_count": "counted"})
 
+    def test_stale_period_names_reads_the_clone_when_told(self):
+        import os, tempfile
+        from scout import replaybackends as rb
+        with tempfile.TemporaryDirectory() as d:
+            folder = os.path.join(d, mc.SHADOW_MODELS_DIR, "ollama_gemma4", "2026-10"); os.makedirs(folder)
+            json.dump({"backend": "ollama_gemma4", "backend_version": {"tag": "gemma4:26b-a4b-it-qat", "num_ctx": 32768, "thinking": False, "vendor": "Google"}}, open(os.path.join(folder, "c_old.json"), "w"))
+            json.dump({"backend": "ollama_gemma4", "backend_version": {**rb.settings_key("ollama_gemma4"), "digest": "x"}}, open(os.path.join(folder, "c_new.json"), "w"))
+            with mock.patch.dict(os.environ, {"SCOUT_REPLAY_STALE_MIRROR": d}), mock.patch.object(mc.selfserve, "read_data") as rd:
+                self.assertEqual(mc.stale_period_names("ollama_gemma4", "2026-10"), {"c_old.json"})
+                rd.assert_not_called()                                   # nothing went to the API
+                self.assertEqual(mc.stale_period_names("apple_ondevice", "2026-10"), set())
+
     def test_paths_encode_backend_month_mode_rep(self):
         # month-sharded by the LIVE call's run_ts (Contents API lists ≤1000 entries per dir)
         self.assertEqual(mc.result_path("ollama", "c_1", run_ts="2026-09-28T04:10:00"), "shadow_models/ollama/2026-09/c_1.json")
