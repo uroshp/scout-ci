@@ -29,26 +29,26 @@
   },
   {
     "subject_key": "openai | demand-momentum | current",
-    "claim": "**But OpenAI's footing is slipping, and that opens the 'safe default' wedge.**\n\nBy the end of May, ChatGPT's assistant market share fell to 46.4%, below 50% for the first time, as Gemini and Claude climbed. The inevitability narrative that wins OpenAI its default deals is weakening.\n\n**So what:** Challenge the 'nobody gets fired for buying OpenAI' reflex with the share trend plus their model-deprecation churn.",
+    "claim": "**But OpenAI's footing is slipping, and that opens the 'safe default' wedge.**\n\nChatGPT's assistant market share fell to 46.4% by the end of May, below 50% for the first time, and OpenAI has now retired two agent-building products in about three months: the Assistants API on August 26 and Agent Builder on November 30.\n\n**Soundbite:** \"OpenAI is the popular choice, but it has retired two agent-building products in three months, and what you build on Mistral runs on infrastructure you control.\"\n\n**So what:** Challenge the 'nobody gets fired for buying OpenAI' reflex with the share trend plus the two retired agent products, then offer to rebuild their agents on Mistral.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 3,
-    "source_url": "https://techcrunch.com/2026/06/16/chatgpts-market-share-slips-below-50-for-first-time/",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "it had fallen to 46.4% thanks to the rise of Gemini (27.7%) and Claude (10.3%)",
-    "as_of": "2026-06-16",
+    "as_of": "2026-06-03",
     "confidence": "high",
     "id": "c_188edda0475c",
     "verified": true,
-    "grounding": {
-      "checked": true,
-      "match": true,
-      "method": "substring",
-      "fetched_at": "2026-06-17",
-      "detail": null
-    },
-    "source_class": "news"
+    "source_class": "news",
+    "updated_on": "2026-11-03",
+    "derived_from": "c_61b72310f2c6",
+    "provenance": {
+      "source_url": "https://developers.openai.com/api/docs/deprecations.md",
+      "source_tier": "primary",
+      "as_of": "2026-06-03",
+      "fact_id": "c_61b72310f2c6",
+      "stamped_on": "2026-11-03",
+      "source_class": "company_statement"
+    }
   },
   {
     "subject_key": "mistral | scale-gap-risk | current",
@@ -2366,6 +2366,52 @@
       "fact_id": "c_e81a4ae598f5",
       "stamped_on": "2026-10-04",
       "source_class": "unknown"
+    }
+  },
+  {
+    "subject_key": "openai | product-discontinuation | agent-builder-evals-2026",
+    "claim": "OpenAI is shutting down Agent Builder, its visual tool for building agents, on November 30, 2026. Its Evals dashboard and API and its reusable prompt objects shut down the same day, and existing evals became read-only on October 31. OpenAI announced the shutdown on June 3 and points customers to its Agents SDK or ChatGPT Workspace Agents, so anything built in Agent Builder has to be rebuilt by the end of the month. This follows OpenAI's retirement of the Assistants API on August 26, 2026, which means OpenAI has now retired two of its agent-building products within about three months.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://developers.openai.com/api/docs/deprecations.md",
+    "source_tier": "primary",
+    "evidence_excerpt": "On June 3, 2026, we notified developers using Agent Builder that the product is being deprecated.",
+    "as_of": "2026-06-03",
+    "confidence": "high",
+    "id": "c_61b72310f2c6",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-11-03",
+      "detail": null
+    },
+    "source_class": "company_statement"
+  },
+  {
+    "id": "c_f20aa0fcf758",
+    "subject_key": "mistral | battlecard-agent-builder-rebuild | where-we-win",
+    "claim": "**Anything built in OpenAI's Agent Builder has to be rebuilt this month.**\n\nOpenAI shuts down Agent Builder on November 30, along with its Evals dashboard and API and its reusable prompt objects. Existing evals went read-only on October 31. OpenAI points customers to its Agents SDK or ChatGPT Workspace Agents, so every Agent Builder customer is rebuilding either way. That rebuild can land on Mistral instead, where our Apache 2.0 models run on infrastructure you control.\n\n**Soundbite:** \"You have to rebuild those agents by November 30 whichever vendor you pick, so rebuild them on models you can run on your own hardware.\"",
+    "claim_type": "interpretation",
+    "section": "battlecard",
+    "zone": "where_we_win",
+    "order": 6,
+    "as_of": "2026-06-03",
+    "updated_on": "2026-11-03",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_61b72310f2c6",
+    "persona": "eng_led",
+    "provenance": {
+      "source_url": "https://developers.openai.com/api/docs/deprecations.md",
+      "source_tier": "primary",
+      "as_of": "2026-06-03",
+      "fact_id": "c_61b72310f2c6",
+      "stamped_on": "2026-11-03",
+      "source_class": "company_statement"
     }
   }
 ]
