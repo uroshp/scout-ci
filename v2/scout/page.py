@@ -932,7 +932,8 @@ _STATEMENT = "Deal-moving, always-fresh competitive briefs prepared by AI agents
 # The challenger lanes: company, then the model as a reader would name it. The registry of what
 # actually runs is scout/replaybackends.py (tests/test_how_panel.py keeps the two in step).
 _HOW_CHALLENGERS = (("Mistral", "Magistral 24B"), ("Google", "Gemma 4 26B"),
-                    ("NVIDIA", "Nemotron 3.5 Bolt"), ("OpenAI", "gpt-oss 20B"), ("Apple", "Apple on-device model"))
+                    ("NVIDIA", "Nemotron 3.5 Bolt"), ("NVIDIA 30B", "Nemotron 3 Nano 30B"), ("OpenAI", "gpt-oss 20B"),
+                    ("Apple", "Apple on-device model"))
 
 
 def _model_label(model_id: str) -> str:
@@ -1034,8 +1035,8 @@ def _how_panel() -> str:
         'writes the edit from the source, and checks it before it reaches the card. '
         'Each model has one job, and none approves its own work.</p></div>'
         '<div class="hw-diagram" role="img" aria-label="Four steps in order: watch, weigh, write, judge, '
-        'ending in a decision: publish, cut or hold. Below, six model lanes run across all five stages: '
-        'the default models, then Mistral, Google, NVIDIA, OpenAI and Apple.">'
+        'ending in a decision: publish, cut or hold. Below, seven model lanes run across all five stages: '
+        'the default models, then Mistral, Google, NVIDIA twice, OpenAI and Apple.">'
         f'<div class="hw-row"><div class="hw-ln"></div><div class="hw-flow">{flow}</div></div>'
         f'<div class="hw-lanes">{default_lane}'
         f'<div class="hw-ev"><div class="hw-evh">Evaluated</div><p>{evaluated}</p></div>'

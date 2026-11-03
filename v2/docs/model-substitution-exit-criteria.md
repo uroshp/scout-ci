@@ -65,6 +65,16 @@ could hold that role. Nothing here changes the older lanes' bars.
     own parameter file. Smoke 11/2: 10 of 10 answered and parsed, 27 s to 196 s a call. The 74B Bolt
     (2-bit experts, 22 GB of weights, NVIDIA's recipes start at a 32 GB RTX card or a 64 GB Spark)
     does not fit a 24 GB Mac, whose GPU gets 17.8 GB by default and about 21.5 GB at most.
+  - `ollama_nano30b` = NVIDIA, Nemotron 3 Nano 30B-A3B (30B total, ~3.5B active, hybrid Mamba-2
+    MoE), the peer to Gemma 4 26B-A4B; unsloth's IQ4_XS GGUF, 18.2 GB (Ollama's own builds are 24 GB
+    GGUF or MLX-only, and MLX needs a 32 GB Mac). Fits once macOS lets the GPU take 21 GB:
+    `sudo sysctl iogpu.wired_limit_mb=21504` (Uroš, 2026-11-02 21:20 PT; resets at reboot, so a
+    LaunchDaemon or /etc/sysctl.conf entry is the follow-up). Reasoning on, temperature 0.6, top_p
+    0.95 per NVIDIA's card; `num_ctx` 49152. By-hand proof 2026-11-02 21:30 PT on the raised limit:
+    17.95 GB fully in GPU memory ("offloaded 53/53 layers", KV 153 MiB at 49k; Metal working set
+    22.5 GB); a judge call answered and parsed with a 28k-character trace at ~27 tok/s in 259 s; the
+    forced cutoff rescued a judge answer and the challenger answered inside the bound. It reasons at
+    length, so expect budget hits near 8192 on long prompts and about 4 min a call.
   - `ollama_nemotron` = NVIDIA, Nemotron 3 Nano 4B q8_0: RETIRED 2026-11-02 (ran 9/30 to 11/2,
     reasoning off). Its 1,117 results stay as history under the settings they ran with
     (`replaybackends.RETIRED_OLLAMA`); it is not in the rotation, the canary or the How panel.
