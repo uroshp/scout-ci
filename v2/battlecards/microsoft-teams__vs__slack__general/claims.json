@@ -1350,15 +1350,15 @@
   },
   {
     "subject_key": "microsoft-teams | copilot-meeting-access-gating",
-    "claim": "Microsoft's 365 roadmap lists enhanced AI controls for Teams meetings, with general availability planned for November 2026 on Android, desktop, iOS, Mac and web. Meeting organizers manage who can enable and access Copilot and other AI in a meeting. IT admins get a simpler policy model for governing AI across meetings and post-meeting experiences. The roadmap status is still In development, and the November date is a planned release month.",
+    "claim": "Microsoft delayed the rollout of the new Teams meeting AI controls (MeetingAI and TranscriptionWithMeetingAI policies, which replace the Copilot meeting policy). In a November 3, 2026 update, Message Center MC1532253 moved Targeted Release to early December 2026 and General Availability to early January 2027, completing mid-January 2027. GA was previously set for late November 2026.",
     "claim_type": "fact",
     "section": "tracked_facts",
     "zone": null,
     "order": 1,
-    "source_url": "https://mc.merill.net/message/RM577399",
+    "source_url": "https://mc.merill.net/message/MC1532253",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Organizers manage who can enable and access AI, while IT admins get a simpler policy model for governing AI across meetings and post-meeting experiences.",
-    "as_of": "2026-11-02",
+    "evidence_excerpt": "General Availability (Worldwide): We will begin rolling out in early January 2027 (previously late November 2026)",
+    "as_of": "2026-11-03",
     "confidence": "medium",
     "id": "c_b52460e64c86",
     "verified": true,
@@ -1366,18 +1366,9 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-11-03",
+      "fetched_at": "2026-11-04",
       "detail": null
     },
-    "corroboration": [
-      {
-        "source_url": "https://app.cloudscout.one/evergreen-item/577399/",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false,
-        "source_class": "unknown"
-      }
-    ],
     "source_class": "unknown"
   }
 ]

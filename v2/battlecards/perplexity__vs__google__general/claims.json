@@ -2087,5 +2087,37 @@
       }
     ],
     "source_class": "filing"
+  },
+  {
+    "subject_key": "google | pricing-change | ai-plus-pro-model-gate",
+    "claim": "Google is moving its best Gemini models up to the $19.99 tier. Starting November 13, 2026, subscribers on the $4.99 Google AI Plus plan lose the ability to pick Pro models in the Gemini app and in AI Mode in Search. They keep the Flash and Flash-Lite models. To keep choosing Pro, a subscriber has to move to AI Pro at $19.99 a month, four times the price. Google emailed Plus subscribers with the November 13 date, and its support page confirms the restriction without giving one cutoff date for everyone. The result is that Google's cheapest route to its top model now costs the same as Perplexity Pro at $20, and below AI Pro the user gets no say in which model answers.",
+    "claim_type": "fact",
+    "section": "pricing",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://digitaltrends.com/computing/google-ai-plus-losing-pro-model-selection",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "Google AI Plus costs $4.99 a month in the US, compared with $19.99 for Google AI Pro.",
+    "as_of": "2026-11-04",
+    "confidence": "high",
+    "id": "c_e0f30b14c285",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-11-04",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.androidcentral.com/apps-software/google-wants-you-to-pay-more-for-using-gemini-pro-in-gemini-app-and-google-search",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "news"
   }
 ]
