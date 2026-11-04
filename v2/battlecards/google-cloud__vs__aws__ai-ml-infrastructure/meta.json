@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-11-03T12:06:44",
+  "last_checked": "2026-11-04T12:06:54",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -45,22 +45,5 @@
     ],
     "job_boards": []
   },
-  "last_check_reason": "scheduled",
-  "pending_candidates": {
-    "my_company": [
-      {
-        "signal": "AWS and Google Cloud announce rare multicloud partnership enabling workload portability between platforms (November 2026)",
-        "subject_key": "NEW",
-        "about": "my_company",
-        "valence": "front_foot",
-        "substantial": true,
-        "why_new": "No AWS-Google Cloud partnership is tracked in known subjects. This partnership directly reduces AWS's data-gravity incumbent lock-in advantage—a tracked loss condition—by enabling customers to migrate workloads between platforms with point-and-click simplicity.",
-        "source_hint": "Forbes Argentina (AWS y Google Cloud 2026 alianza terminó su rivalidad); The Information (AWS makes easier for AI customers to use rival clouds)"
-      }
-    ],
-    "since": "2026-11-02",
-    "my_since": "2026-11-02",
-    "attempts": 1,
-    "reason": "own-side candidates did not ground"
-  }
+  "last_check_reason": "scheduled"
 }
