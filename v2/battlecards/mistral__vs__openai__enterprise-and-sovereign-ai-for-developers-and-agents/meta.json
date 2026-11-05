@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise and sovereign AI for developers and agents",
   "baseline_date": "2026-06-17",
-  "last_checked": "2026-11-04T12:10:15",
+  "last_checked": "2026-11-05T12:07:56",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_911e9a6938ba",
@@ -81,5 +81,22 @@
       }
     ]
   },
-  "last_check_reason": "scheduled"
+  "last_check_reason": "scheduled",
+  "pending_candidates": {
+    "my_company": [
+      {
+        "signal": "Mistral announces 'Mistral for Industrial Engineering' at Paris conference (November 2026) and signs new partnerships: Airbus (5-year agreement across commercial aircraft, helicopters, space), BMW (manufacturing integration), both new to battlecard",
+        "subject_key": "mistral | product-launch | industrial-engineering-2026",
+        "about": "my_company",
+        "valence": "front_foot",
+        "substantial": true,
+        "why_new": "Industrial Engineering is a new product vertical not tracked. Airbus and BMW partnerships announced in November are new customer wins in the focus area (enterprise AI deployment). These are material expansions of Mistral's enterprise footprint and sovereignty positioning.",
+        "source_hint": "https://ground.news/article/mistral-signs-airbus-and-bmw-as-it-brings-ai-to-manufacturing"
+      }
+    ],
+    "since": "2026-11-04",
+    "my_since": "2026-11-04",
+    "attempts": 1,
+    "reason": "own-side candidates did not ground"
+  }
 }
