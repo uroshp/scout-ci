@@ -1350,23 +1350,23 @@
   },
   {
     "subject_key": "microsoft-teams | copilot-meeting-access-gating",
-    "claim": "Microsoft delayed the rollout of the new Teams meeting AI controls (MeetingAI and TranscriptionWithMeetingAI policies, which replace the Copilot meeting policy). In a November 3, 2026 update, Message Center MC1532253 moved Targeted Release to early December 2026 and General Availability to early January 2027, completing mid-January 2027. GA was previously set for late November 2026.",
+    "claim": "Microsoft pushed back the Teams meeting AI controls (MeetingAI and TranscriptionWithMeetingAI policies, which replace the Copilot meeting policy) a second time. In its November 3, 2026 update to Message Center post MC1532253, Microsoft moved Targeted Release to begin in early December 2026 (previously mid-November), finishing mid-December. General Availability now begins in early January 2027 (previously late November 2026), finishing mid-January 2027. Existing settings are mapped automatically and no admin action is required unless admins use scripts or automation that reference the Copilot meeting policy.",
     "claim_type": "fact",
     "section": "tracked_facts",
     "zone": null,
     "order": 1,
     "source_url": "https://mc.merill.net/message/MC1532253",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "General Availability (Worldwide): We will begin rolling out in early January 2027 (previously late November 2026)",
+    "source_tier": "primary",
+    "evidence_excerpt": "We will begin rolling out in early December 2026 (previously mid-November) and expect to complete by mid-December 2026",
     "as_of": "2026-11-03",
-    "confidence": "medium",
+    "confidence": "high",
     "id": "c_b52460e64c86",
     "verified": true,
     "grounding": {
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-11-04",
+      "fetched_at": "2026-11-05",
       "detail": null
     },
     "source_class": "unknown"
