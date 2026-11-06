@@ -73,15 +73,24 @@ def main() -> None:
         job_id = req["job_id"]
         now = datetime.now().isoformat(timespec="seconds")
 
-        # Authoritative gate, re-checked at the point of spend.
+        # Authoritative gates, re-checked at the point of spend: the visitor first (one report
+        # per visitor, blocked keys), then the pool and the ceiling.
+        who = (req.get("requester") or {}).get("keys") or []
+        prior = selfserve.prior_report(who, exclude_job_id=job_id)
+        if prior:
+            selfserve.save_result(job_id, {
+                "job_id": job_id, "status": "rejected", "reason": "one_per_visitor",
+                "finished_at": now, "prior_job_id": prior.get("job_id"),
+                "message": selfserve.ONE_PER_VISITOR_MSG,
+            })
+            print(f"{job_id}: REJECTED (one per visitor; prior {prior.get('job_id')})")
+            continue
         g = selfserve.gate()
         if not g["open"]:
             selfserve.save_result(job_id, {
                 "job_id": job_id, "status": "rejected", "reason": g["reason"],
                 "finished_at": now,
-                "message": ("The free launch window is full — DM for access."
-                            if g["reason"] == "window_closed"
-                            else "The spend ceiling has been reached — DM for access."),
+                "message": selfserve.BY_REQUEST_MSG,
             })
             print(f"{job_id}: REJECTED ({g['reason']})")
             continue

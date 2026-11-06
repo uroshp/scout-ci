@@ -10,11 +10,11 @@ showcase (`display.list_battlecards`) or the monitor (`run_all`): the separation
 renders the card when it appears. No email/notify — the job id lives in the URL so a visitor
 can leave and come back.
 
-Two INDEPENDENT gates (config): a launch WINDOW (first N free, then the entry point locks to
-"DM me for access") and a hard SPEND CEILING in dollars, in case per-report cost spikes. Both
+Two INDEPENDENT gates (config): a launch WINDOW (first N, then the entry point locks to
+"get in touch for access") and a hard SPEND CEILING in dollars, in case per-report cost spikes. Both
 live in `selfserve/state.json`. The Action — serialized via the workflow's `concurrency` group
 — is the AUTHORITATIVE writer of state (it re-checks the gate before spending and records the
-real cost). The app reads state only to display "X free left" and lock the button; a stale read
+real cost). The app reads state only to lock the button; a stale read
 can never overspend because the Action gates again at the point of spend.
 
 BACKEND: when SELFSERVE_GH_TOKEN + SELFSERVE_REPO are set (deployed app), reads/writes go through
@@ -22,6 +22,7 @@ the GitHub API on SELFSERVE_BRANCH. Otherwise everything falls back to the local
 (dev/test), so the whole flow is runnable without a token.
 """
 import base64
+import ipaddress
 import json
 import os
 import random
@@ -36,6 +37,7 @@ from scout import config, store
 
 STATE_PATH = "selfserve/state.json"
 REQUESTS_DIR = "selfserve/requests"
+REQUESTERS_PATH = "selfserve/requesters.json"   # one report per visitor: who already has one, and who is blocked
 RESULTS_DIR = "user_reports"
 _GH_API = "https://api.github.com"
 def _under_test_runner() -> bool:
@@ -368,6 +370,112 @@ def gate(state: dict | None = None) -> dict:
     return {"open": True, "free_left": free_left, "reason": None}
 
 
+# --- one report per visitor (2026-11-06) ------------------------------------------------------
+# One visitor ran three reports in an hour ($10.88) because the only limits were a shared pool
+# and a per-address burst guard that lives in one app instance's memory. A visitor is now known
+# by three keys: the exact IPv4, the IPv6 /64 (a home or a phone keeps its /64 while the host
+# part rotates), and the viewer's two-year cookie id. The index below lives in the private store,
+# so it survives instance restarts and is the same for the app and the Action. The app refuses a
+# second request up front; the Action re-checks at the point of spend (authoritative, as with
+# the pool gate). A blocked key is refused outright. An earlier request that ended in an error or
+# a rejection does not count: that visitor got nothing.
+_CID_RE = re.compile(r"[A-Za-z0-9_-]{8,64}")
+
+
+def requester_keys(ip: str | None, cid: str | None) -> list[str]:
+    """The keys one visitor is known by. Order: address first, cookie second."""
+    keys = []
+    ip = (ip or "").strip()
+    if ip:
+        try:
+            addr = ipaddress.ip_address(ip)
+        except ValueError:
+            addr = None
+        if addr is not None and addr.version == 6:
+            keys.append(f"net:{ipaddress.ip_network((addr, 64), strict=False)}")
+        elif addr is not None:
+            keys.append(f"ip:{addr}")
+    cid = (cid or "").strip()
+    if cid and _CID_RE.fullmatch(cid):
+        keys.append(f"cid:{cid}")
+    return keys
+
+
+def load_requesters() -> dict:
+    """{"used": {key: [{"job_id", "at"}, ...]}, "blocked": [key, ...]}; tolerant of an absent or
+    hand-edited file."""
+    raw = _read(REQUESTERS_PATH)
+    d = {}
+    if raw:
+        try:
+            d = json.loads(raw)
+        except json.JSONDecodeError:
+            d = {}
+    if not isinstance(d, dict):
+        d = {}
+    used = d.get("used") if isinstance(d.get("used"), dict) else {}
+    blocked = d.get("blocked") if isinstance(d.get("blocked"), list) else []
+    return {"used": used, "blocked": [str(k) for k in blocked]}
+
+
+def save_requesters(d: dict) -> None:
+    _write(REQUESTERS_PATH, json.dumps(d, indent=2, ensure_ascii=False),
+           "selfserve: record requester")
+
+
+def record_requester(keys: list[str], job_id: str, at: str) -> None:
+    """Append this job under every key the visitor is known by (read-modify-write; the app
+    serves a handful of requests a month, and the Action re-checks regardless)."""
+    if not keys:
+        return
+    d = load_requesters()
+    for k in keys:
+        lst = d["used"].setdefault(k, [])
+        if not any(e.get("job_id") == job_id for e in lst if isinstance(e, dict)):
+            lst.append({"job_id": job_id, "at": at})
+    save_requesters(d)
+
+
+def prior_report(keys: list[str], exclude_job_id: str | None = None,
+                 requesters: dict | None = None) -> dict | None:
+    """What this visitor already has. None when they are new. Otherwise {"job_id": the earliest
+    job that is done or still generating (None if the visitor is only blocked), "blocked": bool}.
+    Only jobs listed BEFORE exclude_job_id under a key are prior to it, so two requests queued in
+    one burst resolve in order: the first runs, the second is refused."""
+    if not keys:
+        return None
+    d = requesters if requesters is not None else load_requesters()
+    blocked = any(k in d["blocked"] for k in keys)
+    seen = []
+    for k in keys:
+        lst = [e for e in d["used"].get(k, []) if isinstance(e, dict) and e.get("job_id")]
+        if exclude_job_id is not None:
+            ids = [e["job_id"] for e in lst]
+            if exclude_job_id in ids:
+                lst = lst[:ids.index(exclude_job_id)]
+        for e in lst:
+            if e["job_id"] not in seen:
+                seen.append(e["job_id"])
+    for job_id in seen:
+        raw = _read(f"{RESULTS_DIR}/{job_id}/result.json")
+        if not raw:
+            return {"job_id": job_id, "blocked": blocked}        # still generating: counts
+        try:
+            status = json.loads(raw).get("status")
+        except (json.JSONDecodeError, AttributeError):
+            status = None
+        if status == "done":
+            return {"job_id": job_id, "blocked": blocked}
+        # error / rejected: that request produced nothing for the visitor, so it does not count
+    if blocked:
+        return {"job_id": None, "blocked": True}
+    return None
+
+
+ONE_PER_VISITOR_MSG = "One report per visitor, and you already have one. For another, get in touch."
+BY_REQUEST_MSG = "Reports are by request at the moment. For access, get in touch."
+
+
 # --- jobs --------------------------------------------------------------------
 def _now() -> str:
     return datetime.now().isoformat(timespec="seconds")
@@ -385,11 +493,13 @@ def new_job_id(competitor: str, my_company: str | None, focus: str | None) -> st
 
 
 def submit(competitor: str, my_company: str | None, focus: str | None,
-           notify_email: str | None = None) -> dict:
+           notify_email: str | None = None, requester: dict | None = None) -> dict:
     """Capture a request (does NOT generate). Writes selfserve/requests/<id>.json, which
     triggers the Action. Returns the request record (incl. job_id) for the app to track.
     notify_email (optional) is carried through so the ACTION can email the result link when the
-    job finishes — the app never sends, because the visitor may have closed the tab."""
+    job finishes — the app never sends, because the visitor may have closed the tab.
+    requester ({"ip", "cid", "keys"}) is who asked: stored on the record (private store) and
+    indexed so the one-report-per-visitor rule holds across app instances and in the Action."""
     job_id = new_job_id(competitor, my_company, focus)
     email = (notify_email or "").strip() or None
     req = {
@@ -401,8 +511,13 @@ def submit(competitor: str, my_company: str | None, focus: str | None,
         "requested_at": _now(),
         "status": "queued",
     }
+    if requester:
+        req["requester"] = {"ip": requester.get("ip"), "cid": requester.get("cid"),
+                            "keys": list(requester.get("keys") or [])}
     _write(f"{REQUESTS_DIR}/{job_id}.json", json.dumps(req, indent=2, ensure_ascii=False),
            f"selfserve: queue request {job_id}")
+    if requester and requester.get("keys"):
+        record_requester(list(requester["keys"]), job_id, req["requested_at"])
     # A push to the private DATA repo can't trigger the workflow in the CODE repo, so dispatch it
     # explicitly. Best-effort for the VISITOR (their request is safely queued either way), but a
     # failed dispatch is an OUTAGE for the owner — the 6/24-7/18 incident ran silent for weeks
