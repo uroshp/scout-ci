@@ -53,15 +53,14 @@ jobs:
           SELFSERVE_REPO: ${{ secrets.SELFSERVE_REPO }}
           # Interim caps (owner-set 2026-07-18, until the cost-architecture rethink): the July CLI
           # overhead made June's $10 cap kill HEALTHY runs mid-flight, wasting the full spend. So:
-          # the FREE_LIMIT (5 reports) is the real spending control; the $100 gen cap is purely a
+          # the pool limit (config.SELFSERVE_FREE_LIMIT, one place for the app and this runner;
+          # 2026-11-06: an env override here drifted from the app) is the spending control; the $100 gen cap is purely a
           # runaway backstop that must never decapitate real work; the ceiling is arithmetic-
           # aligned at 5 x $100 (it reserves one full cap before starting a run, so anything lower
           # would silently refuse run #2). True per-run cost gets MEASURED by the owner's first
           # UI run and calibrated properly in the rethink. MAX_TURNS (40) and the $0.50 preflight
           # stay — loop guards, not cost tuning.
           SCOUT_GEN_MAX_BUDGET_USD: "100"
-          SCOUT_SELFSERVE_FREE_LIMIT: "5"
-          SCOUT_SELFSERVE_SPEND_CEILING_USD: "500"
           # Owner alerts on generation FAILURES (2026-07-19: every failure emails the owner with
           # the raw error; the visitor only ever sees honest human copy). Same secrets monitor.yml
           # uses; Resend is the fallback when the Gmail creds are absent.

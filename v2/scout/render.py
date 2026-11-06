@@ -126,10 +126,10 @@ def _source_link(c: dict, by_id: dict | None = None) -> str:
 
 
 def _zone_title(zone: str, my_company: str | None, competitor: str | None) -> str:
-    me = my_company or "You"
     them = competitor or "They"
     return {
-        "where_we_win": f"Where {me} wins",
+        # no own company named: second person, so the header reads as a sentence
+        "where_we_win": f"Where {my_company} wins" if my_company else "Where you win",
         "contested": "Where it's a fight",
         "where_they_win": f"Where {them} wins",
     }[zone]

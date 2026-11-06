@@ -512,6 +512,36 @@ def _client_ip() -> str:
     return xff[-1] if xff else (request.remote_addr or "?")
 
 
+def _requester() -> dict:
+    """Who is asking for a report: the client address and the viewer cookie, plus the keys the
+    one-report-per-visitor rule matches on (scout.selfserve.requester_keys)."""
+    ip = _client_ip()
+    cid = request.cookies.get("scout_cid") or None
+    return {"ip": ip, "cid": cid, "keys": selfserve.requester_keys(ip, cid)}
+
+
+def _already_has_report_html() -> str | None:
+    """The create page for a visitor who already has a report (or is blocked): a link to theirs
+    and the contact link, no form. None for a new visitor, and None when the store can't be read
+    (the Action re-checks at the point of spend, so an open form here can't overspend)."""
+    try:
+        prior = selfserve.prior_report(_requester()["keys"])
+    except Exception:
+        return None
+    if not prior:
+        return None
+    contact = _html.escape(config.SELFSERVE_CONTACT)
+    if prior.get("job_id"):
+        link = url_for("result", job_id=prior["job_id"])
+        return (f'<div class="wrap ss-wrap"><h2 class="ss-title">Create your own brief</h2>'
+                f'<p class="ss-cap">One report per visitor, and you already have one: '
+                f'<a href="{link}">open your report</a>. For another, '
+                f'<a href="{contact}">get in touch</a>.</p></div>')
+    return (f'<div class="wrap ss-wrap"><h2 class="ss-title">Create your own brief</h2>'
+            f'<p class="ss-cap">Reports are by request at the moment. '
+            f'For access, <a href="{contact}">get in touch</a>.</p></div>')
+
+
 @app.get("/api/answers/<aid>")
 def api_answer(aid):
     a = _load_answer(aid)
@@ -610,9 +640,12 @@ def create():
         return _doc(chrome + body, title="Create your own — Agent Scout", page_type="create")
     if not gate.get("open"):
         body = (f'<div class="wrap ss-wrap"><h2 class="ss-title">Create your own brief</h2>'
-                f'<p class="ss-cap">The free launch window is full. '
+                f'<p class="ss-cap">Reports are by request at the moment. '
                 f'For access, <a href="{_html.escape(config.SELFSERVE_CONTACT)}">get in touch</a>.</p></div>')
         return _doc(chrome + body, title="Create your own — Agent Scout", page_type="create")
+    known = _already_has_report_html()
+    if known:
+        return _doc(chrome + known, title="Create your own — Agent Scout", page_type="create")
     return _doc(chrome + _form_html(gate), title="Create your own — Agent Scout", page_type="create")
 
 
@@ -623,7 +656,7 @@ def _form_html(gate: dict) -> str:
     return (
         '<div class="wrap ss-wrap">'
         '<h2 class="ss-title">Create your own brief</h2>'
-        f'<p class="ss-cap"><b>{gate.get("free_left", 0)} free reports left.</b> Two companies, '
+        '<p class="ss-cap"><b>One report per visitor.</b> Two companies, '
         'optional focus. We research, verify every claim against its source, then show you the brief.</p>'
         '<div id="ss-form">'
         '<label>Competitor to research (required)<input id="ss-comp" maxlength="60" placeholder="e.g. OpenAI"></label>'
@@ -737,12 +770,15 @@ def api_request():
         return jsonify(error="Please enter a competitor to research."), 400
     if email and not selfserve.valid_email(email):
         return jsonify(error="That email doesn't look right — fix it or clear it to continue."), 400
+    who = _requester()
     try:
+        if selfserve.prior_report(who["keys"]):
+            return jsonify(error=selfserve.ONE_PER_VISITOR_MSG), 403
         if not selfserve.gate().get("open"):
-            return jsonify(error="The free window just closed. For access, see the contact link."), 403
+            return jsonify(error=selfserve.BY_REQUEST_MSG), 403
         # submit() writes the request AND dispatches the Action internally (no-op without a token).
         req = selfserve.submit(competitor, my_company or None, focus or None,
-                               notify_email=email or None)
+                               notify_email=email or None, requester=who)
     except Exception:
         return jsonify(error="Couldn't reach the report backend just now — nothing was submitted. "
                              "Please try again in a minute."), 502
@@ -774,7 +810,7 @@ def api_status(job_id):
     if status == "done":
         return jsonify(status="done", result_url=url_for("result", job_id=job_id))
     if status == "rejected":
-        return jsonify(status="rejected", message=res.get("message", "The free window is closed."))
+        return jsonify(status="rejected", message=res.get("message", selfserve.BY_REQUEST_MSG))
     return jsonify(status="error",
                    message=res.get("message", "Something went wrong generating this report."))
 
@@ -816,7 +852,7 @@ def result(job_id):
             brief = f'<div class="wrap"><pre style="white-space:pre-wrap">{_html.escape(md)}</pre></div>'
         return _doc(chrome + brief, title="Your report — Agent Scout", page_type="create")
     if status == "rejected":
-        msg = _html.escape(res.get("message", "The free window is closed."))
+        msg = _html.escape(res.get("message", selfserve.BY_REQUEST_MSG))
         return _doc(chrome + f'<div class="wrap ss-wrap"><p>{msg}</p></div>', title="Agent Scout")
     # Error fall-through: `message` is ALWAYS the runner's human-facing copy — raw internals live
     # only in the owner-facing detail_internal field, which is never rendered (7/18 incident).
