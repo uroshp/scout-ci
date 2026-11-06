@@ -4,7 +4,7 @@
   "competitor": "Google",
   "focus": null,
   "baseline_date": "2026-06-06",
-  "last_checked": "2026-11-05T12:13:57",
+  "last_checked": "2026-11-06T01:18:45",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_9ea436272f2a",
@@ -53,5 +53,22 @@
       }
     ]
   },
-  "last_check_reason": "scheduled"
+  "last_check_reason": "signal",
+  "pending_candidates": {
+    "my_company": [
+      {
+        "signal": "Amazon escalates legal assault on Perplexity's Comet AI browser with cease-and-desist and new lawsuit alleging data scraping and ToS violations; early November 2026",
+        "subject_key": "perplexity | legal-action | comet-amazon-injunction",
+        "about": "my_company",
+        "valence": "back_foot",
+        "substantial": true,
+        "why_new": "Tracked claim (August 2026): Ninth Circuit vacated preliminary injunction favoring Perplexity, clearing Comet to access Amazon. New development: Amazon counter-escalates in early November 2026 with aggressive cease-and-desist and new lawsuit, claiming Comet disguises itself as human, scrapes data, and violates ToS. This is material escalation and reversal after a court loss—Amazon is pursuing a different legal angle and refusing to accept the court's decision.",
+        "source_hint": "pymnts.com, yourstory.com, engadget.com"
+      }
+    ],
+    "since": "2026-11-05",
+    "my_since": "2026-11-05",
+    "attempts": 1,
+    "reason": "own-side candidates did not ground"
+  }
 }
