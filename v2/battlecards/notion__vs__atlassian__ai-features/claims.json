@@ -97,15 +97,15 @@
   },
   {
     "subject_key": "atlassian | q-revenue | q3-fy2026",
-    "claim": "Atlassian is a public company at meaningful scale: Q3 FY2026 (quarter ended March 31, 2026) total revenue was $1.8B, up 32% year over year, with cloud revenue past $1.1B.",
+    "claim": "Atlassian's Q1 FY2027 revenue (quarter ended September 30, 2026) was $1,772 million, up 24% year over year. Cloud revenue was $1,302 million, up 31%. The company swung to an 11% GAAP operating margin from a 7% loss a year earlier. Growth is slowing: Atlassian guides full-year FY2027 revenue growth to about 13.75%, and the quarter was roughly flat with the prior quarter's $1.77B. Atlassian is still large and now profitable, but it is no longer growing above 30%.",
     "claim_type": "fact",
     "section": "snapshot",
     "zone": null,
-    "order": 0,
-    "source_url": "https://www.atlassian.com/blog/company-news/shareholder-letter-q3fy26",
+    "order": 1,
+    "source_url": "https://www.sec.gov/Archives/edgar/data/0001650372/000165037226000049/ex991q1fy27.htm",
     "source_tier": "primary",
-    "evidence_excerpt": "Total revenue was strong at $1.8B, up 32% y/y",
-    "as_of": "2026-04-30",
+    "evidence_excerpt": "Total revenue was $1,772 million for the first quarter of fiscal year 2027, up 24% from $1,433 million for the first quarter of fiscal year 2026.",
+    "as_of": "2026-11-05",
     "confidence": "high",
     "id": "c_a68eca23cc9f",
     "verified": true,
@@ -113,10 +113,10 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-05",
+      "fetched_at": "2026-11-06",
       "detail": null
     },
-    "source_class": "company_statement"
+    "source_class": "filing"
   },
   {
     "subject_key": "atlassian | rovo-adoption-claim | current",
@@ -1024,15 +1024,15 @@
   },
   {
     "subject_key": "atlassian | mcp-tg-adoption",
-    "claim": "Atlassian's agent platform is scaling fast. In its Q4 FY26 shareholder letter (August 6, 2026) Atlassian reported that monthly active users of its MCP server and Teamwork Graph CLI more than doubled during the quarter to surpass 1 million, with overall MCP calls up more than 400% and Jira work items and Confluence pages generated via MCP up nearly 4x. This is real traction in the contested agent-orchestration race. Two caveats matter for Notion: Atlassian tied no disclosed revenue to those users, and the reach still runs through Jira and Confluence, so it lands with engineering teams first.",
+    "claim": "Atlassian rebuilt its MCP server, which now exposes over 220 tools across Jira, Confluence, Loom and Bitbucket. Atlassian reports over 2 million monthly users and more than 15 million tool calls a day, and calls it one of Anthropic's most-used MCP servers. Teams already reach Atlassian data from Claude, ChatGPT and Cursor at scale. Reps cannot claim that external-agent access is a Notion-only strength.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 20,
-    "source_url": "https://www.atlassian.com/blog/company-news/shareholder-letter-q4fy26",
+    "order": 4,
+    "source_url": "https://www.sec.gov/Archives/edgar/data/0001650372/000165037226000049/ex991q1fy27.htm",
     "source_tier": "primary",
-    "evidence_excerpt": "Monthly active users (MAU) of our MCP server and the Teamwork Graph CLI more than doubled during the quarter, to surpass 1 million MAU",
-    "as_of": "2026-08-06",
+    "evidence_excerpt": "With over 2 million monthly users and more than 15 million daily tool calls, it is currently one of Anthropic’s top used MCP servers.",
+    "as_of": "2026-11-05",
     "confidence": "high",
     "id": "c_ef02d408a508",
     "verified": true,
@@ -1040,19 +1040,10 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-08-08",
+      "fetched_at": "2026-11-06",
       "detail": null
     },
-    "corroboration": [
-      {
-        "source_url": "https://www.tradingkey.com/news/earnings/262085237-tradingkey",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false,
-        "source_class": "news"
-      }
-    ],
-    "source_class": "company_statement"
+    "source_class": "filing"
   },
   {
     "subject_key": "notion | workers-pricing",
@@ -1337,5 +1328,51 @@
       }
     ],
     "source_class": "company_statement"
+  },
+  {
+    "subject_key": "atlassian | service-collection-business-teams",
+    "claim": "Atlassian is moving its service desk into Notion's cross-functional territory. Per its Q1 FY2027 results, Service Collection passed $1 billion in ARR and 70,000 customers, growing over 30% a year. Atlassian says the growth comes from HR, legal, finance, customer service and marketing teams, and that seat growth from competitive displacements topped 40%. Notion can no longer assume the non-engineering buyer is uncontested in an Atlassian account.",
+    "claim_type": "fact",
+    "section": "positioning",
+    "zone": null,
+    "order": 2,
+    "source_url": "https://www.sec.gov/Archives/edgar/data/0001650372/000165037226000049/ex991q1fy27.htm",
+    "source_tier": "primary",
+    "evidence_excerpt": "This growth is driven by organizations expanding beyond IT into HR, legal, finance, customer service, and marketing teams",
+    "as_of": "2026-11-05",
+    "confidence": "medium",
+    "id": "c_9496cb24cc9c",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-11-06",
+      "detail": null
+    },
+    "source_class": "filing"
+  },
+  {
+    "subject_key": "atlassian | amp-agent-teammates",
+    "claim": "At Team '26 Europe, Atlassian launched the Agentic Multiplayer Protocol (AMP). AMP puts AI agents into Jira, Confluence and Loom as named teammates. Each agent has its own identity, scoped permissions and an audit trail. Agents can be @mentioned, assigned Jira work items, co-edit pages and take steps in workflows. This is Atlassian's answer in the contested agent-orchestration race, and it leads with governance.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 3,
+    "source_url": "https://www.sec.gov/Archives/edgar/data/0001650372/000165037226000049/ex991q1fy27.htm",
+    "source_tier": "primary",
+    "evidence_excerpt": "Agentic Multiplayer Protocol (AMP): Atlassian’s foundation for human-agent teamwork moves AI out of isolated, single-player chat windows and into multiplayer mode",
+    "as_of": "2026-11-05",
+    "confidence": "high",
+    "id": "c_fa033bce86a9",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-11-06",
+      "detail": null
+    },
+    "source_class": "filing"
   }
 ]
