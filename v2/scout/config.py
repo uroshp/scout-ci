@@ -328,7 +328,7 @@ ALERT_EMAIL_FROM = os.environ.get("SCOUT_ALERT_FROM", "Scout <onboarding@resend.
 # ONE place for both numbers (2026-11-06): the Action env used to say 5 and $500 while the app
 # ran on these defaults (10 and $100), so the page offered reports the Action would refuse.
 # selfserve.yml must not set them; tests/test_selfserve_person.py pins that.
-SELFSERVE_FREE_LIMIT = int(os.environ.get("SCOUT_SELFSERVE_FREE_LIMIT", "5"))   # his number, 2026-11-06: the pool is full, the form closes
+SELFSERVE_FREE_LIMIT = int(os.environ.get("SCOUT_SELFSERVE_FREE_LIMIT", "6"))   # his number, 2026-11-07: one slot open; when it is used the form closes again
 SELFSERVE_SPEND_CEILING_USD = float(os.environ.get("SCOUT_SELFSERVE_SPEND_CEILING_USD", "500"))
 # A FAILED generation still bills (subagents already searched before the crash) but produces no
 # ResultMessage, so its exact cost is unknowable in-run. Count this ESTIMATE against the ceiling
