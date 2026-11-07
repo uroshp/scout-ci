@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-11-05T21:18:39",
+  "last_checked": "2026-11-07T12:04:39",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -45,5 +45,40 @@
     ],
     "job_boards": []
   },
-  "last_check_reason": "signal"
+  "last_check_reason": "scheduled",
+  "pending_candidates": {
+    "my_company": [
+      {
+        "signal": "Google Cloud unveils Gemini Enterprise Agent Platform at Cloud Next (November 2026)",
+        "subject_key": "NEW",
+        "about": "my_company",
+        "valence": "front_foot",
+        "substantial": true,
+        "why_new": "New full-stack agent platform for enterprise production workloads; not previously tracked; material to contested agent-platform-maturity battlecard and AI/ML infrastructure focus; positions against AWS Bedrock Agents lifecycle",
+        "source_hint": "https://www.hpcwire.com/aiwire/tag/gemini-enterprise-agent-platform/"
+      },
+      {
+        "signal": "Google launches Gemini 3.1 Pro frontier model at Cloud Next (November 2026)",
+        "subject_key": "google-cloud | model-launch | gemini-3-1-pro",
+        "about": "my_company",
+        "valence": "front_foot",
+        "substantial": true,
+        "why_new": "New frontier model release (distinct from Gemini 3.8 Flash and Gemini 4 Argon, both September 2026); third major model update within six weeks; material to model velocity and battlecard | win | gemini-flash-first-party-velocity claim",
+        "source_hint": "https://www.pulse.bot/ai/news/everything-announced-at-google-cloud-next-in-under-15-minutes-91b650fb-4534-4116-8f36-d77ce666cb6e/"
+      },
+      {
+        "signal": "Google Cloud launches Agentic Data Cloud / multi-cloud lakehouse at Cloud Next (November 2026)",
+        "subject_key": "NEW",
+        "about": "my_company",
+        "valence": "front_foot",
+        "substantial": true,
+        "why_new": "New infrastructure product for agentic AI and data unification across multi-cloud; not previously tracked; material to AI/ML infrastructure focus and Google's stack positioning vs. AWS data+AI bundling",
+        "source_hint": "https://www.itpro.com/cloud/live/google-cloud-next-2026-all-the-live-updates-as-they-happen"
+      }
+    ],
+    "since": "2026-11-05",
+    "my_since": "2026-11-05",
+    "attempts": 1,
+    "reason": "own-side candidates did not ground"
+  }
 }

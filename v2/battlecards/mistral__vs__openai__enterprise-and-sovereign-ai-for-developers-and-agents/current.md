@@ -58,6 +58,22 @@ On September 25 OpenAI disclosed that its agents touched Education, Commerce and
 
 **So what:** Put agent scope and credential handling on the technical evaluation checklist, and cite the September 25 federal-site disclosure as the concrete case. ([wcax.com](https://www.wcax.com/2026/09/26/openai-says-its-models-engaged-with-us-government-websites-unexpected-ways/))
 
+**OpenAI's Pro 200 plan now gives half the usage for the same \$200.**
+
+Since October 30, Pro 200 includes 10 times the Plus allowance in ChatGPT Work and Codex, down from 20 times. Getting 20x back means moving to the \$500 Pro 500 plan, which gives 25x. Every Pro tier now costs the same \$20 per Plus-worth of usage, so a heavy Codex team pays double the old per-unit price at \$200, or a 2.5x bigger bill to keep the same workload.
+
+**Soundbite:** "Ask your team what a bill 2.5 times bigger for the same Codex workload does to your budget, then let us price that workload for you."
+
+**So what:** Quote the new Pro 200 and Pro 500 numbers, ask for the buyer's current Codex usage, and bring a Mistral price for that same workload. ([thenextweb.com](https://thenextweb.com/news/openai-devday-pro-200-usage-cut-pro-500-plan))
+
+**A major Dutch bank partnered with Mistral to reduce its reliance on non-European providers.**
+
+On August 5, 2026 ABN AMRO signed a strategic partnership with Mistral to build and deploy AI applications across the bank, its first with a major Dutch bank. ABN AMRO said the technology is developed and managed in Europe, and that the applications must meet its standards for security, transparency, privacy and regulatory compliance. Trade press reported the initial focus as cybersecurity and compliance solutions.
+
+**Soundbite:** "A Dutch bank with strict compliance standards partnered with us because the technology is built and run in Europe."
+
+**So what:** Use ABN AMRO as the reference when a regulated buyer raises where their AI provider is based, and ask which compliance standards their applications must meet. ([abnamro.com](https://www.abnamro.com/nl/nieuws/abn-amro-en-mistral-gaan-strategisch-partnerschap-aan-om-europese-ai-innovatie-te-versterken))
+
 ## Snapshot
 
 - Mistral closed a €3 billion Series D on September 8, 2026 at a post-money valuation of more than €21 billion (about \$24.39 billion), led by Samsung Electronics with co-leads Scaleup Europe Fund and PSG Equity. New investors include Advent, BlackRock-managed funds and the Grand Duchy of Luxembourg. ([mistral.ai](https://mistral.ai/news/mistral-makes-sovereign-open-weight-ai-to-frontier/))

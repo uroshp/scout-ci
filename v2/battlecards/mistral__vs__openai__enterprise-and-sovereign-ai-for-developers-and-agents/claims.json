@@ -2413,5 +2413,51 @@
       "stamped_on": "2026-11-03",
       "source_class": "company_statement"
     }
+  },
+  {
+    "id": "c_92cdedb0eec8",
+    "subject_key": "audience-lead | economic_buyer | c_1de50f09d1a3",
+    "claim": "**OpenAI's Pro 200 plan now gives half the usage for the same $200.**\n\nSince October 30, Pro 200 includes 10 times the Plus allowance in ChatGPT Work and Codex, down from 20 times. Getting 20x back means moving to the $500 Pro 500 plan, which gives 25x. Every Pro tier now costs the same $20 per Plus-worth of usage, so a heavy Codex team pays double the old per-unit price at $200, or a 2.5x bigger bill to keep the same workload.\n\n**Soundbite:** \"Ask your team what a bill 2.5 times bigger for the same Codex workload does to your budget, then let us price that workload for you.\"\n\n**So what:** Quote the new Pro 200 and Pro 500 numbers, ask for the buyer's current Codex usage, and bring a Mistral price for that same workload.",
+    "claim_type": "interpretation",
+    "section": "executive_summary",
+    "zone": null,
+    "order": 7,
+    "as_of": "2026-09-29",
+    "updated_on": "2026-11-07",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_dd8f63e23bb2",
+    "persona": "economic_buyer",
+    "provenance": {
+      "source_url": "https://thenextweb.com/news/openai-devday-pro-200-usage-cut-pro-500-plan",
+      "source_tier": "reputable_secondary",
+      "as_of": "2026-09-29",
+      "fact_id": "c_dd8f63e23bb2",
+      "stamped_on": "2026-11-07",
+      "source_class": "news"
+    }
+  },
+  {
+    "id": "c_30ea4a1efb83",
+    "subject_key": "audience-lead | security_regulated | c_1de50f09d1a3",
+    "claim": "**A major Dutch bank partnered with Mistral to reduce its reliance on non-European providers.**\n\nOn August 5, 2026 ABN AMRO signed a strategic partnership with Mistral to build and deploy AI applications across the bank, its first with a major Dutch bank. ABN AMRO said the technology is developed and managed in Europe, and that the applications must meet its standards for security, transparency, privacy and regulatory compliance. Trade press reported the initial focus as cybersecurity and compliance solutions.\n\n**Soundbite:** \"A Dutch bank with strict compliance standards partnered with us because the technology is built and run in Europe.\"\n\n**So what:** Use ABN AMRO as the reference when a regulated buyer raises where their AI provider is based, and ask which compliance standards their applications must meet.",
+    "claim_type": "interpretation",
+    "section": "executive_summary",
+    "zone": null,
+    "order": 8,
+    "as_of": "2026-08-05",
+    "updated_on": "2026-11-07",
+    "verified": true,
+    "confidence": "medium",
+    "derived_from": "c_074b7e7f0afc",
+    "persona": "security_regulated",
+    "provenance": {
+      "source_url": "https://www.abnamro.com/nl/nieuws/abn-amro-en-mistral-gaan-strategisch-partnerschap-aan-om-europese-ai-innovatie-te-versterken",
+      "source_tier": "primary",
+      "as_of": "2026-08-05",
+      "fact_id": "c_074b7e7f0afc",
+      "stamped_on": "2026-11-07",
+      "source_class": "unknown"
+    }
   }
 ]
