@@ -953,5 +953,29 @@
       }
     ],
     "source_class": "news"
+  },
+  {
+    "subject_key": "competitive-verdict | superman-key-person-risk | current | fact",
+    "claim": "**Superman's leadership contracts run out before its sequel opens.**\n\nBloomberg reported that James Gunn's and Peter Safran's contracts to run DC Studios expire in April 2027. Man of Tomorrow opens on July 9, 2027, three months later. After the merger, Skydance's David Ellison told the pair to keep going but did not give them new deals. So the man who writes and directs Superman and runs the studio behind it has no signed mandate past April. Whether he stays will likely depend on how a film still in post-production performs.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 4,
+    "source_url": "https://cosmicbook.news/gunn-safran-contracts-april-2027",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "James Gunn and Peter Safran’s contracts as the heads of DC Studios expire in April 2027, according to Bloomberg",
+    "as_of": "2026-10-02",
+    "confidence": "medium",
+    "persona": null,
+    "id": "c_bd28c8e8a807",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-11-09",
+      "detail": null
+    },
+    "source_class": "unknown"
   }
 ]

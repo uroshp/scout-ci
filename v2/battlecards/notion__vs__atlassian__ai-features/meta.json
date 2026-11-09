@@ -4,7 +4,7 @@
   "competitor": "Atlassian",
   "focus": "AI features",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-11-07T00:18:50",
+  "last_checked": "2026-11-09T12:14:20",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_af44b318b691",
@@ -44,5 +44,22 @@
       }
     ]
   },
-  "last_check_reason": "signal"
+  "last_check_reason": "scheduled",
+  "pending_candidates": {
+    "my_company": [
+      {
+        "signal": "November 2026: Notion integrates Claude Opus 5 model into its platform for advanced reasoning and context handling across Agent and AI features.",
+        "subject_key": "notion | claude-opus-5-integration",
+        "about": "my_company",
+        "valence": "front_foot",
+        "substantial": true,
+        "why_new": "Tracked claims mention Claude availability in External Agents (July 2026), but do NOT specify Claude Opus 5 or a named model integration announcement. This November integration of Anthropic's latest reasoning model to Notion's toolset is a new partnership/feature milestone post-cutoff, material for model-choice deal positioning.",
+        "source_hint": "https://www.createwith.com/tool/notion/updates/notion-adds-claude-opus-5-model-to-its-ai-toolset-for-smarter-workflows"
+      }
+    ],
+    "since": "2026-11-07",
+    "my_since": "2026-11-07",
+    "attempts": 1,
+    "reason": "own-side candidates did not ground"
+  }
 }
