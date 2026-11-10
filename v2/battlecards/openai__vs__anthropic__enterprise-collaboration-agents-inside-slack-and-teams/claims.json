@@ -254,15 +254,15 @@
   },
   {
     "subject_key": "anthropic | ipo-plan | current",
-    "claim": "Anthropic filed its S-1 with the SEC on October 26, 2026, to list on Nasdaq under the ticker ANT, with Goldman Sachs and Morgan Stanley leading 22 underwriters. The filing shows $16.3 billion of revenue in the first half of 2026, up from $1.2 billion a year earlier, and a first-half operating loss of $693 million. The price range and share count are still blank. The Wall Street Journal reports a listing as soon as the week of November 16 at a valuation of $1.5 trillion to $2 trillion, which is not in the filing. The S-1 also states that Anthropic has asked its cloud providers for more compute than they were willing to supply.",
+    "claim": "Anthropic set its IPO terms on November 10, 2026: 825 million shares at $70 to $78 each, listing on Nasdaq as ANT. At the top of the range it raises up to $64.35 billion and is worth up to $1.405 trillion fully diluted, up from $965 billion in May. CNBC reports it had been aiming for $2 trillion, and investors now call even $1.5 trillion a stretch. AMD, Broadcom, Google, Micron, Microsoft, Nvidia and TSMC have agreed to buy another $26 billion of stock at the IPO price. Microsoft is on that list, so it now has money in both labs.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.anthropic.com/news",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/0002130357/000162828026072484/anthropicpbc-sx1ax2.htm",
     "source_tier": "primary",
-    "evidence_excerpt": "Today, Anthropic, PBC filed a registration statement on Form S-1 with the U.S. Securities and Exchange Commission relating to its proposed initial public offering of its Class A common stock.",
-    "as_of": "2026-10-26",
+    "evidence_excerpt": "It is currently estimated that the initial public offering price per share will be between $70.00 and $78.00 .",
+    "as_of": "2026-11-10",
     "confidence": "high",
     "id": "c_45702a341de6",
     "verified": true,
@@ -270,19 +270,19 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-11-02",
+      "fetched_at": "2026-11-10",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://ppc.land/anthropic-files-for-nasdaq-ipo-with-16-3bn-in-first-half-revenue/",
+        "source_url": "https://www.cnbc.com/2026/11/10/anthropic-sets-price-range-of-70-to-78-in-upcoming-ipo.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false,
-        "source_class": "unknown"
+        "source_class": "news"
       }
     ],
-    "source_class": "company_statement"
+    "source_class": "filing"
   },
   {
     "subject_key": "anthropic | data-retention | 2026",
