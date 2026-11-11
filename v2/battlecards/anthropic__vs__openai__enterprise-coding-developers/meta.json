@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise coding/developers",
   "baseline_date": "2026-06-04",
-  "last_checked": "2026-11-10T12:04:40",
+  "last_checked": "2026-11-11T12:04:35",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_e5e52edeb211",
@@ -80,31 +80,5 @@
       }
     ]
   },
-  "last_check_reason": "scheduled",
-  "pending_candidates": {
-    "my_company": [
-      {
-        "signal": "Claude Code reached $1B annualized run-rate revenue in November 2026 — six months after becoming generally available",
-        "subject_key": "claude-code",
-        "about": "my_company",
-        "valence": "front_foot = good for us / bad for them",
-        "substantial": true,
-        "why_new": "No revenue milestone for Claude Code is tracked; this is a concrete product-market achievement showing faster-than-SaaS adoption velocity. The existing tracked claim focuses on developer loyalty sentiment, not revenue.",
-        "source_hint": "https://dev.to/om_shree_0709/anthropic-just-passed-openai-in-revenue-heres-what-actually-built-that-lead-2kmo"
-      },
-      {
-        "signal": "Anthropic's annualized revenue run-rate surged to ~$100B+ in November 2026, up from $47B in May 2026",
-        "subject_key": "anthropic | revenue-run-rate",
-        "about": "my_company",
-        "valence": "front_foot = good for us / bad for them",
-        "substantial": true,
-        "why_new": "Tracked claim states $47B in May 2026; this represents 2x+ growth in six months and eclipses OpenAI's September-reported $50B annualized run-rate. Status flip from 'trailing' to 'leading on revenue' is a material shift.",
-        "source_hint": "https://www.newsbytesapp.com/news/business/anthropics-claude-ai-nears-100b-run-rate-readies-nov-ipo/tldr"
-      }
-    ],
-    "since": "2026-11-09",
-    "my_since": "2026-11-09",
-    "attempts": 1,
-    "reason": "own-side candidates did not ground"
-  }
+  "last_check_reason": "scheduled"
 }
