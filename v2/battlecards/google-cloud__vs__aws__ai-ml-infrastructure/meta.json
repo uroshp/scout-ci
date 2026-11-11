@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-11-10T12:07:32",
+  "last_checked": "2026-11-11T12:06:41",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -45,5 +45,22 @@
     ],
     "job_boards": []
   },
-  "last_check_reason": "scheduled"
+  "last_check_reason": "scheduled",
+  "pending_candidates": {
+    "my_company": [
+      {
+        "signal": "Alphabet acquires Wiz for $32 billion (November 2026) — largest acquisition in company history, vertical-integrating cloud security to compete with AWS",
+        "subject_key": "NEW",
+        "about": "my_company",
+        "valence": "front_foot",
+        "substantial": true,
+        "why_new": "Major M&A not previously tracked: Alphabet's largest-ever acquisition announced in November 2026 (within cutoff). Wiz is a cloud security unicorn; Google rejected Wiz's decline of a $23B offer 'last summer' (2025) and closed at $32B. Strategic vertical integration into security to contest AWS incumbency in cloud-security competitive positioning.",
+        "source_hint": "https://www.foxbusiness.com/technology/google-purchasing-startup-wiz-32-billion"
+      }
+    ],
+    "since": "2026-11-10",
+    "my_since": "2026-11-10",
+    "attempts": 1,
+    "reason": "own-side candidates did not ground"
+  }
 }
