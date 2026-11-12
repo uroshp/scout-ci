@@ -44,6 +44,9 @@ class Keys(unittest.TestCase):
 
 
 class Index(unittest.TestCase):
+    def setUp(self):
+        selfserve.save_requesters({"used": {}, "blocked": []})      # other test files share the temp store
+
     def _submit(self, ip, cid, competitor=None):
         # job ids carry a one-second stamp, so two tests naming the same competitor in the same
         # second would share one id; a unique name per call keeps them apart
@@ -108,6 +111,7 @@ class App(unittest.TestCase):
         for p in self.p:
             p.start()
         server.app.config["TESTING"] = True
+        selfserve.save_requesters({"used": {}, "blocked": []})      # other test files share the temp store
 
     def tearDown(self):
         for p in self.p:
@@ -121,31 +125,31 @@ class App(unittest.TestCase):
     def test_second_request_from_the_same_cookie_is_refused(self):
         c = self._client(_cid())
         h = {"X-Forwarded-For": "203.0.113.50"}
-        r1 = c.post("/api/request", json={"competitor": "Acme"}, headers=h)
+        r1 = c.post("/api/request", json={"competitor": "Acme " + uuid.uuid4().hex[:8]}, headers=h)
         self.assertEqual(r1.status_code, 200, r1.get_data(as_text=True)); self.assertIn("job_id", r1.get_json())
-        r2 = c.post("/api/request", json={"competitor": "Beta"}, headers=h)
+        r2 = c.post("/api/request", json={"competitor": "Beta " + uuid.uuid4().hex[:8]}, headers=h)
         self.assertEqual(r2.status_code, 403)
         self.assertEqual(r2.get_json()["error"], selfserve.ONE_PER_VISITOR_MSG)
         self.assertNotRegex(r2.get_json()["error"], FREE)
         # same cookie from another address: still the same visitor
-        r3 = c.post("/api/request", json={"competitor": "Gamma"}, headers={"X-Forwarded-For": "203.0.113.51"})
+        r3 = c.post("/api/request", json={"competitor": "Gamma " + uuid.uuid4().hex[:8]}, headers={"X-Forwarded-For": "203.0.113.51"})
         self.assertEqual(r3.status_code, 403)
 
     def test_same_ipv6_block_with_a_new_cookie_is_refused(self):
-        a = self._client(_cid()).post("/api/request", json={"competitor": "Acme"},
+        a = self._client(_cid()).post("/api/request", json={"competitor": "Acme " + uuid.uuid4().hex[:8]},
                                       headers={"X-Forwarded-For": "2001:db8:1:2::10"})
         self.assertEqual(a.status_code, 200)
-        b = self._client(_cid()).post("/api/request", json={"competitor": "Acme"},
+        b = self._client(_cid()).post("/api/request", json={"competitor": "Acme " + uuid.uuid4().hex[:8]},
                                       headers={"X-Forwarded-For": "2001:db8:1:2:aaaa:bbbb:cccc:dddd"})
         self.assertEqual(b.status_code, 403)
-        c = self._client(_cid()).post("/api/request", json={"competitor": "Acme"},
+        c = self._client(_cid()).post("/api/request", json={"competitor": "Acme " + uuid.uuid4().hex[:8]},
                                       headers={"X-Forwarded-For": "2001:db8:1:3::1"})
         self.assertEqual(c.status_code, 200)                     # a different /64 is someone else
 
     def test_create_page_for_a_known_visitor_links_their_report(self):
         c = self._client(_cid())
         h = {"X-Forwarded-For": "203.0.113.60"}
-        job = c.post("/api/request", json={"competitor": "Acme"}, headers=h).get_json()["job_id"]
+        job = c.post("/api/request", json={"competitor": "Acme " + uuid.uuid4().hex[:8]}, headers=h).get_json()["job_id"]
         html = c.get("/create", headers=h).get_data(as_text=True)
         self.assertIn(f"/result/{job}", html); self.assertIn("open your report", html)
         self.assertNotIn('id="ss-form"', html)
@@ -161,7 +165,7 @@ class App(unittest.TestCase):
         c = self._client(_cid()); h = {"X-Forwarded-For": "203.0.113.70"}
         html = c.get("/create", headers=h).get_data(as_text=True)
         self.assertIn("by request", html); self.assertNotIn('id="ss-form"', html); self.assertNotRegex(html, FREE)
-        r = c.post("/api/request", json={"competitor": "Acme"}, headers=h)
+        r = c.post("/api/request", json={"competitor": "Acme " + uuid.uuid4().hex[:8]}, headers=h)
         self.assertEqual(r.status_code, 403); self.assertNotRegex(r.get_json()["error"], FREE)
 
     def test_closed_pool_copy_has_no_free(self):
@@ -169,7 +173,7 @@ class App(unittest.TestCase):
             c = self._client(_cid()); h = {"X-Forwarded-For": "203.0.113.80"}
             html = c.get("/create", headers=h).get_data(as_text=True)
             self.assertIn("by request", html); self.assertNotRegex(html, FREE)
-            r = c.post("/api/request", json={"competitor": "Acme"}, headers=h)
+            r = c.post("/api/request", json={"competitor": "Acme " + uuid.uuid4().hex[:8]}, headers=h)
             self.assertEqual(r.status_code, 403); self.assertEqual(r.get_json()["error"], selfserve.BY_REQUEST_MSG)
 
     def test_rejected_result_page_and_status_copy_have_no_free(self):

@@ -55,6 +55,15 @@ if _under_test_runner():                      # the local fallback lands in a te
     _REPO_ROOT = _tempfile.mkdtemp(prefix="scout-test-store-")
 
 
+def _refuse_network_under_tests() -> None:
+    """The last line of defence (2026-11-11). `use_github()` is False under the runner, but a test may
+    patch it to True to exercise the API path with a faked `_gh_get`, and one that never undid the
+    patch (tests/test_rc.py, 9/28 to 11/11) sent every later test in the run to the real store under
+    the rc/ prefix. No function that opens a connection runs under the test runner, patched or not."""
+    if _under_test_runner():
+        raise RuntimeError("unit tests never reach the private store over the network; fake _gh_get/_write")
+
+
 # --- backend switch ----------------------------------------------------------
 def use_github() -> bool:
     """True when the GitHub-API backend is configured (the deployed app) and this is not the unit-test
@@ -94,6 +103,7 @@ def _gh_read(url: str) -> httpx.Response:
     idempotent reads should ride out a momentary blip, not surface it as a hard error. A genuinely
     PERSISTENT outage still raises after the retries exhaust (so the canary can still catch a real
     one). Non-transient statuses (401/403/404/422…) return immediately for the caller to handle."""
+    _refuse_network_under_tests()
     last = None
     # 6 attempts, ~60 s total (2/4/8/16/30 s): the unattended lanes must ride out a network blip
     # longer than a few seconds (2026-09-30: four SSL handshake timeouts in a row on the mini killed
@@ -152,6 +162,7 @@ def _gh_list(path: str, include_dirs: bool = False, prefixed: bool = True) -> li
 def _gh_put(path: str, text: str, message: str, sha: str | None = None) -> None:
     """Create or update a repo file. Passing the current sha updates in place; omitting
     it creates. A 409/422 here means someone else moved the file first (optimistic lock)."""
+    _refuse_network_under_tests()
     url = f"{_GH_API}/repos/{config.SELFSERVE_REPO}/contents/{_repo_path(path)}"
     body = {
         "message": message,
@@ -537,6 +548,7 @@ def dispatch_generation() -> bool:
     local/dev mode where there's no token."""
     if not (config.SELFSERVE_GH_TOKEN and config.SELFSERVE_DISPATCH_REPO):
         return False
+    _refuse_network_under_tests()
     url = (f"{_GH_API}/repos/{config.SELFSERVE_DISPATCH_REPO}"
            f"/actions/workflows/{config.SELFSERVE_DISPATCH_WORKFLOW}/dispatches")
     try:

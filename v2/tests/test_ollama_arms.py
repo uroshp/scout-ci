@@ -100,7 +100,7 @@ class Blind(unittest.TestCase):
              redirect_stdout(buf):
             am._print_digest()
         out = buf.getvalue()
-        for name in rb.OLLAMA_MODELS:
+        for name in (*rb.OLLAMA_MODELS, *rb.OPENROUTER_MODELS):
             self.assertNotIn(name, out)
         self.assertIn("disagreed by 2 arms", out)
 
@@ -132,7 +132,7 @@ class Canary(unittest.TestCase):
         lc = _script("lanes_canary")
         # every registered arm but Gemma left its exit line (the fixture follows the registry, 2026-11-02)
         log = "2026-10-01 05:15:00 PDT  === replay start\n2026-10-01 05:18:00 PDT  apple arm exit 0\n" + "".join(
-            f"2026-10-01 05:40:00 PDT  {name} arm exit 0\n" for name in rb.OLLAMA_MODELS if name != "ollama_gemma4")
+            f"2026-10-01 05:40:00 PDT  {name} arm exit 0\n" for name in (*rb.OLLAMA_MODELS, *rb.OPENROUTER_MODELS) if name != "ollama_gemma4")
         probs = lc.arm_problems(log)
         self.assertEqual(len(probs), 1); self.assertIn("ollama_gemma4", probs[0])
         self.assertEqual(lc.arm_problems(log + "2026-10-01 06:50:00 PDT  ollama_gemma4 arm exit 0\n"), [])
@@ -170,7 +170,7 @@ class Canary(unittest.TestCase):
                "2026-10-24 01:30:00 PDT  ollama arm exit 0 (attempt 1)\n"
                "2026-10-24 02:00:00 PDT  ollama_nemotron arm exit 0 (attempt 1)\n"
                "2026-10-24 02:25:00 PDT  ollama_gemma4 arm exit 0 (attempt 1)\n"
-               + "".join(f"2026-10-24 02:25:30 PDT  {name} arm exit 0 (attempt 1)\n" for name in rb.OLLAMA_MODELS
+               + "".join(f"2026-10-24 02:25:30 PDT  {name} arm exit 0 (attempt 1)\n" for name in (*rb.OLLAMA_MODELS, *rb.OPENROUTER_MODELS)
                          if name not in ("ollama", "ollama_gemma4")) +
                "2026-10-24 02:26:00 PDT  --- arbiter ---\n[store] mirror abc (pulled; bulk reads from disk)\n"
                "[arbiter] pending 41, not yet arbitrated 0, this run up to 20\n[arbiter] 0 arbitrated\n"
