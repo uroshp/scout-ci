@@ -108,11 +108,12 @@ class ReadThrough(unittest.TestCase):
             calls.append((path, prefixed))
             return (None, None) if prefixed else ("PROD", "sha-prod")
         with mock.patch.object(selfserve, "_gh_get", side_effect=gh_get):
-            for p in self._patched(): p.start()
+            ps = self._patched()             # the SAME patchers are stopped: a fresh list left these three on
+            for p in ps: p.start()           # for every later test in the run (9/28 to 2026-11-11)
             try:
                 self.assertEqual(selfserve.read_data("propagation/x/1.json"), "PROD")
             finally:
-                for p in self._patched(): p.stop()
+                for p in ps: p.stop()
         self.assertEqual(calls, [("propagation/x/1.json", True), ("propagation/x/1.json", False)])
 
     def test_prefixed_hit_wins_and_no_fallback_without_flag(self):
