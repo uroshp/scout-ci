@@ -302,6 +302,10 @@ def _read(path: str) -> str | None:
     return open(p).read() if os.path.exists(p) else None
 
 
+_WRITE_RETRIES = 4
+_WRITE_RETRY_WAIT = 1.0
+
+
 def _write(path: str, text: str, message: str) -> None:
     if use_github():
         # Re-fetch the sha so an update targets the live file (state.json especially).
@@ -310,7 +314,20 @@ def _write(path: str, text: str, message: str) -> None:
             # Identical content: the Contents API would still mint an EMPTY commit. The signals
             # poller re-saved unchanged state every hour = 144 no-op commits a day (2026-09-30).
             return
-        _gh_put(path, text, message, sha)
+        # A commit to ANY file on the branch between the read and the PUT answers 409 (2026-11-13:
+        # the night lane landed a result inside the sensor pass's three-second window and the pass
+        # was thrown away). A whole-file write is last-writer-wins anyway, so read again and retry.
+        for attempt in range(_WRITE_RETRIES):
+            try:
+                _gh_put(path, text, message, sha)
+                return
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code not in (409, 422) or attempt == _WRITE_RETRIES - 1:
+                    raise
+            time.sleep(_WRITE_RETRY_WAIT * (attempt + 1))
+            cur, sha = _gh_get(path)
+            if cur == text:
+                return
         return
     p = _local(path)
     os.makedirs(os.path.dirname(p), exist_ok=True)

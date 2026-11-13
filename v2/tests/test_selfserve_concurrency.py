@@ -111,5 +111,39 @@ class ConcurrentAppendTest(unittest.TestCase):
         self.assertEqual([r for r in recs if r.get("_cid") == "target"][0]["geo"], "San Jose")
 
 
+
+
+class PlainWriteConflictTest(unittest.TestCase):
+    """A whole-file write that loses to another commit on the branch tries again (2026-11-13)."""
+
+    def _run(self, conflicts, status=409):
+        calls = {"put": 0}
+
+        def put(p, t, m, sha=None):
+            calls["put"] += 1
+            if calls["put"] <= conflicts:
+                req = httpx.Request("PUT", "https://api.github.com/x")
+                raise httpx.HTTPStatusError("x", request=req,
+                                            response=httpx.Response(status, request=req))
+
+        with mock.patch.object(selfserve, "use_github", lambda: True), \
+                mock.patch.object(selfserve, "_gh_get", lambda p: ("old", "sha")), \
+                mock.patch.object(selfserve, "_gh_put", put), \
+                mock.patch.object(selfserve, "_WRITE_RETRY_WAIT", 0):
+            selfserve._write("sensors/x/registry.json", "new", "m")
+        return calls["put"]
+
+    def test_one_conflict_is_retried(self):
+        self.assertEqual(self._run(1), 2)
+
+    def test_gives_up_after_the_limit(self):
+        with self.assertRaises(httpx.HTTPStatusError):
+            self._run(99)
+
+    def test_other_errors_are_not_retried(self):
+        with self.assertRaises(httpx.HTTPStatusError):
+            self._run(1, status=403)
+
+
 if __name__ == "__main__":
     unittest.main()
