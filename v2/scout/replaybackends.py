@@ -186,6 +186,17 @@ APPLE_CONTEXT = 8192
 APPLE_SAFETY_MARGIN = int(os.environ.get("SCOUT_APPLE_SAFETY_MARGIN", "1024"))
 FM_URL = os.environ.get("SCOUT_FM_URL", "http://127.0.0.1:18765")
 OLLAMA_URL = os.environ.get("SCOUT_OLLAMA_URL", "http://127.0.0.1:11435")
+try:
+    # Under the unit-test runner the local model servers are unreachable by default (2026-11-13: a full
+    # suite run while the night lane had Ollama up sat on the live server for minutes; with the server
+    # down the same tests fail fast, which is what they were written against). A test that wants a
+    # server patches these or fakes httpx.
+    from .selfserve import _under_test_runner as _utr
+    if _utr():
+        FM_URL = os.environ.get("SCOUT_FM_URL", "http://127.0.0.1:9")
+        OLLAMA_URL = os.environ.get("SCOUT_OLLAMA_URL", "http://127.0.0.1:9")
+except Exception:
+    pass
 OLLAMA_TAG = OLLAMA_MODELS["ollama"]["tag"]            # Magistral's (legacy aliases; arms read ollama_cfg)
 OLLAMA_NUM_CTX = OLLAMA_MODELS["ollama"]["num_ctx"]
 OLLAMA_THINK_RESERVE = 2048
