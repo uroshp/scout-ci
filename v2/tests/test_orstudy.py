@@ -202,8 +202,9 @@ class RunTests(OrStudyCase):
 
 
 class ScoreTests(unittest.TestCase):
-    def _cmp(self, *items, parse="ok"):
-        return {"summary": {"candidate_parse": parse}, "items": [dict(zip(("status", "reference"), i)) for i in items]}
+    def _cmp(self, *items, parse="ok", extra=None):
+        return {"summary": {"candidate_parse": parse}, "extra": extra or {},
+                "items": [dict(zip(("status", "reference"), i)) for i in items]}
 
     def test_same_only_when_every_judged_item_agrees(self):
         self.assertTrue(orstudy.score(self._cmp(("agree", "confirm"), ("agree", "reject")), "judge")["same"])
@@ -213,19 +214,87 @@ class ScoreTests(unittest.TestCase):
         s = orstudy.score(self._cmp(("agree", "confirm"), ("abstain", "reject")), "judge")
         self.assertEqual((s["same"], s["agree"], s["judged"]), (False, 1, 2))
 
-    def test_a_quiet_item_left_unnamed_is_the_quiet_verdict_a_loud_one_is_a_miss(self):
-        self.assertTrue(orstudy.score(self._cmp(("abstain", "minor")), "screen")["same"])
-        self.assertFalse(orstudy.score(self._cmp(("abstain", "substantial")), "screen")["same"])
+    def test_the_screen_is_scored_on_whether_anything_was_flagged(self):
+        loud = '{"candidates": [{"finding_id": "f9", "substantial": true}]}'
+        quiet = '{"candidates": [{"finding_id": "f9", "substantial": false}]}'
+        nothing = '{"candidates": []}'
+        prod_loud = self._cmp(("abstain", "substantial"), ("abstain", "minor"))
+        prod_quiet = self._cmp(("abstain", "minor"))
+        # production flagged something: flagging a different finding is still the same decision
+        self.assertEqual(orstudy.score(prod_loud, "screen", text=loud)["why"], "same")
+        self.assertEqual(orstudy.score(prod_loud, "screen", text=quiet)["why"], "missed it")
+        self.assertEqual(orstudy.score(prod_loud, "screen", text=nothing)["why"], "missed it")
+        # production flagged nothing: a model that flags anything is a false alarm, not a match
+        self.assertEqual(orstudy.score(prod_quiet, "screen", text=loud)["why"], "false alarm")
+        self.assertEqual(orstudy.score(self._cmp(), "screen", text=loud)["why"], "false alarm")
+        self.assertEqual(orstudy.score(prod_quiet, "screen", text=nothing)["why"], "same")
+        s = orstudy.score(self._cmp(("agree", "substantial"), ("abstain", "substantial")), "screen", text=loud)
+        self.assertEqual((s["found"], s["loud"]), (1, 2))
+
+    def test_picking_the_lead_needs_the_same_winner_too(self):
+        self.assertTrue(orstudy.score(self._cmp(("agree", "clear"), extra={"winner_agree": True}), "lead_election")["same"])
+        self.assertFalse(orstudy.score(self._cmp(("agree", "clear"), extra={"winner_agree": False}), "lead_election")["same"])
 
     def test_no_answer_and_unreadable_answers_are_never_the_same_decision(self):
-        self.assertFalse(orstudy.score(self._cmp(), "screen", status="error", reason="empty")["same"])
-        self.assertFalse(orstudy.score(self._cmp(parse="parse_fail"), "screen")["same"])
-        self.assertFalse(orstudy.score(self._cmp(), "screen", fmt_ok=False)["same"])
+        for role, text in (("screen", '{"candidates": []}'), ("judge", "x")):
+            self.assertFalse(orstudy.score(self._cmp(), role, status="error", reason="empty", text=text)["same"])
+            self.assertFalse(orstudy.score(self._cmp(parse="parse_fail"), role, text=text)["same"])
+            self.assertFalse(orstudy.score(self._cmp(), role, fmt_ok=False, text=text)["same"])
+        self.assertFalse(orstudy.score(self._cmp(), "screen", text="I am not sure.")["same"])
 
     def test_an_object_without_the_required_keys_is_not_a_readable_answer(self):
         self.assertTrue(orstudy.format_ok("screen", '{"candidates": []}'))
         for text in ("{}", '{"note": "nothing"}', "I am not sure.", ""):
             self.assertFalse(orstudy.format_ok("screen", text), text)
+
+    def test_constant_answer_baselines(self):
+        rows = [{"comparison": self._cmp(("agree", "substantial"))}, {"comparison": self._cmp(("agree", "minor"))},
+                {"comparison": self._cmp()}]
+        self.assertEqual(orstudy.baselines("screen", rows), {"never flags anything": 2, "always flags something": 1})
+        rows = [{"comparison": self._cmp(("agree", "reject"), ("agree", "reject"))}, {"comparison": self._cmp(("agree", "confirm"))}]
+        self.assertEqual(orstudy.baselines("judge", rows), {"always 'confirm'": 1, "always 'reject'": 1})
+
+
+class ToolTests(OrStudyCase):
+    REC = {**RECORD, "tool_choice": {"type": "tool", "name": "screen"},
+           "tools": [{"name": "screen", "description": "d", "input_schema": {"type": "object", "required": ["candidates"]}}]}
+
+    def test_a_forced_tool_call_is_replayed_as_one(self):
+        body = orstudy.body_for(ENTRY, "SYS", "USER", record=self.REC)
+        self.assertEqual(body["tool_choice"], {"type": "function", "function": {"name": "screen"}})
+        self.assertEqual(body["tools"][0]["function"]["parameters"], {"type": "object", "required": ["candidates"]})
+        self.assertNotIn("tools", orstudy.body_for(ENTRY, "SYS", "USER", record=RECORD))
+
+    def test_the_answer_is_read_from_the_tool_call(self):
+        resp = _Resp(200, {"provider": "Nvidia", "model": "nvidia/x:free", "usage": {"cost": 0},
+                           "choices": [{"finish_reason": "tool_calls", "message": {"content": None, "tool_calls": [
+                               {"type": "function", "function": {"name": "screen", "arguments": '{"candidates": []}'}}]}}]})
+        self._post(resp)
+        r = orstudy.call(ENTRY, self.REC, "SYS", "USER")
+        self.assertEqual((r["status"], r["text"]), ("ok", '{"candidates": []}'))
+        self.assertEqual((r["backend_version"]["answer_via"], r["backend_version"]["forced_tool"]), ("tool_call", True))
+
+    def test_an_endpoint_that_rejects_the_forced_tool_has_failed_the_call(self):
+        self._post(_err(404, "No endpoints found that support the provided 'tool_choice' value"))
+        r = orstudy.call(ENTRY, self.REC, "SYS", "USER")
+        self.assertEqual((r["status"], r["reason"], r["outcome"]), ("error", "forced_tool_rejected", "store"))
+
+
+class GiveUpTests(OrStudyCase):
+    def test_an_upstream_outage_never_becomes_a_model_failure(self):
+        prior = Counter({(ENTRY["model"], "c1"): 50})
+        self._post(_err(502, "bad gateway"), _err(503, "unavailable"))
+        out = orstudy.run_model(ENTRY, [RECORD], 5, prior_errors=prior, say=lambda s: None)
+        self.assertEqual((out["stored"], out["ended"]), (0, "upstream_error"))
+
+    def test_a_call_that_keeps_timing_out_is_stored_so_the_model_moves_on(self):
+        prior = Counter({(ENTRY["model"], "c1"): orstudy.GIVE_UP_AFTER - 1})
+        p = mock.patch.object(orstudy.httpx, "post", side_effect=orstudy.httpx.ReadTimeout("slow"))
+        p.start(); self.addCleanup(p.stop)
+        out = orstudy.run_model(ENTRY, [RECORD], 5, prior_errors=prior, say=lambda s: None)
+        self.assertEqual(out["stored"], 1)
+        with open(orstudy.result_path(ENTRY["model"], "c1")) as fh:
+            self.assertEqual(json.load(fh)["reason"], "timed_out_repeatedly")
 
 
 class CatalogueTests(OrStudyCase):

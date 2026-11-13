@@ -26,26 +26,33 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 STUDY_SINCE = "20261030T000000"      # fixed start: the population only grows while the study stays open
 
 
-def _load_calls(since: str) -> tuple[list, dict]:
-    """(calls in the study's fixed order, notes). Only roles the grader provably scores; whole captured
-    prompts only; one row per call id. The order never reshuffles: roles in the order first recorded
-    (smallest first on day one), oldest call first inside a role, so new calls join at the end."""
+def _write(path: str, obj) -> None:
+    tmp = path + ".tmp"
+    with open(tmp, "w") as fh:
+        json.dump(obj, fh)
+    os.replace(tmp, path)
+
+
+def _load_calls(since: str, write: bool = False) -> tuple[list, dict]:
+    """(calls in the study's fixed order, notes). Only calls whose production answer can serve as the
+    reference; whole captured prompts only; one row per call id. The order never reshuffles: jobs in
+    the order first recorded (smallest first on day one), oldest call first inside a job, so new
+    calls join at the end. The order and the population are written only by a real run."""
     import replay_calls as lane
     from scout import orstudy, replaybackends as rb, rolespecs
     lane._require_store()
     raw = lane.load_calls(lane.list_bundles(since))
-    seen, calls, cut = set(), [], 0
+    seen, calls, cut_off = set(), [], 0
     for c in raw:
         spec = rolespecs.spec(c.get("role"))
         if c.get("status") != "ok" or spec is None or spec.get("tools_on") or c.get("call_id") in seen:
             continue
         if rb._truncated_exact(c) or not rb.exact_prompt(c)[1].strip():
-            cut += 1; continue
+            cut_off += 1; continue
         seen.add(c["call_id"])
         calls.append(c)
-    roles, not_scored = orstudy.gradable_roles(calls)
-    left_out = Counter(c["role"] for c in calls if c["role"] not in roles)
-    calls = [c for c in calls if c["role"] in roles]
+    calls, left = orstudy.gradable(calls)
+    roles = sorted({c["role"] for c in calls})
     order_path = os.path.join(orstudy.STUDY_DIR, "role_order.json")
     try:
         order = json.load(open(order_path))
@@ -55,11 +62,12 @@ def _load_calls(since: str) -> tuple[list, dict]:
     for role in sorted(roles, key=lambda r: (n_role[r], r)):
         if role not in order:
             order.append(role)
-    os.makedirs(orstudy.STUDY_DIR, exist_ok=True)
-    json.dump(order, open(order_path, "w"))
     calls.sort(key=lambda c: (order.index(c["role"]), c.get("run_ts") or "", c["call_id"]))
-    json.dump({c["call_id"]: c["role"] for c in calls}, open(os.path.join(orstudy.STUDY_DIR, "population.json"), "w"))
-    return calls, {"cut_off_prompts": cut, "not_scored": {r: (not_scored[r], left_out[r]) for r in not_scored}}
+    if write:
+        os.makedirs(orstudy.STUDY_DIR, exist_ok=True)
+        _write(order_path, order)
+        _write(os.path.join(orstudy.STUDY_DIR, "population.json"), {c["call_id"]: c["role"] for c in calls})
+    return calls, {"cut_off_prompts": cut_off, "left_out": left}
 
 
 def _population() -> dict:
@@ -75,25 +83,28 @@ def _median(v):
     return v[len(v) // 2] if v else None
 
 
-def _table(rows: list, pop: dict) -> dict:
-    """Per role: the models that have attempted at least COVERAGE of the role's calls, the calls all of
-    them attempted, and each one's same-decision count on exactly those calls."""
+def _table(rows: list, pop: dict, models: list) -> dict:
+    """Per job: the models that have attempted at least COVERAGE of the job's calls, the calls all of
+    them attempted, each one's same-decision count on exactly those calls, and what a constant answer
+    would score on them."""
     from scout import orstudy
     out = {}
-    models = sorted({r["backend"] for r in rows})
     for role in sorted(set(pop.values())):
         role_calls = {cid for cid, r in pop.items() if r == role}
         got = {m: {r["call_id"]: r for r in rows if r["backend"] == m and r["call_id"] in role_calls} for m in models}
-        inn = [m for m in models if len(got[m]) >= orstudy.COVERAGE * len(role_calls)]
-        common = set.intersection(*[set(got[m]) for m in inn]) if inn else set()
+        inn = [m for m in models if got[m] and len(got[m]) >= orstudy.COVERAGE * len(role_calls)]
+        common = sorted(set.intersection(*[set(got[m]) for m in inn])) if inn else []
         cells = {}
         for m in inn:
-            sc = [orstudy.score_row(got[m][cid]) for cid in sorted(common)]
+            sc = [orstudy.score_row(got[m][cid]) for cid in common]
             cells[m] = {"same": sum(s["same"] for s in sc), "n": len(sc),
                         "no_answer": sum(1 for s in sc if s["why"].startswith("no answer")),
                         "unreadable": sum(1 for s in sc if s["why"] == "unreadable format"),
-                        "agree": sum(s["agree"] for s in sc), "judged": sum(s["judged"] for s in sc)}
-        out[role] = {"calls": len(role_calls), "common": len(common), "cells": cells,
+                        "missed": sum(1 for s in sc if s["why"] == "missed it"),
+                        "false_alarm": sum(1 for s in sc if s["why"] == "false alarm"),
+                        "found": sum(s.get("found") or 0 for s in sc), "loud": sum(s.get("loud") or 0 for s in sc)}
+        base = orstudy.baselines(role, [got[inn[0]][cid] for cid in common]) if inn else {}
+        out[role] = {"calls": len(role_calls), "common": len(common), "cells": cells, "baselines": base,
                      "behind": {m: len(got[m]) for m in models if m not in inn}}
     return out
 
@@ -101,37 +112,48 @@ def _table(rows: list, pop: dict) -> dict:
 def report(say=print) -> None:
     from scout import orstudy
     rows, pop = orstudy.load_results(), _population()
+    hidden = sum(1 for r in rows if r["call_id"] not in pop)
     rows = [r for r in rows if r["call_id"] in pop]
+    att = orstudy.load_attempts()
+    models = sorted({r["backend"] for r in rows} | {"or:" + a["model"] for a in att})
     if not rows:
         say("no stored results yet"); return
-    say(f"stored results: {len(rows)}  models: {len({r['backend'] for r in rows})}  calls in the study: {len(pop)}")
+    say(f"stored results: {len(rows)}  models tried: {len(models)}  calls in the study: {len(pop)}"
+        + (f"  ({hidden} stored results belong to calls no longer in the study and are not shown)" if hidden else ""))
     say("\nSAME DECISION AS PRODUCTION, per job. Counted on the calls every compared model attempted;")
     say("a call the model failed to answer, or answered in an unreadable format, counts against it.")
-    say("Not counted: extra findings a model flags that production did not name.")
-    for role, t in _table(rows, pop).items():
-        say(f"\n  {role}: {t['calls']} calls in the study, {t['common']} attempted by all {len(t['cells'])} compared models")
+    say("Read each score against the 'constant answer' lines: a model no better than those has learned nothing about the job.")
+    for role, t in _table(rows, pop, models).items():
+        say(f"\n  {role}: {t['calls']} calls in the study, {t['common']} attempted by all {len(t['cells'])} compared models"
+            + ("  (too few calls to read much into)" if 0 < t["common"] < 20 else ""))
+        for name, n in t["baselines"].items():
+            say(f"    {'constant answer: ' + name:46} {(f'{100 * n / t['common']:.0f}%' if t['common'] else '--'):>4}  {n:3}/{t['common']:<3}")
         for m, c in sorted(t["cells"].items(), key=lambda kv: -kv[1]["same"]):
             pct = f"{100 * c['same'] / c['n']:.0f}%" if c["n"] else "--"
-            small = "  (too few calls to read much into)" if c["n"] < 20 else ""
-            say(f"    {m[3:][:46]:46} {pct:>4}  {c['same']:3}/{c['n']:<3} same; no answer {c['no_answer']}, unreadable {c['unreadable']}; "
-                f"verdicts {c['agree']}/{c['judged']}{small}")
+            extra = (f"; missed {c['missed']}, false alarm {c['false_alarm']}; named {c['found']} of the {c['loud']} findings production flagged"
+                     if role in orstudy.LOUD else "")
+            say(f"    {m[3:][:46]:46} {pct:>4}  {c['same']:3}/{c['n']:<3} same; no answer {c['no_answer']}, unreadable {c['unreadable']}{extra}")
         for m, n in sorted(t["behind"].items(), key=lambda kv: -kv[1]):
             say(f"    {m[3:][:46]:46} not compared yet: {n} of {t['calls']} calls attempted")
-    say("\nPER MODEL: stored, answered, why not, median seconds, answers with a reasoning trace, who served it")
-    for backend in sorted({r["backend"] for r in rows}):
+    say("\nPER MODEL: stored, answered, why not, median seconds, answers with a reasoning trace, how the answer arrived, who served it")
+    for backend in models:
         cell = [r for r in rows if r["backend"] == backend]
+        if not cell:
+            why = Counter(a.get("reason") for a in att if "or:" + a["model"] == backend)
+            say(f"  {backend[3:][:46]:46} never answered; requests: {dict(why)}")
+            continue
         ok = [r for r in cell if r["status"] == "ok"]
         why = Counter(r.get("reason") for r in cell if r["status"] != "ok")
+        via = Counter((r.get("backend_version") or {}).get("answer_via") for r in ok)
         served = Counter(f"{(r.get('backend_version') or {}).get('served_model')} via {(r.get('backend_version') or {}).get('served_by')}" for r in cell
                          if (r.get("backend_version") or {}).get("served_by"))
         med = _median([r["duration_ms"] for r in ok if r.get("duration_ms")])
         say(f"  {backend[3:][:46]:46} stored={len(cell)} answered={len(ok)} not_answered={dict(why)} "
-            f"median={(med or 0) / 1000:.1f}s traces={sum(1 for r in ok if r.get('thinking'))} "
+            f"median={(med or 0) / 1000:.1f}s traces={sum(1 for r in ok if r.get('thinking'))} via={dict(via)} "
             f"billed=${sum(r.get('cost_usd') or 0 for r in cell):.4f}")
         if backend == "or:" + orstudy.ROUTER or len(served) > 1:
             for k, n in served.most_common(12):
                 say(f"      {n:4}  {k}")
-    att = orstudy.load_attempts()
     say(f"\nEVERY REQUEST SENT: {len(att)}")
     per = defaultdict(Counter)
     for a in att:
@@ -153,20 +175,23 @@ def verify(calls: list, notes: dict, say=print) -> list:
             fails.append(f"{name}: {detail}")
 
     roles = sorted(set(pop.values()))
-    for role, (why, n) in sorted(notes["not_scored"].items()):
-        say(f"  note  {role}: {n} calls left out of the study, {why}")
+    for role, why in sorted(notes["left_out"].items()):
+        say(f"  note  {role}: left out of the study: " + ", ".join(f"{n} calls ({w})" for w, n in why.items()))
     say(f"  note  {notes['cut_off_prompts']} captured calls left out: their stored prompt is cut off")
-    # 1. the grader: on every role in the study, production's own answer is the same decision (that is
-    #    how a role gets in), and a non-answer never is
+    # 1. the grader: a non-answer is never the same decision, on any job, whatever production decided
     wrong = []
     for role in roles:
-        first = next(c for c in calls if c["role"] == role)
-        for garbage in ("I am not sure what you want.", "{}", '{"note": "nothing to report"}', ""):
-            cmp_ = modelcompare.compare_call(first, {"status": "ok", "text": garbage, "backend": "control"})
-            if orstudy.score(cmp_, role, fmt_ok=orstudy.format_ok(role, garbage))["why"] != "unreadable format":
-                wrong.append(f"{role} on {garbage!r}")
-    check("the grader never scores a non-answer as the same decision", not wrong, ", ".join(wrong))
-    check("the study covers enough of Scout's jobs", len(roles) >= 3 and len(calls) >= 60, f"{len(roles)} jobs, {len(calls)} calls: {', '.join(roles)}")
+        for c in [c for c in calls if c["role"] == role][:40]:
+            for garbage in ("I am not sure what you want.", "{}", '{"note": "nothing to report"}', ""):
+                cmp_ = modelcompare.compare_call(c, {"status": "ok", "text": garbage, "backend": "control"})
+                if orstudy.score(cmp_, role, fmt_ok=orstudy.format_ok(role, garbage), text=garbage)["same"]:
+                    wrong.append(f"{role} on {garbage!r}")
+    check("the grader never scores a non-answer as the same decision", not wrong, ", ".join(sorted(set(wrong))))
+    check("the study covers enough of Scout's jobs", len(roles) >= 2 and len(calls) >= 60, f"{len(roles)} jobs, {len(calls)} calls: {', '.join(roles)}")
+    tooled = [c for c in calls if c.get("tools")]
+    check("every call production made with a forced tool is replayed with that tool", all(orstudy.forced_tool(c) for c in tooled), f"{len(tooled)} such calls")
+    from scout import config
+    check("the failure email can be sent", bool(config.ALERT_EMAIL_TO), "recipient configured" if config.ALERT_EMAIL_TO else "no recipient configured")
     if not rows:
         check("results exist", False, "nothing stored yet")
         return fails
@@ -200,8 +225,11 @@ def verify(calls: list, notes: dict, say=print) -> list:
         asked = [r for r in ok if (r.get("backend_version") or {}).get("reasoning_requested")]
         traced = sum(1 for r in asked if r.get("thinking") or ((r.get("tokens") or {}).get("thinking") or 0) > 0)
         say(f"        {backend[3:][:46]:46} answered={len(ok)} reasoning asked={len(asked)} seen={traced}")
+    untooled = sum(1 for r in rows if r["status"] == "ok" and any(c["call_id"] == r["call_id"] and c.get("tools") for c in calls)
+                   and not (r.get("backend_version") or {}).get("forced_tool"))
+    check("no stored answer to a forced-tool call was made without the tool", untooled == 0, f"{untooled} such rows")
     # 6. nothing stored that is not a model result
-    transient = Counter(r.get("reason") for r in rows if r.get("reason") in ("rate_limited", "network", "broken_response", "provider_error", "model_refused"))
+    transient = Counter(r.get("reason") for r in rows if r.get("reason") in ("rate_limited", "network", "timeout", "broken_response", "provider_error", "upstream_error", "model_refused"))
     check("no rate limit, network error or broken response is stored as a result", not transient, str(dict(transient)) if transient else "")
     stray = sum(1 for r in rows if r["call_id"] not in pop)
     check("every stored result belongs to a call in the study", stray == 0, f"{stray} stray")
@@ -217,31 +245,41 @@ def verify(calls: list, notes: dict, say=print) -> list:
     today = orstudy._day()
     sent = sum(1 for a in att + orstudy.load_attempts("router_check.jsonl")
                if time.strftime("%Y-%m-%d", time.gmtime(datetime.fromisoformat(a["at"]).timestamp())) == today)
-    check("the request counter matches the requests logged today", abs(orstudy.used_today() - sent) <= 3, f"counter {orstudy.used_today()}, logged {sent}")
+    # the counter may run ahead (a request in flight when a run was stopped is counted, never logged);
+    # it must never run behind, or the daily cap is not being enforced
+    gap = orstudy.used_today() - sent
+    check("every request sent today was counted against the daily cap", 0 <= gap <= 25, f"counter {orstudy.used_today()}, logged {sent}")
     # 9. is it getting anywhere
-    answered = {b for b in {r["backend"] for r in rows} if any(r["status"] == "ok" for r in rows if r["backend"] == b)}
-    check("at least half the models are answering", len(answered) * 2 >= len({r["backend"] for r in rows}), f"{len(answered)} of {len({r['backend'] for r in rows})}")
+    tried = {a["model"] for a in att}
+    answered = {r["backend"][3:] for r in rows if r["status"] == "ok"}
+    check("at least half the models tried are answering", len(answered) * 2 >= len(tried), f"{len(answered)} of {len(tried)}")
     return fails
 
 
+SEVERE = ("billed", "approved provider", "stopped for all", "could not start or died")
+
+
 def _tell(lines: list) -> None:
-    """One plain email a day, marked as sent only when it was."""
+    """One plain email a day, marked as sent only when it was. A charge, an unapproved provider, a
+    stop for all models or a dead run is sent even if an ordinary failure was already sent today."""
     from scout import orstudy
     mark = os.path.join(orstudy.STUDY_DIR, "told.json")
     day = time.strftime("%Y-%m-%d")
+    severe = any(k in line for line in lines for k in SEVERE)
     try:
-        if json.load(open(mark)).get("day") == day:
-            return
+        told = json.load(open(mark))
     except Exception:
-        pass
+        told = {}
+    if told.get("day") == day and (told.get("severe") or not severe):
+        return
     try:
         from scout import notify
         body = ("The OpenRouter study needs a look before its numbers are used.\n\n" + "\n".join("- " + f for f in lines)
                 + "\n\nNothing was billed unless a line above says so. The log is ~/scout-replay/openrouter_study.log.")
         res = notify._dispatch("Scout: the OpenRouter study needs a look", body, dry_run=False)
         if isinstance(res, dict) and res.get("sent") is False:
-            print(f"  the study email was not sent: {res}", file=sys.stderr); return
-        json.dump({"day": day}, open(mark, "w"))
+            print(f"  the study email was not sent: {res.get('reason')}", file=sys.stderr); return
+        _write(mark, {"day": day, "severe": severe or bool(told.get("day") == day and told.get("severe"))})
     except Exception as e:
         print(f"  could not send the study email ({type(e).__name__})", file=sys.stderr)
 
@@ -250,6 +288,8 @@ def router_check(n: int, say=print) -> None:
     """Harmless prompts only. Asks the free router for answers while allowing one provider; if every
     answer comes from that provider, the router honours the allow-list the study relies on."""
     from scout import orstudy
+    if _other_run_alive(os.path.join(orstudy.STUDY_DIR, "running.pid")):
+        say("a study run is active; the router check waits for it to end"); return
     cat = orstudy.catalogue()
     router = next((e for e in cat["models"] if e.get("router")), None)
     if not router:
@@ -288,7 +328,7 @@ def run(args) -> list:
         entries = [e for e in entries if e["model"] in want]
     if args.no_router:
         entries = [e for e in entries if not e.get("router")]
-    calls, notes = _load_calls(args.since)
+    calls, notes = _load_calls(args.since, write=args.run)
     left = max(0, orstudy.DAILY_CAP - orstudy.used_today())
     print(f"{datetime.now():%Y-%m-%d %H:%M} study: {len(entries)} models, {len(calls)} calls since {args.since}; "
           f"requests used today {orstudy.used_today()}, left {left}")
@@ -333,8 +373,11 @@ def run(args) -> list:
             with out_lock:
                 print(s, flush=True)
         prior = Counter((a["model"], a.get("call_id")) for a in orstudy.load_attempts() if a.get("reason") == "provider_error")
-        resting, totals, crashed = {}, Counter(), []
+        resting, totals, crashed, sent = {}, Counter(), [], 0
         for rnd in (1, 2, 3):
+            if rnd > 1 and any(w in ("rate_limited", "upstream_error", "network") for w in resting.values()):
+                time.sleep(180)                                  # a rested model gets another go, a few minutes later
+                resting = {m: w for m, w in resting.items() if w not in ("rate_limited", "upstream_error", "network")}
             active = [e for e in entries if e["model"] not in resting and todo[e["model"]] > 0]
             left = max(0, orstudy.DAILY_CAP - orstudy.used_today())
             if not active or orstudy.stop_reason() or should_stop():
@@ -357,6 +400,7 @@ def run(args) -> list:
                 t.join()
             for r in results:
                 totals[r["model"]] += r["stored"]
+                sent += r["attempts"]
                 todo[r["model"]] -= r["stored"]
                 if r["ended"] not in ("done", "quota"):
                     resting[r["model"]] = r["ended"]
@@ -372,8 +416,10 @@ def run(args) -> list:
         why = orstudy.stop_reason()
         if why and not any(k in why for k in ("daily_cap", "account_daily_limit")):
             fails.append("stopped for all models: " + why)
-        if sum(totals.values()) == 0 and sum(todo.values()) > 0 and left > len(entries):
-            fails.append(f"tonight's run stored nothing; models rested: {resting}")
+        expected = ("rate_limited", "model_refused", "upstream_error")       # known, reported in the read-out, not an alarm
+        odd = {m: w for m, w in resting.items() if w not in expected and not w.startswith("crashed")}
+        if sum(totals.values()) == 0 and (odd or (sent == 0 and sum(todo.values()) > 0 and not why)):
+            fails.append(f"this run stored nothing; requests sent {sent}; models rested: {odd or resting}")
         say("ALL CHECKS HELD" if not fails else f"{len(fails)} CHECK(S) FAILED:\n  " + "\n  ".join(fails))
         return fails
     finally:

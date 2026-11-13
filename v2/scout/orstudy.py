@@ -7,9 +7,11 @@ on the same call (scout.modelcompare.compare_call). Nothing here is part of the 
 results live in a local folder on the mini, never in the private store, and no paid referee runs.
 
 His settings (2026-11-12): every model as OpenRouter serves it out of the box (no sampling
-parameters and no output schema sent to anyone), reasoning on where the model offers it, the same
-prompt for all; only providers he has ruled on ever receive a prompt; the free router is an entry of
-its own.
+parameters, no output schema), reasoning on where the model offers it, the same request for all;
+only providers he has ruled on ever receive a prompt; the free router is an entry of its own.
+A call production made with a forced tool (the screen) is replayed with that same tool, forced, in
+OpenRouter's format: the tool carries the output contract, and without it the model is never told
+what to return.
 
 Every request is logged (attempts.jsonl): rate limits, refusals, who served the call. That log is
 the study's second result. One graded result is stored per (model, call); a rate limit, a network
@@ -139,6 +141,8 @@ def catalogue(fetch=_get) -> dict:
         models.append({"model": mid, "providers": sorted({str(e.get("tag") or "").split("/")[0] for e in ok}),
                        "provider_names": sorted({str(e.get("provider_name")) for e in ok}),
                        "reasoning": "reasoning" in sp, "max_out": min(outs) if outs else None, "router": False})
+    if not models:
+        raise RuntimeError("the catalogue lists no usable free model (fetch problem or every endpoint list unreadable)")
     if router and models:
         router["providers"] = sorted({p for m in models for p in m["providers"]})
         router["provider_names"] = sorted({p for m in models for p in m["provider_names"]})
@@ -147,7 +151,7 @@ def catalogue(fetch=_get) -> dict:
 
 
 def save_catalogue(cat: dict) -> str:
-    p = os.path.join(STUDY_DIR, "catalogue", time.strftime("%Y-%m-%d") + ".json")
+    p = os.path.join(STUDY_DIR, "catalogue", time.strftime("%Y-%m-%dT%H%M%S") + ".json")
     os.makedirs(os.path.dirname(p), exist_ok=True)
     with open(p, "w") as fh:
         json.dump(cat, fh, indent=1)
@@ -155,12 +159,29 @@ def save_catalogue(cat: dict) -> str:
 
 
 # --- one call ----------------------------------------------------------------------------------------
-def body_for(entry: dict, system: str, user: str, provider: dict | None = None) -> dict:
+def forced_tool(record: dict):
+    """(tools, tool_choice) in OpenRouter's format when production forced one tool on this call, else None."""
+    tc, tools = record.get("tool_choice") or {}, record.get("tools") or []
+    if not (isinstance(tc, dict) and tc.get("type") == "tool" and tc.get("name")):
+        return None
+    t = next((t for t in tools if isinstance(t, dict) and t.get("name") == tc["name"]), None)
+    if not t:
+        return None
+    return ([{"type": "function", "function": {"name": t["name"], "description": t.get("description") or "",
+                                                "parameters": t.get("input_schema") or {"type": "object"}}}],
+            {"type": "function", "function": {"name": t["name"]}})
+
+
+def body_for(entry: dict, system: str, user: str, provider: dict | None = None, record: dict | None = None) -> dict:
     """The request. No sampling parameter and no output schema, for any model. Providers are an
-    allow-list: only the approved providers that serve this entry."""
+    allow-list: only the approved providers that serve this entry. A call production made with a
+    forced tool carries the same tool, forced."""
     body = {"model": entry["model"], "stream": False,
             "messages": ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": user}],
             "provider": provider or {"only": list(entry["providers"])}}
+    ft = forced_tool(record or {})
+    if ft:
+        body["tools"], body["tool_choice"] = ft
     if entry.get("max_out"):
         body["max_tokens"] = min(MAX_OUT, entry["max_out"])
     if entry.get("reasoning"):
@@ -213,6 +234,8 @@ def _send(body: dict, key: str, timeout: float):
     try:
         r = httpx.post(f"{rb.OPENROUTER_URL}/chat/completions", json=body, timeout=timeout,
                        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})
+    except httpx.TimeoutException as e:
+        return None, int((time.monotonic() - t0) * 1000), f"timeout: {type(e).__name__}", None
     except Exception as e:
         return None, int((time.monotonic() - t0) * 1000), f"{type(e).__name__}: {e}"[:300], None
     return r, int((time.monotonic() - t0) * 1000), None, None
@@ -240,7 +263,8 @@ def call(entry: dict, record: dict, system: str, user: str, *, provider: dict | 
     key = os.environ.get("OPENROUTER_API_KEY")
     if not key:
         return rb._result(status="error", reason="no_key", outcome="stop_all", text="OPENROUTER_API_KEY is not set", **base)
-    body = body_for(entry, system, user, provider)
+    body = body_for(entry, system, user, provider, record)
+    ver["forced_tool"] = bool(body.get("tools"))
     r, ms, neterr, unsent = _send(body, key, timeout)
     row = {"at": datetime.now().isoformat(timespec="seconds"), "model": model, "call_id": record.get("call_id"), "role": role,
            "rule": body["provider"]}
@@ -253,7 +277,7 @@ def call(entry: dict, record: dict, system: str, user: str, *, provider: dict | 
         return rb._result(status="error", reason=reason, outcome=outcome, text=str(detail)[:400], duration_ms=ms, **base)
 
     if r is None:
-        return no_result("network", "retry_later", neterr, http=None)
+        return no_result("timeout" if str(neterr).startswith("timeout") else "network", "retry_later", neterr, http=None)
     try:
         data = r.json()
     except Exception:
@@ -281,7 +305,12 @@ def call(entry: dict, record: dict, system: str, user: str, *, provider: dict | 
         if "context" in low and ("length" in low or "exceed" in low or "maximum" in low):
             _attempt_log({**row, "http": code, "reason": "context_exceeded", "ms": ms, "detail": msg}, log)
             return rb._result(status="skipped", reason="context_exceeded", outcome="store", text=msg, duration_ms=ms, **base)
-        return no_result("provider_error", "retry_later", msg, http=code, meta=meta)
+        if body.get("tools") and code in (400, 404, 422) and ("tool" in low or "function" in low):
+            _attempt_log({**row, "http": code, "reason": "forced_tool_rejected", "ms": ms, "detail": msg}, log)
+            return rb._result(status="error", reason="forced_tool_rejected", outcome="store", text=msg, duration_ms=ms, **base)
+        if code in (400, 404, 422):
+            return no_result("provider_error", "retry_later", msg, http=code, meta=meta)      # counted toward giving up
+        return no_result("upstream_error", "retry_later", msg, http=code, meta=meta)          # 5xx, 408: never counted
     choices = data.get("choices") or []
     ch = choices[0] if choices and isinstance(choices[0], dict) else None
     if ch is None or ch.get("error") or ch.get("finish_reason") == "error":
@@ -307,6 +336,13 @@ def call(entry: dict, record: dict, system: str, user: str, *, provider: dict | 
         return rb._result(status="error", reason="charged", outcome="stop_all",
                           text=f"a free call was billed ${cost:.6f} ({ver['served_model']} via {ver['served_by']})", **out)
     text, thinking = _text_of(msg.get("content")), msg.get("reasoning")
+    calls_ = [t for t in (msg.get("tool_calls") or []) if isinstance(t, dict) and isinstance(t.get("function"), dict)]
+    ver["answer_via"] = "content"
+    if calls_:
+        args = calls_[0]["function"].get("arguments")
+        text = args if isinstance(args, str) else json.dumps(args)
+        ver["answer_via"] = "tool_call"
+    row["via"] = ver["answer_via"]
     if finish == "length":
         # the output room ran out: on reasoning alone (nothing written), or part-way through the answer.
         # Either way the model did not deliver this call; a cut-off answer is never graded as an answer.
@@ -373,59 +409,130 @@ def load_results() -> list:
 
 
 # --- scoring: did the model make the same decision as production on this call? -------------------------
-def score(summary_and_items: dict, role: str, status: str = "ok", reason: str | None = None, fmt_ok: bool | None = True) -> dict:
-    """{"same": bool, "why": str, "agree": int, "judged": int} for one graded call.
-    A call counts as the same decision only when the model answered, the answer was readable, and
-    every item production judged got the same verdict. An item the model left out counts against it,
-    except in the roles where leaving a quiet item unnamed is itself the quiet verdict
-    (modelcompare.MISS_IS_VERDICT). A call the model failed to answer is never the same decision."""
-    if status != "ok":
-        return {"same": False, "why": f"no answer ({reason})", "agree": 0, "judged": 0}
-    s = summary_and_items.get("summary") or {}
-    if fmt_ok is False or s.get("candidate_parse") not in (None, "ok"):
-        return {"same": False, "why": "unreadable format", "agree": 0, "judged": 0}
+LOUD = {"screen": "substantial"}       # jobs decided per run: the decision is whether anything is flagged loud
+
+
+def items_score(cmp_: dict, role: str) -> dict:
+    """Item-level: every item production judged must get the same verdict. An item the model left out
+    counts against it, except a quiet item in the roles where leaving it unnamed is the quiet verdict."""
     quiet = modelcompare.MISS_IS_VERDICT.get(role)
     agree = judged = 0
-    for it in summary_and_items.get("items") or []:
+    for it in cmp_.get("items") or []:
         st = it.get("status")
         if st == "abstain":
             if quiet is not None and it.get("reference") == quiet:
-                continue                       # a quiet item left unnamed: the same quiet verdict, not counted either way
-            judged += 1                        # left out: counts as a different decision
+                continue
+            judged += 1
         elif st in ("agree", "disagree"):
             judged += 1
             agree += st == "agree"
-    return {"same": agree == judged, "why": "same" if agree == judged else "different verdict", "agree": agree, "judged": judged}
+    return {"agree": agree, "judged": judged}
+
+
+def loud_flag(role: str, text: str):
+    """For a per-run job: did this answer flag anything loud? None when the answer cannot be read."""
+    parse = (rolespecs.spec(role) or {}).get("parse")
+    try:
+        parsed = parse(text or "") if parse else None
+    except Exception:
+        parsed = None
+    if parsed is None:
+        return None
+    return any(v == LOUD[role] for v in (parsed.get("items") or {}).values())
+
+
+def score(cmp_: dict, role: str, status: str = "ok", reason: str | None = None, fmt_ok: bool | None = True,
+          text: str | None = None, ref_text: str | None = None) -> dict:
+    """{"same": bool, "why": str, ...} for one graded call. A call is the same decision only when the
+    model answered, readably, and decided what production decided:
+    - a per-run job (the screen): the decision is the one the pipeline acts on, whether anything was
+      flagged loud. Which findings were named is reported beside it ("found"/"loud": of the findings
+      production flagged loud, how many the model flagged loud too);
+    - picking the lead: the same winner and the same margin;
+    - every other job: the same verdict on every item production judged.
+    A call the model failed to answer is never the same decision."""
+    if status != "ok":
+        return {"same": False, "why": f"no answer ({reason})"}
+    s = cmp_.get("summary") or {}
+    if fmt_ok is False or s.get("candidate_parse") not in (None, "ok"):
+        return {"same": False, "why": "unreadable format"}
+    it = items_score(cmp_, role)
+    if role in LOUD:
+        cand = loud_flag(role, text)
+        if cand is None:
+            return {"same": False, "why": "unreadable format"}
+        ref_loud = [i for i in cmp_.get("items") or [] if i.get("reference") == LOUD[role]]
+        ref = bool(ref_loud) if ref_text is None else bool(loud_flag(role, ref_text))
+        found = sum(1 for i in ref_loud if i.get("status") == "agree")
+        return {"same": cand == ref, "why": "same" if cand == ref else ("missed it" if ref else "false alarm"),
+                "ref_loud": ref, "cand_loud": cand, "found": found, "loud": len(ref_loud), **it}
+    same = it["agree"] == it["judged"]
+    if role == "lead_election" and (cmp_.get("extra") or {}).get("winner_agree") is False:
+        same = False
+    return {"same": same, "why": "same" if same else "different verdict", **it}
 
 
 def score_row(row: dict) -> dict:
     return score(row.get("comparison") or {}, row.get("role"), row.get("status"), row.get("reason"),
-                 (row.get("study") or {}).get("format_ok"))
+                 (row.get("study") or {}).get("format_ok"), row.get("text"))
 
 
-def gradable_roles(calls: list) -> tuple[list, dict]:
-    """Roles the grader can score by agreement, proven on the data: production's own answer, fed back
-    as the candidate, must come out as the same decision on every call of the role, with at least one
-    judged item in the role. Returns (roles, {role: why not} for the rest)."""
-    by_role = {}
+def reference_ok(c: dict) -> str | None:
+    """None when production's stored answer on this call can serve as the reference, else why not:
+    the lane's own eligibility rule (a fallback model answered, an unparsed answer), the output
+    format, and the grader agreeing with production's answer fed back to it."""
+    ok, why = rolespecs.reference_eligible(c)
+    if not ok:
+        return str(why)
+    ref_text = (c.get("result") or {}).get("text") or ""
+    if not format_ok(c["role"], ref_text):
+        return "production's stored answer is not in the job's format"
+    cmp_ = modelcompare.compare_call(c, {"status": "ok", "text": ref_text, "backend": "control"})
+    if (cmp_.get("summary") or {}).get("agree") is None:
+        return "no verdicts to compare (free-text or set output)"
+    sc = score(cmp_, c["role"], text=ref_text)
+    it = items_score(cmp_, c["role"])
+    if not sc["same"] or it["agree"] != it["judged"]:
+        return "production's answer does not score as itself"
+    return None
+
+
+def gradable(calls: list) -> tuple[list, dict]:
+    """(calls the study can score, {role: {why: count}} for what is left out). A job stays in when at
+    least 90% of its calls have a usable reference and at least one verdict to compare; its other
+    calls are left out one by one, never the whole job for one bad capture."""
+    by_role, out, left = {}, [], {}
     for c in calls:
         by_role.setdefault(c["role"], []).append(c)
-    good, bad = [], {}
     for role, cs in sorted(by_role.items()):
-        judged = same = 0
-        for c in cs:
-            ref_text = (c.get("result") or {}).get("text") or ""
-            cmp_ = modelcompare.compare_call(c, {"status": "ok", "text": ref_text, "backend": "control"})
-            sc = score(cmp_, role, fmt_ok=format_ok(role, ref_text))
-            judged += sc["judged"]
-            same += sc["same"] and (cmp_.get("summary") or {}).get("agree") is not None
-        if judged == 0:
-            bad[role] = "no verdicts to compare (free-text or set output)"
-        elif same != len(cs):
-            bad[role] = f"production's own answer scores {same}/{len(cs)} against itself"
-        else:
-            good.append(role)
-    return good, bad
+        why = [(c, reference_ok(c)) for c in cs]
+        good = [c for c, w in why if w is None]
+        bad = Counter(w for _, w in why if w is not None)
+        judged = sum(items_score(modelcompare.compare_call(c, {"status": "ok", "text": (c.get("result") or {}).get("text") or "",
+                                                                 "backend": "control"}), role)["judged"] for c in good)
+        if len(good) < 0.9 * len(cs) or judged == 0:
+            left[role] = dict(bad) or {"no verdicts to compare": len(cs)}
+            if len(good) >= 0.9 * len(cs) and judged == 0:
+                left[role] = {"no verdicts to compare": len(cs)}
+            continue
+        out.extend(good)
+        if bad:
+            left[role] = dict(bad)
+    return out, left
+
+
+def baselines(role: str, rows: list) -> dict:
+    """What a model that always gives one answer would score on these rows' calls (one row per call)."""
+    out = {}
+    if role in LOUD:
+        loud = [bool([i for i in (r.get("comparison") or {}).get("items") or [] if i.get("reference") == LOUD[role]]) for r in rows]
+        out["never flags anything"] = sum(1 for x in loud if not x)
+        out["always flags something"] = sum(1 for x in loud if x)
+        return out
+    for label in (rolespecs.spec(role) or {}).get("label_set") or ():
+        out[f"always '{label}'"] = sum(1 for r in rows
+                                       if all(i.get("reference") == label for i in (r.get("comparison") or {}).get("items") or []))
+    return out
 
 
 # --- one model's night -------------------------------------------------------------------------------
@@ -460,10 +567,11 @@ def run_model(entry: dict, calls: list, quota: int, *, prior_errors: Counter | N
             if what == "model_off":
                 return {"model": entry["model"], "stored": stored, "attempts": attempts, "ended": replay.get("reason")}
             if what == "retry_later":
-                if replay.get("reason") == "provider_error":
+                if replay.get("reason") in ("provider_error", "timeout"):
                     prior_errors[(entry["model"], c["call_id"])] += 1
                     if prior_errors[(entry["model"], c["call_id"])] >= GIVE_UP_AFTER:
-                        replay = {**replay, "reason": "provider_rejected_repeatedly", "outcome": "store"}
+                        gave = "timed_out_repeatedly" if replay.get("reason") == "timeout" else "provider_rejected_repeatedly"
+                        replay = {**replay, "reason": gave, "outcome": "store"}
                         break
                 strikes += 1
                 if strikes >= 2:
@@ -476,5 +584,5 @@ def run_model(entry: dict, calls: list, quota: int, *, prior_errors: Counter | N
         stored += 1
         sc = score_row(res)
         say(f"  {entry['model'][:44]:44} {c['role']:14} {replay['status']:7} {(replay.get('reason') or ''):26} "
-            f"{sc['why']:18} {replay.get('duration_ms') or 0}ms via {(replay.get('backend_version') or {}).get('served_by')}")
+            f"{sc['why'][:28]:28} {replay.get('duration_ms') or 0}ms via {(replay.get('backend_version') or {}).get('served_by')}")
     return {"model": entry["model"], "stored": stored, "attempts": attempts, "ended": ended}
