@@ -120,12 +120,6 @@ This comes up because Microsoft did add Claude as a model choice inside Microsof
 
 **So what:** Reframe from 'Microsoft trusts Claude' to 'Microsoft ships GPT to everyone by default and lets power users opt into others.' ([cnbc.com](https://www.cnbc.com/2025/09/24/microsoft-adds-anthropic-model-to-microsoft-365-copilot.html))
 
-**"You cut off Cursor's model access. What stops you cutting us off?"**
-
-Procurement raises this because OpenAI did end model access for Cursor after SpaceX acquired it, citing an inability to trust that SpaceX would honor OpenAI's terms. The straight answer is that this was a change-of-control and terms dispute with an Elon Musk company, not a move against an ordinary paying customer, and Anthropic made the same call with Windsurf. Standard enterprise agreements protect continuity of service.
-
-**So what:** Meet it head-on, name the specific SpaceX circumstances, and point to the contractual service commitments in the Enterprise agreement. ([cnbc.com](https://www.cnbc.com/2026/08/29/openai-cursor-spacex-model-access.html))
-
 **"You just paused Pro sign-ups. Can you even scale for us?"**
 
 The pause is real: on September 10 OpenAI stopped new \$200 consumer Pro subscriptions because demand for Astra outran infrastructure. The important detail is that it hit net-new consumer Pro only, and Business, Enterprise and API access were unaffected. It reflects demand for a frontier model, and Enterprise capacity is committed separately and backed by Microsoft.

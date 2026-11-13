@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-11-11T12:06:41",
+  "last_checked": "2026-11-13T12:08:33",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -49,17 +49,26 @@
   "pending_candidates": {
     "my_company": [
       {
-        "signal": "Alphabet acquires Wiz for $32 billion (November 2026) — largest acquisition in company history, vertical-integrating cloud security to compete with AWS",
+        "signal": "November 14, 2026 — CEO Sundar Pichai announced $40 billion investment in Texas data center infrastructure through 2027, with three new data center campuses in Armstrong and Haskell counties including solar and battery storage facility",
         "subject_key": "NEW",
         "about": "my_company",
         "valence": "front_foot",
         "substantial": true,
-        "why_new": "Major M&A not previously tracked: Alphabet's largest-ever acquisition announced in November 2026 (within cutoff). Wiz is a cloud security unicorn; Google rejected Wiz's decline of a $23B offer 'last summer' (2025) and closed at $32B. Strategic vertical integration into security to contest AWS incumbency in cloud-security competitive positioning.",
-        "source_hint": "https://www.foxbusiness.com/technology/google-purchasing-startup-wiz-32-billion"
+        "why_new": "Major capex commitment not in tracked subjects; dated post-cutoff with CEO-level strategic announcement of significant infrastructure expansion",
+        "source_hint": "blog.mean.ceo/google-gemini-news-november-2026 and news aggregators"
+      },
+      {
+        "signal": "November 2026 — Google announced 6.4 billion dollar cloud infrastructure investment in Germany, expanding European AI/ML infrastructure footprint",
+        "subject_key": "NEW",
+        "about": "my_company",
+        "valence": "front_foot",
+        "substantial": true,
+        "why_new": "Capex commitment for European infrastructure not previously tracked; material regional expansion in key market",
+        "source_hint": "blog.mean.ceo/google-gemini-news-november-2026"
       }
     ],
-    "since": "2026-11-10",
-    "my_since": "2026-11-10",
+    "since": "2026-11-12",
+    "my_since": "2026-11-12",
     "attempts": 1,
     "reason": "own-side candidates did not ground"
   }
