@@ -4,7 +4,7 @@
   "competitor": "Slack",
   "focus": null,
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-11-13T12:11:14",
+  "last_checked": "2026-11-14T12:08:25",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7e46a6f50a55",
@@ -35,22 +35,5 @@
     ],
     "job_boards": []
   },
-  "last_check_reason": "scheduled",
-  "pending_candidates": {
-    "my_company": [
-      {
-        "signal": "Microsoft Teams meeting AI controls (Copilot governance) reached General Availability for Mac in November 2026, after being pushed back on Nov 3.",
-        "subject_key": "microsoft-teams | copilot-meeting-access-gating",
-        "about": "my_company",
-        "valence": "front_foot",
-        "substantial": true,
-        "why_new": "Status flip: the tracked claim logs this feature as 'pushed back' on Nov 3 (MC1532253 moved to Targeted Release). The November GA for Mac is the execution of that delayed rollout — a shipping status change from blocked/delayed to GA. Per triage rules, status flips (delayed → GA) are always substantial, including when they execute a signaled change. This shows Teams meeting AI finally shipping after delays.",
-        "source_hint": "https://m365admin.handsontek.net/?p=25308"
-      }
-    ],
-    "since": "2026-11-12",
-    "my_since": "2026-11-12",
-    "attempts": 1,
-    "reason": "own-side candidates did not ground"
-  }
+  "last_check_reason": "scheduled"
 }
