@@ -22,7 +22,7 @@ import json
 import sys
 from datetime import datetime
 
-from scout import modelcompare, replaybackends, rolespecs, selfserve
+from scout import modelcompare, rolespecs, selfserve
 
 
 def _load(backend=None):
@@ -57,8 +57,6 @@ def pending(backend=None, role=None) -> list:
     for r in _load(backend):
         if r.get("mode", "exact") != "exact" or r.get("rep") or r.get("status") != "ok":
             continue
-        if r.get("backend") in replaybackends.NO_ADJUDICATION:
-            continue                    # a free hosted arm never adds to the paid arbiter's queue or his labels
         if role and r.get("role") != role:
             continue
         for it in (r.get("comparison") or {}).get("items") or []:

@@ -121,7 +121,6 @@ def build(now: datetime) -> tuple[dict, str]:
     lines.append("## Arms")
     arms = [("apple_ondevice", "Apple", "SystemLanguageModel")] + \
            [(name, cfg["vendor"], cfg["tag"]) for name, cfg in _rb.OLLAMA_MODELS.items()]
-    arms += [(name, cfg["vendor"], cfg["model"] + " via OpenRouter") for name, cfg in _rb.OPENROUTER_MODELS.items()]
     for name, vendor, tag in arms:
         n_all = sum(1 for r in results if r.get("backend") == name)
         n_today = sum(1 for r in results if r.get("backend") == name and str(r.get("replayed_at", ""))[:10] == today)
@@ -133,17 +132,12 @@ def build(now: datetime) -> tuple[dict, str]:
         # answers before anyone looked at the output instead of the config.
         ok_today = [r for r in results if r.get("backend") == name and str(r.get("replayed_at", ""))[:10] == today and r.get("status") == "ok"]
         traced = sum(1 for r in ok_today if (r.get("thinking") or "").strip())
-        think_on = name == "apple_ondevice" and False or bool((_rb.OLLAMA_MODELS.get(name) or _rb.OPENROUTER_MODELS.get(name) or {}).get("think"))
+        think_on = name == "apple_ondevice" and False or bool((_rb.OLLAMA_MODELS.get(name) or {}).get("think"))
         trace_note = ""
         if think_on and ok_today:
             hits = sum(1 for r in ok_today if (r.get("budget") or {}).get("budget_hit"))
             trace_note = (f"; reasoning traces {traced} of {len(ok_today)} answers today, budget hit {hits}"
                           + ("  <-- REASONING SET ON BUT NO TRACE" if traced == 0 else ""))
-        if name in _rb.OPENROUTER_MODELS and ok_today:
-            # proven from the stored answers, not the config: who actually served the calls
-            served = sorted({str((r.get("backend_version") or {}).get("served_by")) for r in ok_today})
-            off = [p for p in served if p not in _rb.OPENROUTER_MODELS[name]["served_by"]]
-            trace_note += f"; served by {', '.join(served)}" + ("  <-- NOT THE PINNED PROVIDER" if off else "")
         lines.append(f"- {name}: {vendor} {tag}: {n_all} results, {state}{warm}{hist}{trace_note}")
     lines.append("")
     # brief-ready summary (2026-10-01): what the executive brief needs, without re-reading results

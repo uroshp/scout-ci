@@ -232,19 +232,7 @@ def main():
             res = replaybackends.ollama_resident(backend)
             if res is None:
                 print("  ollama: model not loaded yet; the first call loads it")
-        arm_plan = plan
-        if replaybackends.is_openrouter(backend):
-            # a capped arm finishes whole ROLES first (fewest calls first, newest first inside a role):
-            # a role is comparable once the arm covers 90% of it, so 45 calls a day spread thin across
-            # every role would leave nothing comparable for a week
-            if "loop" in modes or "frozen" in modes:
-                print(f"  {backend}: hosted arms replay exact mode only")
-            n_role = {}
-            for m, c in plan:
-                n_role[c["role"]] = n_role.get(c["role"], 0) + 1
-            arm_plan = sorted([(m, c) for m, c in plan if m == "exact"], key=lambda mc: mc[1].get("run_ts") or "", reverse=True)
-            arm_plan.sort(key=lambda mc: (n_role[mc[1]["role"]], mc[1]["role"]))
-        for mode, c in arm_plan:
+        for mode, c in plan:
             if not args.no_window and not _in_window(args.window):
                 print("  outside the window; stopping"); break
             if deadline and datetime.now() >= deadline:
@@ -268,11 +256,6 @@ def main():
                 if ps and ps.get("size_vram") is not None and ps.get("size") is not None and ps["size_vram"] != ps["size"]:
                     print(f"  ollama: model NOT fully on Metal (size_vram={ps['size_vram']} size={ps['size']}); aborting arm")
                     break
-            if replay.get("stop_arm"):
-                # not a model result (the hosted arm's daily cap, a missing key, a rate limit that did
-                # not clear): nothing persisted, the arm ends cleanly and resumes the next night
-                print(f"  {backend}: {replay.get('reason')}: {str(replay.get('text'))[:120]}; arm stops, nothing persisted")
-                break
             if replay.get("reason") == "transport":
                 # The backend server is gone (the Apple bridge exits on a context overflow):
                 # infrastructure, not a model result. Never persisted; the arm stops with exit 3
