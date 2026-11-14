@@ -212,9 +212,11 @@ def verify(calls: list, notes: dict, say=print) -> list:
               f"OpenRouter ${acct:.4f}, ledger ${d['billed']:.4f}, unseen-bill allowance ${d['assumed']:.4f}" if acct is not None else "the account figure could not be read")
         over = [a for a in att if a.get("reason") == "billed_above_listed_price"]
         check("no reply was billed above the listed price", not over, f"{len(over)} such replies")
-        ends = Counter(str((r.get("backend_version") or {}).get("endpoint")) for r in rows)
-        want = {m["tag"] for m in orstudy.PAID_MODELS}
-        check("every stored answer came through an approved endpoint", set(ends) <= want, str(dict(ends)))
+        host = {m["model"]: m["name"] for m in orstudy.PAID_MODELS}
+        wrong = Counter(f"{r['backend'][3:]} by {(r.get('backend_version') or {}).get('served_by')}" for r in rows
+                        if (r.get("backend_version") or {}).get("served_by") != host.get(r["backend"][3:]))
+        check("every stored answer was served by the host approved for that model", not wrong, str(dict(wrong)) if wrong else "")
+        say("  note  the reply names the host, not the endpoint variant (region, no-retention, precision); the variant is confirmed only by the bill matching that variant's price")
     else:
         billed = sum(r.get("cost_usd") or 0 for r in rows) + sum(a.get("cost") or 0 for a in att)
         check("nothing was billed", billed == 0, f"${billed:.6f}")
@@ -234,7 +236,7 @@ def verify(calls: list, notes: dict, say=print) -> list:
     off = Counter()
     for r in rows:
         v = r.get("backend_version") or {}
-        if r["status"] == "ok" and r["backend"] != "or:" + orstudy.ROUTER and not str(v.get("served_model") or "").startswith(str(v.get("model"))):
+        if r["status"] == "ok" and r["backend"] != "or:" + orstudy.ROUTER and v.get("served_model") != v.get("model"):
             off[f"{v.get('model')} answered by {v.get('served_model')}"] += 1
     check("each named model was answered by that model", not off, str(dict(off)) if off else "")
     # 5. settings, from the stored rows: no schema anywhere; reasoning actually happened where asked
@@ -399,12 +401,12 @@ def run(args) -> list:
         def say(s):
             with out_lock:
                 print(s, flush=True)
-        prior = Counter((a["model"], a.get("call_id")) for a in orstudy.load_attempts() if a.get("reason") == "provider_error")
+        prior = Counter((a["model"], a.get("call_id")) for a in orstudy.load_attempts() if a.get("reason") in ("provider_error", "timeout"))
         resting, totals, crashed, sent = {}, Counter(), [], 0
         for rnd in (1, 2, 3):
-            if rnd > 1 and any(w in ("rate_limited", "upstream_error", "network") for w in resting.values()):
+            if rnd > 1 and any(w in ("rate_limited", "upstream_error", "network", "timeout") for w in resting.values()):
                 time.sleep(180)                                  # a rested model gets another go, a few minutes later
-                resting = {m: w for m, w in resting.items() if w not in ("rate_limited", "upstream_error", "network")}
+                resting = {m: w for m, w in resting.items() if w not in ("rate_limited", "upstream_error", "network", "timeout")}
             active = [e for e in entries if e["model"] not in resting and todo[e["model"]] > 0]
             left = max(0, orstudy.DAILY_CAP - orstudy.used_today())
             if not active or orstudy.stop_reason() or should_stop():
