@@ -376,7 +376,28 @@ class PaidTests(OrStudyCase):
         post.assert_not_called()
 
     def test_openrouters_own_figure_counts_when_it_is_higher(self):
-        orstudy._spend_write({"billed": 1.0, "assumed": 0, "account_start": 10.0, "account_now": 10.0 + orstudy.PAID_BUDGET})
+        root = os.path.join(self.tmp, "openrouter_paid")
+        os.makedirs(root)
+        for k, v in {"PAID_DIR": root, "STUDY_DIR": root}.items():
+            p = mock.patch.object(orstudy, k, v)
+            p.start()
+            self.addCleanup(p.stop)
+        orstudy._spend_write({"billed": 1.0, "assumed": 0, "account_start": 10.0, "account_now": 10.0 + orstudy.TOTAL_BUDGET})
+        post = self._post(_answer(provider="Acme", model="acme/judge"))
+        r = orstudy.call(PAID_ENTRY, RECORD, "SYS", "USER")
+        self.assertEqual(r["reason"], "budget")
+        post.assert_not_called()
+
+    def test_the_total_limit_counts_every_paid_folder(self):
+        root = os.path.join(self.tmp, "openrouter_paid")
+        other = os.path.join(self.tmp, "openrouter_routed")
+        os.makedirs(root); os.makedirs(other)
+        for k, v in {"PAID_DIR": root, "STUDY_DIR": root}.items():
+            p = mock.patch.object(orstudy, k, v)
+            p.start()
+            self.addCleanup(p.stop)
+        with open(os.path.join(other, "spend.json"), "w") as fh:
+            json.dump({"billed": orstudy.TOTAL_BUDGET - 0.001, "assumed": 0}, fh)
         post = self._post(_answer(provider="Acme", model="acme/judge"))
         r = orstudy.call(PAID_ENTRY, RECORD, "SYS", "USER")
         self.assertEqual(r["reason"], "budget")
