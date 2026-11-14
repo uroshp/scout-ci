@@ -378,6 +378,8 @@ def _send(body: dict, key: str, timeout: float):
     try:
         r = httpx.post(f"{rb.OPENROUTER_URL}/chat/completions", json=body, timeout=timeout,
                        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})
+    except (httpx.ConnectError, httpx.ConnectTimeout) as e:
+        return None, int((time.monotonic() - t0) * 1000), f"not sent: {type(e).__name__}", None
     except httpx.TimeoutException as e:
         return None, int((time.monotonic() - t0) * 1000), f"timeout: {type(e).__name__}", None
     except Exception as e:
@@ -419,6 +421,8 @@ def call(entry: dict, record: dict, system: str, user: str, *, provider: dict | 
     r, ms, neterr, unsent = _send(body, key, timeout)
     if paid and unsent:
         _settle(worst)
+    elif paid and r is None and str(neterr).startswith("not sent"):
+        _settle(worst)                                # the connection was never made: nothing to bill
     elif paid and r is None:
         _settle(worst, assumed=worst, key=key)        # sent, no reply seen: it may still be billed
     row = {"at": datetime.now().isoformat(timespec="seconds"), "model": model, "call_id": record.get("call_id"), "role": role,
@@ -428,9 +432,12 @@ def call(entry: dict, record: dict, system: str, user: str, *, provider: dict | 
                           text=f"{DAILY_CAP} requests used today" if unsent == "cap" else str(_stop["why"]), **base)
 
     def no_result(reason, outcome, detail, **more):
+        if paid and isinstance(data, dict) and isinstance(data.get("usage"), dict) and data["usage"].get("cost"):
+            more["cost"] = float(data["usage"]["cost"])
         _attempt_log({**row, "reason": reason, "ms": ms, "detail": detail, **more}, log)
         return rb._result(status="error", reason=reason, outcome=outcome, text=str(detail)[:400], duration_ms=ms, **base)
 
+    data = None
     if r is None:
         return no_result("timeout" if str(neterr).startswith("timeout") else "network", "retry_later", neterr, http=None)
     try:
@@ -696,8 +703,8 @@ def baselines(role: str, rows: list) -> dict:
         out["always flags something"] = sum(1 for x in loud if x)
         return out
     for label in (rolespecs.spec(role) or {}).get("label_set") or ():
-        out[f"always '{label}'"] = sum(1 for r in rows
-                                       if all(i.get("reference") == label for i in (r.get("comparison") or {}).get("items") or []))
+        out[f"always '{label}'"] = sum(1 for r in rows if ((r.get("comparison") or {}).get("items") or [])
+                                       and all(i.get("reference") == label for i in (r.get("comparison") or {}).get("items") or []))
     return out
 
 
