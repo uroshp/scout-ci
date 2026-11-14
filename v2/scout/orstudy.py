@@ -64,6 +64,29 @@ PAID_MODELS = (
 )
 COVERAGE = 0.9                # a model is compared on a role once it has attempted this share of the role's calls
 
+# --- routing as OpenRouter intends it (2026-11-13, his ruling) -------------------------------------------
+# Two kinds of entry. The Auto Router: no model named, OpenRouter picks the model and the host. A named
+# model with the host left to OpenRouter (and its failover). Guardrail on both: only these providers,
+# companies that run in the US or the model's own maker, may receive a prompt; and a price ceiling,
+# enforced by OpenRouter (provider.max_price), bounds what one request can cost.
+ROUTED_DIR = os.path.expanduser("~/scout-replay/openrouter_routed")
+ROUTED_BUDGET = float(os.environ.get("SCOUT_ORSTUDY_ROUTED_BUDGET", "12"))
+REP_BUDGET = 2.25              # one extra pass of Opus over the verification-judge calls
+TOTAL_BUDGET = 38.0            # every paid folder together; his $40 less a margin
+SCREEN_SINCE = "20261030T000000"      # the free study's screening calls, so the routed arms meet the free models on them
+US_PROVIDERS = {"anthropic": "Anthropic", "openai": "OpenAI", "azure": "Azure", "amazon-bedrock": "Amazon Bedrock",
+                "google-vertex": "Google", "google-ai-studio": "Google AI Studio", "xai": "xAI", "mistral": "Mistral",
+                "cohere": "Cohere", "together": "Together", "fireworks": "Fireworks", "baseten": "BaseTen",
+                "deepinfra": "DeepInfra", "digitalocean": "DigitalOcean", "cloudflare": "Cloudflare",
+                "coreweave": "CoreWeave", "parasail": "Parasail", "nvidia": "Nvidia"}
+ROUTED_MODELS = (
+    {"model": "openrouter/auto", "ceiling": (5.00, 25.00), "plugins": [{"id": "auto-router"}]},
+    # the models the Mac mini runs, served by whichever US host OpenRouter picks
+    {"model": "openai/gpt-oss-20b", "ceiling": (0.50, 2.00)},
+    {"model": "google/gemma-4-26b-a4b-it", "ceiling": (0.50, 2.00)},
+    {"model": "nvidia/nemotron-3-nano-30b-a3b", "ceiling": (0.50, 2.00)},
+)
+
 _gate = threading.Lock()
 _log_lock = threading.Lock()
 _last_start = [0.0]
@@ -210,6 +233,40 @@ def paid_entries(fetch=_get, models=PAID_MODELS) -> dict:
     return {"models": out, "dropped": dropped}
 
 
+def routed_entries(fetch=_get, models=ROUTED_MODELS) -> dict:
+    """The routed entries. A named model keeps only the US providers that list it under the ceiling;
+    the Auto Router carries the whole allow-list (it resolves the model per request)."""
+    out, dropped = [], []
+    for m in models:
+        entry = {"model": m["model"], "router": True, "routed": True, "paid": True, "price": tuple(m["ceiling"]),
+                 "reasoning": True, "max_out": MAX_OUT, "plugins": m.get("plugins"),
+                 "provider_extra": {"max_price": {"prompt": m["ceiling"][0], "completion": m["ceiling"][1]}, "require_parameters": True}}
+        if m["model"] == "openrouter/auto":
+            entry.update(providers=sorted(US_PROVIDERS), provider_names=sorted(US_PROVIDERS.values()))
+            out.append(entry); continue
+        try:
+            eps = (fetch(f"{rb.OPENROUTER_URL}/models/{m['model']}/endpoints").get("data") or {}).get("endpoints") or []
+        except Exception as e:
+            dropped.append({"model": m["model"], "why": f"endpoint list unreadable ({type(e).__name__})"}); continue
+        ok = []
+        for e in eps:
+            base = str(e.get("tag") or "").split("/")[0]
+            pr = e.get("pricing") or {}
+            try:
+                under = float(pr.get("prompt")) * 1e6 <= m["ceiling"][0] and float(pr.get("completion")) * 1e6 <= m["ceiling"][1]
+            except (TypeError, ValueError):
+                under = False
+            if base in US_PROVIDERS and under and str(e.get("provider_name")) == US_PROVIDERS[base]:
+                ok.append(e)
+        if not ok:
+            dropped.append({"model": m["model"], "why": "no US provider lists it under the price ceiling"}); continue
+        entry.update(providers=sorted({str(e["tag"]).split("/")[0] for e in ok}),
+                     provider_names=sorted({str(e["provider_name"]) for e in ok}),
+                     reasoning=any("reasoning" in set(e.get("supported_parameters") or []) for e in ok))
+        out.append(entry)
+    return {"models": out, "dropped": dropped}
+
+
 def _spend_path() -> str:
     return os.path.join(STUDY_DIR, "spend.json")
 
@@ -235,12 +292,32 @@ def _spend_write(d: dict) -> None:
 
 
 def spent(d: dict | None = None) -> float:
-    """The larger of this study's own ledger and what OpenRouter says the key has used since the start."""
+    """This folder's own ledger: the bills on its replies plus the allowance for bills never seen."""
     d = d or spend()
-    own = d["billed"] + d["assumed"]
-    if d["account_start"] is not None and d["account_now"] is not None:
-        return max(own, float(d["account_now"]) - float(d["account_start"]))
-    return own
+    return d["billed"] + d["assumed"]
+
+
+def _ledgers() -> list:
+    out, root = [], os.path.dirname(PAID_DIR)
+    for name in sorted(os.listdir(root)) if os.path.isdir(root) else []:
+        if name.startswith("openrouter_paid") or name.startswith("openrouter_routed"):
+            try:
+                with open(os.path.join(root, name, "spend.json")) as fh:
+                    out.append((os.path.join(root, name), json.load(fh) or {}))
+            except (OSError, ValueError):
+                pass
+    return out
+
+
+def spent_total() -> float:
+    """All paid work on the key: the larger of every folder's ledger added up and what OpenRouter says
+    the key has used since the first paid request (the folders share one key, so OpenRouter's figure
+    can only be read against all of them together)."""
+    led = _ledgers()
+    own = sum(float(x.get("billed") or 0) + float(x.get("assumed") or 0) for _, x in led)
+    starts = [float(x["account_start"]) for _, x in led if x.get("account_start") is not None]
+    nows = [float(x["account_now"]) for _, x in led if x.get("account_now") is not None]
+    return max(own, max(nows) - min(starts)) if starts and nows else own
 
 
 def account_usage(key: str, fetch=None):
@@ -277,12 +354,15 @@ def worst_case(entry: dict, system: str, user: str, body: dict) -> float:
 
 
 def _reserve(entry: dict, worst: float) -> str | None:
-    """Hold the worst case for one paid request, or say why not."""
+    """Hold the worst case for one paid request, or say why not: this folder's own limit, or the total."""
     with _money_lock:
         d = spend()
         if spent(d) + _money["reserved"] + worst > PAID_BUDGET:
             return (f"${spent(d):.2f} spent, ${_money['reserved']:.2f} in flight: the next request could pass "
-                    f"the ${PAID_BUDGET:.0f} limit")
+                    f"the ${PAID_BUDGET:.2f} limit")
+        total = spent_total()
+        if total + _money["reserved"] + worst > TOTAL_BUDGET:
+            return (f"${total:.2f} spent across the paid work: the next request could pass the ${TOTAL_BUDGET:.0f} total")
         _money["reserved"] += worst
     return None
 
@@ -322,7 +402,9 @@ def body_for(entry: dict, system: str, user: str, provider: dict | None = None, 
     forced tool carries the same tool, forced."""
     body = {"model": entry["model"], "stream": False,
             "messages": ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": user}],
-            "provider": provider or {"only": list(entry["providers"])}}
+            "provider": provider or {"only": list(entry["providers"]), **(entry.get("provider_extra") or {})}}
+    if entry.get("plugins"):
+        body["plugins"] = entry["plugins"]
     ft = forced_tool(record or {})
     if ft:
         body["tools"], body["tool_choice"] = ft
@@ -358,7 +440,7 @@ def load_attempts(log: str = "attempts.jsonl") -> list:
     return out
 
 
-def _send(body: dict, key: str, timeout: float):
+def _send(body: dict, key: str, timeout: float, meta: bool = False):
     """One paced, counted request. Returns (response|None, ms, error text|None, why not sent|None)."""
     with _gate:
         if _stop["why"]:
@@ -377,7 +459,8 @@ def _send(body: dict, key: str, timeout: float):
     t0 = time.monotonic()
     try:
         r = httpx.post(f"{rb.OPENROUTER_URL}/chat/completions", json=body, timeout=timeout,
-                       headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})
+                       headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json",
+                                **({"X-OpenRouter-Metadata": "enabled"} if meta else {})})
     except (httpx.ConnectError, httpx.ConnectTimeout) as e:
         return None, int((time.monotonic() - t0) * 1000), f"not sent: {type(e).__name__}", None
     except httpx.TimeoutException as e:
@@ -413,12 +496,14 @@ def call(entry: dict, record: dict, system: str, user: str, *, provider: dict | 
     ver["forced_tool"] = bool(body.get("tools"))
     paid, worst = bool(entry.get("paid")), 0.0
     if paid:
-        ver["study"], ver["endpoint"] = "openrouter-paid-2026-11", entry["providers"][0]
+        ver["study"] = "openrouter-routed-2026-11" if entry.get("routed") else "openrouter-paid-2026-11"
+        ver["endpoint"] = None if entry.get("routed") else entry["providers"][0]
+        ver["routed"] = bool(entry.get("routed"))
         worst = worst_case(entry, system, user, body)
         full = _reserve(entry, worst)
         if full:
             return rb._result(status="skipped", reason="budget", outcome="stop_all", text=full, **base)
-    r, ms, neterr, unsent = _send(body, key, timeout)
+    r, ms, neterr, unsent = _send(body, key, timeout, meta=bool(entry.get("routed")))
     if paid and unsent:
         _settle(worst)
     elif paid and r is None and str(neterr).startswith("not sent"):
@@ -487,6 +572,12 @@ def call(entry: dict, record: dict, system: str, user: str, *, provider: dict | 
     ver["served_by"], ver["served_model"] = data.get("provider"), data.get("model")
     cost = float(usage.get("cost") or 0.0)
     finish = ch.get("finish_reason")
+    if entry.get("routed"):
+        md = data.get("openrouter_metadata") if isinstance(data.get("openrouter_metadata"), dict) else {}
+        ver["generation_id"] = data.get("id")
+        ver["routing"] = {"attempt": md.get("attempt"), "strategy": md.get("strategy"), "summary": md.get("summary"),
+                          "attempts": md.get("attempts"),
+                          "candidates": len(md.get("endpoints") or []) if isinstance(md.get("endpoints"), list) else None}
     out = dict(duration_ms=ms, schema_enforced=False, observed_token_count=usage.get("prompt_tokens"),
                tokens={"input": usage.get("prompt_tokens"), "output": usage.get("completion_tokens"),
                        "thinking": (usage.get("completion_tokens_details") or {}).get("reasoning_tokens")},
