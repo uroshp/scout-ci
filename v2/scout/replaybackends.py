@@ -12,10 +12,6 @@ the live hook builds) to a candidate model and returns a uniform result dict. Ba
                   on loopback, reasoning on, seed, `format` = the role schema; pre-flight estimate
                   with a reasoning reserve; a call still reasoning at the bound is continued once
                   with its trace closed; the server log is scanned for silent prompt truncation.
-  openrouter_*    hosted FREE models through OpenRouter (OPENROUTER_MODELS, 2026-11-11): one pinned model
-                  AND one pinned provider per arm, no fallback, so a call is served by the named
-                  provider or fails. Free tier only: a daily request counter stops the arm below the
-                  account's cap. The provider that served each call is stored and checked.
   anthropic       reference self-consistency re-run through generate._drive (the same call path as
                   live). Costs money: refuses unless allow_spend=True.
 
@@ -126,36 +122,7 @@ OLLAMA_MODELS = {
     "ollama_nano30b": _arm("NANO30B", "hf.co/unsloth/Nemotron-3-Nano-30B-A3B-GGUF:IQ4_XS", "NVIDIA",
                            think=True, think_reserve=8192, temperature=0.6, top_p=0.95),
 }
-# Hosted free arms through OpenRouter (2026-11-11, Uroš). Each arm pins the model AND the provider
-# with fallback off: his rule is that Scout's prompts may reach Google or NVIDIA and nobody else, so
-# the random free router (`openrouter/free`) is never an arm. `gemma4` is the same model as the
-# mini's `ollama_gemma4` arm (which runs a 4-bit QAT build), served by Google at its own precision,
-# with the same sampling and reasoning on: the difference between the two arms is the serving.
-# Free tier: 50 requests a day and 20 a minute, failed attempts included (OPENROUTER_DAILY_CAP keeps
-# headroom). Names carry no dot. Not GPU-bound, so run.sh runs these after the local arms.
-OPENROUTER_URL = os.environ.get("SCOUT_OPENROUTER_URL", "https://openrouter.ai/api/v1")
-OPENROUTER_DAILY_CAP = int(os.environ.get("SCOUT_OPENROUTER_DAILY_CAP", "45"))
-OPENROUTER_MIN_GAP_S = float(os.environ.get("SCOUT_OPENROUTER_MIN_GAP_S", "4"))     # 15 a minute, under the 20 allowed
-OPENROUTER_USAGE_PATH = os.environ.get("SCOUT_OPENROUTER_USAGE_PATH", os.path.expanduser("~/scout-replay/openrouter_usage.json"))
-OPENROUTER_MODELS = {
-    "openrouter_gemma4": {"model": "google/gemma-4-26b-a4b-it:free", "vendor": "Google",
-                          "providers": ["google-ai-studio"], "served_by": ["Google AI Studio", "Google"],
-                          "think": True, "think_reserve": 8192, "max_output": 32768, "json_schema": True,
-                          "temperature": 1.0, "top_p": 0.95, "top_k": 64},
-    # NVIDIA's own free serving of the Nemotron 3 Nano 30B-A3B family (the hosted sibling of the mini's
-    # `ollama_nano30b`, which runs a 4-bit community build). Added the same day: Google's free pool
-    # refused every request of the first smoke ("rate-limited upstream"), NVIDIA answered in a second
-    # with a reasoning trace. The endpoint lists no structured-output support, so no schema is sent.
-    # Sampling is the Nano card's (0.6 / 0.95), the same as the local arm.
-    "openrouter_nano30b": {"model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", "vendor": "NVIDIA",
-                           "providers": ["nvidia"], "served_by": ["Nvidia", "NVIDIA"],
-                           "think": True, "think_reserve": 8192, "max_output": 32768, "json_schema": False,
-                           "temperature": 0.6, "top_p": 0.95, "top_k": None},
-}
-# Arms whose disagreements never enter the adjudication queues (the paid arbiter, his label queue):
-# a free hosted arm must not raise the bill or his workload (2026-11-11).
-NO_ADJUDICATION = frozenset(OPENROUTER_MODELS)
-BACKENDS = ("apple_ondevice", *OLLAMA_MODELS, *OPENROUTER_MODELS, "anthropic")
+BACKENDS = ("apple_ondevice", *OLLAMA_MODELS, "anthropic")
 LOCAL_BACKENDS = ("apple_ondevice", *OLLAMA_MODELS)
 
 
@@ -166,17 +133,9 @@ def is_ollama(backend: str) -> bool:
 def ollama_cfg(backend: str) -> dict:
     return OLLAMA_MODELS[backend]
 
-
-def is_openrouter(backend: str) -> bool:
-    return backend in OPENROUTER_MODELS
-
-
-def openrouter_settings_key(backend: str) -> dict:
-    """What defines a hosted arm's period: the model id, the pinned providers, reasoning and sampling."""
-    cfg = OPENROUTER_MODELS[backend]
-    return {"model": cfg["model"], "providers": list(cfg["providers"]), "thinking": cfg["think"], "vendor": cfg["vendor"],
-            "sampling": {"temperature": cfg["temperature"], "top_p": cfg["top_p"], "top_k": cfg["top_k"],
-                         "think_reserve": cfg["think_reserve"]}}
+# The OpenRouter study (scout/orstudy.py) is the only caller. The two pinned hosted arms that also
+# lived here were retired 2026-11-13: the study covers the same models on the same calls.
+OPENROUTER_URL = os.environ.get("SCOUT_OPENROUTER_URL", "https://openrouter.ai/api/v1")
 
 APPLE_CONTEXT = 8192
 # The bridge counts prompt tokens exactly, but the session transcript the model keeps (system +
@@ -472,11 +431,6 @@ def is_current_period(result: dict) -> bool:
             return True
         cur = RETIRED_OLLAMA[backend]
         return all(bv.get(k) == v for k, v in cur.items()) and "sampling" not in bv
-    if backend in OPENROUTER_MODELS:
-        bv = result.get("backend_version") or {}
-        if not bv.get("model"):
-            return True
-        return all(bv.get(k) == v for k, v in openrouter_settings_key(backend).items())
     if backend not in OLLAMA_MODELS:
         return True
     bv = result.get("backend_version") or {}
@@ -631,111 +585,6 @@ def _ollama(record: dict, system: str, user: str, timeout: float = 900.0, backen
                    think_budget=think_budget, prompt_count=counted)
 
 
-# --- OpenRouter (hosted, free tier) -------------------------------------------------------------------
-_openrouter_last = [0.0]
-
-
-def _openrouter_day() -> str:
-    return time.strftime("%Y-%m-%d", time.gmtime())          # the account's daily cap resets on the UTC day
-
-
-def openrouter_used_today() -> int:
-    try:
-        with open(OPENROUTER_USAGE_PATH) as fh:
-            return int((json.load(fh) or {}).get(_openrouter_day(), 0))
-    except (OSError, ValueError, TypeError):
-        return 0
-
-
-def _openrouter_count() -> None:
-    """One more request against today's cap. Every attempt counts, failed ones too (OpenRouter's rule)."""
-    day, n = _openrouter_day(), openrouter_used_today() + 1      # read before the file is opened for writing
-    try:
-        os.makedirs(os.path.dirname(OPENROUTER_USAGE_PATH), exist_ok=True)
-        with open(OPENROUTER_USAGE_PATH, "w") as fh:
-            json.dump({day: n}, fh)
-    except OSError:
-        pass
-
-
-def _openrouter(record: dict, system: str, user: str, backend: str, timeout: float = 600.0) -> dict:
-    """One call to a pinned free model on a pinned provider. A result carrying `stop_arm` is not a
-    model result (no key, the day's cap, a rate limit that did not clear): the runner ends the arm
-    and persists nothing, and the call is tried again the next night."""
-    cfg = OPENROUTER_MODELS[backend]
-    ver = {**openrouter_settings_key(backend), "served_by": None, "served_model": None}
-    base = dict(backend_model=cfg["model"], backend_version=ver, reasoning="thinking" if cfg["think"] else "none")
-    key = os.environ.get("OPENROUTER_API_KEY")
-    if not key:
-        return _result(status="error", reason="no_key", stop_arm=True, text="OPENROUTER_API_KEY is not set", **base)
-    if openrouter_used_today() >= OPENROUTER_DAILY_CAP:
-        return _result(status="skipped", reason="daily_cap", stop_arm=True,
-                       text=f"{OPENROUTER_DAILY_CAP} requests used today; the arm resumes tomorrow", **base)
-    role = record.get("role")
-    schema = rolespecs.role_schema(role)
-    body = {"model": cfg["model"], "stream": False,
-            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
-            "temperature": cfg["temperature"], "top_p": cfg["top_p"],
-            "max_tokens": min(cfg["max_output"], rolespecs.output_reserve(role) + cfg["think_reserve"]),
-            "provider": {"only": list(cfg["providers"]), "allow_fallbacks": False}}
-    if cfg["top_k"] is not None:
-        body["top_k"] = cfg["top_k"]
-    if cfg["think"]:
-        body["reasoning"] = {"enabled": True}
-    schema = schema if cfg.get("json_schema") else None
-    if schema:
-        body["response_format"] = {"type": "json_schema", "json_schema": {"name": role or "verdict", "schema": schema}}
-    headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
-    r, ms = None, 0
-    for attempt in (1, 2):
-        gap = OPENROUTER_MIN_GAP_S - (time.monotonic() - _openrouter_last[0])
-        if gap > 0:
-            time.sleep(gap)
-        _openrouter_count()
-        t0 = time.monotonic()
-        try:
-            r = httpx.post(f"{OPENROUTER_URL}/chat/completions", json=body, headers=headers, timeout=timeout)
-        except Exception as e:
-            _openrouter_last[0] = time.monotonic()
-            return _result(status="error", reason="network", stop_arm=True, text=f"{type(e).__name__}: {e}"[:300], **base)
-        _openrouter_last[0] = time.monotonic()
-        ms = int((time.monotonic() - t0) * 1000)
-        if r.status_code != 429 or attempt == 2:
-            break
-        time.sleep(65)                                          # a per-minute limit clears within the minute
-    try:
-        data = r.json()
-    except Exception:
-        data = {}
-    err = data.get("error") if isinstance(data, dict) else None
-    if r.status_code != 200 or err:
-        msg = str((err or {}).get("message") if isinstance(err, dict) else err or r.text)[:300]
-        code = (err or {}).get("code") if isinstance(err, dict) else None
-        code = code or r.status_code
-        if code in (401, 402, 403, 429) or r.status_code in (401, 402, 403, 429):
-            reason = {401: "auth", 402: "no_credit", 403: "refused_by_account", 429: "rate_limited"}.get(int(code) if str(code).isdigit() else r.status_code, "rate_limited")
-            return _result(status="error", reason=reason, stop_arm=True, text=msg, duration_ms=ms, **base)
-        low = msg.lower()
-        if "context" in low and ("length" in low or "exceed" in low or "maximum" in low):
-            return _result(status="skipped", reason="context_exceeded", text=msg, duration_ms=ms, **base)
-        return _result(status="error", reason="provider_error", stop_arm=True, text=msg, duration_ms=ms, **base)
-    ch = (data.get("choices") or [{}])[0]
-    msg = ch.get("message") or {}
-    usage = data.get("usage") or {}
-    ver["served_by"], ver["served_model"] = data.get("provider"), data.get("model")
-    out = dict(duration_ms=ms, schema_enforced=bool(schema), observed_token_count=usage.get("prompt_tokens"),
-               tokens={"input": usage.get("prompt_tokens"), "output": usage.get("completion_tokens"),
-                       "thinking": (usage.get("completion_tokens_details") or {}).get("reasoning_tokens")},
-               cost_usd=float(usage.get("cost") or 0.0), done_reason=ch.get("finish_reason"), **base)
-    if ver["served_by"] not in cfg["served_by"]:
-        # the pin did not hold: kept as evidence, never scored as the arm's answer
-        return _result(status="error", reason="wrong_provider", text=f"served by {ver['served_by']!r}", **out)
-    text = msg.get("content") or ""
-    if not text.strip():
-        return _result(status="error", reason="empty", text="", thinking=msg.get("reasoning"), **out)
-    return _result(text=text, thinking=msg.get("reasoning"), **out)
-
-
 def _anthropic(record: dict, system: str, user: str, allow_spend: bool) -> dict:
     if not allow_spend:
         return _result(status="skipped", reason="spend_blocked", backend_model=record.get("model"))
@@ -784,6 +633,4 @@ def drive_replay(record: dict, backend: str, *, mode: str = "exact", allow_spend
         return _apple(record, system, user)
     if is_ollama(backend):
         return _ollama(record, system, user, backend=backend, budget=budget)
-    if is_openrouter(backend):
-        return _openrouter(record, system, user, backend)
     return _anthropic(record, system, user, allow_spend)

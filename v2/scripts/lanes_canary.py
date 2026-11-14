@@ -248,9 +248,6 @@ def arm_problems(today_log: str) -> list[str]:
     for name in replaybackends.OLLAMA_MODELS:
         if f"{name} arm exit" not in today_log and f"{name} arm skipped" not in today_log:
             out.append(f"replay: arm {name} left no exit line today (never started, or the runner predates it)")
-    for name in replaybackends.OPENROUTER_MODELS:      # hosted arms run after the local ones (2026-11-11)
-        if f"{name} arm exit" not in today_log and f"{name} arm skipped" not in today_log:
-            out.append(f"replay: hosted arm {name} left no exit line today")
     if "apple arm exit" not in today_log and "apple arm skipped" not in today_log:
         out.append("replay: the Apple arm left no exit line today")
     return out
