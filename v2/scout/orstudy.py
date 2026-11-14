@@ -40,6 +40,28 @@ APPROVED_PROVIDERS = ("cohere", "google-ai-studio", "liquid", "nvidia", "particl
 NOT_APPROVED = {"baidu": "hosted in China", "atlas-cloud": "hosting country not established",
                 "novita": "hosting country not established"}
 HARMLESS_PROMPT = "Reply with the single word: ready"
+
+# --- the paid section (2026-11-13, his rulings): can a cheaper model do the judging Opus does today? ---
+# One endpoint per model, named by its full tag, at the price he was shown. A tag that is gone or
+# whose price moved is refused before anything is sent. `price` is dollars per million tokens (in, out).
+# Rule for who may see a prompt: the model's maker, or a host that runs in the US.
+PAID_DIR = os.path.expanduser("~/scout-replay/openrouter_paid")
+PAID_BUDGET = float(os.environ.get("SCOUT_ORSTUDY_BUDGET", "35"))     # hard stop, dollars, the whole section
+PAID_SINCE = "20261001T000000"
+PAID_ROLES = ("judge", "audience_judge", "gate_judge")
+PAID_MODELS = (
+    {"model": "x-ai/grok-4.7", "tag": "xai/zdr/us", "name": "xAI", "price": (2.20, 6.60)},
+    {"model": "nvidia/nemotron-3-ultra-550b-a55b", "tag": "baseten/fp4/us", "name": "BaseTen", "price": (0.60, 2.40)},
+    {"model": "mistralai/mistral-large-4-0", "tag": "mistral/zdr", "name": "Mistral", "price": (0.70, 2.10)},
+    {"model": "openai/gpt-6.1-terra", "tag": "openai", "name": "OpenAI", "price": (1.00, 5.00)},
+    {"model": "openai/gpt-6.1-sol", "tag": "openai", "name": "OpenAI", "price": (2.00, 10.00)},
+    {"model": "google/gemini-4-hydrogen", "tag": "google-vertex/global", "name": "Google", "price": (1.50, 7.50)},
+    {"model": "deepseek/deepseek-v4-pro-0813", "tag": "together", "name": "Together", "price": (1.32, 3.96)},
+    {"model": "moonshotai/kimi-k3.1-pro", "tag": "fireworks", "name": "Fireworks", "price": (2.00, 10.00)},
+    {"model": "cohere/command-a-plus", "tag": "cohere/fp8", "name": "Cohere", "price": (0.30, 1.50)},
+    # production's own judge, answering the same calls a second time: the yardstick for the others
+    {"model": "anthropic/claude-opus-5.5", "tag": "anthropic", "name": "Anthropic", "price": (4.00, 20.00)},
+)
 COVERAGE = 0.9                # a model is compared on a role once it has attempted this share of the role's calls
 
 _gate = threading.Lock()
@@ -47,6 +69,8 @@ _log_lock = threading.Lock()
 _last_start = [0.0]
 _stop = {"why": None}          # set once: every worker ends (the day's cap, the key, a charge, an unapproved provider)
 _used = {"day": None, "n": 0}
+_money_lock = threading.Lock()
+_money = {"reserved": 0.0}     # worst-case cost of the paid requests in flight
 
 
 def slug(model: str) -> str:
@@ -158,6 +182,126 @@ def save_catalogue(cat: dict) -> str:
     return p
 
 
+# --- the paid section: entries, and the money ------------------------------------------------------------
+def paid_entries(fetch=_get, models=PAID_MODELS) -> dict:
+    """The paid entries, each checked against the live endpoint list: the tag must exist and its
+    price must be the price he approved. Same shape as catalogue()."""
+    out, dropped = [], []
+    for m in models:
+        try:
+            eps = (fetch(f"{rb.OPENROUTER_URL}/models/{m['model']}/endpoints").get("data") or {}).get("endpoints") or []
+        except Exception as e:
+            dropped.append({"model": m["model"], "why": f"endpoint list unreadable ({type(e).__name__})"}); continue
+        ep = next((e for e in eps if e.get("tag") == m["tag"]), None)
+        if ep is None:
+            dropped.append({"model": m["model"], "why": f"endpoint {m['tag']} is no longer listed"}); continue
+        pr = ep.get("pricing") or {}
+        try:
+            live = (round(float(pr.get("prompt")) * 1e6, 4), round(float(pr.get("completion")) * 1e6, 4))
+        except (TypeError, ValueError):
+            live = None
+        if live != tuple(round(x, 4) for x in m["price"]):
+            dropped.append({"model": m["model"], "why": f"price moved since it was approved: {m['price']} then, {live} now"}); continue
+        if str(ep.get("provider_name")) != m["name"]:
+            dropped.append({"model": m["model"], "why": f"endpoint {m['tag']} is now run by {ep.get('provider_name')!r}"}); continue
+        out.append({"model": m["model"], "providers": [m["tag"]], "provider_names": [m["name"]],
+                    "reasoning": "reasoning" in set(ep.get("supported_parameters") or []),
+                    "max_out": ep.get("max_completion_tokens"), "router": False, "paid": True, "price": tuple(m["price"])})
+    return {"models": out, "dropped": dropped}
+
+
+def _spend_path() -> str:
+    return os.path.join(STUDY_DIR, "spend.json")
+
+
+def spend() -> dict:
+    """{"billed": what the stored answers cost, "assumed": worst case for requests whose bill was never
+    seen (a timeout), "account_start"/"account_now": OpenRouter's own usage figure for the key}."""
+    try:
+        with open(_spend_path()) as fh:
+            d = json.load(fh) or {}
+    except (OSError, ValueError):
+        d = {}
+    return {"billed": float(d.get("billed") or 0), "assumed": float(d.get("assumed") or 0),
+            "account_start": d.get("account_start"), "account_now": d.get("account_now")}
+
+
+def _spend_write(d: dict) -> None:
+    os.makedirs(STUDY_DIR, exist_ok=True)
+    tmp = _spend_path() + ".tmp"
+    with open(tmp, "w") as fh:
+        json.dump(d, fh)
+    os.replace(tmp, _spend_path())
+
+
+def spent(d: dict | None = None) -> float:
+    """The larger of this study's own ledger and what OpenRouter says the key has used since the start."""
+    d = d or spend()
+    own = d["billed"] + d["assumed"]
+    if d["account_start"] is not None and d["account_now"] is not None:
+        return max(own, float(d["account_now"]) - float(d["account_start"]))
+    return own
+
+
+def account_usage(key: str, fetch=None):
+    """Dollars the key has used, by OpenRouter's count. None when it cannot be read."""
+    try:
+        if fetch is not None:
+            data = fetch(f"{rb.OPENROUTER_URL}/key")
+        else:
+            r = httpx.get(f"{rb.OPENROUTER_URL}/key", timeout=20, headers={"Authorization": f"Bearer {key}"})
+            r.raise_for_status()
+            data = r.json()
+        return float((data.get("data") or {}).get("usage"))
+    except Exception:
+        return None
+
+
+def open_ledger(key: str) -> dict:
+    """Before the first paid request: record OpenRouter's usage figure for the key as the starting point."""
+    now = account_usage(key)
+    with _money_lock:
+        d = spend()
+        if now is not None:
+            if d["account_start"] is None:
+                d["account_start"] = now - (d["billed"] + d["assumed"])
+            d["account_now"] = now
+        _spend_write(d)
+    return d
+
+
+def worst_case(entry: dict, system: str, user: str, body: dict) -> float:
+    """The most one request can cost: a generous count of the prompt, and all the output room, at the listed price."""
+    pin, pout = entry["price"]
+    return ((len(system) + len(user)) / 2.5 * pin + float(body.get("max_tokens") or MAX_OUT) * pout) / 1e6
+
+
+def _reserve(entry: dict, worst: float) -> str | None:
+    """Hold the worst case for one paid request, or say why not."""
+    with _money_lock:
+        d = spend()
+        if spent(d) + _money["reserved"] + worst > PAID_BUDGET:
+            return (f"${spent(d):.2f} spent, ${_money['reserved']:.2f} in flight: the next request could pass "
+                    f"the ${PAID_BUDGET:.0f} limit")
+        _money["reserved"] += worst
+    return None
+
+
+def _settle(worst: float, *, billed: float = 0.0, assumed: float = 0.0, key: str | None = None) -> None:
+    """Release a reservation and record what the request cost (or, unseen, could have cost)."""
+    now = account_usage(key) if key else None
+    with _money_lock:
+        _money["reserved"] = max(0.0, _money["reserved"] - worst)
+        d = spend()
+        d["billed"] += billed
+        d["assumed"] += assumed
+        if now is not None:
+            d["account_now"] = now
+            if d["account_start"] is None:
+                d["account_start"] = now - billed
+        _spend_write(d)
+
+
 # --- one call ----------------------------------------------------------------------------------------
 def forced_tool(record: dict):
     """(tools, tool_choice) in OpenRouter's format when production forced one tool on this call, else None."""
@@ -265,7 +409,18 @@ def call(entry: dict, record: dict, system: str, user: str, *, provider: dict | 
         return rb._result(status="error", reason="no_key", outcome="stop_all", text="OPENROUTER_API_KEY is not set", **base)
     body = body_for(entry, system, user, provider, record)
     ver["forced_tool"] = bool(body.get("tools"))
+    paid, worst = bool(entry.get("paid")), 0.0
+    if paid:
+        ver["study"], ver["endpoint"] = "openrouter-paid-2026-11", entry["providers"][0]
+        worst = worst_case(entry, system, user, body)
+        full = _reserve(entry, worst)
+        if full:
+            return rb._result(status="skipped", reason="budget", outcome="stop_all", text=full, **base)
     r, ms, neterr, unsent = _send(body, key, timeout)
+    if paid and unsent:
+        _settle(worst)
+    elif paid and r is None:
+        _settle(worst, assumed=worst, key=key)        # sent, no reply seen: it may still be billed
     row = {"at": datetime.now().isoformat(timespec="seconds"), "model": model, "call_id": record.get("call_id"), "role": role,
            "rule": body["provider"]}
     if unsent:
@@ -282,6 +437,11 @@ def call(entry: dict, record: dict, system: str, user: str, *, provider: dict | 
         data = r.json()
     except Exception:
         data = None
+    if paid:
+        # every reply settles its reservation once, here, with whatever bill the reply carries; a reply
+        # that hides its bill is caught by OpenRouter's own usage figure, read in the same step
+        seen = (data.get("usage") or {}).get("cost") if isinstance(data, dict) and isinstance(data.get("usage"), dict) else None
+        _settle(worst, billed=float(seen or 0.0), key=key)
     if not isinstance(data, dict):
         return no_result("broken_response", "retry_later", (r.text or "")[:200], http=r.status_code)
     err = data.get("error")
@@ -331,7 +491,13 @@ def call(entry: dict, record: dict, system: str, user: str, *, provider: dict | 
         _attempt_log({**row, "reason": "unapproved_provider_served"}, log)
         return rb._result(status="error", reason="unapproved_provider_served", outcome="stop_all",
                           text=f"served by {ver['served_by']!r}, not one of {entry.get('provider_names')}", **out)
-    if cost > 0:
+    if paid:
+        listed = ((usage.get("prompt_tokens") or 0) * entry["price"][0] + (usage.get("completion_tokens") or 0) * entry["price"][1]) / 1e6
+        if cost > listed * 1.25 + 0.002:
+            _attempt_log({**row, "reason": "billed_above_listed_price", "listed": listed}, log)
+            return rb._result(status="error", reason="billed_above_listed_price", outcome="stop_all",
+                              text=f"billed ${cost:.4f}, the listed price gives ${listed:.4f} ({ver['served_model']} via {ver['served_by']})", **out)
+    elif cost > 0:
         _attempt_log({**row, "reason": "charged"}, log)
         return rb._result(status="error", reason="charged", outcome="stop_all",
                           text=f"a free call was billed ${cost:.6f} ({ver['served_model']} via {ver['served_by']})", **out)
@@ -497,7 +663,7 @@ def reference_ok(c: dict) -> str | None:
     return None
 
 
-def gradable(calls: list) -> tuple[list, dict]:
+def gradable(calls: list, min_good: float = 0.9) -> tuple[list, dict]:
     """(calls the study can score, {role: {why: count}} for what is left out). A job stays in when at
     least 90% of its calls have a usable reference and at least one verdict to compare; its other
     calls are left out one by one, never the whole job for one bad capture."""
@@ -510,9 +676,9 @@ def gradable(calls: list) -> tuple[list, dict]:
         bad = Counter(w for _, w in why if w is not None)
         judged = sum(items_score(modelcompare.compare_call(c, {"status": "ok", "text": (c.get("result") or {}).get("text") or "",
                                                                  "backend": "control"}), role)["judged"] for c in good)
-        if len(good) < 0.9 * len(cs) or judged == 0:
+        if len(good) < min_good * len(cs) or judged == 0:
             left[role] = dict(bad) or {"no verdicts to compare": len(cs)}
-            if len(good) >= 0.9 * len(cs) and judged == 0:
+            if len(good) >= min_good * len(cs) and judged == 0:
                 left[role] = {"no verdicts to compare": len(cs)}
             continue
         out.extend(good)

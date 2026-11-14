@@ -6,6 +6,7 @@
     python scripts/openrouter_study.py --run --tell         # tonight's share of the day's requests, checks, one email if they fail
     python scripts/openrouter_study.py --report             # the read-out from the stored results
     python scripts/openrouter_study.py --verify             # the checks alone
+    python scripts/openrouter_study.py --paid               # the paid judging section's plan (add --run, --report, --verify)
 
 Reads the captured calls from the private store (read only, creds from ~/scout-replay/env the same
 way the lane loads them); writes only under ~/scout-replay/openrouter_study/ on this machine.
@@ -24,6 +25,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 STUDY_SINCE = "20261030T000000"      # fixed start: the population only grows while the study stays open
+PAID = {"on": False}                 # --paid: the paid judging section, its own folder, model list and spending limit
 
 
 def _write(path: str, obj) -> None:
@@ -47,11 +49,13 @@ def _load_calls(since: str, write: bool = False) -> tuple[list, dict]:
         spec = rolespecs.spec(c.get("role"))
         if c.get("status") != "ok" or spec is None or spec.get("tools_on") or c.get("call_id") in seen:
             continue
+        if PAID["on"] and c.get("role") not in orstudy.PAID_ROLES:
+            continue
         if rb._truncated_exact(c) or not rb.exact_prompt(c)[1].strip():
             cut_off += 1; continue
         seen.add(c["call_id"])
         calls.append(c)
-    calls, left = orstudy.gradable(calls)
+    calls, left = orstudy.gradable(calls, min_good=0.0 if PAID["on"] else 0.9)
     roles = sorted({c["role"] for c in calls})
     order_path = os.path.join(orstudy.STUDY_DIR, "role_order.json")
     try:
@@ -187,7 +191,8 @@ def verify(calls: list, notes: dict, say=print) -> list:
                 if orstudy.score(cmp_, role, fmt_ok=orstudy.format_ok(role, garbage), text=garbage)["same"]:
                     wrong.append(f"{role} on {garbage!r}")
     check("the grader never scores a non-answer as the same decision", not wrong, ", ".join(sorted(set(wrong))))
-    check("the study covers enough of Scout's jobs", len(roles) >= 2 and len(calls) >= 60, f"{len(roles)} jobs, {len(calls)} calls: {', '.join(roles)}")
+    need = 40 if PAID["on"] else 60
+    check("the study covers enough of Scout's jobs", len(roles) >= 2 and len(calls) >= need, f"{len(roles)} jobs, {len(calls)} calls: {', '.join(roles)}")
     tooled = [c for c in calls if c.get("tools")]
     check("every call production made with a forced tool is replayed with that tool", all(orstudy.forced_tool(c) for c in tooled), f"{len(tooled)} such calls")
     from scout import config
@@ -197,8 +202,22 @@ def verify(calls: list, notes: dict, say=print) -> list:
         return fails
     att = orstudy.load_attempts()
     # 2. money
-    billed = sum(r.get("cost_usd") or 0 for r in rows) + sum(a.get("cost") or 0 for a in att)
-    check("nothing was billed", billed == 0, f"${billed:.6f}")
+    if PAID["on"]:
+        d = orstudy.spend()
+        logged = sum(a.get("cost") or 0 for a in att)
+        check("spending is inside the limit", orstudy.spent(d) <= orstudy.PAID_BUDGET, f"${orstudy.spent(d):.2f} of ${orstudy.PAID_BUDGET:.0f}")
+        check("the study's ledger matches the bills on its own replies", abs(d["billed"] - logged) < 0.01, f"ledger ${d['billed']:.4f}, replies ${logged:.4f}")
+        acct = (d["account_now"] - d["account_start"]) if d["account_start"] is not None and d["account_now"] is not None else None
+        check("OpenRouter's own figure for the key agrees with the ledger", acct is not None and abs(acct - d["billed"]) <= max(0.25, 0.05 * d["billed"]),
+              f"OpenRouter ${acct:.4f}, ledger ${d['billed']:.4f}, unseen-bill allowance ${d['assumed']:.4f}" if acct is not None else "the account figure could not be read")
+        over = [a for a in att if a.get("reason") == "billed_above_listed_price"]
+        check("no reply was billed above the listed price", not over, f"{len(over)} such replies")
+        ends = Counter(str((r.get("backend_version") or {}).get("endpoint")) for r in rows)
+        want = {m["tag"] for m in orstudy.PAID_MODELS}
+        check("every stored answer came through an approved endpoint", set(ends) <= want, str(dict(ends)))
+    else:
+        billed = sum(r.get("cost_usd") or 0 for r in rows) + sum(a.get("cost") or 0 for a in att)
+        check("nothing was billed", billed == 0, f"${billed:.6f}")
     # 3. providers: every request that was served, by someone approved
     served = Counter(str(a.get("served_by")) for a in att if a.get("http") == 200 and "served_by" in a)
     names = set()
@@ -215,7 +234,7 @@ def verify(calls: list, notes: dict, say=print) -> list:
     off = Counter()
     for r in rows:
         v = r.get("backend_version") or {}
-        if r["status"] == "ok" and r["backend"] != "or:" + orstudy.ROUTER and v.get("served_model") != v.get("model"):
+        if r["status"] == "ok" and r["backend"] != "or:" + orstudy.ROUTER and not str(v.get("served_model") or "").startswith(str(v.get("model"))):
             off[f"{v.get('model')} answered by {v.get('served_model')}"] += 1
     check("each named model was answered by that model", not off, str(dict(off)) if off else "")
     # 5. settings, from the stored rows: no schema anywhere; reasoning actually happened where asked
@@ -321,7 +340,7 @@ def _other_run_alive(lock: str) -> bool:
 
 def run(args) -> list:
     from scout import orstudy
-    cat = orstudy.catalogue()
+    cat = orstudy.paid_entries() if PAID["on"] else orstudy.catalogue()
     entries = cat["models"]
     if args.models:
         want = set(args.models.split(","))
@@ -335,12 +354,20 @@ def run(args) -> list:
     print("  jobs: " + ", ".join(f"{r} {n}" for r, n in Counter(c["role"] for c in calls).items()))
     for d in cat["dropped"]:
         print(f"  left out: {d['model']}: {d['why']}")
+    if PAID["on"]:
+        d = orstudy.open_ledger(os.environ.get("OPENROUTER_API_KEY") or "") if args.run else orstudy.spend()
+        print(f"  money: ${orstudy.spent(d):.2f} spent of the ${orstudy.PAID_BUDGET:.0f} limit "
+              f"(replies ${d['billed']:.4f}, unseen-bill allowance ${d['assumed']:.4f}); OpenRouter's figure for the key "
+              + ("read" if d["account_now"] is not None else "NOT READ"))
+        if args.run and d["account_now"] is None:
+            raise RuntimeError("OpenRouter's usage figure for the key could not be read; a paid run does not start without it")
     todo = {}
     for e in entries:
         have = orstudy.have(e["model"])
         todo[e["model"]] = sum(1 for c in calls if orstudy.slug(c["call_id"]) not in have)
         print(f"  {e['model'][:50]:50} to do {todo[e['model']]:4}  via {','.join(e['providers'])} "
-              f"reasoning={'asked' if e['reasoning'] else 'n/a'} output room={min(orstudy.MAX_OUT, e['max_out']) if e.get('max_out') else 'provider default'}")
+              f"reasoning={'asked' if e['reasoning'] else 'n/a'} output room={min(orstudy.MAX_OUT, e['max_out']) if e.get('max_out') else 'provider default'}"
+              + (f" price ${e['price'][0]:.2f}/${e['price'][1]:.2f}" if e.get("paid") else ""))
     if args.verify and not args.run:
         print("checks:")
         fails = verify(calls, notes)
@@ -382,7 +409,7 @@ def run(args) -> list:
             left = max(0, orstudy.DAILY_CAP - orstudy.used_today())
             if not active or orstudy.stop_reason() or should_stop():
                 break
-            quota = args.per_model if args.per_model is not None else left // len(active)
+            quota = args.per_model if args.per_model is not None else (10 ** 6 if PAID["on"] else left // len(active))
             if quota < 1:
                 break
             say(f"round {rnd}: {len(active)} models, up to {quota} requests each")
@@ -414,7 +441,7 @@ def run(args) -> list:
         say("checks:")
         fails = verify(calls, notes, say) + crashed
         why = orstudy.stop_reason()
-        if why and not any(k in why for k in ("daily_cap", "account_daily_limit")):
+        if why and not any(k in why for k in ("daily_cap", "account_daily_limit", "budget")):
             fails.append("stopped for all models: " + why)
         expected = ("rate_limited", "model_refused", "upstream_error")       # known, reported in the read-out, not an alarm
         odd = {m: w for m, w in resting.items() if w not in expected and not w.startswith("crashed")}
@@ -441,10 +468,18 @@ def main():
     ap.add_argument("--per-model", type=int, default=None, help="requests per model this run (default: an even share of what is left today)")
     ap.add_argument("--models", default=None, help="comma list of model ids; default = every usable free model")
     ap.add_argument("--no-router", action="store_true")
-    ap.add_argument("--since", default=STUDY_SINCE)
+    ap.add_argument("--since", default=None)
+    ap.add_argument("--paid", action="store_true", help="the paid judging section (own folder, own model list, hard spending limit)")
     ap.add_argument("--max-minutes", type=int, default=240)
     ap.add_argument("--deadline", default=None, help="HH:MM local; stop cleanly")
     args = ap.parse_args()
+    from scout import orstudy
+    if args.paid:
+        PAID["on"] = True
+        orstudy.STUDY_DIR = orstudy.PAID_DIR
+        orstudy.DAILY_CAP = 10 ** 6            # the 1,000-a-day limit is for free models only
+        orstudy.MIN_GAP_S = 1.0
+    args.since = args.since or (orstudy.PAID_SINCE if args.paid else STUDY_SINCE)
     if args.report:
         report(); return
     if args.router_check:

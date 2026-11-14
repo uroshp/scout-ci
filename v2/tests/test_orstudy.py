@@ -326,5 +326,88 @@ class CatalogueTests(OrStudyCase):
         self.assertIn("China", why["baidu/y:free"])
 
 
+PAID_ENTRY = {"model": "acme/judge", "providers": ["acme/us"], "provider_names": ["Acme"], "reasoning": True,
+              "max_out": 1000, "router": False, "paid": True, "price": (1.0, 5.0)}
+
+
+def _eps(tag="acme/us", name="Acme", prompt="0.000001", completion="0.000005"):
+    return {"data": {"endpoints": [{"tag": tag, "provider_name": name, "max_completion_tokens": 1000,
+                                    "supported_parameters": ["reasoning"], "pricing": {"prompt": prompt, "completion": completion}}]}}
+
+
+class PaidTests(OrStudyCase):
+    MODELS = ({"model": "acme/judge", "tag": "acme/us", "name": "Acme", "price": (1.0, 5.0)},)
+
+    def setUp(self):
+        super().setUp()
+        self.account = [10.0]
+        p = mock.patch.object(orstudy, "account_usage", lambda key, fetch=None: self.account[0])
+        p.start()
+        self.addCleanup(p.stop)
+        orstudy._money["reserved"] = 0.0
+
+    def _paid(self, *responses):
+        self._post(*responses)
+        return orstudy.call(PAID_ENTRY, RECORD, "SYS", "USER")
+
+    def test_entry_kept_at_the_approved_price(self):
+        got = orstudy.paid_entries(lambda url: _eps(), self.MODELS)
+        self.assertEqual([e["providers"] for e in got["models"]], [["acme/us"]])
+        self.assertTrue(got["models"][0]["paid"])
+
+    def test_entry_refused_when_price_tag_or_host_changed(self):
+        for eps in (_eps(completion="0.000006"), _eps(tag="acme/eu"), _eps(name="Other")):
+            got = orstudy.paid_entries(lambda url, eps=eps: eps, self.MODELS)
+            self.assertEqual(got["models"], [])
+            self.assertEqual(len(got["dropped"]), 1)
+
+    def test_a_reply_is_billed_to_the_ledger_and_stored(self):
+        r = self._paid(_answer(provider="Acme", model="acme/judge", cost=0.00003))
+        self.assertEqual((r["status"], r["outcome"]), ("ok", "store"))
+        self.assertAlmostEqual(orstudy.spend()["billed"], 0.00003)
+        self.assertEqual(orstudy._money["reserved"], 0.0)
+        self.assertEqual(r["backend_version"]["endpoint"], "acme/us")
+
+    def test_nothing_is_sent_once_the_limit_could_be_passed(self):
+        orstudy._spend_write({"billed": orstudy.PAID_BUDGET - 0.001, "assumed": 0, "account_start": None, "account_now": None})
+        post = self._post(_answer(provider="Acme", model="acme/judge"))
+        r = orstudy.call(PAID_ENTRY, RECORD, "SYS", "USER")
+        self.assertEqual((r["reason"], r["outcome"]), ("budget", "stop_all"))
+        post.assert_not_called()
+
+    def test_openrouters_own_figure_counts_when_it_is_higher(self):
+        orstudy._spend_write({"billed": 1.0, "assumed": 0, "account_start": 10.0, "account_now": 10.0 + orstudy.PAID_BUDGET})
+        post = self._post(_answer(provider="Acme", model="acme/judge"))
+        r = orstudy.call(PAID_ENTRY, RECORD, "SYS", "USER")
+        self.assertEqual(r["reason"], "budget")
+        post.assert_not_called()
+
+    def test_a_bill_above_the_listed_price_stops_everything(self):
+        r = self._paid(_answer(provider="Acme", model="acme/judge", cost=0.5))
+        self.assertEqual((r["reason"], r["outcome"]), ("billed_above_listed_price", "stop_all"))
+        self.assertAlmostEqual(orstudy.spend()["billed"], 0.5)
+
+    def test_a_timeout_is_counted_at_its_worst_case(self):
+        self._post(orstudy.httpx.TimeoutException("slow"))
+        r = orstudy.call(PAID_ENTRY, RECORD, "SYS", "USER")
+        self.assertEqual(r["outcome"], "retry_later")
+        self.assertGreater(orstudy.spend()["assumed"], 0)
+        self.assertEqual(orstudy._money["reserved"], 0.0)
+
+    def test_an_error_reply_releases_its_reservation(self):
+        r = self._paid(_err(429, "slow down"))
+        self.assertEqual(r["outcome"], "retry_later")
+        self.assertEqual(orstudy._money["reserved"], 0.0)
+        self.assertEqual(orstudy.spend()["billed"], 0.0)
+
+    def test_the_wrong_host_serving_a_paid_call_stops_everything(self):
+        r = self._paid(_answer(provider="Elsewhere", model="acme/judge", cost=0.00003))
+        self.assertEqual((r["reason"], r["outcome"]), ("unapproved_provider_served", "stop_all"))
+
+    def test_free_calls_are_still_stopped_by_any_charge(self):
+        r = self._call(_answer(cost=0.01))
+        self.assertEqual(r["reason"], "charged")
+
+
 if __name__ == "__main__":
     unittest.main()
