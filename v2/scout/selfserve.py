@@ -304,6 +304,14 @@ def _read(path: str) -> str | None:
 
 _WRITE_RETRIES = 4
 _WRITE_RETRY_WAIT = 1.0
+_WRITE_BUSY_WAIT = 5.0
+
+
+def _store_busy(r) -> bool:
+    """GitHub answering that it failed or that we are going too fast: worth waiting and trying again."""
+    if r.status_code in (429, 500, 502, 503, 504):
+        return True
+    return r.status_code == 403 and ("retry-after" in r.headers or "rate limit" in (r.text or "").lower())
 
 
 def _write(path: str, text: str, message: str) -> None:
@@ -317,14 +325,23 @@ def _write(path: str, text: str, message: str) -> None:
         # A commit to ANY file on the branch between the read and the PUT answers 409 (2026-11-13:
         # the night lane landed a result inside the sensor pass's three-second window and the pass
         # was thrown away). A whole-file write is last-writer-wins anyway, so read again and retry.
+        # GitHub itself failing is the other way a record is lost (2026-11-16: a 500 and then a
+        # rate-limit 403 dropped one card's two eval records and turned the audit red). Those and a
+        # dropped connection wait longer; a write that did land shows up as identical on the re-read.
         for attempt in range(_WRITE_RETRIES):
+            busy = False
             try:
                 _gh_put(path, text, message, sha)
                 return
             except httpx.HTTPStatusError as e:
-                if e.response.status_code not in (409, 422) or attempt == _WRITE_RETRIES - 1:
+                busy = _store_busy(e.response)
+                if (e.response.status_code not in (409, 422) and not busy) or attempt == _WRITE_RETRIES - 1:
                     raise
-            time.sleep(_WRITE_RETRY_WAIT * (attempt + 1))
+            except (httpx.TimeoutException, httpx.TransportError):
+                busy = True
+                if attempt == _WRITE_RETRIES - 1:
+                    raise
+            time.sleep((_WRITE_BUSY_WAIT if busy else _WRITE_RETRY_WAIT) * (attempt + 1))
             cur, sha = _gh_get(path)
             if cur == text:
                 return
