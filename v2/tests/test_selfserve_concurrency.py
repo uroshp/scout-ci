@@ -116,20 +116,23 @@ class ConcurrentAppendTest(unittest.TestCase):
 class PlainWriteConflictTest(unittest.TestCase):
     """A whole-file write that loses to another commit on the branch tries again (2026-11-13)."""
 
-    def _run(self, conflicts, status=409):
+    def _run(self, conflicts, status=409, headers=None, exc=None):
         calls = {"put": 0}
 
         def put(p, t, m, sha=None):
             calls["put"] += 1
             if calls["put"] <= conflicts:
+                if exc:
+                    raise exc
                 req = httpx.Request("PUT", "https://api.github.com/x")
                 raise httpx.HTTPStatusError("x", request=req,
-                                            response=httpx.Response(status, request=req))
+                                            response=httpx.Response(status, request=req, headers=headers or {}))
 
         with mock.patch.object(selfserve, "use_github", lambda: True), \
                 mock.patch.object(selfserve, "_gh_get", lambda p: ("old", "sha")), \
                 mock.patch.object(selfserve, "_gh_put", put), \
-                mock.patch.object(selfserve, "_WRITE_RETRY_WAIT", 0):
+                mock.patch.object(selfserve, "_WRITE_RETRY_WAIT", 0), \
+                mock.patch.object(selfserve, "_WRITE_BUSY_WAIT", 0):
             selfserve._write("sensors/x/registry.json", "new", "m")
         return calls["put"]
 
@@ -143,6 +146,12 @@ class PlainWriteConflictTest(unittest.TestCase):
     def test_other_errors_are_not_retried(self):
         with self.assertRaises(httpx.HTTPStatusError):
             self._run(1, status=403)
+
+    def test_github_failing_is_retried(self):
+        """2026-11-16: a 500 and a rate-limit 403 dropped one card's eval records."""
+        self.assertEqual(self._run(1, status=500), 2)
+        self.assertEqual(self._run(2, status=403, headers={"retry-after": "1"}), 3)
+        self.assertEqual(self._run(1, exc=httpx.ConnectTimeout("x")), 2)
 
 
 if __name__ == "__main__":
