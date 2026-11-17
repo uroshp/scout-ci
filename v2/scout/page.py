@@ -914,6 +914,8 @@ _ICON_PRINT = ('<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strok
 _ICON_PLUS = ('<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">'
               '<path d="M8 3v10M3 8h10"/></svg>')
 # The Slack mark (four colours), inline so the button needs no asset.
+_ICON_MCP = ('<svg viewBox="0 0 24 24" aria-hidden="true" class="slk" fill="none" stroke="currentColor" stroke-width="2" '
+             'stroke-linecap="round" stroke-linejoin="round"><path d="M9 7V3M15 7V3M7 7h10v5a5 5 0 0 1-10 0zM12 17v4"/></svg>')
 _ICON_SLACK = ('<svg viewBox="0 0 122.8 122.8" aria-hidden="true" class="slk">'
                '<path d="M25.8 77.6a12.9 12.9 0 1 1-12.9-12.9h12.9zm6.5 0a12.9 12.9 0 0 1 25.8 0v32.3a12.9 12.9 0 0 1-25.8 0z" fill="#e01e5a"/>'
                '<path d="M45.2 25.8a12.9 12.9 0 1 1 12.9-12.9v12.9zm0 6.5a12.9 12.9 0 0 1 0 25.8H12.9a12.9 12.9 0 0 1 0-25.8z" fill="#36c5f0"/>'
@@ -1149,6 +1151,7 @@ _OVERRIDES = """
 #scout-page .sc-btn svg{width:15px;height:15px;flex:none}
 #scout-page .sc-btn.sc-slackbtn{margin-left:6px;background:var(--paper2)}
 #scout-page .sc-btn.sc-slackbtn svg.slk{width:16px;height:16px}
+#scout-page .sc-btn.sc-mcpbtn{gap:0}
 #scout-page details.sc-menu{display:none;position:relative}   /* phones: the strip is hidden there */
 #scout-page details.sc-menu>summary{list-style:none;cursor:pointer}
 #scout-page details.sc-menu>summary .cv{font-family:var(--mono);font-size:11px;color:var(--accent-deep);margin-left:2px;transition:transform .15s}
@@ -1304,6 +1307,11 @@ _OVERRIDES = """
 @media(max-width:1000px) and (min-width:761px){ #scout-page .sc-grid{grid-template-columns:1fr 1fr} }
 @media(max-width:380px){ #scout-page .sc-brand .nm{font-size:18px} #scout-page .sc-nav .sc-navlink{padding:0 7px} }
 @media(max-width:359px){ #scout-page .sc-btn.sc-slackbtn{display:none} }
+/* MCP beside Slack (2026-11-16): the full label on wide screens, "MCP" alone when the bar gets tight, and on
+   phones it lives in the Start Here menu because the bar has no room left. */
+@media(max-width:1120px){ #scout-page .sc-btn.sc-mcpbtn .lbl{display:none} #scout-page .sc-btn.sc-mcpbtn{padding:0 12px} }
+@media(max-width:900px) and (min-width:761px){ #scout-page .sc-btn.sc-slackbtn:not(.sc-mcpbtn) .lbl{display:none} }
+@media(max-width:760px){ #scout-page .sc-btn.sc-mcpbtn{display:none} }
 /* Phones and portrait tablets (2026-10-02 evening): the brief is the star. The rail drops BELOW
    the brief, its contents + audience become the sticky bar above it, and the metric tiles move to
    the end of the main column. Under 760px the strip and the statement shrink or go. */
@@ -1724,17 +1732,24 @@ def masthead_html(cards: list | None = None, slug: str | None = None, mode: str 
     home = '<a href="/" class="sc-navlink sc-home">Home</a>'
     slack_on = bool(slack_live_paths() or config.SLACK_PREVIEW)
     top_links = (('<a class="top" href="#how" data-how aria-expanded="false">' + _ICON_HOW + '<span>How Scout works</span></a>') if panel else "") \
-        + (('<a class="top" href="/slack">' + _ICON_SLACK + '<span>Agent Scout in Slack</span></a>') if slack_on else "")
+        + (('<a class="top" href="/slack">' + _ICON_SLACK + '<span>Agent Scout in Slack</span></a>') if slack_on else "") \
+        + ('<a class="top" href="' + _html.escape(config.SOURCE_REPO_URL) + '/blob/main/v2/docs/mcp.md" target="_blank" rel="noopener">'
+           + _ICON_MCP + '<span>Agent Scout via MCP</span></a>')
     all_briefs = ('<details class="sc-menu" id="sc-menu"><summary class="sc-navlink">Start Here'
                   '<span class="cv">&#9662;</span></summary>'
                   f'<div class="sc-dd">{top_links}<div class="mh">Briefs <span class="sc-cnt">{n}</span></div>' + "".join(items)
                   + '<a class="sc-see" href="/briefs">See all briefs as cards</a></div></details>')
     slack_btn = (f'<a href="/slack" class="sc-btn sc-slackbtn" aria-label="Agent Scout in Slack">{_ICON_SLACK}<span class="lbl">Agent Scout in Slack</span></a>'
                  if slack_on else "")
+    # 2026-11-16: MCP sits beside Slack in the bar, so a ten-second visitor sees both. It opens the
+    # MCP doc on GitHub; phones show the three letters only.
+    mcp_href = f"{_html.escape(config.SOURCE_REPO_URL)}/blob/main/v2/docs/mcp.md"
+    mcp_btn = (f'<a href="{mcp_href}" target="_blank" rel="noopener" class="sc-btn sc-slackbtn sc-mcpbtn" '
+               'aria-label="Agent Scout via MCP"><span class="lbl">Agent Scout via&nbsp;</span>MCP</a>')
     bar = ('<div class="sc-bar"><a class="sc-brand" href="/"><span class="d"></span><span class="nm">Agent Scout</span></a>'
            '<nav class="sc-nav" aria-label="Site">'
            f'{home}{all_briefs}{how}'
-           f'<a class="sc-btn sc-pri{" on" if mode == "create" else ""}" href="/create">{_ICON_PLUS}<span class="lbl">Create your own</span></a>{slack_btn}'
+           f'<a class="sc-btn sc-pri{" on" if mode == "create" else ""}" href="/create">{_ICON_PLUS}<span class="lbl">Create your own</span></a>{slack_btn}{mcp_btn}'
            '</nav></div>')
     lead = f'<div class="sc-lead"><div class="sc-statement">{_STATEMENT}</div></div>'
     strip = strip_html(cards, slug) if slug else ""
