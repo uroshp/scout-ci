@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-11-16T12:08:03",
+  "last_checked": "2026-11-17T12:07:19",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -45,49 +45,5 @@
     ],
     "job_boards": []
   },
-  "last_check_reason": "scheduled",
-  "pending_candidates": {
-    "my_company": [
-      {
-        "signal": "Google Cloud announced Vera Rubin GPU systems generally available at Next 2026 (Nov 14-16)",
-        "subject_key": "google-cloud",
-        "about": "my_company",
-        "valence": "front_foot",
-        "substantial": true,
-        "why_new": "Card does not track Vera Rubin GA status; this is a status flip from announced/preview to generally available on Google Cloud, a material infrastructure availability milestone",
-        "source_hint": "cloud.google.com (Google Cloud Next 2026 event)"
-      },
-      {
-        "signal": "Google Cloud introduced Axion custom CPU with claim of 30% better performance per dollar at Next 2026 (Nov 14-16)",
-        "subject_key": "google-cloud",
-        "about": "my_company",
-        "valence": "front_foot",
-        "substantial": true,
-        "why_new": "Card tracks TPU infrastructure but does not capture Axion CPU as a custom compute differentiator with the 30% performance-per-dollar claim; new custom silicon positioning",
-        "source_hint": "Google Cloud Next 2026 event"
-      },
-      {
-        "signal": "Google Cloud launched Agentic Data Cloud product at Next 2026 (Nov 14-16)",
-        "subject_key": "google-cloud | agentic-data-cloud",
-        "about": "my_company",
-        "valence": "front_foot",
-        "substantial": true,
-        "why_new": "NEW subject not tracked at all; a new product category combining agency and data cloud, potentially GA launch at Next 2026",
-        "source_hint": "Google Cloud Next 2026 event"
-      },
-      {
-        "signal": "Google Cloud IAM authentication fault caused major outage affecting services (Nov 2026, likely Nov 14-16)",
-        "subject_key": "google-cloud | reliability-incident",
-        "about": "my_company",
-        "valence": "back_foot",
-        "substantial": true,
-        "why_new": "Nov 2026 incident not tracked; IAM fault is a security/reliability objection that competitors will raise; Downdetector recorded 27K Spotify, 15K Discord, 10K+ Google service alarms",
-        "source_hint": "glitchwire.pages.dev, cloud-incident reports"
-      }
-    ],
-    "since": "2026-11-14",
-    "my_since": "2026-11-14",
-    "attempts": 1,
-    "reason": "own-side candidates did not ground"
-  }
+  "last_check_reason": "scheduled"
 }
