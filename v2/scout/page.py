@@ -913,9 +913,13 @@ _ICON_PRINT = ('<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strok
                '<path d="M4 6V2h8v4M4 12H2V7h12v5h-2M4 10h8v4H4z"/></svg>')
 _ICON_PLUS = ('<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">'
               '<path d="M8 3v10M3 8h10"/></svg>')
+# The Model Context Protocol mark, drawn in the text colour so it follows light and dark.
+_ICON_MCP = ('<svg viewBox="0 0 180 180" aria-hidden="true" class="slk" fill="none" stroke="currentColor" stroke-width="13" '
+             'stroke-linecap="round">'
+             '<path d="M18 84.8528L85.8822 16.9706C95.2548 7.59798 110.451 7.59798 119.823 16.9706C129.196 26.3431 129.196 41.5391 119.823 50.9117L68.5581 102.177"/>'
+             '<path d="M69.2652 101.47L119.823 50.9117C129.196 41.5391 144.392 41.5391 153.765 50.9117L154.118 51.2652C163.491 60.6378 163.491 75.8338 154.118 85.2063L92.7248 146.6C89.6006 149.724 89.6006 154.789 92.7248 157.913L105.331 170.52"/>'
+             '<path d="M102.853 33.9411L52.6482 84.1457C43.2756 93.5183 43.2756 108.714 52.6482 118.087C62.0208 127.459 77.2167 127.459 86.5893 118.087L136.794 67.8822"/></svg>')
 # The Slack mark (four colours), inline so the button needs no asset.
-_ICON_MCP = ('<svg viewBox="0 0 24 24" aria-hidden="true" class="slk" fill="none" stroke="currentColor" stroke-width="2" '
-             'stroke-linecap="round" stroke-linejoin="round"><path d="M9 7V3M15 7V3M7 7h10v5a5 5 0 0 1-10 0zM12 17v4"/></svg>')
 _ICON_SLACK = ('<svg viewBox="0 0 122.8 122.8" aria-hidden="true" class="slk">'
                '<path d="M25.8 77.6a12.9 12.9 0 1 1-12.9-12.9h12.9zm6.5 0a12.9 12.9 0 0 1 25.8 0v32.3a12.9 12.9 0 0 1-25.8 0z" fill="#e01e5a"/>'
                '<path d="M45.2 25.8a12.9 12.9 0 1 1 12.9-12.9v12.9zm0 6.5a12.9 12.9 0 0 1 0 25.8H12.9a12.9 12.9 0 0 1 0-25.8z" fill="#36c5f0"/>'
@@ -1152,6 +1156,7 @@ _OVERRIDES = """
 #scout-page .sc-btn.sc-slackbtn{margin-left:6px;background:var(--paper2)}
 #scout-page .sc-btn.sc-slackbtn svg.slk{width:16px;height:16px}
 #scout-page .sc-btn.sc-mcpbtn{gap:0}
+#scout-page .sc-btn.sc-mcpbtn svg.slk{margin-right:8px}
 #scout-page details.sc-menu{display:none;position:relative}   /* phones: the strip is hidden there */
 #scout-page details.sc-menu>summary{list-style:none;cursor:pointer}
 #scout-page details.sc-menu>summary .cv{font-family:var(--mono);font-size:11px;color:var(--accent-deep);margin-left:2px;transition:transform .15s}
@@ -1745,7 +1750,7 @@ def masthead_html(cards: list | None = None, slug: str | None = None, mode: str 
     # MCP doc on GitHub; phones show the three letters only.
     mcp_href = f"{_html.escape(config.SOURCE_REPO_URL)}/blob/main/v2/docs/mcp.md"
     mcp_btn = (f'<a href="{mcp_href}" target="_blank" rel="noopener" class="sc-btn sc-slackbtn sc-mcpbtn" '
-               'aria-label="Agent Scout via MCP"><span class="lbl">Agent Scout via&nbsp;</span>MCP</a>')
+               f'aria-label="Agent Scout via MCP">{_ICON_MCP}<span class="lbl">Agent Scout via&nbsp;</span>MCP</a>')
     bar = ('<div class="sc-bar"><a class="sc-brand" href="/"><span class="d"></span><span class="nm">Agent Scout</span></a>'
            '<nav class="sc-nav" aria-label="Site">'
            f'{home}{all_briefs}{how}'
