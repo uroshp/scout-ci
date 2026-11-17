@@ -5,8 +5,11 @@ SAFE BY DEFAULT: send_digest is a no-op (returns the rendered payload without se
 unless RESEND_API_KEY + SCOUT_ALERT_TO are configured AND dry_run is False. So dev/test
 runs and unconfigured environments can never email anyone.
 """
+import json
 import os
+import sys
 import difflib
+from datetime import datetime, timezone
 import html as _htmlmod
 import smtplib
 from email.message import EmailMessage
@@ -108,6 +111,78 @@ def _dispatch(subject: str, body: str, dry_run: bool = True, html: str = None) -
         return {"sent": False, "reason": "dry_run or no recipient (no email sent)",
                 "subject": subject, "to": to, "preview": body, "html": html}
 
+    if _quiet_now() and not config.REHEARSAL:
+        if _hold(subject, body, html):
+            return {"sent": True, "held": True, "via": "held until quiet hours end", "subject": subject}
+    else:
+        try:                       # mail written overnight goes out first, in the order it was written
+            flush_held()
+        except Exception:
+            pass
+    return _send_now(subject, body, html)
+
+
+HELD_PATH = "outbox/held.jsonl"
+
+
+def _quiet_now(now=None) -> bool:
+    """True inside the owner's quiet hours (Pacific). Unreadable setting or "off" = never quiet."""
+    if now is None:
+        from scout import selfserve
+        if selfserve._under_test_runner():      # the suite passes at any hour; a test sets the clock itself
+            return False
+    try:
+        start, end = (int(x) for x in str(config.QUIET_HOURS).split("-"))
+    except Exception:
+        return False
+    from zoneinfo import ZoneInfo
+    h = (now or datetime.now(ZoneInfo("America/Los_Angeles"))).hour
+    return (start <= h < end) if start <= end else (h >= start or h < end)
+
+
+def _hold(subject: str, body: str, html: str = None) -> bool:
+    """Save one email for delivery after quiet hours. False = could not save, so the caller sends it
+    now: an email is late on purpose or on time by accident, never lost."""
+    try:
+        from scout import selfserve
+        line = json.dumps({"subject": subject, "body": body, "html": html,
+                           "held_at": datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")})
+        selfserve.append_data(HELD_PATH, line, "email: held until quiet hours end")
+        return True
+    except Exception as e:
+        print(f"[email] could not hold, sending now ({type(e).__name__}: {e})", file=sys.stderr)
+        return False
+
+
+def flush_held() -> dict:
+    """Deliver every held email, oldest first. The file is emptied BEFORE sending (two jobs that wake
+    together must not both deliver it) and an email that fails to send is put back."""
+    if _quiet_now():
+        return {"delivered": 0, "quiet": True}
+    from scout import selfserve
+    taken = []
+
+    def take(cur):
+        taken[:] = [ln for ln in (cur or "").splitlines() if ln.strip()]
+        return "" if taken else None
+    selfserve.update_data(HELD_PATH, take, "email: delivering held mail")
+    delivered = 0
+    for ln in taken:
+        try:
+            m = json.loads(ln)
+            ok = _send_now(m["subject"], m["body"], m.get("html")).get("sent")
+        except Exception:
+            ok = False
+        if ok:
+            delivered += 1
+        else:
+            selfserve.append_data(HELD_PATH, ln, "email: put back, delivery failed")
+    return {"delivered": delivered, "put_back": len(taken) - delivered}
+
+
+def _send_now(subject: str, body: str, html: str = None) -> dict:
+    """The actual send: the owner's Gmail first, Resend as the fallback. Never raises."""
+    to = config.ALERT_EMAIL_TO
     guser, gpass = config.GMAIL_USER, (config.GMAIL_APP_PASSWORD or "").replace(" ", "")
     if guser and gpass:
         try:
