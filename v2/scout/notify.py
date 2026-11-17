@@ -9,7 +9,7 @@ import json
 import os
 import sys
 import difflib
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import html as _htmlmod
 import smtplib
 from email.message import EmailMessage
@@ -112,6 +112,10 @@ def _dispatch(subject: str, body: str, dry_run: bool = True, html: str = None) -
                 "subject": subject, "to": to, "preview": body, "html": html}
 
     if _quiet_now() and not config.REHEARSAL:
+        try:                       # the mini was off at 9 AM yesterday: yesterday's mail does not wait again
+            flush_held(older_than_h=12)
+        except Exception:
+            pass
         if _hold(subject, body, html):
             return {"sent": True, "held": True, "via": "held until quiet hours end", "subject": subject}
     else:
@@ -133,10 +137,10 @@ def _quiet_now(now=None) -> bool:
             return False
     try:
         start, end = (int(x) for x in str(config.QUIET_HOURS).split("-"))
+        from zoneinfo import ZoneInfo
+        h = (now or datetime.now(ZoneInfo("America/Los_Angeles"))).hour
     except Exception:
         return False
-    from zoneinfo import ZoneInfo
-    h = (now or datetime.now(ZoneInfo("America/Los_Angeles"))).hour
     return (start <= h < end) if start <= end else (h >= start or h < end)
 
 
@@ -154,17 +158,27 @@ def _hold(subject: str, body: str, html: str = None) -> bool:
         return False
 
 
-def flush_held() -> dict:
+def flush_held(older_than_h: float = None) -> dict:
     """Deliver every held email, oldest first. The file is emptied BEFORE sending (two jobs that wake
-    together must not both deliver it) and an email that fails to send is put back."""
-    if _quiet_now():
+    together must not both deliver it) and an email that fails to send is put back. With
+    `older_than_h`, deliver only mail held longer than that, at any hour (the 9 AM delivery was missed)."""
+    if older_than_h is None and _quiet_now():
         return {"delivered": 0, "quiet": True}
     from scout import selfserve
     taken = []
+    cutoff = (datetime.now(timezone.utc) - timedelta(hours=older_than_h)).strftime("%Y%m%dT%H%M%S") if older_than_h else None
+
+    def _old(ln):
+        try:
+            return json.loads(ln).get("held_at", "") < cutoff
+        except Exception:
+            return True
 
     def take(cur):
-        taken[:] = [ln for ln in (cur or "").splitlines() if ln.strip()]
-        return "" if taken else None
+        lines = [ln for ln in (cur or "").splitlines() if ln.strip()]
+        taken[:] = [ln for ln in lines if cutoff is None or _old(ln)]
+        keep = [ln for ln in lines if ln not in taken]
+        return ("".join(k + "\n" for k in keep)) if taken else None
     selfserve.update_data(HELD_PATH, take, "email: delivering held mail")
     delivered = 0
     for ln in taken:

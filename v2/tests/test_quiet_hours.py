@@ -106,6 +106,15 @@ class QuietHoursTest(unittest.TestCase):
         self.assertEqual(self.sent, ["Scout this morning"])
         self.assertNotIn("held", r)
 
+    def test_mail_missed_yesterday_does_not_wait_a_second_night(self):
+        old = json.dumps({"subject": "yesterday", "body": "b", "html": None, "held_at": "20261115T120000"})
+        self.store[notify.HELD_PATH] = old + "\n"
+        self._clock(4)
+        notify._dispatch("today", "b", dry_run=False)
+        self.assertEqual(self.sent, ["yesterday"])
+        self.assertIn("today", self.store[notify.HELD_PATH])
+        self.assertNotIn("yesterday", self.store[notify.HELD_PATH])
+
     def test_a_rehearsal_email_is_never_held(self):
         self._clock(4)
         with mock.patch.object(config, "REHEARSAL", True):
