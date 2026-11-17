@@ -316,6 +316,10 @@ GMAIL_USER = os.environ.get("SCOUT_GMAIL_USER")              # the sending Gmail
 GMAIL_APP_PASSWORD = os.environ.get("SCOUT_GMAIL_APP_PASSWORD")  # a Google App Password (not the account pw)
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
 ALERT_EMAIL_TO = os.environ.get("SCOUT_ALERT_TO")
+# Quiet hours for the owner's email (2026-11-17, his ask: no Scout email in the inbox before 9 AM).
+# "start-end" in Pacific hours; an email written inside the window is held in the private store and
+# delivered when the window ends. "off" sends everything at once (the no-deploy rollback).
+QUIET_HOURS = os.environ.get("SCOUT_QUIET_HOURS", "0-9").strip()
 ALERT_EMAIL_FROM = os.environ.get("SCOUT_ALERT_FROM", "Scout <onboarding@resend.dev>")
 
 
