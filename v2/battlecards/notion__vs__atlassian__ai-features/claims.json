@@ -61,24 +61,24 @@
   },
   {
     "subject_key": "notion-vs-atlassian | ai-pricing-verdict | current",
-    "claim": "**Atlassian stacks a base-price hike onto per-step AI metering, while Notion's flat rate stays predictable.**\n\nAtlassian meters Rovo chat and every Jira and Confluence automation step starting December 3, 2026, and separately raises Cloud list prices 3% to 10% on October 13, 2026 to fund AI and Teamwork Graph work. Notion bundles Agent, Meeting Notes and Enterprise Search into Business at a flat $20 per seat, with no metering and no base price rise.\n\n**Soundbite:** \"Atlassian raises its base price up to 10% on October 13, then meters your automations and chats in December. Notion's core AI stays flat at $20 a seat however much your team uses it.\"\n\n**So what:** Show finance buyers the stacked curve: Atlassian's October 13 price rise plus the December 3 metering, against Notion's flat $20 seat. Notion's Custom Agents stay metered at $10 per 1,000 credits, keeping the cost roadmap predictable.",
+    "claim": "**Atlassian stacks a base-price hike onto per-step AI metering, while Notion's flat rate stays predictable.**\n\nAtlassian raises Cloud list prices 3% to 10% on October 13, 2026, then from December 3, 2026 meters Rovo chat, every Jira and Confluence automation step and each Code Reviewer review, with reviews drawing on the same organization-wide credit pool as Rovo Chat and agents. Notion bundles Agent, Meeting Notes and Enterprise Search into Business at a flat $20 per seat, with no metering and no base price rise.\n\n**Soundbite:** \"Atlassian raises its base price up to 10% on October 13, then meters your chats, automations and code reviews from one shared credit pool in December. Notion's core AI stays flat at $20 a seat however much your team uses it.\"\n\n**So what:** Show finance buyers the stacked curve: Atlassian's October 13 price rise plus the December 3 metering, with code reviews sharing credits with every other Rovo feature, against Notion's flat $20 seat. Notion's Custom Agents stay metered at $10 per 1,000 credits, keeping the cost roadmap predictable.",
     "claim_type": "interpretation",
     "section": "executive_summary",
     "zone": null,
     "order": 0,
-    "as_of": "2026-10-02",
+    "as_of": "2026-11-18",
     "confidence": "high",
     "id": "c_d1e661fe3778",
     "verified": true,
-    "derived_from": "c_17c739e98390",
-    "updated_on": "2026-10-02",
+    "derived_from": "c_b2c6dd37a6bf",
+    "updated_on": "2026-11-18",
     "provenance": {
-      "source_url": "https://us.seibert.group/blog/atlassian-cloud-price-increase-2026",
-      "source_tier": "reputable_secondary",
-      "as_of": "2026-10-02",
-      "fact_id": "c_17c739e98390",
-      "stamped_on": "2026-10-02",
-      "source_class": "unknown"
+      "source_url": "https://www.atlassian.com/licensing/rovo-dev",
+      "source_tier": "primary",
+      "as_of": "2026-11-18",
+      "fact_id": "c_b2c6dd37a6bf",
+      "stamped_on": "2026-11-18",
+      "source_class": "company_statement"
     }
   },
   {
@@ -488,25 +488,41 @@
   },
   {
     "subject_key": "atlassian | rovo-dev-pricing-compliance | current",
-    "claim": "Atlassian's AI coding agent, Rovo Dev, is a separate paid SKU (~$20/developer/month) and notably does not support data residency, a hard disqualifier for regulated buyers (finance, healthcare, government) with sovereignty requirements.",
+    "claim": "Atlassian is retiring Rovo Dev as a standalone product and moving its AI code reviewer into Jira. Code Reviewer now comes with any paid Jira or Teamwork Collection plan, so buyers need no separate Rovo Dev license. From December 3, 2026, each review is billed in Rovo credits. Those credits come from the same organization-wide pool that Rovo Chat and Rovo agents use. Atlassian's own estimate is that a 10-user Jira Standard team gets about 3 to 13 reviews a month, and only if no other Rovo feature uses credits. Atlassian's Rovo Dev rollout page still says Rovo Dev does not support data residency.",
     "claim_type": "fact",
     "section": "pricing",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.atlassian.com/software/rovo-dev",
+    "source_url": "https://www.atlassian.com/licensing/rovo-dev",
     "source_tier": "primary",
-    "evidence_excerpt": "At this time, Rovo Dev does not support data residency.",
-    "as_of": "2026-06-05",
-    "confidence": "medium",
+    "evidence_excerpt": "Code Reviewer will be available with your eligible Jira/TWC subscription, with no separate Rovo Dev license required.",
+    "as_of": "2026-11-18",
+    "confidence": "high",
     "id": "c_b2c6dd37a6bf",
     "verified": true,
     "grounding": {
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-06-05",
+      "fetched_at": "2026-11-18",
       "detail": null
     },
+    "corroboration": [
+      {
+        "source_url": "https://support.atlassian.com/rovo/docs/how-code-reviewer-uses-rovo-credits/",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "company_statement"
+      },
+      {
+        "source_url": "https://support.atlassian.com/rovo/docs/rovo-dev-rollout/",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "company_statement"
+      }
+    ],
     "source_class": "company_statement"
   },
   {
@@ -611,25 +627,25 @@
   },
   {
     "subject_key": "battlecard | ai-pricing-credits | contested",
-    "claim": "**AI pricing is a wash on the surface (both meter agents), so win it on transparency, not on \"free.\"**\n\nNotion's Custom Agents use credits ($10 per 1,000) and Atlassian's Rovo uses a credit pool with overage billing coming. Atlassian now also meters Jira and Confluence automation by individual step, with overage billing starting December 3, 2026, and separately raises Cloud list prices 3% to 10% on October 13, 2026 to fund its AI investment. Don't claim Notion AI is free, claim it's predictable: core Notion AI is unmetered and its seat price isn't moving, while Rovo's thin Standard allowance runs out in two or three chats, Atlassian's automation meter adds a second running bill, and the base Jira and Confluence price climbs on top of both.\n\n\"Both of us charge for heavy agent automation. The difference: your everyday AI runs out fast on Rovo Standard and stays unlimited on Notion, your automations now run on a second Atlassian meter, and Atlassian's base price is climbing too while Notion's isn't.\"",
+    "claim": "**AI pricing is a wash on the surface (both meter agents), so win it on transparency, not on \"free.\"**\n\nNotion's Custom Agents use credits ($10 per 1,000). Atlassian meters Rovo credits and Jira and Confluence automation steps (overage billing from December 3, 2026), and raises Cloud list prices 3% to 10% on October 13, 2026. From December 3, Jira's Code Reviewer also bills each review against the same org-wide Rovo credit pool as Chat and agents. Atlassian's own estimate is 3 to 13 reviews a month for a 10-user Standard team, and only if nothing else uses credits. Rovo's thin Standard allowance already runs out in two or three chats. Don't claim Notion AI is free, claim it's predictable: core Notion AI is unmetered and its seat price isn't moving.\n\n\"Atlassian gives you one thin credit pool: chat runs out in a few requests and code reviews draw from the same pool, with a rising base price on top. Notion's everyday AI is unmetered at a flat seat price.\"",
     "claim_type": "interpretation",
     "section": "battlecard",
     "zone": "contested",
     "order": 1,
-    "as_of": "2026-10-02",
+    "as_of": "2026-11-18",
     "confidence": "high",
     "id": "c_0dc0262a9d23",
     "verified": true,
     "persona": "economic_buyer",
-    "derived_from": "c_17c739e98390",
-    "updated_on": "2026-10-02",
+    "derived_from": "c_b2c6dd37a6bf",
+    "updated_on": "2026-11-18",
     "provenance": {
-      "source_url": "https://us.seibert.group/blog/atlassian-cloud-price-increase-2026",
-      "source_tier": "reputable_secondary",
-      "as_of": "2026-10-02",
-      "fact_id": "c_17c739e98390",
-      "stamped_on": "2026-10-02",
-      "source_class": "unknown"
+      "source_url": "https://www.atlassian.com/licensing/rovo-dev",
+      "source_tier": "primary",
+      "as_of": "2026-11-18",
+      "fact_id": "c_b2c6dd37a6bf",
+      "stamped_on": "2026-11-18",
+      "source_class": "company_statement"
     }
   },
   {

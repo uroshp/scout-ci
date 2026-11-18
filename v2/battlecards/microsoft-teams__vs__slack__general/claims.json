@@ -1370,5 +1370,37 @@
       "detail": null
     },
     "source_class": "unknown"
+  },
+  {
+    "subject_key": "slack | regional-ai-inference",
+    "claim": "Starting in November 2026, Slack customers in Japan can ask Slack support to keep the prompts and responses of Slack's built-in AI features inside Japan, processed in Osaka or Tokyo. The option covers the new versions of the Business+ and Enterprise+ plans, and only the workspace or org primary owner can turn it on. Slack says Japan is the first region and more will follow in the coming months. Slack does not fall back to another region: if the chosen region cannot process an AI request, the request fails. AI region routing is a separate setting from Slack's existing data residency for stored data.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://slack.com/help/articles/56414332905363-Set-up-regional-AI-inference-for-Slack",
+    "source_tier": "primary",
+    "evidence_excerpt": "Starting in November 2026, customers in Japan can contact Slack support to request regional AI inference.",
+    "as_of": "2026-11-18",
+    "confidence": "high",
+    "id": "c_2f0e45c69287",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-11-18",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://slack.com/help/articles/57144403395987-Set-up-regional-inference-for-native-Slack-AI-features",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "company_statement"
+      }
+    ],
+    "source_class": "company_statement"
   }
 ]
