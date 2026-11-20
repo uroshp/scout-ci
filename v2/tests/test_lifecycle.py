@@ -120,6 +120,18 @@ class TheTwoBugsTurnRed(unittest.TestCase):
         self.assertEqual(st["B2"], ["fail"])
         self.assertIn("compute strain", [i for i in lifecycle.check_card(tr) if i["id"] == "B2"][0]["evidence"])
 
+    def test_a_fact_grounded_under_its_key_plus_a_period_is_accounted_for(self):
+        # 2026-11-20: the judge emitted "x | y", grounding filed it as "x | y | current"; the audit
+        # read the run as RED although the fact was grounded and on the card (also 11/6, 11/10).
+        tr = _trace(material=[{"subject_key": "anthropic | ipo-plan"}])
+        b2 = [i for i in lifecycle.check_card(tr) if i["id"] == "B2"][0]
+        self.assertEqual(b2["status"], "pass")
+        self.assertIn("emitted 1, grounded 1", b2["evidence"])
+
+    def test_a_longer_key_does_not_account_for_a_different_fact(self):
+        tr = _trace(material=[{"subject_key": "anthropic | ipo"}])
+        self.assertEqual(_by_id(lifecycle.check_card(tr))["B2"], ["fail"])
+
     def test_own_side_grounding_missing_from_the_eval_record(self):
         tr = _trace(grounding={"kept": [{"subject_key": "anthropic | ipo-plan | current", "status": "grounded"}], "cut": [], "records": 1, "results": 1})
         st = _by_id(lifecycle.check_card(tr))

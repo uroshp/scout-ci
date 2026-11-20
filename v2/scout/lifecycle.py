@@ -381,7 +381,12 @@ def check_card(tr: dict) -> list[dict]:
         c = tr["counts"]["materiality"]
         rejected = int(c.get("schema_rejected") or 0)
         detail = (steps.get("materiality") or {}).get("detail") or ""
-        vanished = sorted(emitted - kept - cut) if tr["grounding"]["records"] else []
+        # 2026-11-20: grounding may file a fact under its key plus a period ("| current",
+        # "| q3-fy2026"). The fact is accounted for when a grounded or cut key is the emitted key
+        # or the emitted key with such an ending; an exact-only match read three good runs as RED.
+        def _accounted(e: str) -> bool:
+            return any(k == e or k.startswith(e + "|") for k in kept | cut)
+        vanished = sorted(e for e in emitted if not _accounted(e)) if tr["grounding"]["records"] else []
         if tr["grounding"]["records"] == 0 and emitted:
             add("B2", "boundary", "every material fact the judge emitted is grounded, cut with a reason, or rejected by name",
                 "fail", f"{len(emitted)} material fact(s) emitted but no grounding record was captured")
@@ -389,7 +394,7 @@ def check_card(tr: dict) -> list[dict]:
             ok = not vanished or len(vanished) <= rejected
             add("B2", "boundary", "every material fact the judge emitted is grounded, cut with a reason, or rejected by name",
                 "pass" if ok else "fail",
-                f"emitted {len(emitted)}, grounded {len(kept & emitted) if emitted else len(kept)}, cut {len(cut)}, schema-rejected {rejected}"
+                f"emitted {len(emitted)}, grounded {sum(1 for e in emitted if any(k == e or k.startswith(e + '|') for k in kept)) if emitted else len(kept)}, cut {len(cut)}, schema-rejected {rejected}"
                 + (f"; vanished without a reason: {', '.join(vanished)}" if not ok else "") + f" | step: {detail[:140]}")
     if _ran(steps, "own_company") or (steps.get("own_company") or {}).get("status") == "failed":
         c = tr["counts"]["own_company"]
