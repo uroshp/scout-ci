@@ -51,6 +51,18 @@ class Routes(unittest.TestCase):
             self.assertIn('class="rail-history"', h)                      # git feed demoted to History
             self.assertNotIn("Change feed", h)
 
+    def test_home_is_the_fixed_brief_whatever_was_updated_last(self):
+        c = _client()
+        cards = display.list_battlecards()
+        self.assertIn(server._HOME_SLUG, cards)
+        others = [s for s in cards if s != server._HOME_SLUG]
+        with mock.patch.object(server, "_ordered_cards", return_value=others + [server._HOME_SLUG]):
+            home = c.get("/").data.decode()
+        self.assertIn(f'class="sc-tab on" href="/c/{server._HOME_SLUG}"', home)
+        with mock.patch.object(server, "_ordered_cards", return_value=others):     # card gone: latest brief
+            home = c.get("/").data.decode()
+        self.assertIn(f'class="sc-tab on" href="/c/{others[0]}"', home)
+
     def test_app_bar_marks_the_active_page(self):
         c = _client()
         home = c.get("/").data.decode()
