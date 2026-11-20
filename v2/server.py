@@ -40,6 +40,9 @@ app = Flask(__name__)
 # showcase card is pinned to the 4th dropdown slot; everything else sorts most-recently-updated.
 _PINNED_SLUG = "batman__vs__superman__general"
 _PINNED_POSITION = 3
+# 2026-11-20: the home page is always this brief, so a link sent to one person lands on the same
+# first screen every day. Every list (the bar, the menu, All briefs) still orders by recency.
+_HOME_SLUG = "anthropic__vs__openai__enterprise-coding-developers"
 _EMOJI = {"batman": "🦇", "superman": "🦸"}
 
 
@@ -412,15 +415,15 @@ def assets(fname):
 
 @app.get("/")
 def index():
-    """The home page is the latest brief (the brief is the star, 2026-10-02 evening); the
-    collection lives at /briefs behind the app bar's Briefs item. page_type='home' marks a
-    default landing in GA, as before."""
+    """The home page is one fixed brief (_HOME_SLUG, 2026-11-20), falling back to the latest
+    brief if that card is gone; the collection lives at /briefs behind the app bar's Briefs
+    item. page_type='home' marks a default landing in GA, as before."""
     cards = _ordered_cards()
     if not cards:
         return _doc(_chrome(False, None, cards)
                     + '<div class="wrap"><p>No briefs have been generated yet.</p></div>',
                     title="Agent Scout — Competitive briefs", page_type="home")
-    return _card_page(cards[0], cards, page_type="home")
+    return _card_page(_HOME_SLUG if _HOME_SLUG in cards else cards[0], cards, page_type="home")
 
 
 @app.get("/slack")
