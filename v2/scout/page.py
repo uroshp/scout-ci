@@ -1085,6 +1085,17 @@ def _how_panel() -> str:
 # /#how opens it on arrival (a link for a resume or a message). Links whose target is not on this
 # page (no card, Ask off) are hidden instead of going nowhere. The briefs strip shows as many tabs
 # as fit on one line and folds the rest into "N more" (priority plus); phones scroll it sideways.
+# 2026-11-20: GA's own scroll event fires only at 90% of the page, which on a long brief means
+# claim history. These mark a partial read: one event each at a quarter, half and three quarters,
+# once per page load. No-ops when analytics is off (no gtag on the page).
+_DEPTH_JS = (
+    "<script>(function(){var marks=[25,50,75],seen={},t=null;"
+    "function check(){t=null;var d=document.documentElement,h=d.scrollHeight-window.innerHeight;if(h<=0)return;"
+    "var pct=(window.pageYOffset||d.scrollTop||0)/h*100;"
+    "marks.forEach(function(m){if(pct>=m&&!seen[m]){seen[m]=1;"
+    "try{window.gtag&&window.gtag('event','scroll_depth',{percent:m});}catch(e){}}});}"
+    "window.addEventListener('scroll',function(){if(!t)t=setTimeout(check,250);},{passive:true});"
+    "})();</script>")
 _HOW_JS = (
     "<script>(function(){var p=document.getElementById('how');var bs=[].slice.call(document.querySelectorAll('[data-how]'));"
     "if(!p||!bs.length)return;"
@@ -1759,7 +1770,7 @@ def masthead_html(cards: list | None = None, slug: str | None = None, mode: str 
     lead = f'<div class="sc-lead"><div class="sc-statement">{_STATEMENT}</div></div>'
     strip = strip_html(cards, slug) if slug else ""
     return ('<div id="scout-page"><div class="wrap mast">' + bar + lead + panel + strip + '</div></div>'
-            + (_HOW_JS if panel else "") + (_STRIP_JS if strip else ""))
+            + (_HOW_JS if panel else "") + (_STRIP_JS if strip else "") + _DEPTH_JS)
 
 
 def slack_live_paths() -> list[tuple[str, str, str]]:
