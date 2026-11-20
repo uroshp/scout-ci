@@ -2781,35 +2781,42 @@
   },
   {
     "subject_key": "openai | funding-round",
-    "claim": "OpenAI is in early talks to raise at least $30 billion in a pre-IPO round at a valuation of roughly $1.4 trillion, reported September 29, 2026 during DevDay. That is up from the $852 billion valuation of its $122 billion March raise and above Anthropic's $965 billion Series H mark. No term sheet is finalized and the figure could change, per sources cited by CNBC and Bloomberg.",
+    "claim": "OpenAI closed the first $11 billion of its new funding round on November 6, 2026, at a $1.25 trillion valuation, per Reuters and Bloomberg. In late September it was pitching investors on at least $30 billion at about $1.4 trillion, and two investors told Reuters it had first sought $1.5 trillion. OpenAI now plans to raise up to $20 billion in total, with SoftBank and MGX among the backers of the first close. Investors are getting stricter about AI valuations, and OpenAI had to accept a lower price and a smaller raise to close the round.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 2,
-    "source_url": "https://www.cnbc.com/2026/09/29/openai-devday-2026-live-updates.html",
+    "order": 1,
+    "source_url": "https://thedailyguardian.com/news/science-tech/openai-gets-11-billion-funding-at-1-25-trillion-valuation-source-says-772682/",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "The company could raise around $30 billion, according to a source familiar with the talks who was not authorized to speak publicly because the details are confidential, but that figure could change.",
-    "as_of": "2026-09-29",
-    "confidence": "medium",
+    "evidence_excerpt": "OpenAI has closed on new funding of $11 billion, the initial part of a round that values the company at $1.25 trillion",
+    "as_of": "2026-11-06",
+    "confidence": "high",
     "id": "c_42aa736cdb96",
     "verified": true,
     "grounding": {
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-09-30",
+      "fetched_at": "2026-11-20",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://techcrunch.com/2026/09/29/openai-reportedly-in-talks-to-raise-30b-round-at-1-4t-valuation/",
+        "source_url": "https://gulfnews.com/technology/openai-secures-11-billion-in-new-funding-1.500739301",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false,
-        "source_class": "news"
+        "source_class": "unknown"
+      },
+      {
+        "source_url": "https://www.thestar.com.my/tech/tech-news/2026/11/07/openai-secures-11-billion-funding-at-125-trillion-valuation-bloomberg-news-reports",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
       }
     ],
-    "source_class": "news"
+    "source_class": "unknown"
   },
   {
     "subject_key": "openai | pro-500-tier",
@@ -2923,35 +2930,42 @@
   },
   {
     "subject_key": "anthropic | ipo-filing",
-    "claim": "Anthropic has set an IPO price range of $70 to $78 per share for 825 million Class A shares on the Nasdaq under the ticker ANT. Per CNBC, pricing is expected the evening of November 18 with trading scheduled to begin November 19, and at the current range the offering would raise more than $64 billion at a valuation of $1.405 trillion (fully diluted). This moves the IPO from a public S-1 (filed October 26) to a scheduled listing. The sources reviewed do not yet confirm a final price or a first trade.",
+    "claim": "Anthropic priced its IPO at $83.00 per share on November 18, 2026, above the earlier $70 to $78 range. The offering is 980,000,000 Class A shares, 956,351,354 sold by Anthropic and 23,648,646 by selling stockholders. Shares were set to begin trading on the Nasdaq Global Select Market on November 19 under the symbol ANT. CNBC reports about $81.3 billion raised, a record for an IPO. Fox Business reports the stock opened at $111.50 on debut.",
     "claim_type": "fact",
     "section": "tracked_facts",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.cnbc.com/2026/11/16/anthropic-ipo-date-price-range.html",
-    "source_tier": "reputable_secondary",
-    "evidence_excerpt": "Anthropic expects to price its IPO Wednesday, with shares scheduled to begin trading on Nasdaq Thursday under the ticker ANT.",
-    "as_of": "2026-11-18",
-    "confidence": "medium",
+    "source_url": "https://www.anthropic.com/news/anthropic-prices-initial-public-offering",
+    "source_tier": "primary",
+    "evidence_excerpt": "Anthropic, PBC priced its initial public offering of its Class A common stock at $83.00 per share.",
+    "as_of": "2026-11-19",
+    "confidence": "high",
     "id": "c_01b2bc34e421",
     "verified": true,
     "grounding": {
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-11-18",
+      "fetched_at": "2026-11-20",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://finance.yahoo.com/markets/stocks/articles/anthropic-sets-ipo-price-range-140602411.html",
+        "source_url": "https://www.cnbc.com/2026/11/18/anthropic-ipo-ai-offering-price.html",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false,
         "source_class": "news"
+      },
+      {
+        "source_url": "https://www.foxbusiness.com/markets/anthropic-makes-stock-market-debut-who-could-gain-from-blockbuster-ipo",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
       }
     ],
-    "source_class": "news"
+    "source_class": "company_statement"
   },
   {
     "subject_key": "anthropic-broadcom-chip-financing",

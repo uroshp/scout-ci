@@ -465,26 +465,35 @@
   },
   {
     "subject_key": "atlassian | rovo-overage-billing | current",
-    "claim": "Rovo is bundled into paid plans but credit-capped (25 credits/user/month on Standard, where each Rovo Chat or Agent request costs 10 credits and Deep Research costs 100). Allowance limits and billing for Rovo credits, automation steps and AI agent resolutions go live December 3, 2026, ending the window where Atlassian wasn't yet charging overages.",
-    "claim_type": "interpretation",
+    "claim": "Atlassian starts billing Rovo credit overages on December 3, 2026. Each paid plan adds a monthly credit allowance to one pool shared across the organization, and unused credits do not carry over. Usage past the allowance costs $0.01 per credit ($10 per 1,000). Pay-as-you-go is on by default, so overage keeps billing until an admin sets a spending cap or turns it off. Basic Rovo Chat and agent requests cost 10 credits each. Premium modes and calls to Atlassian's AI data layer (the Teamwork Graph) from outside tools through its MCP server or CLI (a command-line tool) are priced per call and add up quickly. A typical prompt uses 10 to 25 credits. Notion's Custom Agent credits have the same $10 per 1,000 list price, so the per-credit rate gives neither side an edge. The difference a rep can point to is that Atlassian bills overage unless an admin opts out.",
+    "claim_type": "fact",
     "section": "pricing",
     "zone": null,
-    "order": 0,
-    "as_of": "2026-10-02",
+    "order": 1,
+    "source_url": "https://www.atlassian.com/licensing/rovo",
+    "source_tier": "primary",
+    "evidence_excerpt": "Pay-as-you-go: Pay at the list price of $0.01 per credit over your allowance ($10.00 per 1,000 credits)",
+    "as_of": "2026-11-20",
     "confidence": "high",
     "id": "c_b15d0c6304c7",
     "verified": true,
-    "source_class": "company_statement",
-    "updated_on": "2026-10-02",
-    "derived_from": "c_ee8728f5f7db",
-    "provenance": {
-      "source_url": "https://www.atlassian.com/blog/company-news/expanded-usage-based-pricing",
-      "source_tier": "primary",
-      "as_of": "2026-10-02",
-      "fact_id": "c_ee8728f5f7db",
-      "stamped_on": "2026-10-02",
-      "source_class": "company_statement"
-    }
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-11-20",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://support.atlassian.com/organization-administration/docs/what-is-platform-usage",
+        "source_tier": "primary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "company_statement"
+      }
+    ],
+    "source_class": "company_statement"
   },
   {
     "subject_key": "atlassian | rovo-dev-pricing-compliance | current",
