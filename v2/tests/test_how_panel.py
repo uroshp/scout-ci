@@ -65,7 +65,7 @@ class HowPanel(unittest.TestCase):
             html = page.masthead_html()
         self.assertIn("Agent Scout", html)
         self.assertNotIn("data-how", html)
-        self.assertNotIn("<script", html)
+        self.assertNotIn("how_this_works_open", html)      # the panel script is left out (the read markers stay)
 
 
 if __name__ == "__main__":

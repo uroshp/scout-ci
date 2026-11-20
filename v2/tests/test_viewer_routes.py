@@ -63,6 +63,13 @@ class Routes(unittest.TestCase):
             home = c.get("/").data.decode()
         self.assertIn(f'class="sc-tab on" href="/c/{others[0]}"', home)
 
+    def test_pages_report_a_partial_read(self):
+        c = _client()
+        for path in ("/", f"/c/{self.slug}"):
+            h = c.get(path).data.decode()
+            self.assertEqual(h.count("'scroll_depth'"), 1, path)
+            self.assertIn("marks=[25,50,75]", h)
+
     def test_app_bar_marks_the_active_page(self):
         c = _client()
         home = c.get("/").data.decode()
