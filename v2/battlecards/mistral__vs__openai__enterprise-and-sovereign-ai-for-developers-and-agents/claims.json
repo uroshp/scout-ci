@@ -2459,5 +2459,60 @@
       "stamped_on": "2026-11-07",
       "source_class": "unknown"
     }
+  },
+  {
+    "subject_key": "openai | product-launch | health-agents-2026",
+    "claim": "On November 16, 2026 OpenAI launched computer-use agents for ChatGPT for Healthcare. They run on GPT-6 Astra and GPT-6 Luna and operate EHRs and payer portals by reading the screen, clicking and typing. The launch also added more than 20 healthcare plugins, including UpToDate Expert AI, Elation Health, Oracle HDI and Availity. CVS Health, Cigna, Abridge and Ambience are already running these agents in production, and Cigna went from concept to live in under eight weeks. OpenAI now has named references for governed agents handling regulated patient data. Every one of those deployments runs on OpenAI's US cloud under a US Business Associate Agreement.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://hitconsultant.net/2026/11/16/openai-launches-healthcare-computer-use-agents-clinical-search-20-plugins/",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "At Cigna Healthcare, teams moved from initial concept to live production in under eight weeks to streamline case manager outreach.",
+    "as_of": "2026-11-16",
+    "confidence": "high",
+    "id": "c_a079ba761438",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-11-20",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://insideai.news/news/ai-in-business/chatgpt-for-healthcare-computer-use-agents/15345/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "unknown"
+  },
+  {
+    "subject_key": "mistral | ipo-preparation-2026",
+    "claim": "Mistral CEO Arthur Mensch said on November 18, 2026 that Europe, where Mistral is headquartered, is the natural place for an initial public offering. Mistral will not list this year but is getting ready for it. He said this on stage at the Semafor tech conference in California, per AFP.",
+    "claim_type": "fact",
+    "section": "tracked_facts",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://www.france24.com/en/live-news/20261118-mistral-ai-not-french-president-s-personal-project-ceo",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "We won't be doing this this year, but we're definitely getting ready for it.",
+    "as_of": "2026-11-18",
+    "confidence": "high",
+    "id": "c_bb1758845219",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-11-20",
+      "detail": null
+    },
+    "source_class": "unknown"
   }
 ]
