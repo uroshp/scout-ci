@@ -2930,15 +2930,15 @@
   },
   {
     "subject_key": "anthropic | ipo-filing",
-    "claim": "Anthropic priced its IPO at $83.00 per share on November 18, 2026, above the earlier $70 to $78 range. The offering is 980,000,000 Class A shares, 956,351,354 sold by Anthropic and 23,648,646 by selling stockholders. Shares were set to begin trading on the Nasdaq Global Select Market on November 19 under the symbol ANT. CNBC reports about $81.3 billion raised, a record for an IPO. Fox Business reports the stock opened at $111.50 on debut.",
+    "claim": "Anthropic began trading on Nasdaq as ANT on Thursday, November 19, 2026, after pricing its IPO at $83 per share. The stock opened at $111.50, hit a high of $115.10, fell to a low of $92.72 and closed its first day at $97.17, about 17% above the offer price, on a day when the Nasdaq Composite closed down 2.25%. Anthropic executives were reported to have sold about $2 billion of stock on the first day.",
     "claim_type": "fact",
     "section": "tracked_facts",
     "zone": null,
     "order": 1,
-    "source_url": "https://www.anthropic.com/news/anthropic-prices-initial-public-offering",
-    "source_tier": "primary",
-    "evidence_excerpt": "Anthropic, PBC priced its initial public offering of its Class A common stock at $83.00 per share.",
-    "as_of": "2026-11-19",
+    "source_url": "https://finance.yahoo.com/markets/stocks/articles/anthropic-ant-swung-111-93-000000419.html",
+    "source_tier": "reputable_secondary",
+    "evidence_excerpt": "After pricing its IPO at $83 per share, the stock opened at $111.50, climbed to $115.10, slid as low as $92.72 and finished the day at $97.17",
+    "as_of": "2026-11-20",
     "confidence": "high",
     "id": "c_01b2bc34e421",
     "verified": true,
@@ -2946,26 +2946,19 @@
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-11-20",
+      "fetched_at": "2026-11-21",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://www.cnbc.com/2026/11/18/anthropic-ipo-ai-offering-price.html",
-        "source_tier": "reputable_secondary",
-        "note": "tier-ranked alternate source for the same development",
-        "grounded": false,
-        "source_class": "news"
-      },
-      {
-        "source_url": "https://www.foxbusiness.com/markets/anthropic-makes-stock-market-debut-who-could-gain-from-blockbuster-ipo",
+        "source_url": "https://prospect.org/2026/11/20/anthropic-debut-ipo-stock-market-sec/",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false,
         "source_class": "unknown"
       }
     ],
-    "source_class": "company_statement"
+    "source_class": "news"
   },
   {
     "subject_key": "anthropic-broadcom-chip-financing",
