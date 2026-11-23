@@ -4,7 +4,7 @@
   "competitor": "OpenAI",
   "focus": "enterprise and sovereign AI for developers and agents",
   "baseline_date": "2026-06-17",
-  "last_checked": "2026-11-21T12:10:58",
+  "last_checked": "2026-11-23T12:10:54",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_911e9a6938ba",
@@ -84,40 +84,5 @@
       }
     ]
   },
-  "last_check_reason": "scheduled",
-  "pending_candidates": {
-    "my_company": [
-      {
-        "signal": "Mistral 3 model family launched: three new dense models (3B, 8B, 14B) and Mistral Large 3 (41B active, 675B MoE) with Apache 2.0 license (Nov 20-21, 2026)",
-        "subject_key": "mistral | flagship-product-mistral-3-2026",
-        "about": "my_company",
-        "valence": "front_foot = good for us / bad for them",
-        "substantial": true,
-        "why_new": "New generation of open-weight models announced Nov 20-21, 2026; replaces tracked Devstral generation. Mistral Large 3 trained on 3,000 H200 GPUs, includes multimodal and multilingual capabilities. Directly addresses enterprise and developer segments.",
-        "source_hint": "inkl.com, Deccan Chronicle"
-      },
-      {
-        "signal": "Mistral announces strategic partnerships with Helsing (German defense AI), Stellantis (automotive), Singapore's Home Team S&T Agency; also completes acquisition of Emmi AI for industrial simulation (Nov 20-21, 2026)",
-        "subject_key": "mistral | partnerships-defense-automotive-industrial-2026",
-        "about": "my_company",
-        "valence": "front_foot = good for us / bad for them",
-        "substantial": true,
-        "why_new": "Multiple new partnerships (Helsing, Stellantis, Singapore government) and M&A (Emmi AI) announced Nov 20-21, 2026. These are defense, automotive and industrial verticals not previously tracked, plus entry into AI-driven simulation/design. Strengthens sovereign AI positioning.",
-        "source_hint": "techzine.eu, marketscreener.com"
-      },
-      {
-        "signal": "Mistral launches platform for industrial AI with compact model integration into robots, drones, vehicles; announces European data center investments (Nov 20-21, 2026)",
-        "subject_key": "mistral | industrial-ai-platform-datacenters-2026",
-        "about": "my_company",
-        "valence": "front_foot = good for us / bad for them",
-        "substantial": true,
-        "why_new": "New product line (industrial AI platform) and infrastructure expansion (European data center commitments) announced Nov 20-21, 2026 at Mistral AI NOW Summit. Extends focus area coverage into industrial/IoT edge deployment with European sovereignty anchor.",
-        "source_hint": "techzine.eu, euronews.com"
-      }
-    ],
-    "since": "2026-11-20",
-    "my_since": "2026-11-20",
-    "attempts": 1,
-    "reason": "own-side candidates did not ground"
-  }
+  "last_check_reason": "scheduled"
 }
