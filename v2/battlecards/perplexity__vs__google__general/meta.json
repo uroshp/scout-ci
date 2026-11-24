@@ -4,7 +4,7 @@
   "competitor": "Google",
   "focus": null,
   "baseline_date": "2026-06-06",
-  "last_checked": "2026-11-24T12:15:51",
+  "last_checked": "2026-11-24T23:18:39",
   "cadence_hours": 24,
   "alerted_fingerprints": [
     "f_9ea436272f2a",
@@ -53,22 +53,5 @@
       }
     ]
   },
-  "last_check_reason": "scheduled",
-  "pending_candidates": {
-    "my_company": [
-      {
-        "signal": "Perplexity secures $200 million in new funding round at $20 billion valuation; prior $18 billion round approximately two months earlier (November 2026)",
-        "subject_key": "perplexity | valuation",
-        "about": "my_company",
-        "valence": "front_foot",
-        "substantial": true,
-        "why_new": "Capital raise in November 2026 (on/after cutoff) is a new funding event; valuation of $20B matches June 2026 tracked amount, indicating flat growth trajectory since mid-year despite market acceleration—data point for validating IPO-readiness and momentum claims",
-        "source_hint": "The Information, November 2026 reporting; PYMNTS, Newsable"
-      }
-    ],
-    "since": "2026-11-23",
-    "my_since": "2026-11-23",
-    "attempts": 1,
-    "reason": "own-side candidates did not ground"
-  }
+  "last_check_reason": "signal"
 }
