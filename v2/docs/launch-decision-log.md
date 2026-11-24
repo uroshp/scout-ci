@@ -175,7 +175,7 @@ system** (deliberately not built).
 
 ## 9. Deployment
 
-**Streamlit Community Cloud**, subdomain **`agent-scout.ai`** (custom subdomains are
+**Streamlit Community Cloud**, on an `agent-scout` subdomain (custom subdomains are
 supported; a fully custom domain is not, on the free tier — acceptable for the showcase).
 
 ## 10. Launch prerequisites (user actions) & open risks
@@ -187,7 +187,7 @@ supported; a fully custom domain is not, on the free tier — acceptable for the
    contents:write), `SELFSERVE_REPO` (e.g. `uroshp/ci-agent`), `SELFSERVE_BRANCH` (`main`),
    `ANTHROPIC_API_KEY` not needed app-side (generation runs in the Action).
 3. Set the **Anthropic Console monthly spend limit** (the global cap — see §6).
-4. Deploy `app_v2.py` on Streamlit Community Cloud and claim `agent-scout.ai`.
+4. Deploy `app_v2.py` on Streamlit Community Cloud and claim the `agent-scout` subdomain.
 5. **Merge `v2-agent` → `main`** — this is the launch flip: `schedule`/`push` workflows only fire
    from the default branch, so nothing spends until merged.
 

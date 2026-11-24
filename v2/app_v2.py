@@ -1,4 +1,4 @@
-"""Retirement stub for agent-scout.ai (2026-09-04, per the 7/21 decision).
+"""Retirement stub served at Scout's old address (2026-09-04, per the 7/21 decision).
 
 The Streamlit viewer is retired; battlecards live at https://agent-scout.ai. This stub is the
 whole app now: it renders an always-working link to the new home (carrying every query param, so
@@ -64,11 +64,11 @@ except Exception:
 
 st.title("Scout has moved 🔭")
 st.markdown(
-    f"Scout's living battlecards now live at **[agent-scout.ai]({target})** — "
-    f"you'll be taken there automatically in a few seconds."
+    f"Scout's living battlecards now live at **[agent-scout.ai]({target})**. "
+    f"You'll be taken there automatically in a few seconds."
 )
 st.link_button("Open Scout →", target)
-st.caption("This address (agent-scout.ai) is retiring. "
+st.caption("This address is retiring. "
            "Please update any bookmarks to agent-scout.ai.")
 
 # Server-side visit capture (JSONL ground truth + GA server event). record_visit is internally

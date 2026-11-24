@@ -29,7 +29,7 @@ CRASH_MARKERS = [
     "get this app back up",
 ]
 # The app works only if a visitor sees what that host is supposed to show. agent-scout.ai renders
-# the product masthead; old address is a retirement stub since 2026-09-04 — its own marker
+# the product masthead; the old address is a retirement stub since 2026-09-04 — its own marker
 # counts, and so does the product masthead (the stub meta-refreshes to agent-scout.ai, so a probe
 # that lingers past the redirect legitimately sees the new home's content).
 HOST_MARKERS = {
@@ -39,8 +39,12 @@ HOST_MARKERS = {
 
 HOSTS = {
     "agent-scout.ai": "https://agent-scout.ai/",
-    "old address": "https://agent-scout.ai/",
 }
+# The old address is not written in this repo: it comes from SCOUT_LEGACY_URL (a repo variable for
+# the Action, the canary's own env on the mini). Unset = the forwarding page is not probed.
+_LEGACY_URL = os.environ.get("SCOUT_LEGACY_URL", "").strip()
+if _LEGACY_URL:
+    HOSTS["old address"] = _LEGACY_URL
 WAIT_TOTAL_S = 90          # Streamlit cold start + websocket render can be slow
 POLL_S = 5
 
@@ -55,7 +59,7 @@ PROBE_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 
 
 
 def _visible_text(page):
-    """All rendered text across the page AND its frames — old address serves the app
+    """All rendered text across the page AND its frames — Streamlit Cloud serves the app
     inside a /~/+/ iframe, so the top document's body is empty even when healthy."""
     parts = []
     for frame in page.frames:

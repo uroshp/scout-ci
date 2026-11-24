@@ -9,7 +9,7 @@ from unittest import mock
 
 from scout import analytics, config
 
-PROD_HOSTS = ("agent-scout.ai", "agent-scout.ai")
+PROD_HOSTS = ("agent-scout.ai",)
 
 
 class HostGuardPinned(unittest.TestCase):

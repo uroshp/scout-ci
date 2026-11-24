@@ -91,7 +91,7 @@ gcloud run domain-mappings create --service agent-scout --domain agent-scout.ai 
 Add the DNS records it prints at your registrar; TLS auto-provisions (~15–60 min). `agent-scout.ai`
 already equals `SCOUT_SELFSERVE_APP_URL`, so GA + result links light up automatically.
 
-Legacy links: leave `agent-scout.ai` running as the rollback, then later reduce it to a
+Legacy links: leave the old Streamlit address running as the rollback, then later reduce it to a
 one-line redirect to `agent-scout.ai`.
 
 ---

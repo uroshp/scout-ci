@@ -354,12 +354,12 @@ SELFSERVE_APP_URL = os.environ.get("SCOUT_SELFSERVE_APP_URL", "https://agent-sco
 # Hostnames where the CLIENT GA tag may fire (comma-separated env SCOUT_ANALYTICS_HOSTNAMES).
 # Its OWN config on purpose (2026-07-08 incident): the gtag guard used to derive its hostname
 # from SELFSERVE_APP_URL — a LINK-base setting — so repointing links silently disarmed the tag
-# on whichever surface relied on the default. Both prod surfaces are pinned here; dev/preview
+# on whichever surface relied on the default. The prod surface is pinned here; dev/preview
 # hosts (localhost, Codespaces) stay excluded exactly as before.
 ANALYTICS_HOSTNAMES = tuple(
     h.strip() for h in os.environ.get(
         "SCOUT_ANALYTICS_HOSTNAMES",
-        "agent-scout.ai,agent-scout.ai").split(",") if h.strip())
+        "agent-scout.ai").split(",") if h.strip())
 # Master switch for BOTH the client tag and the server-side visit event (SCOUT_ANALYTICS=0 on the
 # RC service, 2026-09-28): the hostname allow-list already excludes an RC host from the client tag,
 # but the server-side Measurement Protocol event fires from any host, so RC needs an explicit off.

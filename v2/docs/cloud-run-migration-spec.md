@@ -5,7 +5,7 @@ Status: **proposed** (spec only, no code). Parallel build, zero risk to the live
 ## Decision
 
 Replace Streamlit with a thin **FastAPI** app on **Cloud Run**, served at **agent-scout.ai**.
-Streamlit is reduced to an optional **one-line redirect** at the old `old address` URL so the
+Streamlit is reduced to an optional **one-line redirect** at the old Streamlit URL so the
 links already on the resume / LinkedIn / applications keep resolving — that is a tombstone
 forwarder, not "keeping Streamlit."
 
@@ -85,9 +85,9 @@ The only genuinely stateful piece (14 `session_state` + 5 `rerun` + a polling lo
 | 2 | **Verify** (gate below). | untouched |
 | 3 | Map `agent-scout.ai` DNS → service; test on the domain. | untouched |
 | 4 | **Cut over** — use `agent-scout.ai` in new contexts. Streamlit = instant rollback. | rollback |
-| 5 | Reduce `old address` to a redirect → `agent-scout.ai` (preserve old links). | redirect |
+| 5 | Reduce the old Streamlit address to a redirect → `agent-scout.ai` (preserve old links). | redirect |
 
-Rollback at any point: `agent-scout.ai` stays live and untouched through phase 4.
+Rollback at any point: the old Streamlit address stays live and untouched through phase 4.
 
 ## Verification gate (the "no unforeseen bugs" answer)
 
@@ -117,7 +117,7 @@ testing, no live risk, ~$0 API (only a test generation costs a few cents).
 
 1. **Always-warm.** Cloud Run **min-instances = 1** — instant for every visitor, no cold start.
 2. **Single cutover (both viewer + form at once).** Not phased. Phasing would split the form onto
-   `old address` while the viewer lived at `agent-scout.ai` (cross-domain "view your card" links) —
+   the old Streamlit address while the viewer lived at `agent-scout.ai` (cross-domain "view your card" links) —
    more complexity, and no live-risk benefit since Streamlit stays the fallback until everything is
    verified. One DNS flip, one redirect.
 3. **Handlers are synchronous — async is explicitly NOT a goal.** Async was never something we
