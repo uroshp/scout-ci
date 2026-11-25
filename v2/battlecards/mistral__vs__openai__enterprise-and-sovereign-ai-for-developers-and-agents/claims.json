@@ -2031,35 +2031,35 @@
   },
   {
     "subject_key": "openai | funding-round | pre-ipo-1-2t-2026",
-    "claim": "OpenAI is in talks to raise at least $30 billion in a pre-IPO round at a valuation of about $1.4 trillion excluding the new capital, Bloomberg reported on September 29, 2026. That is up from the more-than-$1.2 trillion figure floated in earlier talks and roughly 40% above the $852 billion March valuation. Altman has ruled out a 2026 IPO citing AI safety, so the raise would serve as a bridge round to an eventual listing. OpenAI's annualized revenue run rate has passed $40 billion.",
+    "claim": "OpenAI closed $11 billion on November 6, 2026, the first part of a pre-IPO round that values it at $1.25 trillion, with SoftBank and MGX participating. That is about a third of the up to $30 billion it set out to raise, and the valuation came in below the $1.5 trillion it first sought. OpenAI still has more money than any rival, but investors are now pushing back on its price, and Reuters says sentiment toward AI companies has cooled over the past month.",
     "claim_type": "fact",
     "section": "recent_moves",
     "zone": null,
-    "order": 3,
-    "source_url": "https://techcrunch.com/2026/09/29/openai-repotedly-in-talks-to-raise-30b-round-at-1-4t-valuation/",
+    "order": 1,
+    "source_url": "https://www.dealstreetasia.com/?p=500415",
     "source_tier": "reputable_secondary",
-    "evidence_excerpt": "OpenAI is in talks with investors to raise at least $30 billion in a pre-IPO funding round at a valuation of roughly $1.4 trillion, Bloomberg reported on Tuesday.",
-    "as_of": "2026-09-29",
-    "confidence": "medium",
+    "evidence_excerpt": "OpenAI has closed on new funding of $11 billion, the initial part of a round that values the company at $1.25 trillion, a source familiar with the matter said on Friday.",
+    "as_of": "2026-11-07",
+    "confidence": "high",
     "id": "c_8792d2fc70a1",
     "verified": true,
     "grounding": {
       "checked": true,
       "match": true,
       "method": "substring",
-      "fetched_at": "2026-09-30",
+      "fetched_at": "2026-11-25",
       "detail": null
     },
     "corroboration": [
       {
-        "source_url": "https://www.coindesk.com/markets/2026/09/30/openai-targets-usd1-4-trillion-valuation-and-unveils-dots-ai-agent",
+        "source_url": "https://gulfnews.com/technology/openai-secures-11-billion-in-new-funding-1.500739301",
         "source_tier": "reputable_secondary",
         "note": "tier-ranked alternate source for the same development",
         "grounded": false,
         "source_class": "unknown"
       }
     ],
-    "source_class": "news"
+    "source_class": "unknown"
   },
   {
     "subject_key": "openai | security-incident | federal-agencies-2026",
