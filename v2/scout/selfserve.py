@@ -481,6 +481,33 @@ def record_requester(keys: list[str], job_id: str, at: str) -> None:
     save_requesters(d)
 
 
+def _key_network(key: str):
+    """The address range a "net:"/"ip:" key stands for; None for a cookie key or a malformed one."""
+    kind, _, rest = str(key).partition(":")
+    if kind not in ("net", "ip") or not rest:
+        return None
+    try:
+        return ipaddress.ip_network(rest, strict=False)
+    except ValueError:
+        return None
+
+
+def _key_blocked(key: str, blocked: list[str]) -> bool:
+    """A key is blocked when it is listed, or when its address sits inside a listed range of any
+    size (2026-11-24: a visitor on a carrier that hands out a new /64 each session walked past
+    the /64 on the list; a block entry may now be a whole carrier range, e.g. a /32)."""
+    if key in blocked:
+        return True
+    mine = _key_network(key)
+    if mine is None:
+        return False
+    for entry in blocked:
+        theirs = _key_network(entry)
+        if theirs is not None and theirs.version == mine.version and mine.subnet_of(theirs):
+            return True
+    return False
+
+
 def prior_report(keys: list[str], exclude_job_id: str | None = None,
                  requesters: dict | None = None) -> dict | None:
     """What this visitor already has. None when they are new. Otherwise {"job_id": the earliest
@@ -490,7 +517,7 @@ def prior_report(keys: list[str], exclude_job_id: str | None = None,
     if not keys:
         return None
     d = requesters if requesters is not None else load_requesters()
-    blocked = any(k in d["blocked"] for k in keys)
+    blocked = any(_key_blocked(k, d["blocked"]) for k in keys)
     seen = []
     for k in keys:
         lst = [e for e in d["used"].get(k, []) if isinstance(e, dict) and e.get("job_id")]

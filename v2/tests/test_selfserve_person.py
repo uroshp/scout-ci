@@ -92,6 +92,19 @@ class Index(unittest.TestCase):
         self.assertEqual(selfserve.prior_report(["ip:198.51.100.99"]), {"job_id": None, "blocked": True})
         self.assertIsNone(selfserve.prior_report(["ip:198.51.100.98"]))
 
+    def test_a_blocked_carrier_range_refuses_every_address_inside_it(self):
+        # 2026-11-24: one visitor arrived on three different /64s of one carrier in a day
+        d = selfserve.load_requesters()
+        d["blocked"] += ["net:2001:db8:40f2::/48", "net:198.51.100.0/24", "net:not a range"]
+        selfserve.save_requesters(d)
+        for ip in ("2001:db8:40f2:306:ca69::1", "2001:db8:40f2:16:2d5d::9", "198.51.100.7"):
+            keys = selfserve.requester_keys(ip, None)
+            self.assertEqual(selfserve.prior_report(keys), {"job_id": None, "blocked": True}, ip)
+        for ip in ("2001:db8:40f3::1", "198.51.101.7", "203.0.113.5"):
+            self.assertIsNone(selfserve.prior_report(selfserve.requester_keys(ip, None)), ip)
+        # a cookie key is never matched against a range
+        self.assertIsNone(selfserve.prior_report(["cid:abcdef1234567890"]))
+
     def test_missing_or_hand_edited_index_is_tolerated(self):
         with mock.patch.object(selfserve, "_read", return_value="not json"):
             self.assertEqual(selfserve.load_requesters(), {"used": {}, "blocked": []})
@@ -145,6 +158,18 @@ class App(unittest.TestCase):
         c = self._client(_cid()).post("/api/request", json={"competitor": "Acme " + uuid.uuid4().hex[:8]},
                                       headers={"X-Forwarded-For": "2001:db8:1:3::1"})
         self.assertEqual(c.status_code, 200)                     # a different /64 is someone else
+
+    def test_a_visitor_inside_a_blocked_range_gets_no_form_and_cannot_submit(self):
+        d = selfserve.load_requesters()
+        d["blocked"].append("net:2001:db8:99::/48")
+        selfserve.save_requesters(d)
+        c = self._client(_cid())
+        h = {"X-Forwarded-For": "2001:db8:99:1234:1:2:3:4"}
+        page = c.get("/create", headers=h).get_data(as_text=True)
+        self.assertNotIn('id="ss-form"', page)
+        self.assertIn("by request", page)
+        r = c.post("/api/request", json={"competitor": "Acme " + uuid.uuid4().hex[:8]}, headers=h)
+        self.assertEqual(r.status_code, 403)
 
     def test_create_page_for_a_known_visitor_links_their_report(self):
         c = self._client(_cid())
