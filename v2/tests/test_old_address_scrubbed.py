@@ -10,7 +10,8 @@ import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OLD = re.compile(r"streamlit\s*\.\s*app", re.I)
-SKIP_DIRS = {".git", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache"}
+SKIP_DIRS = {".git", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache",
+             ".claude"}     # local, untracked tool settings: not part of the repo
 TEXT = (".py", ".md", ".yml", ".yaml", ".html", ".txt", ".toml", ".json", ".mjs", ".js", ".css",
         ".example", ".cfg", ".sh")
 
