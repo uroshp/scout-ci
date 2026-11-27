@@ -2514,5 +2514,44 @@
       "detail": null
     },
     "source_class": "unknown"
+  },
+  {
+    "subject_key": "openai | product-launch | private-inference-2026",
+    "claim": "OpenAI has started testing Private Inference, a confidential-computing service meant to protect prompts and responses while its models process them, with a small group of business customers. Sam Altman announced the alpha on X on November 25, 2026. It is OpenAI's direct answer to buyers who will not send sensitive data to a model provider. It is still early: OpenAI has not said which models it supports, what it costs or when it will be generally available, and it says it is still securing the confidential-compute capacity a wider rollout needs. The data still runs on OpenAI's own cloud hardware under US jurisdiction. A Mistral deployment runs on hardware the customer owns.",
+    "claim_type": "fact",
+    "section": "recent_moves",
+    "zone": null,
+    "order": 1,
+    "source_url": "https://openai.com/form/private-intelligence-interest/",
+    "source_tier": "primary",
+    "evidence_excerpt": "Private Inference, in preview, combines confidential computing with strict, verifiable controls.",
+    "as_of": "2026-11-26",
+    "confidence": "high",
+    "id": "c_e0f6e76dbb20",
+    "verified": true,
+    "grounding": {
+      "checked": true,
+      "match": true,
+      "method": "substring",
+      "fetched_at": "2026-11-27",
+      "detail": null
+    },
+    "corroboration": [
+      {
+        "source_url": "https://www.unite.ai/openai-begins-limited-customer-trials-of-alpha-private-inference/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "news"
+      },
+      {
+        "source_url": "https://www.channelinsider.com/enterprise/news-openai-private-inference-alpha-msp/",
+        "source_tier": "reputable_secondary",
+        "note": "tier-ranked alternate source for the same development",
+        "grounded": false,
+        "source_class": "unknown"
+      }
+    ],
+    "source_class": "company_statement"
   }
 ]
