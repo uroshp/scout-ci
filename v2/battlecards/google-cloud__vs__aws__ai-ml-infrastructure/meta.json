@@ -4,7 +4,7 @@
   "competitor": "AWS",
   "focus": "AI/ML infrastructure",
   "baseline_date": "2026-06-05",
-  "last_checked": "2026-11-27T12:06:09",
+  "last_checked": "2026-11-28T12:05:51",
   "cadence_hours": 23,
   "alerted_fingerprints": [
     "f_7934fd0608d8",
@@ -45,40 +45,5 @@
     ],
     "job_boards": []
   },
-  "last_check_reason": "scheduled",
-  "pending_candidates": {
-    "my_company": [
-      {
-        "signal": "Google Cloud announced Gemini Enterprise Agent Platform at Google Cloud Next 2026 (November 2026)",
-        "subject_key": "battlecard | contested | agent-platform-maturity",
-        "about": "my_company",
-        "valence": "front_foot",
-        "substantial": true,
-        "why_new": "Gemini Enterprise Agent Platform launch with Agent Designer, long-running agents, Projects, and Agent Gallery is not in tracked claims. November 2026 launch advances the contested agent-platform maturity category (AWS made Bedrock AgentCore GA on August 6, 2026; Google Cloud's response is 3+ months later).",
-        "source_hint": "https://www.itpro.com/cloud/live/google-cloud-next-2026-all-the-live-updates-as-they-happen"
-      },
-      {
-        "signal": "Google Cloud introduced 8th-generation TPU 8t (training) at Google Cloud Next 2026 (November 2026)",
-        "subject_key": "google-cloud | differentiator | tpu-single-cluster-scale",
-        "about": "my_company",
-        "valence": "front_foot",
-        "substantial": true,
-        "why_new": "TPU 8t training variant is new; TPU 8i (inference) was announced April 22, 2026 (tracked). November 2026 addition of TPU 8t expands the custom-silicon training story and reinforces the tracked claim on fabric-scale chip integration.",
-        "source_hint": "https://www.techradar.com/pro/live/google-cloud-next-2026"
-      },
-      {
-        "signal": "Google Cloud announced Agentic Data Cloud with cross-cloud Lakehouse (AWS/Azure support, no egress fees) at Google Cloud Next 2026 (November 2026)",
-        "subject_key": "NEW",
-        "about": "my_company",
-        "valence": "front_foot",
-        "substantial": true,
-        "why_new": "Agentic Data Cloud architecture with Apache Iceberg lakehouse enabling AWS and Azure data access without egress costs is not tracked. Directly attacks the 'data gravity' and 'AWS incumbency' advantage claimed in battlecard loses (aws | sentiment | bedrock-integration-praise, aws | lose | aws-incumbency-data-gravity).",
-        "source_hint": "https://www.techradar.com/pro/live/google-cloud-next-2026"
-      }
-    ],
-    "since": "2026-11-26",
-    "my_since": "2026-11-26",
-    "attempts": 1,
-    "reason": "own-side candidates did not ground"
-  }
+  "last_check_reason": "scheduled"
 }
